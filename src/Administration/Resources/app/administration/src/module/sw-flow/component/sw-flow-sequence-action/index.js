@@ -337,9 +337,18 @@ Component.register('sw-flow-sequence-action', {
         },
 
         getGenerateDocumentDescription(config) {
-            const documentType = this.documentTypes.find(item => item.technicalName === config.documentType);
+            if (config.documentType) {
+                config = {
+                    documentTypes: [config],
+                };
+            }
+
+            const documentType = config.documentTypes.map((type) => {
+                return this.documentTypes.find(item => item.technicalName === type.documentType)?.translated?.name;
+            });
+
             return this.$tc('sw-flow.modals.document.documentDescription', 0, {
-                documentType: documentType?.translated?.name,
+                documentType: this.convertTagString(documentType),
             });
         },
 

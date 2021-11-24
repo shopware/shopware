@@ -12,12 +12,13 @@ describe('Flow builder: generate document testing', () => {
                 return cy.createProductFixture();
             }).then(() => {
                 return cy.createCustomerFixture();
+            })
+            .then(() => {
+                cy.visit(`${Cypress.env('admin')}#/sw/flow/index`);
             });
     });
 
     it('@settings: generate document flow', () => {
-        cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
-
         cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
             method: 'POST'
@@ -46,8 +47,15 @@ describe('Flow builder: generate document testing', () => {
             .typeSingleSelect('Generate document', '.sw-flow-sequence-action__selection-action');
         cy.get('.sw-flow-generate-document-modal').should('be.visible');
 
-        cy.get('.sw-flow-generate-document-modal__type-select')
-            .typeSingleSelect('Invoice', '.sw-flow-generate-document-modal__type-select');
+        cy.skipOnFeature('FEATURE_NEXT_18083', () => {
+            cy.get('.sw-flow-generate-document-modal__type-select')
+                .typeSingleSelect('Invoice', '.sw-flow-generate-document-modal__type-select');
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_18083', () => {
+            cy.get('.sw-flow-generate-document-modal__type-multi-select')
+                .typeMultiSelectAndCheck('Invoice');
+        });
 
         cy.get('.sw-flow-generate-document-modal__save-button').click();
         cy.get('.sw-flow-generate-document-modal').should('not.exist');
@@ -103,7 +111,6 @@ describe('Flow builder: generate document testing', () => {
                 cy.get('.sw-order-detail-base__document-grid .sw-data-grid__row--0')
                     .contains('Invoice');
             });
-
         });
 
         cy.onlyOnFeature('FEATURE_NEXT_7530', () => {

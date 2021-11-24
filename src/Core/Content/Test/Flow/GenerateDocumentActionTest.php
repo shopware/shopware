@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentGenerator\CreditNoteGenerator;
+use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
 use Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator;
 use Shopware\Core\Checkout\Document\DocumentGenerator\StornoGenerator;
 use Shopware\Core\Checkout\Document\DocumentService;
@@ -65,7 +66,7 @@ class GenerateDocumentActionTest extends TestCase
     /**
      * @dataProvider genDocumentProvider
      */
-    public function testGenerateDocument(string $documentType, string $documentRangerType, bool $autoGenInvoiceDoc = false): void
+    public function testGenerateDocument(string $documentType, string $documentRangerType, bool $autoGenInvoiceDoc = false, bool $multipleDoc = false): void
     {
         $context = Context::createDefaultContext();
         $customerId = $this->createCustomer($context);
@@ -79,13 +80,29 @@ class GenerateDocumentActionTest extends TestCase
             $this->logger
         );
 
-        $config = array_filter([
-            'documentType' => $documentType,
-            'documentRangerType' => $documentRangerType,
-            'custom' => [
-                'invoiceNumber' => '1100',
-            ],
-        ]);
+        if ($multipleDoc) {
+            $config = array_filter([
+                'documentTypes' => [
+                    [
+                        'documentType' => $documentType,
+                        'documentRangerType' => $documentRangerType,
+                        'custom' => ['invoiceNumber' => '1100'],
+                    ],
+                    [
+                        'documentType' => DeliveryNoteGenerator::DELIVERY_NOTE,
+                        'documentRangerType' => 'document_delivery_note',
+                    ],
+                ],
+            ]);
+        } else {
+            $config = array_filter([
+                'documentType' => $documentType,
+                'documentRangerType' => $documentRangerType,
+                'custom' => [
+                    'invoiceNumber' => '1100',
+                ],
+            ]);
+        }
 
         static::assertEmpty($this->getDocumentId($order->getId()));
 
@@ -94,13 +111,13 @@ class GenerateDocumentActionTest extends TestCase
         }
 
         if ($autoGenInvoiceDoc === true) {
-            $this->createInvoiceDocument($order->getId(), $config, $context);
+            $this->createInvoiceDocument($order->getId(), $config, $context, $multipleDoc);
         }
 
         $subscriber->handle(new FlowEvent(GenerateDocumentAction::getName(), new FlowState($event), $config));
 
         $referenceDoctype = $documentType === StornoGenerator::STORNO || $documentType === CreditNoteGenerator::CREDIT_NOTE;
-        if ($referenceDoctype && !$autoGenInvoiceDoc) {
+        if ($referenceDoctype && !$autoGenInvoiceDoc && empty($multipleDoc)) {
             static::assertEmpty($this->getDocumentId($order->getId()));
         } else {
             static::assertNotEmpty($this->getDocumentId($order->getId()));
@@ -110,6 +127,7 @@ class GenerateDocumentActionTest extends TestCase
     public function genDocumentProvider(): iterable
     {
         yield 'Generate invoice' => ['invoice', 'document_invoice'];
+        yield 'Generate multiple doc' => ['invoice', 'document_invoice', false, true];
         yield 'Generate storno with invoice existed' => ['storno', 'document_storno', true];
         yield 'Generate storno with invoice not exist' => ['storno', 'document_storno'];
         yield 'Generate delivery' => ['delivery_note', 'document_delivery_note'];
@@ -117,13 +135,19 @@ class GenerateDocumentActionTest extends TestCase
         yield 'Generate credit with invoice not exist' => ['credit_note', 'document_credit_note'];
     }
 
-    private function createInvoiceDocument(string $orderId, array $config, Context $context): void
+    private function createInvoiceDocument(string $orderId, array $config, Context $context, bool $multipleDoc): void
     {
+        if ($multipleDoc) {
+            $docConfig = DocumentConfigurationFactory::createConfiguration($config['documentTypes'][0]);
+        } else {
+            $docConfig = DocumentConfigurationFactory::createConfiguration($config);
+        }
+
         $this->documentService->create(
             $orderId,
             InvoiceGenerator::INVOICE,
             FileTypes::PDF,
-            DocumentConfigurationFactory::createConfiguration($config),
+            $docConfig,
             $context
         );
     }

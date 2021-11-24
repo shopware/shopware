@@ -532,6 +532,36 @@ class ThemeTest extends TestCase
         $themeService->compileTheme(TestDefaults::SALES_CHANNEL, $baseTheme->getId(), $this->context);
     }
 
+    public function testThemeServiceReturnsCorrectConfigAfterEmptyingThemeMedia(): void
+    {
+        $name = $this->createParentlessSimpleTheme();
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', $name));
+
+        /** @var ThemeEntity $theme */
+        $theme = $this->themeRepository->search($criteria, $this->context)->first();
+
+        $data = [
+            'id' => $theme->getId(),
+            'configValues' => [
+                'sw-logo-mobile' => [
+                    'value' => null,
+                ],
+            ],
+        ];
+
+        $this->themeRepository->update([$data], $this->context);
+
+        /** @var ThemeEntity $updatedTheme */
+        $updatedTheme = $this->themeRepository->search(new Criteria([$theme->getId()]), $this->context)->first();
+        static::assertNotNull($updatedTheme->getConfigValues());
+
+        $themeServiceReturnedConfig = $this->themeService->getThemeConfiguration($updatedTheme->getId(), false, $this->context);
+
+        static::assertNotNull($themeServiceReturnedConfig['fields']['sw-logo-desktop']['value']);
+        static::assertNull($themeServiceReturnedConfig['fields']['sw-logo-mobile']['value']);
+    }
+
     public function testRefreshPlugin(): void
     {
         $themeLifecycleService = $this->getContainer()->get(ThemeLifecycleService::class);
@@ -547,8 +577,12 @@ class ThemeTest extends TestCase
 
     public function testResetTheme(): void
     {
+        $name = $this->createParentlessSimpleTheme();
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', $name));
+
         /** @var ThemeEntity $theme */
-        $theme = $this->themeRepository->search(new Criteria(), $this->context)->first();
+        $theme = $this->themeRepository->search($criteria, $this->context)->first();
         static::assertEmpty($theme->getConfigValues());
 
         $data = [
@@ -569,7 +603,7 @@ class ThemeTest extends TestCase
         $this->themeService->resetTheme($theme->getId(), $this->context);
 
         /** @var ThemeEntity $resetTheme */
-        $resetTheme = $this->themeRepository->search(new Criteria(), $this->context)->first();
+        $resetTheme = $this->themeRepository->search($criteria, $this->context)->first();
 
         static::assertEmpty($resetTheme->getConfigValues());
         static::assertNotEmpty($resetTheme->getUpdatedAt());

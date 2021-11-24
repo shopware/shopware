@@ -32,7 +32,6 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-16511 - Add fallback to category cms config](/changelog/release-6-4-7-0/2021-10-20-add-fallback-to-category-cms-config.md)
 *  [NEXT-16361 - Fix wrong cover position on product save](/changelog/release-6-4-7-0/2021-10-20-fix-cover-assignment-issue.md)
 *  [NEXT-15280 - Sold out variants should be grayed out](/changelog/release-6-4-7-0/2021-10-20-sold-out-variants-should-be-grayed-out.md)
-*  [NEXT-17984 - 500 error when moving blocks to new section](/changelog/release-6-4-7-0/2021-10-21-500-error-when-moving-blocks-to-new-section.md)
 *  [NEXT-17701 - Fix alignment issue in sw-product-price-form component](/changelog/release-6-4-7-0/2021-10-21-fix-product-price-form-alignment.md)
 *  [NEXT-17659 - Fix shipping price matrix incrementation](/changelog/release-6-4-7-0/2021-10-21-fix-shipping-price-matrix-incrementation.md)
 *  [NEXT-15827 - Fixed broken search in sw-promotion-v2-sales-channel-select.html.twig](/changelog/release-6-4-7-0/2021-10-21-fixed-broken-search-in-sw-promotion-v2-sales-channel-select.html.twig.md)

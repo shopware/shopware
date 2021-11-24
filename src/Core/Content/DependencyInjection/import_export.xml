@@ -125,6 +125,13 @@
             <tag name="shopware.import_export.field_serializer" priority="-500"/>
         </service>
 
+        <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\CustomFieldsSerializer">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CustomFieldsSerializer"/>
+            <argument type="service" id="Shopware\Core\System\CustomField\CustomFieldService"/>
+
+            <tag name="shopware.import_export.field_serializer" priority="-500"/>
+        </service>
+
         <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\MediaSerializer">
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>

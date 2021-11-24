@@ -18,12 +18,18 @@ Component.register('sw-product-properties', {
             searchTerm: null,
             showAddPropertiesModal: false,
             newProperties: [],
+            propertiesAvailable: true,
         };
     },
 
     computed: {
         propertyGroupRepository() {
             return this.repositoryFactory.create('property_group');
+        },
+
+
+        propertyOptionRepository() {
+            return this.repositoryFactory.create('property_group_option');
         },
 
         propertyGroupCriteria() {
@@ -95,7 +101,15 @@ Component.register('sw-product-properties', {
         },
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            this.checkIfPropertiesExists();
+        },
+
         getGroupIds() {
             if (!this.product?.id) {
                 return;
@@ -171,8 +185,12 @@ Component.register('sw-product-properties', {
         },
 
         turnOnAddPropertiesModal() {
-            this.updateNewProperties();
-            this.showAddPropertiesModal = true;
+            if (!this.propertiesAvailable) {
+                this.$router.push({ name: 'sw.property.index' });
+            } else {
+                this.updateNewProperties();
+                this.showAddPropertiesModal = true;
+            }
         },
 
         turnOffAddPropertiesModal() {
@@ -219,6 +237,12 @@ Component.register('sw-product-properties', {
                 }
 
                 this.productProperties.remove(property.id);
+            });
+        },
+
+        checkIfPropertiesExists() {
+            this.propertyOptionRepository.search(new Criteria(1, 1)).then((res) => {
+                this.propertiesAvailable = res.total > 0;
             });
         },
     },

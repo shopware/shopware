@@ -187,8 +187,12 @@ Component.register('sw-product-detail-variants', {
         },
 
         openAddPropertiesModal() {
-            this.updateNewProperties();
-            this.showAddPropertiesModal = true;
+            if (!this.propertiesAvailable) {
+                this.$router.push({ name: 'sw.property.index' });
+            } else {
+                this.updateNewProperties();
+                this.showAddPropertiesModal = true;
+            }
         },
 
         closeAddPropertiesModal() {

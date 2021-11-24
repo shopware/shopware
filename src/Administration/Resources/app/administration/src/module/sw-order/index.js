@@ -1,5 +1,8 @@
 import './acl';
 
+import './mixin/cart-notification.mixin';
+import './mixin/order-cart.mixin';
+
 import './page/sw-order-list';
 import './page/sw-order-detail';
 import './page/sw-order-create';
@@ -9,6 +12,9 @@ import './view/sw-order-detail-general';
 import './view/sw-order-detail-details';
 import './view/sw-order-detail-documents';
 import './view/sw-order-create-base';
+import './view/sw-order-create-initial';
+import './view/sw-order-create-general';
+import './view/sw-order-create-details';
 
 import './component/sw-order-nested-line-items-modal';
 import './component/sw-order-nested-line-items-row';
@@ -44,13 +50,15 @@ import './component/sw-order-create-promotion-modal';
 import './component/sw-order-select-document-type-modal';
 import './component/sw-order-general-info';
 import './component/sw-order-send-document-modal';
-import './component/sw-order-customer-grid';
 import '../sw-customer/component/sw-customer-address-form';
 import '../sw-customer/component/sw-customer-address-form-options';
-import './component/sw-order-create-modal';
+
+import './component/sw-order-create-initial-modal';
+import './component/sw-order-customer-grid';
 import './component/sw-order-product-grid';
-import './component/sw-order-create-custom-item';
-import './component/sw-order-create-credit';
+import './component/sw-order-custom-item';
+import './component/sw-order-credit-item';
+import './component/sw-order-create-options';
 
 import defaultSearchConfiguration from './default-search-configuration';
 
@@ -86,21 +94,14 @@ Module.register('sw-order', {
             component: 'sw-order-create',
             path: 'create',
             redirect: {
-                name: 'sw.order.create.base',
+                name: Shopware.Feature.isActive('FEATURE_NEXT_7530')
+                    ? 'sw.order.create.initial'
+                    : 'sw.order.create.base',
             },
             meta: {
                 privilege: 'order.creator',
             },
-            children: {
-                base: {
-                    component: 'sw-order-create-base',
-                    path: 'base',
-                    meta: {
-                        parentPath: 'sw.order.index',
-                        privilege: 'order.creator',
-                    },
-                },
-            },
+            children: orderCreateChildren(),
         },
 
         detail: {
@@ -177,6 +178,48 @@ function orderDetailChildren() {
     return {
         base: {
             component: 'sw-order-detail-base',
+            path: 'base',
+            meta: {
+                parentPath: 'sw.order.index',
+                privilege: 'order.viewer',
+            },
+        },
+    };
+}
+
+function orderCreateChildren() {
+    if (Shopware.Feature.isActive('FEATURE_NEXT_7530')) {
+        return {
+            initial: {
+                component: 'sw-order-create-initial',
+                path: 'initial',
+                meta: {
+                    parentPath: 'sw.order.index',
+                    privilege: 'order.creator',
+                },
+            },
+            general: {
+                component: 'sw-order-create-general',
+                path: 'general',
+                meta: {
+                    parentPath: 'sw.order.index',
+                    privilege: 'order.creator',
+                },
+            },
+            details: {
+                component: 'sw-order-create-details',
+                path: 'details',
+                meta: {
+                    parentPath: 'sw.order.index',
+                    privilege: 'order.creator',
+                },
+            },
+        };
+    }
+
+    return {
+        base: {
+            component: 'sw-order-create-base',
             path: 'base',
             meta: {
                 parentPath: 'sw.order.index',

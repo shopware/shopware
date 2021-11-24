@@ -27,7 +27,6 @@ Component.register('sw-order-create-base', {
             promotionError: null,
             showPromotionModal: false,
             disabledAutoPromotionChecked: false,
-            showCreateModal: true,
         };
     },
 
@@ -240,10 +239,6 @@ Component.register('sw-order-create-base', {
                 });
             },
         },
-    },
-
-    beforeDestroy() {
-        this.showCreateModal = false;
     },
 
     methods: {
@@ -519,18 +514,6 @@ Component.register('sw-order-create-base', {
             this.disabledAutoPromotionChecked = true;
 
             this.loadCart();
-        },
-
-        onCloseCreateModal() {
-            this.showCreateModal = false;
-
-            this.$nextTick(() => {
-                this.$router.push({ name: 'sw.order.index' });
-            });
-        },
-
-        onPreviewOrder() {
-            this.showCreateModal = false;
         },
     },
 });

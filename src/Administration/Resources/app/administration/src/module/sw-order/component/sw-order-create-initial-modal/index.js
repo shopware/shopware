@@ -1,18 +1,25 @@
-import template from './sw-order-create-modal.html.twig';
-import './sw-order-create-modal.scss';
+import template from './sw-order-create-initial-modal.html.twig';
+import './sw-order-create-initial-modal.scss';
 
-const { Component, State, Service, Utils } = Shopware;
+const { Component, State, Service, Mixin } = Shopware;
 const { mapState } = Component.getComponentHelper();
 
-Component.register('sw-order-create-modal', {
+Component.register('sw-order-create-initial-modal', {
     template,
+
+    mixins: [
+        Mixin.getByName('notification'),
+        Mixin.getByName('cart-notification'),
+    ],
 
     data() {
         return {
             productItems: [],
             customItem: {},
             creditItem: {},
+            promotionCodes: [],
             isLoading: false,
+            disabledAutoPromotions: false,
         };
     },
 
@@ -30,15 +37,29 @@ Component.register('sw-order-create-modal', {
         },
 
         taxStatus() {
-            return Utils.get(this.cart, 'price.taxStatus', '');
+            return this.cart?.price?.taxStatus ?? '';
         },
 
-        ...mapState('swOrder', ['customer', 'cart']),
+        salesChannelId() {
+            return this.customer?.salesChannelId || '';
+        },
+
+        context: {
+            get() {
+                return this.customer ? this.customer.salesChannel : {};
+            },
+
+            set(context) {
+                if (this.customer) this.customer.salesChannel = context;
+            },
+        },
+
+        ...mapState('swOrder', ['customer', 'cart', 'currency']),
     },
 
     methods: {
         onCloseModal() {
-            if (this.customer === null || this.cart === null) {
+            if (!this.customer || !this.cart.token) {
                 this.$emit('modal-close');
                 return;
             }
@@ -52,17 +73,39 @@ Component.register('sw-order-create-modal', {
         },
 
         async onPreviewOrder() {
-            // Get product line items
-            const items = this.productItems.map(product => this.addExistingProduct(product));
-            // TODO: items concat custom item and credit
+            const promises = [];
+
             this.isLoading = true;
 
+            promises.push(this.updateOrderContext());
+
+            if (this.disabledAutoPromotions) {
+                promises.push(this.disableAutoAppliedPromotions());
+            }
+
+            // Get product line items
+            let items = this.productItems.map(product => this.addExistingProduct(product));
+
+            if (this.isValidItem(this.customItem)) {
+                items.push(this.addCustomItem(this.customItem));
+            }
+
+            if (this.isValidItem(this.creditItem)) {
+                items.push(this.addCreditItem(this.creditItem));
+            }
+
+            if (this.promotionCodes.length) {
+                items = [...items, ...this.addPromotionCodes()];
+            }
+
+            promises.push(this.onSaveItem(items));
+
             try {
-                const response = await this.onSaveItem(items);
-                State.commit('swOrder/setCart', response.data);
-                this.$emit('order-preview');
-            } catch (error) {
-                console.log(error);
+                const responses = await Promise.all(promises);
+
+                if (responses) {
+                    this.$emit('order-preview');
+                }
             } finally {
                 this.isLoading = false;
             }
@@ -87,12 +130,14 @@ Component.register('sw-order-create-modal', {
                 taxRules: [{ taxRate: 0, percentage: 100 }],
                 price: 0,
             };
+
             item.price = {
                 taxRules: [{ taxRate: 0 }],
                 unitPrice: 0,
                 quantity: 1,
                 totalPrice: 0,
             };
+
             item.quantity = 1;
             item.unitPrice = 0;
             item.totalPrice = 0;
@@ -123,7 +168,6 @@ Component.register('sw-order-create-modal', {
             item.priceDefinition.type = this.lineItemPriceTypes.QUANTITY;
             item.priceDefinition.taxRules[0].taxRate = customItem.tax.taxRate;
             item.priceDefinition.quantity = customItem.quantity;
-            item.priceDefinition.quantity = customItem.amount;
             item.label = customItem.label;
             item.priceDefinition.price = customItem.price;
 
@@ -135,12 +179,53 @@ Component.register('sw-order-create-modal', {
             item.description = 'credit line item';
             item.type = this.lineItemTypes.CREDIT;
             item.priceDefinition.type = this.lineItemPriceTypes.ABSOLUTE;
-            item.priceDefinition.taxRules[0].taxRate = credit.tax.taxRate;
             item.priceDefinition.quantity = 1;
+            item.label = credit.label;
+            item.priceDefinition.price = credit.price;
+
+            return item;
         },
 
         onProductChange(products) {
             this.productItems = products.filter(item => item.amount > 0);
+        },
+
+        isValidItem(item) {
+            return item?.label && item?.price;
+        },
+
+        addPromotionCodes() {
+            return this.promotionCodes.map(code => {
+                return {
+                    type: this.lineItemTypes.PROMOTION,
+                    referencedId: code,
+                };
+            });
+        },
+
+        updatePromotion(promotions) {
+            this.promotionCodes = promotions;
+        },
+
+        updateOrderContext() {
+            return State.dispatch('swOrder/updateOrderContext', {
+                context: this.context,
+                salesChannelId: this.customer.salesChannelId,
+                contextToken: this.cart.token,
+            });
+        },
+
+        disableAutoAppliedPromotions() {
+            const additionalParams = { salesChannelId: this.customer.salesChannelId };
+
+            return Service('cartStoreService').disableAutomaticPromotions(this.cart.token, additionalParams)
+                .then(() => {
+                    State.commit('swOrder/setDisabledAutoPromotion', true);
+                });
+        },
+
+        updateAutoPromotionsToggle(value) {
+            this.disabledAutoPromotions = value;
         },
     },
 });

@@ -28,8 +28,11 @@ export default {
             },
             currency: {
                 shortName: 'EUR',
+                symbol: '€',
             },
             promotionCodes: [],
+            disabledAutoPromotion: false,
+            testOrder: false,
         };
     },
 
@@ -70,6 +73,14 @@ export default {
 
         removeInvalidPromotionCodes(state) {
             state.promotionCodes = state.promotionCodes.filter(item => !item.isInvalid);
+        },
+
+        setDisabledAutoPromotion(state, disabledAutoPromotion) {
+            state.disabledAutoPromotion = disabledAutoPromotion;
+        },
+
+        setTestOrder(state, testOrder) {
+            state.testOrder = testOrder;
         },
     },
 

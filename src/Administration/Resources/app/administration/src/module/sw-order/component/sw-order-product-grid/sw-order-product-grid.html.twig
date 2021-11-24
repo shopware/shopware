@@ -1,5 +1,8 @@
 {% block sw_order_product_grid %}
-<sw-card class="sw-order-product-grid">
+<sw-card
+    class="sw-order-product-grid"
+    position-identifier="sw-order-product-grid"
+>
     {% block sw_order_product_grid_container %}
     <template #toolbar>
         {% block sw_order_product_grid_search_input %}
@@ -27,8 +30,9 @@
                     <sw-number-field
                         v-model="item.amount"
                         size="small"
-                        class="sw-order-product-grid-amount"
+                        class="sw-order-product-grid__amount"
                         :min="0"
+                        @change="changeProductAmount(item)"
                     />
                 </template>
                 {% endblock %}
@@ -43,7 +47,7 @@
 
                 {% block sw_order_product_grid_product_grid_column_price %}
                 <template #column-price="{ item }">
-                    {{ item.price[0].gross | currency(currency.shortName) }}
+                    {{ getProductPrice(item) | currency(currency.shortName) }}
                 </template>
                 {% endblock %}
 
@@ -62,7 +66,6 @@
                 <template #actions="{ item }">
                     {% block sw_order_line_items_grid_sales_channel_grid_actions_show %}
                     <sw-context-menu-item
-                        icon="default-eye-open"
                         target="_blank"
                         rel="noopener"
                         :router-link="{ name: 'sw.product.detail', params: { id: item.id } }"
@@ -82,7 +85,7 @@
                 v-if="!total && !isLoading"
                 class="sw-order-product-grid__empty-state"
                 :show-description="false"
-                :title="$tc('sw-product.list.messageEmpty')"
+                :title="emptyTitle"
             >
                 <template #icon>
                     <img

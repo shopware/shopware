@@ -68,12 +68,6 @@ Component.register('sw-modal', {
             required: false,
             default: true,
         },
-
-        outsideClosable: {
-            type: Boolean,
-            required: false,
-            default: true,
-        },
     },
 
     data() {
@@ -130,6 +124,8 @@ Component.register('sw-modal', {
             if (this.$parent?.$el !== this.$el) {
                 // move DOM element back to vDOM parent so that Vue can remove the DOM entry on changes
                 this.$parent.$el.appendChild(this.$el);
+            } else {
+                this.$el.remove();
             }
         },
 
@@ -142,7 +138,7 @@ Component.register('sw-modal', {
         },
 
         closeModalOnClickOutside(domEvent) {
-            if (!this.outsideClosable) {
+            if (!this.closable) {
                 return;
             }
 

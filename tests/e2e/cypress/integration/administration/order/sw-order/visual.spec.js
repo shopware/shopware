@@ -131,6 +131,7 @@ describe('Order: Visual tests', () => {
         cy.contains('.sw-button', 'Add order').click();
 
         cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('[Order] Create', '.sw-order-user-card');
+
+        cy.takeSnapshot('[Order] Create', '.sw-order-create');
     });
 });

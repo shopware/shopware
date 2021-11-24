@@ -1,16 +1,34 @@
 import template from './sw-order-product-grid.html.twig';
 import './sw-order-product-grid.scss';
 
-const { Component, Mixin, Service } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapState } = Component.getComponentHelper();
 
 Component.register('sw-order-product-grid', {
     template,
 
+    inject: ['repositoryFactory'],
+
     mixins: [
         Mixin.getByName('listing'),
     ],
+
+    props: {
+        salesChannelId: {
+            type: String,
+            required: true,
+        },
+
+        currency: {
+            type: Object,
+            required: true,
+        },
+
+        taxStatus: {
+            type: String,
+            required: true,
+        },
+    },
 
     data() {
         return {
@@ -18,16 +36,13 @@ Component.register('sw-order-product-grid', {
             isLoading: false,
             disableRouteParams: true,
             modifiedProducts: [],
+            selection: [],
         };
     },
 
     computed: {
         productRepository() {
-            return Service('repositoryFactory').create('product');
-        },
-
-        currencyRepository() {
-            return Service('repositoryFactory').create('currency');
+            return this.repositoryFactory.create('product');
         },
 
         productCriteria() {
@@ -49,20 +64,24 @@ Component.register('sw-order-product-grid', {
             );
 
             criteria.addFilter(
-                Criteria.equals('product.visibilities.salesChannelId', this.customer?.salesChannelId),
+                Criteria.equals('product.visibilities.salesChannelId', this.salesChannelId),
             );
             return criteria;
         },
 
-        taxStatus() {
-            return this.cart?.price?.taxStatus;
+        emptyTitle() {
+            if (!this.term) {
+                return this.$tc('sw-product.list.messageEmpty');
+            }
+
+            return this.$tc('sw-order.itemModal.productGrid.textEmptySearch', 0, { name: this.term });
         },
 
         productColumns() {
             return [
                 {
                     property: 'amount',
-                    label: this.$tc('sw-order.createModal.products.columnAmount'),
+                    label: this.$tc('sw-order.itemModal.productGrid.columnAmount'),
                     allowResize: false,
                     width: '60px',
                     sortable: false,
@@ -70,22 +89,20 @@ Component.register('sw-order-product-grid', {
                 },
                 {
                     property: 'name',
-                    label: this.$tc('sw-order.createModal.products.columnProductName'),
+                    label: this.$tc('sw-order.itemModal.productGrid.columnProductName'),
                     allowResize: false,
                     primary: true,
                     width: '200px',
                 },
                 {
                     property: 'productNumber',
-                    label: this.$tc('sw-order.createModal.products.columnProductNumber'),
+                    label: this.$tc('sw-order.itemModal.productGrid.columnProductNumber'),
                     allowResize: true,
                 },
                 {
                     property: 'price',
                     dataIndex: 'price',
-                    label: this.taxStatus === 'gross' ?
-                        this.$tc('sw-order.createModal.products.columnPriceGross') :
-                        this.$tc('sw-order.createModal.products.columnPriceNet'),
+                    label: this.priceLabel,
                     allowResize: false,
                     align: 'right',
                     width: '60px',
@@ -93,18 +110,22 @@ Component.register('sw-order-product-grid', {
             ];
         },
 
-        ...mapState('swOrder', ['customer', 'currency', 'cart']),
+        priceLabel() {
+            return this.taxStatus === 'gross'
+                ? this.$tc('sw-order.createBase.columnPriceGross')
+                : this.$tc('sw-order.createBase.columnPriceNet');
+        },
     },
 
     watch: {
-        'customer.salesChannelId'() {
+        salesChannelId() {
             this.getList();
         },
     },
 
     methods: {
         getList() {
-            if (!this.customer?.salesChannelId) {
+            if (!this.salesChannelId) {
                 return null;
             }
 
@@ -123,6 +144,9 @@ Component.register('sw-order-product-grid', {
                 });
         },
 
+        /**
+        *  To get amount of product correctly when user navigate to another page or search products
+        */
         generateProducts(products) {
             if (!this.modifiedProducts.length) {
                 return products;
@@ -140,12 +164,11 @@ Component.register('sw-order-product-grid', {
         },
 
         onSelectionChange(selection) {
+            this.selection = Object.values(selection);
             this.$emit('selection-change', Object.values(selection));
         },
 
         onSearch(value) {
-            this.storeModifiedProducts();
-
             if (value.length === 0) {
                 value = undefined;
             }
@@ -155,33 +178,51 @@ Component.register('sw-order-product-grid', {
             this.getList();
         },
 
-        storeModifiedProducts() {
-            this.products.forEach(product => {
-                const existIndex = this.modifiedProducts.findIndex(item => item.id === product.id);
-
-                if (existIndex >= 0) {
-                    this.modifiedProducts[existIndex].amount = product.amount;
-                    return;
-                }
-
-                if (!product.amount) {
-                    return;
-                }
-
-                this.modifiedProducts.push({
-                    id: product.id,
-                    amount: product.amount,
-                });
-            });
-        },
-
         onPageChange(opts) {
-            this.storeModifiedProducts();
-
             this.page = opts.page;
             this.limit = opts.limit;
 
             this.getList();
+        },
+
+        getProductPrice(item) {
+            return this.taxStatus === 'gross'
+                ? item?.price[0]?.gross
+                : item?.price[0]?.net;
+        },
+
+        changeProductAmount(product) {
+            this.updateModifiedProducts(product);
+            this.updateSelection(product);
+        },
+
+        updateModifiedProducts(product) {
+            const existIndex = this.modifiedProducts.findIndex(item => item.id === product.id);
+
+            if (existIndex >= 0) {
+                this.modifiedProducts[existIndex].amount = product.amount;
+                return;
+            }
+
+            if (!product.amount) {
+                return;
+            }
+
+            this.modifiedProducts.push({
+                id: product.id,
+                amount: product.amount,
+            });
+        },
+
+        updateSelection(product) {
+            const existIndex = this.selection.findIndex(item => item.id === product.id);
+
+            if (existIndex < 0) {
+                return;
+            }
+
+            this.selection[existIndex].amount = product.amount;
+            this.$emit('selection-change', this.selection);
         },
     },
 });

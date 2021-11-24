@@ -177,7 +177,7 @@ class CartStoreService extends ApiService {
         const payload = {
             items: [
                 {
-                    type: 'promotion',
+                    type: this.getLineItemTypes().PROMOTION,
                     referencedId: code,
                 },
             ],
@@ -239,6 +239,10 @@ class CartStoreService extends ApiService {
         };
 
         const payload = items.map(item => {
+            if (item.type === this.getLineItemTypes().PROMOTION) {
+                return item;
+            }
+
             const id = item.identifier || item.id || utils.createId();
 
             return {

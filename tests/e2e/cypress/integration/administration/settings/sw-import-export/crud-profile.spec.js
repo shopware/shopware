@@ -66,15 +66,14 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         // Save request should be successful
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
-        cy.get('.sw-import-export-edit-profile-modal').should('not.be.visible');
+        cy.get('.sw-modal .sw-import-export-edit-profile-modal').should('not.exist');
         cy.get(page.elements.dataGridRow).should('contain', 'Basic');
     });
 
     it('@settings @base: Create and read profile with wizard', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Perform create new profile action
@@ -161,23 +160,22 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get(`${page.elements.importExportProfileWizard}__footer-right-button-group .sw-button--primary`).click();
 
         // Save request should be successful
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
 
-        cy.get(page.elements.importExportProfileWizard).should('not.be.visible');
+        cy.get(page.elements.importExportProfileWizard).should('not.exist');
         cy.get(`${page.elements.dataGridRow}`).should('contain', 'BasicWizard');
     });
 
-    it('@settings @base: Create profile with wizard and import mapping via CSV file', () => {
-        cy.server();
-        cy.route({
+    it('@settings @base: Createprofile with wizard and import mapping via CSV file', () => {
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/mapping-from-template`,
-            method: 'post'
+            method: 'POST'
         }).as('mappingData');
 
         // Perform create new profile action
@@ -211,9 +209,8 @@ describe('Import/Export - Profiles: Test crud operations', () => {
             fileName: 'profile-mapping.csv',
             mimeType: 'text/csv'
         });
-        cy.wait('@mappingData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@mappingData').its('response.statusCode').should('equal', 200);
+
         cy.contains(`${page.elements.importExportProfileWizard}__footer-right-button-group .sw-button`, 'Next').click();
         cy.get(`${page.elements.importExportWizardMappingPage}__text`).should('be.visible');
 
@@ -255,11 +252,9 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get(`${page.elements.importExportProfileWizard}__footer-right-button-group .sw-button--primary`).click();
 
         // Save request should be successful
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
-        cy.get(page.elements.importExportProfileWizard).should('not.be.visible');
+        cy.get(page.elements.importExportProfileWizard).should('not.exist');
         cy.get(`${page.elements.dataGridRow}`).should('contain', 'UploadWizard');
     });
 
@@ -484,10 +479,9 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     });
 
     it('@settings @base: Create an export profile with wizard', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Perform create new profile action
@@ -535,11 +529,9 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get(`${page.elements.importExportProfileWizard}__footer-right-button-group .sw-button--primary`).click();
 
         // Save request should be successful
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
-        cy.get(`${page.elements.importExportProfileWizard}`).should('not.be.visible');
+        cy.get(`${page.elements.importExportProfileWizard}`).should('not.exist');
         cy.get(`${page.elements.dataGridRow}`).should('contain', 'BasicExportWizard');
 
         // Verify the export profile cant be used for importing

@@ -24,14 +24,6 @@
     />
     {% endblock %}
 
-    {% block sw_order_create_base_create_modal %}
-    <sw-order-create-modal
-        v-if="showCreateModal && feature.isActive('FEATURE_NEXT_7530')"
-        @modal-close="onCloseCreateModal"
-        @order-preview="onPreviewOrder"
-    />
-    {% endblock %}
-
     {% block sw_order_create_details %}
     <sw-card
         :title="$tc('sw-order.createBase.labelDetailsCard')"

@@ -29,4 +29,10 @@ $sw-order-line-item-border: $color-gray-300;
             margin-top: 16px;
         }
     }
+
+    &__quantity {
+        &::after {
+            content: 'x';
+        }
+    }
 }

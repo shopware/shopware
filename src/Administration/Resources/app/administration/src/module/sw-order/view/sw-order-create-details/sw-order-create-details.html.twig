@@ -1,0 +1,150 @@
+{% block sw_order_create_details %}
+<div class="sw-order-create-details">
+    {% block sw_order_create_details_promotion_modal %}
+    TODO: NEXT-16672 - Add promotion modal that shows auto promotion list here
+    {#        <sw-order-create-promotion-modal />#}
+    {% endblock %}
+
+    {% block sw_order_create_details_payment %}
+    <sw-card
+        class="sw-order-create-details__payment"
+        position-identifier="sw-order-create-details-payment"
+        :title="$tc('sw-order.createBase.detailsTab.labelTransactionCard')"
+    >
+        <sw-container
+            class="sw_order_create-details__payment-container"
+            gap="0px 30px"
+            columns="1fr 1fr"
+        >
+            {% block sw_order_create_details_payment_method %}
+            <sw-entity-single-select
+                v-model="context.paymentMethodId"
+                entity="payment_method"
+                label-property="distinguishableName"
+                class="sw_order_create-details__payment-method"
+                :criteria="paymentMethodCriteria"
+                :label="$tc('sw-order.createBase.labelPaymentMethod')"
+                :placeholder="$tc('sw-order.createBase.placeholderPaymentMethod')"
+                show-clearable-button
+            />
+            {% endblock %}
+
+            {% block sw_order_create_details_order_currency %}
+            <sw-entity-single-select
+                v-model="context.currencyId"
+                class="sw_order_create-details__currency"
+                entity="currency"
+                :criteria="salesChannelCriteria"
+                :label="$tc('sw-order.createBase.labelCurrency')"
+                :placeholder="$tc('sw-order.createBase.placeholderCurrency')"
+                show-clearable-button
+            />
+        {% endblock %}
+        </sw-container>
+    </sw-card>
+    {% endblock %}
+
+    {% block sw_order_create_details_shipping %}
+    <sw-card
+        class="sw-order-create-details__shipping"
+        position-identifier="sw-order-create-details-shipping"
+        :title="$tc('sw-order.createBase.detailsTab.labelDeliveryCard')"
+    >
+        <sw-container
+            class="sw_order_create_details__shipping-container"
+            gap="0px 30px"
+            columns="1fr 1fr"
+        >
+            {% block sw_order_create_details_shipping_method %}
+            <sw-entity-single-select
+                v-model="context.shippingMethodId"
+                show-clearable-button
+                class="sw_order_create-details__shipping"
+                entity="shipping_method"
+                :criteria="shippingMethodCriteria"
+                :label="$tc('sw-order.createBase.labelShippingMethod')"
+                :placeholder="$tc('sw-order.createBase.placeholderShippingMethod')"
+            />
+            {% endblock %}
+        </sw-container>
+    </sw-card>
+    {% endblock %}
+
+    {% block sw_order_create_details_order %}
+    <sw-card
+        class="sw-order-create-details__order"
+        position-identifier="sw-order-create-details-order"
+        :title="$tc('sw-order.createBase.detailsTab.labelOrderCard')"
+    >
+        <sw-container
+            class="sw_order_create_details__order-container"
+            gap="0px 30px"
+            columns="1fr 1fr"
+        >
+            {% block sw_order_create_details_email %}
+            <sw-text-field
+                v-model="email"
+                disabled
+                class="sw-order-create-details__email"
+                :label="$tc('sw-order.createBase.labelEmail')"
+                :placeholder="$tc('sw-order.createBase.placeholderEmail')"
+            />
+            {% endblock %}
+
+            {% block sw_order_create_details_phone_number %}
+            <sw-text-field
+                v-model="phoneNumber"
+                disabled
+                class="sw-order-create-details__phone-number"
+                :label="$tc('sw-order.createBase.labelPhoneNumber')"
+                :placeholder="$tc('sw-order.createBase.placeholderPhoneNumber')"
+            />
+            {% endblock %}
+
+            {% block sw_order_create_details__order_sales_channel %}
+            <sw-entity-single-select
+                v-model="salesChannelId"
+                disabled
+                entity="sales_channel"
+                class="sw-order-create-options__sales-channel"
+                :label="$tc('sw-order.createBase.labelSalesChannel')"
+            />
+            {% endblock %}
+
+            {% block sw_order_create_details_order_language %}
+            <sw-entity-single-select
+                v-model="context.languageId"
+                entity="language"
+                class="sw-order-create-options__order-language"
+                :criteria="salesChannelCriteria"
+                :label="$tc('sw-order.createBase.labelOrderLanguage')"
+                :placeholder="$tc('sw-order.createBase.placeholderOrderLanguage')"
+                show-clearable-button
+            />
+        {% endblock %}
+        </sw-container>
+
+        {% block sw_order_create_details_voucher_field %}
+        <sw-order-promotion-tag-field
+            v-model="promotionCodeTags"
+            :disabled="!hasLineItem"
+            :currency="currency"
+            :label="$tc('sw-order.createBase.labelAddPromotion')"
+            :placeholder="$tc('sw-order.createBase.placeholderAddPromotion')"
+            :error="promotionError"
+            @on-remove-code="onRemoveExistingCode"
+        />
+        {% endblock %}
+
+        {% block sw_order_create_details_switch_disable_auto_promotion %}
+        <sw-switch-field
+            class="sw-order-create-details__disable-auto-promotion"
+            :value="disabledAutoPromotion"
+            :label="$tc('sw-order.createBase.labelToggleAutomaticPromotions')"
+            @change="changeDisableAutoPromotions"
+        />
+        {% endblock %}
+    </sw-card>
+    {% endblock %}
+</div>
+{% endblock %}

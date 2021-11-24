@@ -102,6 +102,7 @@
             :disabled="!acl.can('order.editor')"
             :placeholder="$tc('sw-order.detailBase.placeholderTrackingCodeSelect')"
             :label="$tc('sw-order.detailBase.labelTrackingCodes')"
+            :validate="validateTrackingCode"
             @change="saveAndReload"
         >
             <template #message-add-data>

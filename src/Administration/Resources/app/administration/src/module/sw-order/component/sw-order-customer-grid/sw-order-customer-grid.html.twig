@@ -1,26 +1,26 @@
 {% block sw_order_customer_grid %}
 <sw-card
     class="sw-order-customer-grid"
+    position-identifier="sw-order-customer-grid"
     :is-loading="isSwitchingCustomer"
 >
     <template #toolbar>
-        {% block  sw_order_customer_grid_toolbar %}
+        {% block sw_order_customer_grid_toolbar %}
         <div class="sw-order-customer-grid__toolbar">
-            {% block  sw_order_customer_grid_toolbar_filter %}
+            {% block sw_order_customer_grid_search_input %}
             <sw-card-filter
-                :placeholder="$tc('sw-order.createBase.customerGrid.placeholderSearchBarCustomer')"
                 @sw-card-filter-term-change="onSearch"
             />
             {% endblock %}
 
-            {% block  sw_order_customer_grid_toolbar_action %}
+            {% block sw_order_customer_grid_add_new_customer %}
             <sw-button
                 class="sw-order-customer-grid__add-customer"
                 variant="ghost"
                 size="small"
                 @click="onShowNewCustomerModal"
             >
-                {{ $tc('sw-order.createBase.detailsHeader.buttonAddNewCustomer') }}
+                {{ $tc('sw-order.initialModal.customerGrid.buttonAddNewCustomer') }}
             </sw-button>
             {% endblock %}
         </div>
@@ -45,7 +45,6 @@
                         <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
                         <input
                             type="radio"
-                            name="sw-order-customer"
                             :checked="isChecked(item)"
                             @change="onCheckCustomer(item)"
                         >
@@ -66,9 +65,10 @@
                 <template #actions="{ item }">
                     <sw-context-menu-item
                         target="_blank"
+                        rel="noopener"
                         :router-link="{ name: 'sw.customer.detail', params: { id: item.id } }"
                     >
-                        {{ $tc('sw-order.createBase.customerGrid.contextOpenButton') }}
+                        {{ $tc('sw-order.initialModal.customerGrid.contextOpenButton') }}
                     </sw-context-menu-item>
                 </template>
                 {% endblock %}
@@ -97,6 +97,7 @@
         {% block sw_order_customer_grid_new_customer_modal %}
         <sw-order-new-customer-modal
             v-if="showNewCustomerModal"
+            @on-select-existing-customer="onSelectExistingCustomer"
             @close="showNewCustomerModal = false"
         />
         {% endblock %}

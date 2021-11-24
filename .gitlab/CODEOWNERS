@@ -22,6 +22,7 @@ phpstan.neon                          @product/engineering/platform-group/core
 psalm.xml                             @product/engineering/platform-group/core
 phpunit.xml.dist                      @product/engineering/platform-group/core
 /adr/                                 @product/engineering/platform-group/core
+.bc-exclude.php                       @product/engineering/platform-group/core
 
 [Admin]
 /src/Administration/Resources/*                                                         @product/engineering/platform-group/admin

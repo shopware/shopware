@@ -80,6 +80,23 @@ return (new Config())
                 $context->platform->addLabels(...$labels);
             }
         ]
+    ))->useRule(new Condition(
+        function(Context $context) {
+            return $context->platform instanceof Gitlab;
+        },
+        [
+            function(Context $context) {
+                $files = $context->platform->pullRequest->getFiles();
+
+                $bcChange = $files->matches('.bc-exclude.php')->count() > 0;
+
+                if (!$bcChange) {
+                    return;
+                }
+
+                $context->platform->addLabels('bc_exclude_php');
+            }
+        ]
     ))
     ->useRule(function (Context $context) {
         // The title is not important here as we import the pull requests and prefix them

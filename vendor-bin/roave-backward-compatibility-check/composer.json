@@ -1,0 +1,18 @@
+{
+    "require-dev": {
+        "roave/backward-compatibility-check": "^5.0"
+    },
+    "bin": [
+        "bin/bc-check"
+    ],
+    "autoload": {
+        "psr-4": {
+            "Shopware\\RoaveBackwardCompatibility\\": "src/"
+        }
+    },
+    "config": {
+        "platform": {
+            "php": "7.4.26"
+        }
+    }
+}

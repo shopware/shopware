@@ -204,10 +204,11 @@ abstract class EntityDefinition
 
         /** @var string[] $internalProperties */
         $internalProperties = $this->getFields()
-            ->filter(function (Field $field): bool {
-                return !$field->is(ApiAware::class);
-            })
-            ->map(function (Field $field): string {
+            ->fmap(function (Field $field): ?string {
+                if ($field->is(ApiAware::class)) {
+                    return null;
+                }
+
                 return $field->getPropertyName();
             });
 

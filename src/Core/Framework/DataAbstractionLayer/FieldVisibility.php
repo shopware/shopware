@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+/**
+ * @internal
+ */
 class FieldVisibility
 {
     public static bool $isInTwigRenderingContext = false;

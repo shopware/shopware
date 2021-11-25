@@ -58,9 +58,12 @@ parameters:
         # node_modules
         - src/**/node_modules/*
 
-        # @deprecated tag:v6.4.5.0 (replacing production template dev-dependencies is not allowed atm)
+        # @deprecated tag:v6.5.0 (replacing production template dev-dependencies is not allowed atm)
         - src/Core/Framework/Demodata/DemodataService.php
         - src/Core/Framework/Demodata/Generator/MediaGenerator.php
+
+        # twig override
+        - src/Core/Framework/Adapter/Twig/TwigEnvironment.php
 
     ignoreErrors:
         # PhpStan does not recognize the Faker plugins correctly. They are called via magic methods

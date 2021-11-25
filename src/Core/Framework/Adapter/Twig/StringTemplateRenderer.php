@@ -11,15 +11,9 @@ use Twig\Loader\ArrayLoader;
 
 class StringTemplateRenderer
 {
-    /**
-     * @var Environment
-     */
-    private $twig;
+    private Environment $twig;
 
-    /**
-     * @var Environment
-     */
-    private $platformTwig;
+    private Environment $platformTwig;
 
     public function __construct(Environment $environment)
     {
@@ -30,7 +24,7 @@ class StringTemplateRenderer
     public function initialize(): void
     {
         // use private twig instance here, because we use custom template loader
-        $this->twig = new Environment(new ArrayLoader());
+        $this->twig = new TwigEnvironment(new ArrayLoader());
         $this->twig->setCache(false);
         $this->disableTestMode();
         foreach ($this->platformTwig->getExtensions() as $extension) {

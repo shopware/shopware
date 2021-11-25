@@ -2,34 +2,43 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
+use Twig\Compiler;
 use Twig\Environment;
+use Twig\Node\Node;
+use Twig\Source;
 
+/**
+ * @internal
+ */
 class TwigEnvironment extends Environment
 {
-    public function render($name, array $context = []): string
-    {
-        $template = $this->load($name);
+    private ?Compiler $compiler = null;
 
-        try {
-            FieldVisibility::$isInTwigRenderingContext = true;
-            $result = $template->render($context);
-        } finally {
-            FieldVisibility::$isInTwigRenderingContext = false;
+    public function compile(Node $node): string
+    {
+        if ($this->compiler === null) {
+            $this->compiler = new Compiler($this);
         }
 
-        return $result;
+        $source = $this->compiler->compile($node)->getSource();
+
+        $source = str_replace('twig_get_attribute(', 'sw_get_attribute(', $source);
+
+        return str_replace('use Twig\Environment;', "use Twig\Environment;\nuse function Shopware\Core\Framework\Adapter\Twig\sw_get_attribute;", $source);
     }
+}
 
-    public function display($name, array $context = []): void
-    {
-        $template = $this->load($name);
-
-        try {
+function sw_get_attribute(Environment $env, Source $source, $object, $item, array $arguments = [], $type = /* Template::ANY_CALL */ 'any', $isDefinedTest = false, $ignoreStrictCheck = false, $sandboxed = false, int $lineno = -1)
+{
+    try {
+        if ($object instanceof Entity) {
             FieldVisibility::$isInTwigRenderingContext = true;
-            $template->display($context);
-        } finally {
-            FieldVisibility::$isInTwigRenderingContext = false;
         }
+
+        return twig_get_attribute($env, $source, $object, $item, $arguments, $type, $isDefinedTest, $ignoreStrictCheck, $sandboxed, $lineno);
+    } finally {
+        FieldVisibility::$isInTwigRenderingContext = false;
     }
 }

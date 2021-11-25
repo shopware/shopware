@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Adapter\Twig;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\DataAbstractionLayer\CompiledFieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -98,7 +99,7 @@ class TwigFieldVisibilityTest extends TestCase
     {
         $propertyGetter = 'get' . ucfirst($propertyName);
 
-        return new TwigEnvironment(new ArrayLoader([
+        $twig = new TwigEnvironment(new ArrayLoader([
             'json-encode.twig' => file_get_contents(__DIR__ . '/fixtures/FieldVisibilityCases/json-encode.twig'),
             'get-vars.twig' => file_get_contents(__DIR__ . '/fixtures/FieldVisibilityCases/get-vars.twig'),
             'implicit-get.twig' => str_replace(
@@ -117,5 +118,9 @@ class TwigFieldVisibilityTest extends TestCase
                 file_get_contents(__DIR__ . '/fixtures/FieldVisibilityCases/offset-get.twig')
             ),
         ]));
+
+        $twig->addExtension(new PhpSyntaxExtension());
+
+        return $twig;
     }
 }

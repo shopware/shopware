@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ReturnNodeTokenParser;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Squirrel\TwigPhpSyntax\Operator\NotSameAsBinary;
 use Squirrel\TwigPhpSyntax\Operator\SameAsBinary;
 use Squirrel\TwigPhpSyntax\Test\ArrayTest;
@@ -75,6 +76,15 @@ class PhpSyntaxExtension extends AbstractExtension
                 $var = $this->validateType($var);
 
                 return (bool) $var;
+            }),
+            new TwigFilter('json_encode', /** @param mixed $var */ function ($var) {
+                try {
+                    FieldVisibility::$isInTwigRenderingContext = true;
+
+                    return json_encode($var, \JSON_PRESERVE_ZERO_FRACTION);
+                } finally {
+                    FieldVisibility::$isInTwigRenderingContext = false;
+                }
             }),
         ];
     }

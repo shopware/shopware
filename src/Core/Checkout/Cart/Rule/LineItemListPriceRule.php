@@ -54,7 +54,7 @@ class LineItemListPriceRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'amount' => [new NotBlank(), new Type('numeric')],
+            'amount' => [new Type('numeric')],
             'operator' => [
                 new NotBlank(),
                 new Choice(

@@ -572,7 +572,12 @@ Component.register('sw-search-bar', {
             });
         },
 
-        navigateLeftResults() {
+        /* @feature-deprecated (FEATURE_NEXT_6040) tag:v6.5.0 - Will be removed */
+        navigateLeftResults(event) {
+            if (!this.feature.isActive('FEATURE_NEXT_6040')) {
+                event.preventDefault();
+            }
+
             if (this.showTypeSelectContainer) {
                 if (this.activeTypeListIndex !== 0) {
                     this.activeTypeListIndex -= 1;
@@ -595,7 +600,12 @@ Component.register('sw-search-bar', {
             this.checkScrollPosition();
         },
 
-        navigateRightResults() {
+        /* @feature-deprecated (FEATURE_NEXT_6040) tag:v6.5.0 - Will be removed */
+        navigateRightResults(event) {
+            if (!this.feature.isActive('FEATURE_NEXT_6040')) {
+                event.preventDefault();
+            }
+
             if (this.showTypeSelectContainer) {
                 if (this.activeTypeListIndex !== this.typeSelectResults.length - 1) {
                     this.activeTypeListIndex += 1;

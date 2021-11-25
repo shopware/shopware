@@ -1,10 +1,11 @@
 {% block sw_search_bar %}
+{# @feature-deprecated (FEATURE_NEXT_6040) tag:v6.5.0 - Will be removed 2 keyboard events @keydown.left.prevent and @keydown.right.prevent #}
 <div
     class="sw-search-bar"
     @keyup.esc="clearSearchTerm()"
     @keyup.enter.prevent="onKeyUpEnter"
-    @keydown.left.prevent="navigateLeftResults"
-    @keydown.right.prevent="navigateRightResults"
+    @keydown.left="!feature.isActive('FEATURE_NEXT_6040') && navigateLeftResults($event)"
+    @keydown.right="!feature.isActive('FEATURE_NEXT_6040') && navigateRightResults($event)"
     @keydown.up.prevent="navigateUpResults"
     @keydown.down.prevent="navigateDownResults"
 >

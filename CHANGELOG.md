@@ -32,7 +32,6 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-16511 - Add fallback to category cms config](/changelog/release-6-4-7-0/2021-10-20-add-fallback-to-category-cms-config.md)
 *  [NEXT-16361 - Fix wrong cover position on product save](/changelog/release-6-4-7-0/2021-10-20-fix-cover-assignment-issue.md)
 *  [NEXT-15280 - Sold out variants should be grayed out](/changelog/release-6-4-7-0/2021-10-20-sold-out-variants-should-be-grayed-out.md)
-*  [NEXT-17984 - 500 error when moving blocks to new section](/changelog/release-6-4-7-0/2021-10-21-500-error-when-moving-blocks-to-new-section.md)
 *  [NEXT-17701 - Fix alignment issue in sw-product-price-form component](/changelog/release-6-4-7-0/2021-10-21-fix-product-price-form-alignment.md)
 *  [NEXT-17659 - Fix shipping price matrix incrementation](/changelog/release-6-4-7-0/2021-10-21-fix-shipping-price-matrix-incrementation.md)
 *  [NEXT-15827 - Fixed broken search in sw-promotion-v2-sales-channel-select.html.twig](/changelog/release-6-4-7-0/2021-10-21-fixed-broken-search-in-sw-promotion-v2-sales-channel-select.html.twig.md)
@@ -42,7 +41,6 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-18275 - Only check for valid UUID if values are strings in theme configuration](/changelog/release-6-4-7-0/2021-10-25-only-check-for-valid-uuid-if-values-are-strings-in-theme-configuration.md) ([Max](https://github.com/aragon999))
 *  [NEXT-17785 - Adjustment content on mail template modal](/changelog/release-6-4-7-0/2021-10-26-adjustment-content-on-mail-template-modal.md)
 *  [NEXT-15913 - product-three-column product-visibilty](/changelog/release-6-4-7-0/2021-10-26-product-three-column-product-visibilty.md)
-*  [NEXT-18273 - Add timestamp to synchronous webhook payload](/changelog/release-6-4-7-0/2021-10-27-add-timestamp-to-snychronous-webhook-payload.md)
 *  [NEXT-12796 - Fix missing table styling](/changelog/release-6-4-7-0/2021-10-27-fix-missing-table-styling.md)
 *  [NEXT-17764 - Improve address salutation and countryState loading](/changelog/release-6-4-7-0/2021-10-27-improve-salutation-and-country-state-address-loading.md)
 *  [NEXT-18145 - Increase number range for custom documents](/changelog/release-6-4-7-0/2021-10-27-increase-number-range-for-custom-documents.md)
@@ -90,11 +88,16 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-14709 - Multiple product media import export](/changelog/release-6-4-7-0/2021-11-12-multiple-product-media-import-export.md)
 *  [NEXT-18549 - Separate storage of First Run Wizard token and Store token](/changelog/release-6-4-7-0/2021-11-12-separate-storage-of-first-run-wizard-token-and-store-token.md)
 *  [NEXT-18555 - Fix event factory with collection](/changelog/release-6-4-7-0/2021-11-15-fix-event-factory-with-collection.md)
-*  [NEXT-18709 - Remove unnecessary searches when loading associations](/changelog/release-6-4-7-0/2021-11-15-remove-unnecessary-searches-when-loading-associations.md)
 *  [NEXT-18897 - Add new BuildValidationEvent to NewsletterSubscribeRoute](/changelog/release-6-4-7-0/2021-11-17-add-new-buildvalidationevent-to-newslettersubscriberoute.md) ([Philipp von Wedel](https://github.com/plugware))
 *  [NEXT-17255 - Disallow guest sessions to write reviews](/changelog/release-6-4-7-0/2021-11-18-disallow-guest-sessions-to-write-reviews.md)
 *  [NEXT-18611 - Unset existing price field percentage if list price is removed](/changelog/release-6-4-7-0/2021-11-19-unset-existing-price-field-percentage-if-list-price-is-removed.md)
 *  [NEXT-4376 - Rename Product-EAN to GTIN](/changelog/release-6-4-7-0/2021-11-21-rename-field-ean-to-gtin.md)
+
+## 6.4.6.1
+*  [NEXT-18273 - Add timestamp to synchronous webhook payload](/changelog/release-6-4-6-1/2021-10-27-add-timestamp-to-snychronous-webhook-payload.md)
+*  [NEXT-18709 - Remove unnecessary searches when loading associations](/changelog/release-6-4-6-1/2021-11-15-remove-unnecessary-searches-when-loading-associations.md)
+*  [NEXT-17527 - Add fix for web cache poisoning](/changelog/release-6-4-6-1/2021-11-23-add-fix-for-webcache.md)
+*  [NEXT-18944 - Conflict symfony process 5.3.11](/changelog/release-6-4-6-1/2021-11-23-conflict-symfony-process-5.3.11.md)
 
 ## 6.4.6.0
 *  [NEXT-15108 - Create the module flow builder](/changelog/release-6-4-6-0/2021-05-07-create-the-module-flow-builder.md)

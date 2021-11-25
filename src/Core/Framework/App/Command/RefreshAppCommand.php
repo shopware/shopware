@@ -4,11 +4,15 @@ namespace Shopware\Core\Framework\App\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\AppService;
+use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\Lifecycle\RefreshableAppDryRun;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -20,33 +24,31 @@ class RefreshAppCommand extends Command
 {
     protected static $defaultName = 'app:refresh';
 
-    /**
-     * @var AppService
-     */
-    private $appService;
+    private AppService $appService;
 
-    /**
-     * @var AppPrinter
-     */
-    private $appPrinter;
+    private AppPrinter $appPrinter;
 
-    /**
-     * @var ValidateAppCommand
-     */
-    private $validateAppCommand;
+    private ManifestValidator $manifestValidator;
 
-    public function __construct(AppService $appService, AppPrinter $appPrinter, ValidateAppCommand $validateAppCommand)
+    public function __construct(AppService $appService, AppPrinter $appPrinter, ManifestValidator $manifestValidator)
     {
         parent::__construct();
 
         $this->appService = $appService;
         $this->appPrinter = $appPrinter;
-        $this->validateAppCommand = $validateAppCommand;
+        $this->manifestValidator = $manifestValidator;
     }
 
     protected function configure(): void
     {
-        $this->setDescription('Refreshes the installed Apps')
+        $this
+            ->setAliases(['app:update'])
+            ->setDescription('Refreshes the installed Apps')
+            ->addArgument(
+                'name',
+                InputArgument::OPTIONAL | InputArgument::IS_ARRAY,
+                'The name of the app'
+            )
             ->addOption(
                 'force',
                 'f',
@@ -72,6 +74,12 @@ class RefreshAppCommand extends Command
         $context = Context::createDefaultContext();
 
         $refreshableApps = $this->appService->getRefreshableAppInfo($context);
+        $requestedApps = $input->getArgument('name');
+
+        if (\count($requestedApps)) {
+            $refreshableApps = $refreshableApps->filter($requestedApps);
+        }
+
         if ($refreshableApps->isEmpty()) {
             $io->note('Nothing to install, update or delete.');
 
@@ -89,14 +97,14 @@ class RefreshAppCommand extends Command
         }
 
         if (!$input->getOption('no-validate')) {
-            $hasViolations = $this->validateRefreshableApps($refreshableApps, $io);
+            $hasViolations = $this->validateRefreshableApps($refreshableApps, $io, $context);
 
             if ($hasViolations === 1) {
                 return self::FAILURE;
             }
         }
 
-        $fails = $this->appService->doRefreshApps($input->getOption('activate'), $context);
+        $fails = $this->appService->doRefreshApps($input->getOption('activate'), $context, $refreshableApps->getAppNames());
 
         $this->appPrinter->printInstalledApps($io, $context);
         $this->appPrinter->printIncompleteInstallations($io, $fails);
@@ -104,7 +112,7 @@ class RefreshAppCommand extends Command
         return self::SUCCESS;
     }
 
-    private function validateRefreshableApps(RefreshableAppDryRun $refreshableApps, ShopwareStyle $io): int
+    private function validateRefreshableApps(RefreshableAppDryRun $refreshableApps, ShopwareStyle $io, Context $context): int
     {
         $refreshableManifests = array_merge(
             $refreshableApps->getToBeInstalled(),
@@ -114,13 +122,11 @@ class RefreshAppCommand extends Command
         // validate refreshable apps
         $invalids = [];
         foreach ($refreshableManifests as $refreshableManifest) {
-            $validation = $this->validateAppCommand->validate($refreshableManifest->getPath());
-
-            if (!$validation) {
-                continue;
+            try {
+                $this->manifestValidator->validate($refreshableManifest, $context);
+            } catch (AppValidationException | XmlParsingException $e) {
+                $invalids[] = $e->getMessage();
             }
-
-            $invalids[] = $validation;
         }
 
         if (\count($invalids) > 0) {

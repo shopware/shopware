@@ -4,10 +4,14 @@ namespace Shopware\Core\Framework\App\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
+use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -21,88 +25,107 @@ class InstallAppCommand extends Command
 {
     protected static $defaultName = 'app:install';
 
-    private string $appDir;
+    private AbstractAppLoader $appLoader;
 
     private AbstractAppLifecycle $appLifecycle;
 
     private AppPrinter $appPrinter;
 
-    private ValidateAppCommand $validateAppCommand;
+    private ManifestValidator $manifestValidator;
 
-    public function __construct(string $appDir, AbstractAppLifecycle $appLifecycle, AppPrinter $appPrinter, ValidateAppCommand $validateAppCommand)
-    {
+    public function __construct(
+        AbstractAppLoader $appLoader,
+        AbstractAppLifecycle $appLifecycle,
+        AppPrinter $appPrinter,
+        ManifestValidator $manifestValidator
+    ) {
         parent::__construct();
-        $this->appDir = $appDir;
         $this->appLifecycle = $appLifecycle;
         $this->appPrinter = $appPrinter;
-        $this->validateAppCommand = $validateAppCommand;
+        $this->appLoader = $appLoader;
+        $this->manifestValidator = $manifestValidator;
     }
 
     public function execute(InputInterface $input, OutputInterface $output): int
     {
+        $context = Context::createDefaultContext();
         $io = new ShopwareStyle($input, $output);
 
-        $manifest = $this->getManifest($input, $io);
+        /** @var string|string[] $names */
+        $names = $input->getArgument('name');
 
-        if (!$manifest) {
-            return self::FAILURE;
+        if (\is_string($names)) {
+            $names = [$names];
         }
 
-        if (!$input->getOption('force')) {
+        $manifests = $this->getMatchingManifests($names);
+        $success = self::SUCCESS;
+
+        if (\count($manifests) === 0) {
+            $io->info('Could not find any app with this name');
+
+            return self::SUCCESS;
+        }
+
+        foreach ($manifests as $name => $manifest) {
+            if (!$input->getOption('force')) {
+                try {
+                    $this->checkPermissions($manifest, $io);
+                } catch (UserAbortedCommandException $e) {
+                    $io->error('Aborting due to user input.');
+
+                    return self::FAILURE;
+                }
+            }
+
+            if (!$input->getOption('no-validate')) {
+                try {
+                    $this->manifestValidator->validate($manifest, $context);
+                } catch (AppValidationException | XmlParsingException $e) {
+                    $io->error(sprintf('App installation of %s failed due: %s', $name, $e->getMessage()));
+
+                    $success = self::FAILURE;
+
+                    continue;
+                }
+            }
+
             try {
-                $this->checkPermissions($manifest, $io);
-            } catch (UserAbortedCommandException $e) {
-                $io->error('Aborting due to user input.');
+                $this->appLifecycle->install($manifest, $input->getOption('activate'), $context);
+            } catch (AppAlreadyInstalledException $e) {
+                $io->info(sprintf('App %s is already installed', $name));
 
-                return self::FAILURE;
-            }
-        }
-
-        if (!$input->getOption('no-validate')) {
-            $invalids = $this->validateAppCommand->validate($manifest->getPath());
-
-            if (\count($invalids) > 0) {
-                // as only one app is validated - only one exception can occur
-                $io->error($invalids[0]);
-
-                return self::FAILURE;
+                continue;
             }
 
-            $io->success('app is valid');
+            $io->success(sprintf('App %s has been successfully installed.', $name));
         }
 
-        try {
-            $this->appLifecycle->install($manifest, $input->getOption('activate'), Context::createDefaultContext());
-        } catch (AppAlreadyInstalledException $e) {
-            $io->error($e->getMessage());
-
-            return self::FAILURE;
-        }
-
-        $io->success('App installed successfully.');
-
-        return self::SUCCESS;
+        return $success;
     }
 
     protected function configure(): void
     {
-        $this->setDescription('Installs the app in the folder with the given name')
+        $this
+            ->setDescription('Installs the app with the given name')
             ->addArgument(
                 'name',
-                InputArgument::REQUIRED,
-                'The name of the app, has also to be the name of the folder under
-                which the app can be found under custom/apps'
-            )->addOption(
+                InputArgument::REQUIRED | InputArgument::IS_ARRAY,
+                'The name of the app'
+            )
+            ->addOption(
                 'force',
                 'f',
                 InputOption::VALUE_NONE,
                 'Force the installing of the app, it will automatically grant all requested permissions.'
-            )->addOption(
+            )
+            ->addOption(
                 'activate',
                 'a',
                 InputOption::VALUE_NONE,
                 'Activate the app after installing it'
-            )->addOption(
+            )
+            ->addOption(
                 'no-validate',
                 null,
                 InputOption::VALUE_NONE,
@@ -110,24 +133,20 @@ class InstallAppCommand extends Command
             );
     }
 
-    private function getManifest(InputInterface $input, ShopwareStyle $io): ?Manifest
+    private function getMatchingManifests(array $requestedApps): array
     {
-        $name = $input->getArgument('name');
-        $manifestPath = sprintf('%s/%s/manifest.xml', $this->appDir, $name);
-        if (!is_file($manifestPath)) {
-            $io->error(
-                sprintf(
-                    'No app with name "%s" found.
-                    Please make sure that a folder with that name exist in the custom/apps folder
-                    and that it contains a manifest.xml file.',
-                    $name
-                )
-            );
+        $apps = $this->appLoader->load();
+        $manifests = [];
 
-            return null;
+        foreach ($requestedApps as $requestedApp) {
+            foreach ($apps as $app => $manifest) {
+                if (str_contains($app, $requestedApp)) {
+                    $manifests[$app] = $manifest;
+                }
+            }
         }
 
-        return Manifest::createFromXmlFile($manifestPath);
+        return $manifests;
     }
 
     private function checkPermissions(Manifest $manifest, ShopwareStyle $io): void

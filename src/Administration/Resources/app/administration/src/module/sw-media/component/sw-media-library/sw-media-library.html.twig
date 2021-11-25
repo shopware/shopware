@@ -38,7 +38,7 @@
     >
         {% block sw_media_library_empty_state %}
         <sw-empty-state
-            v-if="!isLoading && (selectableItems.length === 0 || (feature.isActive('FEATURE_NEXT_6040') && isValidTerm(term)))"
+            v-if="!isLoading && (selectableItems.length === 0 || (feature.isActive('FEATURE_NEXT_6040') && isValidTerm(term) && items.length === 0))"
             :title="feature.isActive('FEATURE_NEXT_6040')
                 ? $tc('sw-empty-state.messageNoResultTitle')
                 : $tc('sw-media.mediaLibrary.titleEmptyState')"

@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 
 /**
- * @internal
+ * @internal The trait is not intended for re-usability in other domains
  */
 trait ItemsGetTrait
 {
@@ -17,6 +17,9 @@ trait ItemsGetTrait
 
     protected Services $services;
 
+    /**
+     * @public-api used for app scripting
+     */
     public function get(string $id): ?ItemFacade
     {
         $item = $this->getItems()->get($id);

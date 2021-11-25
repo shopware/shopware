@@ -11,6 +11,9 @@ class CartPriceFacade
 
     private CartPrice $price;
 
+    /**
+     * @internal
+     */
     public function __construct(CartPrice $price, Services $services)
     {
         $this->price = $price;

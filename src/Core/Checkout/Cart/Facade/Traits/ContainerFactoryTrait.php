@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 
 /**
- * @internal
+ * @internal The trait is not intended for re-usability in other domains
  */
 trait ContainerFactoryTrait
 {
@@ -16,6 +16,9 @@ trait ContainerFactoryTrait
 
     protected Services $services;
 
+    /**
+     * @public-api used for app scripting
+     */
     public function container(string $id, ?string $label = null, ?string $coverId = null): ContainerFacade
     {
         $item = new LineItem($id, LineItem::CONTAINER_LINE_ITEM, $id);

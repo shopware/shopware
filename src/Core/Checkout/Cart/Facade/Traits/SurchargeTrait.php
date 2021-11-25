@@ -12,14 +12,16 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 
 /**
- * @internal
+ * @internal The trait is not intended for re-usability in other domains
  */
 trait SurchargeTrait
 {
     protected LineItemCollection $items;
 
     /**
-     * @param float|PriceCollection $value
+     * @public-api used for app scripting
+     *
+     * @param float|string|PriceCollection $value
      */
     public function surcharge(string $key, string $type, $value, string $label): DiscountFacade
     {
@@ -39,11 +41,17 @@ trait SurchargeTrait
     }
 
     /**
-     * @param float|PriceCollection $value
+     * @param float|PriceCollection|string|int $value
      */
     private function buildSurchargeDefinition(string $type, $value, string $key): PriceDefinitionInterface
     {
-        if ($type === PercentagePriceDefinition::TYPE && \is_float($value)) {
+        if ($type === PercentagePriceDefinition::TYPE) {
+            if ($value instanceof PriceCollection) {
+                throw new \RuntimeException('Percentage discounts requires a provided float value');
+            }
+
+            $value = (float) $value;
+
             return new PercentagePriceDefinition(abs($value));
         }
         if ($type !== 'absolute') {

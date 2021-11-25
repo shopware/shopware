@@ -18,6 +18,9 @@ namespace Shopware\Core\Framework\Script\Service;
  * {% foreach array as key => value %}
  *
  * @phpstan
+ *
+ * @implements \ArrayAccess<array-key, string|int|float|array|object|bool|null>
+ * @implements \IteratorAggregate<array-key, string|int|float|array|object|bool|null>
  */
 class ArrayFunctions implements \IteratorAggregate, \ArrayAccess, \Countable
 {

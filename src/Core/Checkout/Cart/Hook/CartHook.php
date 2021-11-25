@@ -13,6 +13,9 @@ class CartHook extends Hook implements CartAware
 
     private SalesChannelContext $salesChannelContext;
 
+    /**
+     * @internal
+     */
     public function __construct(Cart $cart, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());

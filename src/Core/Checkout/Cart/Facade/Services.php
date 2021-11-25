@@ -37,6 +37,9 @@ class Services
         $this->connection = $connection;
     }
 
+    /**
+     * @internal
+     */
     public function setContext(SalesChannelContext $context): void
     {
         $this->context = $context;

@@ -4,10 +4,14 @@ namespace Shopware\Core\Checkout\Test\Cart\Facade;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Facade\CartFacade;
 use Shopware\Core\Checkout\Cart\Facade\CartFacadeHookFactory;
 use Shopware\Core\Checkout\Cart\Facade\ItemFacade;
+use Shopware\Core\Checkout\Cart\Facade\ItemFunctions;
+use Shopware\Core\Checkout\Cart\Facade\PriceFacade;
 use Shopware\Core\Checkout\Cart\Hook\CartHook;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -119,7 +123,7 @@ class CartFacadeTest extends TestCase
         $service->factory(new TestHook('test', Context::createDefaultContext()), $this->script);
     }
 
-    public function testPayloads()
+    public function testPayloads(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');
 
@@ -138,7 +142,7 @@ class CartFacadeTest extends TestCase
             'foo' => 'bar',
             'push',
             'bar' => 'baz',
-            'baz' => true
+            'baz' => true,
         ];
 
         static::assertInstanceOf(ItemFacade::class, $item);
@@ -258,6 +262,9 @@ class CartFacadeTest extends TestCase
         ];
     }
 
+    /**
+     * @param ItemFunctions|CartFacade|LineItemCollection $scope
+     */
     private function assertItems($scope, array $expectations): void
     {
         foreach ($expectations as $key => $expected) {
@@ -275,6 +282,7 @@ class CartFacadeTest extends TestCase
 
             if ($expected instanceof CalculatedPrice) {
                 static::assertInstanceOf(ItemFacade::class, $item);
+                static::assertInstanceOf(PriceFacade::class, $item->getPrice());
                 static::assertEquals($expected->getUnitPrice(), $item->getPrice()->unit());
                 static::assertEquals($expected->getTotalPrice(), $item->getPrice()->total());
 
@@ -283,6 +291,7 @@ class CartFacadeTest extends TestCase
 
             $price = $expected['price'];
             static::assertInstanceOf(ItemFacade::class, $item);
+            static::assertInstanceOf(PriceFacade::class, $item->getPrice());
             static::assertEquals($price->getUnitPrice(), $item->getPrice()->unit(), print_r($item->getItem(), true));
             static::assertEquals($price->getTotalPrice(), $item->getPrice()->total());
 

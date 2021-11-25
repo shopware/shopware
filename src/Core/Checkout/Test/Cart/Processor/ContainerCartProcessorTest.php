@@ -51,7 +51,7 @@ class ContainerCartProcessorTest extends TestCase
 
         static::assertTrue($new->has($item->getId()));
 
-        static::assertInstanceOf(CalculatedPrice::class, $item->getPrice()->getUnitPrice());
+        static::assertInstanceOf(CalculatedPrice::class, $item->getPrice());
         static::assertEquals($expected->getUnitPrice(), $item->getPrice()->getUnitPrice());
         static::assertEquals($expected->getTotalPrice(), $item->getPrice()->getTotalPrice());
         static::assertEquals($expected->getCalculatedTaxes()->getAmount(), $item->getPrice()->getCalculatedTaxes()->getAmount());

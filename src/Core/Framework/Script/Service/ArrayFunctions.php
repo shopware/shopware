@@ -16,6 +16,8 @@ namespace Shopware\Core\Framework\Script\Service;
  * {% if array.foo === 'bar' %}
  *
  * {% foreach array as key => value %}
+ *
+ * @phpstan
  */
 class ArrayFunctions implements \IteratorAggregate, \ArrayAccess, \Countable
 {
@@ -26,26 +28,39 @@ class ArrayFunctions implements \IteratorAggregate, \ArrayAccess, \Countable
         $this->items = &$items;
     }
 
+    /**
+     * @param string|int                              $key
+     * @param string|int|float|array|object|bool|null $value
+     */
     public function set($key, $value): void
     {
         $this->items[$key] = $value;
     }
 
+    /**
+     * @param string|int|float|array|object|bool|null $value
+     */
     public function push($value): void
     {
         $this->items[] = $value;
     }
 
+    /**
+     * @param string|int $index
+     */
     public function removeBy($index): void
     {
         unset($this->items[$index]);
     }
 
+    /**
+     * @param string|int|float|array|object|bool|null $value
+     */
     public function remove($value): void
     {
         $index = array_search($value, $this->items, true);
 
-        if ($index !== false){
+        if ($index !== false) {
             $this->removeBy($index);
         }
     }
@@ -57,6 +72,9 @@ class ArrayFunctions implements \IteratorAggregate, \ArrayAccess, \Countable
         }
     }
 
+    /**
+     * @param array|ArrayFunctions $array
+     */
     public function merge($array): void
     {
         if ($array instanceof ArrayFunctions) {
@@ -65,6 +83,9 @@ class ArrayFunctions implements \IteratorAggregate, \ArrayAccess, \Countable
         $this->items = array_merge_recursive($this->items, $array);
     }
 
+    /**
+     * @param array|ArrayFunctions $array
+     */
     public function replace($array): void
     {
         if ($array instanceof ArrayFunctions) {
@@ -73,19 +94,33 @@ class ArrayFunctions implements \IteratorAggregate, \ArrayAccess, \Countable
         $this->items = array_replace_recursive($this->items, $array);
     }
 
+    /**
+     * @param string|int $offset
+     *
+     * @return bool
+     */
     #[\ReturnTypeWillChange]
     public function offsetExists($offset)/* :bool */
     {
-        return array_key_exists($offset, $this->items);
+        return \array_key_exists($offset, $this->items);
     }
 
+    /**
+     * @param string|int $offset
+     *
+     * @return string|int|float|array|object|bool|null
+     */
     #[\ReturnTypeWillChange]
     public function offsetGet($offset)/* :mixed */
     {
         return $this->items[$offset];
     }
 
-    public function offsetSet($offset, $value)
+    /**
+     * @param string|int                              $offset
+     * @param string|int|float|array|object|bool|null $value
+     */
+    public function offsetSet($offset, $value): void
     {
         if ($offset === null) {
             $this->items[] = $value;
@@ -94,7 +129,10 @@ class ArrayFunctions implements \IteratorAggregate, \ArrayAccess, \Countable
         }
     }
 
-    public function offsetUnset($offset)
+    /**
+     * @param string|int $offset
+     */
+    public function offsetUnset($offset): void
     {
         unset($this->items[$offset]);
     }
@@ -106,6 +144,6 @@ class ArrayFunctions implements \IteratorAggregate, \ArrayAccess, \Countable
 
     public function count()
     {
-        return count($this->items);
+        return \count($this->items);
     }
 }

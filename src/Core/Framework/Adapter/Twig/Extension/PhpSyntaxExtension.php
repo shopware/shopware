@@ -94,7 +94,7 @@ class PhpSyntaxExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('array', [$this, 'createArray'])
+            new TwigFunction('array', [$this, 'createArray']),
         ];
     }
 

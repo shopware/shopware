@@ -63,28 +63,28 @@ class PriceDefinitionFieldSerializerTest extends TestCase
     {
         $rule = new AndRule([
             new OrRule([
-                new CurrencyRule(CurrencyRule::OPERATOR_EQ, [Defaults::CURRENCY])
+                new CurrencyRule(CurrencyRule::OPERATOR_EQ, [Defaults::CURRENCY]),
             ]),
-            new CurrencyRule(CurrencyRule::OPERATOR_EQ, [Defaults::CURRENCY])
+            new CurrencyRule(CurrencyRule::OPERATOR_EQ, [Defaults::CURRENCY]),
         ]);
 
         yield 'Test quantity price definition' => [
-            new QuantityPriceDefinition(100, new TaxRuleCollection([new TaxRule(19, 50), new TaxRule(7, 50)]), 3)
+            new QuantityPriceDefinition(100, new TaxRuleCollection([new TaxRule(19, 50), new TaxRule(7, 50)]), 3),
         ];
 
         yield 'Test absolute price definition' => [
-            new AbsolutePriceDefinition(20, $rule)
+            new AbsolutePriceDefinition(20, $rule),
         ];
 
         yield 'Test percentage price definition' => [
-            new PercentagePriceDefinition(-20, $rule)
+            new PercentagePriceDefinition(-20, $rule),
         ];
 
         yield 'Test currency price definition' => [
             new CurrencyPriceDefinition(new PriceCollection([
                 new Price(Defaults::CURRENCY, 100, 200, false),
-                new Price(Uuid::randomHex(), 200, 300, true)
-            ]), $rule)
+                new Price(Uuid::randomHex(), 200, 300, true),
+            ]), $rule),
         ];
     }
 }

@@ -31,9 +31,9 @@ class ArrayFunctionsTest extends TestCase
         static::assertContains(3.2, $array);
     }
 
-    public function testLoop()
+    public function testLoop(): void
     {
-        $initial = [1,2,3];
+        $initial = [1, 2, 3];
         $functions = new ArrayFunctions($initial);
         $f = [];
         foreach ($functions as $key => $value) {
@@ -45,7 +45,7 @@ class ArrayFunctionsTest extends TestCase
         static::assertContains(3, $f);
     }
 
-    public function testMerge()
+    public function testMerge(): void
     {
         $aArray = [3, 4];
         $bArray = [];
@@ -57,7 +57,7 @@ class ArrayFunctionsTest extends TestCase
         static::assertContains(4, $b);
     }
 
-    public function testReplace()
+    public function testReplace(): void
     {
         $aArray = ['foo' => 'bar'];
 

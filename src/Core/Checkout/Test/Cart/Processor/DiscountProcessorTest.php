@@ -82,7 +82,7 @@ class DiscountProcessorTest extends TestCase
         }
     }
 
-    public function processorProvider()
+    public function processorProvider(): \Generator
     {
         $context = $this->createMock(SalesChannelContext::class);
 

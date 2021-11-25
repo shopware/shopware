@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CurrencyPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 
@@ -17,6 +18,9 @@ trait SurchargeTrait
 {
     protected LineItemCollection $items;
 
+    /**
+     * @param float|PriceCollection $value
+     */
     public function surcharge(string $key, string $type, $value, string $label): DiscountFacade
     {
         $definition = $this->buildSurchargeDefinition($type, $value, $key);
@@ -34,9 +38,12 @@ trait SurchargeTrait
         return $this->items;
     }
 
-    private function buildSurchargeDefinition(string $type, $value, string $key)
+    /**
+     * @param float|PriceCollection $value
+     */
+    private function buildSurchargeDefinition(string $type, $value, string $key): PriceDefinitionInterface
     {
-        if ($type === PercentagePriceDefinition::TYPE) {
+        if ($type === PercentagePriceDefinition::TYPE && \is_float($value)) {
             return new PercentagePriceDefinition(abs($value));
         }
         if ($type !== 'absolute') {

@@ -43,8 +43,8 @@ trait DiscountTrait
      */
     private function buildDiscountDefinition(string $type, $value, string $key): PriceDefinitionInterface
     {
-        if ($type === PercentagePriceDefinition::TYPE) {
-            return new PercentagePriceDefinition(abs((float) $value) * -1);
+        if ($type === PercentagePriceDefinition::TYPE && \is_float($value)) {
+            return new PercentagePriceDefinition(abs($value) * -1);
         }
         if ($type !== 'absolute') {
             throw new \RuntimeException(sprintf('Discount type %s not supported', $type));

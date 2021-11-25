@@ -62,14 +62,14 @@ class ElasticsearchHelper
     }
 
     /**
-     * @deprecated tag:v6.5.0 - use tryToThrow instead
+     * @deprecated tag:v6.5.0 - use logAndThrowException instead
      */
     public function logOrThrowException(\Throwable $exception): bool
     {
-        return $this->tryToThrow($exception);
+        return $this->logAndThrowException($exception);
     }
 
-    public function tryToThrow(\Throwable $exception): bool
+    public function logAndThrowException(\Throwable $exception): bool
     {
         $this->logger->critical($exception->getMessage());
 

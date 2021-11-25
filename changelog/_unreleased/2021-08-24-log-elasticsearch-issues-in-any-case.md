@@ -5,6 +5,6 @@ author: Joshua Behrens
 author_email: code@joshua-behrens.de
 author_github: @JoshuaBehrens
 ---
-# Elasticsearch
+# Core
 * Changed order of statements in `logOrThrowException` in `src/Elasticsearch/Framework/ElasticsearchHelper.php` to always log exceptions
-* Deprecated and renamed `Shopware\Elasticsearch\Framework\ElasticsearchHelper::logOrThrowException` to match new behaviour into `tryToThrow`
+* Deprecated and renamed `Shopware\Elasticsearch\Framework\ElasticsearchHelper::logOrThrowException` to match new behaviour into `logAndThrowException`

@@ -24,6 +24,8 @@ class FlowEntity extends Entity
     protected int $priority;
 
     /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     *
      * @var string|Flow|null
      */
     protected $payload;
@@ -82,11 +84,19 @@ class FlowEntity extends Entity
         $this->priority = $priority;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     */
     public function getPayload()
     {
+        $this->checkIfPropertyAccessIsAllowed('payload');
+
         return $this->payload;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     */
     public function setPayload($payload): void
     {
         $this->payload = $payload;

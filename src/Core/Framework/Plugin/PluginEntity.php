@@ -79,6 +79,8 @@ class PluginEntity extends Entity
     protected $upgradedAt;
 
     /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     *
      * @var string|null
      */
     protected $iconRaw;
@@ -258,11 +260,19 @@ class PluginEntity extends Entity
         $this->upgradedAt = $upgradedAt;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     */
     public function getIconRaw(): ?string
     {
+        $this->checkIfPropertyAccessIsAllowed('iconRaw');
+
         return $this->iconRaw;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     */
     public function setIconRaw(string $iconRaw): void
     {
         $this->iconRaw = $iconRaw;

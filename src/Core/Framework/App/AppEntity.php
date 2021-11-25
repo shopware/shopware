@@ -85,6 +85,8 @@ class AppEntity extends Entity
     protected $cookies;
 
     /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     *
      * @var string|null
      */
     protected $iconRaw;
@@ -115,6 +117,8 @@ class AppEntity extends Entity
     protected $privacyPolicyExtensions;
 
     /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     *
      * @var string|null
      */
     protected $appSecret;
@@ -154,7 +158,10 @@ class AppEntity extends Entity
      */
     protected $templates;
 
-    protected ?ScriptCollection $scripts;
+    /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     */
+    protected ?ScriptCollection $scripts = null;
 
     /**
      * @var CustomFieldSetCollection|null
@@ -312,11 +319,19 @@ class AppEntity extends Entity
         $this->cookies = $cookies;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     */
     public function getIconRaw(): ?string
     {
+        $this->checkIfPropertyAccessIsAllowed('iconRaw');
+
         return $this->iconRaw;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     */
     public function setIconRaw(?string $iconRaw): void
     {
         $this->iconRaw = $iconRaw;
@@ -412,11 +427,19 @@ class AppEntity extends Entity
         $this->customFieldSets = $customFieldSets;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     */
     public function getAppSecret(): ?string
     {
+        $this->checkIfPropertyAccessIsAllowed('appSecret');
+
         return $this->appSecret;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     */
     public function setAppSecret(?string $appSecret): void
     {
         $this->appSecret = $appSecret;
@@ -472,11 +495,19 @@ class AppEntity extends Entity
         $this->templates = $templates;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     */
     public function getScripts(): ?ScriptCollection
     {
+        $this->checkIfPropertyAccessIsAllowed('scripts');
+
         return $this->scripts;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     */
     public function setScripts(ScriptCollection $scripts): void
     {
         $this->scripts = $scripts;

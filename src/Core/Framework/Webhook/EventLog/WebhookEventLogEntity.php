@@ -36,6 +36,8 @@ class WebhookEventLogEntity extends Entity
     protected string $url;
 
     /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     *
      * @var string|object
      */
     protected $serializedWebhookMessage;
@@ -161,14 +163,20 @@ class WebhookEventLogEntity extends Entity
     }
 
     /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     *
      * @return object|string
      */
     public function getSerializedWebhookMessage()
     {
+        $this->checkIfPropertyAccessIsAllowed('serializedWebhookMessage');
+
         return $this->serializedWebhookMessage;
     }
 
     /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     *
      * @param string|object $serializedWebhookMessage
      */
     public function setSerializedWebhookMessage($serializedWebhookMessage): void

@@ -49,6 +49,8 @@ class MediaFolderConfigurationEntity extends Entity
     protected $mediaThumbnailSizes;
 
     /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     *
      * @var string|null
      */
     protected $mediaThumbnailSizesRo;
@@ -113,11 +115,19 @@ class MediaFolderConfigurationEntity extends Entity
         $this->private = $private;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     */
     public function getMediaThumbnailSizesRo(): ?string
     {
+        $this->checkIfPropertyAccessIsAllowed('mediaThumbnailSizesRo');
+
         return $this->mediaThumbnailSizesRo;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     */
     public function setMediaThumbnailSizesRo(string $mediaThumbnailSizesRo): void
     {
         $this->mediaThumbnailSizesRo = $mediaThumbnailSizesRo;

@@ -37,6 +37,8 @@ class UserEntity extends Entity
     protected $username;
 
     /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     *
      * @var string
      */
     protected $password;
@@ -117,6 +119,8 @@ class UserEntity extends Entity
     protected $recoveryUser;
 
     /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     *
      * @var string|null
      */
     protected $storeToken;
@@ -188,11 +192,19 @@ class UserEntity extends Entity
         $this->username = $username;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     */
     public function getPassword(): string
     {
+        $this->checkIfPropertyAccessIsAllowed('password');
+
         return $this->password;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     */
     public function setPassword(string $password): void
     {
         $this->password = $password;
@@ -298,11 +310,19 @@ class UserEntity extends Entity
         $this->recoveryUser = $recoveryUser;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     */
     public function getStoreToken(): ?string
     {
+        $this->checkIfPropertyAccessIsAllowed('storeToken');
+
         return $this->storeToken;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     */
     public function setStoreToken(?string $storeToken): void
     {
         $this->storeToken = $storeToken;

@@ -66,7 +66,7 @@ describe('Wishlist: for wishlist page', () => {
         })
     });
 
-    it('@wishlist does some simple testing of the wishlist', () => {
+    it('@wishlist @package: does some simple testing of the wishlist', () => {
         cy.visit('/account/login');
         cy.get('#loginMail').typeAndCheckStorefront(customer.email);
         cy.get('#loginPassword').typeAndCheckStorefront(customer.password);
@@ -77,7 +77,7 @@ describe('Wishlist: for wishlist page', () => {
         cy.get('.cms-listing-row .cms-listing-col').contains(product.manufacturer.name);
     });
 
-    it('@wishlist does load wishlist page on guest state', () => {
+    it('@wishlist @package: does load wishlist page on guest state', () => {
         cy.intercept({
             method: 'POST',
             url: '/wishlist/guest-pagelet',
@@ -108,7 +108,7 @@ describe('Wishlist: for wishlist page', () => {
         });
     });
 
-    it('@wishlist add to cart button work on guest page', () => {
+    it('@wishlist @package: add to cart button work on guest page', () => {
         cy.intercept({
             method: 'POST',
             url: '/wishlist/guest-pagelet',
@@ -148,7 +148,7 @@ describe('Wishlist: for wishlist page', () => {
         });
     });
 
-    it('@wishlist remove product of wishlist', () => {
+    it('@wishlist @package: remove product of wishlist', () => {
         cy.visit('/account/login');
         cy.get('#loginMail').typeAndCheckStorefront(customer.email);
         cy.get('#loginPassword').typeAndCheckStorefront(customer.password);

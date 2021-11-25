@@ -166,6 +166,42 @@ class ThemeChangeCommandTest extends TestCase
         static::assertStringContainsString('[ERROR] You can use either --sales-channel or --all, not both at the same time.', $commandTester->getDisplay());
     }
 
+    public function testThemeChangeCommandWithOneSalesChannelWithoutCompiling(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $salesChannel = $this->getSalesChannelData()[0];
+        $themes = $this->getThemeData();
+
+        $this->createSalesChannel($salesChannel);
+
+        $this->themeRepository->create($themes, $context);
+
+        $this->pluginRegistry = $this->getPluginRegistryMock();
+
+        $themeService = $this->createMock(ThemeService::class);
+        $themeService->expects(static::exactly(1))
+            ->method('assignTheme')
+            ->with($themes[0]['id'], $salesChannel['id'], $context, true);
+
+        $themeChangeCommand = new ThemeChangeCommand(
+            $themeService,
+            $this->pluginRegistry,
+            $this->salesChannelRepository,
+            $this->themeRepository
+        );
+
+        $commandTester = new CommandTester($themeChangeCommand);
+        $application = new Application();
+        $application->add($themeChangeCommand);
+
+        $commandTester->execute([
+            'theme-name' => $themes[0]['technicalName'],
+            '--sales-channel' => $salesChannel['id'],
+            '--no-compile' => true,
+        ]);
+    }
+
     private function getPluginRegistryMock(): MockObject
     {
         $storePluginConfiguration1 = new StorefrontPluginConfiguration('parentTheme');

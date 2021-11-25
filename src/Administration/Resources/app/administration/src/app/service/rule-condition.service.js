@@ -1,3 +1,5 @@
+const { Criteria } = Shopware.Data;
+
 /**
  * @module app/service/rule-condition
  */
@@ -9,8 +11,9 @@
  * @returns {Object}
  */
 export default function createConditionService() {
-    const $store = {
-    };
+    const $store = {};
+
+    const awarenessConfiguration = {};
 
     const operators = {
         lowerThanEquals: {
@@ -145,6 +148,14 @@ export default function createConditionService() {
         getPlaceholderData,
         getComponentByCondition,
         addEmptyOperatorToOperatorSet,
+        /* @internal (flag:FEATURE_NEXT_18215) */
+        addAwarenessConfiguration,
+        /* @internal (flag:FEATURE_NEXT_18215) */
+        getAwarenessConfigurationByAssignmentName,
+        /* @internal (flag:FEATURE_NEXT_18215) */
+        getRestrictedRules,
+        /* @internal (flag:FEATURE_NEXT_18215) */
+        getRestrictedConditions,
     };
 
     function getByType(type) {
@@ -259,5 +270,71 @@ export default function createConditionService() {
         }
 
         return conditionType.component;
+    }
+
+    /* @internal (flag:FEATURE_NEXT_18215) */
+    function addAwarenessConfiguration(assignmentName, configuration) {
+        awarenessConfiguration[assignmentName] = configuration;
+    }
+
+    /* @internal (flag:FEATURE_NEXT_18215) */
+    function getAwarenessConfigurationByAssignmentName(assignmentName) {
+        const config = awarenessConfiguration[assignmentName];
+
+        return config || {};
+    }
+
+    /* @internal (flag:FEATURE_NEXT_18215) */
+    function getRestrictedConditions(rule) {
+        const keys = Object.keys(awarenessConfiguration);
+
+        const conditions = {};
+        keys.forEach(key => {
+            const association = rule[key];
+            const currentEntry = awarenessConfiguration[key];
+
+            if (association && currentEntry.notEquals) {
+                currentEntry.notEquals.forEach(condition => {
+                    conditions[condition] = {
+                        snippet: currentEntry.snippet,
+                    };
+                });
+            }
+        });
+
+        return conditions;
+    }
+
+    /* @internal (flag:FEATURE_NEXT_18215) */
+    function getRestrictedRules(entityName) {
+        const configuration = getAwarenessConfigurationByAssignmentName(entityName);
+
+        if (!configuration) {
+            return Promise.resolve([]);
+        }
+
+        const { notEquals, equalsAny } = configuration;
+        const restrictions = [];
+
+        if (notEquals) {
+            restrictions.push(Criteria.equalsAny('conditions.type', notEquals));
+        }
+
+        if (equalsAny) {
+            restrictions.push(Criteria.not('AND', [Criteria.equalsAny('conditions.type', equalsAny)]));
+        }
+
+        if (restrictions.length === 0) {
+            return Promise.resolve([]);
+        }
+
+        const ruleRepository = Shopware.Service('repositoryFactory').create('rule');
+        const criteria = new Criteria();
+        criteria.addFilter(Criteria.multi(
+            'OR',
+            restrictions,
+        ));
+
+        return ruleRepository.searchIds(criteria).then(result => result.data);
     }
 }

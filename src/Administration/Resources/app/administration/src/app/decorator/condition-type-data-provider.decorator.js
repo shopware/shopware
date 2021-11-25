@@ -1,6 +1,76 @@
 const { Application, Feature } = Shopware;
 
 Application.addServiceProviderDecorator('ruleConditionDataProviderService', (ruleConditionService) => {
+    ruleConditionService.addAwarenessConfiguration(
+        'personaPromotions',
+        {
+            notEquals: [
+                'cartCartAmount',
+            ],
+            equalsAny: [
+                'customerBillingCountry',
+                'customerBillingStreet',
+                'customerBillingZipCode',
+                'customerIsNewCustomer',
+                'customerCustomerGroup',
+                'customerCustomerNumber',
+                'customerDaysSinceLastOrder',
+                'customerDifferentAddresses',
+                'customerLastName',
+                'customerOrderCount',
+                'customerShippingCountry',
+                'customerShippingStreet',
+                'customerShippingZipCode',
+            ],
+            snippet: '', // TODO: NEXT-17414 - Should be filled
+        },
+    );
+
+    ruleConditionService.addAwarenessConfiguration(
+        'orderPromotions',
+        {
+            notEquals: [
+                'cartCartAmount',
+            ],
+            equalsAny: [
+                'customerOrderCount',
+                'customerDaysSinceLastOrder',
+                'customerBillingCountry',
+                'customerBillingStreet',
+                'customerBillingZipCode',
+                'customerCustomerGroup',
+                'customerCustomerNumber',
+                'customerDifferentAddresses',
+                'customerIsNewCustomer',
+                'customerLastName',
+                'customerShippingCountry',
+                'customerShippingStreet',
+                'customerShippingZipCode',
+            ],
+            snippet: '', // TODO: NEXT-17414 - Should be filled
+        },
+    );
+
+    ruleConditionService.addAwarenessConfiguration(
+        'cartPromotions',
+        {
+            notEquals: [
+                'cartCartAmount',
+            ],
+            snippet: '', // TODO: NEXT-17414 - Should be filled
+        },
+    );
+
+    ruleConditionService.addAwarenessConfiguration(
+        'promotionSetGroups',
+        {
+            notEquals: [
+                'cartCartAmount',
+            ],
+            snippet: '', // TODO: NEXT-17414 - Should be filled
+        },
+    );
+
     ruleConditionService.addCondition('dateRange', {
         component: 'sw-condition-date-range',
         label: 'global.sw-condition.condition.dateRangeRule.label',

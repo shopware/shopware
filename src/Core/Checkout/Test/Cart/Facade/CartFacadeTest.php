@@ -119,6 +119,39 @@ class CartFacadeTest extends TestCase
         $service->factory(new TestHook('test', Context::createDefaultContext()), $this->script);
     }
 
+    public function testPayloads()
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures');
+
+        $hook = $this->createTestHook('payload-cases', $this->ids);
+
+        $service = $this->getContainer()
+            ->get(CartFacadeHookFactory::class)
+            ->factory($hook, $this->script);
+
+        $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
+
+        $item = $service->get($this->ids->get('p1'));
+
+        $expected = [
+            'test' => 1,
+            'foo' => 'bar',
+            'push',
+            'bar' => 'baz',
+            'baz' => true
+        ];
+
+        static::assertInstanceOf(ItemFacade::class, $item);
+
+        foreach ($expected as $key => $value) {
+            static::assertArrayHasKey($key, $item->getItem()->getPayload());
+
+            $actual = $item->getItem()->getPayload()[$key];
+
+            static::assertEquals($value, $actual, sprintf('Payload value %s does not match', $key));
+        }
+    }
+
     public function addProductProvider(): \Generator
     {
         yield 'Test with simple product' => ['p1', 'p1'];

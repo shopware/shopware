@@ -51,14 +51,6 @@ class ItemFacade
         return new ItemFacade($new, $this->services);
     }
 
-    /**
-     * @param string|array|bool|int|float|null $value
-     */
-    public function payload(string $key, $value): void
-    {
-        $this->item->setPayloadValue($key, $value);
-    }
-
     public function getId(): string
     {
         return $this->item->getId();
@@ -79,70 +71,9 @@ class ItemFacade
         return $this->item->getLabel();
     }
 
-    public function getPayload(): array
+    public function getPayload(): ArrayFunctions
     {
-        return $this->item->getPayload();
-    }
-
-    /**
-     * @return string|array|bool|int|float|null
-     */
-    public function getPayloadValue(string $key)
-    {
-        return $this->item->getPayloadValue($key);
-    }
-
-    public function getProductNumber(): ?string
-    {
-        return $this->item->getPayloadValue('productNumber');
-    }
-
-    public function getManufacturerId(): ?string
-    {
-        return $this->item->getPayloadValue('manufacturerId');
-    }
-
-    public function getCustomFields(): array
-    {
-        $this->initPayloadArray('customFields');
-
-        return $this->item->payload['customFields'];
-    }
-
-    public function tags(): ArrayFunctions
-    {
-        $this->initPayloadArray('tagIds');
-
-        return new ArrayFunctions(
-            $this->item->payload['tagIds']
-        );
-    }
-
-    public function properties(): ArrayFunctions
-    {
-        $this->initPayloadArray('propertyIds');
-
-        return new ArrayFunctions(
-            $this->item->payload['propertyIds']
-        );
-    }
-
-    public function categories(): ArrayFunctions
-    {
-        $this->initPayloadArray('categoryIds');
-
-        return new ArrayFunctions(
-            $this->item->payload['categoryIds']
-        );
-    }
-
-    public function streams(): ArrayFunctions
-    {
-        $this->initPayloadArray('streamIds');
-
-        return new ArrayFunctions(
-            $this->item->payload['streamIds']
-        );
+        return new ArrayFunctions($this->item->payload);
     }
 
     public function getChildren(): ItemFunctions
@@ -161,14 +92,5 @@ class ItemFacade
     public function getItem(): LineItem
     {
         return $this->item;
-    }
-
-    private function initPayloadArray(string $key): void
-    {
-        if ($this->item->hasPayloadValue($key)) {
-            return;
-        }
-
-        $this->item->setPayloadValue($key, []);
     }
 }

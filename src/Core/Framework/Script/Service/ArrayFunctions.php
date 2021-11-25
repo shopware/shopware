@@ -26,9 +26,35 @@ class ArrayFunctions implements \IteratorAggregate, \ArrayAccess, \Countable
         $this->items = &$items;
     }
 
+    public function set($key, $value): void
+    {
+        $this->items[$key] = $value;
+    }
+
     public function push($value): void
     {
         $this->items[] = $value;
+    }
+
+    public function removeBy($index): void
+    {
+        unset($this->items[$index]);
+    }
+
+    public function remove($value): void
+    {
+        $index = array_search($value, $this->items, true);
+
+        if ($index !== false){
+            $this->removeBy($index);
+        }
+    }
+
+    public function reset(): void
+    {
+        foreach (array_keys($this->items) as $key) {
+            unset($this->items[$key]);
+        }
     }
 
     public function merge($array): void

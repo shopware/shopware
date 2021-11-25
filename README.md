@@ -27,8 +27,8 @@ Shopware 6 is focused on an API-first approach, so it's quite easy to think in d
 
 If you like Shopware 6, give us a star on Github ★
 
-- **Read the docs**: [https://docs.shopware.com/](https://docs.shopware.com/)
-- **Start developing**: [https://github.com/shopware/development](https://github.com/shopware/development)
+- **Read the docs**: [https://developer.shopware.com/docs/](https://developer.shopware.com/docs/)
+- **Start developing**: [https://developer.shopware.com/docs/guides/installation/overview](https://developer.shopware.com/docs/guides/installation/overview)
 - **File an issue**: [https://issues.shopware.com](https://issues.shopware.com)
 
 ## Table of contents

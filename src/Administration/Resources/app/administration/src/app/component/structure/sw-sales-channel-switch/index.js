@@ -10,7 +10,7 @@ const { debug } = Shopware.Utils;
  * @status ready
  * @example-type code-only
  * @component-example
- * <sw-sales-channel-switch></sw-sales-channel-info>
+ * <sw-sales-channel-switch></sw-sales-channel-switch>
  */
 Component.register('sw-sales-channel-switch', {
     template,

@@ -250,13 +250,23 @@ class ModuleLoaderTest extends TestCase
         $expectedUrl = parse_url($urlPath);
         static::assertEquals($expectedUrl, $url);
 
+        $shopId = $this->getContainer()->get(SystemConfigService::class)->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY);
+
         parse_str($queryString, $query);
         static::assertEquals($_SERVER['APP_URL'], $query['shop-url']);
         static::assertArrayHasKey('shop-id', $query);
+        static::assertEquals($shopId['value'], $query['shop-id']);
+        static::assertArrayHasKey('sw-version', $query);
+        static::assertEquals($this->getContainer()->getParameter('kernel.shopware_version'), $query['sw-version']);
+        static::assertArrayHasKey('sw-context-language', $query);
+        static::assertEquals(Context::createDefaultContext()->getLanguageId(), $query['sw-context-language']);
+        static::assertArrayHasKey('sw-user-language', $query);
+        static::assertEquals('en-GB', $query['sw-user-language']);
+        static::assertArrayHasKey('shopware-shop-signature', $query);
 
-        $hmac = $query['shopware-shop-signature'];
-        $content = str_replace('&shopware-shop-signature=' . $hmac, '', $queryString);
+        $signature = $query['shopware-shop-signature'];
+        $signedQuery = str_replace('&shopware-shop-signature=' . $signature, '', $queryString);
 
-        static::assertEquals(hash_hmac('sha256', $content, $secret), $hmac);
+        static::assertEquals(hash_hmac('sha256', $signedQuery, $secret), $signature);
     }
 }

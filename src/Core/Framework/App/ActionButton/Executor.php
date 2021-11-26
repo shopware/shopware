@@ -7,7 +7,9 @@ use GuzzleHttp\Exception\ServerException;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\ActionButton\Response\ActionButtonResponseFactory;
 use Shopware\Core\Framework\App\Exception\ActionProcessException;
+use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
+use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -24,18 +26,28 @@ class Executor
 
     private ActionButtonResponseFactory $actionButtonResponseFactory;
 
+    private ShopIdProvider $shopIdProvider;
+
     public function __construct(
         Client $guzzle,
         LoggerInterface $logger,
-        ActionButtonResponseFactory $actionButtonResponseFactory
+        ActionButtonResponseFactory $actionButtonResponseFactory,
+        ShopIdProvider $shopIdProvider
     ) {
         $this->guzzleClient = $guzzle;
         $this->logger = $logger;
         $this->actionButtonResponseFactory = $actionButtonResponseFactory;
+        $this->shopIdProvider = $shopIdProvider;
     }
 
     public function execute(AppAction $action, Context $context): Response
     {
+        try {
+            $this->shopIdProvider->getShopId();
+        } catch (AppUrlChangeDetectedException $e) {
+            throw new ActionProcessException($action->getActionId(), $e->getMessage());
+        }
+
         $payload = $action->asPayload();
         $payload['meta'] = [
             'timestamp' => (new \DateTime())->getTimestamp(),
@@ -87,9 +99,10 @@ class Executor
         }
 
         $actionResponse = $this->actionButtonResponseFactory->createFromResponse(
-            $action->getActionId(),
+            $action,
             $content['actionType'],
-            $content['payload']
+            $content['payload'],
+            $context
         );
 
         return new JsonResponse($actionResponse);

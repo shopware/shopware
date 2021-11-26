@@ -2,14 +2,10 @@
 
 namespace Shopware\Core\Framework\App\Manifest;
 
-use GuzzleHttp\Psr7\Uri;
-use Psr\Http\Message\UriInterface;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
-use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
-use Shopware\Core\Framework\App\Hmac\RequestSigner;
+use Shopware\Core\Framework\App\Hmac\QuerySigner;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -25,26 +21,18 @@ class ModuleLoader
 {
     private EntityRepositoryInterface $appRepository;
 
-    private string $shopUrl;
-
     private ShopIdProvider $shopIdProvider;
 
-    private string $shopwareVersion;
-
-    private AppLocaleProvider $localeProvider;
+    private QuerySigner $querySigner;
 
     public function __construct(
         EntityRepositoryInterface $appRepository,
-        string $shopUrl,
         ShopIdProvider $shopIdProvider,
-        string $shopwareVersion,
-        AppLocaleProvider $localeProvider
+        QuerySigner $signer
     ) {
         $this->appRepository = $appRepository;
-        $this->shopUrl = $shopUrl;
         $this->shopIdProvider = $shopIdProvider;
-        $this->shopwareVersion = $shopwareVersion;
-        $this->localeProvider = $localeProvider;
+        $this->querySigner = $signer;
     }
 
     public function loadModules(Context $context): array
@@ -70,7 +58,7 @@ class ModuleLoader
     private function formatPayload(AppCollection $apps, Context $context): array
     {
         try {
-            $shopId = $this->shopIdProvider->getShopId();
+            $this->shopIdProvider->getShopId();
         } catch (AppUrlChangeDetectedException $e) {
             return [];
         }
@@ -78,8 +66,8 @@ class ModuleLoader
         $appModules = [];
 
         foreach ($apps as $app) {
-            $modules = $this->formatModules($shopId, $app, $context);
-            $mainModule = $this->formatMainModule($shopId, $app, $context);
+            $modules = $this->formatModules($app, $context);
+            $mainModule = $this->formatMainModule($app, $context);
 
             if (empty($modules) && !$mainModule) {
                 continue;
@@ -96,26 +84,31 @@ class ModuleLoader
         return $appModules;
     }
 
-    private function formatModules(string $shopId, AppEntity $app, Context $context): array
+    private function formatModules(AppEntity $app, Context $context): array
     {
         $modules = [];
 
         foreach ($app->getModules() as $module) {
-            $module['source'] = $this->getModuleUrlWithQuery($app, $shopId, $module, $context);
+            $module['source'] = $this->getModuleUrlWithQuery($app, $module, $context);
             $modules[] = $module;
         }
 
         return $modules;
     }
 
-    private function formatMainModule(string $shopId, AppEntity $app, Context $context): ?array
+    private function formatMainModule(AppEntity $app, Context $context): ?array
     {
         if ($app->getMainModule() === null) {
             return null;
         }
 
+        /** @var string $source */
+        $source = $app->getMainModule()['source'];
+        /** @var string $secret */
+        $secret = $app->getAppSecret();
+
         return [
-            'source' => $this->getUrlWithQuery($app, $shopId, $app->getMainModule()['source'], $context),
+            'source' => $this->sign($source, $secret, $context),
         ];
     }
 
@@ -130,44 +123,22 @@ class ModuleLoader
         return $labels;
     }
 
-    private function getModuleUrlWithQuery(AppEntity $app, string $shopId, array $module, Context $context): ?string
+    private function getModuleUrlWithQuery(AppEntity $app, array $module, Context $context): ?string
     {
+        /** @var string|null $registeredSource */
         $registeredSource = $module['source'] ?? null;
+        /** @var string $secret */
+        $secret = $app->getAppSecret();
 
         if ($registeredSource === null) {
             return null;
         }
 
-        return $this->getUrlWithQuery($app, $shopId, $registeredSource, $context);
+        return $this->sign($registeredSource, $secret, $context);
     }
 
-    private function getUrlWithQuery(AppEntity $app, string $shopId, string $source, Context $context): string
+    private function sign(string $source, string $secret, Context $context): string
     {
-        $uri = $this->generateQueryString($source, $shopId, $context);
-
-        /** @var string $secret */
-        $secret = $app->getAppSecret();
-        $signature = (new RequestSigner())->signPayload($uri->getQuery(), $secret);
-
-        return (string) Uri::withQueryValue(
-            $uri,
-            RequestSigner::SHOPWARE_SHOP_SIGNATURE,
-            $signature
-        );
-    }
-
-    private function generateQueryString(string $uri, string $shopId, Context $context): UriInterface
-    {
-        $date = new \DateTime();
-        $uri = new Uri($uri);
-
-        return Uri::withQueryValues($uri, [
-            'shop-id' => $shopId,
-            'shop-url' => $this->shopUrl,
-            'timestamp' => $date->getTimestamp(),
-            'sw-version' => $this->shopwareVersion,
-            AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE => $context->getLanguageId(),
-            AuthMiddleware::SHOPWARE_USER_LANGUAGE => $this->localeProvider->getLocaleFromContext($context),
-        ]);
+        return (string) $this->querySigner->signUri($source, $secret, $context);
     }
 }

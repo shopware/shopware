@@ -2,26 +2,33 @@
 
 namespace Shopware\Core\Framework\App\ActionButton\Response;
 
+use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\Exception\ActionProcessException;
+use Shopware\Core\Framework\Context;
 
 /**
  * @internal only for use by the app-system
  */
 class ActionButtonResponseFactory
 {
-    public function createFromResponse(string $actionId, string $actionType, array $payload): ActionButtonResponse
+    /**
+     * @var ActionButtonResponseFactoryInterface[]
+     */
+    private iterable $factories;
+
+    public function __construct(iterable $factories)
     {
-        switch ($actionType) {
-            case ActionButtonResponse::ACTION_SHOW_NOTITFICATION:
-                return NotificationResponse::create($actionId, $actionType, $payload);
-            case ActionButtonResponse::ACTION_OPEN_NEW_TAB:
-                return OpenNewTabResponse::create($actionId, $actionType, $payload);
-            case ActionButtonResponse::ACTION_RELOAD_DATA:
-                return ReloadDataResponse::create($actionId, $actionType, $payload);
-            case ActionButtonResponse::ACTION_OPEN_MODAL:
-                return OpenModalResponse::create($actionId, $actionType, $payload);
-            default:
-                throw new ActionProcessException($actionId, 'Invalid action type provided by app');
+        $this->factories = $factories;
+    }
+
+    public function createFromResponse(AppAction $action, string $actionType, array $payload, Context $context): ActionButtonResponse
+    {
+        foreach ($this->factories as $factory) {
+            if ($factory->supports($actionType)) {
+                return $factory->create($action, $payload, $context);
+            }
         }
+
+        throw new ActionProcessException($action->getActionId(), sprintf('No factory found for action type "%s"', $actionType));
     }
 }

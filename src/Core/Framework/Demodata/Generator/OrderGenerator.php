@@ -145,7 +145,12 @@ SQL;
             $new = $blueprint->getLineItems()->slice($offset, $itemCount);
 
             $cart = $this->cartService->createNew($salesChannelContext->getToken(), 'demo-data');
-            $cart->setData($blueprint->getData());
+
+            $dataCollection = $blueprint->getData();
+            $shippingMethod = $salesChannelContext->getShippingMethod();
+            $dataCollection->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
+            $cart->setData($dataCollection);
+
             $cart->addLineItems($new);
             $cart->addExtension(OrderConverter::ORIGINAL_ORDER_NUMBER, new IdStruct(Uuid::randomHex()));
             $cart->setTransactions($blueprint->getTransactions());

@@ -75,8 +75,8 @@
                                                     <div class="swag-fade-container swag-fade-container-shrinked">
                                                         {{ nestedLineItem.label }}
                                                     </div>
-                                                    <a href="#" class="swag-fading-link-more swag-fade-link-hidden">more</a>
-                                                    <a href="#" class="swag-fading-link-less swag-fade-link-hidden">less</a>
+                                                    <a href="#" class="swag-fading-link-more swag-fade-link-hidden">{{ 'checkout.lineItemShowMore'|trans|sw_sanitize }}</a>
+                                                    <a href="#" class="swag-fading-link-less swag-fade-link-hidden">{{ 'checkout.lineItemShowLess'|trans|sw_sanitize }}</a>
                                                 </div>
                                             {% endblock %}
 

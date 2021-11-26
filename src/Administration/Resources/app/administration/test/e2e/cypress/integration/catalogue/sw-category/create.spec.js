@@ -108,7 +108,7 @@ describe('Category: Create several categories', () => {
         });
     });
 
-    it('@base @catalogue: create a subcategory', () => {
+    it('@base @catalogue @package: create a subcategory', () => {
         const page = new CategoryPageObject();
 
         // Request we want to wait for later

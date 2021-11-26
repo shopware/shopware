@@ -93,8 +93,18 @@ Component.register('sw-text-editor-toolbar', {
         this.mountedComponent();
     },
 
+    /**
+     * @feature-deprecated (FEATURE_NEXT_17973) tag:v6.5.0 - Use unmounted instead.
+     */
     beforeDestroy() {
         this.beforeDestroyComponent();
+    },
+
+    /**
+     * @internal (flag:FEATURE_NEXT_17973)
+     */
+    unmounted() {
+        this.beforeUnmountedComponent();
     },
 
     destroyed() {
@@ -147,18 +157,25 @@ Component.register('sw-text-editor-toolbar', {
             }
         },
 
+        /**
+         * @feature-deprecated (FEATURE_NEXT_17973) tag:v6.5.0 - Use `beforeUnmountedComponent` instead.
+         */
         beforeDestroyComponent() {
-            const body = document.querySelector('body');
-
-            if (body.contains(this.$el)) {
-                body.removeChild(this.$el);
-            }
+            this.beforeUnmountedComponent();
         },
 
         destroyedComponent() {
             this.closeExpandedMenu();
             document.removeEventListener('mouseup', this.onMouseUp);
             this.$emit('destroyed-el');
+        },
+
+        beforeUnmountedComponent() {
+            const body = document.querySelector('body');
+
+            if (body.contains(this.$el)) {
+                body.removeChild(this.$el);
+            }
         },
 
         onMouseUp(event) {

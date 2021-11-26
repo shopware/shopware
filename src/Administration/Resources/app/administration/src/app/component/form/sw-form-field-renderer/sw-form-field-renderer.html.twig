@@ -7,6 +7,19 @@
     class="sw-form-field-renderer"
     @change="$emit('change', $event)"
 >
+    {% block sw_form_field_renderer_scope_slots %}
+    <template
+        v-for="(slot, slotName) in $scopedSlots"
+        v-slot:[slotName]="slotData"
+    >
+        <slot
+            v-if="feature.isActive('FEATURE_NEXT_17973')"
+            :name="slotName"
+            v-bind="slotData"
+        >
+        </slot>
+    </template>
+    {% endblock %}
 
     {% block sw_form_field_renderer_inner %}
     <slot>{% block sw_form_field_renderer_inner_slot %}{% endblock %}</slot>

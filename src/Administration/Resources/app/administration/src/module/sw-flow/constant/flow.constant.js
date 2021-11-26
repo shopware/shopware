@@ -9,6 +9,9 @@ export const ACTION = Object.freeze({
     GENERATE_DOCUMENT: 'action.generate.document',
     MAIL_SEND: 'action.mail.send',
     STOP_FLOW: 'action.stop.flow',
+    SET_ORDER_CUSTOM_FIELD: 'action.set.order.custom.field',
+    SET_CUSTOMER_CUSTOM_FIELD: 'action.set.customer.custom.field',
+    SET_CUSTOMER_GROUP_CUSTOM_FIELD: 'action.set.customer.group.custom.field',
     CHANGE_CUSTOMER_GROUP: 'action.change.customer.group',
     CHANGE_CUSTOMER_STATUS: 'action.change.customer.status',
 });

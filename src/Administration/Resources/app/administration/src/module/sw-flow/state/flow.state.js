@@ -16,6 +16,8 @@ export default {
         stateMachineState: [],
         documentTypes: [],
         mailTemplates: [],
+        customFieldSets: [],
+        customFields: [],
         customerGroups: [],
     },
 
@@ -108,6 +110,14 @@ export default {
         removeTriggerEvent(state) {
             state.triggerEvent = {};
         },
+
+        setCustomFieldSets(state, customFieldSet) {
+            state.customFieldSets = customFieldSet;
+        },
+
+        setCustomFields(state, customField) {
+            state.customFields = customField;
+        },
     },
 
     getters: {
@@ -154,6 +164,22 @@ export default {
             return state.flow.sequences
                 .filter(item => item.actionName === ACTION.MAIL_SEND)
                 .map(item => item.config?.mailTemplateId);
+        },
+
+        customFieldSetIds(state) {
+            return state.flow.sequences
+                .filter(item => item.actionName === ACTION.SET_CUSTOMER_CUSTOM_FIELD
+                    || item.actionName === ACTION.SET_ORDER_CUSTOM_FIELD
+                    || item.actionName === ACTION.SET_CUSTOMER_GROUP_CUSTOM_FIELD)
+                .map(item => item.config?.customFieldSetId);
+        },
+
+        customFieldIds(state) {
+            return state.flow.sequences
+                .filter(item => item.actionName === ACTION.SET_CUSTOMER_CUSTOM_FIELD
+                    || item.actionName === ACTION.SET_ORDER_CUSTOM_FIELD
+                    || item.actionName === ACTION.SET_CUSTOMER_GROUP_CUSTOM_FIELD)
+                .map(item => item.config?.customFieldId);
         },
     },
 

@@ -78,6 +78,7 @@
       "stopFlow": "Flow anhalten",
       "changeCustomerGroup": "Kundengruppe ändern",
       "changeCustomerStatus": "Kundenstatus ändern",
+      "changeCustomFieldContent": "Zusatzfeldinhalt ändern",
       "textStopFlowDescription": "Nachfolgende Aktionen/Sequenzen werden nicht ausgeführt.",
       "labelDescription": "Beschreibung: {description}",
       "contextButton": {
@@ -88,6 +89,9 @@
       "labelTo": "Zu: {entity}",
       "labelTag": "Tag: {tagNames}",
       "labelTemplate": "Template: {template}",
+      "labelCustomFieldSet": "Zusatzfeld-Set: {customFieldSet}",
+      "labelCustomField": "Zusatzfeld: {customField}",
+      "labelCustomFieldOption": "Zusatzfeld-Option: {customFieldOption}",
       "placeholderSelectAction": "Aktion auswählen ..."
     },
     "rule": {
@@ -189,6 +193,25 @@
         "labelLatestDocuments": "(Neueste) Dokumente hinzufügen",
         "placeholderLatestDocuments": "Dokumente hinzufügen ...",
         "documentDescription": "Falls das ausgewählte Dokument nicht existiert, musst Du es zunächst generieren, sonste werden keine Dokumente gesendet."
+      },
+      "setEntityCustomField": {
+        "labelToField": "Entität",
+        "placeholderToField": "Entität auswählen ...",
+        "title": "Zusatzfeld ändern",
+        "customFieldSet": "Zusatzfeld-Set",
+        "customFieldSetPlaceHolder": "Zusatzfeld-Set auswählen ...",
+        "customField": "Zusatzfeld",
+        "customFieldPlaceHolder": "Zusatzfeld auswählen ...",
+        "requiredMessageError": "\"{item}\" darf nicht leer sein!",
+        "customFieldOption": "Zusatzfeld-Optionen",
+        "prefixFieldName": "Ändern: ",
+        "options": {
+          "overwrite": "Überschreiben",
+          "notOverwrite": "Nicht überschreiben",
+          "clear": "Leeren",
+          "add": "Hinzufügen",
+          "remove": "Entfernen"
+        }
       },
       "confirmation": {
         "textConfirmChangeTrigger": "Bist Du sicher, dass Du das Trigger-Ereignis ändern willst? <br> Der Flow wird zurückgesetzt, sobald Du auf Bestätigen klickst."

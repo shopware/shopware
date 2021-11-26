@@ -78,6 +78,7 @@
       "stopFlow": "Stop flow",
       "changeCustomerGroup": "Change customer group",
       "changeCustomerStatus": "Change customer status",
+      "changeCustomFieldContent": "Change custom field content",
       "textStopFlowDescription": "Subsequent actions/ sequences will not be executed.",
       "labelDescription": "Description: {description}",
       "contextButton": {
@@ -88,7 +89,10 @@
       "labelTo": "To: {entity}",
       "labelTag": "Tag: {tagNames}",
       "labelTemplate": "Template: {template}",
-      "placeholderSelectAction": "Select action ..."
+      "labelCustomFieldSet": "Custom field set: {customFieldSet}",
+      "labelCustomField": "Custom field: {customField}",
+      "labelCustomFieldOption": "Custom field option: {customFieldOption}",
+      "placeholderSelectAction": "Select action..."
     },
     "rule": {
       "addRule": "Add rule",
@@ -187,8 +191,27 @@
         "labelRecipient": "Recipient",
         "placeholderRecipient": "Select email recipient ...",
         "labelLatestDocuments": "Add (latest) documents",
-        "placeholderLatestDocuments": "Add documents ...",
+        "placeholderLatestDocuments": "Add documents...",
         "documentDescription": "If the selected document doesn't exist you'll have to generate it first. Otherwise no documents will be sent."
+      },
+      "setEntityCustomField": {
+        "labelToField": "Entity",
+        "placeholderToField": "Select entity ...",
+        "title": "Change custom field",
+        "customFieldSet": "Custom field set",
+        "customFieldSetPlaceHolder": "Select custom field set...",
+        "customField": "Custom field",
+        "customFieldPlaceHolder": "Select custom field...",
+        "requiredMessageError": "\"{item}\" should not be empty!",
+        "customFieldOption": "Field options",
+        "prefixFieldName": "Change: ",
+        "options": {
+          "overwrite": "Overwrite",
+          "notOverwrite": "Do not overwrite",
+          "clear": "Clear",
+          "add": "Add",
+          "remove": "Remove"
+        }
       },
       "confirmation": {
         "textConfirmChangeTrigger": "Are you sure you want to change the trigger event? <br> The flow sequence will be reset if you press the confirm button."

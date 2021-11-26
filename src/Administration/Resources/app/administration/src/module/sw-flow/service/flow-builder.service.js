@@ -15,6 +15,7 @@ export default function flowBuilderService() {
         changeCustomerGroup: 'default-avatar-multiple',
         changeCustomerStatus: 'default-avatar-single',
         stopFlow: 'default-basic-x-circle',
+        setCustomField: 'default-documentation-paper-pencil-signed',
     };
 
     const $labelSnippet = {
@@ -26,6 +27,7 @@ export default function flowBuilderService() {
         changeCustomerGroup: 'sw-flow.actions.changeCustomerGroup',
         changeCustomerStatus: 'sw-flow.actions.changeCustomerStatus',
         stopFlow: 'sw-flow.actions.stopFlow',
+        setCustomField: 'sw-flow.actions.changeCustomFieldContent',
     };
 
     return {
@@ -52,6 +54,16 @@ export default function flowBuilderService() {
                     value: actionName,
                     icon: $icon.removeTag,
                     label: $labelSnippet.removeTag,
+                };
+            }
+        }
+
+        if (Shopware.Feature.isActive('FEATURE_NEXT_17973')) {
+            if (actionName.includes('custom') && actionName.includes('field')) {
+                return {
+                    value: actionName,
+                    icon: $icon.setCustomField,
+                    label: $labelSnippet.setCustomField,
                 };
             }
         }
@@ -85,6 +97,12 @@ export default function flowBuilderService() {
         if (actionName.includes('tag') &&
            (actionName.includes('add') || actionName.includes('remove'))) {
             return 'sw-flow-tag-modal';
+        }
+
+        if (Shopware.Feature.isActive('FEATURE_NEXT_17973')) {
+            if (actionName.includes('custom') && actionName.includes('field')) {
+                return 'sw-flow-set-entity-custom-field-modal';
+            }
         }
 
         return `${actionName.replace(/\./g, '-').replace('action', 'sw-flow')}-modal`;

@@ -8,10 +8,19 @@
 
     {% block sw_text_editor_label %}
     <div
-        v-if="label.length"
+        v-if="!feature.isActive('FEATURE_NEXT_17973') && label.length"
         class="sw-text-editor__label"
     >
         {{ label }}
+    </div>
+
+    <div
+        v-if="feature.isActive('FEATURE_NEXT_17973') && showLabel"
+        class="sw-text-editor__label"
+    >
+        <slot name="label">
+            {{ label }}
+        </slot>
     </div>
     {% endblock %}
     {% block sw_text_editor_box %}

@@ -100,7 +100,7 @@ class CartFacadeTest extends TestCase
     /**
      * @dataProvider scriptProvider
      */
-    public function testScripts(string $hook, array $expectations): void
+    public function testScripts(string $hook, array $expectations, ?\Closure $closure = null): void
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');
 
@@ -113,6 +113,10 @@ class CartFacadeTest extends TestCase
         $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
 
         $this->assertItems($service, $expectations);
+
+        if ($closure !== null) {
+            $closure($service, $this->ids);
+        }
     }
 
     public function testDependency(): void
@@ -121,39 +125,6 @@ class CartFacadeTest extends TestCase
 
         $service = $this->getContainer()->get(CartFacadeHookFactory::class);
         $service->factory(new TestHook('test', Context::createDefaultContext()), $this->script);
-    }
-
-    public function testPayloads(): void
-    {
-        $this->loadAppsFromDir(__DIR__ . '/_fixtures');
-
-        $hook = $this->createTestHook('payload-cases', $this->ids);
-
-        $service = $this->getContainer()
-            ->get(CartFacadeHookFactory::class)
-            ->factory($hook, $this->script);
-
-        $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
-
-        $item = $service->get($this->ids->get('p1'));
-
-        $expected = [
-            'test' => 1,
-            'foo' => 'bar',
-            'push',
-            'bar' => 'baz',
-            'baz' => true,
-        ];
-
-        static::assertInstanceOf(ItemFacade::class, $item);
-
-        foreach ($expected as $key => $value) {
-            static::assertArrayHasKey($key, $item->getItem()->getPayload());
-
-            $actual = $item->getItem()->getPayload()[$key];
-
-            static::assertEquals($value, $actual, sprintf('Payload value %s does not match', $key));
-        }
     }
 
     public function addProductProvider(): \Generator
@@ -259,6 +230,34 @@ class CartFacadeTest extends TestCase
                     ],
                 ],
             ],
+        ];
+
+        yield 'Test payload' => [
+            'payload-cases',
+            [],
+            function (CartFacade $service, IdsCollection $ids): void {
+                $item = $service->get($ids->get('p1'));
+                static::assertInstanceOf(ItemFacade::class, $item);
+
+                $expected = ['test' => 1, 'foo' => 'bar', 'push', 'bar' => 'baz', 'baz' => true];
+                foreach ($expected as $key => $value) {
+                    static::assertArrayHasKey($key, $item->getItem()->getPayload());
+                    $actual = $item->getItem()->getPayload()[$key];
+                    static::assertEquals($value, $actual, sprintf('Payload value %s does not match', $key));
+                }
+            },
+        ];
+
+        yield 'Test add errors' => [
+            'add-errors',
+            [],
+            function (CartFacade $cart): void {
+                static::assertTrue($cart->errors()->has('NO_PRODUCTS_IN_CART'));
+                static::assertTrue($cart->errors()->has('YOU_SHOULD_REALLY_ADD_PRODUCTS'));
+                static::assertTrue($cart->errors()->has('ADD_PRODUCTS_OR_GO_AWAY'));
+                static::assertTrue($cart->errors()->has('add-same-message'));
+                static::assertTrue($cart->errors()->has('MESSAGE_WITH_PARAMETERS'));
+            },
         ];
     }
 

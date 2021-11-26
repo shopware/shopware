@@ -324,14 +324,6 @@ class Cart extends Struct
     }
 
     /**
-     * Short hand for scripts
-     */
-    public function getItems(): LineItemCollection
-    {
-        return $this->getLineItems();
-    }
-
-    /**
      * @internal
      */
     public function getBehavior(): CartBehavior

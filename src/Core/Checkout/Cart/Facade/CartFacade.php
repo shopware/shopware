@@ -35,12 +35,12 @@ class CartFacade
 
     public function items(): ItemFunctions
     {
-        return new ItemFunctions($this->cart->getItems(), $this->services);
+        return new ItemFunctions($this->cart->getLineItems(), $this->services);
     }
 
     public function products(): ProductFunctions
     {
-        return new ProductFunctions($this->cart->getItems(), $this->services);
+        return new ProductFunctions($this->cart->getLineItems(), $this->services);
     }
 
     public function calculate(): void
@@ -55,8 +55,13 @@ class CartFacade
         return new CartPriceFacade($this->cart->getPrice(), $this->services);
     }
 
+    public function errors(): ErrorFunctions
+    {
+        return new ErrorFunctions($this->cart->getErrors());
+    }
+
     protected function getItems(): LineItemCollection
     {
-        return $this->cart->getItems();
+        return $this->cart->getLineItems();
     }
 }

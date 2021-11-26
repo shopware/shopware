@@ -55,7 +55,7 @@ class DiscountProcessorTest extends TestCase
         $processor->process(new CartDataCollection(), $cart, $new, $context, new CartBehavior());
 
         if ($expected === null) {
-            static::assertFalse($new->has(self::DISCOUNT_ID), print_r($new->getItems()->getKeys(), true));
+            static::assertFalse($new->has(self::DISCOUNT_ID));
 
             return;
         }

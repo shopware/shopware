@@ -138,7 +138,7 @@ class SystemSetupCommand extends Command
         });
 
         $io->section('Application information');
-        $env['BLUE_GREEN_DEPLOYMENT'] = $io->confirm('Blue Green Deployment') ? '1' : '0';
+        $env['BLUE_GREEN_DEPLOYMENT'] = $io->confirm('Blue Green Deployment', $input->getOption('blue-green') !== '0') ? '1' : '0';
 
         $io->section('Generate keys and secrets');
 

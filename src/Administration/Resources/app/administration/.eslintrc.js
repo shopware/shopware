@@ -203,6 +203,7 @@ module.exports = {
                         tsx: 'never',
                     },
                 ],
+                'no-void': 'off',
             },
         },
     ],

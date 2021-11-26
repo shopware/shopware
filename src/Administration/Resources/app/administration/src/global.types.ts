@@ -106,7 +106,10 @@ declare global {
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface VuexRootState {
         context: ContextState,
-        session: any,
+        session: {
+            currentLocale: string,
+            currentUser: $TSFixMe,
+        },
     }
 
     /**

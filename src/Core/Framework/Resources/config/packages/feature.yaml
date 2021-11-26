@@ -250,3 +250,8 @@ shopware:
         major: false
         description: "Basic Flow Builder and App System integration"
         # issue: NEXT-17540
+      - name: FEATURE_NEXT_19163
+        default: false
+        major: true
+        description: "one to one inheritance"
+        # issue: NEXT-19163

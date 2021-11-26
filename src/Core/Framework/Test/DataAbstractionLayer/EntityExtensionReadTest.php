@@ -16,10 +16,10 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ManyToOneProductDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\OneToOneInheritedProductDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\OneToOneInheritedProductExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ProductExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ProductExtensionSelfReferenced;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\OneToOneInheritedProductDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ToOneProductExtension;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -354,9 +354,11 @@ class EntityExtensionReadTest extends TestCase
         static::assertEquals($linkedProductId, $product->getExtension('ManyToOneSelfReference')->getVars()['id']);
     }
 
-    public function testVariantDoesNotInheritOneToOneAssociationFromParent()
+    public function testVariantDoesNotInheritOneToOneAssociationFromParent(): void
     {
         $myDate = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2021-11-03 13:37:00')->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+        $context = Context::createDefaultContext();
 
         $this->productRepository->create([
             [
@@ -369,8 +371,8 @@ class EntityExtensionReadTest extends TestCase
                 'oneToOneInherited' => [
                     'myDate' => $myDate,
                 ],
-            ]
-        ], Context::createDefaultContext());
+            ],
+        ], $context);
 
         $this->productRepository->create([
             [
@@ -379,10 +381,13 @@ class EntityExtensionReadTest extends TestCase
                 'parentId' => $productId,
                 'stock' => 1,
             ],
-        ], Context::createDefaultContext());
+        ], $context);
 
-        $product = $this->productRepository->search(new Criteria([$productId]), Context::createDefaultContext())->first();
-        $variant = $this->productRepository->search(new Criteria([$variantId]), Context::createDefaultContext())->first();
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
+
+        $variant = $context->enableInheritance(function (Context $context) use ($variantId) {
+            return $this->productRepository->search(new Criteria([$variantId]), $context)->first();
+        });
 
         static::assertTrue($product->hasExtension('oneToOneInherited'));
         /** @var ArrayEntity $extension */

@@ -8,11 +8,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelpe
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
+use Shopware\Core\Framework\Feature;
 
 /**
  * @internal
@@ -101,13 +105,25 @@ class ManyToOneAssociationFieldResolver extends AbstractFieldResolver
         $inherited = EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getPropertyName());
 
         $fk = $definition->getFields()->getByStorageName($field->getStorageName());
-        if ($fk && $fk->is(Required::class)) {
-            $parent = $root . '.parent';
 
-            $inherited = sprintf(
+        if (!$fk) {
+            //@internal remove "else" part, we should throw an exception here
+            if (Feature::isActive('FEATURE_NEXT_19163')) {
+                throw new \RuntimeException(sprintf('Can not find foreign key for table column %s.%s', $definition->getEntityName(), $field->getStorageName()));
+            }
+
+            return $inherited;
+        }
+
+        if ($fk instanceof IdField && $field->is(PrimaryKey::class)) {
+            return $inherited;
+        }
+
+        if ($fk instanceof FkField && $field->is(Required::class)) {
+            return sprintf(
                 'IFNULL(%s, %s)',
                 EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName()),
-                EntityDefinitionQueryHelper::escape($parent) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName())
+                EntityDefinitionQueryHelper::escape($root . '.parent') . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName())
             );
         }
 

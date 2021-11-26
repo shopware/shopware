@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition;
 
-use OneToOneExtensionInheritanceDemo\Core\Content\OneToOneExtensionInheritanceDemo\OneToOneExtensionInheritanceDemoCollection;
-use OneToOneExtensionInheritanceDemo\Core\Content\OneToOneExtensionInheritanceDemo\OneToOneExtensionInheritanceDemoEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;

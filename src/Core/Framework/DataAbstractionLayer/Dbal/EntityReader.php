@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Connection;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
@@ -49,18 +50,22 @@ class EntityReader implements EntityReaderInterface
 
     private CriteriaQueryBuilder $criteriaQueryBuilder;
 
+    private LoggerInterface $logger;
+
     public function __construct(
         Connection $connection,
         EntityHydrator $hydrator,
         EntityDefinitionQueryHelper $queryHelper,
         SqlQueryParser $parser,
-        CriteriaQueryBuilder $criteriaQueryBuilder
+        CriteriaQueryBuilder $criteriaQueryBuilder,
+        LoggerInterface $logger
     ) {
         $this->connection = $connection;
         $this->hydrator = $hydrator;
         $this->queryHelper = $queryHelper;
         $this->parser = $parser;
         $this->criteriaQueryBuilder = $criteriaQueryBuilder;
+        $this->logger = $logger;
     }
 
     public function read(EntityDefinition $definition, Criteria $criteria, Context $context): EntityCollection
@@ -965,6 +970,9 @@ class EntityReader implements EntityReaderInterface
 
             $field = $definition->getFields()->get($fieldName);
             if (!$field) {
+                $this->logger->warning(sprintf('Association "%s" could not be resolved. This can happen if your Criteria'
+                    . ' do not match the current EntityDefinition when you maintain forward/backward compatibility.'
+                    . ' If this was not intended, then you should double check your Criteria!', $fieldName));
                 continue;
             }
 

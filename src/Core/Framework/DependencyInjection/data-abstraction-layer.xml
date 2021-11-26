@@ -98,6 +98,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaQueryBuilder"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service class="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityAggregator" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface">

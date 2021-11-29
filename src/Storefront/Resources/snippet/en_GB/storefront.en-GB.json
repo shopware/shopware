@@ -330,6 +330,8 @@
     "summaryHeader": "Summary",
     "lineItemContainerHeadline": "Contains",
     "lineItemContainerChangeLink": "change",
+    "lineItemShowMore": "more",
+    "lineItemShowLess": "less",
     "cartEmpty": "Your shopping cart is empty.",
     "cartHeaderInfo": "Product",
     "cartHeaderQuantity": "Quantity",

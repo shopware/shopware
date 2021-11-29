@@ -220,10 +220,17 @@ function resolveTemplates() {
             html: '',
         };
 
-        if (templateDefinition.extend && templateDefinition.extend.overrides.length > 0) {
-            // If this component extends a component that is overwritten, resolve that extended component with all its
-            // overrides first, before resolving this component with it.
-            registerNormalizedTemplate(templateDefinition.extend);
+        const hasOverridesInExtensionChain = (component) => {
+            if (!component.extend) {
+                return false;
+            }
+
+            return component.extend.overrides.length > 0 || hasOverridesInExtensionChain(component.extend);
+        };
+        if (hasOverridesInExtensionChain(templateDefinition)) {
+            // If this component extends (transitively) a component that is overwritten, resolve that extended component
+            // with all its overrides first, before resolving this component with it.
+            registerNormalizedTemplate(templateRegistry.get(templateDefinition.extend.name));
         }
 
         // Extend with overrides

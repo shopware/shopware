@@ -3,7 +3,10 @@
 namespace Shopware\Storefront\Test\Theme\ConfigLoader;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
@@ -15,16 +18,188 @@ class DatabaseConfigLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    private const MEDIA_ID = 'eac39bbb419e4741a950cd94f55b35ef';
+
+    private IdsCollection $ids;
+
+    private EntityRepositoryInterface $themeRepository;
+
+    private EntityRepositoryInterface $mediaRepository;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->ids = new IdsCollection();
+
+        $this->themeRepository = $this->getContainer()->get('theme.repository');
+        $this->mediaRepository = $this->getContainer()->get('media.repository');
+    }
+
+    public function setUpMedia(): void
+    {
+        $this->ids->set('media', self::MEDIA_ID);
+
+        $data = [
+            'id' => $this->ids->get('media'),
+            'fileName' => 'testImage',
+            'mimeType' => 'image/png',
+            'fileExtension' => 'png',
+        ];
+
+        $this->mediaRepository->create([$data], Context::createDefaultContext());
+    }
+
+    public function testMediaConfigurationLoading(): void
+    {
+        self::setUpMedia();
+
+        $theme = [[
+            'id' => $this->ids->get('base'),
+            'name' => 'base',
+            'author' => 'test',
+            'technicalName' => 'base',
+            'active' => true,
+            'baseConfig' => [
+                'fields' => [
+                    'media-field' => self::media(self::MEDIA_ID),
+                ],
+            ],
+        ]];
+
+        $this->themeRepository->create($theme, Context::createDefaultContext());
+
+        $collection = new StorefrontPluginConfigurationCollection([
+            new StorefrontPluginConfiguration('base'),
+        ]);
+
+        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry->method('getConfigurations')
+            ->willReturn($collection);
+
+        $service = new DatabaseConfigLoader(
+            $this->themeRepository,
+            $registry,
+            $this->mediaRepository,
+            'base',
+        );
+
+        $config = $service->load($this->ids->get('base'), Context::createDefaultContext());
+
+        static::assertInstanceOf(StorefrontPluginConfiguration::class, $config);
+
+        $themeConfig = $config->getThemeConfig();
+
+        $mediaURL = EnvironmentHelper::getVariable('APP_URL') . '/media/fd/01/0e/testImage.png';
+
+        if (!Feature::isActive('FEATURE_NEXT_19048')) {
+            static::assertEquals($mediaURL, $themeConfig['media-field']['value']);
+        }
+
+        static::assertEquals($mediaURL, $themeConfig['fields']['media-field']['value']);
+    }
+
+    public function testEmptyMediaConfigurationLoading(): void
+    {
+        $theme = [[
+            'id' => $this->ids->get('base'),
+            'name' => 'base',
+            'author' => 'test',
+            'technicalName' => 'base',
+            'active' => true,
+            'baseConfig' => [
+                'fields' => [
+                    'media-field' => self::media(null),
+                ],
+            ],
+        ]];
+
+        $this->themeRepository->create($theme, Context::createDefaultContext());
+
+        $collection = new StorefrontPluginConfigurationCollection([
+            new StorefrontPluginConfiguration('base'),
+        ]);
+
+        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry->method('getConfigurations')
+            ->willReturn($collection);
+
+        $service = new DatabaseConfigLoader(
+            $this->themeRepository,
+            $registry,
+            $this->mediaRepository,
+            'base',
+        );
+
+        $config = $service->load($this->ids->get('base'), Context::createDefaultContext());
+
+        static::assertInstanceOf(StorefrontPluginConfiguration::class, $config);
+
+        $themeConfig = $config->getThemeConfig();
+
+        $mediaURL = null;
+
+        if (!Feature::isActive('FEATURE_NEXT_19048')) {
+            static::assertEquals($mediaURL, $themeConfig['media-field']['value']);
+        }
+
+        static::assertEquals($mediaURL, $themeConfig['fields']['media-field']['value']);
+    }
+
+    public function testNonExistentMediaConfigurationLoading(): void
+    {
+        $theme = [[
+            'id' => $this->ids->get('base'),
+            'name' => 'base',
+            'author' => 'test',
+            'technicalName' => 'base',
+            'active' => true,
+            'baseConfig' => [
+                'fields' => [
+                    'media-field' => self::media(self::MEDIA_ID),
+                ],
+            ],
+        ]];
+
+        $this->themeRepository->create($theme, Context::createDefaultContext());
+
+        $collection = new StorefrontPluginConfigurationCollection([
+            new StorefrontPluginConfiguration('base'),
+        ]);
+
+        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry->method('getConfigurations')
+            ->willReturn($collection);
+
+        $service = new DatabaseConfigLoader(
+            $this->themeRepository,
+            $registry,
+            $this->mediaRepository,
+            'base',
+        );
+
+        $config = $service->load($this->ids->get('base'), Context::createDefaultContext());
+
+        static::assertInstanceOf(StorefrontPluginConfiguration::class, $config);
+
+        $themeConfig = $config->getThemeConfig();
+
+        $mediaURL = self::MEDIA_ID;
+
+        if (!Feature::isActive('FEATURE_NEXT_19048')) {
+            static::assertEquals($mediaURL, $themeConfig['media-field']['value']);
+        }
+
+        static::assertEquals($mediaURL, $themeConfig['fields']['media-field']['value']);
+    }
+
     /**
      * @dataProvider configurationLoadingProvider
      */
     public function testConfigurationLoading(string $key, array $config, array $expected): void
     {
-        $ids = new IdsCollection();
-
         $themes = [
             [
-                'id' => $ids->get('base'),
+                'id' => $this->ids->get('base'),
                 'name' => 'base',
                 'author' => 'test',
                 'technicalName' => 'base',
@@ -34,8 +209,8 @@ class DatabaseConfigLoaderTest extends TestCase
                 ],
             ],
             [
-                'id' => $ids->get('parent'),
-                'parentThemeId' => $ids->get('base'),
+                'id' => $this->ids->get('parent'),
+                'parentThemeId' => $this->ids->get('base'),
                 'name' => 'parent',
                 'author' => 'test',
                 'active' => true,
@@ -45,8 +220,8 @@ class DatabaseConfigLoaderTest extends TestCase
                 ],
             ],
             [
-                'id' => $ids->get('child'),
-                'parentThemeId' => $ids->get('parent'),
+                'id' => $this->ids->get('child'),
+                'parentThemeId' => $this->ids->get('parent'),
                 'name' => 'child',
                 'author' => 'test',
                 'active' => true,
@@ -57,8 +232,7 @@ class DatabaseConfigLoaderTest extends TestCase
             ],
         ];
 
-        $this->getContainer()->get('theme.repository')
-            ->create($themes, Context::createDefaultContext());
+        $this->themeRepository->create($themes, Context::createDefaultContext());
 
         $collection = new StorefrontPluginConfigurationCollection([
             new StorefrontPluginConfiguration('base'),
@@ -72,13 +246,13 @@ class DatabaseConfigLoaderTest extends TestCase
             ->willReturn($collection);
 
         $service = new DatabaseConfigLoader(
-            $this->getContainer()->get('theme.repository'),
+            $this->themeRepository,
             $registry,
-            $this->getContainer()->get('media.repository'),
+            $this->mediaRepository,
             'base'
         );
 
-        $config = $service->load($ids->get($key), Context::createDefaultContext());
+        $config = $service->load($this->ids->get($key), Context::createDefaultContext());
 
         static::assertInstanceOf(StorefrontPluginConfiguration::class, $config);
 
@@ -90,7 +264,7 @@ class DatabaseConfigLoaderTest extends TestCase
         }
     }
 
-    public function configurationLoadingProvider()
+    public function configurationLoadingProvider(): iterable
     {
         yield 'Test simple inheritance' => [
             'child',
@@ -157,6 +331,11 @@ class DatabaseConfigLoaderTest extends TestCase
     private static function field(string $value): array
     {
         return ['type' => 'color', 'value' => $value];
+    }
+
+    private static function media(?string $value): array
+    {
+        return ['type' => 'media', 'value' => $value];
     }
 
     /**

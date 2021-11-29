@@ -235,6 +235,11 @@ shopware:
         major: false
         description: "Add grouping to rule conditions"
         # issue: NEXT-16148
+      - name: FEATURE_NEXT_19048
+        default: false
+        major: true
+        description: "Fix media resolution in theme"
+        # issue: NEXT-19048
       - name: FEATURE_NEXT_17546
         default: false
         major: false

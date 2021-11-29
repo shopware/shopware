@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\Exception\InvalidThemeException;
@@ -156,11 +157,9 @@ class DatabaseConfigLoader extends AbstractConfigLoader
             return $parentThemes;
         }
 
-        if ($parentTheme instanceof ThemeEntity && !\array_key_exists($parentTheme->getId(), $parentThemes)) {
-            $parentThemes[$parentTheme->getId()] = $parentTheme;
-            if ($parentTheme->getParentThemeId()) {
-                $parentThemes = $this->getParentThemeIds($themes, $mainTheme, $parentThemes);
-            }
+        $parentThemes[$parentTheme->getId()] = $parentTheme;
+        if ($parentTheme->getParentThemeId()) {
+            $parentThemes = $this->getParentThemeIds($themes, $mainTheme, $parentThemes);
         }
 
         return $parentThemes;
@@ -224,17 +223,17 @@ class DatabaseConfigLoader extends AbstractConfigLoader
             $configuredTheme = $pluginConfig->getThemeConfig() ?? [];
         }
 
-        if ($theme !== null && $theme->getBaseConfig() !== null) {
+        if ($theme->getBaseConfig() !== null) {
             $configuredTheme = array_replace_recursive($configuredTheme, $theme->getBaseConfig());
         }
 
-        if ($theme !== null && $theme->getConfigValues() !== null) {
-            if ($theme->getConfigValues() !== null) {
-                foreach ($theme->getConfigValues() as $fieldName => $configValue) {
-                    if (isset($configValue['value'])) {
-                        $configuredTheme['fields'][$fieldName]['value'] = $configValue['value'];
-                    }
-                }
+        if ($theme->getConfigValues() === null) {
+            return $configuredTheme;
+        }
+
+        foreach ($theme->getConfigValues() as $fieldName => $configValue) {
+            if (isset($configValue['value'])) {
+                $configuredTheme['fields'][$fieldName]['value'] = $configValue['value'];
             }
         }
 
@@ -253,12 +252,8 @@ class DatabaseConfigLoader extends AbstractConfigLoader
 
         // Collect all ids
         foreach ($config['fields'] as $_ => $data) {
-            if (!isset($data['value']) || !\is_string($data['value'])) {
-                continue;
-            }
-
-            if (
-                $data['value'] === ''
+            if (!isset($data['value'])
+                || $data['value'] === ''
                 || !\is_string($data['value'])
                 || (\array_key_exists('scss', $data) && $data['scss'] === false)
                 || (isset($data['type']) && $data['type'] !== 'media')
@@ -287,7 +282,6 @@ class DatabaseConfigLoader extends AbstractConfigLoader
 
             if (
                 $data['value'] === ''
-                || !\is_string($data['value'])
                 || (\array_key_exists('scss', $data) && $data['scss'] === false)
                 || (isset($data['type']) && $data['type'] !== 'media')
                 || !Uuid::isValid($data['value'])
@@ -299,7 +293,11 @@ class DatabaseConfigLoader extends AbstractConfigLoader
             $media = $mediaResult->get($data['value']);
 
             if ($media !== null) {
-                $config[$key]['value'] = $media->getUrl();
+                $config['fields'][$key]['value'] = $media->getUrl();
+
+                if (!Feature::isActive('FEATURE_NEXT_19048')) {
+                    $config[$key]['value'] = $media->getUrl();
+                }
             }
         }
 

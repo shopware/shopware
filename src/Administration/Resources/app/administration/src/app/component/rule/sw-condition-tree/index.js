@@ -10,6 +10,10 @@ const { EntityCollection } = Shopware.Data;
 Component.register('sw-condition-tree', {
     template,
 
+    inject: [
+        'feature',
+    ],
+
     provide() {
         return {
             availableTypes: this.availableTypes,
@@ -89,12 +93,29 @@ Component.register('sw-condition-tree', {
 
     computed: {
         availableTypes() {
+            let conditions;
             if (this.allowedTypes) {
-                return this.allowedTypes.map((type) => {
+                conditions = this.allowedTypes.map((type) => {
                     return this.conditionDataProviderService.getByType(type);
                 });
+            } else {
+                conditions = this.conditionDataProviderService.getConditions(this.scopes);
             }
-            return this.conditionDataProviderService.getConditions(this.scopes);
+
+            if (this.feature.isActive('FEATURE_NEXT_16148')) {
+                const groupedConditions = [];
+                this.conditionDataProviderService.getGroups().forEach((group) => {
+                    conditions.forEach((condition) => {
+                        if (condition.group === group.id) {
+                            groupedConditions.push(condition);
+                        }
+                    });
+                });
+
+                return groupedConditions;
+            }
+
+            return conditions;
         },
 
         rootId() {

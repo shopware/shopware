@@ -133,12 +133,33 @@ export default function createConditionService() {
         },
     };
 
+    const groups = {
+        general: {
+            id: 'general',
+            name: 'sw-settings-rule.detail.groups.general',
+        },
+        cart: {
+            id: 'cart',
+            name: 'sw-settings-rule.detail.groups.cart',
+        },
+        items: {
+            id: 'item',
+            name: 'sw-settings-rule.detail.groups.items',
+        },
+        customers: {
+            id: 'customer',
+            name: 'sw-settings-rule.detail.groups.customers',
+        },
+    };
+
     return {
         getByType,
+        getByGroup,
         addCondition,
         getConditions,
         addModuleType,
         getModuleTypes,
+        getGroups,
         getOperatorSet,
         getOperatorSetByComponent,
         getAndContainerData,
@@ -164,6 +185,19 @@ export default function createConditionService() {
         }
 
         return $store[type];
+    }
+
+    function getByGroup(group) {
+        const values = Object.values($store);
+        const conditions = [];
+
+        values.forEach(condition => {
+            if (condition.group === group) {
+                conditions.push(condition);
+            }
+        });
+
+        return conditions;
     }
 
     function addCondition(type, condition) {
@@ -208,6 +242,10 @@ export default function createConditionService() {
 
     function getModuleTypes() {
         return Object.values(moduleTypes);
+    }
+
+    function getGroups() {
+        return Object.values(groups);
     }
 
     function getConditions(allowedScopes = null) {

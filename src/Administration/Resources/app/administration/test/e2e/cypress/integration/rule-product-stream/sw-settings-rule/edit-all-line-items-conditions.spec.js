@@ -45,7 +45,7 @@ describe('Rule builder: Test all line items container crud operations', () => {
 
             page.createBasicInputCondition({
                 selector: '@first-condition',
-                type: 'Line item price',
+                type: 'Distinct line item price',
                 operator: 'Is less than',
                 inputName: 'amount',
                 value: '12'
@@ -62,7 +62,7 @@ describe('Rule builder: Test all line items container crud operations', () => {
             cy.get('.sw-condition').eq(1).as('second-condition');
             page.createBasicInputCondition({
                 selector: '@second-condition',
-                type: 'Line item width',
+                type: 'Line items with width',
                 operator: 'Is greater than',
                 inputName: 'amount',
                 value: '100'

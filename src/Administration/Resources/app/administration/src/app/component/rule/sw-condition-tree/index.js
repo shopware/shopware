@@ -102,7 +102,7 @@ Component.register('sw-condition-tree', {
                 conditions = this.conditionDataProviderService.getConditions(this.scopes);
             }
 
-            if (this.feature.isActive('FEATURE_NEXT_16148')) {
+            if (this.feature.isActive('FEATURE_NEXT_16148') && this.conditionDataProviderService.getGroups) {
                 const groupedConditions = [];
                 this.conditionDataProviderService.getGroups().forEach((group) => {
                     conditions.forEach((condition) => {

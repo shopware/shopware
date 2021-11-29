@@ -51,7 +51,7 @@ describe('Rule builder: Test use greater/lower than on zipcode condition', () =>
                 .then((conditionTypeSelect) => {
                     cy.wrap(conditionTypeSelect).click();
                     cy.get('.sw-select-result-list-popover-wrapper').should('be.visible');
-                    cy.get('.sw-select-result-list-popover-wrapper').contains('Shipping postal code').click();
+                    cy.get('.sw-select-result-list-popover-wrapper').contains('Shipping address: Postal code').click();
                 });
             cy.get('.sw-condition-zipcode-type-select')
                 .then((conditionZipCodeTypeSelect) => {
@@ -109,7 +109,7 @@ describe('Rule builder: Test use greater/lower than on zipcode condition', () =>
                 .then((conditionTypeSelect) => {
                     cy.wrap(conditionTypeSelect).click();
                     cy.get('.sw-select-result-list-popover-wrapper').should('be.visible');
-                    cy.get('.sw-select-result-list-popover-wrapper').contains('Billing postal code').click();
+                    cy.get('.sw-select-result-list-popover-wrapper').contains('Billing address: Postal code').click();
                 });
             cy.get('.sw-condition-zipcode-type-select')
                 .then((conditionZipCodeTypeSelect) => {

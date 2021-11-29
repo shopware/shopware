@@ -516,9 +516,9 @@ class ThemeFixtures
         ];
     }
 
-    public static function getThemeInheritedConfig(): array
+    public static function getThemeInheritedConfig(string $faviconId, string $demostoreLogoId): array
     {
-        return [
+        $config = [
             'blocks' => [
                 'themeColors' => [
                     'label' => [
@@ -1009,9 +1009,762 @@ class ThemeFixtures
                 ],
             ],
         ];
+
+        $config += [
+            'currentFields' => [
+                'sw-color-brand-primary' => [
+                    'value' => '#ff00ff',
+                ],
+                'sw-color-brand-secondary' => [
+                    'value' => null,
+                ],
+                'sw-border-color' => [
+                    'value' => '#bcc1c7',
+                ],
+                'sw-background-color' => [
+                    'value' => '#fff',
+                ],
+                'sw-color-success' => [
+                    'value' => '#3cc261',
+                ],
+                'sw-color-info' => [
+                    'value' => '#26b6cf',
+                ],
+                'sw-color-warning' => [
+                    'value' => '#ffbd5d',
+                ],
+                'sw-color-danger' => [
+                    'value' => '#e52427',
+                ],
+                'sw-font-family-base' => [
+                    'value' => '\'Inter\', sans-serif',
+                ],
+                'sw-text-color' => [
+                    'value' => '#4a545b',
+                ],
+                'sw-font-family-headline' => [
+                    'value' => '\'Inter\', sans-serif',
+                ],
+                'sw-headline-color' => [
+                    'value' => '#4a545b',
+                ],
+                'sw-color-price' => [
+                    'value' => '#4a545b',
+                ],
+                'sw-color-buy-button' => [
+                    'value' => '#008490',
+                ],
+                'sw-color-buy-button-text' => [
+                    'value' => '#fff',
+                ],
+                'sw-logo-desktop' => [
+                    'value' => $demostoreLogoId,
+                ],
+                'sw-logo-tablet' => [
+                    'value' => $demostoreLogoId,
+                ],
+                'sw-logo-mobile' => [
+                    'value' => $demostoreLogoId,
+                ],
+                'sw-logo-share' => [
+                    'value' => null,
+                ],
+                'sw-logo-favicon' => [
+                    'value' => $faviconId,
+                ],
+            ],
+            'baseThemeFields' => [
+                'sw-color-brand-primary' => [
+                    'value' => '#ff00ff',
+                ],
+                'sw-color-brand-secondary' => [
+                    'value' => '#526e7f',
+                ],
+                'sw-border-color' => [
+                    'value' => '#bcc1c7',
+                ],
+                'sw-background-color' => [
+                    'value' => '#fff',
+                ],
+                'sw-color-success' => [
+                    'value' => '#3cc261',
+                ],
+                'sw-color-info' => [
+                    'value' => '#26b6cf',
+                ],
+                'sw-color-warning' => [
+                    'value' => '#ffbd5d',
+                ],
+                'sw-color-danger' => [
+                    'value' => '#e52427',
+                ],
+                'sw-font-family-base' => [
+                    'value' => '\'Inter\', sans-serif',
+                ],
+                'sw-text-color' => [
+                    'value' => '#4a545b',
+                ],
+                'sw-font-family-headline' => [
+                    'value' => '\'Inter\', sans-serif',
+                ],
+                'sw-headline-color' => [
+                    'value' => '#4a545b',
+                ],
+                'sw-color-price' => [
+                    'value' => '#4a545b',
+                ],
+                'sw-color-buy-button' => [
+                    'value' => '#008490',
+                ],
+                'sw-color-buy-button-text' => [
+                    'value' => '#fff',
+                ],
+                'sw-logo-desktop' => [
+                    'value' => $demostoreLogoId,
+                ],
+                'sw-logo-tablet' => [
+                    'value' => $demostoreLogoId,
+                ],
+                'sw-logo-mobile' => [
+                    'value' => $demostoreLogoId,
+                ],
+                'sw-logo-share' => [
+                    'value' => null,
+                ],
+                'sw-logo-favicon' => [
+                    'value' => $faviconId,
+                ],
+            ],
+        ];
+
+        return $config;
     }
 
-    public static function getThemeConfig(): array
+    public static function getThemeInheritedBlankConfig(string $faviconId, string $demostoreLogoId): array
+    {
+        $config = [
+            'blocks' => [
+                'themeColors' => [
+                    'label' => [
+                        'en-GB' => 'Theme colours',
+                        'de-DE' => 'Theme-Farben',
+                    ],
+                ],
+                'typography' => [
+                    'label' => [
+                        'en-GB' => 'Typography',
+                        'de-DE' => 'Typografie',
+                    ],
+                ],
+                'media' => [
+                    'label' => [
+                        'en-GB' => 'Media',
+                        'de-DE' => 'Medien',
+                    ],
+                ],
+                'eCommerce' => [
+                    'label' => [
+                        'en-GB' => 'E-Commerce',
+                        'de-DE' => 'E-Commerce',
+                    ],
+                ],
+                'statusColors' => [
+                    'label' => [
+                        'en-GB' => 'Status messages',
+                        'de-DE' => 'Status-Ausgaben',
+                    ],
+                ],
+                'unordered' => [
+                    'label' => [
+                        'en-GB' => 'Misc',
+                        'de-DE' => 'Sonstige',
+                    ],
+                ],
+            ],
+            'fields' => [
+                'sw-color-brand-primary' => [
+                    'name' => 'sw-color-brand-primary',
+                    'label' => [
+                        'en-GB' => 'Primary colour',
+                        'de-DE' => 'Primärfarbe',
+                    ],
+                    'type' => 'color',
+                    'value' => '#ff00ff',
+                    'editable' => true,
+                    'block' => 'themeColors',
+                    'section' => null,
+                    'order' => 100,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-color-brand-secondary' => [
+                    'name' => 'sw-color-brand-secondary',
+                    'label' => [
+                        'en-GB' => 'Secondary colour',
+                        'de-DE' => 'Sekundärfarbe',
+                    ],
+                    'type' => 'color',
+                    'value' => '#526e7f',
+                    'editable' => true,
+                    'block' => 'themeColors',
+                    'section' => null,
+                    'order' => 200,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-color-success' => [
+                    'name' => 'sw-color-success',
+                    'label' => [
+                        'en-GB' => 'Success',
+                        'de-DE' => 'Erfolg',
+                    ],
+                    'type' => 'color',
+                    'value' => '#3cc261',
+                    'editable' => true,
+                    'block' => 'statusColors',
+                    'section' => null,
+                    'order' => 100,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-color-info' => [
+                    'name' => 'sw-color-info',
+                    'label' => [
+                        'en-GB' => 'Information',
+                        'de-DE' => 'Information',
+                    ],
+                    'type' => 'color',
+                    'value' => '#26b6cf',
+                    'editable' => true,
+                    'block' => 'statusColors',
+                    'section' => null,
+                    'order' => 200,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-color-warning' => [
+                    'name' => 'sw-color-warning',
+                    'label' => [
+                        'en-GB' => 'Notice',
+                        'de-DE' => 'Hinweis',
+                    ],
+                    'type' => 'color',
+                    'value' => '#ffbd5d',
+                    'editable' => true,
+                    'block' => 'statusColors',
+                    'section' => null,
+                    'order' => 300,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-color-danger' => [
+                    'name' => 'sw-color-danger',
+                    'label' => [
+                        'en-GB' => 'Error',
+                        'de-DE' => 'Fehler',
+                    ],
+                    'type' => 'color',
+                    'value' => '#e52427',
+                    'editable' => true,
+                    'block' => 'statusColors',
+                    'section' => null,
+                    'order' => 400,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-text-color' => [
+                    'name' => 'sw-text-color',
+                    'label' => [
+                        'en-GB' => 'Text colour',
+                        'de-DE' => 'Textfarbe',
+                    ],
+                    'type' => 'color',
+                    'value' => '#4a545b',
+                    'editable' => true,
+                    'block' => 'typography',
+                    'section' => null,
+                    'order' => 200,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-border-color' => [
+                    'name' => 'sw-border-color',
+                    'label' => [
+                        'en-GB' => 'Border',
+                        'de-DE' => 'Rahmen',
+                    ],
+                    'type' => 'color',
+                    'value' => '#bcc1c7',
+                    'editable' => true,
+                    'block' => 'themeColors',
+                    'section' => null,
+                    'order' => 300,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-background-color' => [
+                    'label' => [
+                        'en-GB' => 'Background',
+                        'de-DE' => 'Hintergrund',
+                    ],
+                    'type' => 'color',
+                    'value' => '#fff',
+                    'editable' => true,
+                    'block' => 'themeColors',
+                    'order' => 400,
+                    'name' => 'sw-background-color',
+                    'section' => null,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-color-price' => [
+                    'name' => 'sw-color-price',
+                    'label' => [
+                        'en-GB' => 'Price',
+                        'de-DE' => 'Preis',
+                    ],
+                    'type' => 'color',
+                    'value' => '#4a545b',
+                    'editable' => true,
+                    'block' => 'eCommerce',
+                    'section' => null,
+                    'order' => 100,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-color-buy-button' => [
+                    'name' => 'sw-color-buy-button',
+                    'label' => [
+                        'en-GB' => 'Buy button',
+                        'de-DE' => 'Kaufen-Button',
+                    ],
+                    'type' => 'color',
+                    'value' => '#008490',
+                    'editable' => true,
+                    'block' => 'eCommerce',
+                    'section' => null,
+                    'order' => 200,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-color-buy-button-text' => [
+                    'label' => [
+                        'en-GB' => 'Buy button text',
+                        'de-DE' => 'Kaufen-Button Text',
+                    ],
+                    'type' => 'color',
+                    'value' => '#fff',
+                    'editable' => true,
+                    'block' => 'eCommerce',
+                    'order' => 300,
+                    'name' => 'sw-color-buy-button-text',
+                    'section' => null,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-font-family-base' => [
+                    'name' => 'sw-font-family-base',
+                    'label' => [
+                        'en-GB' => 'Fonttype text',
+                        'de-DE' => 'Schriftart Text',
+                    ],
+                    'type' => 'fontFamily',
+                    'value' => '\'Inter\', sans-serif',
+                    'editable' => true,
+                    'block' => 'typography',
+                    'section' => null,
+                    'order' => 100,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-font-family-headline' => [
+                    'name' => 'sw-font-family-headline',
+                    'label' => [
+                        'en-GB' => 'Fonttype headline',
+                        'de-DE' => 'Schriftart Überschrift',
+                    ],
+                    'type' => 'fontFamily',
+                    'value' => '\'Inter\', sans-serif',
+                    'editable' => true,
+                    'block' => 'typography',
+                    'section' => null,
+                    'order' => 300,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-headline-color' => [
+                    'label' => [
+                        'en-GB' => 'Headline colour',
+                        'de-DE' => 'Überschriftfarbe',
+                    ],
+                    'type' => 'color',
+                    'value' => '#4a545b',
+                    'editable' => true,
+                    'block' => 'typography',
+                    'order' => 400,
+                    'name' => 'sw-headline-color',
+                    'section' => null,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-logo-desktop' => [
+                    'label' => [
+                        'en-GB' => 'Desktop',
+                        'de-DE' => 'Desktop',
+                    ],
+                    'helpText' => [
+                        'en-GB' => 'Displayed for viewports of above 991px',
+                        'de-DE' => 'Wird über einem Viewport von 991px angezeigt',
+                    ],
+                    'type' => 'media',
+                    'value' => 'dist/assets/logo/demostore-logo.png',
+                    'editable' => true,
+                    'block' => 'media',
+                    'order' => 100,
+                    'name' => 'sw-logo-desktop',
+                    'section' => null,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => true,
+                ],
+                'sw-logo-tablet' => [
+                    'label' => [
+                        'en-GB' => 'Tablet',
+                        'de-DE' => 'Tablet',
+                    ],
+                    'helpText' => [
+                        'en-GB' => 'Displayed between a viewport of 767px to 991px',
+                        'de-DE' => 'Wird zwischen einem viewport von 767px bis 991px angezeigt',
+                    ],
+                    'type' => 'media',
+                    'value' => 'dist/assets/logo/demostore-logo.png',
+                    'editable' => true,
+                    'block' => 'media',
+                    'order' => 200,
+                    'name' => 'sw-logo-tablet',
+                    'section' => null,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => true,
+                ],
+                'sw-logo-mobile' => [
+                    'label' => [
+                        'en-GB' => 'Mobile',
+                        'de-DE' => 'Mobil',
+                    ],
+                    'helpText' => [
+                        'en-GB' => 'Displayed up to a viewport of 767px',
+                        'de-DE' => 'Wird bis zu einem Viewport von 767px angezeigt',
+                    ],
+                    'type' => 'media',
+                    'value' => 'dist/assets/logo/demostore-logo.png',
+                    'editable' => true,
+                    'block' => 'media',
+                    'order' => 300,
+                    'name' => 'sw-logo-mobile',
+                    'section' => null,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => true,
+                ],
+                'sw-logo-share' => [
+                    'label' => [
+                        'en-GB' => 'App & share icon',
+                        'de-DE' => 'App- & Share-Icon',
+                    ],
+                    'type' => 'media',
+                    'value' => '',
+                    'editable' => true,
+                    'block' => 'media',
+                    'order' => 400,
+                    'name' => 'sw-logo-share',
+                    'section' => null,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+                'sw-logo-favicon' => [
+                    'label' => [
+                        'en-GB' => 'Favicon',
+                        'de-DE' => 'Favicon',
+                    ],
+                    'type' => 'media',
+                    'value' => 'dist/assets/logo/favicon.png',
+                    'editable' => true,
+                    'block' => 'media',
+                    'order' => 500,
+                    'name' => 'sw-logo-favicon',
+                    'section' => null,
+                    'sectionOrder' => null,
+                    'blockOrder' => null,
+                    'extensions' => [],
+                    'helpText' => null,
+                    'custom' => null,
+                    'tab' => null,
+                    'tabOrder' => null,
+                    'scss' => null,
+                    'fullWidth' => null,
+                ],
+            ],
+        ];
+
+        $config += [
+            'currentFields' => [
+                'sw-color-brand-primary' => [
+                    'value' => '#ff00ff',
+                ],
+                'sw-color-brand-secondary' => [
+                    'value' => null,
+                ],
+                'sw-border-color' => [
+                    'value' => null,
+                ],
+                'sw-background-color' => [
+                    'value' => null,
+                ],
+                'sw-color-success' => [
+                    'value' => null,
+                ],
+                'sw-color-info' => [
+                    'value' => null,
+                ],
+                'sw-color-warning' => [
+                    'value' => null,
+                ],
+                'sw-color-danger' => [
+                    'value' => null,
+                ],
+                'sw-font-family-base' => [
+                    'value' => null,
+                ],
+                'sw-text-color' => [
+                    'value' => null,
+                ],
+                'sw-font-family-headline' => [
+                    'value' => null,
+                ],
+                'sw-headline-color' => [
+                    'value' => null,
+                ],
+                'sw-color-price' => [
+                    'value' => null,
+                ],
+                'sw-color-buy-button' => [
+                    'value' => null,
+                ],
+                'sw-color-buy-button-text' => [
+                    'value' => null,
+                ],
+                'sw-logo-desktop' => [
+                    'value' => null,
+                ],
+                'sw-logo-tablet' => [
+                    'value' => null,
+                ],
+                'sw-logo-mobile' => [
+                    'value' => null,
+                ],
+                'sw-logo-share' => [
+                    'value' => null,
+                ],
+                'sw-logo-favicon' => [
+                    'value' => null,
+                ],
+            ],
+            'baseThemeFields' => [
+                'sw-color-brand-primary' => [
+                    'value' => '#ff00ff',
+                ],
+                'sw-color-brand-secondary' => [
+                    'value' => '#526e7f',
+                ],
+                'sw-border-color' => [
+                    'value' => '#bcc1c7',
+                ],
+                'sw-background-color' => [
+                    'value' => '#fff',
+                ],
+                'sw-color-success' => [
+                    'value' => '#3cc261',
+                ],
+                'sw-color-info' => [
+                    'value' => '#26b6cf',
+                ],
+                'sw-color-warning' => [
+                    'value' => '#ffbd5d',
+                ],
+                'sw-color-danger' => [
+                    'value' => '#e52427',
+                ],
+                'sw-font-family-base' => [
+                    'value' => '\'Inter\', sans-serif',
+                ],
+                'sw-text-color' => [
+                    'value' => '#4a545b',
+                ],
+                'sw-font-family-headline' => [
+                    'value' => '\'Inter\', sans-serif',
+                ],
+                'sw-headline-color' => [
+                    'value' => '#4a545b',
+                ],
+                'sw-color-price' => [
+                    'value' => '#4a545b',
+                ],
+                'sw-color-buy-button' => [
+                    'value' => '#008490',
+                ],
+                'sw-color-buy-button-text' => [
+                    'value' => '#fff',
+                ],
+                'sw-logo-desktop' => [
+                    'value' => $demostoreLogoId,
+                ],
+                'sw-logo-tablet' => [
+                    'value' => $demostoreLogoId,
+                ],
+                'sw-logo-mobile' => [
+                    'value' => $demostoreLogoId,
+                ],
+                'sw-logo-share' => [
+                    'value' => null,
+                ],
+                'sw-logo-favicon' => [
+                    'value' => $faviconId,
+                ],
+            ],
+        ];
+
+        return $config;
+    }
+
+    public static function getThemeConfig(string $faviconId, string $demostoreLogoId): array
     {
         return [
             'blocks' => [
@@ -1501,6 +2254,130 @@ class ThemeFixtures
                     'tabOrder' => null,
                     'scss' => null,
                     'fullWidth' => null,
+                ],
+            ],
+            'currentFields' => [
+                'sw-color-brand-primary' => [
+                    'value' => '#008490',
+                ],
+                'sw-color-brand-secondary' => [
+                    'value' => '#526e7f',
+                ],
+                'sw-border-color' => [
+                    'value' => '#bcc1c7',
+                ],
+                'sw-background-color' => [
+                    'value' => '#fff',
+                ],
+                'sw-color-success' => [
+                    'value' => '#3cc261',
+                ],
+                'sw-color-info' => [
+                    'value' => '#26b6cf',
+                ],
+                'sw-color-warning' => [
+                    'value' => '#ffbd5d',
+                ],
+                'sw-color-danger' => [
+                    'value' => '#e52427',
+                ],
+                'sw-font-family-base' => [
+                    'value' => '\'Inter\', sans-serif',
+                ],
+                'sw-text-color' => [
+                    'value' => '#4a545b',
+                ],
+                'sw-font-family-headline' => [
+                    'value' => '\'Inter\', sans-serif',
+                ],
+                'sw-headline-color' => [
+                    'value' => '#4a545b',
+                ],
+                'sw-color-price' => [
+                    'value' => '#4a545b',
+                ],
+                'sw-color-buy-button' => [
+                    'value' => '#008490',
+                ],
+                'sw-color-buy-button-text' => [
+                    'value' => '#fff',
+                ],
+                'sw-logo-desktop' => [
+                    'value' => $demostoreLogoId,
+                ],
+                'sw-logo-tablet' => [
+                    'value' => $demostoreLogoId,
+                ],
+                'sw-logo-mobile' => [
+                    'value' => $demostoreLogoId,
+                ],
+                'sw-logo-share' => [
+                    'value' => null,
+                ],
+                'sw-logo-favicon' => [
+                    'value' => $faviconId,
+                ],
+            ],
+            'baseThemeFields' => [
+                'sw-color-brand-primary' => [
+                    'value' => '#008490',
+                ],
+                'sw-color-brand-secondary' => [
+                    'value' => '#526e7f',
+                ],
+                'sw-border-color' => [
+                    'value' => '#bcc1c7',
+                ],
+                'sw-background-color' => [
+                    'value' => '#fff',
+                ],
+                'sw-color-success' => [
+                    'value' => '#3cc261',
+                ],
+                'sw-color-info' => [
+                    'value' => '#26b6cf',
+                ],
+                'sw-color-warning' => [
+                    'value' => '#ffbd5d',
+                ],
+                'sw-color-danger' => [
+                    'value' => '#e52427',
+                ],
+                'sw-font-family-base' => [
+                    'value' => '\'Inter\', sans-serif',
+                ],
+                'sw-text-color' => [
+                    'value' => '#4a545b',
+                ],
+                'sw-font-family-headline' => [
+                    'value' => '\'Inter\', sans-serif',
+                ],
+                'sw-headline-color' => [
+                    'value' => '#4a545b',
+                ],
+                'sw-color-price' => [
+                    'value' => '#4a545b',
+                ],
+                'sw-color-buy-button' => [
+                    'value' => '#008490',
+                ],
+                'sw-color-buy-button-text' => [
+                    'value' => '#fff',
+                ],
+                'sw-logo-desktop' => [
+                    'value' => $demostoreLogoId,
+                ],
+                'sw-logo-tablet' => [
+                    'value' => $demostoreLogoId,
+                ],
+                'sw-logo-mobile' => [
+                    'value' => $demostoreLogoId,
+                ],
+                'sw-logo-share' => [
+                    'value' => null,
+                ],
+                'sw-logo-favicon' => [
+                    'value' => $faviconId,
                 ],
             ],
         ];

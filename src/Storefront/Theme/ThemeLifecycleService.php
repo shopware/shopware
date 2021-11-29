@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -124,6 +125,15 @@ class ThemeLifecycleService
         $updatedData = $this->updateMediaInConfiguration($theme, $configuration, $context);
 
         $themeData = array_merge($themeData, $updatedData);
+
+        /* @feature-deprecated (flag:FEATURE_NEXT_17637) remove feature check on feature release */
+        if (!empty($configuration->getConfigInheritance()) && Feature::isActive('FEATURE_NEXT_17637')) {
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('technicalName', str_replace('@', '', $configuration->getConfigInheritance()[1])));
+            /** @var ThemeEntity $parentTheme */
+            $parentTheme = $this->themeRepository->search($criteria, $context)->first();
+            $themeData['parentThemeId'] = $parentTheme->getId();
+        }
 
         $this->themeRepository->upsert([$themeData], $context);
     }

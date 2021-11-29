@@ -6,8 +6,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
@@ -95,7 +97,7 @@ class ThemeService
             $data['configValues'] = array_replace_recursive($currentConfig, $data['configValues']);
 
             foreach ($submittedChanges as $key => $changes) {
-                if (\is_array($changes['value']) && isset($currentConfig[$key]) && \is_array($currentConfig[$key])) {
+                if (isset($changes['value']) && \is_array($changes['value']) && isset($currentConfig[$key]) && \is_array($currentConfig[$key])) {
                     $data['configValues'][$key]['value'] = array_unique($changes['value']);
                 }
             }
@@ -153,13 +155,16 @@ class ThemeService
         $criteria = new Criteria();
         $criteria->setTitle('theme-service::load-config');
 
-        $criteria->addFilter(new MultiFilter(
-            MultiFilter::CONNECTION_OR,
-            [
-                new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME),
-                new EqualsFilter('id', $themeId),
-            ]
-        ));
+        /* @feature-deprecated (flag:FEATURE_NEXT_17637) remove complete addFilter on feature release */
+        if (!Feature::isActive('FEATURE_NEXT_17637')) {
+            $criteria->addFilter(new MultiFilter(
+                MultiFilter::CONNECTION_OR,
+                [
+                    new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME),
+                    new EqualsFilter('id', $themeId),
+                ]
+            ));
+        }
 
         $themes = $this->themeRepository->search($criteria, $context);
 
@@ -171,14 +176,26 @@ class ThemeService
         }
 
         /** @var ThemeEntity $baseTheme */
-        $baseTheme = $themes->filter(function (ThemeEntity $theme) {
-            return $theme->getTechnicalName() === StorefrontPluginRegistry::BASE_THEME_NAME;
+        $baseTheme = $themes->filter(function (ThemeEntity $themeEntry) {
+            return $themeEntry->getTechnicalName() === StorefrontPluginRegistry::BASE_THEME_NAME;
         })->first();
 
         $baseThemeConfig = $this->mergeStaticConfig($baseTheme);
 
         $themeConfigFieldFactory = new ThemeConfigFieldFactory();
         $configFields = [];
+        $labels = array_replace_recursive($baseTheme->getLabels() ?? [], $theme->getLabels() ?? []);
+
+        /* @feature-deprecated (flag:FEATURE_NEXT_17637) remove feature check on feature release */
+        if ($theme->getParentThemeId() && Feature::isActive('FEATURE_NEXT_17637')) {
+            $parentThemes = $this->getParentThemeIds($themes, $theme);
+
+            foreach ($parentThemes as $parentTheme) {
+                $configuredParentTheme = $this->mergeStaticConfig($parentTheme);
+                $baseThemeConfig = array_replace_recursive($baseThemeConfig, $configuredParentTheme);
+                $labels = array_replace_recursive($labels, $parentTheme->getLabels() ?? []);
+            }
+        }
 
         $configuredTheme = $this->mergeStaticConfig($theme);
         $themeConfig = array_replace_recursive($baseThemeConfig, $configuredTheme);
@@ -189,7 +206,6 @@ class ThemeService
 
         $configFields = json_decode((string) json_encode($configFields), true);
 
-        $labels = array_replace_recursive($baseTheme->getLabels() ?? [], $theme->getLabels() ?? []);
         if ($translate && !empty($labels)) {
             $configFields = $this->translateLabels($configFields, $labels);
         }
@@ -200,6 +216,22 @@ class ThemeService
         }
 
         $themeConfig['fields'] = $configFields;
+
+        foreach ($themeConfig['fields'] as $field => $item) {
+            if ($this->fieldIsInherited($field, $configuredTheme)) {
+                $themeConfig['currentFields'][$field]['value'] = null;
+            } elseif (\array_key_exists('value', $item)) {
+                $themeConfig['currentFields'][$field]['value'] = $item['value'];
+            }
+        }
+
+        foreach ($themeConfig['fields'] as $field => $item) {
+            if ($this->fieldIsInherited($field, $baseThemeConfig)) {
+                $themeConfig['baseThemeFields'][$field]['value'] = null;
+            } elseif (\array_key_exists('value', $item)) {
+                $themeConfig['baseThemeFields'][$field]['value'] = $item['value'];
+            }
+        }
 
         return $themeConfig;
     }
@@ -243,6 +275,50 @@ class ThemeService
         }
 
         return $outputStructure;
+    }
+
+    private function getParentThemeIds(EntitySearchResult $themes, ThemeEntity $mainTheme, array $parentThemes = []): array
+    {
+        foreach ($this->getConfigInheritance($mainTheme) as $parentThemeName) {
+            $parentTheme = $themes->filter(function (ThemeEntity $themeEntry) use ($parentThemeName) {
+                return $themeEntry->getTechnicalName() === str_replace('@', '', $parentThemeName);
+            })->first();
+
+            if ($parentTheme instanceof ThemeEntity && !\array_key_exists($parentTheme->getId(), $parentThemes)) {
+                $parentThemes[$parentTheme->getId()] = $parentTheme;
+                if ($parentTheme->getParentThemeId()) {
+                    $parentThemes = $this->getParentThemeIds($themes, $mainTheme, $parentThemes);
+                }
+            }
+        }
+
+        if ($mainTheme->getParentThemeId()) {
+            $parentTheme = $themes->filter(function (ThemeEntity $themeEntry) use ($mainTheme) {
+                return $themeEntry->getId() === $mainTheme->getParentThemeId();
+            })->first();
+
+            if ($parentTheme instanceof ThemeEntity && !\array_key_exists($parentTheme->getId(), $parentThemes)) {
+                $parentThemes[$parentTheme->getId()] = $parentTheme;
+                if ($parentTheme->getParentThemeId()) {
+                    $parentThemes = $this->getParentThemeIds($themes, $mainTheme, $parentThemes);
+                }
+            }
+        }
+
+        return $parentThemes;
+    }
+
+    private function getConfigInheritance(ThemeEntity $mainTheme): array
+    {
+        if (\is_array($mainTheme->getBaseConfig())
+            && \array_key_exists('configInheritance', $mainTheme->getBaseConfig())
+            && \is_array($mainTheme->getBaseConfig()['configInheritance'])
+            && !empty($mainTheme->getBaseConfig()['configInheritance'])
+        ) {
+            return $mainTheme->getBaseConfig()['configInheritance'];
+        }
+
+        return [];
     }
 
     private function mergeStaticConfig(ThemeEntity $theme): array
@@ -359,17 +435,50 @@ class ThemeService
         /** @var ThemeEntity $theme */
         $theme = $this->themeRepository->search(new Criteria([$themeId]), $context)->get($themeId);
         $translations = $theme->getLabels() ?: [];
-        if ($theme->getParentThemeId() !== null) {
+
+        /* @feature-deprecated (flag:FEATURE_NEXT_17637) remove else branch on feature release */
+        if ($theme->getParentThemeId() && Feature::isActive('FEATURE_NEXT_17637')) {
+            $criteria = new Criteria();
+            $criteria->setTitle('theme-service::load-translations');
+
+            $themes = $this->themeRepository->search($criteria, $context);
+            $parentThemes = $this->getParentThemeIds($themes, $theme);
+
+            foreach ($parentThemes as $parentTheme) {
+                $parentTranslations = $parentTheme->getLabels() ?: [];
+                $translations = array_replace_recursive($parentTranslations, $translations);
+            }
+        } elseif ($theme->getParentThemeId() !== null) {
             $parentTheme = $this->themeRepository->search(new Criteria([$theme->getParentThemeId()]), $context)
                 ->get($theme->getParentThemeId());
             $parentTranslations = $parentTheme->getLabels() ?: [];
             $translations = array_replace_recursive($parentTranslations, $translations);
-        }
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
-        $baseTheme = $this->themeRepository->search($criteria, $context)->first();
-        $baseTranslations = $baseTheme->getLabels() ?: [];
+            $criteria = new Criteria();
 
-        return array_replace_recursive($baseTranslations, $translations);
+            $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
+            $baseTheme = $this->themeRepository->search($criteria, $context)->first();
+            $baseTranslations = $baseTheme->getLabels() ?: [];
+
+            return array_replace_recursive($baseTranslations, $translations);
+        }
+
+        return $translations;
+    }
+
+    private function fieldIsInherited(string $fieldName, array $configuration): bool
+    {
+        if (!isset($configuration['fields'])) {
+            return true;
+        }
+
+        if (!\is_array($configuration['fields'])) {
+            return true;
+        }
+
+        if (!\array_key_exists($fieldName, $configuration['fields'])) {
+            return true;
+        }
+
+        return false;
     }
 }

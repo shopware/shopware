@@ -83,7 +83,7 @@
     "detail": {
       "description": "Description",
       "salesChannel": "Assigned to the following Sales Channels",
-      "inheritanceInfo": "This theme is a duplicate and is derived from the \"{parentThemeName}\" theme.",
+      "inheritanceInfo": "This theme is derived from the \"{parentThemeName}\" theme.",
       "showFullError": "Show full error",
       "salesChannelHelpText": "It is not possible to remove these assignments here. If you want to change a Sales Channel's theme, visit the respective Sales Channel's settings.",
       "label": {

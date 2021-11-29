@@ -83,7 +83,7 @@
     "detail": {
       "description": "Beschreibung",
       "salesChannel": "Folgenden Verkaufskanälen zugewiesen",
-      "inheritanceInfo": "Dieses Theme ist ein Duplikat und wird abgeleitet vom \"{parentThemeName}\" Theme.",
+      "inheritanceInfo": "Dieses Theme wird abgeleitet vom \"{parentThemeName}\" Theme.",
       "showFullError": "Kompletten Fehler anzeigen",
       "salesChannelHelpText": "Es ist nicht möglich, diese Zuordnungen hier zu entfernen. Wenn du das Theme eines Verkaufskanals ändern möchtest, besuche die Einstellungen des jeweiligen Verkaufskanals.",
       "label": {

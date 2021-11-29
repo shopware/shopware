@@ -5,12 +5,15 @@ namespace Shopware\Storefront\Test\Theme;
 use PHPUnit\Framework\Constraint\Callback;
 use PHPUnit\Framework\Constraint\IsEqual;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\App\StorefrontPluginRegistryTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -53,11 +56,21 @@ class ThemeTest extends TestCase
      */
     private $createdStorefrontTheme = '';
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $mediaRepository;
+
+    private string $faviconId;
+
+    private string $demostoreLogoId;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->themeService = $this->getContainer()->get(ThemeService::class);
         $this->themeRepository = $this->getContainer()->get('theme.repository');
+        $this->mediaRepository = $this->getContainer()->get('media.repository');
 
         $this->context = Context::createDefaultContext();
 
@@ -81,6 +94,26 @@ class ThemeTest extends TestCase
                 ],
             ], $this->context);
         }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new OrFilter(
+                [
+                    new EqualsFilter('fileName', 'demostore-logo'),
+                    new EqualsFilter('fileName', 'favicon'),
+                ]
+            )
+        );
+        $medias = $this->mediaRepository->search($criteria, $this->context);
+
+        /** @var MediaEntity $media */
+        foreach ($medias as $media) {
+            if ($media->getFileName() === 'favicon') {
+                $this->faviconId = $media->getId();
+            } elseif ($media->getFileName() === 'demostore-logo') {
+                $this->demostoreLogoId = $media->getId();
+            }
+        }
     }
 
     protected function tearDown(): void
@@ -96,12 +129,13 @@ class ThemeTest extends TestCase
         $theme = $this->themeRepository->search(new Criteria(), $this->context)->first();
         $themeConfiguration = $this->themeService->getThemeConfiguration($theme->getId(), false, $this->context);
 
-        $themeConfigFix = ThemeFixtures::getThemeConfig();
+        $themeConfigFix = ThemeFixtures::getThemeConfig($this->faviconId, $this->demostoreLogoId);
         foreach ($themeConfigFix['fields'] as $key => $field) {
             if ($field['type'] === 'media') {
                 $themeConfigFix['fields'][$key]['value'] = $themeConfiguration['fields'][$key]['value'];
             }
         }
+
         static::assertEquals($themeConfigFix, $themeConfiguration);
     }
 
@@ -153,7 +187,10 @@ class ThemeTest extends TestCase
         );
 
         $theme = $this->themeService->getThemeConfiguration($childTheme->getId(), false, $this->context);
-        $themeInheritedConfig = ThemeFixtures::getThemeInheritedConfig();
+        $themeInheritedConfig = ThemeFixtures::getThemeInheritedConfig($this->faviconId, $this->demostoreLogoId);
+
+        $themeInheritedConfig['currentFields']['sw-color-brand-primary']['value'] = '#ff00ff';
+        $themeInheritedConfig['currentFields']['sw-color-brand-secondary']['value'] = '#526e7f';
 
         foreach ($themeInheritedConfig['fields'] as $key => $field) {
             if ($field['type'] === 'media') {
@@ -195,7 +232,7 @@ class ThemeTest extends TestCase
         );
 
         $theme = $this->themeService->getThemeConfiguration($childTheme->getId(), false, $this->context);
-        $themeInheritedConfig = ThemeFixtures::getThemeInheritedConfig();
+        $themeInheritedConfig = ThemeFixtures::getThemeInheritedBlankConfig($this->faviconId, $this->demostoreLogoId);
 
         foreach ($themeInheritedConfig['fields'] as $key => $field) {
             if ($field['type'] === 'media') {
@@ -251,7 +288,7 @@ class ThemeTest extends TestCase
         );
 
         $theme = $this->themeService->getThemeConfiguration($childTheme->getId(), false, $this->context);
-        $themeInheritedConfig = ThemeFixtures::getThemeInheritedConfig();
+        $themeInheritedConfig = ThemeFixtures::getThemeInheritedConfig($this->faviconId, $this->demostoreLogoId);
 
         $themeInheritedConfig['blocks']['newBlock']['label'] = [
             'en-GB' => 'New Block',
@@ -263,6 +300,7 @@ class ThemeTest extends TestCase
                 $themeInheritedConfig['fields'][$key]['value'] = $theme['fields'][$key]['value'];
             }
         }
+        $themeInheritedConfig['currentFields']['sw-color-brand-secondary']['value'] = '#526e7f';
 
         static::assertEquals($themeInheritedConfig, $theme);
     }
@@ -309,7 +347,11 @@ class ThemeTest extends TestCase
 
         static::assertArrayHasKey('multi', $theme['fields']);
         static::assertArrayHasKey('value', $theme['fields']['multi']);
-        static::assertEquals(['top'], $theme['fields']['multi']['value']);
+        if (Feature::isActive('FEATURE_NEXT_17637')) {
+            static::assertEquals(['top', 'bottom'], $theme['fields']['multi']['value']);
+        } else {
+            static::assertEquals(['top'], $theme['fields']['multi']['value']);
+        }
     }
 
     public function testCompileTheme(): void

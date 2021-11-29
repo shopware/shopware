@@ -8,7 +8,7 @@ const { getObjectDiff, cloneDeep } = Shopware.Utils.object;
 Component.register('sw-theme-manager-detail', {
     template,
 
-    inject: ['acl'],
+    inject: ['acl', 'feature'],
 
     mixins: [
         Mixin.getByName('theme'),
@@ -22,6 +22,7 @@ Component.register('sw-theme-manager-detail', {
             defaultMediaFolderId: null,
             structuredThemeFields: {},
             themeConfig: {},
+            currentThemeConfig: {},
             showResetModal: false,
             showSaveModal: false,
             errorModalMessage: null,
@@ -139,7 +140,6 @@ Component.register('sw-theme-manager-detail', {
 
             this.themeRepository.get(this.themeId, Shopware.Context.api, criteria).then((response) => {
                 this.theme = response;
-
                 this.getThemeConfig();
 
                 if (this.theme.parentThemeId) {
@@ -148,6 +148,10 @@ Component.register('sw-theme-manager-detail', {
 
                 this.isLoading = false;
             });
+        },
+
+        checkInheritance(value) {
+            return !value;
         },
 
         getThemeConfig() {
@@ -162,8 +166,15 @@ Component.register('sw-theme-manager-detail', {
             });
 
             this.themeService.getConfiguration(this.themeId).then((config) => {
+                /** @feature-deprecated (flag:FEATURE_NEXT_17637) keep if branch */
+                if (this.feature.isActive('FEATURE_NEXT_17637')) {
+                    this.currentThemeConfig = config.currentFields;
+                } else {
+                    this.currentThemeConfig = config.fields;
+                }
+
                 this.themeConfig = config.fields;
-                this.baseThemeConfig = cloneDeep(config.fields);
+                this.baseThemeConfig = cloneDeep(config.baseThemeFields);
                 this.isLoading = false;
             });
         },
@@ -217,8 +228,18 @@ Component.register('sw-theme-manager-detail', {
                 });
         },
 
-        removeMediaItem(field) {
-            field.value = null;
+        removeMediaItem(field, updateCurrentValue, isInherited, removeInheritance) {
+            this.currentThemeConfig[field].value = null;
+            this.themeConfig[field].value = null;
+            if (isInherited) {
+                updateCurrentValue(null);
+            } else {
+                removeInheritance(null);
+            }
+        },
+
+        restoreMediaInheritance(currentValue, value) {
+            return currentValue;
         },
 
         onReset() {
@@ -367,7 +388,7 @@ Component.register('sw-theme-manager-detail', {
         },
 
         saveThemeConfig() {
-            const newValues = getObjectDiff(this.baseThemeConfig, this.themeConfig);
+            const newValues = getObjectDiff(this.baseThemeConfig, this.currentThemeConfig);
 
             return this.themeService.updateTheme(this.themeId, { config: newValues });
         },
@@ -448,14 +469,14 @@ Component.register('sw-theme-manager-detail', {
 
             Object.assign(config, config.custom);
             delete config.custom;
-
+            config.label = null;
             return { type: field.type, config: config };
         },
 
         selectionDisablingMethod(selection) {
             if (!this.isDefaultTheme) {
                 return false;
-            }
+        }
 
             return this.theme.getOrigin().salesChannels.has(selection.id);
         },

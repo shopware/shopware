@@ -191,64 +191,125 @@
                                                                  class="sw-theme-manager-detail__content--section_field"
                                                                  :class="{'sw-theme-manager-detail__content--section_field-full-width': field.fullWidth}">
                                                                 <template v-if="themeConfig[fieldName]">
-                                                                    <sw-field
-                                                                        v-if="mapSwFieldTypes(field.type) === 'select'"
-                                                                        type="select"
-                                                                        :placeholder="field.placeholder"
-                                                                        :options="field.options"
-                                                                        :label="!field.label ? '' : field.label"
-                                                                        :helpText="!field.helpText ? null : field.helpText"
-                                                                        :disabled="!acl.can('theme.editor')"
-                                                                        v-model="themeConfig[fieldName].value">
-                                                                    </sw-field>
+                                                                    <template v-if="mapSwFieldTypes(field.type) === 'select'">
+                                                                        {# @feature-deprecated (flag:FEATURE_NEXT_17637) remove feature.isActive #}
+                                                                        <sw-inherit-wrapper
+                                                                                v-model="currentThemeConfig[fieldName].value"
+                                                                                :has-parent="feature.isActive('FEATURE_NEXT_17637') && theme.baseConfig?.fields?.[fieldName] == null"
+                                                                                :inherited-value="baseThemeConfig[fieldName].value"
+                                                                                :label="!field.label ? '' : field.label"
+                                                                                :customInheritationCheckFunction="checkInheritance"
+                                                                        >
+                                                                            <template #content="{ currentValue, updateCurrentValue, isInherited }">
+                                                                                <sw-field
+                                                                                        type="select"
+                                                                                        :placeholder="field.placeholder"
+                                                                                        :options="field.options"
+                                                                                        :helpText="!field.helpText ? null : field.helpText"
+                                                                                        :disabled="isInherited || !acl.can('theme.editor')"
+                                                                                        @change="updateCurrentValue"
+                                                                                        @input="updateCurrentValue"
+                                                                                        v-model="currentValue">
+                                                                                </sw-field>
+                                                                            </template>
+                                                                        </sw-inherit-wrapper>
+                                                                    </template>
 
-                                                                    <sw-field
-                                                                        v-else-if="field.type === 'url'"
-                                                                        type="url"
-                                                                        :label="!field.label ? '' : field.label"
-                                                                        :helpText="!field.helpText ? null : field.helpText"
-                                                                        :disabled="!acl.can('theme.editor')"
-                                                                        v-model="themeConfig[fieldName].value">
-                                                                    </sw-field>
-
+                                                                    <template v-else-if="field.type === 'url'">
+                                                                        {# @feature-deprecated (flag:FEATURE_NEXT_17637) remove feature.isActive #}
+                                                                        <sw-inherit-wrapper
+                                                                                v-model="currentThemeConfig[fieldName].value"
+                                                                                :has-parent="feature.isActive('FEATURE_NEXT_17637') && theme.baseConfig?.fields?.[fieldName] == null"
+                                                                                :inherited-value="baseThemeConfig[fieldName].value"
+                                                                                :label="!field.label ? '' : field.label"
+                                                                                :customInheritationCheckFunction="checkInheritance"
+                                                                        >
+                                                                            <template #content="{ currentValue, updateCurrentValue, isInherited }">
+                                                                                <sw-field
+                                                                                        type="url"
+                                                                                        :helpText="!field.helpText ? null : field.helpText"
+                                                                                        :disabled="isInherited || !acl.can('theme.editor')"
+                                                                                        @change="updateCurrentValue"
+                                                                                        @input="updateCurrentValue"
+                                                                                        v-model="currentValue">
+                                                                                </sw-field>
+                                                                            </template>
+                                                                        </sw-inherit-wrapper>
+                                                                    </template>
                                                                     <div v-else-if="field.type === 'media'">
 
                                                                         <sw-upload-listener
                                                                             :uploadTag="tabName + '-' + blockName + '-' + sectionName + '-' + fieldName"
-                                                                            @media-upload-finish="successfulUpload($event, themeConfig[fieldName])"
+                                                                            @media-upload-finish="successfulUpload($event, currentThemeConfig[fieldName])"
                                                                             autoUpload>
                                                                         </sw-upload-listener>
-
-                                                                        <sw-media-upload-v2
-                                                                            :label="!field.label ? '' : field.label"
-                                                                            :source="themeConfig[fieldName].value"
-                                                                            :uploadTag="tabName + '-' + blockName + '-' + sectionName + '-' + fieldName"
-                                                                            :helpText="!field.helpText ? null : field.helpText"
-                                                                            :ref="tabName + '-' + blockName + '-' + sectionName + '-' + fieldName"
-                                                                            :defaultFolder="themeRepository.schema.entity"
-                                                                            :allowMultiSelect="false"
-                                                                            :disabled="!acl.can('theme.editor') || themeConfig[fieldName].editable === false"
-                                                                            @media-drop="onDropMedia($event, themeConfig[fieldName])"
-                                                                            @media-upload-sidebar-open="openMediaSidebar()"
-                                                                            @media-upload-remove-image="removeMediaItem(themeConfig[fieldName])">
-                                                                        </sw-media-upload-v2>
+                                                                        {# @feature-deprecated (flag:FEATURE_NEXT_17637) remove feature.isActive #}
+                                                                        <sw-inherit-wrapper
+                                                                                v-model="currentThemeConfig[fieldName].value"
+                                                                                :has-parent="feature.isActive('FEATURE_NEXT_17637') && theme.baseConfig?.fields?.[fieldName] == null"
+                                                                                :inherited-value="baseThemeConfig[fieldName].value"
+                                                                                :label="!field.label ? '' : field.label"
+                                                                        >
+                                                                                <template #content="{ currentValue, updateCurrentValue, isInherited, removeInheritance }">
+                                                                                    <sw-media-upload-v2
+                                                                                        :source="currentValue"
+                                                                                        :uploadTag="tabName + '-' + blockName + '-' + sectionName + '-' + fieldName"
+                                                                                        :helpText="!field.helpText ? null : field.helpText"
+                                                                                        :ref="tabName + '-' + blockName + '-' + sectionName + '-' + fieldName"
+                                                                                        :defaultFolder="themeRepository.schema.entity"
+                                                                                        :allowMultiSelect="false"
+                                                                                        :disabled="!acl.can('theme.editor') || themeConfig[fieldName].editable === false"
+                                                                                        @media-drop="onDropMedia($event, currentThemeConfig[fieldName])"
+                                                                                        @media-upload-sidebar-open="openMediaSidebar()"
+                                                                                        @media-upload-remove-image="removeMediaItem(fieldName, updateCurrentValue, isInherited, removeInheritance)">
+                                                                                    </sw-media-upload-v2>
+                                                                                </template>
+                                                                            </sw-inherit-wrapper>
                                                                     </div>
 
-                                                                    <sw-field
-                                                                        v-else-if="mapSwFieldTypes(field.type)"
-                                                                        :type="mapSwFieldTypes(field.type)"
-                                                                        :label="!field.label ? '' : field.label"
-                                                                        :helpText="!field.helpText ? null : field.helpText"
-                                                                        :disabled="!acl.can('theme.editor') || themeConfig[fieldName].editable === false"
-                                                                        v-model="themeConfig[fieldName].value">
-                                                                    </sw-field>
+                                                                    <template v-else-if="mapSwFieldTypes(field.type)">
+                                                                        {# @feature-deprecated (flag:FEATURE_NEXT_17637) remove feature.isActive #}
+                                                                        <sw-inherit-wrapper
+                                                                            v-model="currentThemeConfig[fieldName].value"
+                                                                            :has-parent="feature.isActive('FEATURE_NEXT_17637') && theme.baseConfig?.fields?.[fieldName] == null"
+                                                                            :inherited-value="baseThemeConfig[fieldName].value"
+                                                                            :label="!field.label ? '' : field.label"
+                                                                            :customInheritationCheckFunction="checkInheritance"
+                                                                        >
+                                                                            <template #content="{ currentValue, updateCurrentValue, isInherited }">
+                                                                                <sw-field
+                                                                                    :type="mapSwFieldTypes(field.type)"
+                                                                                    :helpText="!field.helpText ? null : field.helpText"
+                                                                                    :disabled="isInherited || !acl.can('theme.editor') || themeConfig[fieldName].editable === false"
+                                                                                    :value="currentValue"
+                                                                                    @change="updateCurrentValue"
+                                                                                    @input="updateCurrentValue"
+                                                                                >
+                                                                                </sw-field>
+                                                                            </template>
+                                                                        </sw-inherit-wrapper>
+                                                                    </template>
 
-                                                                    <sw-form-field-renderer
-                                                                        v-else-if="themeConfig[fieldName].editable !== false"
-                                                                        v-bind="getBind(field)"
-                                                                        v-model="themeConfig[fieldName].value"
-                                                                        :disabled="!acl.can('theme.editor')">
-                                                                    </sw-form-field-renderer>
+                                                                    <template v-else-if="themeConfig[fieldName].editable !== false">
+                                                                        {# @feature-deprecated (flag:FEATURE_NEXT_17637) remove feature.isActive #}
+                                                                        <sw-inherit-wrapper
+                                                                                v-model="currentThemeConfig[fieldName].value"
+                                                                                :has-parent="feature.isActive('FEATURE_NEXT_17637') && theme.baseConfig?.fields?.[fieldName] == null"
+                                                                                :inherited-value="baseThemeConfig[fieldName].value"
+                                                                                :label="!field.label ? '' : field.label"
+                                                                                :customInheritationCheckFunction="checkInheritance"
+                                                                        >
+                                                                            <template #content="{ currentValue, updateCurrentValue, isInherited }">
+                                                                                <sw-form-field-renderer
+                                                                                    v-bind="getBind(field)"
+                                                                                    :value="currentValue"
+                                                                                    @change="updateCurrentValue"
+                                                                                    @input="updateCurrentValue"
+                                                                                    :disabled="isInherited || !acl.can('theme.editor')">
+                                                                                </sw-form-field-renderer>
+                                                                            </template>
+                                                                        </sw-inherit-wrapper>
+                                                                </template>
                                                                 </template>
                                                             </div>
                                                         </sw-container>
@@ -526,7 +587,7 @@
                                                 v-for="(field, fieldName) in section.fields"
                                                 v-if="themeConfig[fieldName] && field.type === 'media'"
                                                 :key="fieldName"
-                                                @click="onAddMediaToTheme(media.mediaItem, themeConfig[fieldName])">
+                                                @click="onAddMediaToTheme(media.mediaItem, currentThemeConfig[fieldName])">
                                                 {{ $tc('sw-theme-manager.modal.addToMediaLabel', 0, { name: field.label }) }}
                                             </sw-context-menu-item>
                                         </template>

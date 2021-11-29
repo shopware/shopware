@@ -15,7 +15,7 @@ describe('CMS: Test crud operations of layouts', () => {
             });
     });
 
-    it('@base @content: create and read layout', () => {
+    it('@base @content @package: create and read layout', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page`,
             method: 'POST'
@@ -52,9 +52,16 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Laidout');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Laidout');
+
+        // Duplicate layout
+        cy.get('.sw-cms-list-item--0')
+            .find('.sw-cms-list-item__options.sw-context-button').click({ force: true });
+        cy.get('.sw-cms-list-item__option-duplicate').click();
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-cms-list-item--0').contains('Laidout - Copy').should('be.visible');
     });
 
-    it('@base @content: update and read layout', () => {
+    it('@base @content @package: update and read layout', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'PATCH'
@@ -105,7 +112,7 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.get('.cms-block h2').contains('Lorem Ipsum dolor sit amet');
     });
 
-    it('@base @content: delete layout', () => {
+    it('@base @content @package: delete layout', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'delete'

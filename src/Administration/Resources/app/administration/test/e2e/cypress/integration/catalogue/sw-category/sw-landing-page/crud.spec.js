@@ -13,7 +13,7 @@ describe('Category: Landing pages', () => {
             });
     });
 
-    it('@catalogue: create a landing page and check storefront behavior', () => {
+    it('@catalogue @package: create a landing page and check storefront behavior', () => {
         cy.intercept('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPages');
         cy.intercept('POST', `${Cypress.env('apiPath')}/landing-page`).as('saveLandingPage');
 

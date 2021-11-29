@@ -352,10 +352,10 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Facade\CartFacadeHookFactory" public="true">
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Facade\Services"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Facade\CartFacadeHelper"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Cart\Facade\Services">
+        <service id="Shopware\Core\Checkout\Cart\Facade\CartFacadeHelper">
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItemFactoryRegistry"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>

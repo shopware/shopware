@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Facade\CartFacade;
 use Shopware\Core\Checkout\Cart\Facade\CartFacadeHookFactory;
 use Shopware\Core\Checkout\Cart\Facade\ItemFacade;
-use Shopware\Core\Checkout\Cart\Facade\ItemFunctions;
+use Shopware\Core\Checkout\Cart\Facade\ItemsFacade;
 use Shopware\Core\Checkout\Cart\Facade\PriceFacade;
 use Shopware\Core\Checkout\Cart\Hook\CartHook;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -239,7 +239,7 @@ class CartFacadeTest extends TestCase
                 $item = $service->get($ids->get('p1'));
                 static::assertInstanceOf(ItemFacade::class, $item);
 
-                $expected = ['test' => 1, 'foo' => 'bar', 'push', 'bar' => 'baz', 'baz' => true];
+                $expected = ['test' => 1, 'foo' => 'bar', 'bar' => 'baz', 'baz' => true];
                 foreach ($expected as $key => $value) {
                     static::assertArrayHasKey($key, $item->getItem()->getPayload());
                     $actual = $item->getItem()->getPayload()[$key];
@@ -262,7 +262,7 @@ class CartFacadeTest extends TestCase
     }
 
     /**
-     * @param ItemFunctions|CartFacade|LineItemCollection $scope
+     * @param ItemsFacade|CartFacade|LineItemCollection $scope
      */
     private function assertItems($scope, array $expectations): void
     {

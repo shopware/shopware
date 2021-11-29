@@ -14,7 +14,7 @@ class PriceFacade
     /**
      * @internal
      */
-    public function __construct(CalculatedPrice $price, Services $services)
+    public function __construct(CalculatedPrice $price, CartFacadeHelper $services)
     {
         $this->price = $price;
         $this->services = $services;

@@ -9,6 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -236,6 +237,8 @@ class WishlistControllerTest extends TestCase
 
     public function testWishlistPageLoadedHookScriptsAreExecuted(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
         $browser = $this->login();
 
         $browser->request('GET', '/wishlist', []);
@@ -249,6 +252,8 @@ class WishlistControllerTest extends TestCase
 
     public function testGuestWishlistPageLoadedHookScriptsAreExecuted(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
         $response = $this->request('GET', '/wishlist', []);
         static::assertEquals(200, $response->getStatusCode());
 
@@ -259,6 +264,8 @@ class WishlistControllerTest extends TestCase
 
     public function testGuestWishlistPageletLoadedHookScriptsAreExecuted(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
         $browser = $this->registerAsGuest();
         $browser->xmlHttpRequest(
             'POST',
@@ -275,6 +282,8 @@ class WishlistControllerTest extends TestCase
 
     public function testWishlistPageLoadedHookScriptsAreExecutedForWidget(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
         $browser = $this->login();
 
         $browser->request('GET', '/widgets/wishlist', []);
@@ -288,6 +297,8 @@ class WishlistControllerTest extends TestCase
 
     public function testWishlistWidgetLoadedHookScriptsAreExecuted(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
         $browser = $this->login();
 
         $browser->request('GET', '/wishlist/merge/pagelet', []);

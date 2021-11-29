@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Facade\Traits;
 
-use Shopware\Core\Checkout\Cart\Facade\Services;
+use Shopware\Core\Checkout\Cart\Facade\CartFacadeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 
 /**
@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
  */
 trait PriceFactoryTrait
 {
-    protected Services $services;
+    protected CartFacadeHelper $services;
 
     /**
      * @public-api used for app scripting

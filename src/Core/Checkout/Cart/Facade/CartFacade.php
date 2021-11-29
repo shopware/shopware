@@ -27,20 +27,20 @@ class CartFacade
     /**
      * @internal
      */
-    public function __construct(Services $services, Cart $cart)
+    public function __construct(CartFacadeHelper $services, Cart $cart)
     {
         $this->services = $services;
         $this->cart = $cart;
     }
 
-    public function items(): ItemFunctions
+    public function items(): ItemsFacade
     {
-        return new ItemFunctions($this->cart->getLineItems(), $this->services);
+        return new ItemsFacade($this->cart->getLineItems(), $this->services);
     }
 
-    public function products(): ProductFunctions
+    public function products(): ProductsFacade
     {
-        return new ProductFunctions($this->cart->getLineItems(), $this->services);
+        return new ProductsFacade($this->cart->getLineItems(), $this->services);
     }
 
     public function calculate(): void
@@ -55,9 +55,9 @@ class CartFacade
         return new CartPriceFacade($this->cart->getPrice(), $this->services);
     }
 
-    public function errors(): ErrorFunctions
+    public function errors(): ErrorsFacade
     {
-        return new ErrorFunctions($this->cart->getErrors());
+        return new ErrorsFacade($this->cart->getErrors());
     }
 
     protected function getItems(): LineItemCollection

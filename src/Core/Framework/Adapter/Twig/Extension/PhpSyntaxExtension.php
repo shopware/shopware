@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ReturnNodeTokenParser;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
-use Shopware\Core\Framework\Script\Service\ArrayFunctions;
+use Shopware\Core\Framework\Script\Service\ArrayFacade;
 use Squirrel\TwigPhpSyntax\Operator\NotSameAsBinary;
 use Squirrel\TwigPhpSyntax\Operator\SameAsBinary;
 use Squirrel\TwigPhpSyntax\Test\ArrayTest;
@@ -98,9 +98,9 @@ class PhpSyntaxExtension extends AbstractExtension
         ];
     }
 
-    public function createArray(array $array): ArrayFunctions
+    public function createArray(array $array): ArrayFacade
     {
-        return new ArrayFunctions($array);
+        return new ArrayFacade($array);
     }
 
     public function getTests(): array

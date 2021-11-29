@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Cart\Error\CartError;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 
-class ErrorFunctions
+class ErrorsFacade
 {
     protected ErrorCollection $collection;
 

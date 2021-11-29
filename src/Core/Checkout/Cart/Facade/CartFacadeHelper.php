@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class Services
+class CartFacadeHelper
 {
     private LineItemFactoryRegistry $factory;
 

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -33,6 +34,8 @@ class MaintenanceControllerTest extends TestCase
 
     public function testMaintenancePageLoadedHookScriptsAreExecuted(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
         $this->setMaintenanceMode();
 
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
@@ -50,6 +53,8 @@ class MaintenanceControllerTest extends TestCase
 
     public function testMaintenancePageLoadedHookScriptsAreExecutedForSinglePage(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
         $response = $this->request('GET', '/maintenance/singlepage/' . $this->ids->get('page'), []);
         static::assertEquals(200, $response->getStatusCode());
 

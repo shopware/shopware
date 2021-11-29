@@ -26,11 +26,9 @@ class LineItem extends Struct
     public const CONTAINER_LINE_ITEM = 'container';
 
     /**
-     * @protected Public accessor is needed for ItemFacade
-     *
      * @var array
      */
-    public $payload = [];
+    protected $payload = [];
 
     /**
      * @var string
@@ -515,6 +513,14 @@ class LineItem extends Struct
     public function setDataContextHash(?string $dataContextHash): void
     {
         $this->dataContextHash = $dataContextHash;
+    }
+
+    /**
+     * @internal
+     */
+    public function &getPayloadByReference(): array
+    {
+        return $this->payload;
     }
 
     /**

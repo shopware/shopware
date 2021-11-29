@@ -22,9 +22,9 @@ class ContainerFacade extends ItemFacade
 
     protected LineItem $item;
 
-    public function products(): ProductFunctions
+    public function products(): ProductsFacade
     {
-        return new ProductFunctions($this->item->getChildren(), $this->services);
+        return new ProductsFacade($this->item->getChildren(), $this->services);
     }
 
     public function add(ItemFacade $item): ?ItemFacade

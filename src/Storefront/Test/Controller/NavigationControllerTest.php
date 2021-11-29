@@ -7,6 +7,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -30,6 +31,8 @@ class NavigationControllerTest extends TestCase
 
     public function testNavigationPageLoadedHookScriptsAreExecuted(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
         $response = $this->request('GET', '/', []);
         static::assertEquals(200, $response->getStatusCode());
 
@@ -40,6 +43,8 @@ class NavigationControllerTest extends TestCase
 
     public function testNavigationPageLoadedHookScriptsAreExecutedForCategory(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
         $response = $this->request('GET', '/navigation/' . $this->ids->get('category'), []);
         static::assertEquals(200, $response->getStatusCode());
 
@@ -50,6 +55,8 @@ class NavigationControllerTest extends TestCase
 
     public function testMenuOffcanvasPageletLoadedHookScriptsAreExecuted(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
         $response = $this->request('GET', '/widgets/menu/offcanvas', []);
         static::assertEquals(200, $response->getStatusCode());
 

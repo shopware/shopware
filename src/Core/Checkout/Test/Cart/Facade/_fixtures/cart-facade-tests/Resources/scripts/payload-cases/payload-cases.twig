@@ -10,8 +10,6 @@
     {% do product.payload.set('foo', 'bar') %}
 {% endif %}
 
-{% do product.payload.push('push') %}
-
 {% set my_array = array({'bar': 'foo', 'baz': true}) %}
 
 {% do product.payload.merge(my_array) %}

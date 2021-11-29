@@ -17,18 +17,19 @@ namespace Shopware\Core\Framework\Script\Service;
  *
  * {% foreach array as key => value %}
  *
- * @phpstan
- *
  * @implements \ArrayAccess<array-key, string|int|float|array|object|bool|null>
  * @implements \IteratorAggregate<array-key, string|int|float|array|object|bool|null>
  */
-class ArrayFunctions implements \IteratorAggregate, \ArrayAccess, \Countable
+class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
 {
     private array $items;
 
-    public function __construct(array &$items)
+    private ?\Closure $closure;
+
+    public function __construct(array $items, ?\Closure $closure = null)
     {
-        $this->items = &$items;
+        $this->items = $items;
+        $this->closure = $closure;
     }
 
     /**
@@ -38,6 +39,7 @@ class ArrayFunctions implements \IteratorAggregate, \ArrayAccess, \Countable
     public function set($key, $value): void
     {
         $this->items[$key] = $value;
+        $this->update();
     }
 
     /**
@@ -46,6 +48,7 @@ class ArrayFunctions implements \IteratorAggregate, \ArrayAccess, \Countable
     public function push($value): void
     {
         $this->items[] = $value;
+        $this->update();
     }
 
     /**
@@ -54,6 +57,7 @@ class ArrayFunctions implements \IteratorAggregate, \ArrayAccess, \Countable
     public function removeBy($index): void
     {
         unset($this->items[$index]);
+        $this->update();
     }
 
     /**
@@ -65,6 +69,7 @@ class ArrayFunctions implements \IteratorAggregate, \ArrayAccess, \Countable
 
         if ($index !== false) {
             $this->removeBy($index);
+            $this->update();
         }
     }
 
@@ -73,28 +78,31 @@ class ArrayFunctions implements \IteratorAggregate, \ArrayAccess, \Countable
         foreach (array_keys($this->items) as $key) {
             unset($this->items[$key]);
         }
+        $this->update();
     }
 
     /**
-     * @param array|ArrayFunctions $array
+     * @param array|ArrayFacade $array
      */
     public function merge($array): void
     {
-        if ($array instanceof ArrayFunctions) {
+        if ($array instanceof ArrayFacade) {
             $array = $array->items;
         }
         $this->items = array_merge_recursive($this->items, $array);
+        $this->update();
     }
 
     /**
-     * @param array|ArrayFunctions $array
+     * @param array|ArrayFacade $array
      */
     public function replace($array): void
     {
-        if ($array instanceof ArrayFunctions) {
+        if ($array instanceof ArrayFacade) {
             $array = $array->items;
         }
         $this->items = array_replace_recursive($this->items, $array);
+        $this->update();
     }
 
     /**
@@ -130,6 +138,8 @@ class ArrayFunctions implements \IteratorAggregate, \ArrayAccess, \Countable
         } else {
             $this->items[$offset] = $value;
         }
+
+        $this->update();
     }
 
     /**
@@ -148,5 +158,15 @@ class ArrayFunctions implements \IteratorAggregate, \ArrayAccess, \Countable
     public function count()
     {
         return \count($this->items);
+    }
+
+    private function update(): void
+    {
+        if (!$this->closure) {
+            return;
+        }
+        $closure = $this->closure;
+
+        $closure($this->items);
     }
 }

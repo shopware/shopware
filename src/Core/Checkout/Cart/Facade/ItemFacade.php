@@ -3,19 +3,19 @@
 namespace Shopware\Core\Checkout\Cart\Facade;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Script\Service\ArrayFunctions;
+use Shopware\Core\Framework\Script\Service\ArrayFacade;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class ItemFacade
 {
     protected LineItem $item;
 
-    protected Services $services;
+    protected CartFacadeHelper $services;
 
     /**
      * @internal
      */
-    public function __construct(LineItem $item, Services $services)
+    public function __construct(LineItem $item, CartFacadeHelper $services)
     {
         $this->item = $item;
         $this->services = $services;
@@ -71,14 +71,19 @@ class ItemFacade
         return $this->item->getLabel();
     }
 
-    public function getPayload(): ArrayFunctions
+    public function getPayload(): ArrayFacade
     {
-        return new ArrayFunctions($this->item->payload);
+        return new ArrayFacade(
+            $this->item->getPayloadByReference(),
+            function (array $payload): void {
+                $this->item->setPayload($payload);
+            }
+        );
     }
 
-    public function getChildren(): ItemFunctions
+    public function getChildren(): ItemsFacade
     {
-        return new ItemFunctions($this->item->getChildren(), $this->services);
+        return new ItemsFacade($this->item->getChildren(), $this->services);
     }
 
     public function getType(): string

@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsHasTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsRemoveTrait;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 
-class ItemFunctions
+class ItemsFacade
 {
     use ItemsAddTrait;
     use ItemsHasTrait;
@@ -20,7 +20,7 @@ class ItemFunctions
     /**
      * @internal
      */
-    public function __construct(LineItemCollection $items, Services $services)
+    public function __construct(LineItemCollection $items, CartFacadeHelper $services)
     {
         $this->items = $items;
         $this->services = $services;

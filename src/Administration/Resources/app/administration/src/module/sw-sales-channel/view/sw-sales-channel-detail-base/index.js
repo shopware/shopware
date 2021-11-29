@@ -151,12 +151,27 @@ Component.register('sw-sales-channel-detail-base', {
             return this.salesChannel?.countries?.filter(country => country.active === false) ?? [];
         },
 
+        disabledCountryVariant() {
+            return this.disabledCountries
+                .find(country => country.id === this.salesChannel.countryId) ? 'warning' : 'info';
+        },
+
         disabledPaymentMethods() {
             return this.salesChannel?.paymentMethods?.filter(paymentMethod => paymentMethod.active === false) ?? [];
         },
 
+        disabledPaymentMethodVariant() {
+            return this.disabledPaymentMethods
+                .find(paymentMethod => paymentMethod.id === this.salesChannel.paymentMethodId) ? 'warning' : 'info';
+        },
+
         disabledShippingMethods() {
             return this.salesChannel?.shippingMethods?.filter(shippingMethod => shippingMethod.active === false) ?? [];
+        },
+
+        disabledShippingMethodVariant() {
+            return this.disabledShippingMethods
+                .find(shippingMethod => shippingMethod.id === this.salesChannel.shippingMethodId) ? 'warning' : 'info';
         },
 
         storefrontDomainsLoaded() {
@@ -615,10 +630,10 @@ Component.register('sw-sales-channel-detail-base', {
 
         buildDisabledAlert(snippet, collection, property = 'name') {
             const data = {
-                name: collection.first()[property].replaceAll('|', '&vert;'),
+                name: collection.first().translated[property].replaceAll('|', '&vert;'),
                 addition: collection.length > 2
                     ? this.$tc('sw-sales-channel.detail.warningDisabledAddition', 1, { amount: collection.length - 1 })
-                    : collection.last()[property].replaceAll('|', '&vert;'),
+                    : collection.last().translated[property].replaceAll('|', '&vert;'),
             };
 
             return this.$tc(snippet, collection.length, data);

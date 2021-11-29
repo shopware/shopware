@@ -38,6 +38,7 @@
       "placeholderName": "Enter name...",
       "placeholderPosition": "Enter position...",
       "placeholderDescription": "Enter description...",
+      "placeholderAvailabilityRule": "Choose availability rule...",
       "buttonCancel": "Cancel",
       "buttonSave": "Save"
     }

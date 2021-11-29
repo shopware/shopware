@@ -49,6 +49,9 @@ const createWrapper = () => {
             $te: () => false
         },
         provide: {
+            ruleConditionDataProviderService: {
+                getRestrictedRules: () => Promise.resolve([])
+            },
             repositoryFactory: {
                 create: (name) => {
                     if (name === 'rule') {

@@ -79,6 +79,10 @@ function createWrapper(privileges = []) {
             })
         },
 
+        ruleConditionDataProviderService: {
+            getRestrictedRules: () => Promise.resolve([])
+        },
+
         acl: {
             can: (identifier) => {
                 if (!identifier) {

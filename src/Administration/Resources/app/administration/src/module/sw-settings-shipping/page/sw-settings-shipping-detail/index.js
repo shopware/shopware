@@ -11,7 +11,13 @@ const { warn } = Shopware.Utils.debug;
 Component.register('sw-settings-shipping-detail', {
     template,
 
-    inject: ['ruleConditionDataProviderService', 'repositoryFactory', 'acl', 'customFieldDataProviderService'],
+    inject: [
+        'ruleConditionDataProviderService',
+        'repositoryFactory',
+        'acl',
+        'customFieldDataProviderService',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),

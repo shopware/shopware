@@ -34,12 +34,8 @@
             <template #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
                 <li
                     is="sw-select-result"
-                    v-tooltip="{
-                        showDelay: 300,
-                        message: $tc('sw-settings-shipping.priceMatrix.ruleAlreadyUsed'),
-                        disabled: !usedRules.includes(item.id) && !isSelected(item)
-                    }"
-                    :disabled="usedRules.includes(item.id) && !isSelected(item)"
+                    v-tooltip="shippingMethodRuleTooltipConfig(item, isSelected(item))"
+                    :disabled="(usedRules.includes(item.id) && !isSelected(item)) || restrictedShippingMethodRules.includes(item.id)"
                     :selected="isSelected(item)"
                     v-bind="{ item, index }"
                     @item-select="setValue"
@@ -141,12 +137,8 @@
                 <template #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
                     <li
                         is="sw-select-result"
-                        v-tooltip="{
-                            showDelay: 300,
-                            message: $tc('sw-settings-shipping.priceMatrix.ruleAlreadyUsedInMatrix'),
-                            disabled: !usedCalculationRules.includes(item.id) && !isSelected(item)
-                        }"
-                        :disabled="usedCalculationRules.includes(item.id) && !isSelected(item)"
+                        v-tooltip="shippingPriceRuleTooltipConfig(item, isSelected(item))"
+                        :disabled="(usedCalculationRules.includes(item.id) && !isSelected(item)) || restrictedShippingPriceRules.includes(item.id)"
                         :selected="isSelected(item)"
                         v-bind="{ item, index }"
                         @item-select="setValue"
@@ -298,7 +290,7 @@
                 size="small"
                 :disabled="disabled"
                 :placeholder="$tc('sw-settings-shipping.priceMatrix.chooseCustomRule')"
-                @save-rule="onSaveCustomShippingRule"
+                @save-rule="(ruleId) => { onSaveCustomShippingRule(ruleId) }"
             >
                 <template #rule-modal="{ showRuleModal, onSaveRule, onCloseRuleModal }">
                     <sw-price-rule-modal

@@ -1094,6 +1094,7 @@ describe('core/factory/component.factory.js', () => {
     });
 
     it('should render a component which extends a component with an override', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_17978'];
         ComponentFactory.register('first-component', {
             template: '<div>{% block first %}<div>First.</div>{% endblock %}</div>'
         });
@@ -1165,6 +1166,7 @@ describe('core/factory/component.factory.js', () => {
         });
 
         it('should render chained extensions with multiple overrides in regular order', async () => {
+            global.activeFeatureFlags = ['FEATURE_NEXT_17978'];
             registerFirst();
             registerFirstOverride();
             registerSecondOverride();
@@ -1181,6 +1183,7 @@ describe('core/factory/component.factory.js', () => {
         });
 
         it('should render chained extensions with multiple overrides in mixed registration order', async () => {
+            global.activeFeatureFlags = ['FEATURE_NEXT_17978'];
             registerSecondExtension();
             registerFirstExtension();
             registerFirstOverride();
@@ -1197,6 +1200,7 @@ describe('core/factory/component.factory.js', () => {
         });
 
         it('should render chained extensions with multiple overrides in mixed build order', async () => {
+            global.activeFeatureFlags = ['FEATURE_NEXT_17978'];
             registerFirst();
             registerFirstOverride();
             registerSecondOverride();
@@ -1215,6 +1219,7 @@ describe('core/factory/component.factory.js', () => {
         it(
             'should render chained extensions with multiple overrides in mixed registration and build order',
             async () => {
+                global.activeFeatureFlags = ['FEATURE_NEXT_17978'];
                 registerSecondExtension();
                 registerFirstExtension();
                 registerFirstOverride();
@@ -1233,6 +1238,7 @@ describe('core/factory/component.factory.js', () => {
     });
 
     it('should render a component which extends a component with an override using a mixed order', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_17978'];
         ComponentFactory.override('first-component', {
             template: '{% block first %}{% parent %}<div>First overridden.</div>{% endblock %}'
         });

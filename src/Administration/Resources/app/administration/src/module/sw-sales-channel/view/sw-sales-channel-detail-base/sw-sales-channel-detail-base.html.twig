@@ -153,8 +153,8 @@
         {% block sw_sales_channel_detail_base_disabled_countries_warning %}
         <sw-alert
             v-if="disabledCountries.length > 0"
-            variant="warning"
-            :title="$tc('global.default.warning')"
+            :variant="disabledCountryVariant"
+            :title="$tc('global.default.' + disabledCountryVariant)"
         >
             <span v-html="buildDisabledAlert('sw-sales-channel.detail.warningDisabledCountries', disabledCountries)"></span>
         </sw-alert>
@@ -199,8 +199,8 @@
         {% block sw_sales_channel_detail_base_disabled_payments_methods_warning %}
         <sw-alert
             v-if="disabledPaymentMethods.length > 0"
-            variant="warning"
-            :title="$tc('global.default.warning')"
+            :variant="disabledPaymentMethodVariant"
+            :title="$tc('global.default.' + disabledPaymentMethodVariant)"
         >
             <span v-html="buildDisabledAlert('sw-sales-channel.detail.warningDisabledPaymentMethod', disabledPaymentMethods, 'distinguishableName')"></span>
         </sw-alert>
@@ -223,8 +223,8 @@
         {% block sw_sales_channel_detail_base_disabled_shipping_methods_warning %}
         <sw-alert
             v-if="disabledShippingMethods.length > 0"
-            variant="warning"
-            :title="$tc('global.default.warning')"
+            :variant="disabledShippingMethodVariant"
+            :title="$tc('global.default.' + disabledShippingMethodVariant)"
         >
             <span v-html="buildDisabledAlert('sw-sales-channel.detail.warningDisabledShippingMethod', disabledShippingMethods)"></span>
         </sw-alert>

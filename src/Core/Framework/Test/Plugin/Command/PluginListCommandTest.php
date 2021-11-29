@@ -86,6 +86,7 @@ class PluginListCommandTest extends TestCase
             if (!(\count($filters) === 1 && $filters[0] instanceof MultiFilter)) {
                 return false;
             }
+            /** @var MultiFilter $filter */
             $filter = $filters[0];
             // must be OR
             if ($filter->getOperator() !== MultiFilter::CONNECTION_OR) {
@@ -93,6 +94,7 @@ class PluginListCommandTest extends TestCase
             }
             $fields = ['name', 'label'];
             foreach ($filter->getQueries() as $query) {
+                /** @var ContainsFilter $query */
                 if (!(
                     $query instanceof ContainsFilter
                     && $query->getValue() === $filterValue

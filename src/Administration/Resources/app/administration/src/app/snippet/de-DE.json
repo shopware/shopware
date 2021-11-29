@@ -45,7 +45,9 @@
       "unspecifiedSaveErrorMessage": "Ein Fehler ist aufgetreten.",
       "notificationSaveSuccessMessage": "Die Entität \"{entityName}\" wurde erfolgreich gespeichert.",
       "messageDeleteSuccess": "\"{name}\" gelöscht.",
-      "messageDeleteFailed": "Die Entität \"{entityName}\" wird in folgenden Modulen verwendet: "
+      "messageDeleteFailed": "Die Entität \"{entityName}\" wird in folgenden Modulen verwendet: ",
+      "noTitle": "Ein Titel wurde nicht definiert",
+      "noMessage": "Eine Nachricht wurde nicht definiert"
     },
     "notification-center": {
       "title": "Mitteilungen",

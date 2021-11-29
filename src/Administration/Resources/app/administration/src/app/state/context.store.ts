@@ -41,7 +41,9 @@ interface ContextState {
         inheritance: null | boolean,
         installationPath: null | string,
         languageId: null | string,
-        language: null | $TSFixMe,
+        language: null | {
+            name: string,
+        },
         apiVersion: null | string,
         liveVersionId: null | string,
         systemLanguageId: null | string,
@@ -108,7 +110,7 @@ const ContextStore: Module<ContextState, VuexRootState> = {
             state.api.installationPath = value;
         },
 
-        setApiLanguage(state, value: string) {
+        setApiLanguage(state, value: { name: string }) {
             state.api.language = value;
         },
 

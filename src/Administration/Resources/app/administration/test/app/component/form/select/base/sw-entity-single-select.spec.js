@@ -20,6 +20,7 @@ const fixture = [
     { id: utils.createId(), name: 'third entry' }
 ];
 
+const swOriginEntitySingleSelect = Shopware.Component.build('sw-entity-single-select');
 const propertyFixture = [
     {
         id: utils.createId(),
@@ -595,5 +596,94 @@ describe('components/sw-entity-single-select', () => {
         expect(firstListEntry.find('.sw-select-result').classes()).toContain('has--description');
         expect(firstListEntry.find('.sw-select-result__result-item-text').text()).toBe('first entry');
         expect(firstListEntry.find('.sw-select-result__result-item-description').text()).toBe('example');
+    });
+
+    it('should recognize non-existing entity and offer entity creation (with FEATURE_NEXT_17546)', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_17546'];
+
+        const nonExistingEntityMock = [];
+        nonExistingEntityMock.total = 0;
+
+        const existingEntityMock = [
+            {
+                id: '12345asd'
+            }
+        ];
+        existingEntityMock.total = 1;
+
+        const createableWrapper = shallowMount(swOriginEntitySingleSelect, {
+            stubs: {
+                'sw-select-base': Shopware.Component.build('sw-select-base'),
+                'sw-block-field': Shopware.Component.build('sw-block-field'),
+                'sw-base-field': Shopware.Component.build('sw-base-field'),
+                'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
+                'sw-select-result': true,
+                'sw-highlight-text': Shopware.Component.build('sw-highlight-text'),
+                'sw-popover': true,
+                'sw-field-error': true,
+                'sw-loader': true,
+                'sw-icon': true,
+            },
+            propsData: {
+                value: 'asdf555',
+                entity: 'product_manufacturer',
+                creatable: true
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: (context) => {
+                            // Should return no manufacturer when component searches for "Cars"
+                            if (context.filters[0].value === 'Cars') {
+                                return Promise.resolve(nonExistingEntityMock);
+                            }
+
+                            // Should return one manufacturer when component searches for "Bikes"
+                            if (context.filters[0].value === 'Bikes') {
+                                return Promise.resolve(existingEntityMock);
+                            }
+
+                            return Promise.resolve([]);
+                        },
+                        get: () => Promise.resolve({
+                            id: 'manufacturerId',
+                            name: 'ThisIsMyEntity',
+                            product: []
+                        }),
+                        create: () => Promise.resolve({})
+                    }),
+                }
+            },
+            computed: {
+                searchCriteria() {
+                    return {};
+                }
+            }
+        });
+
+        const displaySearchSpy = jest.spyOn(createableWrapper.vm, 'displaySearch');
+        const input = createableWrapper.find('.sw-entity-single-select__selection-input');
+
+        await createableWrapper.find('.sw-select__selection').trigger('click');
+
+        // Enter a new search term
+        await input.setValue('Cars');
+
+        // Flush debouncedSearch from parent "sw-entity-single-select" component
+        const select = swOriginEntitySingleSelect.methods.debouncedSearch;
+        await select.flush();
+
+        // Wait for rendering
+        await createableWrapper.vm.$nextTick();
+        const resultItem = createableWrapper.find('.sw-select-result-list__item-list').find('.sw-highlight-text');
+
+        // Ensure manufacturer does not exist
+        expect(createableWrapper.vm.entityExists).toBe(false);
+
+        // Ensure non-existing manufacturer is offered to be created by a new select result item
+        expect(createableWrapper.vm.newEntityName).toBe('Cars');
+        expect(displaySearchSpy).toHaveBeenCalledTimes(1);
+        expect(resultItem.text()).toBe('global.sw-single-select.labelEntityAdd');
+        expect(resultItem.props().searchTerm).toBe('Cars');
     });
 });

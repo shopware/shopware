@@ -48,6 +48,8 @@
                     :error="productManufacturerIdError"
                     :placeholder="$tc('sw-product.basicForm.placeholderManufacturer')"
                     show-clearable-button
+                    :creatable="true"
+                    :entity-creation-label="$tc('sw-product.basicForm.labelManufacturer')"
                     @change="updateCurrentValue"
                 />
 

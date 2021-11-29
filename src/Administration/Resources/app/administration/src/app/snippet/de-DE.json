@@ -484,7 +484,10 @@
     },
     "sw-single-select": {
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",
-      "valuePlaceholder": "Bitte auswählen ..."
+      "valuePlaceholder": "Bitte auswählen ...",
+      "labelEntity": "Neues Element",
+      "labelEntityAdd": "{entity} \"{term}\" neu erstellen",
+      "labelEntityAddedSuccess": "\"{entity}\" mit dem Namen \"{term}\" wurde erfolgreich erstellt."
     },
     "sw-meteor-single-select": {
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",

@@ -22,6 +22,7 @@ class PluginListCommandTest extends TestCase
      * @var MockObject|EntityRepository
      */
     private $pluginRepoMock;
+
     private PluginListCommand $command;
 
     protected function setUp(): void
@@ -35,26 +36,26 @@ class PluginListCommandTest extends TestCase
     {
         $entities = [
             $this->createMock(PluginEntity::class),
-            $this->createMock(PluginEntity::class)
+            $this->createMock(PluginEntity::class),
         ];
         $config = [
             [
-                'getActive'         => true,
-                'getInstalledAt'    => new \DateTimeImmutable('2004-01-01T00:00:00.000001Z'),
+                'getActive' => true,
+                'getInstalledAt' => new \DateTimeImmutable('2004-01-01T00:00:00.000001Z'),
                 'getUpgradeVersion' => '3.0.1',
-                'getName'           => 'Plugin List Plugin',
-                'getLabel'          => 'plp',
-                'getVersion'        => '2.5.3',
-                'getAuthor'         => 'Fabian Blechschmidt',
+                'getName' => 'Plugin List Plugin',
+                'getLabel' => 'plp',
+                'getVersion' => '2.5.3',
+                'getAuthor' => 'Fabian Blechschmidt',
             ],
             [
-                'getActive'         => false,
-                'getInstalledAt'    => new \DateTimeImmutable('2019-05-23T00:00:00.000001Z'),
+                'getActive' => false,
+                'getInstalledAt' => new \DateTimeImmutable('2019-05-23T00:00:00.000001Z'),
                 'getUpgradeVersion' => '6.0.0',
-                'getName'           => 'Shopware Next',
-                'getLabel'          => 'swn',
-                'getVersion'        => '5.5.3',
-                'getAuthor'         => 'Shopware AG',
+                'getName' => 'Shopware Next',
+                'getLabel' => 'swn',
+                'getVersion' => '5.5.3',
+                'getAuthor' => 'Shopware AG',
             ],
         ];
 
@@ -68,8 +69,8 @@ class PluginListCommandTest extends TestCase
         $this->setupEntityCollection($entities);
 
         [$statusCode, $output] = $this->executeCommand([]);
-        $this->assertSame(0, $statusCode);
-        $this->assertStringEqualsFile(
+        static::assertSame(0, $statusCode);
+        static::assertStringEqualsFile(
             __DIR__ . '/../_assertion/PluginListCommandTest::testCommand.txt',
             implode("\n", array_map('trim', explode("\n", $output))) . "\n"
         );
@@ -79,10 +80,10 @@ class PluginListCommandTest extends TestCase
     {
         $filterValue = 'shopware-is-love';
 
-        $criteria = $this->callback(function (Criteria $criteria) use ($filterValue): bool {
+        $criteria = static::callback(function (Criteria $criteria) use ($filterValue): bool {
             $filters = $criteria->getFilters();
             // must be MultiFilter
-            if (!(count($filters) === 1 && $filters[0] instanceof MultiFilter)) {
+            if (!(\count($filters) === 1 && $filters[0] instanceof MultiFilter)) {
                 return false;
             }
             $filter = $filters[0];
@@ -92,8 +93,8 @@ class PluginListCommandTest extends TestCase
             }
             $fields = ['name', 'label'];
             foreach ($filter->getQueries() as $query) {
-                if (!
-                ($query instanceof ContainsFilter
+                if (!(
+                    $query instanceof ContainsFilter
                     && $query->getValue() === $filterValue
                     // first test against name, then label
                     && $query->getField() === array_shift($fields)
@@ -102,14 +103,15 @@ class PluginListCommandTest extends TestCase
                     return false;
                 }
             }
+
             return true;
         });
 
-        $this->pluginRepoMock->method('search')->with($criteria, $this->anything());
+        $this->pluginRepoMock->method('search')->with($criteria, static::anything());
 
         [$statusCode, $output] = $this->executeCommand(['--filter' => $filterValue]);
-        $this->assertSame(0, $statusCode);
-        $this->assertStringContainsString('Filtering for: ' . $filterValue, $output);
+        static::assertSame(0, $statusCode);
+        static::assertStringContainsString('Filtering for: ' . $filterValue, $output);
     }
 
     public function testJsonOutput(): void
@@ -119,7 +121,7 @@ class PluginListCommandTest extends TestCase
 
         $entities = [
             $plugin1 = $this->createMock(PluginEntity::class),
-            $plugin2 = $this->createMock(PluginEntity::class)
+            $plugin2 = $this->createMock(PluginEntity::class),
         ];
 
         $plugin1->method('jsonSerialize')->willReturn($o1);
@@ -128,9 +130,9 @@ class PluginListCommandTest extends TestCase
         $this->setupEntityCollection($entities);
 
         $options = ['--json' => true];
-        $json = json_encode([$o1, $o2], JSON_THROW_ON_ERROR);
+        $json = json_encode([$o1, $o2], \JSON_THROW_ON_ERROR);
         $expected = [0, $json];
-        $this->assertSame($expected, $this->executeCommand($options));
+        static::assertSame($expected, $this->executeCommand($options));
     }
 
     private function executeCommand(array $options): array

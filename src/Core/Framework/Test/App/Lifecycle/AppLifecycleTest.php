@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockEntity;
@@ -31,6 +32,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Script\Execution\ScriptLoader;
 use Shopware\Core\Framework\Script\ScriptEntity;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
@@ -66,6 +68,10 @@ class AppLifecycleTest extends TestCase
         $this->context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
 
         $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
+
+        $cache = $this->getContainer()->get('cache.object');
+        $item = $cache->getItem(ScriptLoader::CACHE_KEY);
+        $cache->save(CacheCompressor::compress($item, []));
     }
 
     public function testInstall(): void
@@ -1195,6 +1201,9 @@ class AppLifecycleTest extends TestCase
             $script->getScript()
         );
         static::assertEquals($active, $script->isActive());
+
+        $cache = $this->getContainer()->get('cache.object');
+        static::assertFalse($cache->hasItem(ScriptLoader::CACHE_KEY));
     }
 
     private function assertDefaultPaymentMethods(string $appId): void

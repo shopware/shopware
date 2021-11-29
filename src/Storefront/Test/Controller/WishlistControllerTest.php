@@ -259,7 +259,7 @@ class WishlistControllerTest extends TestCase
 
     public function testGuestWishlistPageletLoadedHookScriptsAreExecuted(): void
     {
-        $browser = KernelLifecycleManager::createBrowser($this->getKernel());
+        $browser = $this->registerAsGuest();
         $browser->xmlHttpRequest(
             'POST',
             $_SERVER['APP_URL'] . '/wishlist/guest-pagelet'
@@ -347,6 +347,40 @@ class WishlistControllerTest extends TestCase
             $this->tokenize('frontend.account.login', [
                 'username' => $customer->getEmail(),
                 'password' => 'test',
+            ])
+        );
+        $response = $browser->getResponse();
+        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+
+        $browser->request('GET', '/');
+        /** @var StorefrontResponse $response */
+        $response = $browser->getResponse();
+        static::assertNotNull($response->getContext()->getCustomer());
+
+        return $browser;
+    }
+
+    private function registerAsGuest(): KernelBrowser
+    {
+        $browser = KernelLifecycleManager::createBrowser($this->getKernel());
+        $browser->request(
+            'POST',
+            $_SERVER['APP_URL'] . '/account/register',
+            $this->tokenize('frontend.account.register.save', [
+                'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE,
+                'email' => 'max.mustermann@example.com',
+                'emailConfirmation' => 'max.mustermann@example.com',
+                'salutationId' => $this->getValidSalutationId(),
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'storefrontUrl' => 'http://localhost',
+                'guest' => true,
+                'billingAddress' => [
+                    'countryId' => $this->getValidCountryId(),
+                    'street' => 'Musterstrasse 13',
+                    'zipcode' => '48599',
+                    'city' => 'Epe',
+                ],
             ])
         );
         $response = $browser->getResponse();

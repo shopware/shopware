@@ -8,8 +8,11 @@
         <service id="Shopware\Core\Framework\Script\Execution\ScriptLoader">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister"/>
+            <argument type="service" id="cache.object"/>
             <argument>%kernel.cache_dir%</argument>
-            <argument>%kernel.environment%</argument>
+            <argument>%kernel.debug%</argument>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Framework\Script\Execution\ScriptExecutor" public="true">

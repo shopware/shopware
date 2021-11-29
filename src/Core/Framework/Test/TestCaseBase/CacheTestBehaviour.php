@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Cart\Address\AddressValidator;
 use Shopware\Core\Content\Flow\Dispatching\CachedFlowLoader;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
-use Shopware\Core\Framework\Script\Execution\ScriptLoader;
 use Shopware\Core\Framework\Test\TestCacheClearer;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -31,8 +30,6 @@ trait CacheTestBehaviour
         $this->resetInternalCache(CachedFlowLoader::class, 'flows', []);
 
         $this->resetInternalCache(LanguageLocaleCodeProvider::class, 'languages', []);
-
-        $this->resetInternalCache(ScriptLoader::class, 'scripts', null);
 
         $this->resetInternalCache(ScriptTraces::class, 'traces', []);
         $this->resetInternalCache(ScriptTraces::class, 'data', []);

@@ -4,31 +4,42 @@ namespace Shopware\Core\Framework\Script\Execution;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Twig\Cache\FilesystemCache;
 
 /**
  * @internal only for use by the app-system
  */
-class ScriptLoader
+class ScriptLoader implements EventSubscriberInterface
 {
+    public const CACHE_KEY = 'shopware-app-scripts';
+
     private Connection $connection;
 
     private string $cacheDir;
 
     private ScriptPersister $scriptPersister;
 
-    private string $appEnv;
+    private bool $debug;
 
-    private ?array $scripts = null;
+    private TagAwareAdapterInterface $cache;
 
-    public function __construct(Connection $connection, ScriptPersister $scriptPersister, string $cacheDir, string $appEnv)
+    public function __construct(Connection $connection, ScriptPersister $scriptPersister, TagAwareAdapterInterface $cache, string $cacheDir, bool $debug)
     {
         $this->connection = $connection;
         $this->cacheDir = $cacheDir . '/twig/scripts';
         $this->scriptPersister = $scriptPersister;
-        $this->appEnv = $appEnv;
+        $this->debug = $debug;
+        $this->cache = $cache;
+    }
+
+    public static function getSubscribedEvents(): array
+    {
+        return ['script.written' => 'invalidateCache'];
     }
 
     /**
@@ -36,16 +47,27 @@ class ScriptLoader
      */
     public function get(string $hook): array
     {
-        if ($this->scripts === null) {
-            $this->scripts = $this->load();
+        $cacheItem = $this->cache->getItem(self::CACHE_KEY);
+        if ($cacheItem->isHit() && $cacheItem->get() && !$this->debug) {
+            return CacheCompressor::uncompress($cacheItem)[$hook] ?? [];
         }
 
-        return $this->scripts[$hook] ?? [];
+        $scripts = $this->load();
+
+        $cacheItem = CacheCompressor::compress($cacheItem, $scripts);
+        $this->cache->save($cacheItem);
+
+        return $scripts[$hook] ?? [];
+    }
+
+    public function invalidateCache(): void
+    {
+        $this->cache->deleteItem(self::CACHE_KEY);
     }
 
     private function load(): array
     {
-        if ($this->appEnv === 'dev') {
+        if ($this->debug) {
             $this->scriptPersister->refresh();
         }
 
@@ -101,7 +123,7 @@ class ScriptLoader
             }, $includes);
 
             $options = [];
-            if ($this->appEnv === 'prod') {
+            if (!$this->debug) {
                 $options['cache'] = new FilesystemCache($this->cacheDir . '/' . $cachePrefix);
             } else {
                 $options['debug'] = true;

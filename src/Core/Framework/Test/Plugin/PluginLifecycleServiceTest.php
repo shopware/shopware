@@ -501,6 +501,7 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertNull($this->systemConfigService->get('SwagTest.config.textFieldNull'));
         static::assertFalse($this->systemConfigService->get('SwagTest.config.switchField'));
         static::assertSame(0.349831239840912348, $this->systemConfigService->get('SwagTest.config.floatField'));
+        static::assertNull($this->systemConfigService->get('SwagTest.config.priceField'));
     }
 
     private function installPluginWithoutConfig(Context $context): void

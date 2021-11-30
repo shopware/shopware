@@ -28,6 +28,11 @@ Component.register('sw-price-field', {
             },
         },
 
+        allowModal: {
+            type: Boolean,
+            default: false,
+        },
+
         defaultPrice: {
             type: Object,
             required: false,
@@ -36,9 +41,14 @@ Component.register('sw-price-field', {
             },
         },
 
+        hideListPrices: {
+            type: Boolean,
+            default: false,
+        },
+
         taxRate: {
             type: Object,
-            required: true,
+            required: false,
             default() {
                 return {};
             },
@@ -133,6 +143,12 @@ Component.register('sw-price-field', {
             required: false,
             default: null,
         },
+    },
+
+    data() {
+        return {
+            showModal: false,
+        };
     },
 
     computed: {
@@ -309,10 +325,15 @@ Component.register('sw-price-field', {
                     !value ||
                     typeof value !== 'number' ||
                     !this.priceForCurrency[outputType] ||
-                    !this.taxRate.id ||
                     !outputType
                 ) {
                     return null;
+                }
+
+                if (!this.taxRate.id) {
+                    resolve(0);
+                    this.$emit('price-calculate', false);
+                    return true;
                 }
 
                 this.calculatePriceApiService.calculatePrice({
@@ -343,6 +364,10 @@ Component.register('sw-price-field', {
                 const value = event.target.value;
                 event.target.value = value.replace(/,/, '.');
             }
+        },
+
+        onCloseModal() {
+            this.showModal = false;
         },
     },
 });

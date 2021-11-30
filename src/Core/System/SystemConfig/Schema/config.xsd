@@ -60,6 +60,7 @@
             <xs:enumeration value="colorpicker"/>
             <xs:enumeration value="single-select"/>
             <xs:enumeration value="multi-select"/>
+            <xs:enumeration value="price"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:complexType name="translatableString">

@@ -34,5 +34,10 @@
             <label>Test field with default value</label>
             <defaultValue>0.349831239840912348</defaultValue>
         </input-field>
+        <input-field type="price">
+            <name>priceField</name>
+            <label>Test price field</label>
+            <defaultValue>null</defaultValue>
+        </input-field>
     </card>
 </config>

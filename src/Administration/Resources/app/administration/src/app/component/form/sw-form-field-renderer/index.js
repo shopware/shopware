@@ -96,6 +96,7 @@ Component.register('sw-form-field-renderer', {
 
     data() {
         return {
+            currency: { id: Shopware.Context.app.systemCurrencyId, factor: 1 },
             currentComponentName: '',
             swFieldConfig: {},
             currentValue: this.value,
@@ -131,6 +132,18 @@ Component.register('sw-form-field-renderer', {
         },
 
         swFieldType() {
+            if (this.type === 'price') {
+                return {
+                    type: 'price',
+                    allowModal: true,
+                    hideListPrices: true,
+                    currency: this.currency,
+                    price: [
+                        { currencyId: Shopware.Context.app.systemCurrencyId, gross: null, net: null, linked: true },
+                    ],
+                };
+            }
+
             if (this.componentName !== 'sw-field'
                 || (this.hasConfig && this.config.hasOwnProperty('type'))) {
                 return {};
@@ -214,7 +227,15 @@ Component.register('sw-form-field-renderer', {
         },
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            this.fetchSystemCurrency();
+        },
+
         getTranslations(componentName, config = this.config, translatableFields = ['label', 'placeholder', 'helpText']) {
             if (!translatableFields) {
                 return {};
@@ -231,6 +252,10 @@ Component.register('sw-form-field-renderer', {
         },
 
         getComponentFromType() {
+            if (this.type === 'price') {
+                return 'sw-price-field';
+            }
+
             if (this.type === 'single-select') {
                 return 'sw-single-select';
             }
@@ -248,6 +273,14 @@ Component.register('sw-form-field-renderer', {
             }
 
             return this.repositoryFactory.create(entity);
+        },
+
+        fetchSystemCurrency() {
+            const systemCurrencyId = Shopware.Context.app.systemCurrencyId;
+
+            this.createRepository('currency').get(systemCurrencyId).then(response => {
+                this.currency = response;
+            });
         },
     },
 });

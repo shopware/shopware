@@ -92,5 +92,29 @@
     </sw-field>
     {% endblock %}
 
+    <sw-container
+        v-if="allowModal"
+        justify="end"
+        class="sw-price-form__links"
+    >
+        {% block sw_product_price_form_maintain_currencies_link %}
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+            <a class="sw-card__quick-link" @click.prevent="showModal = true">
+                {{ $tc('sw-product.detailBase.linkMaintainCurrencyPrices') }}
+                <sw-icon name="default-arrow-simple-right" small/>
+            </a>
+        {% endblock %}
+    </sw-container>
+
+    <sw-maintain-currencies-modal
+        v-if="showModal"
+        :prices="price"
+        :default-price="priceForCurrency"
+        :tax-rate="taxRate"
+        :disabled="false"
+        :hideListPrices="hideListPrices"
+        @modal-close="onCloseModal"
+    />
+
 </div>
 {% endblock %}

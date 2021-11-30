@@ -74,7 +74,7 @@
       "messageDeactivationFailedThemeAssignment": "Unable to deactivate or uninstall theme \"{themeName}\". Please remove the following theme assignments: {assignments}.",
       "messagePluginUpdateFailed": "The extension could not be updated: \"{message}\". {pluginDeactivatedHint}",
       "pluginDeactivatedHint": "Extension deactivated.",
-      "messagePluginRequirementMismatch": "The extension requirement does not match the installed version."
+      "messagePluginRequirementMismatch": "The extension requirement does not match the installed version. Please contact your plugin manufacturer."
     },
     "mainMenu": {
       "mainMenuItemExtensionStore": "Extensions",

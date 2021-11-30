@@ -8,102 +8,109 @@
     }"
 >
 
-    {% block sw_price_field_gross %}
-    {# TODO: check selectors #}
-    <sw-field
-        v-model="priceForCurrency.gross"
-        type="number"
-        class="sw-price-field__gross"
-        :allow-empty="allowEmpty"
-        :placeholder="$tc('sw-product.priceForm.placeholderPriceGross')"
-        :label="labelGross"
-        :help-text="grossHelpText"
-        :validation="validation"
-        :size="compact ? 'small' : 'default'"
-        :min="0"
-        :digits="20"
-        :error="grossError"
-        :disabled="isDisabled"
-        :name="grossFieldName"
-        v-bind="$attrs"
-        @change="onPriceGrossChange"
-        @keyup="keymonitor"
-    >
-        <template
-            v-if="!disableSuffix"
-            #suffix
-        >
-            {{ currency.symbol }}
-        </template>
-    </sw-field>
-    {% endblock %}
+    <div class="price-field-grid">
 
-    {% block sw_price_field_lock_button %}
-    <button
-        class="sw-price-field__lock"
-        :class="{
-            'is--locked': priceForCurrency.linked,
-            'is--disabled': isDisabled
-        }"
-        @click="onLockSwitch"
-    >
-        <sw-icon
-            v-if="priceForCurrency.linked"
-            key="price-field-locked-indicator"
-            name="default-lock-closed"
-            size="16"
-        />
-        <sw-icon
-            v-else
-            key="price-field-locked-indicator"
-            name="default-lock-open"
-            size="16"
-        />
-    </button>
-    {% endblock %}
-
-    {% block sw_price_field_net %}
-    {# TODO: check selectors #}
-    <sw-field
-        v-model="priceForCurrency.net"
-        type="number"
-        class="sw-price-field__net"
-        :allow-empty="allowEmpty"
-        :placeholder="$tc('sw-product.priceForm.placeholderPriceNet')"
-        :label="labelNet"
-        :help-text="netHelpText"
-        :validation="validation"
-        :size="compact ? 'small' : 'default'"
-        :min="0"
-        :digits="20"
-        :error="netError"
-        :disabled="isInherited || disabled"
-        :name="netFieldName"
-        v-bind="$attrs"
-        @change="onPriceNetChange"
-        @keyup="keymonitor"
-    >
-        <template
-            v-if="!disableSuffix"
-            #suffix
+        {% block sw_price_field_gross %}
+        {# TODO: check selectors #}
+        <sw-field
+            v-model="priceForCurrency.gross"
+            type="number"
+            class="sw-price-field__gross"
+            :allow-empty="allowEmpty"
+            :placeholder="$tc('sw-product.priceForm.placeholderPriceGross')"
+            :label="labelGross"
+            :help-text="grossHelpText"
+            :validation="validation"
+            :size="compact ? 'small' : 'default'"
+            :min="0"
+            :digits="20"
+            :error="grossError"
+            :disabled="isDisabled"
+            :name="grossFieldName"
+            v-bind="$attrs"
+            @change="onPriceGrossChange"
+            @keyup="keymonitor"
         >
-            {{ currency.symbol }}
-        </template>
-    </sw-field>
-    {% endblock %}
+            <template
+                v-if="!disableSuffix"
+                #suffix
+            >
+                {{ currency.symbol }}
+            </template>
+        </sw-field>
+        {% endblock %}
+
+        {% block sw_price_field_lock_button %}
+        <button
+            class="sw-price-field__lock"
+            :class="{
+                'is--locked': priceForCurrency.linked,
+                'is--disabled': isDisabled
+            }"
+            @click="onLockSwitch"
+        >
+            <sw-icon
+                v-if="priceForCurrency.linked"
+                key="price-field-locked-indicator"
+                name="default-lock-closed"
+                size="16"
+            />
+            <sw-icon
+                v-else
+                key="price-field-locked-indicator"
+                name="default-lock-open"
+                size="16"
+            />
+        </button>
+        {% endblock %}
+
+        {% block sw_price_field_net %}
+        {# TODO: check selectors #}
+        <sw-field
+            v-model="priceForCurrency.net"
+            type="number"
+            class="sw-price-field__net"
+            :allow-empty="allowEmpty"
+            :placeholder="$tc('sw-product.priceForm.placeholderPriceNet')"
+            :label="labelNet"
+            :help-text="netHelpText"
+            :validation="validation"
+            :size="compact ? 'small' : 'default'"
+            :min="0"
+            :digits="20"
+            :error="netError"
+            :disabled="isInherited || disabled"
+            :name="netFieldName"
+            v-bind="$attrs"
+            @change="onPriceNetChange"
+            @keyup="keymonitor"
+        >
+            <template
+                v-if="!disableSuffix"
+                #suffix
+            >
+                {{ currency.symbol }}
+            </template>
+        </sw-field>
+        {% endblock %}
+    </div>
 
     <sw-container
         v-if="allowModal"
         justify="end"
         class="sw-price-form__links"
     >
-        {% block sw_product_price_form_maintain_currencies_link %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
-            <a class="sw-card__quick-link" @click.prevent="showModal = true">
-                {{ $tc('sw-product.detailBase.linkMaintainCurrencyPrices') }}
-                <sw-icon name="default-arrow-simple-right" small/>
-            </a>
-        {% endblock %}
+        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+        <a
+            class="sw-card__quick-link"
+            @click.prevent="showModal = true"
+        >
+            {{ $tc('sw-product.detailBase.linkMaintainCurrencyPrices') }}
+            <sw-icon
+                name="default-arrow-simple-right"
+                small
+            />
+        </a>
     </sw-container>
 
     <sw-maintain-currencies-modal
@@ -112,7 +119,7 @@
         :default-price="priceForCurrency"
         :tax-rate="taxRate"
         :disabled="false"
-        :hideListPrices="hideListPrices"
+        :hide-list-prices="hideListPrices"
         @modal-close="onCloseModal"
     />
 

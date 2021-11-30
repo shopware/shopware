@@ -117,6 +117,10 @@ function createWrapper(customProps = {}) {
 describe('src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields', () => {
     let wrapper;
 
+    beforeAll(() => {
+        global.repositoryFactoryMock.showError = false;
+    });
+
     beforeEach(() => {
         Shopware.Utils.debounce = () => {};
     });

@@ -234,7 +234,7 @@ Component.register('sw-form-field-renderer', {
 
             if (this.type === 'price' && !Array.isArray(this.currentValue)) {
                 this.currentValue = [
-                    { currencyId: Shopware.Context.app.systemCurrencyId, gross: null, net: null, linked: true }
+                    { currencyId: Shopware.Context.app.systemCurrencyId, gross: null, net: null, linked: true },
                 ];
             }
         },

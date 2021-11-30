@@ -289,8 +289,8 @@
       "notification": {
         "errorSingle": {
           "message": {
-            "media": "Fehler beim löschen der Datei \"{name}\".",
-            "folder": "Fehler beim löschen des Ordners \"{name}\"."
+            "media": "Fehler beim Löschen der Datei \"{name}\".",
+            "folder": "Fehler beim Löschen des Ordners \"{name}\"."
           }
         },
         "successOverall": {

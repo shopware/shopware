@@ -97,6 +97,8 @@ Stylelint (Storefront):
 
 PHP analysis:
     extends: .base-no-setup
+    variables:
+        GIT_DEPTH: 0
     stage: lint
     image: shopware/development:7.4-composer-2
     rules:
@@ -105,6 +107,7 @@ PHP analysis:
         - changes:
               - phpstan.neon.dist
               - psalm.xml
+              - .bc-exclude.php
               - 'changelog/**/*.md'
               - 'src/**/snippet/**/*.json'
               - '**/*.php'
@@ -116,6 +119,7 @@ PHP analysis:
         - composer run psalm -- --threads=$(nproc) --show-info=false --no-progress
         - composer run lint:changelog
         - composer run lint:snippets
+        - composer run bc-check
     artifacts:
         reports:
             codequality: phpstan-report.json

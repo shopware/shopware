@@ -59,7 +59,7 @@ function createWrapper() {
             return {
                 cmsPageState: {
                     currentPage: {
-                        type: 'ladingpage'
+                        type: 'landingpage'
                     }
                 }
             };

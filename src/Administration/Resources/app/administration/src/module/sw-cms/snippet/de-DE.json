@@ -28,7 +28,8 @@
       "gridHeaderType": "Typ",
       "gridHeaderAssignment": "Zugewiesene Kategorien",
       "gridHeaderAssignments": "Zuordnungen",
-      "gridHeaderCreated": "Erstellt"
+      "gridHeaderCreated": "Erstellt",
+      "gridHeaderUpdated": "Aktualisiert"
     },
     "section": {
       "fallBackSectionName": "Sektion",

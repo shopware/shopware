@@ -77,8 +77,7 @@
 
                     {% block sw_cms_list_listing_actions_sorting %}
                     <div class="sw-cms-list__actions-sorting">
-                        <sw-field
-                            type="select"
+                        <sw-select-field
                             name="sortType"
                             :label="$tc('sw-cms.sorting.labelSort')"
                             :value="sortingConCat"
@@ -95,7 +94,7 @@
                                 {{ sortOption.name }}
                             </option>
                             {% endblock %}
-                        </sw-field>
+                        </sw-select-field>
                     </div>
                     {% endblock %}
 
@@ -123,9 +122,98 @@
                 {% block sw_cms_list_listing_list %}
                 <div class="sw-cms-list__list">
 
+                    {% block sw_cms_list_listing_list_grid %}
+                    <div
+                        v-if="listMode === 'grid'"
+                        class="sw-cms-list__list-grid"
+                    >
+
+                        {% block sw_cms_list_listing_list_grid_content %}
+                        <div class="sw-cms-list__list-grid-content">
+                            {% block sw_cms_list_listing_list_item %}
+                            <sw-cms-list-item
+                                v-for="(cmsPage, index) in pages"
+                                :key="cmsPage.id"
+                                :class="'sw-cms-list-item--' + index"
+                                :page="cmsPage"
+                                :active="layoutIsLinked(cmsPage.id)"
+                                @preview-image-change="onPreviewChange"
+                                @cms-page-delete="onDeleteCmsPage"
+                                @item-click="onListItemClick"
+                            >
+                                <sw-context-button
+                                    slot="contextMenu"
+                                    class="sw-cms-list-item__options"
+                                >
+
+                                    {% block sw_cms_list_listing_list_item_option_add_preview %}
+                                    <sw-context-menu-item
+                                        class="sw-cms-list-item__option-preview"
+                                        :disabled="!acl.can('cms.editor')"
+                                        @click="onPreviewChange(cmsPage)"
+                                    >
+                                        {{ $tc('sw-cms.components.cmsListItem.addPreviewImage') }}
+                                    </sw-context-menu-item>
+                                    {% endblock %}
+
+                                    {% block sw_cms_list_listing_list_item_option_duplicate %}
+                                    <sw-context-menu-item
+                                        :disabled="!acl.can('cms.creator')"
+                                        class="sw-cms-list-item__option-duplicate"
+                                        @click="onDuplicateCmsPage(cmsPage)"
+                                    >
+                                        {{ $tc('sw-cms.components.cmsListItem.duplicate') }}
+                                    </sw-context-menu-item>
+                                    {% endblock %}
+
+                                    {% block sw_cms_list_listing_list_item_option_remove_preview %}
+                                    <sw-context-menu-item
+                                        v-if="cmsPage.previewMediaId"
+                                        class="sw-cms-list-item__option-preview"
+                                        variant="danger"
+                                        :disabled="!acl.can('cms.editor')"
+                                        @click="onPreviewImageRemove(cmsPage)"
+                                    >
+                                        {{ $tc('sw-cms.components.cmsListItem.removePreviewImage') }}
+                                    </sw-context-menu-item>
+                                    {% endblock %}
+
+                                    {% block sw_cms_list_listing_list_item_option_delete %}
+                                    <sw-context-menu-item
+                                        v-if="!cmsPage.locked"
+                                        v-tooltip="deleteDisabledToolTip(cmsPage)"
+                                        class="sw-cms-list-item__option-delete"
+                                        variant="danger"
+                                        :disabled="optionContextDeleteDisabled(cmsPage)"
+                                        @click="onDeleteCmsPage(cmsPage)"
+                                    >
+                                        {{ $tc('sw-cms.components.cmsListItem.delete') }}
+                                    </sw-context-menu-item>
+                                    {% endblock %}
+
+                                </sw-context-button>
+                            </sw-cms-list-item>
+                            {% endblock %}
+                        </div>
+                        {% endblock %}
+
+                        {% block sw_cms_list_listing_pagination %}
+                        <sw-pagination
+                            v-if="!isLoading"
+                            class="sw-cms-list__list-pagination"
+                            :page="page"
+                            :limit="limit"
+                            :total="total"
+                            :steps="[9]"
+                            @page-change="onPageChange"
+                        />
+                        {% endblock %}
+                    </div>
+                    {% endblock %}
+
                     {% block sw_cms_list_listing_list_card %}
                     <sw-card
-                        v-if="listMode === 'list'"
+                        v-else-if="listMode === 'list'"
                         class="sw-cms-list__list-card"
                     >
                         <template slot="grid">
@@ -141,9 +229,8 @@
                                 :sort-direction="sortDirection"
                                 :allow-inline-edit="false"
                                 :allow-column-edit="false"
-                                :show-settings="false"
+                                show-settings
                                 :show-selection="false"
-                                @column-sort="onSortColumn"
                             >
 
                                 {% block sw_cms_list_listing_list_data_grid_column_name %}
@@ -175,6 +262,12 @@
                                 {% block sw_cms_list_listing_list_data_grid_column_created %}
                                 <template #column-createdAt="{ item }">
                                     {{ item.createdAt | date({ hour: '2-digit', minute: '2-digit' }) }}
+                                </template>
+                                {% endblock %}
+
+                                {% block sw_cms_list_listing_list_data_grid_column_updated %}
+                                <template #column-updatedAt="{ item }">
+                                    {{ item.updatedAt | date({ hour: '2-digit', minute: '2-digit' }) }}
                                 </template>
                                 {% endblock %}
 
@@ -234,100 +327,6 @@
                             {% endblock %}
                         </template>
                     </sw-card>
-                    {% endblock %}
-
-                    {% block sw_cms_list_listing_list_grid %}
-                    <div
-                        v-if="listMode === 'grid'"
-                        class="sw-cms-list__list-grid"
-                    >
-
-                        {% block sw_cms_list_listing_list_grid_content %}
-                        <div class="sw-cms-list__list-grid-content">
-                            {% block sw_cms_list_listing_list_item %}
-                            <sw-cms-list-item
-                                v-for="(cmsPage, index) in pages"
-                                :key="cmsPage.id"
-                                :class="'sw-cms-list-item--' + index"
-                                :page="cmsPage"
-                                :active="layoutIsLinked(cmsPage.id)"
-                                @preview-image-change="onPreviewChange"
-                                @cms-page-delete="onDeleteCmsPage"
-                                @item-click="onListItemClick"
-                            >
-
-                                <sw-context-button
-                                    slot="contextMenu"
-                                    class="sw-cms-list-item__options"
-                                >
-
-                                    {% block sw_cms_list_listing_list_item_option_add_preview %}
-                                    <sw-context-menu-item
-                                        class="sw-cms-list-item__option-preview"
-                                        :disabled="!acl.can('cms.editor')"
-                                        @click="onPreviewChange(cmsPage)"
-                                    >
-                                        {{ $tc('sw-cms.components.cmsListItem.addPreviewImage') }}
-                                    </sw-context-menu-item>
-                                    {% endblock %}
-
-                                    {% block sw_cms_list_listing_list_item_option_remove_preview %}
-                                    <sw-context-menu-item
-                                        v-if="cmsPage.previewMediaId"
-                                        class="sw-cms-list-item__option-preview"
-                                        variant="danger"
-                                        :disabled="!acl.can('cms.editor')"
-                                        @click="onPreviewImageRemove(cmsPage)"
-                                    >
-                                        {{ $tc('sw-cms.components.cmsListItem.removePreviewImage') }}
-                                    </sw-context-menu-item>
-                                    {% endblock %}
-
-                                    {% block sw_cms_list_listing_list_item_option_duplicate %}
-                                    <sw-context-menu-item
-                                        :disabled="!acl.can('cms.creator')"
-                                        class="sw-cms-list-item__option-duplicate"
-                                        @click="onDuplicateCmsPage(cmsPage)"
-                                    >
-                                        {{ $tc('sw-cms.components.cmsListItem.duplicate') }}
-                                    </sw-context-menu-item>
-                                    {% endblock %}
-
-                                    {% block sw_cms_list_listing_list_item_option_delete %}
-                                    <sw-context-menu-item
-                                        v-if="!cmsPage.locked"
-                                        v-tooltip="deleteDisabledToolTip(cmsPage)"
-                                        class="sw-cms-list-item__option-delete"
-                                        variant="danger"
-                                        :disabled="
-                                            cmsPage.categories.length > 0 ||
-                                                (cmsPage.products && cmsPage.products.length > 0) ||
-                                                !acl.can('cms.deleter')
-                                        "
-                                        @click="onDeleteCmsPage(cmsPage)"
-                                    >
-                                        {{ $tc('sw-cms.components.cmsListItem.delete') }}
-                                    </sw-context-menu-item>
-                                    {% endblock %}
-
-                                </sw-context-button>
-                            </sw-cms-list-item>
-                            {% endblock %}
-                        </div>
-                        {% endblock %}
-
-                        {% block sw_cms_list_listing_pagination %}
-                        <sw-pagination
-                            v-if="!isLoading"
-                            class="sw-cms-list__list-pagination"
-                            :page="page"
-                            :limit="limit"
-                            :total="total"
-                            :steps="[9]"
-                            @page-change="onPageChange"
-                        />
-                        {% endblock %}
-                    </div>
                     {% endblock %}
                 </div>
                 {% endblock %}

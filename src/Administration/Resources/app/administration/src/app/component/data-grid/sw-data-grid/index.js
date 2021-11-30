@@ -394,7 +394,6 @@ Component.register('sw-data-grid', {
                 this.currentSetting = response[0];
                 const userSetting = response[0].value;
 
-
                 this.applyUserSettings({
                     columns: userSetting?.columns ?? userSetting,
                     compact: userSetting?.compact,
@@ -421,14 +420,17 @@ Component.register('sw-data-grid', {
         },
 
         applyUserSettings(userSettings) {
-            if (typeof userSettings.compact === 'boolean') this.compact = userSettings.compact;
+            if (typeof userSettings.compact === 'boolean') {
+                this.compact = userSettings.compact;
+            }
 
-            if (typeof userSettings.previews === 'boolean') this.previews = userSettings.previews;
+            if (typeof userSettings.previews === 'boolean') {
+                this.previews = userSettings.previews;
+            }
 
             if (!userSettings.columns) {
                 return;
             }
-
 
             const userColumnSettings = Object.fromEntries(userSettings.columns.map((column, index) => {
                 return [
@@ -620,7 +622,7 @@ Component.register('sw-data-grid', {
 
             // parts:  [`deliveries[0]`, `type`, `name`]
             accessor.forEach((part) => {
-                // #1 loop: part=delivieres[0]      pointer=order object
+                // #1 loop: part=deliveries[0]      pointer=order object
                 // #2 loop: part=stateMachineState  pointer=delivery object
                 // #3 loop: part=transactions       pointer=stateMachineState
                 // #4 loop: part=last()             pointer=transactions

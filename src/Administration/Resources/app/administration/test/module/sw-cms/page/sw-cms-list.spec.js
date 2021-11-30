@@ -24,9 +24,7 @@ function createWrapper() {
             'sw-tabs': {
                 template: '<div><slot name="content"></slot></div>'
             },
-            'sw-field': {
-                template: '<div></div>'
-            },
+            'sw-select-field': true,
             'sw-icon': {
                 template: '<div></div>'
             },
@@ -50,18 +48,18 @@ function createWrapper() {
                 template: '<div><slot name="grid"></slot></div>'
             },
             'sw-data-grid': Shopware.Component.build('sw-data-grid'),
+            'sw-data-grid-settings': true,
             'router-link': true,
             'sw-data-grid-skeleton': true,
             'sw-loader': true,
             'sw-empty-state': true
         },
         mocks: {
-            $route: { query: '' }
+            $route: { query: '' },
         },
         provide: {
             repositoryFactory: {
                 create: () => ({ search: () => Promise.resolve(), clone: jest.fn(() => Promise.resolve()) }),
-
             },
             searchRankingService: {
                 getSearchFieldsByEntity: () => {

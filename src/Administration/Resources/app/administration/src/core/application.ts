@@ -603,7 +603,10 @@ class ApplicationBootstrapper {
             // create script tag with src
             const script = document.createElement('script');
             script.src = scriptSrc;
-            script.async = true;
+            script.defer = true;
+            // dynamically inserted scripts are async by default, have to explicitly state otherwise:
+            script.async = false;
+
 
             // resolve when script was loaded succcessfully
             script.onload = ():void => {

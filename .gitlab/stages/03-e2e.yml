@@ -67,7 +67,8 @@ E2E:
             junit: var/log/e2e/*.xml
 
 E2E install NL:
-    extends: .base
+    extends:
+        - .long-running
     stage: E2E
     needs: [ ]
     services:

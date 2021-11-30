@@ -68,11 +68,11 @@ class PluginListCommandTest extends TestCase
 
         $this->setupEntityCollection($entities);
 
-        [$statusCode, $output] = $this->executeCommand([]);
-        static::assertSame(0, $statusCode);
+        $commandTester = $this->executeCommand([]);
+        static::assertSame(0, $commandTester->getStatusCode());
         static::assertStringEqualsFile(
             __DIR__ . '/../_assertion/PluginListCommandTest::testCommand.txt',
-            implode("\n", array_map('trim', explode("\n", $output))) . "\n"
+            implode("\n", array_map('trim', explode("\n", trim($commandTester->getDisplay())))) . "\n"
         );
     }
 
@@ -111,9 +111,10 @@ class PluginListCommandTest extends TestCase
 
         $this->pluginRepoMock->method('search')->with($criteria, static::anything());
 
-        [$statusCode, $output] = $this->executeCommand(['--filter' => $filterValue]);
-        static::assertSame(0, $statusCode);
-        static::assertStringContainsString('Filtering for: ' . $filterValue, $output);
+        $commandTester = $this->executeCommand(['--filter' => $filterValue]);
+
+        static::assertSame(0, $commandTester->getStatusCode());
+        static::assertStringContainsString('Filtering for: ' . $filterValue, trim($commandTester->getDisplay()));
     }
 
     public function testJsonOutput(): void
@@ -133,16 +134,18 @@ class PluginListCommandTest extends TestCase
 
         $options = ['--json' => true];
         $json = json_encode([$o1, $o2], \JSON_THROW_ON_ERROR);
-        $expected = [0, $json];
-        static::assertSame($expected, $this->executeCommand($options));
+
+        $commandTester = $this->executeCommand($options);
+        $this->assertSame(0, $commandTester->getStatusCode());
+        $this->assertSame($json, trim($commandTester->getDisplay()));
     }
 
-    private function executeCommand(array $options): array
+    private function executeCommand(array $options): CommandTester
     {
         $commandTester = new CommandTester($this->command);
         $commandTester->execute($options);
 
-        return [$commandTester->getStatusCode(), trim($commandTester->getDisplay())];
+        return $commandTester;
     }
 
     private function setupEntityCollection(array $entities): void

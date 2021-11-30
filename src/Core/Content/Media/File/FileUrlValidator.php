@@ -18,33 +18,42 @@ class FileUrlValidator implements FileUrlValidatorInterface
 
         $ip = gethostbyname($host);
 
-        // Potentially IPv6
-        $ip = trim($ip, '[]');
-
-        return $this->validateIp($ip);
-    }
-
-    private function validateIp(string $ip): bool
-    {
-        $ip = filter_var(
-            $ip,
-            \FILTER_VALIDATE_IP,
-            \FILTER_FLAG_NO_PRIV_RANGE | \FILTER_FLAG_NO_RES_RANGE
-        );
-
-        if (!$ip) {
-            return false;
+        if (strpos($ip, '[') !== false) {
+            return $this->validateIpv6(trim($ip, '[]'));
         }
 
-        if (!filter_var($ip, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV6)) {
-            return true;
+        return $this->validateIpv4($ip);
+    }
+
+    private function validateIpv4(string $ip): bool
+    {
+        $ipv4 = filter_var(
+            $ip,
+            \FILTER_VALIDATE_IP,
+            \FILTER_FLAG_NO_PRIV_RANGE | \FILTER_FLAG_NO_RES_RANGE | \FILTER_FLAG_IPV4
+        );
+
+        return $ipv4 !== false;
+    }
+
+    private function validateIpv6(string $ip): bool
+    {
+        $ipv6 = filter_var(
+            $ip,
+            \FILTER_VALIDATE_IP,
+            \FILTER_FLAG_NO_PRIV_RANGE | \FILTER_FLAG_NO_RES_RANGE | \FILTER_FLAG_IPV6
+        );
+
+        if (!$ipv6) {
+            return false;
         }
 
         // Convert IPv6 to packed format and back so we can check if there is a IPv4 representation of the IP
-        $packedIp = inet_pton($ip);
+        $packedIp = inet_pton($ipv6);
         if (!$packedIp) {
             return false;
         }
+
         $convertedIp = inet_ntop($packedIp);
         if (!$convertedIp) {
             return false;
@@ -54,7 +63,7 @@ class FileUrlValidator implements FileUrlValidatorInterface
 
         // Additionally filter IPv4 representation of the IP
         if (filter_var($ipv4, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV4)) {
-            return $this->validateIp($ipv4);
+            return $this->validateIpv4($ipv4);
         }
 
         return true;

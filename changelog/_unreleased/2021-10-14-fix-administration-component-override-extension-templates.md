@@ -7,4 +7,4 @@ author_email: hannes.wernery@pickware.de
 author_github: hanneswernery
 ---
 # Administration
-* Fixes resolving the template of administration components that extend a component that is overwritten by other components.
+* Changed the component factory and template factory to fix the resolving the template of administration components that extend a component that is overwritten by other components.

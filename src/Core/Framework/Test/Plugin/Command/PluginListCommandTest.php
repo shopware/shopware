@@ -136,8 +136,8 @@ class PluginListCommandTest extends TestCase
         $json = json_encode([$o1, $o2], \JSON_THROW_ON_ERROR);
 
         $commandTester = $this->executeCommand($options);
-        $this->assertSame(0, $commandTester->getStatusCode());
-        $this->assertSame($json, trim($commandTester->getDisplay()));
+        static::assertSame(0, $commandTester->getStatusCode());
+        static::assertSame($json, trim($commandTester->getDisplay()));
     }
 
     private function executeCommand(array $options): CommandTester

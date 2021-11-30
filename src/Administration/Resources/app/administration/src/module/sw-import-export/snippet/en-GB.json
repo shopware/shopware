@@ -169,6 +169,7 @@
             "mappingEmptyState": "No custom mapping provided yet.",
             "configuratorSettingLabel": "Variant configuration settings",
             "productCrossSellingLabel": "Cross-Selling",
+            "promotionDiscountLabel": "Promotion discounts",
             "promotionIndividualCodesLabel": "Promotion codes",
             "productPriceLabel": "Advanced prices",
             "closeViolation": "Close",

@@ -169,6 +169,7 @@
             "mappingEmptyState": "Es wurde noch kein benutzerdefiniertes Mapping angelegt.",
             "configuratorSettingLabel": "Varianten-Konfiguration",
             "productCrossSellingLabel": "Cross-Selling",
+            "promotionDiscountLabel": "Aktionsrabatte",
             "promotionIndividualCodesLabel": "Aktionscodes",
             "productPriceLabel": "Erweiterte Preise",
             "closeViolation": "Schließen",

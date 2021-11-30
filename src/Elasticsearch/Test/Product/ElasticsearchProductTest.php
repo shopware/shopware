@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -59,6 +60,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
@@ -87,6 +89,7 @@ class ElasticsearchProductTest extends TestCase
     use SessionTestBehaviour;
     use QueueTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use SalesChannelApiTestBehaviour;
 
     private Client $client;
 
@@ -448,6 +451,118 @@ class ElasticsearchProductTest extends TestCase
 
             throw $e;
         }
+    }
+
+    /**
+     * @depends testIndexing
+     * @dataProvider multiFilterWithOneToManyRelationProvider
+     */
+    public function testMultiFilterWithOneToManyRelation($filter, $expectedProducts, IdsCollection $data): void
+    {
+        try {
+            $searcher = $this->createEntitySearcher();
+
+            $criteria = new Criteria($data->prefixed('s-'));
+            $criteria->addFilter($filter);
+            $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+
+            static::assertCount(\count($expectedProducts), $products->getIds());
+            static::assertEquals(\array_map(function ($item) use ($data) {
+                return $data->get($item);
+            }, $expectedProducts), $products->getIds());
+        } catch (\Exception $e) {
+            static::tearDown();
+
+            throw $e;
+        }
+    }
+
+    public function multiFilterWithOneToManyRelationProvider(): array
+    {
+        return [
+            [
+                new MultiFilter(
+                    MultiFilter::CONNECTION_AND,
+                    [
+                        new EqualsFilter('visibilities.salesChannelId', TestDefaults::SALES_CHANNEL),
+                    ]
+                ),
+                ['s-1', 's-2', 's-3'],
+            ],
+            [
+                new MultiFilter(
+                    MultiFilter::CONNECTION_AND,
+                    [
+                        new EqualsFilter('visibilities.visibility', ProductVisibilityDefinition::VISIBILITY_ALL),
+                    ]
+                ),
+                ['s-1', 's-4'],
+            ],
+            [
+                new MultiFilter(
+                    MultiFilter::CONNECTION_AND,
+                    [
+                        new EqualsFilter('visibilities.salesChannelId', TestDefaults::SALES_CHANNEL),
+                        new EqualsFilter('visibilities.visibility', ProductVisibilityDefinition::VISIBILITY_LINK),
+                    ]
+                ),
+                ['s-2'],
+            ],
+            [
+                new MultiFilter(
+                    MultiFilter::CONNECTION_AND,
+                    [
+                        new EqualsFilter('visibilities.salesChannelId', TestDefaults::SALES_CHANNEL),
+                        new EqualsFilter('visibilities.visibility', ProductVisibilityDefinition::VISIBILITY_SEARCH),
+                    ]
+                ),
+                ['s-3'],
+            ],
+            [
+                new MultiFilter(
+                    MultiFilter::CONNECTION_OR,
+                    [
+                        new MultiFilter(
+                            MultiFilter::CONNECTION_AND,
+                            [
+                                new EqualsFilter('visibilities.salesChannelId', TestDefaults::SALES_CHANNEL),
+                                new EqualsFilter('visibilities.visibility', ProductVisibilityDefinition::VISIBILITY_ALL),
+                            ]
+                        ),
+                        new MultiFilter(
+                            MultiFilter::CONNECTION_AND,
+                            [
+                                new EqualsFilter('visibilities.salesChannelId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT),
+                                new EqualsFilter('visibilities.visibility', ProductVisibilityDefinition::VISIBILITY_LINK),
+                            ]
+                        ),
+                    ]
+                ),
+                ['s-1', 's-3'],
+            ],
+            [
+                new MultiFilter(
+                    MultiFilter::CONNECTION_XOR,
+                    [
+                        new MultiFilter(
+                            MultiFilter::CONNECTION_AND,
+                            [
+                                new EqualsFilter('visibilities.salesChannelId', TestDefaults::SALES_CHANNEL),
+                                new EqualsFilter('visibilities.visibility', ProductVisibilityDefinition::VISIBILITY_SEARCH),
+                            ]
+                        ),
+                        new MultiFilter(
+                            MultiFilter::CONNECTION_AND,
+                            [
+                                new EqualsFilter('visibilities.salesChannelId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT),
+                                new EqualsFilter('visibilities.visibility', ProductVisibilityDefinition::VISIBILITY_SEARCH),
+                            ]
+                        ),
+                    ]
+                ),
+                ['s-2', 's-3'],
+            ],
+        ];
     }
 
     /**
@@ -2657,6 +2772,7 @@ class ElasticsearchProductTest extends TestCase
         $this->ids->set('language-2', $thirdLanguage);
         $fourthLanguage = $this->createLanguage();
         $this->ids->set('language-3', $fourthLanguage);
+        $this->createSalesChannel(['id' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT]);
 
         $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM custom_field');
 
@@ -3222,6 +3338,28 @@ class ElasticsearchProductTest extends TestCase
                         ->translation($thirdLanguage, 'description', 'Variant 2 Third Desc')
                         ->build()
                 )
+                ->build(),
+            (new ProductBuilder($this->ids, 's-1'))
+                ->name('Default-1')
+                ->price(1)
+                ->visibility(TestDefaults::SALES_CHANNEL, ProductVisibilityDefinition::VISIBILITY_ALL)
+                ->build(),
+            (new ProductBuilder($this->ids, 's-2'))
+                ->name('Default-2')
+                ->price(1)
+                ->visibility(TestDefaults::SALES_CHANNEL, ProductVisibilityDefinition::VISIBILITY_LINK)
+                ->visibility(Defaults::SALES_CHANNEL_TYPE_STOREFRONT, ProductVisibilityDefinition::VISIBILITY_SEARCH)
+                ->build(),
+            (new ProductBuilder($this->ids, 's-3'))
+                ->name('Default-3')
+                ->price(1)
+                ->visibility(TestDefaults::SALES_CHANNEL, ProductVisibilityDefinition::VISIBILITY_SEARCH)
+                ->visibility(Defaults::SALES_CHANNEL_TYPE_STOREFRONT, ProductVisibilityDefinition::VISIBILITY_LINK)
+                ->build(),
+            (new ProductBuilder($this->ids, 's-4'))
+                ->name('Default-4')
+                ->price(1)
+                ->visibility(Defaults::SALES_CHANNEL_TYPE_STOREFRONT, ProductVisibilityDefinition::VISIBILITY_ALL)
                 ->build(),
         ];
 

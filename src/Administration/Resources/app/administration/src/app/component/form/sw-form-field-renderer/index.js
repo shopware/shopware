@@ -138,9 +138,6 @@ Component.register('sw-form-field-renderer', {
                     allowModal: true,
                     hideListPrices: true,
                     currency: this.currency,
-                    price: [
-                        { currencyId: Shopware.Context.app.systemCurrencyId, gross: null, net: null, linked: true },
-                    ],
                 };
             }
 
@@ -234,6 +231,19 @@ Component.register('sw-form-field-renderer', {
     methods: {
         createdComponent() {
             this.fetchSystemCurrency();
+
+            if (this.type === 'price' && !Array.isArray(this.currentValue)) {
+                this.currentValue = [
+                    { currencyId: Shopware.Context.app.systemCurrencyId, gross: null, net: null, linked: true }
+                ];
+            }
+        },
+
+        emitChange(data) {
+            if (this.type === 'price') {
+                return;
+            }
+            this.$emit('change', data);
         },
 
         getTranslations(componentName, config = this.config, translatableFields = ['label', 'placeholder', 'helpText']) {

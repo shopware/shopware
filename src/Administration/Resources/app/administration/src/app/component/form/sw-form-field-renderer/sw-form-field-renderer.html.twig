@@ -5,7 +5,7 @@
     ref="component"
     v-model="currentValue"
     class="sw-form-field-renderer"
-    @change="$emit('change', $event)"
+    @change="emitChange"
 >
     {% block sw_form_field_renderer_scope_slots %}
     <template

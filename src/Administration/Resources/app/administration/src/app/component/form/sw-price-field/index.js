@@ -19,13 +19,15 @@ Component.register('sw-price-field', {
 
     inheritAttrs: false,
 
+    model: {
+        prop: 'price',
+        event: 'priceChange',
+    },
+
     props: {
         price: {
             type: Array,
             required: true,
-            default() {
-                return [];
-            },
         },
 
         allowModal: {

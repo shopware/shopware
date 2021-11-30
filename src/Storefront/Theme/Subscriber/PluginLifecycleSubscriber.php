@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme\Subscriber;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreActivateEvent;
@@ -19,30 +20,15 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class PluginLifecycleSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var StorefrontPluginRegistryInterface
-     */
-    private $storefrontPluginRegistry;
+    private StorefrontPluginRegistryInterface $storefrontPluginRegistry;
 
-    /**
-     * @var string
-     */
-    private $projectDirectory;
+    private string $projectDirectory;
 
-    /**
-     * @var AbstractStorefrontPluginConfigurationFactory
-     */
-    private $pluginConfigurationFactory;
+    private AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory;
 
-    /**
-     * @var ThemeLifecycleHandler
-     */
-    private $themeLifecycleHandler;
+    private ThemeLifecycleHandler $themeLifecycleHandler;
 
-    /**
-     * @var ThemeLifecycleService
-     */
-    private $themeLifecycleService;
+    private ThemeLifecycleService $themeLifecycleService;
 
     public function __construct(
         StorefrontPluginRegistryInterface $storefrontPluginRegistry,
@@ -71,6 +57,10 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
 
     public function pluginActivate(PluginPreActivateEvent $event): void
     {
+        if ($this->skipCompile($event->getContext()->getContext())) {
+            return;
+        }
+
         // create instance of the plugin to create a configuration
         // (the kernel boot is already finished and the activated plugin is missing)
         $storefrontPluginConfig = $this->createConfigFromClassName(
@@ -91,6 +81,10 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
 
     public function pluginUpdate(PluginPreUpdateEvent $event): void
     {
+        if ($this->skipCompile($event->getContext()->getContext())) {
+            return;
+        }
+
         $pluginName = $event->getPlugin()->getName();
         $config = $this->storefrontPluginRegistry->getConfigurations()->getByTechnicalName($pluginName);
 
@@ -110,6 +104,10 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
      */
     public function pluginDeactivateAndUninstall($event): void
     {
+        if ($this->skipCompile($event->getContext()->getContext())) {
+            return;
+        }
+
         $pluginName = $event->getPlugin()->getName();
         $config = $this->storefrontPluginRegistry->getConfigurations()->getByTechnicalName($pluginName);
 
@@ -145,5 +143,10 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
         }
 
         return $this->pluginConfigurationFactory->createFromBundle($plugin);
+    }
+
+    private function skipCompile(Context $context): bool
+    {
+        return $context->hasState(Plugin\PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
     }
 }

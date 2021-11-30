@@ -50,49 +50,28 @@ class PluginLifecycleServiceTest extends TestCase
     private const DEPENDENT_PLUGIN_NAME = self::PLUGIN_NAME . 'Extension';
     private const NOT_SUPPORTED_VERSION_PLUGIN_NAME = 'SwagTestNotSupportedVersion';
 
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
+    private ContainerInterface $container;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $pluginRepo;
+    private EntityRepositoryInterface $pluginRepo;
 
     /**
      * @var PluginService
      */
     private $pluginService;
 
-    /**
-     * @var KernelPluginCollection
-     */
-    private $pluginCollection;
+    private KernelPluginCollection $pluginCollection;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var PluginLifecycleService
-     */
-    private $pluginLifecycleService;
+    private PluginLifecycleService $pluginLifecycleService;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
+    private SystemConfigService $systemConfigService;
 
-    private $iso = 'sv-SE';
+    private string $iso = 'sv-SE';
 
-    private $systemLanguageId = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
+    private string $systemLanguageId = Defaults::LANGUAGE_SYSTEM;
 
     protected function setUp(): void
     {
@@ -312,6 +291,43 @@ class PluginLifecycleServiceTest extends TestCase
     public function testUpdateDeactivatedPluginWithException(): void
     {
         $this->updateDeactivatedPluginWithException($this->context);
+    }
+
+    public function testAssetIsCalledOnlyWhenStateIsNotSet(): void
+    {
+        $assetService = $this->createMock(AssetService::class);
+        $assetService
+            ->expects(static::once())
+            ->method('copyAssetsFromBundle');
+
+        $service = new PluginLifecycleService(
+            $this->pluginRepo,
+            $this->container->get('event_dispatcher'),
+            $this->pluginCollection,
+            $this->container->get('service_container'),
+            $this->container->get(MigrationCollectionLoader::class),
+            $assetService,
+            $this->container->get(CommandExecutor::class),
+            $this->container->get(RequirementsValidator::class),
+            $this->container->get('cache.messenger.restart_workers_signal'),
+            Kernel::SHOPWARE_FALLBACK_VERSION,
+            $this->systemConfigService
+        );
+
+        $context = Context::createDefaultContext();
+        $context->addState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
+
+        $this->createPlugin($this->pluginRepo, $context, SwagTest::PLUGIN_OLD_VERSION);
+
+        $plugin = $this->getPlugin($context);
+        $service->installPlugin($plugin, $context);
+        $service->activatePlugin($plugin, $context);
+        $service->uninstallPlugin($plugin, $context);
+
+        $context->removeState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
+
+        $service->installPlugin($plugin, $context);
+        $service->activatePlugin($plugin, $context);
     }
 
     public function testUpdateDeactivatedPluginWithExceptionWithNonStandardLanguage(): void

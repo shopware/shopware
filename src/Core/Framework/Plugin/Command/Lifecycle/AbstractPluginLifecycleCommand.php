@@ -25,20 +25,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 abstract class AbstractPluginLifecycleCommand extends Command
 {
-    /**
-     * @var PluginLifecycleService
-     */
-    protected $pluginLifecycleService;
+    protected PluginLifecycleService $pluginLifecycleService;
 
-    /**
-     * @var CacheClearer
-     */
-    protected $cacheClearer;
+    protected CacheClearer $cacheClearer;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $pluginRepo;
+    private EntityRepositoryInterface $pluginRepo;
 
     public function __construct(
         PluginLifecycleService $pluginLifecycleService,
@@ -72,6 +63,12 @@ abstract class AbstractPluginLifecycleCommand extends Command
                 'c',
                 InputOption::VALUE_NONE,
                 'Use this option to clear the cache after executing the plugin command'
+            )
+            ->addOption(
+                'skip-asset-build',
+                null,
+                InputOption::VALUE_NONE,
+                'Use this option to skip asset building'
             );
     }
 
@@ -86,6 +83,10 @@ abstract class AbstractPluginLifecycleCommand extends Command
         if ($input->getOption('refresh')) {
             $io->note('Refreshing plugin list');
             $this->refreshPlugins();
+        }
+
+        if ($input->getOption('skip-asset-build')) {
+            $context->addState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
         }
 
         $plugins = $this->parsePluginArgument($input->getArgument('plugins'), $lifecycleMethod, $io, $context);

@@ -52,6 +52,8 @@ use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
  */
 class PluginLifecycleService
 {
+    public const STATE_SKIP_ASSET_BUILDING = 'skip-asset-building';
+
     private EntityRepositoryInterface $pluginRepo;
 
     private EventDispatcherInterface $eventDispatcher;
@@ -213,7 +215,10 @@ class PluginLifecycleService
         $uninstallContext->setAutoMigrate(false);
 
         $this->eventDispatcher->dispatch(new PluginPreUninstallEvent($plugin, $uninstallContext));
-        $this->assetInstaller->removeAssetsOfBundle($pluginBaseClassString);
+
+        if (!$shopwareContext->hasState(self::STATE_SKIP_ASSET_BUILDING)) {
+            $this->assetInstaller->removeAssetsOfBundle($pluginBaseClassString);
+        }
 
         $pluginBaseClass->uninstall($uninstallContext);
 
@@ -299,7 +304,7 @@ class PluginLifecycleService
             throw $updateException;
         }
 
-        if ($plugin->getActive()) {
+        if ($plugin->getActive() && !$shopwareContext->hasState(self::STATE_SKIP_ASSET_BUILDING)) {
             $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString);
         }
 
@@ -375,7 +380,10 @@ class PluginLifecycleService
         $pluginBaseClass->activate($activateContext);
 
         $this->runMigrations($activateContext);
-        $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString);
+
+        if (!$shopwareContext->hasState(self::STATE_SKIP_ASSET_BUILDING)) {
+            $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString);
+        }
 
         $this->updatePluginData(
             [
@@ -432,7 +440,9 @@ class PluginLifecycleService
 
         $pluginBaseClass->deactivate($deactivateContext);
 
-        $this->assetInstaller->removeAssetsOfBundle($pluginBaseClassString);
+        if (!$shopwareContext->hasState(self::STATE_SKIP_ASSET_BUILDING)) {
+            $this->assetInstaller->removeAssetsOfBundle($pluginBaseClassString);
+        }
 
         $plugin->setActive(false);
 

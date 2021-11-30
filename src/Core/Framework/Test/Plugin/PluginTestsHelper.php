@@ -63,7 +63,7 @@ trait PluginTestsHelper
 
         require_once $testPluginBaseDir . '/src/' . $pluginName . '.php';
 
-        $this->container->get(KernelPluginCollection::class)
+        $this->getContainer()->get(KernelPluginCollection::class)
             ->add(new $class($active, $testPluginBaseDir));
     }
 }

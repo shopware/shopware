@@ -114,9 +114,11 @@ class ThemeService
         }
     }
 
-    public function assignTheme(string $themeId, string $salesChannelId, Context $context): bool
+    public function assignTheme(string $themeId, string $salesChannelId, Context $context, bool $skipCompile = false): bool
     {
-        $this->compileTheme($salesChannelId, $themeId, $context);
+        if (!$skipCompile) {
+            $this->compileTheme($salesChannelId, $themeId, $context);
+        }
 
         $this->themeSalesChannelRepository->upsert([[
             'themeId' => $themeId,

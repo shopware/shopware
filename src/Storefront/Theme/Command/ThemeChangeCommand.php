@@ -55,6 +55,7 @@ class ThemeChangeCommand extends Command
         $this->addArgument('theme-name', InputArgument::OPTIONAL, 'Technical theme name');
         $this->addOption('sales-channel', 's', InputOption::VALUE_REQUIRED, 'Sales Channel ID. Can not be used together with --all.');
         $this->addOption('all', null, InputOption::VALUE_NONE, 'Set theme for all sales channel Can not be used together with -s');
+        $this->addOption('no-compile', null, InputOption::VALUE_NONE, 'Skip theme compiling');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -116,7 +117,12 @@ class ThemeChangeCommand extends Command
         foreach ($selectedSalesChannel as $salesChannel) {
             $this->io->writeln(sprintf('Set and compiling theme "%s" (%s) as new theme for sales channel "%s"', $themeName, $theme->getId(), $salesChannel->getName()));
 
-            $this->themeService->assignTheme($theme->getId(), $salesChannel->getId(), $this->context);
+            $this->themeService->assignTheme(
+                $theme->getId(),
+                $salesChannel->getId(),
+                $this->context,
+                $input->getOption('no-compile')
+            );
         }
 
         return self::SUCCESS;

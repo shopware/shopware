@@ -9,12 +9,16 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\Adapter\Twig\fixtures\BundleFixture;
+use Shopware\Core\Framework\Test\Api\Controller\fixtures\AdminExtensionApiPlugin;
+use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Kernel;
 use Symfony\Component\Asset\Package;
@@ -24,6 +28,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 class InfoControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
+    use AppSystemTestBehaviour;
 
     public function testGetConfig(): void
     {
@@ -188,6 +193,7 @@ class InfoControllerTest extends TestCase
             $packagesMock,
             $this->createMock(BusinessEventCollector::class),
             $this->getContainer()->get('shopware.increment.gateway.registry'),
+            $this->getContainer()->get('app.repository'),
             $eventCollector,
             true,
             []
@@ -210,7 +216,7 @@ class InfoControllerTest extends TestCase
             ->method('getBundles')
             ->willReturn([new BundleFixture('SomeFunctionalityBundle', __DIR__ . '/fixtures/InfoController')]);
 
-        $config = json_decode($infoController->config()->getContent(), true);
+        $config = json_decode($infoController->config(Context::createDefaultContext())->getContent(), true);
         static::assertArrayHasKey('SomeFunctionalityBundle', $config['bundles']);
 
         $jsFilePath = explode('?', $config['bundles']['SomeFunctionalityBundle']['js'][0])[0];
@@ -218,6 +224,52 @@ class InfoControllerTest extends TestCase
             'bundles/somefunctionality/administration/js/some-functionality-bundle.js',
             $jsFilePath
         );
+    }
+
+    public function testBaseAdminPaths(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17950', $this);
+
+        $this->loadAppsFromDir(__DIR__ . '/fixtures/AdminExtensionApiApp');
+
+        $kernelMock = $this->createMock(Kernel::class);
+        $packagesMock = $this->createMock(Packages::class);
+        $eventCollector = $this->createMock(FlowActionCollector::class);
+        $infoController = new InfoController(
+            $this->createMock(DefinitionService::class),
+            new ParameterBag([
+                'kernel.shopware_version' => 'shopware-version',
+                'kernel.shopware_version_revision' => 'shopware-version-revision',
+                'shopware.admin_worker.enable_admin_worker' => 'enable-admin-worker',
+                'shopware.admin_worker.transports' => 'transports',
+            ]),
+            $kernelMock,
+            $packagesMock,
+            $this->createMock(BusinessEventCollector::class),
+            $this->getContainer()->get('shopware.increment.gateway.registry'),
+            $this->getContainer()->get('app.repository'),
+            $eventCollector,
+            true,
+            []
+        );
+
+        $infoController->setContainer($this->createMock(Container::class));
+
+        $kernelMock
+            ->expects(static::exactly(1))
+            ->method('getBundles')
+            ->willReturn([new AdminExtensionApiPlugin(true, __DIR__ . '/fixtures/InfoController')]);
+
+        $config = json_decode($infoController->config(Context::createDefaultContext())->getContent(), true);
+        static::assertCount(2, $config['bundles']);
+
+        static::assertArrayHasKey('AdminExtensionApiPlugin', $config['bundles']);
+        static::assertEquals('https://extension-api.test', $config['bundles']['AdminExtensionApiPlugin']['baseUrl']);
+        static::assertEquals('plugin', $config['bundles']['AdminExtensionApiPlugin']['type']);
+
+        static::assertArrayHasKey('AdminExtensionApiApp', $config['bundles']);
+        static::assertEquals('https://app-admin.test', $config['bundles']['AdminExtensionApiApp']['baseUrl']);
+        static::assertEquals('app', $config['bundles']['AdminExtensionApiApp']['type']);
     }
 
     public function testFlowActionsRoute(): void

@@ -29,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -191,6 +192,9 @@ class AppLifecycle extends AbstractAppLifecycle
         $metadata['modules'] = [];
         $metadata['iconRaw'] = $this->appLoader->getIcon($manifest);
         $metadata['cookies'] = $manifest->getCookies() !== null ? $manifest->getCookies()->getCookies() : [];
+        if (Feature::isActive('FEATURE_NEXT_17950')) {
+            $metadata['baseAppUrl'] = $manifest->getAdmin() !== null ? $manifest->getAdmin()->getBaseAppUrl() : null;
+        }
 
         $this->updateMetadata($metadata, $context);
         $this->permissionPersister->updatePrivileges($manifest->getPermissions(), $roleId);

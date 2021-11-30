@@ -30,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\ScriptDefinition;
 use Shopware\Core\Framework\Webhook\WebhookDefinition;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
@@ -74,7 +75,7 @@ class AppDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $fields = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->addFlags(new Required()),
             (new StringField('path', 'path'))->addFlags(new Required()),
@@ -112,5 +113,13 @@ class AppDefinition extends EntityDefinition
             (new OneToManyAssociationField('paymentMethods', AppPaymentMethodDefinition::class, 'app_id'))->addFlags(new SetNullOnDelete()),
             (new OneToManyAssociationField('cmsBlocks', AppCmsBlockDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
         ]);
+
+        if (Feature::isActive('FEATURE_NEXT_17950')) {
+            $fields->add(
+                new StringField('base_app_url', 'baseAppUrl', 1024)
+            );
+        }
+
+        return $fields;
     }
 }

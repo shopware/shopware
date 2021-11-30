@@ -30,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\ScriptEntity;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
@@ -108,6 +109,9 @@ class AppLifecycleTest extends TestCase
         static::assertEquals($appId, $apps->first()->getId());
         static::assertFalse($apps->first()->isConfigurable());
         static::assertFalse($apps->first()->getIntegration()->getAdmin());
+        if (Feature::isActive('FEATURE_NEXT_17950')) {
+            static::assertEquals('https://base-url.com', $apps->first()->getBaseAppUrl());
+        }
         $this->assertDefaultActionButtons();
         $this->assertDefaultModules($apps->first());
         $this->assertDefaultPrivileges($apps->first()->getAclRoleId());
@@ -395,6 +399,7 @@ class AppLifecycleTest extends TestCase
             'label' => 'Swag App',
             'accessToken' => 'test',
             'appSecret' => 's3cr3t',
+            'baseAppUrl' => 'toBeUpdated',
             'active' => true,
             'modules' => [
                 [
@@ -520,6 +525,9 @@ class AppLifecycleTest extends TestCase
             $apps->first()->getIcon()
         );
         static::assertEquals('1.0.0', $apps->first()->getVersion());
+        if (Feature::isActive('FEATURE_NEXT_17950')) {
+            static::assertEquals('https://base-url.com', $apps->first()->getBaseAppUrl());
+        }
         static::assertNotEquals('test', $apps->first()->getTranslation('label'));
 
         $this->assertDefaultActionButtons();

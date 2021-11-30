@@ -59,6 +59,7 @@ Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
             <label lang="de-DE">Mein Menüeintrag für Module</label>
         </module>
         <main-module source="https://main-module"/>
+        <base-app-url>https://base-url.com</base-app-url>
     </admin>
     <permissions>
         <create>product</create>

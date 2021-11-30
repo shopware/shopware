@@ -6,8 +6,10 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeEntity;
+use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
@@ -1293,6 +1295,58 @@ class ImportExportTest extends ImportExportTestCase
             static::assertStringContainsString($promoCodeResult->getPromotion()->getName(), $csv);
             static::assertStringContainsString($promoCodeResult->getCode(), $csv);
         }
+    }
+
+    public function testPromotionDiscountImportExport(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+
+        $promotionId = '6081116ad83747b9b9ce086460e8569a';
+        $this->createPromotion(['id' => $promotionId, 'name' => 'MyPromo']);
+
+        $ruleId = 'cb34dc6f20b6479aa975e1290f442e65';
+        $this->createRule($ruleId);
+
+        $progress = $this->import($context, PromotionDiscountDefinition::ENTITY_NAME, '/fixtures/promotion_discounts.csv', 'promotion_discounts.csv');
+
+        static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
+
+        /** @var PromotionEntity $promotion */
+        $promotion = $this->getContainer()->get('promotion.repository')->search((new Criteria([$promotionId]))->addAssociation('discounts.discountRules'), $context)->first();
+
+        static::assertEquals(2, $promotion->getDiscounts()->count());
+        $firstDiscount = $promotion->getDiscounts()->first();
+        static::assertEquals('cart', $firstDiscount->getScope());
+        static::assertEquals('absolute', $firstDiscount->getType());
+        static::assertEquals(5, $firstDiscount->getValue());
+        static::assertFalse($firstDiscount->isConsiderAdvancedRules());
+        static::assertNull($firstDiscount->getMaxValue());
+        static::assertEquals('PRICE_ASC', $firstDiscount->getSorterKey());
+        static::assertEquals('ALL', $firstDiscount->getApplierKey());
+        static::assertEquals('ALL', $firstDiscount->getUsageKey());
+        static::assertEmpty($firstDiscount->getPickerKey());
+        static::assertEmpty($firstDiscount->getDiscountRules()->getIds());
+        $lastDiscount = $promotion->getDiscounts()->last();
+        static::assertEquals('set', $lastDiscount->getScope());
+        static::assertEquals('percentage', $lastDiscount->getType());
+        static::assertEquals(2.5, $lastDiscount->getValue());
+        static::assertTrue($lastDiscount->isConsiderAdvancedRules());
+        static::assertEquals(4, $lastDiscount->getMaxValue());
+        static::assertEquals('PRICE_DESC', $lastDiscount->getSorterKey());
+        static::assertEquals('1', $lastDiscount->getApplierKey());
+        static::assertEquals('1', $lastDiscount->getUsageKey());
+        static::assertEquals('VERTICAL', $lastDiscount->getPickerKey());
+        static::assertContains($ruleId, $lastDiscount->getDiscountRules()->getIds());
+
+        $progress = $this->export($context, PromotionDiscountDefinition::ENTITY_NAME);
+
+        static::assertImportExportSucceeded($progress);
+
+        $filesystem = $this->getContainer()->get('shopware.filesystem.private');
+        $csv = $filesystem->read($this->getLogEntity($progress->getLogId())->getFile()->getPath());
+
+        static::assertEquals(file_get_contents(__DIR__ . '/fixtures/promotion_discounts_export.csv'), $csv);
     }
 
     public function testExportOrders(): void

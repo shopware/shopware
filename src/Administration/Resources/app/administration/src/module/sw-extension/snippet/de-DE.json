@@ -73,7 +73,8 @@
       "messageDeactivationFailedDependencies": "Die Erweiterung \"{dependency}\" konnte nicht deaktiviert werden, da es noch aktive Erweiterungen gibt, die von ihr abhängig sind. Bitte deaktiviere zuerst folgende Erweiterungen, bevor Du die Aktualisierung erneut startest: {dependantNames}",
       "messageDeactivationFailedThemeAssignment": "Das Theme \"{themeName}\" konnte nicht deaktiviert werden. Bitte entferne die folgenden Theme-Zuweisungen: {assignments}",
       "messagePluginUpdateFailed": "Die Erweiterung konnte nicht aktualisiert werden: \"{message}\". {pluginDeactivatedHint}",
-      "pluginDeactivatedHint": "Erweiterung deaktiviert."
+      "pluginDeactivatedHint": "Erweiterung deaktiviert.",
+      "messagePluginRequirementMismatch": "Die erforderliche Anforderung der Erweiterung stimmt nicht mit der installierten Version überein."
     },
     "mainMenu": {
       "mainMenuItemExtensionStore": "Erweiterungen",

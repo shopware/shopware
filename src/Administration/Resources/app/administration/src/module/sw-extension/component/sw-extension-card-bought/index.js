@@ -190,7 +190,12 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
                 await this.clearCacheAndReloadPage();
             } catch (e) {
                 this.showExtensionErrors(e);
-                this.installationFailedError = extensionErrorHandler.mapErrors(e.response.data.errors)?.[0];
+                const error = extensionErrorHandler.mapErrors(e.response.data.errors)?.[0];
+
+                this.installationFailedError = {
+                    title: this.$tc(error.title),
+                    message: this.$tc(error.message),
+                };
                 this.showExtensionInstallationFailedModal = true;
             } finally {
                 this.isLoading = false;

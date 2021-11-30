@@ -1,7 +1,6 @@
 ---
 title: Rework import export summary modal
 issue: NEXT-16803
-flag: FEATURE_NEXT_8097
 author: Malte Janz
 author_email: m.janz@shopware.com 
 author_github: Malte Janz

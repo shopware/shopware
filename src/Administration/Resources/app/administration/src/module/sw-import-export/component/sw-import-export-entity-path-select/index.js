@@ -109,7 +109,6 @@ Component.register('sw-import-export-entity-path-select', {
                 'listPrice.linked',
             ],
             visibilityProperties: ['all', 'link', 'search'],
-            /* @internal (flag:FEATURE_NEXT_15998) */
             notMappedItem: {
                 label: this.$tc('sw-import-export.profile.mapping.notMapped'),
                 relation: undefined,
@@ -142,10 +141,7 @@ Component.register('sw-import-export-entity-path-select', {
 
         singleSelection: {
             get() {
-                if (
-                    this.feature.isActive('FEATURE_NEXT_15998') &&
-                    (this.currentValue === '' || this.currentValue === null)
-                ) {
+                if (this.currentValue === '' || this.currentValue === null) {
                     return this.notMappedItem;
                 }
 
@@ -154,7 +150,7 @@ Component.register('sw-import-export-entity-path-select', {
                 });
             },
             set(newValue) {
-                if (this.feature.isActive('FEATURE_NEXT_15998') && newValue === null) {
+                if (newValue === null) {
                     newValue = '';
                 }
 
@@ -170,12 +166,8 @@ Component.register('sw-import-export-entity-path-select', {
             if (this.singleSelection) {
                 const results = [];
 
-                if (this.feature.isActive('FEATURE_NEXT_15998')) {
-                    if (this.singleSelection.value !== this.notMappedItem.value) {
-                        // not mapped position is always visible above everything and doesn't need to be added here.
-                        results.push(this.singleSelection);
-                    }
-                } else {
+                if (this.singleSelection.value !== this.notMappedItem.value) {
+                    // not mapped position is always visible above everything and doesn't need to be added here.
                     results.push(this.singleSelection);
                 }
 

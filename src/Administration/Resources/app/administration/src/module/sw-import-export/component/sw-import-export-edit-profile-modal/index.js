@@ -50,7 +50,7 @@ Component.register('sw-import-export-edit-profile-modal', {
              * object.label The label of the entity
              * object.type Specifies the usage of the entity, possible values are 'import', 'export' or 'import-export'.
              *
-             * @feature-deprecated (flag:FEATURE_NEXT_15998) tag:v6.5.0 - will be moved into
+             * @deprecated tag:v6.5.0 - will be moved into
              *   `sw-import-export-edit-profile-general`
              */
             supportedEntities: [
@@ -112,7 +112,7 @@ Component.register('sw-import-export-edit-profile-modal', {
             ],
 
             /**
-             * @feature-deprecated (flag:FEATURE_NEXT_15998) tag:v6.5.0 - will be moved into
+             * @deprecated tag:v6.5.0 - will be moved into
              *   `sw-import-export-edit-profile-field-indicators`
              */
             supportedDelimiter: [
@@ -131,7 +131,7 @@ Component.register('sw-import-export-edit-profile-modal', {
             ],
 
             /**
-             * @feature-deprecated (flag:FEATURE_NEXT_15998) tag:v6.5.0 - will be moved into
+             * @deprecated tag:v6.5.0 - will be moved into
              *   `sw-import-export-edit-profile-field-indicators`
              */
             supportedEnclosures: [
@@ -142,7 +142,7 @@ Component.register('sw-import-export-edit-profile-modal', {
             ],
 
             /**
-             * @feature-deprecated (flag:FEATURE_NEXT_15998) tag:v6.5.0 - will be moved into
+             * @deprecated tag:v6.5.0 - will be moved into
              *   `sw-import-export-edit-profile-general`
              */
             supportedProfileTypes: [
@@ -183,7 +183,7 @@ Component.register('sw-import-export-edit-profile-modal', {
         },
 
         /**
-         * @feature-deprecated (flag:FEATURE_NEXT_15998) tag:v6.5.0 - will be moved into
+         * @deprecated tag:v6.5.0 - will be moved into
          *   `sw-import-export-edit-profile-general`
          */
         mappingLength() {
@@ -256,9 +256,10 @@ Component.register('sw-import-export-edit-profile-modal', {
 
         checkValidation(parentProfile) {
             // Skip validation for only export profiles
-            if (this.feature.isActive('FEATURE_NEXT_8097') && this.profile.type === 'export') {
+            if (this.profile.type === 'export') {
                 return;
             }
+
             const parentMapping = parentProfile ? parentProfile.mapping : [];
             const isOnlyUpdateProfile = this.profile.config.createEntities === false && this.profile.config.updateEntities === true;
             const validationErrors = this.importExportProfileMapping.validate(
@@ -282,7 +283,7 @@ Component.register('sw-import-export-edit-profile-modal', {
         },
 
         /**
-         * @feature-deprecated (flag:FEATURE_NEXT_15998) tag:v6.5.0 - will be moved into
+         * @deprecated tag:v6.5.0 - will be moved into
          *   `sw-import-export-edit-profile-import-settings` component
          */
         onCreateEntitiesChanged(newValue) {
@@ -292,7 +293,7 @@ Component.register('sw-import-export-edit-profile-modal', {
         },
 
         /**
-         * @feature-deprecated (flag:FEATURE_NEXT_15998) tag:v6.5.0 - will be moved into
+         * @deprecated tag:v6.5.0 - will be moved into
          *   `sw-import-export-edit-profile-import-settings` component
          */
         onUpdateEntitiesChanged(newValue) {
@@ -302,14 +303,10 @@ Component.register('sw-import-export-edit-profile-modal', {
         },
 
         /**
-         * @feature-deprecated (flag:FEATURE_NEXT_15998) tag:v6.5.0 - will be moved into
+         * @deprecated tag:v6.5.0 - will be moved into
          *   `sw-import-export-edit-profile-general` component
          */
         shouldDisableProfileType(item) {
-            if (!this.feature.isActive('FEATURE_NEXT_8097')) {
-                return false;
-            }
-
             if (!this.profile.sourceEntity) {
                 return false;
             }
@@ -330,14 +327,10 @@ Component.register('sw-import-export-edit-profile-modal', {
         },
 
         /**
-         * @feature-deprecated (flag:FEATURE_NEXT_15998) tag:v6.5.0 - will be moved into
+         * @deprecated tag:v6.5.0 - will be moved into
          *   `sw-import-export-edit-profile-general` component
          */
         shouldDisableObjectType(item) {
-            if (!this.feature.isActive('FEATURE_NEXT_8097')) {
-                return false;
-            }
-
             if (!this.profile.type) {
                 return false;
             }

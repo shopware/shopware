@@ -52,7 +52,6 @@ export default class ImportExportService extends ApiService {
     /**
      * Get url for profile template download.
      *
-     * @internal (flag:FEATURE_NEXT_15998)
      * @param profileId {string}
      * @returns {string}
      */
@@ -71,7 +70,6 @@ export default class ImportExportService extends ApiService {
      * Get the mapping from the first line of the CSV file.
      * The mapping contains guessed keys based on the source entity and the given data.
      *
-     * @internal (flag:FEATURE_NEXT_15998)
      * @param file {File} The csv file
      * @param sourceEntity {string} the source entity for the mapping
      * @param delimiter {string}

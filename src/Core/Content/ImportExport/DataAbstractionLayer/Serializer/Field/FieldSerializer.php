@@ -22,7 +22,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class FieldSerializer extends AbstractFieldSerializer
@@ -180,7 +179,7 @@ class FieldSerializer extends AbstractFieldSerializer
     {
         $id = mb_strtolower(trim((string) $id));
 
-        if (!Feature::isActive('FEATURE_NEXT_8097') || Uuid::isValid($id) || $id === '') {
+        if ($id === '' || Uuid::isValid($id)) {
             return $id;
         }
 

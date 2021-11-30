@@ -4,9 +4,6 @@ import './sw-import-export-edit-profile-field-indicators.scss';
 
 const { Component } = Shopware;
 
-/**
- * @internal (flag:FEATURE_NEXT_15998)
- */
 Component.register('sw-import-export-edit-profile-field-indicators', {
     template,
 

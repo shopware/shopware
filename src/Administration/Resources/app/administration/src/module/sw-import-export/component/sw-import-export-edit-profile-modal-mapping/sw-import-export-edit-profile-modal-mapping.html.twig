@@ -69,10 +69,7 @@
         {% endblock %}
 
         {% block sw_import_export_edit_profile_modal_mapping_grid_required_column %}
-        <template
-            v-if="feature.isActive('FEATURE_NEXT_8097')"
-            #column-required="{ item }"
-        >
+        <template #column-required="{ item }">
             <sw-switch-field
                 v-show="isRequiredBySystem(item)"
                 class="sw-import-export-edit-profile-modal-mapping__required-by-user-switch"
@@ -90,10 +87,7 @@
         {% endblock %}
 
         {% block sw_import_export_edit_profile_modal_mapping_grid_default_value_column %}
-        <template
-            v-if="feature.isActive('FEATURE_NEXT_8097')"
-            #column-defaultValue="{ item, itemIndex }"
-        >
+        <template #column-defaultValue="{ item, itemIndex }">
             <sw-switch-field
                 v-model="item.useDefaultValue"
                 :name="`useDefaultValue-${itemIndex}`"

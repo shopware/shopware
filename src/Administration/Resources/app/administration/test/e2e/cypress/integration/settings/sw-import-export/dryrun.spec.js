@@ -3,10 +3,6 @@ import SettingsPageObject from '../../../support/pages/module/sw-settings.page-o
 describe('Import/Export - Check import dry run functionality', () => {
     let page = null;
 
-    before(() => {
-        cy.onlyOnFeature('FEATURE_NEXT_8097');
-    });
-
     beforeEach(() => {
         cy.setToInitialState().then(() => {
             cy.loginViaApi();

@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -119,17 +118,10 @@ class ImportExportServiceTest extends TestCase
     public function testMimeTypeValidation(string $clientMimeType, string $fileExtension, $expectedMimeType): void
     {
         $criteria = new Criteria();
-        if (!Feature::isActive('FEATURE_NEXT_16119') || !Feature::isActive('FEATURE_NEXT_8097')) {
-            $criteria->addFilter(new NotFilter('AND', [
-                new EqualsFilter('sourceEntity', 'order'),
-            ]));
-        }
 
-        if (Feature::isActive('FEATURE_NEXT_8097')) {
-            $criteria->addFilter(new NotFilter('AND', [
-                new EqualsFilter('type', 'export'),
-            ]));
-        }
+        $criteria->addFilter(new NotFilter('AND', [
+            new EqualsFilter('type', 'export'),
+        ]));
 
         $profileId = $this->profileRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
 
@@ -228,10 +220,6 @@ class ImportExportServiceTest extends TestCase
      */
     public function testExportProfileShouldThrowExceptionInImport($profile, $task, $shouldThrowException): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_8097')) {
-            static::markTestSkipped('NEXT-8097');
-        }
-
         $this->profileRepository->create([$profile], Context::createDefaultContext());
         $path = tempnam(sys_get_temp_dir(), '');
         $uploadedFile = new UploadedFile($path, 'test', 'text/csv');

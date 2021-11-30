@@ -45,9 +45,7 @@ Shopware.Component.register('sw-import-export-importer', {
                     Criteria.equals('sourceEntity', this.sourceEntity),
                 );
             }
-            if (this.feature.isActive('FEATURE_NEXT_8097')) {
-                criteria.addFilter(Criteria.not('AND', [Criteria.equals('type', 'export')]));
-            }
+            criteria.addFilter(Criteria.not('AND', [Criteria.equals('type', 'export')]));
 
             return criteria;
         },

@@ -1,7 +1,6 @@
 ---
 title: Use own identifiers for import
 issue: NEXT-16036
-flag: FEATURE_NEXT_8097
 author: Krispin Lütjann
 author_email: k.luetjann@shopware.com
 author_github: @King-of-Babylon

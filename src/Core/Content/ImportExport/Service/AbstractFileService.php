@@ -8,19 +8,10 @@ use Shopware\Core\Content\ImportExport\Processing\Writer\AbstractWriter;
 use Shopware\Core\Framework\Context;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-/**
- * @internal (flag:FEATURE_NEXT_15998)
- */
 abstract class AbstractFileService
 {
-    /**
-     * @internal (flag:FEATURE_NEXT_15998)
-     */
     abstract public function getDecorated(): AbstractFileService;
 
-    /**
-     * @internal (flag:FEATURE_NEXT_15998)
-     */
     abstract public function storeFile(
         Context $context,
         \DateTimeInterface $expireDate,
@@ -30,23 +21,11 @@ abstract class AbstractFileService
         ?string $path = null
     ): ImportExportFileEntity;
 
-    /**
-     * @internal (flag:FEATURE_NEXT_15998)
-     */
     abstract public function detectType(UploadedFile $file): string;
 
-    /**
-     * @internal (flag:FEATURE_NEXT_15998)
-     */
     abstract public function getWriter(): AbstractWriter;
 
-    /**
-     * @internal (flag:FEATURE_NEXT_15998)
-     */
     abstract public function generateFilename(ImportExportProfileEntity $profile): string;
 
-    /**
-     * @internal (flag:FEATURE_NEXT_15998)
-     */
     abstract public function updateFile(Context $context, string $fileId, array $data): void;
 }

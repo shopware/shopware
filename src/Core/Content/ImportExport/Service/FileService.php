@@ -14,9 +14,6 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-/**
- * @internal (flag:FEATURE_NEXT_15998)
- */
 class FileService extends AbstractFileService
 {
     private FilesystemInterface $filesystem;
@@ -40,8 +37,6 @@ class FileService extends AbstractFileService
     }
 
     /**
-     * @internal (flag:FEATURE_NEXT_15998)
-     *
      * @throws FileNotReadableException
      * @throws \League\Flysystem\FileNotFoundException
      */
@@ -79,9 +74,6 @@ class FileService extends AbstractFileService
         return $fileEntity;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_15998)
-     */
     public function detectType(UploadedFile $file): string
     {
         // TODO: we should do a mime type detection on the file content
@@ -93,17 +85,11 @@ class FileService extends AbstractFileService
         return $file->getClientMimeType();
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_15998)
-     */
     public function getWriter(): AbstractWriter
     {
         return $this->writer;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_15998)
-     */
     public function generateFilename(ImportExportProfileEntity $profile): string
     {
         $extension = $profile->getFileType() === 'text/xml' ? 'xml' : 'csv';
@@ -112,9 +98,6 @@ class FileService extends AbstractFileService
         return sprintf('%s_%s.%s', $profile->getTranslation('label'), $timestamp, $extension);
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_15998)
-     */
     public function updateFile(Context $context, string $fileId, array $data): void
     {
         $data['id'] = $fileId;

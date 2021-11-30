@@ -33,7 +33,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteCommandExceptionEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -156,23 +155,17 @@ class ImportExport
 
         $this->eventDispatcher->addListener(WriteCommandExceptionEvent::class, [$this, 'onWriteException']);
 
-        $createEntities = true;
-        $updateEntities = true;
-        if (Feature::isActive('FEATURE_NEXT_8097')) {
-            $createEntities = $config->get('createEntities') ?? true;
-            $updateEntities = $config->get('updateEntities') ?? true;
-        }
+        $createEntities = $config->get('createEntities') ?? true;
+        $updateEntities = $config->get('updateEntities') ?? true;
 
         foreach ($this->reader->read($config, $resource, $offset) as $row) {
-            if (Feature::isActive('FEATURE_NEXT_8097')) {
-                $event = new ImportExportBeforeImportRowEvent($row, $config, $context);
-                $this->eventDispatcher->dispatch($event);
-                $row = $event->getRow();
+            $event = new ImportExportBeforeImportRowEvent($row, $config, $context);
+            $this->eventDispatcher->dispatch($event);
+            $row = $event->getRow();
 
-                // empty csv lines were already skipped by the reader.
-                // defaults are added to the raw csv row
-                $this->addUserDefaults($row, $config);
-            }
+            // empty csv lines were already skipped by the reader.
+            // defaults are added to the raw csv row
+            $this->addUserDefaults($row, $config);
 
             $record = [];
             foreach ($this->pipe->out($config, $row) as $key => $value) {
@@ -196,10 +189,8 @@ class ImportExport
                     throw $record['_error'];
                 }
 
-                if (Feature::isActive('FEATURE_NEXT_8097')) {
-                    // ensure that the raw csv row has all the fields, which are marked as required by the user.
-                    $this->ensureUserRequiredFields($row, $config);
-                }
+                // ensure that the raw csv row has all the fields, which are marked as required by the user.
+                $this->ensureUserRequiredFields($row, $config);
 
                 $record = $this->ensurePrimaryKeys($record);
 

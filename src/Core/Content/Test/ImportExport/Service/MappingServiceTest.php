@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -51,8 +50,6 @@ class MappingServiceTest extends TestCase
      */
     public function testCreateTemplateFromProfileMapping($profile): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_15998', $this);
-
         if ($profile === null) {
             $profileId = Uuid::randomHex();
             self::expectExceptionObject(new EntityNotFoundException('import_export_profile', $profileId));
@@ -92,8 +89,6 @@ class MappingServiceTest extends TestCase
      */
     public function testGetMappingFromTemplate($data): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_15998', $this);
-
         // prepare profile for lookup
         $lookupMapping = [];
         foreach ($data['existingMappings'] ?? [] as $mappedKey => $key) {
@@ -156,9 +151,6 @@ class MappingServiceTest extends TestCase
 
     public function testSortingWorksAsExpected(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_15998', $this);
-        Feature::skipTestIfInActive('FEATURE_NEXT_8097', $this);
-
         /** @var string $filePath */
         $filePath = tempnam(sys_get_temp_dir(), '');
 

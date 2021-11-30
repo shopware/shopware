@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\User\UserDefinition;
 
 class ImportExportLogDefinition extends EntityDefinition
@@ -61,16 +60,13 @@ class ImportExportLogDefinition extends EntityDefinition
             new StringField('username', 'username'),
             new StringField('profile_name', 'profileName'),
             (new JsonField('config', 'config', [], []))->addFlags(new Required()),
+            (new JsonField('result', 'result', [], [])),
             (new ManyToOneAssociationField('user', 'user_id', UserDefinition::class)),
             new ManyToOneAssociationField('profile', 'profile_id', ImportExportProfileDefinition::class, 'id'),
             new OneToOneAssociationField('file', 'file_id', 'id', ImportExportFileDefinition::class, true),
             new OneToOneAssociationField('invalidRecordsLog', 'invalid_records_log_id', 'id', ImportExportLogDefinition::class, false),
             new OneToOneAssociationField('failedImportLog', 'id', 'invalid_records_log_id', ImportExportLogDefinition::class),
         ];
-
-        if (Feature::isActive('FEATURE_NEXT_8097')) {
-            $fields[] = new JsonField('result', 'result', [], []);
-        }
 
         return new FieldCollection($fields);
     }

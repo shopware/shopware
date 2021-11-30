@@ -93,7 +93,7 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
                 },
             ];
 
-            if (this.feature.isActive('FEATURE_NEXT_8097') && this.profile.type !== 'export') {
+            if (this.profile.type !== 'export') {
                 columns = [...columns, {
                     property: 'required',
                     label: 'sw-import-export.profile.mapping.isRequired',
@@ -108,7 +108,7 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
                 }];
             }
 
-            if (this.feature.isActive('FEATURE_NEXT_15998') && !this.profile.systemDefault) {
+            if (!this.profile.systemDefault) {
                 columns = [...columns, {
                     property: 'position',
                     label: 'sw-import-export.profile.mapping.position',

@@ -77,7 +77,7 @@ class Mapping extends Struct
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_8097) Use getDefaultValue() instead if you want the user specified default value.
+     * @deprecated tag:v6.5.0 - Use getDefaultValue() instead if you want the user specified default value.
      */
     public function getDefault()
     {
@@ -85,32 +85,24 @@ class Mapping extends Struct
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_8097) Use getDefaultValue() instead if you want the user specified default value.
+     * @deprecated tag:v6.5.0 - Use getDefaultValue() instead if you want the user specified default value.
      */
     public function getMappedDefault()
     {
         return $this->mappedDefault;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_8097)
-     */
     public function isRequiredByUser(): bool
     {
         return $this->requiredByUser;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_8097)
-     */
     public function isUseDefaultValue(): bool
     {
         return $this->useDefaultValue;
     }
 
     /**
-     * @internal (flag:FEATURE_NEXT_8097)
-     *
      * @return mixed|null
      */
     public function getDefaultValue()

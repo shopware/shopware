@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -131,8 +130,6 @@ class ImportExportActionControllerTest extends TestCase
 
     public function testStartingDryRunImport(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_8097', $this);
-
         $data = $this->prepareImportExportActionControllerTestData(1);
 
         $this->repository->create(array_values($data), $this->context);
@@ -160,8 +157,6 @@ class ImportExportActionControllerTest extends TestCase
      */
     public function testMappingFromTemplate(string $sourceEntity, string $fileContent, array $expectedMapping, ?int $expectedErrorCode = null, ?string $expectedErrorMessage = null): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_15998', $this);
-
         $file = [];
         if ($fileContent !== '') {
             $file = ['file' => $this->getUploadFile('text/csv', '', $fileContent)];

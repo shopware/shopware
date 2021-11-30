@@ -116,19 +116,17 @@ describe('Import/Export:  Visual tests', () => {
         cy.awaitAndCheckNotification('The export "Default product" was completed successfully.');
         cy.takeSnapshot('[Import export] Detail, Overview after export', '.sw-import-export-activity');
 
-        cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
-            // check reworked log info modal
-            cy.clickContextMenuItem(
-                '.sw-import-export-activity__log-info-action',
-                '.sw-context-button__button',
-                `${page.elements.dataGridRow}--0`
-            );
+        // check reworked log info modal
+        cy.clickContextMenuItem(
+            '.sw-import-export-activity__log-info-action',
+            '.sw-context-button__button',
+            `${page.elements.dataGridRow}--0`
+        );
 
-            cy.get('.sw-import-export-activity-log-info-modal').should('be.visible');
-            cy.get('.sw-import-export-activity-log-info-modal__description-list').should('be.visible');
-            // Take snapshot for visual testing
-            cy.takeSnapshot('[Import export] reworked log info modal after export', '.sw-import-export-activity-log-info-modal');
-        });
+        cy.get('.sw-import-export-activity-log-info-modal').should('be.visible');
+        cy.get('.sw-import-export-activity-log-info-modal__description-list').should('be.visible');
+        // Take snapshot for visual testing
+        cy.takeSnapshot('[Import export] reworked log info modal after export', '.sw-import-export-activity-log-info-modal');
     });
 
     it('@visual: check appearance of basic import workflow', () => {
@@ -190,24 +188,20 @@ describe('Import/Export:  Visual tests', () => {
         cy.awaitAndCheckNotification('The import "Default product" was completed successfully');
         cy.takeSnapshot('[Import export] Detail, Overview after import', '.sw-import-export-activity');
 
-        cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
-            // check added summary modal
-            cy.clickContextMenuItem(
-                '.sw-import-export-activity__results-action',
-                '.sw-context-button__button',
-                `${page.elements.dataGridRow}--0`
-            );
+        // check added summary modal
+        cy.clickContextMenuItem(
+            '.sw-import-export-activity__results-action',
+            '.sw-context-button__button',
+            `${page.elements.dataGridRow}--0`
+        );
 
-            cy.get('.sw-import-export-activity-result-modal').should('be.visible');
-            cy.get('.sw-import-export-activity-result-modal__info').should('be.visible');
-            // Take snapshot for visual testing
-            cy.takeSnapshot('[Import export] summary modal after import', '.sw-import-export-activity-result-modal');
-        });
+        cy.get('.sw-import-export-activity-result-modal').should('be.visible');
+        cy.get('.sw-import-export-activity-result-modal__info').should('be.visible');
+        // Take snapshot for visual testing
+        cy.takeSnapshot('[Import export] summary modal after import', '.sw-import-export-activity-result-modal');
     });
 
     it('should check appearance of import/export wizard', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_15998');
-
         cy.visit(`${Cypress.env('admin')}#/sw/import-export/index/profiles`);
 
         cy.get(page.elements.importExportCreateNewProfileButton)

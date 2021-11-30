@@ -1,7 +1,6 @@
 ---
 title: Implement not mapped selection for import export mapping
 issue: NEXT-17089
-flag: FEATURE_NEXT_15998
 author: Malte Janz
 author_email: m.janz@shopware.com 
 author_github: Malte Janz

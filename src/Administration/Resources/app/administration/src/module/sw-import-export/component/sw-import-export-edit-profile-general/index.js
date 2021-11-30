@@ -10,9 +10,6 @@ const profileTypes = {
     IMPORT_EXPORT: 'import-export',
 };
 
-/**
- * @internal (flag:FEATURE_NEXT_15998)
- */
 Component.register('sw-import-export-edit-profile-general', {
     template,
 
@@ -117,10 +114,6 @@ Component.register('sw-import-export-edit-profile-general', {
 
     methods: {
         shouldDisableProfileType(item) {
-            if (!this.feature.isActive('FEATURE_NEXT_8097')) {
-                return false;
-            }
-
             if (!this.profile.sourceEntity) {
                 return false;
             }
@@ -141,10 +134,6 @@ Component.register('sw-import-export-edit-profile-general', {
         },
 
         shouldDisableObjectType(item) {
-            if (!this.feature.isActive('FEATURE_NEXT_8097')) {
-                return false;
-            }
-
             if (!this.profile.type) {
                 return false;
             }

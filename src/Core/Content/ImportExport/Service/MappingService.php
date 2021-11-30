@@ -22,13 +22,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-/**
- * @internal (flag:FEATURE_NEXT_15998)
- */
 class MappingService extends AbstractMappingService
 {
     private AbstractFileService $fileService;
@@ -52,9 +48,6 @@ class MappingService extends AbstractMappingService
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_15998)
-     */
     public function createTemplate(Context $context, string $profileId): string
     {
         /** @var ImportExportProfileEntity|null $profile */
@@ -69,10 +62,7 @@ class MappingService extends AbstractMappingService
 
         $config = new Config($mappings, [], []);
         $headers = [];
-
-        if (Feature::isActive('FEATURE_NEXT_15998')) {
-            $mappings = MappingCollection::fromIterable($mappings)->sortByPosition();
-        }
+        $mappings = MappingCollection::fromIterable($mappings)->sortByPosition();
 
         /** @var Mapping $mapping */
         foreach ($mappings as $mapping) {
@@ -100,9 +90,6 @@ class MappingService extends AbstractMappingService
         return $fileEntity->getId();
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_15998)
-     */
     public function getMappingFromTemplate(Context $context, UploadedFile $file, string $sourceEntity, string $delimiter = ';', string $enclosure = '"', string $escape = '\\'): MappingCollection
     {
         if ($this->fileService->detectType($file) !== 'text/csv') {

@@ -87,7 +87,6 @@
 
                 {% block sw_import_export_view_profile_profiles_listing_download_template %}
                 <sw-context-menu-item
-                    v-if="feature.isActive('FEATURE_NEXT_15998')"
                     class="sw-import-export-view-profiles__listing-download-template-action"
                     @click="onDownloadTemplate(item)"
                 >
@@ -123,7 +122,7 @@
 
     {% block sw_import_export_view_new_profile_wizard %}
     <sw-import-export-new-profile-wizard
-        v-if="showNewProfileWizard && feature.isActive('FEATURE_NEXT_15998')"
+        v-if="showNewProfileWizard"
         :profile="selectedProfile"
         @profile-save="saveSelectedProfile"
         @close="onCloseNewProfileWizard"

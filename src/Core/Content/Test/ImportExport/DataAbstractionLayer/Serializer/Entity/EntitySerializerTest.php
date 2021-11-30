@@ -22,7 +22,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -49,10 +48,6 @@ class EntitySerializerTest extends TestCase
 
     public function testEnsureIdFields(): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_8097')) {
-            static::markTestSkipped('NEXT-8097');
-        }
-
         /** @var EntityDefinition $productDefinition */
         $productDefinition = $this->getContainer()->get(ProductDefinition::class);
 
@@ -67,9 +62,6 @@ class EntitySerializerTest extends TestCase
 
     public function testEnsureIdFieldsWithInvalidCharacter(): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_8097')) {
-            static::markTestSkipped('NEXT-8097');
-        }
         static::expectExceptionObject(new InvalidIdentifierException('invalid|string_with_pipe'));
 
         /** @var EntityDefinition $productDefinition */
@@ -87,10 +79,6 @@ class EntitySerializerTest extends TestCase
 
     public function testEnsureIdFieldsWithMixedContent(): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_8097')) {
-            static::markTestSkipped('NEXT-8097');
-        }
-
         /** @var EntityDefinition $productDefinition */
         $productDefinition = $this->getContainer()->get(ProductDefinition::class);
 
@@ -121,10 +109,6 @@ class EntitySerializerTest extends TestCase
 
     public function testEntityExtensionSerialization(): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_8097')) {
-            static::markTestSkipped('NEXT-8097');
-        }
-
         // add temporary db table for the test extension
         $connection = $this->getContainer()->get(Connection::class);
         $migration = new TestExtensionMigration();

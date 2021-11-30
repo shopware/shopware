@@ -1,7 +1,6 @@
 ---
 title: Reerange the order of mappings
 issue: NEXT-17088
-flag: FEATURE_NEXT_15998
 ---
 # Core
 * Added Migration `src/Core/Migration/V6_4/Migration1631625055AddPositionToImportExportMappings.php`

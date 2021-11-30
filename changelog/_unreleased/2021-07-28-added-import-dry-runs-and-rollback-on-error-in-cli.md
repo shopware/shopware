@@ -1,7 +1,6 @@
 ---
 title: Added import dry runs and rollback on error in CLI
 issue: NEXT-16187
-flag: FEATURE_NEXT_8097
 author: d.neustadt
 author_email: d.neustadt@shopware.com 
 author_github: dneustadt

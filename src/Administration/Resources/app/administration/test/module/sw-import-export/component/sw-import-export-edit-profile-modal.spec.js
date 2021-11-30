@@ -256,7 +256,6 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
             }
         ]
     )('should enable disable correct types and entities ', async (data) => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_8097'];
         wrapper.setProps({ profile: mockProfile });
         wrapper.vm.profile.sourceEntity = data.sourceEntity;
         wrapper.vm.profile.type = data.profileType;

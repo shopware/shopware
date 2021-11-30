@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Test\ImportExport\Processing\Mapping;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\Mapping;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
 class MappingCollectionTest extends TestCase
@@ -97,10 +96,6 @@ class MappingCollectionTest extends TestCase
 
     public function testNotMappedNotOverridden(): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_15998')) {
-            static::markTestSkipped('NEXT-15998');
-        }
-
         $mapping1 = new Mapping('foo', 'bar');
         $mapping1Visited = false;
         $mapping2 = new Mapping('', 'zxcv');

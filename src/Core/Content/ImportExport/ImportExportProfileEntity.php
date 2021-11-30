@@ -50,8 +50,6 @@ class ImportExportProfileEntity extends Entity
     protected $enclosure;
 
     /**
-     * @internal (flag:FEATURE_NEXT_8097)
-     *
      * @var string
      */
     protected $type;
@@ -201,17 +199,11 @@ class ImportExportProfileEntity extends Entity
         $this->translations = $translations;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_8097)
-     */
     public function getType(): string
     {
         return $this->type;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_8097)
-     */
     public function setType(string $type): void
     {
         $this->type = $type;

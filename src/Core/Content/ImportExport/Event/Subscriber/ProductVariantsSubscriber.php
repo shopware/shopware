@@ -54,10 +54,6 @@ class ProductVariantsSubscriber implements EventSubscriberInterface
 
     public function onAfterImportRecord(ImportExportAfterImportRecordEvent $event): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_8097')) {
-            return;
-        }
-
         $row = $event->getRow();
         $entityName = $event->getConfig()->get('sourceEntity');
         $entityWrittenEvents = $event->getResult()->getEvents();

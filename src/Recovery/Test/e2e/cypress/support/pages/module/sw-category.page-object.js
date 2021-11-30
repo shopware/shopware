@@ -7,7 +7,8 @@ export default class CategoryPageObject {
             ...{
                 categorySaveAction: '.sw-product-detail__save-action',
                 categoryListName: `${elements.dataGridColumn}--name`,
-                categoryTreeItem: '.sw-tree-item'
+                categoryTreeItem: '.sw-tree-item',
+                categoryTreeItemInner: '.sw-category-tree__inner .sw-tree-item'
             }
         };
     }

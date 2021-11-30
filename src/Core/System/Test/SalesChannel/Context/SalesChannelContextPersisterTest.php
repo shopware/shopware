@@ -298,6 +298,23 @@ class SalesChannelContextPersisterTest extends TestCase
         static::assertFalse($this->cartExists($token));
     }
 
+    public function testCustomerIdColumnIsBeingUsed(): void
+    {
+        $customerId = $this->createCustomer();
+        $token = Random::getAlphanumericString(32);
+
+        $this->connection->insert('sales_channel_api_context', [
+            'token' => $token,
+            'payload' => json_encode(['foo' => 'bar']),
+            'customer_id' => Uuid::fromHexToBytes($customerId),
+            'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
+        ]);
+
+        $this->contextPersister->revokeAllCustomerTokens(Uuid::fromHexToBytes($customerId));
+
+        static::assertNull($this->connection->fetchOne('SELECT customer_id FROM sales_channel_api_context'));
+    }
+
     public function tokenExpiringDataProvider(): \Generator
     {
         yield [0, 'P2D', false];

@@ -1,4 +1,5 @@
 import template from './sw-bulk-edit-customer.html.twig';
+import './sw-bulk-edit-customer.scss';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;

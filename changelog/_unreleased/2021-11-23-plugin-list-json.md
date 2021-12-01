@@ -1,6 +1,6 @@
 ---
 title: bin/console plugin:list machine readable
-issue: NEXT-10723
+issue: NEXT-19100
 author: Fabian Blechschmidt
 author_github: @Schrank
 ---
@@ -9,6 +9,6 @@ author_github: @Schrank
 ___
 # Upgrade Information
 
-## New option for plugins
-It is now possible to retriebe the plugin information in JSON format to easier parse it,
+## New `--json` option for plugin list command
+It is now possible to retrieve the plugin information in JSON format to easier parse it,
 e.g. in deployment or other CI processes.

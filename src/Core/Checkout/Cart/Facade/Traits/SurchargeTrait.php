@@ -28,6 +28,7 @@ trait SurchargeTrait
         $definition = $this->buildSurchargeDefinition($type, $value, $key);
 
         $item = new LineItem($key, LineItem::DISCOUNT_LINE_ITEM, null, 1);
+        $item->setGood(false);
         $item->setPriceDefinition($definition);
         $item->setLabel($label);
         $this->getItems()->add($item);

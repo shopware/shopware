@@ -60,6 +60,11 @@ class CartFacade
         return new ErrorsFacade($this->cart->getErrors());
     }
 
+    public function cart()
+    {
+        return $this->cart;
+    }
+
     protected function getItems(): LineItemCollection
     {
         return $this->cart->getLineItems();

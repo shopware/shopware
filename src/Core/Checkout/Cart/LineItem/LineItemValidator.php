@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem;
 
+use Doctrine\Common\Annotations\Annotation\Required;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartValidatorInterface;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
@@ -13,7 +14,7 @@ class LineItemValidator implements CartValidatorInterface
     public function validate(Cart $cart, ErrorCollection $errors, SalesChannelContext $context): void
     {
         foreach ($cart->getLineItems()->getFlat() as $lineItem) {
-            if ($lineItem->getLabel() === null) {
+            if ($lineItem->getLabel() === null && $lineItem->getType() !== LineItem::CONTAINER_LINE_ITEM) {
                 $errors->add(new IncompleteLineItemError($lineItem->getId(), 'label'));
                 $cart->getLineItems()->removeElement($lineItem);
             }

@@ -516,14 +516,6 @@ class LineItem extends Struct
     }
 
     /**
-     * @internal
-     */
-    public function &getPayloadByReference(): array
-    {
-        return $this->payload;
-    }
-
-    /**
      * @throws InvalidQuantityException
      */
     private function refreshChildQuantity(

@@ -49,7 +49,6 @@ class ContainerCartProcessor implements CartProcessorInterface
         $items = $original->getLineItems()->filterType(LineItem::CONTAINER_LINE_ITEM);
         foreach ($items as $item) {
             $this->calculate($item, $context, $toCalculate->getLineItems());
-
             $toCalculate->add($item);
         }
     }
@@ -104,9 +103,9 @@ class ContainerCartProcessor implements CartProcessorInterface
         $definition = $item->getPriceDefinition();
 
         if ($definition instanceof PercentagePriceDefinition) {
-            $price = $this->percentageCalculator->calculate($definition->getPercentage(), $scope->getPrices(), $context);
+            $price = $this->percentageCalculator->calculate($definition->getPercentage(), $scope->filterGoods()->getPrices(), $context);
         } elseif ($definition instanceof CurrencyPriceDefinition) {
-            $price = $this->currencyCalculator->calculate($definition->getPrice(), $scope->getPrices(), $context);
+            $price = $this->currencyCalculator->calculate($definition->getPrice(), $scope->filterGoods()->getPrices(), $context);
         } elseif ($definition instanceof QuantityPriceDefinition) {
             $price = $this->quantityCalculator->calculate($definition, $context);
         } else {

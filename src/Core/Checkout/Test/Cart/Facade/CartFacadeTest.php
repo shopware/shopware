@@ -16,7 +16,10 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Exception\HookInjectionException;
 use Shopware\Core\Framework\Script\Execution\Script;
@@ -75,6 +78,38 @@ class CartFacadeTest extends TestCase
         static::assertInstanceOf(ItemFacade::class, $item);
         static::assertEquals($this->ids->get($expected), $item->getReferencedId());
         static::assertEquals(LineItem::PRODUCT_LINE_ITEM_TYPE, $item->getType());
+    }
+
+    public function testContainer()
+    {
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
+
+        $hook = new CartHook(new Cart('test', 'test'), $context);
+
+        $service = $this->getContainer()->get(CartFacadeHookFactory::class)
+            ->factory($hook, $this->script);
+
+        $id = $this->ids->get('p1');
+
+        $service->products()->add($id, 10);
+
+        $container = $service->container('my-container');
+
+        $container->add($service->products()->get($id)->take(1));
+        $container->add($service->products()->get($id)->take(1));
+        $container->discount('my-discount', 'percentage', -10, 'Fanzy discount');
+
+        $surcharge = new PriceCollection([new Price(Defaults::CURRENCY, 2, 2, false)]);
+        $container->surcharge('my-surcharge', 'absolute', $surcharge, 'unit test');
+
+        $service->items()->add($container);
+        $service->calculate();
+
+        static::assertTrue($service->has('my-container'));
+
+        $container = $service->get('my-container');
+        static::assertEquals(182, $container->getPrice()->getTotal());
     }
 
     public function testRemove(): void
@@ -282,8 +317,8 @@ class CartFacadeTest extends TestCase
             if ($expected instanceof CalculatedPrice) {
                 static::assertInstanceOf(ItemFacade::class, $item);
                 static::assertInstanceOf(PriceFacade::class, $item->getPrice());
-                static::assertEquals($expected->getUnitPrice(), $item->getPrice()->unit());
-                static::assertEquals($expected->getTotalPrice(), $item->getPrice()->total());
+                static::assertEquals($expected->getUnitPrice(), $item->getPrice()->getUnit());
+                static::assertEquals($expected->getTotalPrice(), $item->getPrice()->getTotal());
 
                 continue;
             }
@@ -291,8 +326,8 @@ class CartFacadeTest extends TestCase
             $price = $expected['price'];
             static::assertInstanceOf(ItemFacade::class, $item);
             static::assertInstanceOf(PriceFacade::class, $item->getPrice());
-            static::assertEquals($price->getUnitPrice(), $item->getPrice()->unit(), print_r($item->getItem(), true));
-            static::assertEquals($price->getTotalPrice(), $item->getPrice()->total());
+            static::assertEquals($price->getUnitPrice(), $item->getPrice()->getUnit(), print_r($item->getItem(), true));
+            static::assertEquals($price->getTotalPrice(), $item->getPrice()->getTotal());
 
             $this->assertItems($item->getChildren(), $expected['children']);
         }

@@ -20,17 +20,17 @@ class PriceFacade
         $this->services = $services;
     }
 
-    public function total(): float
+    public function getTotal(): float
     {
         return $this->price->getTotalPrice();
     }
 
-    public function unit(): float
+    public function getUnit(): float
     {
         return $this->price->getUnitPrice();
     }
 
-    public function quantity(): int
+    public function getQuantity(): int
     {
         return $this->price->getQuantity();
     }

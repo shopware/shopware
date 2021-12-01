@@ -30,7 +30,7 @@ class ConfigSet extends Command
             ->addArgument('key', InputArgument::REQUIRED)
             ->addArgument('value', InputArgument::REQUIRED)
             ->addOption('salesChannelId', 's', InputOption::VALUE_OPTIONAL)
-            ->addOption('decode', 'd', InputOption::VALUE_NONE, 'If provided, the input value will be interpreted as JSON. Use this option to provide values as boolean, integer or float.');
+            ->addOption('json', 'j', InputOption::VALUE_NONE, 'If provided, the input value will be interpreted as JSON. Use this option to provide values as boolean, integer or float.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -44,13 +44,16 @@ class ConfigSet extends Command
         return 0;
     }
 
+    /**
+     * @return array|bool|float|int|string|null $value
+     */
     protected function handleDecode(InputInterface $input)
     {
         $value = $input->getArgument('value');
-        if ($input->getOption('decode')) {
+        if ($input->getOption('json')) {
             $decodedValue = json_decode($value, true);
 
-            if (json_last_error() === JSON_ERROR_NONE) {
+            if (json_last_error() === \JSON_ERROR_NONE) {
                 return $decodedValue;
             }
         }

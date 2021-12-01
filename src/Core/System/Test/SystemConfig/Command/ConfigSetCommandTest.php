@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Test\SystemConfig\Command;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\Command\ConfigSet;
@@ -14,7 +15,8 @@ class ConfigSetCommandTest extends TestCase
     use IntegrationTestBehaviour;
 
     private ConfigSet $configSetCommand;
-    private SystemConfigService $systemConfigService;
+
+    private MockObject $systemConfigService;
 
     protected function setUp(): void
     {
@@ -32,12 +34,12 @@ class ConfigSetCommandTest extends TestCase
         yield 'String float' => ['2.2', '2.2', false];
         yield 'Decode String float' => ['3.3', 3.3, true];
         yield 'String json' => [
-            "{\"name\":\"abc\",\"place\":\"xyz\"}",
-            "{\"name\":\"abc\",\"place\":\"xyz\"}",
+            '{"name":"abc","place":"xyz"}',
+            '{"name":"abc","place":"xyz"}',
             false,
         ];
         yield 'Decode String json' => [
-            "{\"name\":\"abc\",\"place\":\"xyz\"}",
+            '{"name":"abc","place":"xyz"}',
             ['name' => 'abc', 'place' => 'xyz'],
             true,
         ];
@@ -47,11 +49,11 @@ class ConfigSetCommandTest extends TestCase
     /**
      * @dataProvider configValueProvider
      */
-    public function testConfigSetValue(string $value, $expectedValue, bool $decode = false): void
+    public function testConfigSetValue(string $value, $expectedValue, bool $json = false): void
     {
         $key = 'fake_config_key';
 
-        $this->systemConfigService->expects($this->once())
+        $this->systemConfigService->expects(static::once())
             ->method('set')
             ->with(
                 $key,
@@ -66,8 +68,8 @@ class ConfigSetCommandTest extends TestCase
             '--salesChannelId' => TestDefaults::SALES_CHANNEL,
         ];
 
-        if ($decode) {
-            $command['--decode'] = true;
+        if ($json) {
+            $command['--json'] = true;
         }
 
         $commandTester->execute($command);

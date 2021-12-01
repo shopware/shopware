@@ -385,13 +385,21 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
     },
 
     plugins: [
-        new ForkTsCheckerWebpackPlugin({
-            logger: {
-                infrastructure: 'console',
-                issues: 'console',
-                devServer: false,
+        ...(() => {
+            if (process.env.DISABLE_ADMIN_COMPILATION_TYPECHECK) {
+                return [];
             }
-        }),
+
+            return [
+                new ForkTsCheckerWebpackPlugin({
+                    logger: {
+                        infrastructure: 'console',
+                        issues: 'console',
+                        devServer: false,
+                    }
+                }),
+            ];
+        })(),
 
         new webpack.DefinePlugin({
             'process.env': {

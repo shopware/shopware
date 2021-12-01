@@ -8,7 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\Exception\InvalidThemeException;
@@ -82,79 +81,40 @@ class DatabaseConfigLoader extends AbstractConfigLoader
 
     private function loadRecursiveConfig(string $themeId, Context $context, bool $withBase = true): array
     {
-        /* @feature-deprecated (flag:FEATURE_NEXT_17637) keep if branch delete everything after on feature release */
-        if (Feature::isActive('FEATURE_NEXT_17637')) {
-            $criteria = new Criteria();
-            $criteria->setTitle('theme-service::load-config');
+        $criteria = new Criteria();
+        $criteria->setTitle('theme-service::load-config');
 
-            $themes = $this->themeRepository->search($criteria, $context);
+        $themes = $this->themeRepository->search($criteria, $context);
 
-            $theme = $themes->get($themeId);
+        $theme = $themes->get($themeId);
 
-            /** @var ThemeEntity|null $theme */
-            if (!$theme) {
-                throw new InvalidThemeException($themeId);
-            }
-            $baseThemeConfig = [];
-
-            if ($withBase) {
-                /** @var ThemeEntity $baseTheme */
-                $baseTheme = $themes->filter(function (ThemeEntity $themeEntry) {
-                    return $themeEntry->getTechnicalName() === $this->baseTheme;
-                })->first();
-
-                $baseThemeConfig = $this->mergeStaticConfig($baseTheme);
-            }
-
-            if ($theme->getParentThemeId()) {
-                $parentThemes = $this->getParentThemeIds($themes, $theme);
-
-                foreach ($parentThemes as $parentTheme) {
-                    $configuredParentTheme = $this->mergeStaticConfig($parentTheme);
-                    $baseThemeConfig = array_replace_recursive($baseThemeConfig, $configuredParentTheme);
-                }
-            }
-
-            $configuredTheme = $this->mergeStaticConfig($theme);
-
-            return array_replace_recursive($baseThemeConfig, $configuredTheme);
-        }
-        $criteria = new Criteria([$themeId]);
-
-        $theme = $this->themeRepository
-                ->search($criteria, $context)
-                ->first();
-
-        if (!$theme instanceof ThemeEntity) {
+        /** @var ThemeEntity|null $theme */
+        if (!$theme) {
             throw new InvalidThemeException($themeId);
         }
+        $baseThemeConfig = [];
 
-        $config = $this->mergeStaticConfig($theme);
-        $parentId = $theme->getParentThemeId();
-        if ($parentId) {
-            $parent = $this->loadRecursiveConfig($parentId, $context, false);
+        if ($withBase) {
+            /** @var ThemeEntity $baseTheme */
+            $baseTheme = $themes->filter(function (ThemeEntity $themeEntry) {
+                return $themeEntry->getTechnicalName() === $this->baseTheme;
+            })->first();
 
-            $config = array_replace_recursive($parent, $config);
+            $baseThemeConfig = $this->mergeStaticConfig($baseTheme);
         }
 
-        if (!$withBase) {
-            return $config;
+        if ($theme->getParentThemeId()) {
+            $parentThemes = $this->getParentThemeIds($themes, $theme);
+
+            foreach ($parentThemes as $parentTheme) {
+                $configuredParentTheme = $this->mergeStaticConfig($parentTheme);
+                $baseThemeConfig = array_replace_recursive($baseThemeConfig, $configuredParentTheme);
+            }
         }
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('technicalName', $this->baseTheme));
+        $configuredTheme = $this->mergeStaticConfig($theme);
 
-        $theme = $this->themeRepository
-                ->search($criteria, $context)
-                ->first();
-
-        if (!$theme instanceof ThemeEntity) {
-            throw new InvalidThemeException($this->baseTheme);
-        }
-
-        $base = $this->mergeStaticConfig($theme);
-
-        return array_replace_recursive($base, $config);
+        return array_replace_recursive($baseThemeConfig, $configuredTheme);
     }
 
     private function getParentThemeIds(EntitySearchResult $themes, ThemeEntity $mainTheme, array $parentThemes = []): array

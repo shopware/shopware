@@ -55,7 +55,7 @@
                 <sw-loader v-if="isLoading" size="30" class="sw-theme-manager-detail__loading-indicator"></sw-loader>
 
                 <div v-else class="sw-theme-manager-detail__content">
-                    <sw-tabs v-if="shouldShowContent" defaultItem="default">
+                    <sw-tabs v-if="shouldShowContent" defaultItem="default" @new-item-active="onChangeTab">
                         <template #default="{ active }" v-if="hasMoreThanOneTab">
                             <sw-tabs-item v-for="(tab, tabName) in structuredThemeFields.tabs"
                                           :key="tabName"
@@ -68,7 +68,7 @@
 
                         <template #content="{ active }">
                             <template v-if="active === 'default'">
-                                <template v-if="theme && parentTheme">
+                                <template v-if="isDerived">
                                     {% block sw_theme_manager_detail_content_inheritance %}
                                         <div class="sw-theme-manager-detail__inheritance">
                                             {% block sw_theme_manager_detail_content_inheritance_icon %}
@@ -76,8 +76,11 @@
                                             {% endblock %}
 
                                             {% block sw_theme_manager_detail_content_inheritance_text %}
-                                                <p class="sw-theme-manager-detail__inheritance-text">
+                                                <p class="sw-theme-manager-detail__inheritance-text" v-if="parentTheme">
                                                     {{ $tc('sw-theme-manager.detail.inheritanceInfo', 0, { parentThemeName: parentTheme.name }) }}
+                                                </p>
+                                                <p class="sw-theme-manager-detail__inheritance-text" v-else-if="defaultTheme">
+                                                    {{ $tc('sw-theme-manager.detail.inheritanceInfo', 0, { parentThemeName: defaultTheme.name }) }}
                                                 </p>
                                             {% endblock %}
                                         </div>
@@ -192,10 +195,10 @@
                                                                  :class="{'sw-theme-manager-detail__content--section_field-full-width': field.fullWidth}">
                                                                 <template v-if="themeConfig[fieldName]">
                                                                     <template v-if="mapSwFieldTypes(field.type) === 'select'">
-                                                                        {# @feature-deprecated (flag:FEATURE_NEXT_17637) remove feature.isActive #}
                                                                         <sw-inherit-wrapper
                                                                                 v-model="currentThemeConfig[fieldName].value"
-                                                                                :has-parent="feature.isActive('FEATURE_NEXT_17637') && theme.baseConfig?.fields?.[fieldName] == null"
+                                                                                :ref="`wrapper-${fieldName}`"
+                                                                                :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
                                                                                 :inherited-value="baseThemeConfig[fieldName].value"
                                                                                 :label="!field.label ? '' : field.label"
                                                                                 :customInheritationCheckFunction="checkInheritance"
@@ -216,10 +219,10 @@
                                                                     </template>
 
                                                                     <template v-else-if="field.type === 'url'">
-                                                                        {# @feature-deprecated (flag:FEATURE_NEXT_17637) remove feature.isActive #}
                                                                         <sw-inherit-wrapper
                                                                                 v-model="currentThemeConfig[fieldName].value"
-                                                                                :has-parent="feature.isActive('FEATURE_NEXT_17637') && theme.baseConfig?.fields?.[fieldName] == null"
+                                                                                :ref="`wrapper-${fieldName}`"
+                                                                                :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
                                                                                 :inherited-value="baseThemeConfig[fieldName].value"
                                                                                 :label="!field.label ? '' : field.label"
                                                                                 :customInheritationCheckFunction="checkInheritance"
@@ -243,10 +246,11 @@
                                                                             @media-upload-finish="successfulUpload($event, currentThemeConfig[fieldName])"
                                                                             autoUpload>
                                                                         </sw-upload-listener>
-                                                                        {# @feature-deprecated (flag:FEATURE_NEXT_17637) remove feature.isActive #}
+
                                                                         <sw-inherit-wrapper
                                                                                 v-model="currentThemeConfig[fieldName].value"
-                                                                                :has-parent="feature.isActive('FEATURE_NEXT_17637') && theme.baseConfig?.fields?.[fieldName] == null"
+                                                                                :ref="`wrapper-${fieldName}`"
+                                                                                :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
                                                                                 :inherited-value="baseThemeConfig[fieldName].value"
                                                                                 :label="!field.label ? '' : field.label"
                                                                         >
@@ -268,10 +272,10 @@
                                                                     </div>
 
                                                                     <template v-else-if="mapSwFieldTypes(field.type)">
-                                                                        {# @feature-deprecated (flag:FEATURE_NEXT_17637) remove feature.isActive #}
                                                                         <sw-inherit-wrapper
                                                                             v-model="currentThemeConfig[fieldName].value"
-                                                                            :has-parent="feature.isActive('FEATURE_NEXT_17637') && theme.baseConfig?.fields?.[fieldName] == null"
+                                                                            :ref="`wrapper-${fieldName}`"
+                                                                            :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
                                                                             :inherited-value="baseThemeConfig[fieldName].value"
                                                                             :label="!field.label ? '' : field.label"
                                                                             :customInheritationCheckFunction="checkInheritance"
@@ -291,10 +295,11 @@
                                                                     </template>
 
                                                                     <template v-else-if="themeConfig[fieldName].editable !== false">
-                                                                        {# @feature-deprecated (flag:FEATURE_NEXT_17637) remove feature.isActive #}
+
                                                                         <sw-inherit-wrapper
                                                                                 v-model="currentThemeConfig[fieldName].value"
-                                                                                :has-parent="feature.isActive('FEATURE_NEXT_17637') && theme.baseConfig?.fields?.[fieldName] == null"
+                                                                                :ref="`wrapper-${fieldName}`"
+                                                                                :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
                                                                                 :inherited-value="baseThemeConfig[fieldName].value"
                                                                                 :label="!field.label ? '' : field.label"
                                                                                 :customInheritationCheckFunction="checkInheritance"

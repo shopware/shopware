@@ -8,8 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
@@ -157,17 +155,6 @@ class ThemeService
         $criteria = new Criteria();
         $criteria->setTitle('theme-service::load-config');
 
-        /* @feature-deprecated (flag:FEATURE_NEXT_17637) remove complete addFilter on feature release */
-        if (!Feature::isActive('FEATURE_NEXT_17637')) {
-            $criteria->addFilter(new MultiFilter(
-                MultiFilter::CONNECTION_OR,
-                [
-                    new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME),
-                    new EqualsFilter('id', $themeId),
-                ]
-            ));
-        }
-
         $themes = $this->themeRepository->search($criteria, $context);
 
         $theme = $themes->get($themeId);
@@ -188,8 +175,7 @@ class ThemeService
         $configFields = [];
         $labels = array_replace_recursive($baseTheme->getLabels() ?? [], $theme->getLabels() ?? []);
 
-        /* @feature-deprecated (flag:FEATURE_NEXT_17637) remove feature check on feature release */
-        if ($theme->getParentThemeId() && Feature::isActive('FEATURE_NEXT_17637')) {
+        if ($theme->getParentThemeId()) {
             $parentThemes = $this->getParentThemeIds($themes, $theme);
 
             foreach ($parentThemes as $parentTheme) {
@@ -202,8 +188,11 @@ class ThemeService
         $configuredTheme = $this->mergeStaticConfig($theme);
         $themeConfig = array_replace_recursive($baseThemeConfig, $configuredTheme);
 
-        foreach ($themeConfig['fields'] as $name => $item) {
+        foreach ($themeConfig['fields'] as $name => &$item) {
             $configFields[$name] = $themeConfigFieldFactory->create($name, $item);
+            if (\is_array($item['value']) && \array_key_exists($name, $configuredTheme['fields'])) {
+                $configFields[$name]->setValue($configuredTheme['fields'][$name]['value']);
+            }
         }
 
         $configFields = json_decode((string) json_encode($configFields), true);
@@ -438,8 +427,7 @@ class ThemeService
         $theme = $this->themeRepository->search(new Criteria([$themeId]), $context)->get($themeId);
         $translations = $theme->getLabels() ?: [];
 
-        /* @feature-deprecated (flag:FEATURE_NEXT_17637) remove else branch on feature release */
-        if ($theme->getParentThemeId() && Feature::isActive('FEATURE_NEXT_17637')) {
+        if ($theme->getParentThemeId()) {
             $criteria = new Criteria();
             $criteria->setTitle('theme-service::load-translations');
 

@@ -84,6 +84,21 @@ class ThemeLifecycleServiceTest extends TestCase
         }
     }
 
+    public function testThemeConfigInheritanceAddsParentTheme(): void
+    {
+        $parentBundle = $this->getThemeConfigWithLabels();
+        $this->themeLifecycleService->refreshTheme($parentBundle, $this->context);
+        $bundle = $this->getThemeConfig();
+        $bundle->setConfigInheritance(['@' . $parentBundle->getTechnicalName()]);
+
+        $this->themeLifecycleService->refreshTheme($bundle, $this->context);
+
+        $parentThemeEntity = $this->getTheme($parentBundle);
+        $themeEntity = $this->getTheme($bundle);
+
+        static::assertEquals($parentThemeEntity->getId(), $themeEntity->getParentThemeId());
+    }
+
     public function testYouCanUpdateConfigToAddNewMedia(): void
     {
         $bundle = $this->getThemeConfig();

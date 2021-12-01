@@ -495,7 +495,14 @@ Component.register('sw-search-bar', {
 
             const entityName = this.searchTypes[this.currentSearchType].entityName;
             const repository = this.repositoryFactory.create(entityName);
+
             let criteria = new Criteria();
+
+            if (this.feature.isActive('FEATURE_NEXT_6040')) {
+                criteria = this.criteriaCollection.hasOwnProperty(entityName)
+                    ? this.criteriaCollection[entityName]
+                    : new Criteria();
+            }
 
             criteria.setTerm(searchTerm);
             if (this.feature.isActive('FEATURE_NEXT_6040')) {
@@ -521,7 +528,7 @@ Component.register('sw-search-bar', {
                 );
             }
 
-            repository.search(criteria, Shopware.Context.api).then((response) => {
+            repository.search(criteria, { ...Shopware.Context.api, inheritance: true }).then((response) => {
                 entityResults.total = response.total;
                 entityResults.entity = this.currentSearchType;
                 entityResults.entities = response;

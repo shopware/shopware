@@ -30,17 +30,34 @@ class ConfigSet extends Command
             ->addArgument('key', InputArgument::REQUIRED)
             ->addArgument('value', InputArgument::REQUIRED)
             ->addOption('salesChannelId', 's', InputOption::VALUE_OPTIONAL)
-        ;
+            ->addOption('json', 'j', InputOption::VALUE_NONE, 'If provided, the input value will be interpreted as JSON. Use this option to provide values as boolean, integer or float.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->systemConfigService->set(
             $input->getArgument('key'),
-            $input->getArgument('value'),
+            $this->handleDecode($input),
             $input->getOption('salesChannelId')
         );
 
         return 0;
+    }
+
+    /**
+     * @return array|bool|float|int|string|null $value
+     */
+    protected function handleDecode(InputInterface $input)
+    {
+        $value = $input->getArgument('value');
+        if ($input->getOption('json')) {
+            $decodedValue = json_decode($value, true);
+
+            if (json_last_error() === \JSON_ERROR_NONE) {
+                return $decodedValue;
+            }
+        }
+
+        return $value;
     }
 }

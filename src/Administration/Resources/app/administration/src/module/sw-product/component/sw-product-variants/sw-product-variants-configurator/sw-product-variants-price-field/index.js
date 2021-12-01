@@ -30,6 +30,7 @@ Component.register('sw-product-variants-price-field', {
             default: false,
         },
 
+        // @deprecated tag:v6.5.0 - Will be removed
         onlyPositive: {
             type: Boolean,
             required: false,
@@ -69,7 +70,9 @@ Component.register('sw-product-variants-price-field', {
         },
 
         onPriceGrossChange(value) {
-            this.price.gross = value;
+            if (!value || typeof value !== 'number') {
+                return;
+            }
 
             if (this.price.linked) {
                 this.$emit('price-calculate', true);
@@ -85,7 +88,9 @@ Component.register('sw-product-variants-price-field', {
         }, 500),
 
         onPriceNetChange(value) {
-            this.price.net = value;
+            if (!value || typeof value !== 'number') {
+                return;
+            }
 
             if (this.price.linked) {
                 this.$emit('price-calculate', true);

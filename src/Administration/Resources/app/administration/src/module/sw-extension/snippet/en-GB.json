@@ -65,7 +65,7 @@
       "messageLoginDataInvalid": "Login data incomplete.",
       "messageStoreLicenseDomainMissing": "Login failed. Did you provide the correct licence domain from your Shopware Account in \"Settings/Shopware Account\"?",
       "messageStoreNotAvailable": "The Shopware Store is not available.",
-      "messagePluginBaseClassNotFound": "The extension base class could not be loaded. Check your plugin composer.json regarding the class autoloading.",
+      "messagePluginBaseClassNotFound": "The extension base class could not be loaded. Check the composer.json of the extension regarding the class autoloading.",
       "messagePluginInstallationFailed": "The extension could not be installed: \"{message}\".",
       "messagePluginUninstallationFailed": "The extension could not be uninstalled: \"{message}\".",
       "messagePluginActivationFailed": "The extension could not be activated: \"{message}\".",
@@ -74,7 +74,7 @@
       "messageDeactivationFailedThemeAssignment": "Unable to deactivate or uninstall theme \"{themeName}\". Please remove the following theme assignments: {assignments}.",
       "messagePluginUpdateFailed": "The extension could not be updated: \"{message}\". {pluginDeactivatedHint}",
       "pluginDeactivatedHint": "Extension deactivated.",
-      "messagePluginRequirementMismatch": "The extension requirement does not match the installed version. Please contact your plugin manufacturer."
+      "messagePluginRequirementMismatch": "The extension has technical requirements that are not compatible with those of the installed Shopware version. Please contact the manufacturer."
     },
     "mainMenu": {
       "mainMenuItemExtensionStore": "Extensions",

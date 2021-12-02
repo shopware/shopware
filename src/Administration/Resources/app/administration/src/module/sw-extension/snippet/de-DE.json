@@ -74,7 +74,7 @@
       "messageDeactivationFailedThemeAssignment": "Das Theme \"{themeName}\" konnte nicht deaktiviert werden. Bitte entferne die folgenden Theme-Zuweisungen: {assignments}",
       "messagePluginUpdateFailed": "Die Erweiterung konnte nicht aktualisiert werden: \"{message}\". {pluginDeactivatedHint}",
       "pluginDeactivatedHint": "Erweiterung deaktiviert.",
-      "messagePluginRequirementMismatch": "Die erforderliche Anforderung der Erweiterung stimmt nicht mit der installierten Version überein. Bitte wende Dich an Deinen Plugin-Hersteller."
+      "messagePluginRequirementMismatch": "Die Erweiterung hat technische Anforderungen, die nicht mit denen der installierten Shopware-Version kompatibel sind. Bitte wende Dich an den Hersteller."
     },
     "mainMenu": {
       "mainMenuItemExtensionStore": "Erweiterungen",

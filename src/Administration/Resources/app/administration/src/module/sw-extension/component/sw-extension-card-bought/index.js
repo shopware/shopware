@@ -192,10 +192,14 @@ Component.extend('sw-extension-card-bought', 'sw-extension-card-base', {
                 this.showExtensionErrors(e);
                 const error = extensionErrorHandler.mapErrors(e.response.data.errors)?.[0];
 
-                this.installationFailedError = {
-                    title: this.$tc(error.title),
-                    message: this.$tc(error.message),
-                };
+                if (error.parameters) {
+                    this.installationFailedError = error;
+                } else {
+                    this.installationFailedError = {
+                        title: this.$tc(error.title),
+                        message: this.$tc(error.message),
+                    };
+                }
                 this.showExtensionInstallationFailedModal = true;
             } finally {
                 this.isLoading = false;

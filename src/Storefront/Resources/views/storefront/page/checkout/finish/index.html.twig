@@ -7,7 +7,6 @@
 {% block base_navigation %}{% endblock %}
 
 {% block page_checkout_main_content %}
-
     {% block base_flashbags_checkout %}
         <div class="flashbags">
             {% for type, messages in app.flashes %}
@@ -37,6 +36,21 @@
                     {% endblock %}
                 </div>
             </div>
+        {% endblock %}
+    {% endblock %}
+
+    {% block page_checkout_finish_hidden_information %}
+        {% block page_checkout_finish_hidden_information_order_number %}
+            <span class="d-none hidden-ordernumber-information"
+                  data-order-number="{{ page.order.orderNumber }}">
+            </span>
+        {% endblock %}
+
+        {% block page_checkout_finish_hidden_information_line_items %}
+            {% sw_include '@Storefront/storefront/component/checkout/hidden-line-items-information.html.twig' with {
+                cart: page.order,
+                lineItems: page.order.lineItems,
+            } %}
         {% endblock %}
     {% endblock %}
 {% endblock %}

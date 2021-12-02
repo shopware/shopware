@@ -583,7 +583,7 @@ const configsForPlugins = pluginEntries.map((plugin) => {
         createdBaseConfig,
         {
             entry: {
-                [plugin.technicalFolderName]: plugin.filePath,
+                [plugin.technicalName]: plugin.filePath,
             },
 
             output: {
@@ -606,8 +606,8 @@ const configsForPlugins = pluginEntries.map((plugin) => {
 
                 new WebpackCopyAfterBuildPlugin({
                     files: [{
-                        chunkName: plugin.technicalFolderName,
-                        to: `${pluginPath}/${plugin.technicalFolderName}.js`,
+                        chunkName: plugin.technicalName,
+                        to: `${pluginPath}/${plugin.technicalName}.js`,
                     }],
                     options: {
                         absolutePath: true,

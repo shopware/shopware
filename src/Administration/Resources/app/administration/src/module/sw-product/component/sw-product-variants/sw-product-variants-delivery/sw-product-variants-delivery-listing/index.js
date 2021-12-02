@@ -19,6 +19,12 @@ Component.register('sw-product-variants-delivery-listing', {
         },
     },
 
+    data() {
+        return {
+            searchTerm: '',
+        };
+    },
+
     computed: {
         listingModeOptions() {
             return [
@@ -41,6 +47,10 @@ Component.register('sw-product-variants-delivery-listing', {
             const criteria = new Criteria();
             criteria.addFilter(Criteria.equals('product.parentId', this.product.id));
             criteria.addAssociation('options.group');
+
+            if (typeof this.searchTerm === 'string' && this.searchTerm.length > 0) {
+                criteria.addQuery(Criteria.contains('product.options.name', this.searchTerm), 500);
+            }
 
             return criteria;
         },
@@ -139,6 +149,14 @@ Component.register('sw-product-variants-delivery-listing', {
 
         isSelected(item) {
             return this.mainVariant === item.id;
+        },
+
+        onSearchTermChange(value) {
+            this.searchTerm = value;
+        },
+
+        onSelectCollapsed() {
+            this.searchTerm = '';
         },
     },
 });

@@ -209,7 +209,7 @@ Component.register('sw-select-result-list', {
         },
 
         onScroll(event) {
-            if (this.getBottomDistance(event.target) !== 0) {
+            if (this.getBottomDistance(event.target) > 0) {
                 return;
             }
 

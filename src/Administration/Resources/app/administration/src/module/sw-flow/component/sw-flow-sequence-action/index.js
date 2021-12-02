@@ -4,6 +4,7 @@ import { ACTION } from '../../constant/flow.constant';
 
 const { Component, State, Mixin } = Shopware;
 const utils = Shopware.Utils;
+const { cloneDeep } = utils.object;
 const { ShopwareError } = Shopware.Classes;
 const { mapState, mapGetters } = Component.getComponentHelper();
 
@@ -234,6 +235,37 @@ Component.register('sw-flow-sequence-action', {
 
         removeAction(id) {
             State.commit('swFlowState/removeSequences', [id]);
+        },
+
+        actionsWithoutStopFlow() {
+            // When action list only has 1 item, this.sequence has object type
+            if (this.sequence.id) {
+                return [{
+                    ...this.sequence,
+                }];
+            }
+
+            const sequences = Object.values(this.sequence);
+            return this.sortByPosition(sequences.filter(sequence => sequence.actionName !== ACTION.STOP_FLOW));
+        },
+
+        showMoveOption(action, type) {
+            const actions = this.actionsWithoutStopFlow();
+            if (actions.length <= 1) return false;
+            if (type === 'up' && actions[0].position === action.position) return false;
+            if (type === 'down' && actions[actions.length - 1].position === action.position) return false;
+
+            return action.actionName !== ACTION.STOP_FLOW;
+        },
+
+        moveAction(action, type) {
+            const actions = this.actionsWithoutStopFlow();
+            const currentIndex = actions.findIndex(item => item.position === action.position);
+            const moveAction = type === 'up' ? actions[currentIndex - 1] : actions[currentIndex + 1];
+            const moveActionClone = cloneDeep(moveAction);
+
+            State.commit('swFlowState/updateSequence', { id: moveAction.id, position: action.position });
+            State.commit('swFlowState/updateSequence', { id: action.id, position: moveActionClone.position });
         },
 
         onEditAction(sequence) {

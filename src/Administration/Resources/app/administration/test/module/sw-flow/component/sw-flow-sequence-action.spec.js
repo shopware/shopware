@@ -411,4 +411,83 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         expect(wrapper.find('.sw-flow-sequence-action__context-button').attributes().disabled).toBeTruthy();
         expect(wrapper.find('.sw-flow-sequence-action__add-action').exists()).toBeFalsy();
     });
+
+    it('should able to show move an action', async () => {
+        Shopware.State.commit('swFlowState/setSequences', getSequencesCollection(sequencesFixture));
+
+        const wrapper = createWrapper({
+            sequence: {
+                2: {
+                    ...sequencesFixture[0]
+                },
+                3: {
+                    ...sequencesFixture[1]
+                }
+            }
+        });
+
+        expect(wrapper.find('.sw-flow-sequence-action__move-down').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-flow-sequence-action__move-up').exists()).toBeTruthy();
+    });
+
+    it('should not able to show move an action if has only action', async () => {
+        Shopware.State.commit('swFlowState/setSequences', getSequencesCollection(sequencesFixture));
+
+        const wrapper = createWrapper({
+            sequence: {
+                2: {
+                    ...sequencesFixture[0]
+                },
+            }
+        });
+
+        expect(wrapper.find('.sw-flow-sequence-action__move-down').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-flow-sequence-action__move-up').exists()).toBeFalsy();
+    });
+
+    it('should not able to show move an action if has stop flow action', async () => {
+        Shopware.State.commit('swFlowState/setSequences', getSequencesCollection(sequencesFixture));
+
+        const wrapper = createWrapper({
+            sequence: {
+                2: {
+                    id: '2',
+                    actionName: ACTION.STOP_FLOW,
+                    ruleId: null,
+                    parentId: '1',
+                    position: 1,
+                    displayGroup: 1,
+                    trueCase: true,
+                },
+            }
+        });
+
+        expect(wrapper.find('.sw-flow-sequence-action__move-down').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-flow-sequence-action__move-up').exists()).toBeFalsy();
+    });
+
+    it('should able to show move down an action', async () => {
+        Shopware.State.commit('swFlowState/setSequences', getSequencesCollection(sequencesFixture));
+
+        const wrapper = createWrapper({
+            sequence: {
+                2: {
+                    ...sequencesFixture[0]
+                },
+                3: {
+                    ...sequencesFixture[1]
+                }
+            }
+        });
+
+        const moveDownAction = wrapper.find('.sw-flow-sequence-action__move-down');
+        expect(moveDownAction.exists()).toBeTruthy();
+
+        const sequencesState = Shopware.State.getters['swFlowState/sequences'];
+        expect(sequencesState[0].position).toEqual(1);
+        expect(sequencesState[1].position).toEqual(2);
+        await moveDownAction.trigger('click');
+        expect(sequencesState[0].position).toEqual(2);
+        expect(sequencesState[1].position).toEqual(1);
+    });
 });

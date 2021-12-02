@@ -83,7 +83,9 @@
       "labelDescription": "Description: {description}",
       "contextButton": {
         "editAction": "Edit action",
-        "deleteAction": "Delete action"
+        "deleteAction": "Delete action",
+        "moveUpAction": "Move up",
+        "moveDownAction": "Move down"
       },
       "addAction": "Add action",
       "labelTo": "To: {entity}",

@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Checkout\Test\Customer\Api;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
+use Shopware\Core\Checkout\Customer\Api\CustomerGroupRegistrationActionController;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined;
@@ -21,8 +23,10 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class CustomerGroupRegistrationActionControllerTest extends TestCase
@@ -281,6 +285,58 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode());
     }
 
+    public function testEventDispatchCustomerRegistrationAcceptedEventCorrectLanguage(): void
+    {
+        $customerId = $this->createCustomer(true);
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $langId = $this->ids->get('langId');
+        $listener = static function (CustomerGroupRegistrationAccepted $event) use ($langId): void {
+            static::assertSame($langId, $event->getContext()->getLanguageId());
+        };
+        $dispatcher->addListener(CustomerGroupRegistrationAccepted::class, $listener);
+
+        $result = new CustomerGroupRegistrationActionController(
+            $this->customerRepository,
+            $dispatcher,
+            $this->getContainer()->get(SalesChannelContextService::class)
+        );
+        $request = new Request();
+        // will be remove customerId at version v6.5.0
+        $request->attributes->set('customerId', $customerId);
+        $request->attributes->set('customerIds', [$customerId]);
+
+        $response = $result->accept($request, $this->ids->context);
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+
+        $dispatcher->removeListener(CustomerGroupRegistrationAccepted::class, $listener);
+    }
+
+    public function testEventDispatchCustomerRegistrationDeclinedEventCorrectLanguage(): void
+    {
+        $customerId = $this->createCustomer(true);
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $langId = $this->ids->get('langId');
+        $listener = static function (CustomerGroupRegistrationAccepted $event) use ($langId): void {
+            static::assertSame($langId, $event->getContext()->getLanguageId());
+        };
+        $dispatcher->addListener(CustomerGroupRegistrationAccepted::class, $listener);
+
+        $result = new CustomerGroupRegistrationActionController(
+            $this->customerRepository,
+            $dispatcher,
+            $this->getContainer()->get(SalesChannelContextService::class)
+        );
+        $request = new Request();
+        // will be remove customerId at version v6.5.0
+        $request->attributes->set('customerId', $customerId);
+        $request->attributes->set('customerIds', [$customerId]);
+
+        $response = $result->decline($request, $this->ids->context);
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+
+        $dispatcher->removeListener(CustomerGroupRegistrationAccepted::class, $listener);
+    }
+
     private function createFlow(?string $eventName = null): void
     {
         $sequenceId = Uuid::randomHex();
@@ -345,10 +401,16 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
 
+        $langId = $this->getContainer()->get(Connection::class)->fetchOne(
+            'SELECT LOWER(HEX(id)) FROM language WHERE name <> "English"'
+        );
+
+        $this->ids->set('langId', $langId);
         $this->customerRepository->create([
             array_merge([
                 'id' => $customerId,
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                'languageId' => $this->ids->get('langId'),
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'Max',

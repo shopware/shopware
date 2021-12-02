@@ -105,6 +105,14 @@ Component.register('sw-profile-index-search-preferences', {
             return this.$tc(module?.manifest.title);
         },
 
+        onChangeSearchPreference(searchPreference) {
+            if (searchPreference._searchable && searchPreference.fields.every((field) => !field._searchable)) {
+                searchPreference.fields.forEach((field) => {
+                    field._searchable = true;
+                });
+            }
+        },
+
         onSelect(event) {
             this.searchPreferences.forEach((searchPreference) => {
                 searchPreference._searchable = event;

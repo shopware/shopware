@@ -184,9 +184,20 @@ class ProductBuilder
         return $this;
     }
 
-    public function prices(string $ruleKey, float $gross, string $currencyKey = 'default', ?float $net = null, int $start = 1, bool $valid = false): self
+    public function prices(string $ruleKey, float $gross, string $currencyKey = 'default', ?float $net = null, int $start = 1, bool $valid = false, ?float $listPriceGross = null, ?float $listPriceNet = null): self
     {
         $net = $net ?? $gross / 115 * 100;
+
+        $listPrice = null;
+        if ($listPriceGross !== null) {
+            $listPriceNet = $listPriceNet ?? $listPriceGross / 115 * 100;
+
+            $listPrice = [
+                'gross' => $listPriceGross,
+                'net' => $listPriceNet,
+                'linked' => false,
+            ];
+        }
 
         $ruleId = $this->ids->create($ruleKey);
 
@@ -201,6 +212,10 @@ class ProductBuilder
 
             $raw = ['gross' => $gross, 'net' => $net, 'linked' => false];
 
+            if ($listPrice !== null) {
+                $raw['listPrice'] = $listPrice;
+            }
+
             $price['price'][] = $this->buildCurrencyPrice($currencyKey, $raw);
 
             return $this;
@@ -209,6 +224,10 @@ class ProductBuilder
         unset($price);
 
         $price = ['gross' => $gross, 'net' => $net, 'linked' => false];
+
+        if ($listPrice !== null) {
+            $price['listPrice'] = $listPrice;
+        }
 
         $this->prices[] = [
             'quantityStart' => $start,

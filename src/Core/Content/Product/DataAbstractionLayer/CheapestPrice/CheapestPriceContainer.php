@@ -108,6 +108,14 @@ class CheapestPriceContainer extends Struct
 
                 $price->setListPrice($list);
             }
+
+            if (isset($row['percentage'])) {
+                $price->setPercentage([
+                    'gross' => $row['percentage']['gross'],
+                    'net' => $row['percentage']['net'],
+                ]);
+            }
+
             $prices[] = $price;
         }
 

@@ -124,6 +124,13 @@ class CheapestPriceUpdater
             ];
         }
 
+        if (isset($price['percentage'])) {
+            $array['percentage'] = [
+                'gross' => $price['percentage']['gross'],
+                'net' => $price['percentage']['net'],
+            ];
+        }
+
         return $array;
     }
 

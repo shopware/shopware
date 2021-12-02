@@ -20,12 +20,31 @@ class CheapestPriceAccessorBuilder implements FieldAccessorBuilderInterface
         $keys = $context->getRuleIds();
         $keys[] = 'default';
 
-        $taxMode = 'net';
+        $jsonAccessor = 'net';
         if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
-            $taxMode = 'gross';
+            $jsonAccessor = 'gross';
         }
 
-        $template = '(JSON_UNQUOTE(JSON_EXTRACT(`#root#`.`#field#`, "$.#rule_key#.#currency_key#.#tax_mode#")) * #factor#)';
+        $parts = explode('.', $accessor);
+
+        // is tax state explicitly requested? => overwrite selector
+        if (\in_array(end($parts), ['net', 'gross'], true)) {
+            $jsonAccessor = end($parts);
+            array_pop($parts);
+        }
+
+        // filter / search / sort for list prices? => extend selector
+        if (end($parts) === 'listPrice') {
+            $jsonAccessor = 'listPrice.' . $jsonAccessor;
+            array_pop($parts);
+        }
+
+        if (end($parts) === 'percentage') {
+            $jsonAccessor = 'percentage.' . $jsonAccessor;
+            array_pop($parts);
+        }
+
+        $template = '(JSON_UNQUOTE(JSON_EXTRACT(`#root#`.`#field#`, "$.#rule_key#.#currency_key#.#property#")) * #factor#)';
         $variables = [
             '#template#' => $template,
             '#decimals#' => $context->getRounding()->getDecimals(),
@@ -51,7 +70,7 @@ class CheapestPriceAccessorBuilder implements FieldAccessorBuilderInterface
                 '#field#' => 'cheapest_price_accessor',
                 '#rule_key#' => 'rule' . $ruleId,
                 '#currency_key#' => 'currency' . $context->getCurrencyId(),
-                '#tax_mode#' => $taxMode,
+                '#property#' => $jsonAccessor,
                 '#factor#' => 1,
                 '#multiplier#' => $multiplier,
             ];
@@ -71,7 +90,7 @@ class CheapestPriceAccessorBuilder implements FieldAccessorBuilderInterface
                 '#field#' => 'cheapest_price_accessor',
                 '#rule_key#' => 'rule' . $ruleId,
                 '#currency_key#' => 'currency' . Defaults::CURRENCY,
-                '#tax_mode#' => $taxMode,
+                '#property#' => $jsonAccessor,
                 '#factor#' => $context->getCurrencyFactor(),
                 '#multiplier#' => $multiplier,
             ];

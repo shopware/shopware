@@ -108,7 +108,7 @@ class CheapestPriceTest extends TestCase
             $products = [
                 // no rule = 70€
                 (new ProductBuilder($ids, 'p.1'))
-                    ->price(70)
+                    ->price(70, null, 'default', 77)
                     ->price(99, null, 'currency')
                     ->visibility(TestDefaults::SALES_CHANNEL)
                     ->build(),
@@ -156,7 +156,7 @@ class CheapestPriceTest extends TestCase
                     )
                     ->variant(
                         (new ProductBuilder($ids, 'v.4.2'))
-                            ->price(70)
+                            ->price(70, null, 'default', 77)
                             ->price(101, null, 'currency')
                             ->build()
                     )
@@ -165,8 +165,8 @@ class CheapestPriceTest extends TestCase
                 // no rule = 110€  ||  rule-a = 130€
                 (new ProductBuilder($ids, 'p.5'))
                     ->price(110)
-                    ->prices('rule-a', 130)
-                    ->prices('rule-a', 120, 'default', null, 3)
+                    ->prices('rule-a', 130, 'default')
+                    ->prices('rule-a', 120, 'default', null, 3, false, 150)
                     ->visibility(TestDefaults::SALES_CHANNEL)
                     ->build(),
 
@@ -181,7 +181,7 @@ class CheapestPriceTest extends TestCase
                     ->variant(
                         (new ProductBuilder($ids, 'v.6.1'))
                             ->prices('rule-a', 140)
-                            ->prices('rule-a', 130, 'default', null, 3)
+                            ->prices('rule-a', 130, 'default', null, 3, false, 162)
                             ->prices('rule-a', 188, 'currency')
                             ->prices('rule-a', 177, 'currency', null, 3)
                             ->build()
@@ -297,7 +297,7 @@ class CheapestPriceTest extends TestCase
                             ->prices('rule-a', 210)
                             ->prices('rule-a', 200, 'default', null, 3)
                             ->prices('rule-b', 200)
-                            ->prices('rule-b', 190, 'default', null, 3)
+                            ->prices('rule-b', 190, 'default', null, 3, false, 271)
                             ->build()
                     )
                     ->build(),
@@ -317,7 +317,7 @@ class CheapestPriceTest extends TestCase
                             ->prices('rule-a', 220)
                             ->prices('rule-a', 210, 'default', null, 3)
                             ->prices('rule-b', 210)
-                            ->prices('rule-b', 200, 'default', null, 3)
+                            ->prices('rule-b', 200, 'default', null, 3, false, 285)
                             ->build()
                     )
                     ->build(),
@@ -513,6 +513,48 @@ class CheapestPriceTest extends TestCase
     /**
      * @depends testIndexing
      */
+    public function testFilterPercentage(IdsCollection $ids): void
+    {
+        try {
+            $cases = $this->providerFilterPercentage();
+
+            $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+                ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+
+            foreach ($cases as $message => $case) {
+                $criteria = new Criteria(array_values($ids->all()));
+
+                $criteria->addFilter(
+                    new RangeFilter('product.cheapestPrice.percentage', [
+                        RangeFilter::GTE => (float) $case['from'],
+                        RangeFilter::LTE => (float) $case['to'],
+                    ])
+                );
+
+                $context->setRuleIds([]);
+                if (isset($case['rules'])) {
+                    $context->setRuleIds($ids->getList($case['rules']));
+                }
+
+                $result = $this->getContainer()->get('sales_channel.product.repository')
+                    ->searchIds($criteria, $context);
+
+                static::assertCount(\count($case['expected']), $result->getIds(), $message . ' failed');
+
+                foreach ($case['expected'] as $key) {
+                    static::assertTrue($result->has($ids->get($key)), sprintf('Missing id %s in case `%s`', $key, $message));
+                }
+            }
+        } catch (\Exception $e) {
+            static::tearDown();
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @depends testIndexing
+     */
     public function testFilterPrice(IdsCollection $ids): void
     {
         try {
@@ -634,6 +676,15 @@ class CheapestPriceTest extends TestCase
             'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.2', 'v.10.2', 'v.7.1', 'v.10.1', 'v.8.1', 'v.9.1', 'v.9.2', 'v.8.2', 'v.12.1', 'v.14.1', 'v.14.2', 'v.11.1', 'v.11.2', 'v.12.2', 'v.13.1', 'v.13.2'],
             'rules' => ['rule-b', 'rule-a'],
         ];
+    }
+
+    public function providerFilterPercentage()
+    {
+        yield 'Test 10% filter without rule' => ['from' => 9, 'to' => 10, 'expected' => ['p.1', 'v.4.2']];
+        yield 'Test 20% filter with rule-a' => ['rules' => ['rule-a'], 'from' => 19, 'to' => 20, 'expected' => ['p.5', 'v.6.1']];
+        yield 'Test 30% filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 29, 'to' => 30, 'expected' => ['v.12.2', 'v.13.2']];
+        yield 'Test 30% filter with rule b+a' => ['rules' => ['rule-b'], 'from' => 29, 'to' => 30, 'expected' => ['v.12.2', 'v.13.2']];
+        yield 'Test 30% filter with rule a and empty result' => ['rules' => ['rule-a'], 'from' => 29, 'to' => 30, 'expected' => []];
     }
 
     public function providerFilterPrice()

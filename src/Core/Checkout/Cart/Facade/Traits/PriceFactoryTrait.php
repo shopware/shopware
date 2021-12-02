@@ -10,13 +10,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
  */
 trait PriceFactoryTrait
 {
-    protected CartFacadeHelper $services;
+    protected CartFacadeHelper $helper;
 
     /**
      * @public-api used for app scripting
      */
     public function create(array $price): PriceCollection
     {
-        return $this->services->price($price);
+        return $this->helper->price($price);
     }
 }

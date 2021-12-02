@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart\Facade\Traits;
 use Shopware\Core\Checkout\Cart\Facade\DiscountFacade;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CurrencyPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
@@ -55,7 +56,7 @@ trait SurchargeTrait
 
             return new PercentagePriceDefinition(abs($value));
         }
-        if ($type !== 'absolute') {
+        if ($type !== AbsolutePriceDefinition::TYPE) {
             throw new \RuntimeException(sprintf('Discount type %s not supported', $type));
         }
         if (!$value instanceof PriceCollection) {

@@ -5,16 +5,22 @@ namespace Shopware\Core\Checkout\Cart\Facade;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsCountTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsGetTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsHasTrait;
+use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsIteratorTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsRemoveTrait;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class ProductsFacade
+/**
+ * @implements \IteratorAggregate<array-key, \Shopware\Core\Checkout\Cart\LineItem\LineItem>
+ */
+class ProductsFacade implements \IteratorAggregate
 {
     use ItemsGetTrait {
         ItemsGetTrait::get as private _get;
     }
 
+    use ItemsIteratorTrait;
     use ItemsRemoveTrait;
     use ItemsHasTrait;
     use ItemsCountTrait;
@@ -22,10 +28,11 @@ class ProductsFacade
     /**
      * @internal
      */
-    public function __construct(LineItemCollection $items, CartFacadeHelper $services)
+    public function __construct(LineItemCollection $items, CartFacadeHelper $helper, SalesChannelContext $context)
     {
         $this->items = $items;
-        $this->services = $services;
+        $this->helper = $helper;
+        $this->context = $context;
     }
 
     public function get(string $productId): ?ItemFacade
@@ -60,7 +67,7 @@ class ProductsFacade
             return $this->get($product->getId());
         }
 
-        $product = $this->services->product($product, $quantity);
+        $product = $this->helper->product($product, $quantity, $this->context);
 
         $this->items->add($product);
 
@@ -69,9 +76,9 @@ class ProductsFacade
 
     public function create(string $productId, int $quantity = 1): ?ItemFacade
     {
-        $product = $this->services->product($productId, $quantity);
+        $product = $this->helper->product($productId, $quantity, $this->context);
 
-        return new ItemFacade($product, $this->services);
+        return new ItemFacade($product, $this->helper, $this->context);
     }
 
     protected function getItems(): LineItemCollection

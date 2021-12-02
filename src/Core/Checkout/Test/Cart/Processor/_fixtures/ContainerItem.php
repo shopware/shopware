@@ -15,5 +15,6 @@ class ContainerItem extends LineItem
         $this->children = new LineItemCollection($items);
 
         $this->removable = true;
+        $this->good = true;
     }
 }

@@ -15,11 +15,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class CartFacadeHelper
 {
     private LineItemFactoryRegistry $factory;
-
-    private SalesChannelContext $context;
 
     private Processor $processor;
 
@@ -37,15 +38,7 @@ class CartFacadeHelper
         $this->connection = $connection;
     }
 
-    /**
-     * @internal
-     */
-    public function setContext(SalesChannelContext $context): void
-    {
-        $this->context = $context;
-    }
-
-    public function product(string $productId, int $quantity): LineItem
+    public function product(string $productId, int $quantity, SalesChannelContext $context): LineItem
     {
         $data = [
             'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
@@ -54,17 +47,17 @@ class CartFacadeHelper
             'quantity' => $quantity,
         ];
 
-        return $this->factory->create($data, $this->context);
+        return $this->factory->create($data, $context);
     }
 
-    public function calculate(Cart $cart, CartBehavior $behavior): Cart
+    public function calculate(Cart $cart, CartBehavior $behavior, SalesChannelContext $context): Cart
     {
-        return $this->processor->process($cart, $this->context, $behavior);
+        return $this->processor->process($cart, $context, $behavior);
     }
 
     /**
      * // script value (only use case: shop owner defines a script)
-     * set price = services.price.create({
+     * set price = services.cart.price.create({
      *      'default': { gross: 100, net: 84.03},
      *      'USD': { gross: 59.5 net: 50 }
      * });

@@ -13,11 +13,11 @@ use Shopware\Core\Framework\Script\Execution\Script;
  */
 class CartFacadeHookFactory extends HookServiceFactory
 {
-    private CartFacadeHelper $services;
+    private CartFacadeHelper $helper;
 
-    public function __construct(CartFacadeHelper $services)
+    public function __construct(CartFacadeHelper $helper)
     {
-        $this->services = $services;
+        $this->helper = $helper;
     }
 
     public function factory(Hook $hook, Script $script): CartFacade
@@ -26,9 +26,7 @@ class CartFacadeHookFactory extends HookServiceFactory
             throw new HookInjectionException($hook, self::class, CartAware::class);
         }
 
-        $this->services->setContext($hook->getSalesChannelContext());
-
-        return new CartFacade($this->services, $hook->getCart());
+        return new CartFacade($this->helper, $hook->getCart(), $hook->getSalesChannelContext());
     }
 
     /**

@@ -177,6 +177,9 @@ parameters:
         -
             message: '#Constructor of class Shopware\\Core\\System\\SalesChannel\\Exception\\LanguageOfSalesChannelDomainDeleteException has an unused parameter \$language\.#'
             path: src/Core/System/SalesChannel/Exception/LanguageOfSalesChannelDomainDeleteException.php
+        -
+            message: '#Method Shopware\\Core\\Checkout\\Cart\\Facade\\.*::getIterator\(\) return type with generic class ArrayIterator does not specify its types: TKey, TValue#'
+            path: src/Core/Checkout/Cart/Facade/Traits/ItemsIteratorTrait.php
 
         # can be removed with feature flag FEATURE_NEXT_6040
         -

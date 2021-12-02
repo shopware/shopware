@@ -4,8 +4,10 @@ namespace Shopware\Core\Checkout\Test\Cart\Facade;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Facade\CartFacade;
 use Shopware\Core\Checkout\Cart\Facade\CartFacadeHookFactory;
+use Shopware\Core\Checkout\Cart\Facade\ContainerFacade;
 use Shopware\Core\Checkout\Cart\Facade\ItemFacade;
 use Shopware\Core\Checkout\Cart\Facade\ItemsFacade;
 use Shopware\Core\Checkout\Cart\Facade\PriceFacade;
@@ -59,7 +61,7 @@ class CartFacadeTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
 
-        $hook = new CartHook(new Cart('test', 'test'), $context);
+        $hook = new CartHook(self::createCart(), $context);
 
         $service = $this->getContainer()->get(CartFacadeHookFactory::class)
             ->factory($hook, $this->script);
@@ -80,24 +82,32 @@ class CartFacadeTest extends TestCase
         static::assertEquals(LineItem::PRODUCT_LINE_ITEM_TYPE, $item->getType());
     }
 
-    public function testContainer()
+    public function testContainer(): void
     {
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
 
-        $hook = new CartHook(new Cart('test', 'test'), $context);
+        $hook = new CartHook(self::createCart(), $context);
 
         $service = $this->getContainer()->get(CartFacadeHookFactory::class)
             ->factory($hook, $this->script);
 
         $id = $this->ids->get('p1');
 
-        $service->products()->add($id, 10);
+        $product = $service->products()->add($id, 10);
 
         $container = $service->container('my-container');
 
-        $container->add($service->products()->get($id)->take(1));
-        $container->add($service->products()->get($id)->take(1));
+        static::assertInstanceOf(ItemFacade::class, $product);
+        static::assertInstanceOf(ContainerFacade::class, $container);
+
+        $split = $product->take(1);
+        static::assertInstanceOf(ItemFacade::class, $split);
+        $container->add($split);
+
+        $split = $product->take(1);
+        static::assertInstanceOf(ItemFacade::class, $split);
+        $container->add($split);
         $container->discount('my-discount', 'percentage', -10, 'Fanzy discount');
 
         $surcharge = new PriceCollection([new Price(Defaults::CURRENCY, 2, 2, false)]);
@@ -107,8 +117,10 @@ class CartFacadeTest extends TestCase
         $service->calculate();
 
         static::assertTrue($service->has('my-container'));
-
         $container = $service->get('my-container');
+
+        static::assertInstanceOf(ItemFacade::class, $container);
+        static::assertInstanceOf(PriceFacade::class, $container->getPrice());
         static::assertEquals(182, $container->getPrice()->getTotal());
     }
 
@@ -117,7 +129,7 @@ class CartFacadeTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
 
-        $hook = new CartHook(new Cart('test', 'test'), $context);
+        $hook = new CartHook(self::createCart(), $context);
         $cart = $this->getContainer()->get(CartFacadeHookFactory::class)->factory($hook, $this->script);
 
         $item = $cart->products()->add($this->ids->get('p1'));
@@ -196,11 +208,27 @@ class CartFacadeTest extends TestCase
             ],
         ];
 
+        yield 'Add simple surcharge' => [
+            'add-simple-surcharge',
+            [
+                'p1' => new ExpectedPrice(100),
+                'surcharge' => new ExpectedPrice(10),
+            ],
+        ];
+
         yield 'Add discount for stacked items' => [
             'add-discount-for-stacked-items',
             [
                 'p1' => new ExpectedPrice(100, 300),
                 'discount' => new ExpectedPrice(-30),
+            ],
+        ];
+
+        yield 'Add surcharge for stacked items' => [
+            'add-surcharge-for-stacked-items',
+            [
+                'p1' => new ExpectedPrice(100, 300),
+                'surcharge' => new ExpectedPrice(30),
             ],
         ];
 
@@ -213,11 +241,28 @@ class CartFacadeTest extends TestCase
             ],
         ];
 
+        yield 'Add surcharge for multiple items' => [
+            'add-surcharge-for-multiple-items',
+            [
+                'p1' => new ExpectedPrice(100),
+                'v2.1' => new ExpectedPrice(100),
+                'surcharge' => new ExpectedPrice(20),
+            ],
+        ];
+
         yield 'Add absolute discount' => [
             'add-absolute-discount',
             [
                 'p1' => new ExpectedPrice(100),
                 'discount' => new ExpectedPrice(-19.99),
+            ],
+        ];
+
+        yield 'Add absolute surcharge' => [
+            'add-absolute-surcharge',
+            [
+                'p1' => new ExpectedPrice(100),
+                'surcharge' => new ExpectedPrice(19.99),
             ],
         ];
 
@@ -296,6 +341,14 @@ class CartFacadeTest extends TestCase
         ];
     }
 
+    private static function createCart(): Cart
+    {
+        $cart = new Cart('test', 'test');
+        $cart->setBehavior(new CartBehavior());
+
+        return $cart;
+    }
+
     /**
      * @param ItemsFacade|CartFacade|LineItemCollection $scope
      */
@@ -338,7 +391,7 @@ class CartFacadeTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
 
-        $cart = new Cart(Uuid::randomHex(), 'test');
+        $cart = self::createCart();
 
         $data['ids'] = $ids;
 

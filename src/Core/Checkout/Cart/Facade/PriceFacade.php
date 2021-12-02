@@ -14,10 +14,10 @@ class PriceFacade
     /**
      * @internal
      */
-    public function __construct(CalculatedPrice $price, CartFacadeHelper $services)
+    public function __construct(CalculatedPrice $price, CartFacadeHelper $helper)
     {
         $this->price = $price;
-        $this->services = $services;
+        $this->helper = $helper;
     }
 
     public function getTotal(): float

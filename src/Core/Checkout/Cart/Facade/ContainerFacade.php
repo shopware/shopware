@@ -6,9 +6,9 @@ use Shopware\Core\Checkout\Cart\Facade\Traits\DiscountTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsCountTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsGetTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsHasTrait;
+use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsIteratorTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsRemoveTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\SurchargeTrait;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 
 class ContainerFacade extends ItemFacade
@@ -19,12 +19,11 @@ class ContainerFacade extends ItemFacade
     use ItemsRemoveTrait;
     use ItemsHasTrait;
     use ItemsCountTrait;
-
-    protected LineItem $item;
+    use ItemsIteratorTrait;
 
     public function products(): ProductsFacade
     {
-        return new ProductsFacade($this->item->getChildren(), $this->services);
+        return new ProductsFacade($this->item->getChildren(), $this->helper, $this->context);
     }
 
     public function add(ItemFacade $item): ?ItemFacade

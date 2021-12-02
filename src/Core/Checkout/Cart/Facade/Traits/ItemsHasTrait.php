@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Facade\Traits;
 
+use Shopware\Core\Checkout\Cart\Facade\ItemFacade;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 
 /**
@@ -12,11 +13,36 @@ trait ItemsHasTrait
     protected LineItemCollection $items;
 
     /**
-     * @public-api used for app scripting
+     * @param string|ItemFacade $id
      */
-    public function has(string $id): bool
+    public function has($id): bool
     {
-        return $this->getItems()->has($id);
+        if (\is_string($id)) {
+            return $this->getItems()->has($id);
+        }
+        if (!$id instanceof ItemFacade) {
+            return false;
+        }
+
+        if ($this->getItems()->has($id->getId())) {
+            return true;
+        }
+
+        foreach ($this->getItems() as $item) {
+            if ($item->getType() !== $id->getType()) {
+                continue;
+            }
+            if ($item->getId() === $id->getId()) {
+                return true;
+            }
+
+            // same type and same reference id
+            if ($item->getReferencedId() === $id->getReferencedId()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

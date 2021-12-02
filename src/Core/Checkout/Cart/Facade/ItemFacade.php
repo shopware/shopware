@@ -5,26 +5,30 @@ namespace Shopware\Core\Checkout\Cart\Facade;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Script\Service\ArrayFacade;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ItemFacade
 {
     protected LineItem $item;
 
-    protected CartFacadeHelper $services;
+    protected CartFacadeHelper $helper;
+
+    protected SalesChannelContext $context;
 
     /**
      * @internal
      */
-    public function __construct(LineItem $item, CartFacadeHelper $services)
+    public function __construct(LineItem $item, CartFacadeHelper $helper, SalesChannelContext $context)
     {
         $this->item = $item;
-        $this->services = $services;
+        $this->helper = $helper;
+        $this->context = $context;
     }
 
     public function getPrice(): ?PriceFacade
     {
         if ($this->item->getPrice()) {
-            return new PriceFacade($this->item->getPrice(), $this->services);
+            return new PriceFacade($this->item->getPrice(), $this->helper);
         }
 
         return null;
@@ -48,7 +52,7 @@ class ItemFacade
             $this->item->getQuantity() - $quantity
         );
 
-        return new ItemFacade($new, $this->services);
+        return new ItemFacade($new, $this->helper, $this->context);
     }
 
     public function getId(): string
@@ -74,7 +78,7 @@ class ItemFacade
     public function getPayload(): ArrayFacade
     {
         return new ArrayFacade(
-            $this->item->getPayloadByReference(),
+            $this->item->getPayload(),
             function (array $payload): void {
                 $this->item->setPayload($payload);
             }
@@ -83,7 +87,7 @@ class ItemFacade
 
     public function getChildren(): ItemsFacade
     {
-        return new ItemsFacade($this->item->getChildren(), $this->services);
+        return new ItemsFacade($this->item->getChildren(), $this->helper, $this->context);
     }
 
     public function getType(): string

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem;
 
-use Doctrine\Common\Annotations\Annotation\Required;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartValidatorInterface;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;

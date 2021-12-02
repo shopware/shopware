@@ -317,6 +317,9 @@ class OrderConverter
 
         $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $order->getSalesChannelId(), $options);
         $salesChannelContext->getContext()->addExtensions($context->getExtensions());
+        foreach ($context->getStates() as $state) {
+            $salesChannelContext->addState($state);
+        }
 
         if ($context->hasState(Context::SKIP_TRIGGER_FLOW)) {
             $salesChannelContext->getContext()->addState(Context::SKIP_TRIGGER_FLOW);

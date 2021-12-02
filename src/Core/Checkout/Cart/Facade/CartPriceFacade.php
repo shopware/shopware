@@ -14,33 +14,33 @@ class CartPriceFacade
     /**
      * @internal
      */
-    public function __construct(CartPrice $price, CartFacadeHelper $services)
+    public function __construct(CartPrice $price, CartFacadeHelper $helper)
     {
         $this->price = $price;
-        $this->services = $services;
+        $this->helper = $helper;
     }
 
-    public function net(): float
+    public function getNet(): float
     {
         return $this->price->getNetPrice();
     }
 
-    public function total(): float
+    public function getTotal(): float
     {
         return $this->price->getTotalPrice();
     }
 
-    public function position(): float
+    public function getPosition(): float
     {
         return $this->price->getPositionPrice();
     }
 
-    public function rounded(): float
+    public function getRounded(): float
     {
-        return $this->total();
+        return $this->getTotal();
     }
 
-    public function raw(): float
+    public function getRaw(): float
     {
         return $this->price->getRawTotal();
     }

@@ -6,24 +6,31 @@ use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsAddTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsCountTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsGetTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsHasTrait;
+use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsIteratorTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsRemoveTrait;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class ItemsFacade
+/**
+ * @implements \IteratorAggregate<array-key, \Shopware\Core\Checkout\Cart\LineItem\LineItem>
+ */
+class ItemsFacade implements \IteratorAggregate
 {
     use ItemsAddTrait;
     use ItemsHasTrait;
     use ItemsRemoveTrait;
     use ItemsCountTrait;
     use ItemsGetTrait;
+    use ItemsIteratorTrait;
 
     /**
      * @internal
      */
-    public function __construct(LineItemCollection $items, CartFacadeHelper $services)
+    public function __construct(LineItemCollection $items, CartFacadeHelper $helper, SalesChannelContext $context)
     {
         $this->items = $items;
-        $this->services = $services;
+        $this->helper = $helper;
+        $this->context = $context;
     }
 
     protected function getItems(): LineItemCollection

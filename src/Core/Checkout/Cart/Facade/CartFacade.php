@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsHasTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsRemoveTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\SurchargeTrait;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CartFacade
 {
@@ -27,42 +28,43 @@ class CartFacade
     /**
      * @internal
      */
-    public function __construct(CartFacadeHelper $services, Cart $cart)
+    public function __construct(CartFacadeHelper $helper, Cart $cart, SalesChannelContext $context)
     {
-        $this->services = $services;
+        $this->helper = $helper;
         $this->cart = $cart;
+        $this->context = $context;
     }
 
     public function items(): ItemsFacade
     {
-        return new ItemsFacade($this->cart->getLineItems(), $this->services);
+        return new ItemsFacade($this->cart->getLineItems(), $this->helper, $this->context);
     }
 
     public function products(): ProductsFacade
     {
-        return new ProductsFacade($this->cart->getLineItems(), $this->services);
+        return new ProductsFacade($this->cart->getLineItems(), $this->helper, $this->context);
     }
 
     public function calculate(): void
     {
-        $this->cart = $this->cart->getBehavior()->disableHooks(function () {
-            return $this->services->calculate($this->cart, $this->cart->getBehavior());
+        $behavior = $this->cart->getBehavior();
+        if (!$behavior) {
+            throw new \LogicException('Cart behavior missing. The instanced cart was never calculated');
+        }
+
+        $this->cart = $behavior->disableHooks(function () use ($behavior) {
+            return $this->helper->calculate($this->cart, $behavior, $this->context);
         });
     }
 
     public function price(): CartPriceFacade
     {
-        return new CartPriceFacade($this->cart->getPrice(), $this->services);
+        return new CartPriceFacade($this->cart->getPrice(), $this->helper);
     }
 
     public function errors(): ErrorsFacade
     {
         return new ErrorsFacade($this->cart->getErrors());
-    }
-
-    public function cart()
-    {
-        return $this->cart;
     }
 
     protected function getItems(): LineItemCollection

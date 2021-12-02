@@ -6,9 +6,12 @@ use Shopware\Core\Checkout\Cart\Error\CartError;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 
-class ErrorsFacade
+/**
+ * @implements \IteratorAggregate<array-key, \Shopware\Core\Checkout\Cart\Error\Error>
+ */
+class ErrorsFacade implements \IteratorAggregate
 {
-    protected ErrorCollection $collection;
+    private ErrorCollection $collection;
 
     public function __construct(ErrorCollection $collection)
     {
@@ -43,6 +46,11 @@ class ErrorsFacade
     public function get(string $key): ?Error
     {
         return $this->collection->get($key);
+    }
+
+    public function getIterator(): \Traversable
+    {
+        yield from $this->collection;
     }
 
     private function createError(string $key, bool $block, array $parameters, int $level, ?string $id = null): void

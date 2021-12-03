@@ -99,7 +99,7 @@ class AccountOrderController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @LoginRequired()
+     * @LoginRequired(allowGuest=true)
      * @Route("/account/order", name="frontend.account.order.page", options={"seo"="false"}, methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true})
      * @NoStore
      *

@@ -42,6 +42,7 @@ import FlyoutMenuPlugin from 'src/plugin/main-menu/flyout-menu.plugin';
 import OffcanvasMenuPlugin from 'src/plugin/main-menu/offcanvas-menu.plugin';
 import FormAutoSubmitPlugin from 'src/plugin/forms/form-auto-submit.plugin';
 import FormAjaxSubmitPlugin from 'src/plugin/forms/form-ajax-submit.plugin';
+import FormAddHistoryPlugin from 'src/plugin/forms/form-add-history.plugin';
 import FormPreserverPlugin from 'src/plugin/forms/form-preserver.plugin';
 import FormValidationPlugin from 'src/plugin/forms/form-validation.plugin';
 import FormSubmitLoaderPlugin from 'src/plugin/forms/form-submit-loader.plugin';
@@ -128,6 +129,7 @@ PluginManager.register('FormSubmitLoader', FormSubmitLoaderPlugin, '[data-form-s
 PluginManager.register('FormFieldToggle', FormFieldTogglePlugin, '[data-form-field-toggle]');
 PluginManager.register('FormAutoSubmit', FormAutoSubmitPlugin, '[data-form-auto-submit]');
 PluginManager.register('FormAjaxSubmit', FormAjaxSubmitPlugin, '[data-form-ajax-submit]');
+PluginManager.register('FormAddHistory', FormAddHistoryPlugin, '[data-form-add-history]');
 PluginManager.register('FormPreserver', FormPreserverPlugin, '[data-form-preserver]');
 PluginManager.register('AccountMenu', AccountMenuPlugin, '[data-offcanvas-account-menu]');
 PluginManager.register('OffCanvasTabs', OffCanvasTabsPlugin, '[data-offcanvas-tabs]');

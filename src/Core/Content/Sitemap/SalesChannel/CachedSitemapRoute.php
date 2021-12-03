@@ -103,7 +103,7 @@ class CachedSitemapRoute extends AbstractSitemapRoute
             return $this->getDecorated()->load($request, $context);
         }
 
-        $strategy = $this->config->getInt('core.sitemap.sitemapRefreshStrategy');
+        $strategy = $this->config->getInt('core.sitemap.sitemapRefreshStrategy', $context->getSalesChannelId());
         if ($strategy === SitemapExporterInterface::STRATEGY_LIVE) {
             $this->logger->info('cache-miss: ' . self::buildName($context->getSalesChannelId()));
 

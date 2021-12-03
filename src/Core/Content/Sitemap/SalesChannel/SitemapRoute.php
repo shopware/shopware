@@ -62,7 +62,7 @@ class SitemapRoute extends AbstractSitemapRoute
     {
         $sitemaps = $this->sitemapLister->getSitemaps($context);
 
-        if ($this->systemConfigService->getInt('core.sitemap.sitemapRefreshStrategy') !== SitemapExporterInterface::STRATEGY_LIVE) {
+        if ($this->systemConfigService->getInt('core.sitemap.sitemapRefreshStrategy', $context->getSalesChannelId()) !== SitemapExporterInterface::STRATEGY_LIVE) {
             return new SitemapRouteResponse(new SitemapCollection($sitemaps));
         }
 

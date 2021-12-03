@@ -57,84 +57,91 @@
                     v-else
                     class="sw-flow-sequence-action__action-list"
                 >
-                    {% block sw_flow_sequence_action_actions_item %}
-                    <li
-                        v-for="item in sequenceData"
-                        :key="item.id"
-                        class="sw-flow-sequence-action__action-item"
+                    {% block sw_flow_sequence_action_actions_transition_group %}
+                    <transition-group
+                        name="list"
+                        tag="div"
                     >
+                        {% block sw_flow_sequence_action_actions_item %}
+                        <li
+                            v-for="item in sequenceData"
+                            :key="item.id"
+                            class="sw-flow-sequence-action__action-item"
+                        >
 
-                        {% block sw_flow_sequence_action_actions_item_header %}
-                        <div class="sw-flow-sequence-action__action-header">
-                            {% block sw_flow_sequence_action_actions_item_name %}
-                            <div class="sw-flow-sequence-action__action-name">
-                                <sw-icon
-                                    :name="`${item.icon}`"
-                                    size="12px"
-                                    class="sw-icon-action"
-                                />
+                            {% block sw_flow_sequence_action_actions_item_header %}
+                            <div class="sw-flow-sequence-action__action-header">
+                                {% block sw_flow_sequence_action_actions_item_name %}
+                                <div class="sw-flow-sequence-action__action-name">
+                                    <sw-icon
+                                        :name="`${item.icon}`"
+                                        size="12px"
+                                        class="sw-icon-action"
+                                    />
 
-                                <h3>{{ item.label }}</h3>
+                                    <h3>{{ item.label }}</h3>
+                                </div>
+                                {% endblock %}
+
+                                {% block sw_flow_sequence_action_actions_item_context_button %}
+                                <sw-context-button
+                                    class="sw-flow-sequence-action__context-button"
+                                    :disabled="disabled"
+                                >
+                                    {% block sw_flow_sequence_action_actions_item_button_edit %}
+                                    <sw-context-menu-item
+                                        v-if="isNotStopFlow(item)"
+                                        class="sw-flow-sequence-action__edit-action"
+                                        @click="onEditAction(item)"
+                                    >
+                                        {{ $tc('sw-flow.actions.contextButton.editAction') }}
+                                    </sw-context-menu-item>
+                                    {% endblock %}
+
+                                    {% block sw_flow_sequence_action_actions_item_button_delete %}
+                                    <sw-context-menu-item
+                                        variant="danger"
+                                        class="sw-flow-sequence-action__delete-action"
+                                        @click="removeAction(item.id)"
+                                    >
+                                        {{ $tc('sw-flow.actions.contextButton.deleteAction') }}
+                                    </sw-context-menu-item>
+                                    {% endblock %}
+
+                                    {% block sw_flow_sequence_action_actions_item_button_move_up %}
+                                    <sw-context-menu-item
+                                        v-if="showMoveOption(item, 'up')"
+                                        class="sw-flow-sequence-action__move-up"
+                                        @click="moveAction(item, 'up')"
+                                    >
+                                        {{ $tc('sw-flow.actions.contextButton.moveUpAction') }}
+                                    </sw-context-menu-item>
+                                    {% endblock %}
+
+                                    {% block sw_flow_sequence_action_actions_item_button_move_down %}
+                                    <sw-context-menu-item
+                                        v-if="showMoveOption(item, 'down')"
+                                        class="sw-flow-sequence-action__move-down"
+                                        @click="moveAction(item, 'down')"
+                                    >
+                                        {{ $tc('sw-flow.actions.contextButton.moveDownAction') }}
+                                    </sw-context-menu-item>
+                                    {% endblock %}
+                                </sw-context-button>
+                                {% endblock %}
                             </div>
                             {% endblock %}
 
-                            {% block sw_flow_sequence_action_actions_item_context_button %}
-                            <sw-context-button
-                                class="sw-flow-sequence-action__context-button"
-                                :disabled="disabled"
+                            {% block sw_flow_sequence_action_actions_item_description %}
+                            <div
+                                class="sw-flow-sequence-action__action-description"
+                                v-html="getActionDescription(item)"
                             >
-                                {% block sw_flow_sequence_action_actions_item_button_edit %}
-                                <sw-context-menu-item
-                                    v-if="isNotStopFlow(item)"
-                                    class="sw-flow-sequence-action__edit-action"
-                                    @click="onEditAction(item)"
-                                >
-                                    {{ $tc('sw-flow.actions.contextButton.editAction') }}
-                                </sw-context-menu-item>
-                                {% endblock %}
-
-                                {% block sw_flow_sequence_action_actions_item_button_delete %}
-                                <sw-context-menu-item
-                                    variant="danger"
-                                    class="sw-flow-sequence-action__delete-action"
-                                    @click="removeAction(item.id)"
-                                >
-                                    {{ $tc('sw-flow.actions.contextButton.deleteAction') }}
-                                </sw-context-menu-item>
-                                {% endblock %}
-
-                                {% block sw_flow_sequence_action_actions_item_button_move_up %}
-                                <sw-context-menu-item
-                                    v-if="showMoveOption(item, 'up')"
-                                    class="sw-flow-sequence-action__move-up"
-                                    @click="moveAction(item, 'up')"
-                                >
-                                    {{ $tc('sw-flow.actions.contextButton.moveUpAction') }}
-                                </sw-context-menu-item>
-                                {% endblock %}
-
-                                {% block sw_flow_sequence_action_actions_item_button_move_down %}
-                                <sw-context-menu-item
-                                    v-if="showMoveOption(item, 'down')"
-                                    class="sw-flow-sequence-action__move-down"
-                                    @click="moveAction(item, 'down')"
-                                >
-                                    {{ $tc('sw-flow.actions.contextButton.moveDownAction') }}
-                                </sw-context-menu-item>
-                                {% endblock %}
-                            </sw-context-button>
+                            </div>
                             {% endblock %}
-                        </div>
+                        </li>
                         {% endblock %}
-
-                        {% block sw_flow_sequence_action_actions_item_description %}
-                        <div
-                            class="sw-flow-sequence-action__action-description"
-                            v-html="getActionDescription(item)"
-                        >
-                        </div>
-                        {% endblock %}
-                    </li>
+                    </transition-group>
                     {% endblock %}
                 </ul>
                 {% endblock %}

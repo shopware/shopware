@@ -40,6 +40,12 @@ class ThemeCreateCommand extends Command
             $themeName = $this->getHelper('question')->ask($input, $output, $question);
         }
 
+        if (!ctype_upper($themeName[0])) {
+            $io->error('The name must start with an uppercase character');
+
+            return self::FAILURE;
+        }
+
         if (preg_match('/^[A-Za-z]\w{3,}$/', $themeName) !== 1) {
             $io->error('Theme name is too short (min 4 characters), contains invalid characters');
 

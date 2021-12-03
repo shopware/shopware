@@ -148,6 +148,7 @@
             "csvDescriptionBlock": "Separators and enclosure characters are used to indicate the separate field within the CSV file. Separators are used to split single fields, enclosure characters are used to group multiple fields.",
             "cancelLabel": "Cancel",
             "addMappingLabel": "Add new mapping",
+            "deleteMappingLabel": "Remove mapping",
             "downloadTemplateLabel": "Download template",
             "deleteLabel": "Delete profile",
             "systemDefaultInfoText": "You are viewing a system default profile which cannot be modified. You can either create a new profile or duplicate a system default profile.",

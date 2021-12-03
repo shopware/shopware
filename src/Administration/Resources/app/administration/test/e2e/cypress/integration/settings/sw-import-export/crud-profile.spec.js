@@ -41,49 +41,26 @@ describe('Import/Export - Profiles: Test crud operations', () => {
                 '.sw-import-export-edit-profile-general__type-select'
             );
 
+        // Set profile to update only
+        cy.get('.sw-import-export-edit-profile-import-settings__create-switch input').click();
+
         // Go to mapping page and add description mapping
         cy.get('.sw-import-export-new-profile-wizard__footer-right-button-group button').click();
-        cy.get('.sw-import-export-new-profile-wizard__footer-right-button-group button').contains('Skip CSV upload').click();
-        cy.get('.sw-import-export-edit-profile-modal-mapping__add-action').should('be.enabled').click();
-        cy.get('#mappedKey-0').type('description');
+
+        cy.get('.sw-import-export-new-profile-wizard__footer-right-button-group button')
+            .contains('Skip CSV upload')
+            .click();
+
+        cy.get('.sw-import-export-edit-profile-modal-mapping__add-action')
+            .should('be.enabled')
+            .click();
+
+        cy.get('#mappedKey-0').typeAndCheck('description');
         cy.get('.sw-import-export-entity-path-select__selection')
             .first().typeSingleSelectAndCheck(
             'description',
             '.sw-data-grid__row--0 .sw-import-export-entity-path-select:nth-of-type(1)'
         );
-
-        // Try to save
-        cy.get('.sw-import-export-new-profile-wizard__footer-right-button-group button').click();
-
-        // Expect violation modal
-        cy.get('.sw-import-export-new-profile-wizard__violation-modal').should('be.visible');
-        cy.get('.sw-import-export-new-profile-wizard__violation-modal li').should('have.length', 5);
-        cy.get('.sw-import-export-new-profile-wizard__violation-modal footer button').click();
-
-        // Set to only update
-        cy.get('.sw-modal footer button').contains('Back').click();
-        cy.get('.sw-modal footer button').contains('Back').click();
-        cy.get('.sw-import-export-edit-profile-import-settings__create-switch input').click();
-
-        // Go to mapping page and try to save
-        cy.get('.sw-import-export-new-profile-wizard__footer-right-button-group button').click();
-        cy.get('.sw-import-export-new-profile-wizard__footer-right-button-group button').contains('Skip CSV upload').click();
-        cy.get('.sw-import-export-new-profile-wizard__footer-right-button-group button').click();
-
-        // Expect violation modal
-        cy.get('.sw-import-export-new-profile-wizard__violation-modal').should('be.visible');
-        cy.get('.sw-import-export-new-profile-wizard__violation-modal li').should('have.length', 1);
-        cy.get('.sw-import-export-new-profile-wizard__violation-modal footer button').click();
-
-        // Add required id to mapping
-        cy.get('.sw-import-export-edit-profile-modal-mapping__add-action').click();
-        cy.get('#mappedKey-1').should('exist');
-        cy.get('#mappedKey-0').type('id');
-        cy.get('.sw-import-export-entity-path-select__selection').first()
-            .typeSingleSelectAndCheck(
-                'id',
-                '.sw-data-grid__row--0 .sw-import-export-entity-path-select:nth-of-type(1)'
-            );
 
         // Save the profile
         cy.get('.sw-import-export-new-profile-wizard__footer-right-button-group button').click();
@@ -130,6 +107,15 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         // skip csv upload in this test
         cy.contains(`${page.elements.importExportProfileWizard}__footer-right-button-group .sw-button`, 'Skip').click();
         cy.get(`${page.elements.importExportProfileWizard}-mapping-page__text`).should('be.visible');
+
+        // Check if required mapping have been filled out directly
+        cy.get('#mappedKey-0')
+            .should('be.visible')
+            .and('have.value', 'id')
+
+        cy.get('.sw-data-grid__row--0 .sw-import-export-entity-path-select__selection-text')
+            .should('be.visible')
+            .contains('id');
 
         // Fill in all required mappings (add mapping button should be enabled now)
         cy.get(page.elements.importExportAddMappingButton).should('be.enabled');

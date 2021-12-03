@@ -122,7 +122,10 @@ Shopware.Component.register('sw-import-export-new-profile-wizard', {
             }
 
             const parentMapping = parentProfile ? parentProfile.mapping : [];
-            const isOnlyUpdateProfile = this.profile.config.createEntities === false && this.profile.config.updateEntities === true;
+            const isOnlyUpdateProfile =
+                this.profile.config.createEntities === false &&
+                this.profile.config.updateEntities === true;
+
             const validationErrors = this.importExportProfileMapping.validate(
                 this.profile.sourceEntity,
                 this.profile.mapping,

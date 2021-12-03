@@ -139,7 +139,8 @@ class MappingServiceTest extends TestCase
 
         foreach ($data['expectedMappings'] as $mappedKey => $key) {
             $mapping = $guessedMapping->getMapped($mappedKey);
-            static::assertNotNull($mapping, $testCase);
+            static::assertNotNull($mapping);
+
             static::assertSame($mappedKey, $mapping->getMappedKey(), $testCase);
             static::assertSame($key, $mapping->getKey(), $testCase);
         }

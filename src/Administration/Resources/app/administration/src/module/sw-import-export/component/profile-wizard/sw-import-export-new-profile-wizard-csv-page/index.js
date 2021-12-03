@@ -48,10 +48,12 @@ Shopware.Component.register('sw-import-export-new-profile-wizard-csv-page', {
                 this.profile.delimiter,
                 this.profile.enclosure,
             ).then((mapping) => {
-                this.$set(this.profile, 'mapping', mapping);
+                const transformedMapping = this.transformMapping(mapping);
+
+                this.$set(this.profile, 'mapping', transformedMapping);
                 this.$emit('next-allow');
 
-                if (mapping.length === 1) {
+                if (transformedMapping.length === 1) {
                     this.createNotificationWarning({
                         message: this.$tc('sw-import-export.profile.messageCsvTemplateUploadWarning'),
                         duration: 10000,
@@ -70,6 +72,21 @@ Shopware.Component.register('sw-import-export-new-profile-wizard-csv-page', {
                 this.createNotificationError({
                     message,
                 });
+            });
+        },
+
+        /**
+         * Iterates over every mapping and only returns the key and mappedKey of that mapping.
+         * We do this to not populate the database with unnecessary data.
+         * @param mapping
+         * @returns {Array}
+         */
+        transformMapping(mapping) {
+            return mapping.map(currentMapping => {
+                return {
+                    key: currentMapping.key,
+                    mappedKey: currentMapping.mappedKey,
+                };
             });
         },
     },

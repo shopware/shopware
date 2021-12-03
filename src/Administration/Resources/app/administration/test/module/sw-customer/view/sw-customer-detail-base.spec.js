@@ -54,9 +54,10 @@ function createWrapper() {
             repositoryFactory: {
                 create: () => {
                     return {
-                        search: () => Promise.resolve(customFields)
+                        search: () => Promise.resolve(customFields),
+                        get: () => Promise.resolve({ id: '' })
                     };
-                }
+                },
             }
 
         },

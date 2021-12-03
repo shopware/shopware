@@ -116,6 +116,10 @@ function createConfig() {
 describe('module/sw-settings-newsletter/page/sw-settings-newsletter', () => {
     let wrapper;
 
+    beforeAll(() => {
+        global.repositoryFactoryMock.showError = false;
+    });
+
     beforeEach(() => {
         wrapper = createWrapper();
     });

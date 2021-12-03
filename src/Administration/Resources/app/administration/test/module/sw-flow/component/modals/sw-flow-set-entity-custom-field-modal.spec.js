@@ -71,6 +71,11 @@ function createWrapper(customField = customNormalField) {
                             [customField]
                         ) };
                     }
+
+                    if (entity === 'currency') {
+                        return { get: () => Promise.resolve({ id: '' }) };
+                    }
+
                     return { search: () => Promise.resolve() };
                 }
             }

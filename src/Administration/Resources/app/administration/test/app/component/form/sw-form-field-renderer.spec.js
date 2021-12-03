@@ -26,6 +26,7 @@ function createWrapper(additionalOptions = {}) {
 
 describe('components/form/sw-form-field-renderer', () => {
     beforeAll(() => {
+        global.repositoryFactoryMock.showError = false;
         global.activeFeatureFlags = ['FEATURE_NEXT_17973'];
     });
 

@@ -238,7 +238,10 @@ function createWrapper(productEntityOverride) {
             repositoryFactory: {
                 create: (entity) => {
                     if (entity === 'currency') {
-                        return { search: () => Promise.resolve([{ id: 'currencyId1', isSystemDefault: true }]) };
+                        return {
+                            search: () => Promise.resolve([{ id: 'currencyId1', isSystemDefault: true }]),
+                            get: () => Promise.resolve({ id: '' })
+                        };
                     }
 
                     if (entity === 'tax') {

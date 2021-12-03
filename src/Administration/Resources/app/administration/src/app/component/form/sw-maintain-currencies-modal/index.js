@@ -2,14 +2,19 @@ import template from './sw-maintain-currencies-modal.html.twig';
 import './sw-maintain-currencies-modal.scss';
 
 const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-maintain-currencies-modal', {
     template,
+    inject: ['repositoryFactory'],
 
     props: {
         currencies: {
             type: Array,
-            required: true,
+            default() {
+                return [];
+            },
+            required: false,
         },
 
         prices: {
@@ -43,6 +48,7 @@ Component.register('sw-maintain-currencies-modal', {
 
     data() {
         return {
+            currencyCollection: [],
             clonePrices: null,
         };
     },
@@ -70,18 +76,37 @@ Component.register('sw-maintain-currencies-modal', {
         },
     },
 
+    watch: {
+        currencies: function currenciesChanged() {
+            this.createdComponent();
+        },
+    },
+
     created() {
         this.createdComponent();
     },
 
     methods: {
         createdComponent() {
-            this.sortCurrencies();
+            if (this.currencies.length > 0) {
+                this.currencyCollection = this.currencies;
+                this.sortCurrencies();
+            } else {
+                this.loadCurrencies();
+            }
+
             this.clonePrices = Shopware.Utils.object.cloneDeep(this.prices);
         },
 
+        loadCurrencies() {
+            this.repositoryFactory.create('currency').search(new Criteria()).then(response => {
+                this.currencyCollection = response;
+                this.sortCurrencies();
+            });
+        },
+
         sortCurrencies() {
-            this.currencies.sort((a, b) => {
+            this.currencyCollection.sort((a, b) => {
                 if (a.isSystemDefault) {
                     return -1;
                 }
@@ -120,6 +145,8 @@ Component.register('sw-maintain-currencies-modal', {
             });
 
             this.$delete(this.prices, indexOfPrice);
+
+            this.createdComponent();
         },
 
         onInheritanceRemove(currency) {
@@ -142,6 +169,8 @@ Component.register('sw-maintain-currencies-modal', {
 
             // create new entry for currency in prices
             this.$set(this.prices, this.prices.length, price);
+
+            this.createdComponent();
         },
 
         onCancel() {

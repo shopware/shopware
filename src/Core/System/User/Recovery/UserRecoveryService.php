@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\User\Recovery;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -9,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\BusinessEventDispatcher;
 use Shopware\Core\Framework\Util\Random;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
@@ -37,16 +41,20 @@ class UserRecoveryService
      */
     private $dispatcher;
 
+    private SalesChannelContextServiceInterface $salesChannelContextService;
+
     public function __construct(
         EntityRepositoryInterface $userRecoveryRepo,
         EntityRepositoryInterface $userRepo,
         RouterInterface $router,
-        BusinessEventDispatcher $dispatcher
+        BusinessEventDispatcher $dispatcher,
+        SalesChannelContextServiceInterface $salesChannelContextService
     ) {
         $this->userRecoveryRepo = $userRecoveryRepo;
         $this->userRepo = $userRepo;
         $this->router = $router;
         $this->dispatcher = $dispatcher;
+        $this->salesChannelContextService = $salesChannelContextService;
     }
 
     public function generateUserRecovery(string $userEmail, Context $context): void
@@ -91,8 +99,20 @@ class UserRecoveryService
 
         $recoveryUrl = $url . '#/login/user-recovery/' . $hash;
 
+        $salesChannelContext = $this->salesChannelContextService->get(
+            new SalesChannelContextServiceParameters(
+                Defaults::SALES_CHANNEL,
+                Uuid::randomHex(),
+                $context->getLanguageId(),
+                null,
+                null,
+                $context,
+                null,
+            )
+        );
+
         $this->dispatcher->dispatch(
-            new UserRecoveryRequestEvent($recovery, $recoveryUrl, $context),
+            new UserRecoveryRequestEvent($recovery, $recoveryUrl, $salesChannelContext->getContext()),
             UserRecoveryRequestEvent::EVENT_NAME
         );
     }

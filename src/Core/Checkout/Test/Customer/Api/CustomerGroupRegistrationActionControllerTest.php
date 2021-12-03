@@ -3,8 +3,14 @@
 namespace Shopware\Core\Checkout\Test\Customer\Api;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted;
+use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
+use Shopware\Core\Content\Test\Flow\FlowActionTestSubscriber;
+use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -16,6 +22,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class CustomerGroupRegistrationActionControllerTest extends TestCase
@@ -35,10 +42,20 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
      */
     private $customerRepository;
 
+    private ?EntityRepositoryInterface $flowRepository;
+
+    private FlowActionTestSubscriber $flowActionTestSubscriber;
+
+    private ?EventDispatcherInterface $dispatcher;
+
     public function setUp(): void
     {
         $this->ids = new TestDataCollection(Context::createDefaultContext());
         $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->flowRepository = $this->getContainer()->get('flow.repository');
+        $this->flowActionTestSubscriber = new FlowActionTestSubscriber();
+        $this->dispatcher = $this->getContainer()->get('event_dispatcher');
+        $this->dispatcher->addSubscriber($this->flowActionTestSubscriber);
     }
 
     public function testAcceptRouteWithoutUser(): void
@@ -89,6 +106,28 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         static::assertSame('foo', $customerEntity->getGroup()->getName());
 
         static::assertSame(204, $browser->getResponse()->getStatusCode());
+    }
+
+    public function testAcceptWithFlowBuilder(): void
+    {
+        $browser = $this->createClient();
+        $customer = $this->createCustomer(true);
+        $this->createFlow(CustomerGroupRegistrationAccepted::EVENT_NAME);
+        $browser->request('POST', '/api/_action/customer-group-registration/accept/' . $customer);
+
+        static::assertEquals(1, $this->flowActionTestSubscriber->actions['unit_test_action_true'] ?? 0);
+        static::assertEquals(0, $this->flowActionTestSubscriber->actions['unit_test_action_false'] ?? 0);
+    }
+
+    public function testDeclineWithFlowBuilder(): void
+    {
+        $browser = $this->createClient();
+        $customer = $this->createCustomer(true);
+        $this->createFlow(CustomerGroupRegistrationDeclined::EVENT_NAME);
+        $browser->request('POST', '/api/_action/customer-group-registration/decline/' . $customer);
+
+        static::assertEquals(1, $this->flowActionTestSubscriber->actions['unit_test_action_true'] ?? 0);
+        static::assertEquals(0, $this->flowActionTestSubscriber->actions['unit_test_action_false'] ?? 0);
     }
 
     public function testAcceptUsingCustomerIds(): void
@@ -240,6 +279,65 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         ]);
 
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode());
+    }
+
+    private function createFlow(?string $eventName = null): void
+    {
+        $sequenceId = Uuid::randomHex();
+
+        $this->flowRepository->create([[
+            'name' => 'Create Order',
+            'eventName' => $eventName ?? TestFlowBusinessEvent::EVENT_NAME,
+            'priority' => 10,
+            'active' => true,
+            'sequences' => [
+                [
+                    'id' => $sequenceId,
+                    'parentId' => null,
+                    'ruleId' => $this->ids->create('ruleId'),
+                    'actionName' => null,
+                    'config' => [],
+                    'position' => 1,
+                    'rule' => [
+                        'id' => $this->ids->create('ruleId'),
+                        'name' => 'Test rule',
+                        'priority' => 1,
+                        'conditions' => [
+                            ['type' => (new AlwaysValidRule())->getName()],
+                        ],
+                    ],
+                ],
+                [
+                    'id' => Uuid::randomHex(),
+                    'parentId' => $sequenceId,
+                    'ruleId' => null,
+                    'actionName' => 'unit_test_action_true',
+                    'config' => [
+                        'tagIds' => [
+                            $this->ids->get('tag_id') => 'test tag',
+                        ],
+                        'entity' => OrderDefinition::ENTITY_NAME,
+                    ],
+                    'position' => 1,
+                    'trueCase' => true,
+                ],
+                [
+                    'id' => Uuid::randomHex(),
+                    'parentId' => $sequenceId,
+                    'ruleId' => null,
+                    'actionName' => 'unit_test_action_false',
+                    'config' => [
+                        'tagIds' => [
+                            $this->ids->get('tag_id2') => 'test tag2',
+                        ],
+                        'entity' => OrderDefinition::ENTITY_NAME,
+                    ],
+                    'position' => 2,
+                    'trueCase' => false,
+                ],
+            ],
+        ],
+        ], Context::createDefaultContext());
     }
 
     private function createCustomer(bool $requestedGroup = false): string

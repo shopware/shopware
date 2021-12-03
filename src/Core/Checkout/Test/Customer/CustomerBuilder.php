@@ -32,6 +32,8 @@ class CustomerBuilder
 
     protected string $defaultBillingAddressId;
 
+    protected array $defaultBillingAddress = [];
+
     protected string $defaultShippingAddressId;
 
     protected string $defaultPaymentMethodId;
@@ -107,6 +109,10 @@ class CustomerBuilder
     public function defaultBillingAddress(string $key, array $customParams = []): self
     {
         $this->addAddress($key, $customParams);
+
+        $defaultBillingAddress = $this->addresses;
+        $defaultBillingAddress[$key]['id'] = $this->ids->get($key);
+        $this->defaultBillingAddress = $defaultBillingAddress[$key];
         $this->defaultBillingAddressId = $this->ids->get($key);
 
         return $this;

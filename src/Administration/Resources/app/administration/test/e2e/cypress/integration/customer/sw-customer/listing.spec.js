@@ -76,7 +76,27 @@ describe('Customer: Test pagination and the corosponding URL parameters', () => 
                                 lastName: `Eroni-${i}`,
                                 defaultPaymentMethodId: paymentMethodId,
                                 defaultBillingAddressId: standInId,
+                                defaultBillingAddress: {
+                                    id: standInId,
+                                    firstName: 'Max',
+                                    lastName: 'Mustermann',
+                                    street: 'Musterstraße 1',
+                                    city: 'Schoöppingen',
+                                    zipcode: '12345',
+                                    salutationId: salutationId,
+                                    countryId: countryId,
+                                },
                                 defaultShippingAddressId: standInId,
+                                defaultShippingAddress: {
+                                    id: standInId,
+                                    firstName: 'Max',
+                                    lastName: 'Mustermann',
+                                    street: 'Musterstraße 1',
+                                    city: 'Schoöppingen',
+                                    zipcode: '12345',
+                                    salutationId: salutationId,
+                                    countryId: countryId,
+                                },
                                 customerNumber: uuid().replace(/-/g, ''),
                                 email: `test-${i}@example.com`
                             }

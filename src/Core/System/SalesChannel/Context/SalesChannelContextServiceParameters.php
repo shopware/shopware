@@ -37,13 +37,16 @@ class SalesChannelContextServiceParameters extends Struct
      */
     protected $originalContext;
 
+    protected ?string $customerId = null;
+
     public function __construct(
         string $salesChannelId,
         string $token,
         ?string $languageId = null,
         ?string $currencyId = null,
         ?string $domainId = null,
-        ?Context $originalContext = null
+        ?Context $originalContext = null,
+        ?string $customerId = null
     ) {
         $this->salesChannelId = $salesChannelId;
         $this->token = $token;
@@ -51,6 +54,7 @@ class SalesChannelContextServiceParameters extends Struct
         $this->currencyId = $currencyId;
         $this->domainId = $domainId;
         $this->originalContext = $originalContext;
+        $this->customerId = $customerId;
     }
 
     public function getSalesChannelId(): string
@@ -81,5 +85,10 @@ class SalesChannelContextServiceParameters extends Struct
     public function getOriginalContext(): ?Context
     {
         return $this->originalContext;
+    }
+
+    public function getCustomerId(): ?string
+    {
+        return $this->customerId;
     }
 }

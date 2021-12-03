@@ -3849,3 +3849,13 @@ parameters:
 			message: "#^Parameter \\#1 \\$theme of method Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeInheritanceBuilder\\:\\:getThemeInheritance\\(\\) expects string, int\\|string\\|null given\\.$#"
 			count: 1
 			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilder.php
+
+		-
+			message: "#^Argument of an invalid type DOMNamedNodeMap\\|null supplied for foreach, only iterables are supported\\.$#"
+			count: 1
+			path: src/Core/Framework/App/FlowAction/Xml/Component.php
+
+		-
+			message: "#^Argument of an invalid type DOMNamedNodeMap\\|null supplied for foreach, only iterables are supported\\.$#"
+			count: 1
+			path: src/Core/Framework/App/FlowAction/Xml/Parameter.php

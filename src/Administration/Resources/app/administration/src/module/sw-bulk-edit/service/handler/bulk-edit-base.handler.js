@@ -306,7 +306,8 @@ class BulkEditBaseHandler {
         Object.keys(updatePayload).forEach(field => {
             if (
                 !existedRecord
-                || (updatePayload[field] !== undefined && this._isFieldValueChanged(updatePayload[field], existedRecord[field]))
+                || (updatePayload[field] !== undefined
+                    && this._isFieldValueChanged(updatePayload[field], existedRecord[field]))
             ) {
                 actualChange[field] = updatePayload[field];
             }

@@ -3,7 +3,7 @@ const path = require('path');
 const baseRules = {
     'file-progress/activate': 1,
     // Match the max line length with the phpstorm default settings
-    'max-len': ['warn', 125, { ignoreRegExpLiterals: true }],
+    'max-len': ['error', 125, { ignoreRegExpLiterals: true }],
     // Warn about useless path segment in import statements
     'import/no-useless-path-segments': 0,
     // don't require .vue and .js extensions
@@ -152,6 +152,8 @@ module.exports = {
                 'vue/valid-v-slot': ['error', {
                     allowModifiers: true,
                 }],
+                'vue/v-slot-style': 'error',
+                'vue/attributes-order': 'error',
             },
         }, {
             files: ['**/*.spec.js', '**/*.spec.ts', '**/fixtures/*.js', 'test/**/*.js', 'test/**/*.ts'],

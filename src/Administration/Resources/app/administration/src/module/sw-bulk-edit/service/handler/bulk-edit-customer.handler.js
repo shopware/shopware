@@ -42,10 +42,14 @@ class BulkEditCustomerHandler extends BulkEditBaseHandler {
 
                 switch (change.value) {
                     case 'decline':
-                        promises.push(this.customerGroupRegistrationService.decline(entityIds, {}, {}, { silentError: true }));
+                        promises.push(this.customerGroupRegistrationService.decline(
+                            entityIds, {}, {}, { silentError: true },
+                        ));
                         break;
                     case 'accept':
-                        promises.push(this.customerGroupRegistrationService.accept(entityIds, {}, {}, { silentError: true }));
+                        promises.push(this.customerGroupRegistrationService.accept(
+                            entityIds, {}, {}, { silentError: true },
+                        ));
                         break;
                     default:
                         throw new Error();

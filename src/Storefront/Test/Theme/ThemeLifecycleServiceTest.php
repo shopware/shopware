@@ -96,7 +96,7 @@ class ThemeLifecycleServiceTest extends TestCase
         $themeEntity = $this->getTheme($bundle);
 
         static::assertTrue($themeEntity->isActive());
-        static::assertEquals(3, $themeEntity->getMedia()->count());
+        static::assertEquals(5, $themeEntity->getMedia()->count());
     }
 
     public function testItWontThrowIfMediaHasRestrictDeleteAssociation(): void
@@ -129,7 +129,6 @@ class ThemeLifecycleServiceTest extends TestCase
         $themeEntity = $this->getTheme($bundle);
 
         $renamedShopwareLogoId = $this->getMedia('shopware_logo_(1)');
-        static::assertNull($this->getMedia('shopware_logo_pink_(1)'));
         static::assertNotNull($themeEntity->getMedia()->get($renamedShopwareLogoId->getId()));
     }
 

@@ -108,8 +108,6 @@ class ThemeLifecycleService
         $themeData['technicalName'] = $configuration->getTechnicalName();
         $themeData['author'] = $configuration->getAuthor();
 
-        $this->removeOldMedia($configuration->getTechnicalName(), $context);
-
         // refresh theme after deleting media
         $theme = $this->getThemeByTechnicalName($configuration->getTechnicalName(), $context);
 

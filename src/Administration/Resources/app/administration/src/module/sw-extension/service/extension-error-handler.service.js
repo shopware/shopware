@@ -34,6 +34,10 @@ const errorCodes = {
         'global.default.error',
         'sw-extension.errors.messagePluginBaseClassNotFound',
     ),
+    FRAMEWORK__PLUGIN_REQUIREMENT_MISMATCH: new StoreError(
+        'global.default.error',
+        'sw-extension.errors.messagePluginRequirementMismatch',
+    ),
 };
 
 function getNotification(error) {

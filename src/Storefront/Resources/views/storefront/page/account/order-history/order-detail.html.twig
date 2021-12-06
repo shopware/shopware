@@ -134,7 +134,7 @@
                                                             <dd class="col-6 col-md-7">
                                                                 {% for delivery in order.deliveries %}
                                                                     {% set trackingCodes = delivery.trackingCodes %}
-                                                                    {% set trackingUrl = delivery.shippingMethod.trackingUrl %}
+                                                                    {% set trackingUrl = delivery.shippingMethod.translated.trackingUrl %}
 
                                                                     {% for trackingCode in trackingCodes %}
                                                                         {% if trackingUrl %}

@@ -65,7 +65,9 @@ Component.register('sw-mail-header-footer-list', {
             this.isLoading = true;
 
             const criteria = new Criteria(this.page, this.limit);
-            criteria.addAssociation('salesChannels');
+            criteria
+                .addAssociation('salesChannels')
+                .addSorting(Criteria.sort('name'));
 
             if (this.searchTerm) {
                 criteria.setTerm(this.searchTerm);

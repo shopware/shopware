@@ -24,6 +24,12 @@ class Migration1624967118updateMailTemplatesWithOptionalSalutationTest extends T
             $templatesToConsider[] = \str_replace(self::TEMPLATE_DIR, '', $file->getPath());
         }
 
-        static::assertEqualsCanonicalizing(MigrationTested::MAIL_TYPE_DIRS, \array_unique($templatesToConsider));
+        $notConsidered = ['password_change'];
+
+        $templatesToConsider = array_filter(\array_unique($templatesToConsider), function ($template) use ($notConsidered) {
+            return !\in_array($template, $notConsidered, true);
+        });
+
+        static::assertEqualsCanonicalizing(MigrationTested::MAIL_TYPE_DIRS, $templatesToConsider);
     }
 }

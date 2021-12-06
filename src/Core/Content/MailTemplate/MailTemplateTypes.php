@@ -29,6 +29,10 @@ class MailTemplateTypes
 
     public const MAILTYPE_STOCK_WARNING = 'product_stock_warning';
 
+    public const MAILTYPE_USER_RECOVERY_REQUEST = 'user.recovery.request';
+
+    public const MAILTYPE_CUSTOMER_RECOVERY_REQUEST = 'customer.recovery.request';
+
     public const MAILTYPE_CUSTOMER_GROUP_CHANGE_ACCEPT = 'customer_group_change_accept';
 
     public const MAILTYPE_CUSTOMER_GROUP_CHANGE_REJECT = 'customer_group_change_reject';

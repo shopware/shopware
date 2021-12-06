@@ -426,8 +426,12 @@ Component.register('sw-search-bar', {
                     return;
                 }
 
-                const queries = this.searchRankingService
-                    .buildGlobalSearchQueries(userSearchPreference, searchTerm, this.criteriaCollection, this.searchLimit);
+                const queries = this.searchRankingService.buildGlobalSearchQueries(
+                    userSearchPreference,
+                    searchTerm,
+                    this.criteriaCollection,
+                    this.searchLimit,
+                );
                 const response = await this.searchService.searchQuery(queries, { 'sw-inheritance': true });
                 const data = response.data;
 

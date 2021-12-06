@@ -54,8 +54,9 @@ Component.register('sw-mail-template-list', {
             this.isLoading = true;
 
             const criteria = new Criteria(this.page, this.limit);
-
-            criteria.addAssociation('mailTemplateType');
+            criteria
+                .addAssociation('mailTemplateType')
+                .addSorting(Criteria.sort('mailTemplateType.name'));
 
             if (this.searchTerm) {
                 criteria.setTerm(this.searchTerm);

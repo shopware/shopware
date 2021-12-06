@@ -571,14 +571,14 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
     private function getPriceFilter(Request $request): Filter
     {
-        $min = $request->get('min-price', 0);
-        $max = $request->get('max-price', 0);
+        $min = $request->get('min-price');
+        $max = $request->get('max-price');
 
         $range = [];
-        if ($min > 0) {
+        if ($min !== null && $min >= 0) {
             $range[RangeFilter::GTE] = $min;
         }
-        if ($max > 0) {
+        if ($max !== null && $max >= 0) {
             $range[RangeFilter::LTE] = $max;
         }
 

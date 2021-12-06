@@ -90,7 +90,7 @@ class DatabaseConnectionInformation extends Struct
     {
         $dsn = sprintf(
             'mysql://%s%s:%s',
-            $this->username && $this->password ? ($this->username . ':' . $this->password . '@') : '',
+            $this->username && $this->password ? ($this->username . ':' . rawurlencode($this->password) . '@') : '',
             $this->hostname,
             $this->port
         );

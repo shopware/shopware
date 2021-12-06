@@ -7,6 +7,7 @@ use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Core\System\Currency\SalesChannel\AbstractCurrencyRoute;
@@ -23,25 +24,13 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class HeaderPageletLoader implements HeaderPageletLoaderInterface
 {
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var AbstractCurrencyRoute
-     */
-    private $currencyRoute;
+    private AbstractCurrencyRoute $currencyRoute;
 
-    /**
-     * @var AbstractLanguageRoute
-     */
-    private $languageRoute;
+    private AbstractLanguageRoute $languageRoute;
 
-    /**
-     * @var NavigationLoaderInterface
-     */
-    private $navigationLoader;
+    private NavigationLoaderInterface $navigationLoader;
 
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
@@ -124,6 +113,7 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
             new EqualsFilter('language.salesChannelDomains.salesChannelId', $context->getSalesChannel()->getId())
         );
 
+        $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
         $apiRequest = new Request();
 
         $event = new LanguageRouteRequestEvent($request, $apiRequest, $context, $criteria);

@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Changelog\Processor;
 
 use Shopware\Core\Framework\Changelog\ChangelogFileCollection;
 
+/**
+ * @deprecated tag:v6.5.0 - will be marked @internal
+ */
 class ChangelogReleaseCreator extends ChangelogProcessor
 {
     /**
@@ -26,6 +29,7 @@ class ChangelogReleaseCreator extends ChangelogProcessor
         $this->releaseChangelogFiles($output, $version, $changelogFiles, $dryRun);
         $this->releaseChangelogGlobal($output, $version, $changelogFiles, $dryRun);
         $this->releaseUpgradeInformation($output, $version, $changelogFiles, $dryRun);
+        $this->releaseMajorUpgradeInformation($output, $version, $changelogFiles, $dryRun);
 
         return $output;
     }
@@ -142,6 +146,49 @@ class ChangelogReleaseCreator extends ChangelogProcessor
         } else {
             $output[] = '---';
             $output[] = 'Update the Upgrade Information in: ' . $this->getTargetUpgradeFile($version, false);
+            $output[] = '---';
+            $output[] = implode("\n", $append);
+        }
+    }
+
+    /**
+     * Create / Update the Upgrade Information for the next major version, based on a given release version
+     */
+    private function releaseMajorUpgradeInformation(array &$output, string $version, ChangelogFileCollection $collection, bool $dryRun = false): void
+    {
+        $append = [];
+        foreach ($collection as $changelog) {
+            if ($upgrade = $changelog->getDefinition()->getNextMajorVersionChanges()) {
+                $append[] = $upgrade;
+            }
+        }
+        if (!\count($append)) {
+            return;
+        }
+
+        array_unshift($append, sprintf('# Introduced in %s', $version));
+
+        $upgradeFile = $this->getTargetNextMajorUpgradeFile($version);
+        if (!$dryRun) {
+            if (!$this->filesystem->exists($upgradeFile)) {
+                $this->filesystem->touch($upgradeFile);
+            }
+
+            $content = file_get_contents($upgradeFile) ?: '';
+
+            $posLatestRelease = strpos($content, '# ');
+            $posLatestRelease = $posLatestRelease ?: 0;
+
+            $content
+                = substr($content, 0, $posLatestRelease)
+                . implode("\n", $append) . "\n\n"
+                . substr($content, $posLatestRelease);
+            file_put_contents($upgradeFile, $content);
+
+            $output[] = '* Update the Upgrade Information in: ' . $this->getTargetNextMajorUpgradeFile($version, false);
+        } else {
+            $output[] = '---';
+            $output[] = 'Update the Upgrade Information in: ' . $this->getTargetNextMajorUpgradeFile($version, false);
             $output[] = '---';
             $output[] = implode("\n", $append);
         }

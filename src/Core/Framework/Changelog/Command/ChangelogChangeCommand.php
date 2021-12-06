@@ -10,14 +10,14 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * @deprecated tag:v6.5.0 - will be marked @internal
+ */
 class ChangelogChangeCommand extends Command
 {
     protected static $defaultName = 'changelog:change';
 
-    /**
-     * @var ChangelogReleaseExporter
-     */
-    private $releaseExporter;
+    private ChangelogReleaseExporter $releaseExporter;
 
     public function __construct(ChangelogReleaseExporter $releaseExporter)
     {
@@ -36,6 +36,7 @@ class ChangelogChangeCommand extends Command
             ->addOption('storefront', null, InputOption::VALUE_NONE, 'Returns all changes made in the Storefront')
             ->addOption('admin', null, InputOption::VALUE_NONE, 'Returns all changes made in the Administration')
             ->addOption('upgrade', null, InputOption::VALUE_NONE, 'Returns all changes documented in the Upgrade Information')
+            ->addOption('major', null, InputOption::VALUE_NONE, 'Returns all changes documented in the Major Changes section')
             ->addOption('include-feature-flags', null, InputOption::VALUE_NONE, 'Returns all changes, including features which are still behind a feature flag.')
             ->addOption('keys-only', null, InputOption::VALUE_NONE, 'Returns only Jira ticket keys of all changes made.');
     }
@@ -81,6 +82,7 @@ class ChangelogChangeCommand extends Command
             'storefront' => $input->getOption('storefront'),
             'admin' => $input->getOption('admin'),
             'upgrade' => $input->getOption('upgrade'),
+            'major' => $input->getOption('major'),
         ];
 
         return \in_array(true, array_values($requested), true) ? $requested : array_fill_keys(array_keys($requested), true);

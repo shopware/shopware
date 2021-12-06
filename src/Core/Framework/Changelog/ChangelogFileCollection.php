@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Changelog;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
+ * @deprecated tag:v6.5.0 - will be marked @internal
+ *
  * @method ChangelogFile[]    getIterator()
  * @method ChangelogFile[]    getElements()
  * @method ChangelogFile|null first()

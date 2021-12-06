@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Changelog;
 
+/**
+ * @deprecated tag:v6.5.0 - will be marked @internal
+ */
 class ChangelogParser
 {
     public function parse(string $content): ChangelogDefinition
@@ -19,7 +22,8 @@ class ChangelogParser
             ->setAdministration($this->parseSection($content, 'Administration'))
             ->setStorefront($this->parseSection($content, 'Storefront'))
             ->setApi($this->parseSection($content, 'API'))
-            ->setUpgradeInformation($this->parseSection($content, 'Upgrade Information'));
+            ->setUpgradeInformation($this->parseSection($content, 'Upgrade Information'))
+            ->setNextMajorVersionChanges($this->parseSection($content, 'Next Major Version Changes'));
     }
 
     /**

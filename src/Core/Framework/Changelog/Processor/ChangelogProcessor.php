@@ -9,6 +9,9 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - will be marked @internal
+ */
 class ChangelogProcessor
 {
     protected Filesystem $filesystem;
@@ -19,12 +22,22 @@ class ChangelogProcessor
 
     private string $projectDir;
 
+    private ?string $platformRoot;
+
     public function __construct(ChangelogParser $parser, ValidatorInterface $validator, Filesystem $filesystem, string $projectDir)
     {
         $this->parser = $parser;
         $this->validator = $validator;
         $this->filesystem = $filesystem;
         $this->projectDir = $projectDir;
+    }
+
+    /**
+     * @internal
+     */
+    public function setPlatformRoot(string $platformRoot): void
+    {
+        $this->platformRoot = $platformRoot;
     }
 
     protected function getUnreleasedDir(): string
@@ -62,9 +75,34 @@ class ChangelogProcessor
         return substr($version, 0, (int) strpos($version, '.', strpos($version, '.') + \strlen('.')));
     }
 
+    /**
+     * @internal
+     */
+    protected function getNextMajorVersion(string $version): string
+    {
+        [$superVersion, $majorVersion] = explode('.', $version);
+
+        if (!is_numeric($superVersion) || !is_numeric($majorVersion)) {
+            throw new \InvalidArgumentException('Unable to generate next version number, supplied version seems invalid (' . $version . ')');
+        }
+
+        $superVersion = (int) $superVersion;
+        $majorVersion = (int) $majorVersion;
+
+        return $superVersion . '.' . ($majorVersion + 1);
+    }
+
     protected function getTargetUpgradeFile(string $version, bool $realPath = true): string
     {
         return ($realPath ? $this->getUpgradeDir() . '/' : '') . sprintf('UPGRADE-%s.md', $this->getMajorVersion($version));
+    }
+
+    /**
+     * @internal
+     */
+    protected function getTargetNextMajorUpgradeFile(string $version, bool $realPath = true): string
+    {
+        return ($realPath ? $this->getUpgradeDir() . '/' : '') . sprintf('UPGRADE-%s.md', $this->getNextMajorVersion($version));
     }
 
     /**
@@ -99,13 +137,17 @@ class ChangelogProcessor
 
     private function getPlatformRoot(): string
     {
-        $platformRoot = $this->projectDir;
-        $composerJson = json_decode((string) file_get_contents($this->projectDir . '/composer.json'), true);
+        if (!isset($this->platformRoot)) {
+            $platformRoot = $this->projectDir;
+            $composerJson = json_decode((string) file_get_contents($this->projectDir . '/composer.json'), true);
 
-        if ($composerJson === null || $composerJson['name'] !== 'shopware/platform') {
-            $platformRoot .= '/platform';
+            if ($composerJson === null || $composerJson['name'] !== 'shopware/platform') {
+                $platformRoot .= '/platform';
+            }
+
+            $this->platformRoot = $platformRoot;
         }
 
-        return $platformRoot;
+        return $this->platformRoot;
     }
 }

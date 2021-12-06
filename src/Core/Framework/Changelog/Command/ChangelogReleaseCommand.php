@@ -10,6 +10,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * @deprecated tag:v6.5.0 - will be marked @internal
+ */
 class ChangelogReleaseCommand extends Command
 {
     protected static $defaultName = 'changelog:release';
@@ -49,7 +52,7 @@ class ChangelogReleaseCommand extends Command
                 return $version;
             });
         if (!preg_match("/^\d+(\.\d+){3}$/", $version)) {
-            throw new \RuntimeException('Invalid version of release. It should be 4-digits type');
+            throw new \RuntimeException('Invalid version of release ("' . $version . '"). It should be 4-digits type');
         }
 
         if ($force = $input->getOption('force')) {

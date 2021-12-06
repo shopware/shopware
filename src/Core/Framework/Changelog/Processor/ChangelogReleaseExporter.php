@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Changelog\Processor;
 
 use Shopware\Core\Framework\Changelog\ChangelogFileCollection;
 
+/**
+ * @deprecated tag:v6.5.0 - will be marked @internal
+ */
 class ChangelogReleaseExporter extends ChangelogProcessor
 {
     /**
@@ -80,6 +83,11 @@ class ChangelogReleaseExporter extends ChangelogProcessor
             case 'upgrade':
                 $title = 'Upgrade Information';
                 $getContentFnc = 'getUpgradeInformation';
+
+                break;
+            case 'major':
+                $title = 'Next Major Version Change';
+                $getContentFnc = 'getNextMajorVersionChanges';
 
                 break;
         }

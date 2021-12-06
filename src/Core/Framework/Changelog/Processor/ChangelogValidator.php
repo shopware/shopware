@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Changelog\Processor;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - will be marked @internal
+ */
 class ChangelogValidator extends ChangelogProcessor
 {
     public function check(string $path = ''): array

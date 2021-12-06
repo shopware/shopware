@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Changelog;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @deprecated tag:v6.5.0 - will be marked @internal
+ */
 class ChangelogFile extends Struct
 {
     /**

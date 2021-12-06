@@ -2,73 +2,48 @@
 
 namespace Shopware\Core\Framework\Changelog;
 
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - will be marked @internal
+ */
 class ChangelogDefinition
 {
     /**
      * @Assert\NotBlank(
      *     message="The title should not be blank"
      * )
-     *
-     * @var string
      */
-    private $title;
+    private string $title;
 
     /**
      * @Assert\NotBlank(
      *     message="The Jira ticket should not be blank"
      * )
-     *
-     * @var string
      */
-    private $issue;
+    private string $issue;
 
-    /**
-     * @var string|null
-     */
-    private $flag;
+    private ?string $flag;
 
-    /**
-     * @var string|null
-     */
-    private $author;
+    private ?string $author;
 
-    /**
-     * @var string|null
-     */
-    private $authorEmail;
+    private ?string $authorEmail;
 
-    /**
-     * @var string|null
-     */
-    private $authorGitHub;
+    private ?string $authorGitHub;
 
-    /**
-     * @var string|null
-     */
-    private $core;
+    private ?string $core;
 
-    /**
-     * @var string|null
-     */
-    private $storefront;
+    private ?string $storefront;
 
-    /**
-     * @var string|null
-     */
-    private $administration;
+    private ?string $administration;
 
-    /**
-     * @var string|null
-     */
-    private $api;
+    private ?string $api;
 
-    /**
-     * @var string|null
-     */
-    private $upgrade;
+    private ?string $upgrade;
+
+    private ?string $nextMajorVersionChanges;
 
     /**
      * @Assert\Callback
@@ -107,6 +82,18 @@ class ChangelogDefinition
         if ($this->upgrade && preg_match('/\n+#\s+(\w+)/', $this->upgrade, $matches)) {
             $context->buildViolation(sprintf('You should use "___" to separate Upgrade Information and %s section ', $matches[1]))
                 ->atPath('upgrade')
+                ->addViolation();
+        }
+
+        if ($this->nextMajorVersionChanges && preg_match('/\n+#\s+(\w+)/', $this->nextMajorVersionChanges, $matches)) {
+            $context->buildViolation(sprintf('You should use "___" to separate Next Major Version Changes and %s section ', $matches[1]))
+                ->atPath('nextMajorVersionChanges')
+                ->addViolation();
+        }
+
+        if ($this->flag && !Feature::has($this->flag)) {
+            $context->buildViolation(sprintf('Unknown flag %s is assigned ', $this->flag))
+                ->atPath('flag')
                 ->addViolation();
         }
     }
@@ -243,6 +230,18 @@ class ChangelogDefinition
         return $this;
     }
 
+    public function setNextMajorVersionChanges(?string $nextMajorVersionChanges): ChangelogDefinition
+    {
+        $this->nextMajorVersionChanges = $nextMajorVersionChanges;
+
+        return $this;
+    }
+
+    public function getNextMajorVersionChanges(): ?string
+    {
+        return $this->nextMajorVersionChanges;
+    }
+
     public function toTemplate(): string
     {
         $template = <<<EOD
@@ -251,26 +250,39 @@ title: $this->title
 issue: $this->issue
 %FEATURE_FLAG%
 %AUTHOR%
-%AUTHOR_EMAIL% 
+%AUTHOR_EMAIL%
 %AUTHOR_GITHUB%
 ---
 # Core
-*  
+*
 ___
 # API
-*  
+*
 ___
 # Administration
-*  
+*
 ___
 # Storefront
-*  
+*
 ___
 # Upgrade Information
 ## Topic 1
 ### Topic 1a
 ### Topic 1b
 ## Topic 2
+___
+# Next Major Version Changes
+## Breaking Change 1:
+* Do this
+## Breaking Change 2:
+change
+```
+static
+```
+to
+```
+self
+```
 EOD;
         $template = str_replace('%FEATURE_FLAG%', ($this->flag ? 'flag: ' . $this->flag : ''), $template);
         $template = str_replace('%AUTHOR%', ($this->author ? 'author: ' . $this->author : ''), $template);

@@ -14,7 +14,8 @@ function createWrapper(additionalOptions = {}) {
             'sw-loader': true,
             'sw-icon': true,
             'sw-popover': true,
-            'sw-context-menu': true
+            'sw-context-menu': true,
+            'sw-ignore-class': true
         },
         ...additionalOptions
     });

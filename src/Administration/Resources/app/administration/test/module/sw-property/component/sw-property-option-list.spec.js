@@ -91,6 +91,7 @@ function createWrapper() {
         },
         stubs: {
             'sw-card': Shopware.Component.build('sw-card'),
+            'sw-ignore-class': true,
             'sw-container': Shopware.Component.build('sw-container'),
             'sw-button': {
                 template: '<div></div>'

@@ -9,3 +9,5 @@ test/_mocks_/entity-schema.json
 selenium-debug.log
 .eslintcache
 /build/artifacts/jest/
+.yalc
+yalc.lock

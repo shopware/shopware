@@ -46,6 +46,7 @@ function createWrapper(privileges = []) {
             },
             'sw-card-view': true,
             'sw-card': Shopware.Component.build('sw-card'),
+            'sw-ignore-class': true,
             'sw-entity-listing': {
                 props: ['items'],
                 template: `
@@ -106,6 +107,7 @@ describe('module/sw-settings-number-range/page/sw-settings-number-range-list', (
             'number_ranges.editor'
         ]);
         await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
         const entityListing = wrapper.find('.sw-settings-number-range-list-grid');
         expect(entityListing.exists()).toBeTruthy();
         expect(entityListing.attributes()['allow-inline-edit']).toBeTruthy();
@@ -123,6 +125,7 @@ describe('module/sw-settings-number-range/page/sw-settings-number-range-list', (
             'number_ranges.editor'
         ]);
         await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
 
         const editMenuItem = wrapper.find('.sw-entity-listing__context-menu-edit-action');
         expect(editMenuItem.attributes().disabled).toBeFalsy();
@@ -139,6 +142,7 @@ describe('module/sw-settings-number-range/page/sw-settings-number-range-list', (
         wrapper = createWrapper([
             'number_ranges.deleter'
         ]);
+        await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
         const deleteMenuItem = wrapper.find('.sw-entity-listing__context-menu-edit-delete');

@@ -17,7 +17,7 @@ describe('Admin & Storefront: test customer group registration', () => {
         cy.contains('.sw-button__content','Klantgroep aanmaken').click();
         cy.get('#sw-field--customerGroup-name').typeAndCheck('VIP Customers');
         cy.get('[name="sw-field--customerGroup-registrationActive"]').check();
-        cy.get('.sw-card-view__content .sw-card:nth-of-type(2)').should('be.visible');
+        cy.get('.sw-card-view__content .sw-card').eq(1).should('be.visible');
         cy.get('#sw-field--customerGroup-registrationTitle').typeAndCheck('VIP');
         cy.get('.sw-select-selection-list').click();
         cy.get('.sw-select-result-list__content').contains('E2E install test').click();
@@ -84,7 +84,7 @@ describe('Admin & Storefront: test customer group registration', () => {
         cy.contains('.sw-button__content','Klantgroep aanmaken').click();
         cy.get('#sw-field--customerGroup-name').typeAndCheck('VIP Commercial');
         cy.get('[name="sw-field--customerGroup-registrationActive"]').check();
-        cy.get('.sw-card-view__content .sw-card:nth-of-type(2)').should('be.visible');
+        cy.get('.sw-card-view__content .sw-card').eq(1).should('be.visible');
         cy.get('#sw-field--customerGroup-registrationTitle').typeAndCheck('VIP-Commercial');
         cy.get('[name="sw-field--customerGroup-registrationOnlyCompanyRegistration"]').check();
         cy.get('.sw-select-selection-list').click();

@@ -24,8 +24,11 @@ describe('Property: Test crud operations', () => {
             method: 'POST'
         }).as('saveData');
 
+        cy.get('.sw-loader').should('not.exist');
+
         // Add property group
         cy.get('a[href="#/sw/property/create"]').click();
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('input[name=sw-field--propertyGroup-name]').typeAndCheck('1 Coleur');
         cy.get(page.elements.propertySaveAction).click();

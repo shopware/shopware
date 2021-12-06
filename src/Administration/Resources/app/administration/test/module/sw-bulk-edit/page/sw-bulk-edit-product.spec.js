@@ -158,6 +158,7 @@ function createWrapper(productEntityOverride) {
             'sw-empty-state': Shopware.Component.build('sw-empty-state'),
             'sw-button-process': Shopware.Component.build('sw-button-process'),
             'sw-card': Shopware.Component.build('sw-card'),
+            'sw-ignore-class': true,
             'sw-field': Shopware.Component.build('sw-field'),
             'sw-modal': Shopware.Component.build('sw-modal'),
             'sw-select-base': Shopware.Component.build('sw-select-base'),
@@ -387,6 +388,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.$route.path).toEqual('/success');
     });
@@ -408,6 +410,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         const footerRight = wrapper.find('.footer-right');
         footerRight.find('button').trigger('click');
 
+        await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();

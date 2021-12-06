@@ -31,6 +31,7 @@ function createWrapper() {
         localVue,
         stubs: {
             'sw-card': Shopware.Component.build('sw-card'),
+            'sw-ignore-class': true,
             'sw-container': Shopware.Component.build('sw-container'),
             'sw-button': Shopware.Component.build('sw-button'),
             'sw-checkbox-field': true,

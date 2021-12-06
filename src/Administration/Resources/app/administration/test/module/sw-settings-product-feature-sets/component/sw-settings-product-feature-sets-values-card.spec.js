@@ -46,6 +46,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         return shallowMount(Shopware.Component.build('sw-settings-product-feature-sets-values-card'), {
             stubs: {
                 'sw-card': Shopware.Component.build('sw-card'),
+                'sw-ignore-class': true,
                 'sw-container': true,
                 'sw-simple-search-field': true,
                 'sw-button': Shopware.Component.build('sw-button'),
@@ -115,7 +116,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
     });
 
     it('has the correct class', async () => {
-        expect(wrapper.classes()).toContain(classes.componentRoot);
+        expect(wrapper.get('sw-ignore-class-stub div').classes()).toContain(classes.componentRoot);
     });
 
     it('shows a list of features', async () => {

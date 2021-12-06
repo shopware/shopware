@@ -93,6 +93,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
                 'sw-grid-row': Shopware.Component.build('sw-grid-row'),
                 'sw-grid-column': Shopware.Component.build('sw-grid-column'),
                 'sw-card': Shopware.Component.build('sw-card'),
+                'sw-ignore-class': true,
                 'sw-popover': {
                     template: '<div><slot></slot></div>'
                 },

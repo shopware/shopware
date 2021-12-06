@@ -1,0 +1,15 @@
+<div>
+    <template v-for="componentSection in componentSections">
+        <sw-card
+            v-if="componentSection.component === 'card'"
+            :key="componentSection.props.locationId"
+            :title="componentSection.props.title"
+            :subtitle="componentSection.props.subtitle"
+        >
+            <sw-iframe-renderer
+                :src="componentSection.src"
+                :location-id="componentSection.props.locationId"
+            />
+        </sw-card>
+    </template>
+</div>

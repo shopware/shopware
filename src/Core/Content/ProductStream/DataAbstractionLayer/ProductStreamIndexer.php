@@ -175,6 +175,10 @@ class ProductStreamIndexer extends EntityIndexer
                 $entity['queries'] = $this->buildNested($entities, $entity['id']);
             }
 
+            if ($this->isIdFilter($entity['field'])) {
+                $entity = $this->wrapIdFilter($entity);
+            }
+
             $nested[] = $entity;
         }
 
@@ -184,5 +188,19 @@ class ProductStreamIndexer extends EntityIndexer
     private function isMultiFilter(string $type): bool
     {
         return \in_array($type, ['multi', 'not'], true);
+    }
+
+    private function isIdFilter(?string $field): bool
+    {
+        return $field === 'id' || $field === $this->productDefinition->getEntityName() . '.id';
+    }
+
+    private function wrapIdFilter(array $originalQuery): array
+    {
+        return [
+            'type' => 'multi',
+            'operator' => 'OR',
+            'queries' => [$originalQuery, array_merge($originalQuery, ['field' => 'parentId'])],
+        ];
     }
 }

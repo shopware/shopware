@@ -66,6 +66,7 @@ class ProductStreamIndexerTest extends TestCase
     public function testValidRefresh(): void
     {
         $productId = Uuid::randomHex();
+        $manufacturerId = Uuid::randomHex();
         $this->productRepo->create(
             [
                 [
@@ -74,7 +75,7 @@ class ProductStreamIndexerTest extends TestCase
                     'stock' => 10,
                     'name' => 'Test',
                     'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
-                    'manufacturer' => ['name' => 'test'],
+                    'manufacturer' => ['id' => $manufacturerId, 'name' => 'test'],
                     'tax' => ['taxRate' => 19, 'name' => 'without id'],
                 ],
             ],
@@ -107,9 +108,22 @@ class ProductStreamIndexerTest extends TestCase
             [
                 'id' => Uuid::randomBytes(),
                 'type' => 'equals',
+                'field' => 'manufacturerId',
+                'value' => $manufacturerId,
+                'position' => 1,
+                'product_stream_id' => Uuid::fromHexToBytes($id),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]
+        );
+
+        $this->connection->insert(
+            'product_stream_filter',
+            [
+                'id' => Uuid::randomBytes(),
+                'type' => 'equals',
                 'field' => 'product.id',
                 'value' => $productId,
-                'position' => 1,
+                'position' => 2,
                 'product_stream_id' => Uuid::fromHexToBytes($id),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
@@ -122,16 +136,33 @@ class ProductStreamIndexerTest extends TestCase
         /** @var ProductStreamEntity $entity */
         $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNotNull($entity->getApiFilter());
-        static::assertCount(1, $entity->getApiFilter());
+        static::assertCount(2, $entity->getApiFilter());
+
         static::assertSame('equals', $entity->getApiFilter()[0]['type']);
-        static::assertSame('product.id', $entity->getApiFilter()[0]['field']);
-        static::assertSame($productId, $entity->getApiFilter()[0]['value']);
+        static::assertSame('product.manufacturerId', $entity->getApiFilter()[0]['field']);
+        static::assertSame($manufacturerId, $entity->getApiFilter()[0]['value']);
+
+        static::assertSame('multi', $entity->getApiFilter()[1]['type']);
+        static::assertSame('OR', $entity->getApiFilter()[1]['operator']);
+
+        $queries = $entity->getApiFilter()[1]['queries'];
+        static::assertCount(2, $queries);
+
+        static::assertSame('equals', $queries[0]['type']);
+        static::assertSame('product.id', $queries[0]['field']);
+        static::assertSame($productId, $queries[0]['value']);
+
+        static::assertSame('equals', $queries[1]['type']);
+        static::assertSame('product.parentId', $queries[1]['field']);
+        static::assertSame($productId, $queries[1]['value']);
+
         static::assertFalse($entity->isInvalid());
     }
 
     public function testWithChildren(): void
     {
         $productId = Uuid::randomHex();
+        $manufacturerId = Uuid::randomHex();
         $this->productRepo->create(
             [
                 [
@@ -140,7 +171,7 @@ class ProductStreamIndexerTest extends TestCase
                     'stock' => 10,
                     'name' => 'Test',
                     'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
-                    'manufacturer' => ['name' => 'test'],
+                    'manufacturer' => ['id' => $manufacturerId, 'name' => 'test'],
                     'tax' => ['taxRate' => 19, 'name' => 'without id'],
                 ],
             ],
@@ -185,10 +216,24 @@ class ProductStreamIndexerTest extends TestCase
             [
                 'id' => Uuid::randomBytes(),
                 'type' => 'equals',
+                'field' => 'manufacturerId',
+                'value' => $manufacturerId,
+                'position' => 1,
+                'parent_id' => Uuid::fromHexToBytes($multiId),
+                'product_stream_id' => Uuid::fromHexToBytes($id),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]
+        );
+
+        $this->connection->insert(
+            'product_stream_filter',
+            [
+                'id' => Uuid::randomBytes(),
+                'type' => 'equals',
                 'field' => 'product.id',
                 'operator' => 'equals',
                 'value' => $productId,
-                'position' => 1,
+                'position' => 2,
                 'parent_id' => Uuid::fromHexToBytes($multiId),
                 'product_stream_id' => Uuid::fromHexToBytes($id),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -205,10 +250,28 @@ class ProductStreamIndexerTest extends TestCase
         static::assertCount(1, $entity->getApiFilter());
         static::assertSame('multi', $entity->getApiFilter()[0]['type']);
         static::assertSame(MultiFilter::CONNECTION_AND, $entity->getApiFilter()[0]['operator']);
-        static::assertCount(1, $entity->getApiFilter()[0]['queries']);
-        static::assertSame('equals', $entity->getApiFilter()[0]['queries'][0]['type']);
-        static::assertSame('product.id', $entity->getApiFilter()[0]['queries'][0]['field']);
-        static::assertSame($productId, $entity->getApiFilter()[0]['queries'][0]['value']);
+
+        $childQueries = $entity->getApiFilter()[0]['queries'];
+        static::assertCount(2, $childQueries);
+
+        static::assertSame('equals', $childQueries[0]['type']);
+        static::assertSame('product.manufacturerId', $childQueries[0]['field']);
+        static::assertSame($manufacturerId, $childQueries[0]['value']);
+
+        static::assertSame('multi', $childQueries[1]['type']);
+        static::assertSame('OR', $childQueries[1]['operator']);
+
+        $grandchildQueries = $childQueries[1]['queries'];
+        static::assertCount(2, $grandchildQueries);
+
+        static::assertSame('equals', $grandchildQueries[0]['type']);
+        static::assertSame('product.id', $grandchildQueries[0]['field']);
+        static::assertSame($productId, $grandchildQueries[0]['value']);
+
+        static::assertSame('equals', $grandchildQueries[1]['type']);
+        static::assertSame('product.parentId', $grandchildQueries[1]['field']);
+        static::assertSame($productId, $grandchildQueries[1]['value']);
+
         static::assertFalse($entity->isInvalid());
     }
 

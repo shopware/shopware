@@ -132,8 +132,20 @@ Component.register('sw-product-stream-modal-preview', {
             return filters.map((condition) => {
                 const { field, type, operator, value, parameters, queries } = condition;
                 const mappedQueries = this.mapFiltersForSearch(queries);
+                const mapped = { field, type, operator, value, parameters, queries: mappedQueries };
 
-                return { field, type, operator, value, parameters, queries: mappedQueries };
+                if (field === 'id' || field === 'product.id') {
+                    return {
+                        type: 'multi',
+                        field: null,
+                        operator: 'OR',
+                        value: null,
+                        parameters: null,
+                        queries: [mapped, { ...mapped, ...{ field: 'parentId' } }],
+                    };
+                }
+
+                return mapped;
             });
         },
 

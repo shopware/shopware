@@ -59,3 +59,10 @@ a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .sw-button) {
         background-color: $color-shopware-brand-500;
     }
 }
+
+/* Hide some areas in Percy screenshot test which are different every time (Time, etc.) */
+@media only percy {
+    .hide-in-percy {
+        visibility: hidden;
+    }
+}

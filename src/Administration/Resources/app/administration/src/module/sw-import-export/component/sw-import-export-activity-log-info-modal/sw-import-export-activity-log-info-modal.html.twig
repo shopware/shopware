@@ -10,7 +10,7 @@
     {% block sw_import_export_activity_log_info_modal_description %}
     <dl class="sw-import-export-activity-log-info-modal__description-list">
         {% block sw_import_export_activity_log_info_modal_description_name %}
-        <div class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-file-name">
+        <div class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-file-name hide-in-percy">
             <dt>{{ $tc('sw-import-export.activity.logInfo.labelFilename') }}</dt>
             <dd>{{ logEntity.file.originalName }}</dd>
         </div>
@@ -34,7 +34,7 @@
         </div>
         {% endblock %}
         {% block sw_import_export_activity_log_info_modal_description_date %}
-        <div class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-date">
+        <div class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-date hide-in-percy">
             <dt>{{ $tc('sw-import-export.activity.logInfo.labelDate') }}</dt>
             <dd>{{ logEntity.createdAt | date({hour: '2-digit', minute: '2-digit'}) }}</dd>
         </div>

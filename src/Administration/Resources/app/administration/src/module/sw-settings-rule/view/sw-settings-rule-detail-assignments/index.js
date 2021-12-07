@@ -8,6 +8,7 @@ const { Component, Mixin, Context, Feature, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-settings-rule-detail-assignments', {
+    // eslint-disable-next-line max-len
     /** @feature-deprecated (flag:FEATURE_NEXT_16902) Rename "templateFeatureNext16902" to "template" and delete old template  */
     template: Feature.isActive('FEATURE_NEXT_16902') ? templateFeatureNext16902 : template,
 

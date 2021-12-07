@@ -579,7 +579,11 @@ function resolveSuperCallChain(
 /**
  * Returns a method in the extension chain object.
  */
-function findMethodInChain(extension: ComponentConfig, methodName: string, methodsOrComputed: 'methods'|'computed'): $TSFixMe {
+function findMethodInChain(
+    extension: ComponentConfig,
+    methodName: string,
+    methodsOrComputed: 'methods'|'computed',
+): $TSFixMe {
     const splitPath = methodName.split('.');
 
     if (splitPath.length > 1) {
@@ -603,7 +607,11 @@ function findMethodInChain(extension: ComponentConfig, methodName: string, metho
 /**
  * Returns a method in the extension chain object with a method path like `getterSetterMethod.get`.
  */
-function resolveGetterSetterChain(extension: ComponentConfig, path: string[], methodsOrComputed: 'methods'|'computed'):$TSFixMe {
+function resolveGetterSetterChain(
+    extension: ComponentConfig,
+    path: string[],
+    methodsOrComputed: 'methods'|'computed',
+):$TSFixMe {
     const [methodName, cmd] = path;
 
     if (!extension[methodsOrComputed]) {

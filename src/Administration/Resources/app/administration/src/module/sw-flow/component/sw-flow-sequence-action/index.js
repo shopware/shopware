@@ -100,6 +100,7 @@ Component.register('sw-flow-sequence-action', {
                 actionDescription[ACTION.CHANGE_CUSTOMER_GROUP] = (config) => this.getCustomerGroupDescription(config);
                 actionDescription[ACTION.CHANGE_CUSTOMER_STATUS] = (config) => this.getCustomerStatusDescription(config);
                 actionDescription[ACTION.SET_CUSTOMER_CUSTOM_FIELD] = (config) => this.getCustomFieldDescription(config);
+                // eslint-disable-next-line max-len
                 actionDescription[ACTION.SET_CUSTOMER_GROUP_CUSTOM_FIELD] = (config) => this.getCustomFieldDescription(config);
                 actionDescription[ACTION.SET_ORDER_CUSTOM_FIELD] = (config) => this.getCustomFieldDescription(config);
             }

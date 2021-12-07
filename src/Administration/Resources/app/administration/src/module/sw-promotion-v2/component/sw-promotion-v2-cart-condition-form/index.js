@@ -11,6 +11,8 @@ Component.register('sw-promotion-v2-cart-condition-form', {
         'repositoryFactory',
         'acl',
         'promotionSyncService',
+        'feature',
+        'ruleConditionDataProviderService',
     ],
 
     props: {
@@ -24,6 +26,8 @@ Component.register('sw-promotion-v2-cart-condition-form', {
         return {
             packagerKeys: [],
             sorterKeys: [],
+            /* @internal (flag:FEATURE_NEXT_18215) */
+            setGroupRestrictedRules: [],
         };
     },
     computed: {
@@ -34,11 +38,13 @@ Component.register('sw-promotion-v2-cart-condition-form', {
         ruleFilter() {
             const criteria = new Criteria();
 
-            criteria.addFilter(
-                Criteria.not('AND', [
-                    Criteria.equalsAny('conditions.type', ['cartCartAmount']),
-                ]),
-            );
+            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
+                criteria.addFilter(
+                    Criteria.not('AND', [
+                        Criteria.equalsAny('conditions.type', ['cartCartAmount']),
+                    ]),
+                );
+            }
 
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
@@ -102,6 +108,11 @@ Component.register('sw-promotion-v2-cart-condition-form', {
             this.promotionSyncService.loadSorters().then((keys) => {
                 this.sorterKeys = keys;
             });
+
+            if (this.feature.isActive('FEATURE_NEXT_18215')) {
+                this.ruleConditionDataProviderService.getRestrictedRules('promotionSetGroups')
+                    .then((result) => { this.setGroupRestrictedRules = result; });
+            }
         },
 
         loadSetGroups() {

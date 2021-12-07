@@ -8,10 +8,16 @@ use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * Triggered during the cart calculation process.
+ *
+ * @hook-use-case cart_manipulation
+ *
  * @internal (flag:FEATURE_NEXT_17441)
  */
 class CartHook extends Hook implements CartAware
 {
+    public const HOOK_NAME = 'cart';
+
     private Cart $cart;
 
     private SalesChannelContext $salesChannelContext;
@@ -31,7 +37,7 @@ class CartHook extends Hook implements CartAware
         return $this->cart;
     }
 
-    public function getServiceIds(): array
+    public static function getServiceIds(): array
     {
         return [
             CartFacadeHookFactory::class,
@@ -40,7 +46,7 @@ class CartHook extends Hook implements CartAware
 
     public function getName(): string
     {
-        return 'cart';
+        return self::HOOK_NAME;
     }
 
     public function getSalesChannelContext(): SalesChannelContext

@@ -13,7 +13,7 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
  */
 abstract class PageLoadedHook extends Hook implements SalesChannelContextAware
 {
-    public function getServiceIds(): array
+    public static function getServiceIds(): array
     {
         return [
             RepositoryFacadeHookFactory::class,

@@ -7,6 +7,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedHook;
 
 /**
+ * Triggered when the AccountPaymentMethodPage is loaded
+ *
+ * @hook-use-case data_loading
+ *
  * @internal (flag:FEATURE_NEXT_17441)
  */
 class AccountPaymentMethodPageLoadedHook extends PageLoadedHook

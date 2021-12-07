@@ -6,17 +6,22 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Commands\GenerateThumbnailsCommand;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
+use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\CommandTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class GenerateThumbnailsCommandTest extends TestCase
 {
@@ -214,6 +219,101 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->runCommand($this->thumbnailCommand, $input, $output);
     }
 
+    public function testItCallsUpdateThumbnailsWithStrictArgument(): void
+    {
+        $this->createValidMediaFiles();
+        $newMedia = $this->getNewMediaEntities();
+
+        $input = new StringInput('--strict');
+        $output = new BufferedOutput();
+
+        $thumbnailServiceMock = $this->getMockBuilder(ThumbnailService::class)
+            ->disableOriginalConstructor()->getMock();
+
+        $thumbnailServiceMock->expects(static::exactly(\count($this->initialMediaIds) + $newMedia->count()))
+            ->method('updateThumbnails')
+            ->with(static::anything(), $this->context, true);
+
+        $command = new GenerateThumbnailsCommand(
+            $thumbnailServiceMock,
+            $this->mediaRepository,
+            $this->mediaFolderRepository,
+            $this->getContainer()->get('messenger.bus.shopware')
+        );
+
+        $this->runCommand($command, $input, $output);
+    }
+
+    public function testItCallsUpdateThumbnailsWithoutStrictArgument(): void
+    {
+        $this->createValidMediaFiles();
+        $newMedia = $this->getNewMediaEntities();
+
+        $input = new StringInput('');
+        $output = new BufferedOutput();
+
+        $thumbnailServiceMock = $this->getMockBuilder(ThumbnailService::class)
+            ->disableOriginalConstructor()->getMock();
+
+        $thumbnailServiceMock->expects(static::exactly(\count($this->initialMediaIds) + $newMedia->count()))
+            ->method('updateThumbnails')
+            ->with(static::anything(), $this->context, false);
+
+        $command = new GenerateThumbnailsCommand(
+            $thumbnailServiceMock,
+            $this->mediaRepository,
+            $this->mediaFolderRepository,
+            $this->getContainer()->get('messenger.bus.shopware')
+        );
+
+        $this->runCommand($command, $input, $output);
+    }
+
+    public function testItDispatchesUpdateThumbnailsMessageWithCorrectStrictProperty(): void
+    {
+        $this->createValidMediaFiles();
+        $newMedia = $this->getNewMediaEntities();
+
+        $output = new BufferedOutput();
+
+        $affectedMediaIds = array_merge(array_combine($this->initialMediaIds, $this->initialMediaIds), $newMedia->getIds());
+
+        $expectedMessageStrict = new UpdateThumbnailsMessage();
+        $expectedMessageStrict->withContext($this->context);
+        $expectedMessageStrict->setIsStrict(true);
+        $expectedMessageStrict->setMediaIds($affectedMediaIds);
+
+        $expectedMessageNonStrict = new UpdateThumbnailsMessage();
+        $expectedMessageNonStrict->withContext($this->context);
+        $expectedMessageNonStrict->setIsStrict(false);
+        $expectedMessageNonStrict->setMediaIds($affectedMediaIds);
+
+        $messageBusMock = $this->getMockBuilder(MessageBusInterface::class)
+            ->disableOriginalConstructor()->getMock();
+        $messageBusMock->expects(static::exactly(4))->method('dispatch')
+            ->withConsecutive(
+                [$expectedMessageStrict, static::anything()],
+                [$expectedMessageNonStrict, static::anything()],
+                [$expectedMessageNonStrict, static::anything()],
+                [$expectedMessageStrict, static::anything()],
+            )
+            ->willReturnCallback(function ($m, $s) {
+                return Envelope::wrap($m, $s);
+            });
+
+        $command = new GenerateThumbnailsCommand(
+            $this->getContainer()->get(ThumbnailService::class),
+            $this->mediaRepository,
+            $this->mediaFolderRepository,
+            $messageBusMock,
+        );
+
+        $this->runCommand($command, new StringInput('--strict --async'), $output);
+        $this->runCommand($command, new StringInput('--async'), $output);
+        $this->runCommand($command, new StringInput('--async'), $output);
+        $this->runCommand($command, new StringInput('--strict --async'), $output);
+    }
+
     protected function assertThumbnailExists(MediaEntity $media, MediaThumbnailEntity $thumbnail): void
     {
         $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl(
@@ -265,21 +365,24 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb'));
     }
 
-    private function getNewMediaEntities()
+    private function getNewMediaEntities(): EntitySearchResult
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('id', $this->initialMediaIds));
-        $result = $this->mediaRepository->searchIds($criteria, $this->context);
-        static::assertEquals(\count($this->initialMediaIds), $result->getTotal());
+        if (!empty($this->initialMediaIds)) {
+            $criteria = new Criteria($this->initialMediaIds);
+            $result = $this->mediaRepository->searchIds($criteria, $this->context);
+            static::assertEquals(\count($this->initialMediaIds), $result->getTotal());
+        }
 
         $criteria = new Criteria();
         $criteria->addAssociation('thumbnails');
-        $criteria->addFilter(new NotFilter(
-            NotFilter::CONNECTION_AND,
-            [
-                new EqualsAnyFilter('id', $this->initialMediaIds),
-            ]
-        ));
+        if (!empty($this->initialMediaIds)) {
+            $criteria->addFilter(new NotFilter(
+                NotFilter::CONNECTION_AND,
+                [
+                    new EqualsAnyFilter('id', $this->initialMediaIds),
+                ]
+            ));
+        }
 
         return $this->mediaRepository->search($criteria, $this->context);
     }

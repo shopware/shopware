@@ -1036,6 +1036,23 @@ describe('core/factory/component.factory.js', () => {
         expect(thirdComponent.template).toBe('<div>Third.</div>');
     });
 
+    it('should extend an extended component in a mixed order', async () => {
+        ComponentFactory.extend('third-component', 'second-component', {
+            template: '{% block second %}{% block third %}<div>Third.</div>{% endblock %}{% endblock %}'
+        });
+
+        ComponentFactory.extend('second-component', 'first-component', {
+            template: '{% block first %}{% block second %}<div>Second.</div>{% endblock %}{% endblock %}'
+        });
+
+        ComponentFactory.register('first-component', {
+            template: '{% block first %}<div>First.</div>{% endblock %}'
+        });
+
+        const thirdComponent = ComponentFactory.build('third-component');
+        expect(thirdComponent.template).toBe('<div>Third.</div>');
+    });
+
     it('should extend an extended component and all components get build before', async () => {
         ComponentFactory.register('first-component', {
             template: '{% block first %}<div>First.</div>{% endblock %}'
@@ -1077,6 +1094,7 @@ describe('core/factory/component.factory.js', () => {
     });
 
     it('should render a component which extends a component with an override', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_17978'];
         ComponentFactory.register('first-component', {
             template: '<div>{% block first %}<div>First.</div>{% endblock %}</div>'
         });
@@ -1086,23 +1104,147 @@ describe('core/factory/component.factory.js', () => {
         });
 
         ComponentFactory.extend('second-component', 'first-component', {
-            template: '{% block first %}{% parent %}<div>Second.</div>{% endblock %}'
+            template: '{% block first %}{% parent %}<div>First extended.</div>{% endblock %}'
         });
 
         const firstComponent = ComponentFactory.build('first-component');
         const secondComponent = ComponentFactory.build('second-component');
 
         expect(firstComponent.template).toBe('<div><div>First.</div><div>First overridden.</div></div>');
-        expect(secondComponent.template).toBe('<div><div>First.</div><div>Second.</div></div>');
+        expect(secondComponent.template).toBe(
+            '<div><div>First.</div><div>First overridden.</div><div>First extended.</div></div>'
+        );
+    });
+
+    it(
+        'should render a component which extends a component with multiple overrides in mixed order',
+        async () => {
+            ComponentFactory.override('first-component', {
+                template: '{% block first %}{% parent %}<div>First overridden-1.</div>{% endblock %}'
+            });
+
+            ComponentFactory.extend('second-component', 'first-component', {
+                template: '{% block first %}{% parent %}<div>First extended.</div>{% endblock %}'
+            });
+
+            ComponentFactory.register('first-component', {
+                template: '<div>{% block first %}<div>First.</div>{% endblock %}</div>'
+            });
+
+            ComponentFactory.override('first-component', {
+                template: '{% block first %}{% parent %}<div>First overridden-2.</div>{% endblock %}'
+            });
+
+            const secondComponent = ComponentFactory.build('second-component');
+            const firstComponent = ComponentFactory.build('first-component');
+
+            expect(firstComponent.template).toBe(
+                '<div><div>First.</div><div>First overridden-1.</div><div>First overridden-2.</div></div>'
+            );
+            expect(secondComponent.template).toBe(
+                '<div><div>First.</div><div>First overridden-1.</div><div>First overridden-2.</div>' +
+                '<div>First extended.</div></div>'
+            );
+        }
+    );
+
+    describe('with different registration and build order', () => {
+        const registerFirst = () => ComponentFactory.register('first-component', {
+            template: '{% block first %}First.{% endblock %}'
+        });
+        const registerFirstOverride = () => ComponentFactory.override('first-component', {
+            template: '{% block first %}{% parent %} Override-1.{% endblock %}'
+        });
+        const registerSecondOverride = () => ComponentFactory.override('first-component', {
+            template: '{% block first %}{% parent %} Override-2.{% endblock %}'
+        });
+        const registerFirstExtension = () => ComponentFactory.extend('second-component', 'first-component', {
+            template: '{% block first %}{% parent %} Extension-1.{% endblock %}'
+        });
+        const registerSecondExtension = () => ComponentFactory.extend('third-component', 'second-component', {
+            template: '{% block first %}{% parent %} Extension-2.{% endblock %}'
+        });
+
+        it('should render chained extensions with multiple overrides in regular order', async () => {
+            global.activeFeatureFlags = ['FEATURE_NEXT_17978'];
+            registerFirst();
+            registerFirstOverride();
+            registerSecondOverride();
+            registerFirstExtension();
+            registerSecondExtension();
+
+            const firstComponent = ComponentFactory.build('first-component');
+            const secondComponent = ComponentFactory.build('second-component');
+            const thirdComponent = ComponentFactory.build('third-component');
+
+            expect(firstComponent.template).toBe('First. Override-1. Override-2.');
+            expect(secondComponent.template).toBe('First. Override-1. Override-2. Extension-1.');
+            expect(thirdComponent.template).toBe('First. Override-1. Override-2. Extension-1. Extension-2.');
+        });
+
+        it('should render chained extensions with multiple overrides in mixed registration order', async () => {
+            global.activeFeatureFlags = ['FEATURE_NEXT_17978'];
+            registerSecondExtension();
+            registerFirstExtension();
+            registerFirstOverride();
+            registerSecondOverride();
+            registerFirst();
+
+            const firstComponent = ComponentFactory.build('first-component');
+            const secondComponent = ComponentFactory.build('second-component');
+            const thirdComponent = ComponentFactory.build('third-component');
+
+            expect(firstComponent.template).toBe('First. Override-1. Override-2.');
+            expect(secondComponent.template).toBe('First. Override-1. Override-2. Extension-1.');
+            expect(thirdComponent.template).toBe('First. Override-1. Override-2. Extension-1. Extension-2.');
+        });
+
+        it('should render chained extensions with multiple overrides in mixed build order', async () => {
+            global.activeFeatureFlags = ['FEATURE_NEXT_17978'];
+            registerFirst();
+            registerFirstOverride();
+            registerSecondOverride();
+            registerFirstExtension();
+            registerSecondExtension();
+
+            const thirdComponent = ComponentFactory.build('third-component');
+            const firstComponent = ComponentFactory.build('first-component');
+            const secondComponent = ComponentFactory.build('second-component');
+
+            expect(firstComponent.template).toBe('First. Override-1. Override-2.');
+            expect(secondComponent.template).toBe('First. Override-1. Override-2. Extension-1.');
+            expect(thirdComponent.template).toBe('First. Override-1. Override-2. Extension-1. Extension-2.');
+        });
+
+        it(
+            'should render chained extensions with multiple overrides in mixed registration and build order',
+            async () => {
+                global.activeFeatureFlags = ['FEATURE_NEXT_17978'];
+                registerSecondExtension();
+                registerFirstExtension();
+                registerFirstOverride();
+                registerSecondOverride();
+                registerFirst();
+
+                const thirdComponent = ComponentFactory.build('third-component');
+                const secondComponent = ComponentFactory.build('second-component');
+                const firstComponent = ComponentFactory.build('first-component');
+
+                expect(firstComponent.template).toBe('First. Override-1. Override-2.');
+                expect(secondComponent.template).toBe('First. Override-1. Override-2. Extension-1.');
+                expect(thirdComponent.template).toBe('First. Override-1. Override-2. Extension-1. Extension-2.');
+            }
+        );
     });
 
     it('should render a component which extends a component with an override using a mixed order', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_17978'];
         ComponentFactory.override('first-component', {
             template: '{% block first %}{% parent %}<div>First overridden.</div>{% endblock %}'
         });
 
         ComponentFactory.extend('second-component', 'first-component', {
-            template: '{% block first %}{% parent %}<div>Second.</div>{% endblock %}'
+            template: '{% block first %}{% parent %}<div>First extended.</div>{% endblock %}'
         });
 
         ComponentFactory.register('first-component', {
@@ -1113,7 +1255,9 @@ describe('core/factory/component.factory.js', () => {
         const secondComponent = ComponentFactory.build('second-component');
 
         expect(firstComponent.template).toBe('<div><div>First.</div><div>First overridden.</div></div>');
-        expect(secondComponent.template).toBe('<div><div>First.</div><div>Second.</div></div>');
+        expect(secondComponent.template).toBe(
+            '<div><div>First.</div><div>First overridden.</div><div>First extended.</div></div>'
+        );
     });
 
     it('should fix the Social Shopping chain bug', async () => {

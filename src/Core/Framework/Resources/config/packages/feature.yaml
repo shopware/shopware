@@ -255,3 +255,9 @@ shopware:
         major: true
         description: "one to one inheritance"
         # issue: NEXT-19163
+
+      - name: FEATURE_NEXT_17978
+        default: false
+        major: true
+        description: "Change component factory to work with extension overrides in Administration"
+        # issue: NEXT-17978

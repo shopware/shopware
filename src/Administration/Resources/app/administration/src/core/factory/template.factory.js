@@ -3,6 +3,7 @@
  * @module core/factory/template
  */
 import Twig from 'twig';
+import { cloneDeep } from 'src/core/service/utils/object.utils';
 
 export default {
     registerComponentTemplate,
@@ -205,9 +206,7 @@ function registerTemplateOverride(
  * @returns {Map<String, Object>}
  */
 function resolveTemplates() {
-    const componentTemplates = Array.from(templateRegistry.values());
-
-    componentTemplates.forEach(item => {
+    const registerNormalizedTemplate = (item) => {
         let templateDefinition = resolveExtendsComponent(item);
 
         // extended component was not found
@@ -220,6 +219,19 @@ function resolveTemplates() {
             ...templateDefinition,
             html: '',
         };
+
+        const hasOverridesInExtensionChain = (component) => {
+            if (!component.extend) {
+                return false;
+            }
+
+            return component.extend.overrides.length > 0 || hasOverridesInExtensionChain(component.extend);
+        };
+        if (hasOverridesInExtensionChain(templateDefinition) && Shopware.Feature.isActive('FEATURE_NEXT_17978')) {
+            // If this component extends (transitively) a component that is overwritten, resolve that extended component
+            // with all its overrides first, before resolving this component with it.
+            registerNormalizedTemplate(templateRegistry.get(templateDefinition.extend.name));
+        }
 
         // Extend with overrides
         const resolvedtokens = resolveExtendTokens(templateDefinition.template.tokens, templateDefinition);
@@ -234,7 +246,10 @@ function resolveTemplates() {
 
         // Final template will be written to the registry
         normalizedTemplateRegistry.set(templateDefinition.name, templateDefinition);
-    });
+    };
+
+    const componentTemplates = Array.from(templateRegistry.values());
+    componentTemplates.forEach(registerNormalizedTemplate);
 
     return normalizedTemplateRegistry;
 }
@@ -368,7 +383,17 @@ function resolveExtendTokens(tokens, item) {
         return tokens;
     }
 
-    const extensionTokens = Array.from(resolveExtendTokens(item.extend.template.tokens, item.extend));
+    let extendedComponentTokens;
+    if (normalizedTemplateRegistry.has(item.extend.name) && Shopware.Feature.isActive('FEATURE_NEXT_17978')) {
+        // If the component was already registered in the normalizedTemplateRegistry (i.e. their overrides and tokens
+        // have been resolved), use that template's tokens instead of the raw tokens of an unresolved component.
+        // Use a clone of the tokens so the already registered template is not altered.
+        extendedComponentTokens = cloneDeep(normalizedTemplateRegistry.get(item.extend.name).template.tokens);
+    } else {
+        extendedComponentTokens = item.extend.template.tokens;
+    }
+
+    const extensionTokens = Array.from(resolveExtendTokens(extendedComponentTokens, item.extend));
     const itemTokens = normalizeTokens(Array.from(tokens), extensionTokens);
 
     tokens = extensionTokens.map((token) => {

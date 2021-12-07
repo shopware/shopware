@@ -245,6 +245,11 @@ shopware:
         major: false
         description: "Enables merchants to organize their sales channels by sorting and marking them as favourites"
         # issue: NEXT-17421
+      - name: FEATURE_NEXT_18982
+        default: false
+        major: false
+        description: "Add marketing rule conditions for rule builder"
+        # issue: NEXT-18982
       - name: FEATURE_NEXT_17540
         default: false
         major: false

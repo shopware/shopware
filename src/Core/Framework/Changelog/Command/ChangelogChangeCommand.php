@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * @deprecated tag:v6.5.0 - will be marked @internal
+ * @deprecated tag:v6.5.0 - will be marked internal
  */
 class ChangelogChangeCommand extends Command
 {

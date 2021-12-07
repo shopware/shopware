@@ -13,7 +13,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Process\Process;
 
 /**
- * @deprecated tag:v6.5.0 - will be marked @internal
+ * @deprecated tag:v6.5.0 - will be marked internal
  */
 class ChangelogCreateCommand extends Command
 {

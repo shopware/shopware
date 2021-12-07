@@ -10,7 +10,7 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @deprecated tag:v6.5.0 - will be marked @internal
+ * @deprecated tag:v6.5.0 - will be marked internal
  */
 class ChangelogProcessor
 {

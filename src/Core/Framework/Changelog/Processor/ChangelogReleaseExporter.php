@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Changelog\Processor;
 use Shopware\Core\Framework\Changelog\ChangelogFileCollection;
 
 /**
- * @deprecated tag:v6.5.0 - will be marked @internal
+ * @deprecated tag:v6.5.0 - will be marked internal
  */
 class ChangelogReleaseExporter extends ChangelogProcessor
 {

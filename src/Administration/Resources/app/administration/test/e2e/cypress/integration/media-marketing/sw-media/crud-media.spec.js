@@ -55,12 +55,6 @@ describe('Media: Test crud operations', () => {
         cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
             cy.setEntitySearchable('media', ['fileName', 'title']);
         });
-        // Upload medium
-        cy.clickContextMenuItem(
-            '.sw-media-upload-v2__button-url-upload',
-            '.sw-media-upload-v2__button-context-menu'
-        );
-        page.uploadImageUsingUrl('http://assets.shopware.com/sw_logo_white.png');
 
         // Upload medium
         cy.clickContextMenuItem(

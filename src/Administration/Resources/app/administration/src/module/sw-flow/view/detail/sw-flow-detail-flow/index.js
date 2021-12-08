@@ -210,5 +210,14 @@ Component.register('sw-flow-detail-flow', {
 
             State.commit('swFlowState/addSequence', newItem);
         },
+
+        getSequenceId(sequence) {
+            if (sequence.id) {
+                return sequence.displayGroup;
+            }
+
+            // In case of action sequence list, return displayGroup of first item
+            return Object.values(sequence)[0].displayGroup;
+        },
     },
 });

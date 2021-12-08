@@ -45,48 +45,55 @@
             <div class="sw-flow-detail-flow__oval"></div>
             {% endblock %}
 
-            {% block sw_flow_detail_flow_position %}
-            <div
-                v-for="sequence in formatSequences"
-                :key="sequence.id"
-                class="sw-flow-detail-flow__position"
+            {% block sw_flow_detail_flow_transition_group %}
+            <transition-group
+                name="list"
+                tag="div"
             >
-
-                {% block sw_flow_sequence_icon_plus %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+                {% block sw_flow_detail_flow_position %}
                 <div
-                    class="sw-flow-detail-flow__position-plus"
-                    :disabled="!acl.can('flow.editor')"
-                    @click="onAddRootSequence"
+                    v-for="sequence in formatSequences"
+                    :key="getSequenceId(sequence)"
+                    class="sw-flow-detail-flow__position list-item"
                 >
-                    <sw-icon
-                        small
-                        name="small-default-plus-line-medium"
-                    />
-                </div>
-                {% endblock %}
 
-                {% block sw_flow_sequence_icon_connection %}
-                <div class="sw-flow-detail-flow__position-connection">
-                    <sw-icon
-                        small
-                        name="small-arrow-large-right"
-                    />
-                </div>
-                {% endblock %}
-
-                {% block sw_flow_detail_flow_sequences %}
-                <div
-                    class="sw-flow-detail-flow__sequences"
-                >
-                    <sw-flow-sequence
-                        name="root-sequence"
-                        :sequence="sequence"
+                    {% block sw_flow_sequence_icon_plus %}
+                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+                    <div
+                        class="sw-flow-detail-flow__position-plus"
                         :disabled="!acl.can('flow.editor')"
-                    />
+                        @click="onAddRootSequence"
+                    >
+                        <sw-icon
+                            small
+                            name="small-default-plus-line-medium"
+                        />
+                    </div>
+                    {% endblock %}
+
+                    {% block sw_flow_sequence_icon_connection %}
+                    <div class="sw-flow-detail-flow__position-connection">
+                        <sw-icon
+                            small
+                            name="small-arrow-large-right"
+                        />
+                    </div>
+                    {% endblock %}
+
+                    {% block sw_flow_detail_flow_sequences %}
+                    <div
+                        class="sw-flow-detail-flow__sequences"
+                    >
+                        <sw-flow-sequence
+                            name="root-sequence"
+                            :sequence="sequence"
+                            :disabled="!acl.can('flow.editor')"
+                        />
+                    </div>
+                    {% endblock %}
                 </div>
                 {% endblock %}
-            </div>
+            </transition-group>
             {% endblock %}
         </div>
         {% endblock %}

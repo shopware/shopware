@@ -71,11 +71,11 @@
             width: 100%;
         }
 
-        &:not(:first-child) .sw-flow-detail-flow__sequences {
+        & .sw-flow-detail-flow__sequences {
             padding-top: 63px;
         }
 
-        &:not(:first-child) .sw-flow-detail-flow__position-connection {
+        & .sw-flow-detail-flow__position-connection {
             @include size(24px);
 
             position: absolute;
@@ -111,10 +111,6 @@
             }
         }
 
-        &:first-child .sw-flow-detail-flow__position-plus {
-            top: 91px;
-        }
-
         .icon--small-arrow-large-right {
             position: absolute;
             bottom: -8px;
@@ -145,4 +141,16 @@
     &__sequences {
         margin-left: 32px;
     }
+}
+
+// style for transition group.
+.list-enter-active,
+.list-leave-active {
+    transition: all 0.5s ease-in-out;
+}
+
+.list-enter,
+.list-leave-to {
+    opacity: 0;
+    transform: translateX(30px);
 }

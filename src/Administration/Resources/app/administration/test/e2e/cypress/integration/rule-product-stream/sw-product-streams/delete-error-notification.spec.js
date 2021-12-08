@@ -42,6 +42,6 @@ describe('Dynamic product group: Test notification on failed delete', () => {
 
         // Expect error response and notification being shown
         cy.wait('@deleteData').its('response.statusCode').should('equal', 500);
-        cy.awaitAndCheckNotification('The dynamic product group "1st Productstream" is defined as product assignment of 2 categories and can therefore not be deleted.');
+        cy.awaitAndCheckNotification('"1st Productstream" provides product assignments for 2 categories and thus cannot be deleted.');
     });
 });

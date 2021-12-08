@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Api;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined;
@@ -69,12 +70,13 @@ class CustomerGroupRegistrationActionController
 
         $this->customerRepository->update($updateData, $context);
 
+        /** @var CustomerEntity $customer */
         foreach ($customers as $customer) {
             $salesChannelContext = $this->salesChannelContextService->get(
                 new SalesChannelContextServiceParameters(
                     $customer->getSalesChannelId(),
                     Uuid::randomHex(),
-                    $context->getLanguageId(),
+                    $customer->getLanguageId(),
                     null,
                     null,
                     $context,
@@ -82,9 +84,11 @@ class CustomerGroupRegistrationActionController
                 )
             );
 
+            /** @var CustomerGroupEntity $customerRequestedGroup */
+            $customerRequestedGroup = $customer->getRequestedGroup();
             $this->eventDispatcher->dispatch(new CustomerGroupRegistrationAccepted(
                 $customer,
-                $customer->getRequestedGroup(),
+                $customerRequestedGroup,
                 $salesChannelContext->getContext()
             ));
         }
@@ -121,12 +125,13 @@ class CustomerGroupRegistrationActionController
 
         $this->customerRepository->update($updateData, $context);
 
+        /** @var CustomerEntity $customer */
         foreach ($customers as $customer) {
             $salesChannelContext = $this->salesChannelContextService->get(
                 new SalesChannelContextServiceParameters(
                     $customer->getSalesChannelId(),
                     Uuid::randomHex(),
-                    $context->getLanguageId(),
+                    $customer->getLanguageId(),
                     null,
                     null,
                     $context,
@@ -134,9 +139,11 @@ class CustomerGroupRegistrationActionController
                 )
             );
 
+            /** @var CustomerGroupEntity $customerRequestedGroup */
+            $customerRequestedGroup = $customer->getRequestedGroup();
             $this->eventDispatcher->dispatch(new CustomerGroupRegistrationDeclined(
                 $customer,
-                $customer->getRequestedGroup(),
+                $customerRequestedGroup,
                 $salesChannelContext->getContext()
             ));
         }

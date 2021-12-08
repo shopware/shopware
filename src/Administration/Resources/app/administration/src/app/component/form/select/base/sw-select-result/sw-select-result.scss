@@ -56,7 +56,11 @@ $sw-select-result-disabled-color-text: darken($color-gray-300, 15%);
 
     &.has--description {
         display: grid;
-        grid-template-columns: 1fr auto;
+        grid-template-columns: auto 1fr auto;
+
+        .sw-select-result__result-item-text {
+            order: 1;
+        }
 
         &.is--active {
             .sw-select-result__result-item-text {
@@ -67,9 +71,27 @@ $sw-select-result-disabled-color-text: darken($color-gray-300, 15%);
         .sw-select-result__result-item-description {
             width: 100%;
             color: $color-gray-600;
-            grid-column-start: 1;
+            order: 2;
             line-height: 14px;
-            padding-top: 8px;
+            padding: 0 0 0 8px;
+        }
+
+        .sw-icon {
+            order: 3;
+        }
+
+        &.is--description-bottom {
+            grid-template-columns: 1fr auto;
+
+            .sw-select-result__result-item-description {
+                grid-column-start: 1;
+                padding: 8px 0 0 0;
+                order: 3;
+            }
+
+            .sw-icon {
+                order: 2;
+            }
         }
     }
 

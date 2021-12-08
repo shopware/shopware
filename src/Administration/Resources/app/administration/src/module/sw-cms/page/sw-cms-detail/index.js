@@ -842,6 +842,11 @@ Component.register('sw-cms-detail', {
         },
 
         onSectionDuplicate(section) {
+            this.prepareSectionClone(section);
+            this.onSave();
+        },
+
+        prepareSectionClone(section) {
             const newSection = this.sectionRepository.create();
 
             const sectionClone = cloneDeep(section);
@@ -859,7 +864,7 @@ Component.register('sw-cms-detail', {
             this.page.sections.splice(newSection.position, 0, newSection);
             this.updateSectionAndBlockPositions();
 
-            this.onSave();
+            return newSection;
         },
 
         onPageTypeChange() {

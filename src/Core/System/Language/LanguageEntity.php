@@ -33,6 +33,7 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation\ActionButtonTranslationCollection;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\App\Aggregate\CmsBlockTranslation\AppCmsBlockTranslationCollection;
+use Shopware\Core\Framework\App\Aggregate\FlowActionTranslation\AppFlowActionTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -353,6 +354,13 @@ class LanguageEntity extends Entity
      * @var AppCmsBlockTranslationCollection|null
      */
     protected $appCmsBlockTranslations;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_17540)
+     *
+     * @var AppFlowActionTranslationCollection|null
+     */
+    protected $appFlowActionTranslations;
 
     public function getMailHeaderFooterTranslations(): ?MailHeaderFooterCollection
     {
@@ -942,6 +950,22 @@ class LanguageEntity extends Entity
     public function setAppCmsBlockTranslations(AppCmsBlockTranslationCollection $appCmsBlockTranslations): void
     {
         $this->appCmsBlockTranslations = $appCmsBlockTranslations;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_17540)
+     */
+    public function getAppFlowActionTranslations(): ?AppFlowActionTranslationCollection
+    {
+        return $this->appFlowActionTranslations;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_17540)
+     */
+    public function setAppFlowActionTranslations(AppFlowActionTranslationCollection $appFlowActionTranslations): void
+    {
+        $this->appFlowActionTranslations = $appFlowActionTranslations;
     }
 
     public function getApiAlias(): string

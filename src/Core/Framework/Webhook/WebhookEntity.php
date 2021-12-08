@@ -35,6 +35,11 @@ class WebhookEntity extends Entity
     protected int $errorCount;
 
     /**
+     * @internal (flag:FEATURE_NEXT_17540)
+     */
+    protected bool $normalized;
+
+    /**
      * @var AppEntity|null
      */
     protected $app;
@@ -107,5 +112,21 @@ class WebhookEntity extends Entity
     public function setErrorCount(int $errorCount): void
     {
         $this->errorCount = $errorCount;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_17540)
+     */
+    public function isNormalized(): bool
+    {
+        return $this->normalized;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_17540)
+     */
+    public function setNormalized(bool $normalized): void
+    {
+        $this->normalized = $normalized;
     }
 }

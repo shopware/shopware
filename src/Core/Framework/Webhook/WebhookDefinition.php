@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 
 class WebhookDefinition extends EntityDefinition
 {
@@ -60,6 +61,10 @@ class WebhookDefinition extends EntityDefinition
             new FkField('app_id', 'appId', AppDefinition::class),
             new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),
         ]);
+
+        if (Feature::isActive('FEATURE_NEXT_17540')) {
+            $collection->add(new BoolField('normalized', 'normalized'));
+        }
 
         return $collection;
     }

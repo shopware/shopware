@@ -7,6 +7,7 @@ use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationDefinition;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockDefinition;
+use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionDefinition;
 use Shopware\Core\Framework\App\Template\TemplateDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -119,6 +120,10 @@ class AppDefinition extends EntityDefinition
             $fields->add(
                 new StringField('base_app_url', 'baseAppUrl', 1024)
             );
+        }
+
+        if (Feature::isActive('FEATURE_NEXT_17540')) {
+            $fields->add((new OneToManyAssociationField('flowActions', AppFlowActionDefinition::class, 'app_id'))->addFlags(new CascadeDelete()));
         }
 
         return $fields;

@@ -313,10 +313,10 @@ return [
     'requirements_status_warning' => 'Warning',
     'requirements_status_ready' => 'Ready',
 
-    'license_agreement_header' => 'General Terms and Conditions of Trade ("GTC")',
-    'license_agreement_info' => 'These are our General Terms and Conditions of Trade. You will have to read and accept the GTC in order to successfully install Shopware 6. The Community Edition is completely free of charge and has been released under the MIT-Licence.',
+    'license_agreement_header' => 'General Terms and Conditions of Business ("GTC")',
+    'license_agreement_info' => 'These are our General Terms and Conditions of Business. You will have to read and accept the GTC in order to successfully install Shopware 6. The Community Edition is completely free of charge and has been released under the MIT-Licence.',
     'license_agreement_error' => 'Please accept our GTC.',
-    'license_agreement_checkbox' => 'I agree to the General Terms and Conditions of Trade (GTC)',
+    'license_agreement_checkbox' => 'I agree to the General Terms and Conditions of Business (GTC)',
 
     'database-configuration_header' => 'Configure database',
     'database-configuration_field_host' => 'Server:',

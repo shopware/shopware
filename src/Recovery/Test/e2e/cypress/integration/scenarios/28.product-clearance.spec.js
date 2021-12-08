@@ -31,7 +31,7 @@ describe('Hide products after clearance & free shipping.', () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
             method: 'POST'
-        }).as('searchSalesChannel');
+        }).as('getSalesChannel');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/product`,
@@ -58,7 +58,7 @@ describe('Hide products after clearance & free shipping.', () => {
         cy.wait('@setProductVisibility').its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-button-process.sw-sales-channel-detail__save-action').click();
-        cy.wait('@searchSalesChannel').its('response.statusCode').should('equal', 200);
+        cy.wait('@getSalesChannel').its('response.statusCode').should('equal', 200);
 
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
         cy.url().should('include', 'product/index');

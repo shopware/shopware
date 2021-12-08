@@ -19,7 +19,12 @@ class CartBehavior extends Struct
         $this->hookAware = $hookAware;
     }
 
-    public function hasPermission(string $permission): bool
+    /**
+     * @deprecated tag:v6.5.0 - Return type will change to bool
+     *
+     * @phpstan-ignore-next-line when return type will be added we can remove the ignore
+     */
+    public function hasPermission(string $permission)
     {
         return !empty($this->permissions[$permission]);
     }

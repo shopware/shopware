@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
@@ -153,6 +154,8 @@ class SystemConfigFacadeTest extends TestCase
 
     public function testSystemConfigIntegrationTest(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
         $this->systemConfigService->set('general.system_config', 'system_config');
         $this->systemConfigService->set('systemConfigExample.config.app_config', 'app_config');
 

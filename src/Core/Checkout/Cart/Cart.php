@@ -334,7 +334,7 @@ class Cart extends Struct
     /**
      * @internal These function is reserved for the `\Shopware\Core\Checkout\Cart\Processor::process`
      */
-    public function setBehavior(CartBehavior $behavior): void
+    public function setBehavior(?CartBehavior $behavior): void
     {
         $this->behavior = $behavior;
     }

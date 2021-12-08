@@ -152,7 +152,9 @@ Component.register('sw-product-variants-overview', {
                     .setLimit(this.limit)
                     .addFilter(Criteria.equals('product.parentId', this.product.id));
 
-                searchCriteria.addAssociation('media');
+                searchCriteria
+                    .getAssociation('media')
+                    .addSorting(Criteria.sort('position'));
 
                 searchCriteria.getAssociation('options')
                     .addSorting(Criteria.sort('groupId'))

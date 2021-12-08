@@ -267,7 +267,7 @@
             "phpstan analyze --memory-limit=2G"
         ],
         "psalm": "psalm --config=psalm.xml --threads=4",
-        "bc-check": "vendor-bin/roave-backward-compatibility-check/bin/bc-check --from=$(git rev-parse origin/trunk)",
+        "bc-check": "vendor-bin/roave-backward-compatibility-check/bin/bc-check --from=$(git merge-base $(git rev-parse HEAD) $(git rev-parse origin/trunk))",
         "static-analyze": [
             "@phpstan src/",
             "@psalm src/"

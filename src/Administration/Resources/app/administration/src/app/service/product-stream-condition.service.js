@@ -67,8 +67,8 @@ export default function conditionService() {
     };
 
     const allowedJsonAccessors = {
-        'price.percentage': {
-            value: 'price.percentage',
+        'cheapestPrice.percentage': {
+            value: 'cheapestPrice.percentage',
             type: 'float',
             trans: 'percentage',
         },

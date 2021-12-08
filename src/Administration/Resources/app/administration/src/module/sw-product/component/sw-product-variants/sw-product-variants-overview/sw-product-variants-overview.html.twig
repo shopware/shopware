@@ -268,9 +268,7 @@
         {% endblock %}
 
         {% block sw_product_variants_overview_data_grid_column_media %}
-        <template
-            #column-media="{ item, isInlineEdit, compact }"
-        >
+        <template #column-media="{ item, isInlineEdit, compact }">
             {% block sw_product_variants_overview_data_grid_column_media_inline_edit %}
             {% block sw_product_variants_overview_data_grid_column_media_inherit %}
             <sw-inheritance-switch

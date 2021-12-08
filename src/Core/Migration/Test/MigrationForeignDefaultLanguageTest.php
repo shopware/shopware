@@ -42,7 +42,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             }
 
             if ($this->isBasicDataMigration($_className)) {
-                $deLiLocale = $connection->fetchAssoc(
+                $deLiLocale = $connection->fetchAssociative(
                     'SELECT * FROM `locale` WHERE `code` = :code',
                     [
                         'code' => 'de-LI',
@@ -67,7 +67,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             }
         }
 
-        $templateDefault = $connection->fetchAssoc(
+        $templateDefault = $connection->fetchAssociative(
             'SELECT subject FROM mail_template_translation
                 WHERE subject = :subject AND language_id = :languageId',
             [
@@ -77,22 +77,23 @@ class MigrationForeignDefaultLanguageTest extends TestCase
         );
         static::assertEquals('Password recovery', $templateDefault['subject']);
 
-        $deDeLanguage = $connection->fetchAssoc(
+        $deDeLanguage = $connection->fetchAssociative(
             'SELECT * FROM `language` WHERE `name` = :name',
             [
                 'name' => 'Deutsch',
             ]
         );
 
-        $templateDeDe = $connection->fetchAssoc(
+        $templateDeDe = $connection->fetchAssociative(
             'SELECT subject FROM mail_template_translation
                 WHERE subject = :subject AND language_id = :languageId',
             [
-                'subject' => 'Password Wiederherstellung',
+                'subject' => 'Password-Wiederherstellung',
                 'languageId' => $deDeLanguage['id'],
             ]
         );
-        static::assertEquals('Password Wiederherstellung', $templateDeDe['subject']);
+
+        static::assertEquals('Password-Wiederherstellung', $templateDeDe['subject']);
 
         $orgConnection->beginTransaction();
     }

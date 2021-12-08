@@ -1,0 +1,13 @@
+<div style="font-family:arial; font-size:12px;">
+    <p>
+        Hallo {{ customer.salutation.translated.letterName }} {{customer.firstName}} {{ customer.lastName }},<br/>
+        <br/>
+        im Shop {{ salesChannel.translated.name }} wurde eine Anfrage gestellt, um Ihr Passwort zurück zu setzen.
+        Bitte bestätigen Sie den unten stehenden Link, um ein neues Passwort zu definieren.<br/>
+        <br/>
+        <a href="{{ resetUrl }}">Passwort zurücksetzen</a><br/>
+        <br/>
+        Dieser Link ist nur für die nächsten 2 Stunden gültig. Danach muss das Zurücksetzen des Passwortes erneut beantragt werden.
+        Falls Sie Ihr Passwort nicht zurücksetzen möchten, ignorieren Sie diese E-Mail - es wird dann keine Änderung vorgenommen.
+    </p>
+</div>

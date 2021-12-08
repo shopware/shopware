@@ -11,7 +11,7 @@
     <!-- eslint-disable vue/v-slot-style -->
     <template
         v-for="(slot, slotName) in $scopedSlots"
-        v-slot:[slotName]="slotData"
+        #[slotName]="slotData"
     >
         <!-- eslint-enable vue/v-slot-style -->
         <slot

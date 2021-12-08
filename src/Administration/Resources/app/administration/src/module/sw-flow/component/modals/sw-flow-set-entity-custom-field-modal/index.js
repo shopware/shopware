@@ -122,6 +122,18 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
             }
             this.fieldOptions = this.getFieldOptions(this.renderedFieldConfig);
         },
+
+        customFieldSetId(value) {
+            if (value && this.customFieldSetError) {
+                this.customFieldSetError = null;
+            }
+        },
+
+        customFieldId(value) {
+            if (value && this.customFieldError) {
+                this.customFieldError = null;
+            }
+        },
     },
 
     created() {

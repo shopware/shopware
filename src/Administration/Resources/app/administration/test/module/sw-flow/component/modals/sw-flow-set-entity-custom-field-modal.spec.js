@@ -325,4 +325,29 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
             }
         }]);
     });
+
+    it('should not able to show error message when input is refilled', async () => {
+        const wrapper = createWrapper();
+        await wrapper.find('.sw-flow-set-entity-custom-field-modal__save-button').trigger('click');
+
+        wrapper.find(fieldClasses[0]);
+        expect(wrapper.find(fieldClasses[0]).classes()).toContain('has--error');
+
+        await wrapper.find(fieldClasses[0]).find('.sw-select__selection').trigger('click');
+        await wrapper.vm.$nextTick();
+        await wrapper.find('.sw-select-option--0').trigger('click');
+
+        expect(wrapper.find(fieldClasses[0]).classes()).not.toContain('has--error');
+
+        await wrapper.find('.sw-flow-set-entity-custom-field-modal__save-button').trigger('click');
+
+        wrapper.find(fieldClasses[1]);
+        expect(wrapper.find(fieldClasses[1]).classes()).toContain('has--error');
+
+        await wrapper.find(fieldClasses[1]).find('.sw-select__selection').trigger('click');
+        await wrapper.vm.$nextTick();
+        await wrapper.find('.sw-select-option--0').trigger('click');
+
+        expect(wrapper.find(fieldClasses[1]).classes()).not.toContain('has--error');
+    });
 });

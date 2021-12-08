@@ -1,5 +1,5 @@
 {% block element_product_box %}
-    {%  set config = element.fieldConfig.elements %}
+    {% set config = element.fieldConfig.elements %}
 
     <div class="cms-element-{{ element.type }}{% if config.verticalAlign.value %} has-vertical-alignment{% endif %}">
         {% block element_product_slider_alignment %}

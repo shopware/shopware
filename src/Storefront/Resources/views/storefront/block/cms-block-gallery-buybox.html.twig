@@ -7,7 +7,8 @@
             {% block block_gallery_buybox_column_left_inner %}
                 {% sw_include "@Storefront/storefront/element/cms-element-" ~ element.type ~ ".html.twig" ignore missing
                     with {
-                    'isProduct': config.sliderItems.value == 'product.media' and config.sliderItems.source == 'mapped'
+                    'isProduct': config.sliderItems.value == 'product.media' and config.sliderItems.source == 'mapped',
+                    'startIndexThumbnails': page.product.cover.position + 1,
                 } %}
             {% endblock %}
         </div>

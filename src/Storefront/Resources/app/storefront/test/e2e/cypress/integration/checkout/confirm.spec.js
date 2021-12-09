@@ -102,7 +102,7 @@ describe('Test payment and shipping methods selection', () => {
         });
     });
 
-    it('@base @confirm: should change payment and shipping methods', () => {
+    it('@base @confirm @package: should change payment and shipping methods', () => {
         const page = new CheckoutPageObject();
 
         // add product to cart

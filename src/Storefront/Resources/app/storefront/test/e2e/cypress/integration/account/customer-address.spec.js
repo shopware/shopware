@@ -7,7 +7,7 @@ describe('Account: Handle addresses as customer', () => {
         });
     });
 
-    it('@base @customer: Add new address and swap roles of these two addresses', () => {
+    it('@base @customer @package: Add new address and swap roles of these two addresses', () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
 

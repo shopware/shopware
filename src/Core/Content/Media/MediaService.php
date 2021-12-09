@@ -120,8 +120,8 @@ class MediaService
             $tempFile = tempnam(sys_get_temp_dir(), '');
         }
 
-        $contentType = $request->headers->get('content_type');
-        if (str_starts_with( $contentType, 'application/json')) {
+        $contentType = $request->headers->get('content_type', '');
+        if (str_starts_with($contentType, 'application/json')) {
             return $this->fileFetcher->fetchFileFromURL($request, $tempFile);
         }
 

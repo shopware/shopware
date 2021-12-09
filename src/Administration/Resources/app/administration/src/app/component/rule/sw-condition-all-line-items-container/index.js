@@ -57,10 +57,31 @@ Component.register('sw-condition-all-line-items-container', {
             if (component && component.extends !== 'sw-condition-base-line-item') {
                 this.unwrapCondition(this.children.first());
             }
+            this.setConditionValue();
         },
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            this.setConditionValue();
+        },
+
+        setConditionValue() {
+            this.condition.value = [];
+            if (this.children.first().type === 'promotionLineItem') {
+                this.condition.value = { type: 'promotion' };
+                return;
+            }
+
+            if (this.children.first().type !== 'cartLineItemOfType') {
+                this.condition.value = { type: 'product' };
+            }
+        },
+
         onAddPlaceholder() {},
 
         unwrapCondition(childCondition) {

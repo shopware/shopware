@@ -676,6 +676,7 @@
         "shippingMethodRule": "Shipping method",
         "lineItemGoodsTotalRule": "Total number of products in cart",
         "orderTotalAmountRule": "Total value of completed orders",
+        "promotionLineItemRule": "Promotion",
         "lineItemCustomField": {
           "field": {
             "fieldSetSelect": {

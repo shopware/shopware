@@ -24,6 +24,10 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Promotion\Rule\PromotionLineItemRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Cart\Rule\LineItemsInCartRule">
             <tag name="shopware.rule.definition"/>
         </service>

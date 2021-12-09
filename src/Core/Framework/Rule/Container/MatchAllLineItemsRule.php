@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Rule\Container;
 
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -14,11 +15,14 @@ class MatchAllLineItemsRule extends Container
 {
     protected ?int $minimumShouldMatch = null;
 
-    public function __construct(array $rules = [], ?int $minimumShouldMatch = null)
+    protected ?string $type;
+
+    public function __construct(array $rules = [], ?int $minimumShouldMatch = null, ?string $type = null)
     {
         parent::__construct($rules);
 
         $this->minimumShouldMatch = $minimumShouldMatch;
+        $this->type = $type;
     }
 
     public function match(RuleScope $scope): bool
@@ -29,7 +33,15 @@ class MatchAllLineItemsRule extends Container
 
         $lineItems = $scope->getCart()->getLineItems();
 
-        if ($lineItems->count() === 0) {
+        if ($this->type !== null && Feature::isActive('FEATURE_NEXT_18982')) {
+            $lineItems = $lineItems->filterFlatByType($this->type);
+        }
+
+        if (\is_array($lineItems) && \count($lineItems) === 0) {
+            return false;
+        }
+
+        if (!\is_array($lineItems) && $lineItems->count() === 0) {
             return false;
         }
 
@@ -40,12 +52,13 @@ class MatchAllLineItemsRule extends Container
 
             foreach ($lineItems as $lineItem) {
                 $scope = new LineItemScope($lineItem, $context);
+                $match = $rule->match($scope);
 
-                if (!$this->minimumShouldMatch && !$rule->match($scope)) {
+                if (!$this->minimumShouldMatch && !$match) {
                     return false;
                 }
 
-                if ($rule->match($scope)) {
+                if ($match) {
                     ++$matched;
                 }
             }
@@ -68,6 +81,7 @@ class MatchAllLineItemsRule extends Container
         $rules = parent::getConstraints();
 
         $rules['minimumShouldMatch'] = [new Type('int')];
+        $rules['type'] = [new Type('string')];
 
         return $rules;
     }

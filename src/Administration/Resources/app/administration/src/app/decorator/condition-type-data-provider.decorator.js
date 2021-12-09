@@ -416,5 +416,13 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         scopes: ['checkout'],
     });
 
+    if (Feature.isActive('FEATURE_NEXT_18982')) {
+        ruleConditionService.addCondition('promotionLineItem', {
+            component: 'sw-condition-promotion-line-item',
+            label: 'global.sw-condition.condition.promotionLineItemRule',
+            scopes: ['cart'],
+        });
+    }
+
     return ruleConditionService;
 });

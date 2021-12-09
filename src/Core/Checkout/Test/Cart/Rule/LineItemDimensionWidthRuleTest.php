@@ -10,6 +10,8 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemDimensionWidthRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Rule\Container\MatchAllLineItemsRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -203,6 +205,94 @@ class LineItemDimensionWidthRuleTest extends TestCase
         ));
 
         static::assertFalse($match);
+    }
+
+    /**
+     * @dataProvider getDataWithMatchAllLineItemsRule
+     */
+    public function testIfMatchesWithMatchAllLineItemsRule(
+        array $lineItems,
+        string $operator,
+        bool $expected
+    ): void {
+        Feature::skipTestIfInActive('FEATURE_NEXT_18982', $this);
+        $this->rule->assign([
+            'operator' => $operator,
+            'amount' => 100,
+        ]);
+        $allLineItemsRule = new MatchAllLineItemsRule([], null, 'product');
+        $allLineItemsRule->addRule($this->rule);
+
+        $lineItemCollection = new LineItemCollection($lineItems);
+
+        $cart = $this->createCart($lineItemCollection);
+
+        $match = $allLineItemsRule->match(new CartRuleScope(
+            $cart,
+            $this->createMock(SalesChannelContext::class)
+        ));
+
+        static::assertSame($expected, $match);
+    }
+
+    public function getDataWithMatchAllLineItemsRule(): \Traversable
+    {
+        yield 'only matching products / equals / match' => [
+            [
+                ($this->createLineItemWithWidth(100)),
+                ($this->createLineItemWithWidth(100)),
+            ],
+            MatchAllLineItemsRule::OPERATOR_EQ, true,
+        ];
+
+        yield 'only matching products / not equals / no match' => [
+            [
+                ($this->createLineItemWithWidth(100)),
+                ($this->createLineItemWithWidth(100)),
+            ],
+            MatchAllLineItemsRule::OPERATOR_NEQ, false,
+        ];
+
+        yield 'only one matching product / equals / match' => [
+            [
+                ($this->createLineItemWithWidth(100)),
+            ],
+            MatchAllLineItemsRule::OPERATOR_EQ, true,
+        ];
+
+        yield 'only one matching product / not equals / no match' => [
+            [
+                ($this->createLineItemWithWidth(100)),
+            ],
+            MatchAllLineItemsRule::OPERATOR_NEQ, false,
+        ];
+
+        yield 'matching and not matching products / equals / not match' => [
+            [
+                ($this->createLineItemWithWidth(100)),
+                ($this->createLineItemWithWidth(100)),
+                ($this->createLineItemWithWidth(500)),
+            ],
+            MatchAllLineItemsRule::OPERATOR_EQ, false,
+        ];
+
+        yield 'matching and not matching products / not equals / not match' => [
+            [
+                ($this->createLineItemWithWidth(100)),
+                ($this->createLineItemWithWidth(100)),
+                ($this->createLineItemWithWidth(500)),
+            ],
+            MatchAllLineItemsRule::OPERATOR_NEQ, false,
+        ];
+
+        yield 'matching products and one promotion / equals / match' => [
+            [
+                ($this->createLineItemWithWidth(100)),
+                ($this->createLineItemWithWidth(100)),
+                ($this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, 1, 'PROMO'))->setPayloadValue('promotionId', 'A'),
+            ],
+            MatchAllLineItemsRule::OPERATOR_EQ, true,
+        ];
     }
 
     public function testConstraints(): void

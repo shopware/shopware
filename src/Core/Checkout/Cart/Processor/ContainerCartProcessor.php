@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\Exception\MissingLineItemPriceException;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -98,10 +97,6 @@ class ContainerCartProcessor implements CartProcessorInterface
                 $item->getChildren()->getPrices()->sum()
             );
 
-            $item->setDeliveryInformation(
-                $this->buildDeliveryInformation($item->getChildren())
-            );
-
             return;
         }
 
@@ -140,64 +135,5 @@ class ContainerCartProcessor implements CartProcessorInterface
         }
 
         return true;
-    }
-
-    private function buildDeliveryInformation(LineItemCollection $items): ?DeliveryInformation
-    {
-        $deliverables = $items->filter(function (LineItem $item) {
-            return $item->getDeliveryInformation() !== null;
-        });
-
-        if ($deliverables->count() <= 0) {
-            return null;
-        }
-
-        $stock = null;
-        $weight = 0;
-        $free = false;
-        $restockTime = null;
-        $deliveryTime = null;
-        $height = 0;
-        $width = 0;
-        $length = 0;
-
-        foreach ($deliverables as $item) {
-            $info = $item->getDeliveryInformation();
-
-            if ($info === null) {
-                continue;
-            }
-
-            $weight += $info->getWeight();
-            $height += $info->getHeight();
-            $width += $info->getWidth();
-            $length += $info->getLength();
-            $free = $free || $info->getFreeDelivery();
-
-            if ($stock === null || $info->getStock() < $stock) {
-                $stock = $info->getStock();
-            }
-
-            if ($restockTime === null || $info->getRestockTime() > $restockTime) {
-                $restockTime = $info->getRestockTime();
-            }
-
-            if ($deliveryTime === null) {
-                $deliveryTime = $info->getDeliveryTime();
-            } elseif ($info->getDeliveryTime() > $deliveryTime->getMin()) {
-                $deliveryTime = $info->getDeliveryTime();
-            }
-        }
-
-        return new DeliveryInformation(
-            $stock ?? 0,
-            $weight,
-            $free,
-            $restockTime,
-            $deliveryTime,
-            $height > 0 ? $height : null,
-            $width > 0 ? $width : null,
-            $length > 0 ? $length : null
-        );
     }
 }

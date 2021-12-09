@@ -59,6 +59,7 @@ class Processor
         $cart->setCustomerComment($original->getCustomerComment());
         $cart->setAffiliateCode($original->getAffiliateCode());
         $cart->setCampaignCode($original->getCampaignCode());
+        $cart->setBehavior($behavior);
 
         // move data from previous calculation into new cart
         $cart->setData($original->getData());
@@ -96,7 +97,6 @@ class Processor
         );
 
         $cart->setRuleIds($context->getRuleIds());
-        $cart->setBehavior($behavior);
 
         return $cart;
     }

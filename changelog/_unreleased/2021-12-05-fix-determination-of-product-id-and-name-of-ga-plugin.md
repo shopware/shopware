@@ -1,6 +1,6 @@
 ---
 title: Fix determination of product id and name of GA plugin
-issue: NEXT-17278
+issue: NEXT-19234 
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999

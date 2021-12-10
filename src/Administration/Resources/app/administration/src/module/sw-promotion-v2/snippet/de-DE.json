@@ -36,6 +36,7 @@
                 "general": {
                     "cardTitle": "Allgemeine Einstellungen",
                     "nameLabel": "Name",
+                    "priorityLabel": "Priorität",
                     "validFromLabel": "Gültig ab",
                     "validFromPlaceholder": "Wähle ein Startdatum ...",
                     "validUntilLabel": "Gültig bis",

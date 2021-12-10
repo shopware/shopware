@@ -67,6 +67,7 @@ class PromotionDefinition extends EntityDefinition
             'maxRedemptionsGlobal' => null,
             'maxRedemptionsPerCustomer' => null,
             'preventCombination' => false,
+            'priority' => 1,
         ];
     }
 
@@ -85,6 +86,7 @@ class PromotionDefinition extends EntityDefinition
             new DateTimeField('valid_until', 'validUntil'),
             new IntField('max_redemptions_global', 'maxRedemptionsGlobal'),
             new IntField('max_redemptions_per_customer', 'maxRedemptionsPerCustomer'),
+            (new IntField('priority', 'priority'))->addFlags(new Required()),
             (new BoolField('exclusive', 'exclusive'))->addFlags(new Required()),
             new StringField('code', 'code'),
             (new BoolField('use_codes', 'useCodes'))->addFlags(new Required()),

@@ -139,11 +139,13 @@ class PromotionCalculator
                 continue;
             }
 
+            $isAutomaticDiscount = $this->isAutomaticDiscount($discountItem);
+
             // we have to verify if the line item is still valid
             // depending on the added requirements and conditions.
             if (!$this->isRequirementValid($discountItem, $calculated, $context)) {
                 // hide the notEligibleErrors on automatic discounts
-                if (!$this->isAutomaticDiscount($discountItem)) {
+                if (!$isAutomaticDiscount) {
                     $this->addPromotionNotEligibleError($discountItem->getLabel() ?? $discountItem->getId(), $calculated);
                 }
 
@@ -158,7 +160,9 @@ class PromotionCalculator
             $promotionId = $discountItem->getPayloadValue('promotionId');
 
             if (\array_key_exists($promotionId, $exclusions)) {
-                $calculated->addErrors(new PromotionExcludedError($discountItem->getDescription() ?? $discountItem->getId()));
+                if (!$isAutomaticDiscount) {
+                    $calculated->addErrors(new PromotionExcludedError($discountItem->getDescription() ?? $discountItem->getId()));
+                }
 
                 continue;
             }

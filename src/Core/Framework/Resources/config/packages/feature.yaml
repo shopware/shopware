@@ -230,11 +230,6 @@ shopware:
         major: true
         description: "Flow Builder UI/UX Improvements"
         # issue: NEXT-18083
-      - name: FEATURE_NEXT_16902
-        default: false
-        major: false
-        description: "Rework rule assignment tab"
-        # issue: NEXT-16902
       - name: FEATURE_NEXT_16148
         default: false
         major: false

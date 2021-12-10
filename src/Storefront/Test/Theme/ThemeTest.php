@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\App\StorefrontPluginRegistryTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -347,11 +346,7 @@ class ThemeTest extends TestCase
 
         static::assertArrayHasKey('multi', $theme['fields']);
         static::assertArrayHasKey('value', $theme['fields']['multi']);
-        if (Feature::isActive('FEATURE_NEXT_17637')) {
-            static::assertEquals(['top', 'bottom'], $theme['fields']['multi']['value']);
-        } else {
-            static::assertEquals(['top'], $theme['fields']['multi']['value']);
-        }
+        static::assertEquals(['top'], $theme['fields']['multi']['value']);
     }
 
     public function testCompileTheme(): void

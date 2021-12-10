@@ -92,11 +92,6 @@ shopware:
         major: false
         description: "Delivery notice for EU geoblocking regulation"
         # issue: NEXT-15707
-      - name: FEATURE_NEXT_17637
-        default: false
-        major: false
-        description: "Add Theme configuration iheritance"
-        # issue: NEXT-17637
       - name: FEATURE_NEXT_15475
         default: false
         major: false

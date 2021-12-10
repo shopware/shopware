@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -124,13 +123,8 @@ class ThemeLifecycleService
 
         $themeData = array_merge($themeData, $updatedData);
 
-        /* @feature-deprecated (flag:FEATURE_NEXT_17637) remove feature check on feature release */
-        if (!empty($configuration->getConfigInheritance()) && Feature::isActive('FEATURE_NEXT_17637')) {
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('technicalName', str_replace('@', '', $configuration->getConfigInheritance()[1])));
-            /** @var ThemeEntity $parentTheme */
-            $parentTheme = $this->themeRepository->search($criteria, $context)->first();
-            $themeData['parentThemeId'] = $parentTheme->getId();
+        if (!empty($configuration->getConfigInheritance())) {
+            $themeData = $this->addParentTheme($configuration, $themeData, $context);
         }
 
         $this->themeRepository->upsert([$themeData], $context);
@@ -432,5 +426,31 @@ class ThemeLifecycleService
         }
 
         return $result;
+    }
+
+    private function addParentTheme(StorefrontPluginConfiguration $configuration, array $themeData, Context $context): array
+    {
+        $lastNotSameTheme = null;
+        foreach (array_reverse($configuration->getConfigInheritance()) as $themeName) {
+            if (
+                $themeName === '@' . StorefrontPluginRegistry::BASE_THEME_NAME
+                || $themeName === '@' . $themeData['technicalName']
+            ) {
+                continue;
+            }
+            $lastNotSameTheme = str_replace('@', '', $themeName);
+        }
+
+        if ($lastNotSameTheme !== null) {
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('technicalName', $lastNotSameTheme));
+            /** @var ThemeEntity|null $parentTheme */
+            $parentTheme = $this->themeRepository->search($criteria, $context)->first();
+            if ($parentTheme) {
+                $themeData['parentThemeId'] = $parentTheme->getId();
+            }
+        }
+
+        return $themeData;
     }
 }

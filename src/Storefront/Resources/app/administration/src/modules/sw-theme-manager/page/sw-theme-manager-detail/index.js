@@ -4,6 +4,7 @@ import './sw-theme-manager-detail.scss';
 const { Component, Mixin } = Shopware;
 const Criteria = Shopware.Data.Criteria;
 const { getObjectDiff, cloneDeep } = Shopware.Utils.object;
+const { isArray } = Shopware.Utils.types;
 
 Component.register('sw-theme-manager-detail', {
     template,
@@ -18,7 +19,7 @@ Component.register('sw-theme-manager-detail', {
     data() {
         return {
             theme: null,
-            parentTheme: null,
+            parentTheme: false,
             defaultMediaFolderId: null,
             structuredThemeFields: {},
             themeConfig: {},
@@ -27,6 +28,8 @@ Component.register('sw-theme-manager-detail', {
             showSaveModal: false,
             errorModalMessage: null,
             baseThemeConfig: {},
+            currentThemeConfigInitial: {},
+            inheritanceChanged: [],
             isLoading: false,
             isSaveSuccessful: false,
             mappedFields: {
@@ -38,7 +41,7 @@ Component.register('sw-theme-manager-detail', {
             salesChannelsWithTheme: null,
             newAssignedSalesChannels: [],
             overwrittenSalesChannelAssignments: [],
-            removedSalesChannels: [],
+            removedSalesChannels: []
         };
     },
 
@@ -55,6 +58,25 @@ Component.register('sw-theme-manager-detail', {
             }
 
             return '';
+        },
+
+        isDerived() {
+            if (!this.theme) {
+                return false;
+            }
+            if (this.theme.technicalName === 'Storefront') {
+                return false;
+            }
+            if (this.parentTheme) {
+                return true;
+            }
+            if (
+                isArray(this.theme?.baseConfig?.configInheritance) &&
+                !this.theme.baseConfig.configInheritance.includes('@Storefront')
+            ) {
+                return false;
+            }
+            return true;
         },
 
         mediaRepository() {
@@ -161,18 +183,19 @@ Component.register('sw-theme-manager-detail', {
                 return;
             }
 
+            this.structuredThemeFields = {};
+            this.currentThemeConfig = {};
+            this.themeConfig = {};
+            this.baseThemeConfig = {};
+            this.currentThemeConfigInitial = {};
+
             this.themeService.getStructuredFields(this.themeId).then((fields) => {
                 this.structuredThemeFields = fields;
             });
 
             this.themeService.getConfiguration(this.themeId).then((config) => {
-                /** @feature-deprecated (flag:FEATURE_NEXT_17637) keep if branch */
-                if (this.feature.isActive('FEATURE_NEXT_17637')) {
-                    this.currentThemeConfig = config.currentFields;
-                } else {
-                    this.currentThemeConfig = config.fields;
-                }
-
+                this.currentThemeConfig = config.currentFields;
+                this.currentThemeConfigInitial = cloneDeep(this.currentThemeConfig);
                 this.themeConfig = config.fields;
                 this.baseThemeConfig = cloneDeep(config.baseThemeFields);
                 this.isLoading = false;
@@ -387,10 +410,49 @@ Component.register('sw-theme-manager-detail', {
             });
         },
 
-        saveThemeConfig() {
-            const newValues = getObjectDiff(this.baseThemeConfig, this.currentThemeConfig);
+        getCurrentChangeset() {
+            // Get actual changes since load, then merge the changes into the full config set
+            const newValues = getObjectDiff(this.currentThemeConfigInitial, this.currentThemeConfig);
+            const allValues = this.theme.configValues ?? {};
+            Object.assign(allValues, newValues);
+            return allValues;
+        },
 
-            return this.themeService.updateTheme(this.themeId, { config: newValues });
+        removeInheritedFromChangeset(allValues) {
+            for (const [key, value] of Object.entries(allValues)) {
+                if (
+                    this.wrapperIsVisible(key)
+                    && this.$refs[`wrapper-${key}`][0].isInherited
+                ) {
+                    // Remove fields which are set to inheritance
+                    delete (allValues[`${key}`]);
+                    continue;
+                }
+                if (
+                    !this.wrapperIsVisible(key)
+                    && this.inheritanceChanged[`wrapper-${key}`] !== undefined
+                    && this.inheritanceChanged[`wrapper-${key}`] === true
+                ) {
+                    delete (allValues[`${key}`]);
+                }
+            }
+        },
+
+        wrapperIsVisible(key) {
+            return this.$refs[`wrapper-${key}`] !== undefined
+            && isArray(this.$refs[`wrapper-${key}`])
+            && this.$refs[`wrapper-${key}`][0] !== undefined;
+        },
+
+        saveThemeConfig() {
+            const allValues = this.getCurrentChangeset();
+
+            this.removeInheritedFromChangeset(allValues);
+
+            // Theme has to be resetted because inherited fields needs to be removed from the set
+            return this.themeService.resetTheme(this.themeId).then(() => {
+                return this.themeService.updateTheme(this.themeId, { config: allValues });
+            });
         },
 
         saveFinish() {
@@ -402,6 +464,19 @@ Component.register('sw-theme-manager-detail', {
                 this.term = null;
             } else {
                 this.term = value;
+            }
+        },
+
+        onChangeTab() {
+            for (const [key, item] of Object.entries(this.$refs)) {
+                if (
+                    key.startsWith('wrapper-')
+                    && item !== undefined
+                    && isArray(item)
+                    && item[0] !== undefined
+                ) {
+                    this.inheritanceChanged[key] = item[0].isInherited;
+                }
             }
         },
 

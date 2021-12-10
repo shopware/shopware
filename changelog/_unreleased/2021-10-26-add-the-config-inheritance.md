@@ -1,7 +1,6 @@
 ---
 title: Add theme config inheritance
 issue: NEXT-17637
-flag: FEATURE_NEXT_17637
 ---
 # Administration
 * Added `currentThemeConfig` prop to `/src/modules/sw-theme-manager/page/sw-theme-manager-detail/index.js` to hold the 

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\Lifecycle;
 
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Cms\CmsExtensions;
+use Shopware\Core\Framework\App\Entity\CustomEntities;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 
 /**
@@ -27,4 +28,6 @@ abstract class AbstractAppLoader
     abstract public function getCmsExtensions(AppEntity $app): ?CmsExtensions;
 
     abstract public function getAssetPathForAppPath(string $appPath): string;
+
+    abstract public function getEntities(AppEntity $app): ?CustomEntities;
 }

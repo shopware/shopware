@@ -37,6 +37,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomEntity\CustomEntityPersister;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -87,6 +88,8 @@ class AppLifecycle extends AbstractAppLifecycle
 
     private AssetService $assetService;
 
+    private CustomEntityPersister $customEntityPersister;
+
     private ScriptExecutor $scriptExecutor;
 
     public function __construct(
@@ -110,7 +113,8 @@ class AppLifecycle extends AbstractAppLifecycle
         EntityRepositoryInterface $aclRoleRepository,
         AssetService $assetService,
         ScriptExecutor $scriptExecutor,
-        string $projectDir
+        string $projectDir,
+        CustomEntityPersister $customEntityPersister
     ) {
         $this->appRepository = $appRepository;
         $this->permissionPersister = $permissionPersister;
@@ -132,6 +136,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->integrationRepository = $integrationRepository;
         $this->aclRoleRepository = $aclRoleRepository;
         $this->assetService = $assetService;
+        $this->customEntityPersister = $customEntityPersister;
         $this->scriptExecutor = $scriptExecutor;
     }
 
@@ -249,6 +254,11 @@ class AppLifecycle extends AbstractAppLifecycle
         $cmsExtensions = $this->appLoader->getCmsExtensions($app);
         if ($cmsExtensions) {
             $this->cmsBlockPersister->updateCmsBlocks($cmsExtensions, $id, $defaultLocale, $context);
+        }
+
+        $entities = $this->appLoader->getEntities($app);
+        if ($entities !== null) {
+            $this->customEntityPersister->update($entities->toStorage(), $id);
         }
 
         $config = $this->appLoader->getConfiguration($app);

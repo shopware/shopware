@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\Lifecycle;
 
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Cms\CmsExtensions as CmsManifest;
+use Shopware\Core\Framework\App\Entity\CustomEntities;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
@@ -116,5 +117,16 @@ class AppLoader extends AbstractAppLoader
     public function getAssetPathForAppPath(string $appPath): string
     {
         return sprintf('%s/%s/Resources/public', $this->projectDir, $appPath);
+    }
+
+    public function getEntities(AppEntity $app): ?CustomEntities
+    {
+        $configPath = sprintf('%s/%s/Resources/entities.xml', $this->projectDir, $app->getPath());
+
+        if (!file_exists($configPath)) {
+            return null;
+        }
+
+        return CustomEntities::createFromXmlFile($configPath);
     }
 }

@@ -5,8 +5,8 @@ namespace Shopware\Core\System\CustomEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @method void                add(CustomEntityEntity $entity)
- * @method void                set(string $key, CustomEntityEntity $entity)
+ * @method void                    add(CustomEntityEntity $entity)
+ * @method void                    set(string $key, CustomEntityEntity $entity)
  * @method CustomEntityEntity[]    getIterator()
  * @method CustomEntityEntity[]    getElements()
  * @method CustomEntityEntity|null get(string $key)

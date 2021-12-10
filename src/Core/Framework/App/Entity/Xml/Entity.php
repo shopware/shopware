@@ -28,14 +28,24 @@ class Entity extends XmlElement
         return new self(self::parse($element));
     }
 
+    public function jsonSerialize(): array
+    {
+        $data = parent::jsonSerialize();
+        unset($data['extensions']);
+
+        return $data;
+    }
+
     private static function parse(\DOMElement $element): array
     {
         $values = [];
 
-        foreach ($element->attributes as $attribute) {
-            $name = self::kebabCaseToCamelCase($attribute->name);
+        if (is_iterable($element->attributes)) {
+            foreach ($element->attributes as $attribute) {
+                $name = self::kebabCaseToCamelCase($attribute->name);
 
-            $values[$name] = XmlUtils::phpize($attribute->value);
+                $values[$name] = XmlUtils::phpize($attribute->value);
+            }
         }
 
         foreach ($element->childNodes as $child) {
@@ -62,22 +72,5 @@ class Entity extends XmlElement
         $values[self::kebabCaseToCamelCase($child->tagName)] = $child->nodeValue;
 
         return $values;
-    }
-
-    public function isStoreApiAware(): bool
-    {
-        return $this->storeApiAware;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function jsonSerialize(): array
-    {
-        $data = parent::jsonSerialize();
-        unset($data['extensions']);
-        return $data;
     }
 }

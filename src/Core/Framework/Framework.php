@@ -2,9 +2,15 @@
 
 namespace Shopware\Core\Framework;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Compatibility\AnnotationReaderCompilerPass;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ActionEventCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefaultTransportCompilerPass;
@@ -23,6 +29,7 @@ use Shopware\Core\Framework\Migration\MigrationCompilerPass;
 use Shopware\Core\Framework\Test\DependencyInjection\CompilerPass\ContainerVisibilityCompilerPass;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\CustomEntity\DynamicEntityDefinition;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
@@ -132,6 +139,11 @@ class Framework extends Bundle
             $this->container->get(SalesChannelDefinitionInstanceRegistry::class),
             $this->container->get(ExtensionRegistry::class)
         );
+
+        $this->registerCustomEntities(
+            $this->container->get(Connection::class),
+            $this->container->get(DefinitionInstanceRegistry::class),
+        );
     }
 
     protected function getCoreMigrationPaths(): array
@@ -191,5 +203,34 @@ class Framework extends Bundle
                 $salesChannelDefinition->addExtension($extension);
             }
         }
+    }
+
+    private function registerCustomEntities(Connection $connection, DefinitionInstanceRegistry $registry): void
+    {
+        $definitions = $connection->fetchAllAssociative('SELECT name, fields FROM custom_entity');
+
+        foreach ($definitions as $entity) {
+            $name = $entity['name'];
+
+            $definition = DynamicEntityDefinition::create($name, json_decode($entity['fields'], true, 512, JSON_THROW_ON_ERROR));
+
+            $this->container->set($name, $definition);
+
+            $this->container->set($definition->getEntityName() . '.repository', $this->createRepository($definition));
+
+            $registry->register($definition, $name);
+        }
+    }
+
+    private function createRepository(DynamicEntityDefinition $definition): EntityRepository
+    {
+        return new EntityRepository(
+            $definition,
+            $this->container->get(EntityReaderInterface::class),
+            $this->container->get(VersionManager::class),
+            $this->container->get(EntitySearcherInterface::class),
+            $this->container->get(EntityAggregatorInterface::class),
+            $this->container->get('event_dispatcher')
+        );
     }
 }

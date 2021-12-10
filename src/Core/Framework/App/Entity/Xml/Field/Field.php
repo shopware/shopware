@@ -18,14 +18,24 @@ class Field extends XmlElement
         }
     }
 
+    public function jsonSerialize(): array
+    {
+        $data = parent::jsonSerialize();
+        unset($data['extensions']);
+
+        return $data;
+    }
+
     protected static function parse(\DOMElement $element): array
     {
         $values = [];
 
-        foreach ($element->attributes as $attribute) {
-            $name = self::kebabCaseToCamelCase($attribute->name);
+        if (is_iterable($element->attributes)) {
+            foreach ($element->attributes as $attribute) {
+                $name = self::kebabCaseToCamelCase($attribute->name);
 
-            $values[$name] = XmlUtils::phpize($attribute->value);
+                $values[$name] = XmlUtils::phpize($attribute->value);
+            }
         }
 
         foreach ($element->childNodes as $child) {
@@ -37,12 +47,5 @@ class Field extends XmlElement
         }
 
         return $values;
-    }
-
-    public function jsonSerialize(): array
-    {
-        $data = parent::jsonSerialize();
-        unset($data['extensions']);
-        return $data;
     }
 }

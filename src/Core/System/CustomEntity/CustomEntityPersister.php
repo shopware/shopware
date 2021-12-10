@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\System\CustomEntity;
 
@@ -23,7 +23,7 @@ class CustomEntityPersister
     {
         $names = array_column($entities, 'name');
 
-        if (count($names) !== count(array_filter($names))) {
+        if (\count($names) !== \count(array_filter($names))) {
             throw new \RuntimeException('Some of the entities has no configured name');
         }
 
@@ -43,7 +43,7 @@ class CustomEntityPersister
         foreach ($entities as $entity) {
             $name = $entity['name'];
 
-            $entity['fields'] = json_encode($entity['fields'], JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION);
+            $entity['fields'] = json_encode($entity['fields'], \JSON_THROW_ON_ERROR | \JSON_PRESERVE_ZERO_FRACTION);
             $entity['app_id'] = $appId !== null ? Uuid::fromHexToBytes($appId) : null;
 
             $id = $entity['id'] ?? Uuid::randomHex();

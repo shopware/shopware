@@ -88,7 +88,7 @@ class EntityTest extends TestCase
             ['name' => 'products', 'type' => 'many-to-many', 'reference' => 'product', 'storeApiAware' => true],
             ['name' => 'top_seller', 'type' => 'many-to-one', 'required' => true, 'reference' => 'product', 'storeApiAware' => true],
             ['name' => 'comments', 'type' => 'one-to-many', 'reference' => 'blog_comment', 'storeApiAware' => true],
-            ['name' => 'author', 'type' => 'one-to-one', 'reference' => 'user', 'storeApiAware' => false]
+            ['name' => 'author', 'type' => 'one-to-one', 'reference' => 'user', 'storeApiAware' => false],
         ];
 
         static::assertEquals('blog', $storage[0]['name']);
@@ -97,7 +97,7 @@ class EntityTest extends TestCase
         $fields = [
             ['name' => 'title', 'type' => 'string', 'required' => true, 'translatable' => true, 'storeApiAware' => true],
             ['name' => 'content', 'type' => 'text', 'allowHtml' => true, 'translatable' => true, 'storeApiAware' => true],
-            ['name' => 'email', 'type' => 'email', 'storeApiAware' => false]
+            ['name' => 'email', 'type' => 'email', 'storeApiAware' => false],
         ];
         static::assertEquals('blog_comment', $storage[1]['name']);
         static::assertEquals($fields, json_decode($storage[1]['fields'], true));

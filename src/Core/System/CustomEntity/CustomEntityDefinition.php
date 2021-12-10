@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\System\CustomEntity;
 
@@ -20,13 +20,6 @@ class CustomEntityDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'custom_entity';
 
-    protected function defineProtections(): EntityProtectionCollection
-    {
-        return new EntityProtectionCollection([
-            new WriteProtection(Context::SYSTEM_SCOPE)
-        ]);
-    }
-
     public function getCollectionClass(): string
     {
         return CustomEntityCollection::class;
@@ -42,6 +35,13 @@ class CustomEntityDefinition extends EntityDefinition
         return self::ENTITY_NAME;
     }
 
+    protected function defineProtections(): EntityProtectionCollection
+    {
+        return new EntityProtectionCollection([
+            new WriteProtection(Context::SYSTEM_SCOPE),
+        ]);
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
@@ -49,7 +49,7 @@ class CustomEntityDefinition extends EntityDefinition
             (new StringField('name', 'name'))->addFlags(new Required()),
             (new BoolField('store_api_aware', 'storeApiAware'))->addFlags(new Required()),
             (new JsonField('fields', 'fields'))->addFlags(new Required()),
-            new FkField('app_id', 'appId', AppDefinition::class)
+            new FkField('app_id', 'appId', AppDefinition::class),
         ]);
     }
 }

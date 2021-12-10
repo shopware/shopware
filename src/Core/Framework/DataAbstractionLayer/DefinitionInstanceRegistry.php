@@ -148,6 +148,8 @@ class DefinitionInstanceRegistry
 
         $this->definitions[$definition->getEntityName()] = $serviceId;
 
+        $this->repositoryMap[$definition->getEntityName()] = $definition->getEntityName() . '.repository';
+
         $definition->compile($this);
     }
 

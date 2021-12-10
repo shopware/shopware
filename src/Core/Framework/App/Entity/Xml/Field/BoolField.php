@@ -16,5 +16,4 @@ class BoolField extends Field
     {
         return new self(self::parse($element));
     }
-
 }

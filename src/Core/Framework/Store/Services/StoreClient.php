@@ -230,7 +230,12 @@ class StoreClient
 
         /** @var PluginEntity|ExtensionStruct $extension */
         foreach ($extensions as $extension) {
-            $indexedExtensions[$extension->getName()] = $extension->getVersion();
+            $name = $extension->getName();
+            $indexedExtensions[$name] = [
+                'name' => $name,
+                'version' => $extension->getVersion(),
+                'active' => $extension->getActive(),
+            ];
         }
 
         $violations = $this->getLicenseViolations($context, $indexedExtensions, $hostName);
@@ -252,15 +257,6 @@ class StoreClient
         array $extensions,
         string $hostName
     ): array {
-        $pluginData = [];
-
-        foreach ($extensions as $name => $version) {
-            $pluginData[] = [
-                'name' => $name,
-                'version' => $version,
-            ];
-        }
-
         $query = $this->getQueries($context);
         $query['hostName'] = $hostName;
 
@@ -269,7 +265,7 @@ class StoreClient
             [
                 'query' => $query,
                 'headers' => $this->getHeaders($context),
-                'json' => ['plugins' => $pluginData],
+                'json' => ['plugins' => $extensions],
             ]
         );
 

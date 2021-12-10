@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\Route;
 
 use Shopware\Core\Framework\Api\Controller\ApiController;
+use Shopware\Core\Framework\Api\Controller\CustomEntityApiController;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\PlatformRequest;
@@ -118,5 +119,51 @@ class ApiRouteLoader extends Loader
             $route->addRequirements(['path' => $listSuffix, 'version' => '\d+']);
             $routes->add('api.' . $entityName . '.create', $route);
         }
+
+        $class = CustomEntityApiController::class;
+
+        // detail routes
+        $route = new Route('/api/custom-entity-{entityName}/{path}');
+        $route->setMethods(['GET']);
+        $route->setDefault('_controller', $class . '::detail');
+        $route->addRequirements(['path' => $detailSuffix, 'version' => '\d+']);
+        $routes->add('api.custom_entity_entity.detail', $route);
+
+        $route = new Route('/api/custom-entity-{entityName}/{path}');
+        $route->setMethods(['PATCH']);
+        $route->setDefault('_controller', $class . '::update');
+        $route->addRequirements(['path' => $detailSuffix, 'version' => '\d+']);
+        $routes->add('api.custom_entity_entity.update', $route);
+
+        $route = new Route('/api/custom-entity-{entityName}/{path}');
+        $route->setMethods(['DELETE']);
+        $route->setDefault('_controller', $class . '::delete');
+        $route->addRequirements(['path' => $detailSuffix, 'version' => '\d+']);
+        $routes->add('api.custom_entity_entity.delete', $route);
+
+        // list routes
+        $route = new Route('/api/custom-entity-{entityName}{path}');
+        $route->setMethods(['GET']);
+        $route->setDefault('_controller', $class . '::list');
+        $route->addRequirements(['path' => $listSuffix, 'version' => '\d+']);
+        $routes->add('api.custom_entity_entity.list', $route);
+
+        $route = new Route('/api/search/custom-entity-{entityName}{path}');
+        $route->setMethods(['POST']);
+        $route->setDefault('_controller', $class . '::search');
+        $route->addRequirements(['path' => $listSuffix, 'version' => '\d+']);
+        $routes->add('api.custom_entity_entity.search', $route);
+
+        $route = new Route('/api/search-ids/custom-entity-{entityName}{path}');
+        $route->setMethods(['POST']);
+        $route->setDefault('_controller', $class . '::searchIds');
+        $route->addRequirements(['path' => $listSuffix, 'version' => '\d+']);
+        $routes->add('api.custom_entity_entity.search-ids', $route);
+
+        $route = new Route('/api/custom-entity-{entityName}{path}');
+        $route->setMethods(['POST']);
+        $route->setDefault('_controller', $class . '::create');
+        $route->addRequirements(['path' => $listSuffix, 'version' => '\d+']);
+        $routes->add('api.custom_entity_entity.create', $route);
     }
 }

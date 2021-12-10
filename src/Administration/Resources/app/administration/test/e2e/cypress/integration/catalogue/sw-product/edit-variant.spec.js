@@ -295,7 +295,8 @@ describe('Product: Test variants', () => {
         cy.get('.sw-product-variant-generation__generate-action').click();
     });
 
-    it('@base @catalogue: test surcharges / discounts in variant', () => {
+    // TODO: unskip the test with NEXT-19240 - was skipped because it is extremely flaky
+    it.skip('@base @catalogue: test surcharges / discounts in variant', () => {
         const page = new ProductPageObject();
 
         cy.intercept({

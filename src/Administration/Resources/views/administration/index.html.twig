@@ -1,84 +1,97 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>
-        Shopware Administration (c) shopware AG
-    </title>
+    {% block administration_head %}
+        {% block administration_meta %}
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+        {% endblock %}
 
-    {% block administration_favicons %}
-        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('static/img/favicon/apple-touch-icon.png', '@Administration') }}">
-        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('static/img/favicon/favicon-16x16.png', '@Administration') }}">
-        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('static/img/favicon/favicon-32x32.png', '@Administration') }}" id="dynamic-favicon">
-        <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('static/img/favicon/android-chrome-192x192.png', '@Administration') }}">
-        <link rel="icon" type="image/png" sizes="256x256" href="{{ asset('static/img/favicon/android-chrome-256x256.png', '@Administration') }}">
-        <meta name="msapplication-TileImage" content="{{ asset('static/img/favicon/mstile-150x150.png', '@Administration') }}">
-        <meta name="msapplication-TileColor" content="#189eff">
-        <meta name="theme-color" content="#189eff">
+        {% block administration_title %}
+            <title>
+                Shopware Administration (c) shopware AG
+            </title>
+        {% endblock %}
+
+        {% block administration_favicons %}
+            <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('static/img/favicon/apple-touch-icon.png', '@Administration') }}">
+            <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('static/img/favicon/favicon-16x16.png', '@Administration') }}">
+            <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('static/img/favicon/favicon-32x32.png', '@Administration') }}" id="dynamic-favicon">
+            <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('static/img/favicon/android-chrome-192x192.png', '@Administration') }}">
+            <link rel="icon" type="image/png" sizes="256x256" href="{{ asset('static/img/favicon/android-chrome-256x256.png', '@Administration') }}">
+            <meta name="msapplication-TileImage" content="{{ asset('static/img/favicon/mstile-150x150.png', '@Administration') }}">
+            <meta name="msapplication-TileColor" content="#189eff">
+            <meta name="theme-color" content="#189eff">
+        {% endblock %}
+
+        {% block administration_stylesheets %}
+            <link rel="stylesheet" href="{{ asset('static/css/vendors-node.css', '@Administration') }}">
+            <link rel="stylesheet" href="{{ asset('static/css/app.css', '@Administration') }}">
+        {% endblock %}
     {% endblock %}
-
-    <link rel="stylesheet" href="{{ asset('static/css/vendors-node.css', '@Administration') }}">
-    <link rel="stylesheet" href="{{ asset('static/css/app.css', '@Administration') }}">
-
 </head>
 <body>
+    {% block administration_body %}
+        {% block administration_app %}
+            <div id="app"></div>
+        {% endblock %}
 
-<div id="app"></div>
+        {% block administration_templates %}
+        {% endblock %}
 
-{% block administration_templates %}{% endblock %}
+        {% block administration_scripts %}
+            <script nonce="{{ cspNonce }}" src="{{ asset('static/js/runtime.js', '@Administration') }}"></script>
+            <script nonce="{{ cspNonce }}" src="{{ asset('static/js/vendors-node.js', '@Administration') }}"></script>
+            <script nonce="{{ cspNonce }}" src="{{ asset('static/js/commons.js', '@Administration') }}"></script>
+            <script nonce="{{ cspNonce }}" src="{{ asset('static/js/app.js', '@Administration') }}"></script>
 
-<script nonce="{{ cspNonce }}" src="{{ asset('static/js/runtime.js', '@Administration') }}"></script>
-<script nonce="{{ cspNonce }}" src="{{ asset('static/js/vendors-node.js', '@Administration') }}"></script>
-<script nonce="{{ cspNonce }}" src="{{ asset('static/js/commons.js', '@Administration') }}"></script>
-<script nonce="{{ cspNonce }}" src="{{ asset('static/js/app.js', '@Administration') }}"></script>
+            <script nonce="{{ cspNonce }}">
+                {#
+                    root-level domain configuration
 
-<script nonce="{{ cspNonce }}">
-    {#
-        root-level domain configuration
+                    host:               shopware.next
+                    port:               80
+                    scheme:             http
+                    schemeAndHttpHost:  http://shopware.next
+                    uri:                http://shopware.next/admin
+                    basePath:
+                    pathInfo:           /admin
 
-        host:               shopware.next
-        port:               80
-        scheme:             http
-        schemeAndHttpHost:  http://shopware.next
-        uri:                http://shopware.next/admin
-        basePath:
-        pathInfo:           /admin
+                    -----------------------------------------------
 
-        -----------------------------------------------
+                    sub-folder domain configuration
 
-        sub-folder domain configuration
-
-        host:               localhost
-        port:               80
-        scheme:             http
-        schemeAndHttpHost:  http://localhost
-        uri:                http://localhost/next/web/admin
-        basePath:           /next/web
-        pathInfo:           /admin
-    #}
-    Shopware.Application.start({
-        apiContext: {
-            host: '{{ app.request.host }}',
-            port: {{ app.request.port }},
-            scheme: '{{ app.request.scheme }}',
-            schemeAndHttpHost: '{{ app.request.schemeAndHttpHost }}',
-            uri: '{{ app.request.uri }}',
-            basePath: '{{ app.request.basePath }}',
-            pathInfo: '{{ app.request.pathInfo }}',
-            liveVersionId: '{{ liveVersionId }}',
-            systemLanguageId: '{{ systemLanguageId }}',
-            apiVersion: {{ apiVersion }},
-            assetPath: '{{ asset('', 'asset') }}'
-        },
-        appContext: {
-            features: {{ features|json_encode|raw }},
-            firstRunWizard: {{ firstRunWizard ? 'true' : 'false' }},
-            systemCurrencyId: '{{ systemCurrencyId }}',
-            systemCurrencyISOCode: '{{ systemCurrencyISOCode }}'
-        }
-    });
-</script>
-
+                    host:               localhost
+                    port:               80
+                    scheme:             http
+                    schemeAndHttpHost:  http://localhost
+                    uri:                http://localhost/next/web/admin
+                    basePath:           /next/web
+                    pathInfo:           /admin
+                #}
+                Shopware.Application.start({
+                    apiContext: {
+                        host: '{{ app.request.host }}',
+                        port: {{ app.request.port }},
+                        scheme: '{{ app.request.scheme }}',
+                        schemeAndHttpHost: '{{ app.request.schemeAndHttpHost }}',
+                        uri: '{{ app.request.uri }}',
+                        basePath: '{{ app.request.basePath }}',
+                        pathInfo: '{{ app.request.pathInfo }}',
+                        liveVersionId: '{{ liveVersionId }}',
+                        systemLanguageId: '{{ systemLanguageId }}',
+                        apiVersion: {{ apiVersion }},
+                        assetPath: '{{ asset('', 'asset') }}'
+                    },
+                    appContext: {
+                        features: {{ features|json_encode|raw }},
+                        firstRunWizard: {{ firstRunWizard ? 'true' : 'false' }},
+                        systemCurrencyId: '{{ systemCurrencyId }}',
+                        systemCurrencyISOCode: '{{ systemCurrencyISOCode }}'
+                    }
+                });
+            </script>
+        {% endblock %}
+    {% endblock %}
 </body>
 </html>

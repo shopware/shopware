@@ -39,6 +39,9 @@ describe('Dashboard:  Visual tests', () => {
         cy.get('.sw-dashboard-index__welcome-message')
             .invoke('prop', 'innerText', 'If it wasn\'t for you… This message would never happened.');
 
+        // Wait for Dashboard stats to be visible
+        cy.get('.sw-dashboard-index__card-headline').should('be.visible');
+
         // Take snapshot for visual testing
         cy.takeSnapshot('[Dashboard] overview', '.sw-dashboard-index__content');
     });

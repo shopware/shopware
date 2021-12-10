@@ -140,5 +140,9 @@ describe('Test payment and shipping methods selection', () => {
 
         cy.get('.finish-order-details .checkout-card .card-body p:nth-of-type(2)')
             .should('contain', 'Express');
+
+        cy.go('back');
+
+        cy.get('.account-welcome h1').contains('Orders');
     });
 });

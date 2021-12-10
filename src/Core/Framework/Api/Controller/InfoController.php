@@ -7,11 +7,19 @@ use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
+use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Kernel;
@@ -47,6 +55,8 @@ class InfoController extends AbstractController
 
     private IncrementGatewayRegistry $incrementGatewayRegistry;
 
+    private EntityRepositoryInterface $appRepository;
+
     public function __construct(
         DefinitionService $definitionService,
         ParameterBagInterface $params,
@@ -54,6 +64,7 @@ class InfoController extends AbstractController
         Packages $packages,
         BusinessEventCollector $eventCollector,
         IncrementGatewayRegistry $incrementGatewayRegistry,
+        EntityRepositoryInterface $appRepository,
         ?FlowActionCollector $flowActionCollector = null,
         bool $enableUrlFeature = true,
         array $cspTemplates = []
@@ -67,6 +78,7 @@ class InfoController extends AbstractController
         $this->cspTemplates = $cspTemplates;
         $this->eventCollector = $eventCollector;
         $this->incrementGatewayRegistry = $incrementGatewayRegistry;
+        $this->appRepository = $appRepository;
     }
 
     /**
@@ -214,9 +226,15 @@ class InfoController extends AbstractController
      *     )
      * )
      * @Route("/api/_info/config", name="api.info.config", methods={"GET"})
+     *
+     * @deprecated tag:v6.5.0 $context param will be required
      */
-    public function config(): JsonResponse
+    public function config(?Context $context = null): JsonResponse
     {
+        if (!$context) {
+            $context = Context::createDefaultContext();
+        }
+
         return new JsonResponse([
             'version' => $this->params->get('kernel.shopware_version'),
             'versionRevision' => $this->params->get('kernel.shopware_version_revision'),
@@ -224,7 +242,7 @@ class InfoController extends AbstractController
                 'enableAdminWorker' => $this->params->get('shopware.admin_worker.enable_admin_worker'),
                 'transports' => $this->params->get('shopware.admin_worker.transports'),
             ],
-            'bundles' => $this->getBundles(),
+            'bundles' => $this->getBundles($context),
             'settings' => [
                 'enableUrlFeature' => $this->enableUrlFeature,
             ],
@@ -288,7 +306,7 @@ class InfoController extends AbstractController
         return $this->json($events);
     }
 
-    private function getBundles(): array
+    private function getBundles(Context $context): array
     {
         $assets = [];
         $package = $this->packages->getPackage('asset');
@@ -313,12 +331,30 @@ class InfoController extends AbstractController
             }, $this->getAdministrationScripts($bundle));
 
             if (empty($styles) && empty($scripts)) {
-                continue;
+                if (!Feature::isActive('FEATURE_NEXT_17950') || !$bundle instanceof Plugin || !$bundle->getAdminBaseUrl()) {
+                    continue;
+                }
             }
 
             $assets[$bundle->getName()] = [
                 'css' => $styles,
                 'js' => $scripts,
+            ];
+
+            if (Feature::isActive('FEATURE_NEXT_17950')) {
+                $assets[$bundle->getName()]['baseUrl'] = $bundle instanceof Plugin ? $bundle->getAdminBaseUrl() : null;
+                $assets[$bundle->getName()]['type'] = 'plugin';
+            }
+        }
+
+        if (!Feature::isActive('FEATURE_NEXT_17950')) {
+            return $assets;
+        }
+
+        foreach ($this->getActiveApps($context) as $app) {
+            $assets[$app->getName()] = [
+                'type' => 'app',
+                'baseUrl' => $app->getBaseAppUrl(),
             ];
         }
 
@@ -347,5 +383,24 @@ class InfoController extends AbstractController
         }
 
         return [$path];
+    }
+
+    private function getActiveApps(Context $context): AppCollection
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new MultiFilter(
+                MultiFilter::CONNECTION_AND,
+                [
+                    new EqualsFilter('active', true),
+                    new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('baseAppUrl', null)]),
+                ]
+            )
+        );
+
+        /** @var AppCollection $apps */
+        $apps = $this->appRepository->search(new Criteria(), $context)->getEntities();
+
+        return $apps;
     }
 }

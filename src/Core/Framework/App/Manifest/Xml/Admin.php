@@ -21,6 +21,8 @@ class Admin extends XmlElement
 
     protected ?MainModule $mainModule;
 
+    protected ?string $baseAppUrl = null;
+
     private function __construct(array $data)
     {
         foreach ($data as $property => $value) {
@@ -54,6 +56,11 @@ class Admin extends XmlElement
         return $this->mainModule;
     }
 
+    public function getBaseAppUrl(): ?string
+    {
+        return $this->baseAppUrl;
+    }
+
     private static function parseChilds(\DOMElement $element): array
     {
         if (\count($element->getElementsByTagName('main-module')) > 1) {
@@ -76,10 +83,17 @@ class Admin extends XmlElement
             $mainModule = MainModule::fromXml($mainModuleNode);
         }
 
+        $baseAppUrl = null;
+        foreach ($element->getElementsByTagName('base-app-url') as $baseUrl) {
+            // main-module element has to be unique due to schema restrictions
+            $baseAppUrl = $baseUrl->nodeValue;
+        }
+
         return [
             'actionButtons' => $actionButtons,
             'modules' => $modules,
             'mainModule' => $mainModule,
+            'baseAppUrl' => $baseAppUrl,
         ];
     }
 }

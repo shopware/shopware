@@ -127,6 +127,14 @@ abstract class Plugin extends Bundle
         return [];
     }
 
+    /**
+     * Used to configure the BaseUrl for the Admin Extension API
+     */
+    public function getAdminBaseUrl(): ?string
+    {
+        return null;
+    }
+
     private function computePluginClassPath(): string
     {
         $canonicalizedPluginClassPath = parent::getPath();

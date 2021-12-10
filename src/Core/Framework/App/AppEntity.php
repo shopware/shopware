@@ -65,6 +65,11 @@ class AppEntity extends Entity
     protected $version;
 
     /**
+     * @internal (flag:FEATURE_NEXT_17950)
+     */
+    protected ?string $baseAppUrl = null;
+
+    /**
      * @var array
      */
     protected $modules;
@@ -259,6 +264,22 @@ class AppEntity extends Entity
     public function setVersion(string $version): void
     {
         $this->version = $version;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_17950)
+     */
+    public function getBaseAppUrl(): ?string
+    {
+        return $this->baseAppUrl;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_17950)
+     */
+    public function setBaseAppUrl(?string $baseAppUrl): void
+    {
+        $this->baseAppUrl = $baseAppUrl;
     }
 
     public function getModules(): array

@@ -140,6 +140,7 @@
             <xs:element name="action-button" maxOccurs="unbounded" minOccurs="0" type="action-button"/>
             <xs:element name="module" maxOccurs="unbounded" minOccurs="0" type="module"/>
             <xs:element name="main-module" maxOccurs="1" minOccurs="0" type="main-module"/>
+            <xs:element name="base-app-url" maxOccurs="1" minOccurs="0" type="xs:anyURI"/>
         </xs:choice>
     </xs:complexType>
     <xs:complexType name="permissions">

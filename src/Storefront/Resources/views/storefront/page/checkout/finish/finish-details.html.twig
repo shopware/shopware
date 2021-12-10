@@ -15,9 +15,16 @@
                 {% endblock %}
 
                 {% block page_checkout_finish_ordernumber %}
-                    <p class="finish-ordernumber">
+                    <p class="finish-ordernumber" data-order-number="{{ page.order.orderNumber }}">
                         {{ "checkout.finishInfoOrdernumber"|trans|sw_sanitize }}{{ page.order.orderNumber }}
                     </p>
+                {% endblock %}
+
+                {% block page_checkout_finish_hidden_information_line_items %}
+                    {% sw_include '@Storefront/storefront/component/checkout/hidden-line-items-information.html.twig' with {
+                        cart: page.order,
+                        lineItems: page.order.lineItems,
+                    } %}
                 {% endblock %}
 
                 {% block page_checkout_finish_subtitle %}

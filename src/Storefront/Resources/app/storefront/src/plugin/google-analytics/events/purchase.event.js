@@ -13,10 +13,15 @@ export default class PurchaseEvent extends AnalyticsEvent
             return;
         }
 
-        const orderNumberElement = DomAccessHelper.querySelector(document, '.hidden-ordernumber-information');
+        const orderNumberElement = DomAccessHelper.querySelector(document, '.finish-ordernumber');
+        
+        if (!orderNumberElement) {
+            return;
+        }
+
         const orderNumber = DomAccessHelper.getDataAttribute(orderNumberElement, 'order-number');
         if (!orderNumber) {
-            console.warn('Cannot determine order number - Skip tracking of the order');
+            console.warn('Cannot determine order number - Skip order tracking');
 
             return;
         }
@@ -25,5 +30,17 @@ export default class PurchaseEvent extends AnalyticsEvent
             'transaction_id': orderNumber,
             'items':  LineItemHelper.getLineItems(),
         }, ...LineItemHelper.getAdditionalProperties() });
+    }
+
+    /**
+     *  @deprecated tag:v6.5.0 - Unused function will be removed as the `execute` function now pulls the uuid from the template
+     */
+    generateUuid() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(replace) {
+            const random = Math.random() * 16 | 0;
+            const value = replace === 'x' ? random : (random & 0x3 | 0x8);
+
+            return value.toString(16);
+        });
     }
 }

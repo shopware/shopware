@@ -75,17 +75,17 @@ class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailC
 
     private function loadProductReviews(SalesChannelProductEntity $product, Request $request, SalesChannelContext $context): ProductReviewResult
     {
+        $productId = $product->getParentId() ?? $product->getId();
         $reviewCriteria = $this->createReviewCriteria($request, $context);
         $reviews = $this->productReviewRoute
-            ->load($product->getId(), $request, $context, $reviewCriteria)
+            ->load($productId, $request, $context, $reviewCriteria)
             ->getResult();
 
         $matrix = $this->getReviewRatingMatrix($reviews);
 
         $reviewResult = ProductReviewResult::createFrom($reviews);
         $reviewResult->setMatrix($matrix);
-        $reviewResult->setProductId($product->getId());
-        $reviewResult->setCustomerReview($this->getCustomerReview($product->getId(), $context));
+        $reviewResult->setCustomerReview($this->getCustomerReview($productId, $context));
         $reviewResult->setTotalReviews($matrix->getTotalReviewCount());
         $reviewResult->setProductId($product->getId());
         $reviewResult->setParentId($product->getParentId() ?? $product->getId());

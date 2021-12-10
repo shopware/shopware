@@ -22,6 +22,7 @@ class System extends Bundle
         $loader->load('sales_channel.xml');
         $loader->load('country.xml');
         $loader->load('currency.xml');
+        $loader->load('custom_entity.xml');
         $loader->load('locale.xml');
         $loader->load('snippet.xml');
         $loader->load('salutation.xml');

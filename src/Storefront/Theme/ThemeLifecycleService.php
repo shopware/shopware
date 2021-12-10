@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme;
 
+use GuzzleHttp\Psr7\MimeType;
 use Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
@@ -17,7 +18,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
-use function GuzzleHttp\Psr7\mimetype_from_filename;
 
 class ThemeLifecycleService
 {
@@ -179,7 +179,7 @@ class ThemeLifecycleService
             'media' => ['id' => $mediaId, 'mediaFolderId' => $themeFolderId],
             'mediaFile' => new MediaFile(
                 $path,
-                mimetype_from_filename($pathinfo['basename']),
+                MimeType::fromFilename($pathinfo['basename']),
                 $pathinfo['extension'],
                 filesize($path)
             ),

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Entities/Schema/entity-1.0.xsd">
+    <entity name="blog" store-api-aware="true">
+        <fields>
+            <int name="position" store-api-aware="true" />
+            <float name="rating" store-api-aware="true" />
+            <string name="title" required="true" translatable="true" store-api-aware="true" />
+            <text name="content" allow-html="true" translatable="true" store-api-aware="true" />
+            <bool name="display" translatable="true" store-api-aware="true" />
+            <json name="payload" store-api-aware="false" />
+            <email name="email"  store-api-aware="false" />
+            <many-to-many name="products" reference="product" store-api-aware="true" />
+            <many-to-one name="top_seller" reference="product" store-api-aware="true" required="true" />
+            <one-to-many name="comments" reference="blog_comment" store-api-aware="true" />
+            <one-to-one name="author" reference="user" store-api-aware="false" />
+        </fields>
+    </entity>
+
+    <entity name="blog_comment" store-api-aware="true">
+        <fields>
+            <string name="title" required="true" translatable="true" store-api-aware="true" />
+            <text name="content" allow-html="true" translatable="true" store-api-aware="true" />
+            <email name="email"  store-api-aware="false" />
+        </fields>
+    </entity>
+</entities>

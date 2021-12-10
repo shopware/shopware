@@ -422,31 +422,21 @@ class EntityDefinitionQueryHelper
     public function joinVersion(QueryBuilder $query, EntityDefinition $definition, string $root, Context $context): void
     {
         $table = $definition->getEntityName();
+        $versionRoot = $root . '_version';
 
-        $versionQuery = $query->getConnection()->createQueryBuilder();
-        $versionQuery->select([
-            'DISTINCT COALESCE(draft.`id`, live.`id`) as id',
-            'COALESCE(draft.`version_id`, live.`version_id`) as version_id',
-        ]);
-        $versionQuery->from(self::escape($table), 'live');
-        $versionQuery->leftJoin('live', self::escape($table), 'draft', 'draft.`id` = live.`id` AND draft.`version_id` = :version');
-        $versionQuery->andWhere('live.`version_id` = :liveVersion OR draft.version_id = :version');
+        $query->andWhere(
+            str_replace(
+                ['#root#', '#table#', '#version#'],
+                [self::escape($root), self::escape($table), self::escape($versionRoot)],
+                '#root#.version_id = COALESCE(
+                    (SELECT DISTINCT version_id FROM #table# AS #version# WHERE #version#.`id` = #root#.`id` AND `version_id` = :version),
+                    :liveVersion
+                )'
+            )
+        );
 
         $query->setParameter('liveVersion', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
         $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
-
-        $versionRoot = $root . '_version';
-
-        $query->innerJoin(
-            self::escape($root),
-            '(' . $versionQuery->getSQL() . ')',
-            self::escape($versionRoot),
-            str_replace(
-                ['#version#', '#root#'],
-                [self::escape($versionRoot), self::escape($root)],
-                '#version#.`version_id` = #root#.`version_id` AND #version#.`id` = #root#.`id`'
-            )
-        );
     }
 
     public static function getTranslatedField(EntityDefinition $definition, TranslatedField $translatedField): Field

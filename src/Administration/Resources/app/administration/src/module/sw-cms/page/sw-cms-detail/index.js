@@ -513,6 +513,15 @@ Component.register('sw-cms-detail', {
             });
         },
 
+        addFirstSection(type, index) {
+            this.onAddSection(type, index);
+        },
+
+        addAdditionalSection(type, index) {
+            this.onAddSection(type, index);
+            this.onSave();
+        },
+
         onAddSection(type, index) {
             if (!type || index === 'undefined') {
                 return;

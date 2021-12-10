@@ -676,6 +676,12 @@
         "shippingMethodRule": "Verwendete Versandart",
         "lineItemGoodsTotalRule": "Gesamtanzahl Produkte im Warenkorb",
         "orderTotalAmountRule": "Gesamtsumme aller abgeschlossenen Bestellungen",
+        "promotionCodeOfType": "Rabattaktionen mit Aktionscodetyp",
+        "promotionCodeOfTypeRule": {
+          "global": "Keiner",
+          "fixed": "Festgelegt",
+          "individual": "Individuell"
+        },
         "promotionLineItemRule": "Rabattaktion",
         "lineItemCustomField": {
           "field": {

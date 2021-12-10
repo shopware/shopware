@@ -488,6 +488,12 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
             label: 'global.sw-condition.condition.promotionLineItemRule',
             scopes: ['cart'],
         });
+
+        ruleConditionService.addCondition('promotionCodeOfType', {
+            component: 'sw-condition-promotion-code-of-type',
+            label: 'global.sw-condition.condition.promotionCodeOfType',
+            scopes: ['cart'],
+        });
     }
 
     return ruleConditionService;

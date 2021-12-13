@@ -18,6 +18,7 @@ Mixin.register('listing', {
             disableRouteParams: false,
             searchConfigEntity: null,
             entitySearchable: true,
+            freshSearchTerm: false,
         };
     },
 
@@ -49,6 +50,14 @@ Mixin.register('listing', {
             }
 
             return this.searchRankingService.getSearchFieldsByEntity(this.searchConfigEntity);
+        },
+
+        currentSortBy() {
+            if (!this.feature.isActive('FEATURE_NEXT_6040')) {
+                return this.sortBy;
+            }
+
+            return this.freshSearchTerm ? null : this.sortBy;
         },
     },
 
@@ -106,6 +115,32 @@ Mixin.register('listing', {
 
         selection() {
             Shopware.State.commit('shopwareApps/setSelectedIds', Object.keys(this.selection));
+        },
+
+        term(newValue) {
+            if (!this.feature.isActive('FEATURE_NEXT_6040')) {
+                return;
+            }
+
+            if (newValue && newValue.length) {
+                this.freshSearchTerm = true;
+            }
+        },
+
+        sortBy() {
+            if (!this.feature.isActive('FEATURE_NEXT_6040')) {
+                return;
+            }
+
+            this.freshSearchTerm = false;
+        },
+
+        sortDirection() {
+            if (!this.feature.isActive('FEATURE_NEXT_6040')) {
+                return;
+            }
+
+            this.freshSearchTerm = false;
         },
     },
 

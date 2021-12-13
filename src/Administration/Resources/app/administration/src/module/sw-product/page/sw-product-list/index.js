@@ -236,6 +236,10 @@ Component.register('sw-product-list', {
                 return;
             }
 
+            if (this.feature.isActive('FEATURE_NEXT_6040') && this.freshSearchTerm) {
+                criteria.resetSorting();
+            }
+
             try {
                 const result = await Promise.all([
                     this.productRepository.search(criteria),
@@ -250,6 +254,7 @@ Component.register('sw-product-list', {
 
                 this.currencies = currencies;
                 this.isLoading = false;
+
                 this.selection = {};
             } catch {
                 this.isLoading = false;

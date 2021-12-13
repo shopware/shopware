@@ -13,6 +13,9 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class EntityProtectionValidator implements EventSubscriberInterface
 {
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [

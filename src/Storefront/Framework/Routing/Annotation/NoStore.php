@@ -12,7 +12,7 @@ class NoStore extends ConfigurationAnnotation
     public const ALIAS = 'noStore';
 
     /**
-     * {@inheritdoc}
+     * @return string
      */
     public function getAliasName()
     {
@@ -22,7 +22,7 @@ class NoStore extends ConfigurationAnnotation
     /**
      * {@inheritdoc}
      */
-    public function allowArray()
+    public function allowArray(): bool
     {
         return false;
     }

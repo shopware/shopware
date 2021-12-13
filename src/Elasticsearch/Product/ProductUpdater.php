@@ -19,6 +19,9 @@ class ProductUpdater implements EventSubscriberInterface
         $this->definition = $definition;
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [

@@ -52,6 +52,9 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         $this->maintenanceResolver = $maintenanceModeResolver;
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [

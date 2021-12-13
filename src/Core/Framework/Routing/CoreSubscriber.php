@@ -20,6 +20,9 @@ class CoreSubscriber implements EventSubscriberInterface
         $this->cspTemplates = (array) $cspTemplates;
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [

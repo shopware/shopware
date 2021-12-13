@@ -31,6 +31,9 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface
         $this->syncService = $syncService;
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [

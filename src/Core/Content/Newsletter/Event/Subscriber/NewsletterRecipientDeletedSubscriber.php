@@ -17,6 +17,9 @@ class NewsletterRecipientDeletedSubscriber implements EventSubscriberInterface
         $this->messageBus = $messageBus;
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [NewsletterEvents::NEWSLETTER_RECIPIENT_DELETED_EVENT => 'onNewsletterRecipientDeleted'];

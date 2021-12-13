@@ -46,6 +46,9 @@ class QueryBuilder extends DBALQueryBuilder
         $this->title = $title;
     }
 
+    /**
+     * @return string
+     */
     public function getSQL()
     {
         $sql = parent::getSQL();

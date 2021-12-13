@@ -34,6 +34,9 @@ class CachedFlowLoader extends AbstractFlowLoader implements EventSubscriberInte
         $this->logger = $logger;
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [

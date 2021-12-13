@@ -58,6 +58,9 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
         $this->indexerRegistry->sendIndexingMessage(['category.indexer', 'product.indexer']);
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [

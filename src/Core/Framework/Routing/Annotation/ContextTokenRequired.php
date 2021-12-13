@@ -19,12 +19,12 @@ class ContextTokenRequired implements ConfigurationInterface
         $this->required = isset($values['value']) ? $values['value'] : true;
     }
 
-    public function getAliasName()
+    public function getAliasName(): string
     {
         return 'contextTokenRequired';
     }
 
-    public function allowArray()
+    public function allowArray(): bool
     {
         return false;
     }

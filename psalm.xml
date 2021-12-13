@@ -22,6 +22,9 @@
 
             <!-- twig override -->
             <file name="src/Core/Framework/Adapter/Twig/TwigEnvironment.php"/>
+
+            <!-- Remove with Symfony 6.0 Upgrade -->
+            <file name="src/Core/Content/Mail/Service/MailerTransportFactory.php"/>
         </ignoreFiles>
     </projectFiles>
 

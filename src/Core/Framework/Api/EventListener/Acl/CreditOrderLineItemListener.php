@@ -12,6 +12,9 @@ class CreditOrderLineItemListener implements EventSubscriberInterface
 {
     public const ACL_ORDER_CREATE_DISCOUNT_PRIVILEGE = 'order:create:discount';
 
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [CommandAclValidationEvent::class => 'validate'];

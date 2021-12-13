@@ -22,6 +22,9 @@ class FileDeletedSubscriber implements EventSubscriberInterface
         $this->messageBus = $messageBus;
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [ImportExportFileEvents::IMPORT_EXPORT_FILE_DELETED_EVENT => 'onFileDeleted'];

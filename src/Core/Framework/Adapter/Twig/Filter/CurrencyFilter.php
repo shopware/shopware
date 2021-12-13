@@ -21,7 +21,7 @@ class CurrencyFilter extends AbstractExtension
         $this->currencyFormatter = $currencyFormatter;
     }
 
-    public function getFilters()
+    public function getFilters(): array
     {
         return [
             new TwigFilter('currency', [$this, 'formatCurrency'], ['needs_context' => true]),

@@ -18,7 +18,7 @@ class Captcha implements ConfigurationInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return bool
      */
     public function allowArray()
     {

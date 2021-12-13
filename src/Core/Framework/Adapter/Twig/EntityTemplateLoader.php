@@ -9,22 +9,16 @@ use Twig\Error\LoaderError;
 use Twig\Loader\LoaderInterface;
 use Twig\Source;
 
+/**
+ * @internal
+ */
 class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface
 {
-    /**
-     * @var array
-     */
-    private $databaseTemplateCache = [];
+    private array $databaseTemplateCache = [];
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var string
-     */
-    private $environment;
+    private string $environment;
 
     public function __construct(Connection $connection, string $environment)
     {
@@ -68,6 +62,9 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface
         return $template['updatedAt'] === null || $template['updatedAt']->getTimestamp() < $time;
     }
 
+    /**
+     * @return bool
+     */
     public function exists(string $name)
     {
         $template = $this->findDatabaseTemplate($name);

@@ -47,7 +47,7 @@ class ValidateAppCommand extends Command
 
         $name = $input->getArgument('name');
 
-        if ($name !== null && $name !== '') {
+        if ($name !== '' && \is_string($name)) {
             $successMessage = 'app is valid';
             $dir = $this->getAppFolderByName($name, $io);
 

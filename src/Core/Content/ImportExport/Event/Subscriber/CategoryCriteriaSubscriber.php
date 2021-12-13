@@ -9,6 +9,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class CategoryCriteriaSubscriber implements EventSubscriberInterface
 {
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [

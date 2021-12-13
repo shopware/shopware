@@ -44,7 +44,7 @@ class ChangelogCreateCommand extends Command
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Use the --dry-run argument to preview the changelog content and prevent actually writing to file.');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $IOHelper = new SymfonyStyle($input, $output);
         $IOHelper->title('Create a changelog markdown file');

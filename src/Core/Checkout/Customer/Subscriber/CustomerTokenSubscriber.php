@@ -13,15 +13,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 class CustomerTokenSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var SalesChannelContextPersister
-     */
-    private $contextPersister;
+    private SalesChannelContextPersister $contextPersister;
 
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
+    private RequestStack $requestStack;
 
     public function __construct(
         SalesChannelContextPersister $contextPersister,
@@ -31,6 +25,9 @@ class CustomerTokenSubscriber implements EventSubscriberInterface
         $this->requestStack = $requestStack;
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [

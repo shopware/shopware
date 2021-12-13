@@ -27,6 +27,9 @@ class AclWriteValidator implements EventSubscriberInterface
         $this->eventDispatcher = $eventDispatcher;
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [PreWriteValidationEvent::class => 'preValidate'];

@@ -9,6 +9,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class MediaFolderConfigLoadedSubscriber implements EventSubscriberInterface
 {
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [

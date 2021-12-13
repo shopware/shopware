@@ -33,6 +33,9 @@ class CustomerFlowEventsSubscriber implements EventSubscriberInterface
         $this->salesChannelContextService = $salesChannelContextService;
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [

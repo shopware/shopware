@@ -14,12 +14,12 @@ class Acl extends ConfigurationAnnotation
      */
     private $value;
 
-    public function getAliasName()
+    public function getAliasName(): string
     {
         return 'acl';
     }
 
-    public function allowArray()
+    public function allowArray(): bool
     {
         return false;
     }

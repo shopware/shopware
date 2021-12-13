@@ -11,6 +11,7 @@ use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\ClosureLoader;
 use Symfony\Component\DependencyInjection\Loader\DirectoryLoader;
 use Symfony\Component\DependencyInjection\Loader\GlobFileLoader;
@@ -33,6 +34,9 @@ class Elasticsearch extends Bundle
         $this->buildConfig($container);
     }
 
+    /**
+     * @return ExtensionInterface
+     */
     public function createContainerExtension()
     {
         return new ElasticsearchExtension();

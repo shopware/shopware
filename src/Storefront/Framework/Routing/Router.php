@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
 use Symfony\Component\Routing\Matcher\RequestMatcherInterface;
 use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Service\ServiceSubscriberInterface;
 
@@ -35,17 +36,23 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
         $this->requestStack = $requestStack;
     }
 
+    /**
+     * @return array
+     */
     public static function getSubscribedServices()
     {
         return SymfonyRouter::getSubscribedServices();
     }
 
+    /**
+     * @inheritdoc
+     */
     public function warmUp(string $cacheDir)
     {
         return $this->decorated->warmUp($cacheDir);
     }
 
-    public function matchRequest(Request $request)
+    public function matchRequest(Request $request): array
     {
         if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID)) {
             return $this->decorated->matchRequest($request);
@@ -66,16 +73,25 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
         return $this->decorated->setContext($context);
     }
 
+    /**
+     * @return RequestContext
+     */
     public function getContext()
     {
         return $this->decorated->getContext();
     }
 
+    /**
+     * @return RouteCollection
+     */
     public function getRouteCollection()
     {
         return $this->decorated->getRouteCollection();
     }
 
+    /**
+     * @return string
+     */
     public function generate(string $name, array $parameters = [], int $referenceType = self::ABSOLUTE_PATH)
     {
         $basePath = $this->getBasePath();
@@ -142,6 +158,9 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
         return $rewrite;
     }
 
+    /**
+     * @return array
+     */
     public function match($pathinfo)
     {
         return $this->decorated->match($pathinfo);

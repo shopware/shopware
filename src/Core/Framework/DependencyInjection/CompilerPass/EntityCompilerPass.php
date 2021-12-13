@@ -35,7 +35,6 @@ class EntityCompilerPass implements CompilerPassInterface
 
         $ids = array_keys($services);
 
-        /** @var string $serviceId */
         foreach ($ids as $serviceId) {
             $service = $container->getDefinition($serviceId);
 

@@ -38,6 +38,7 @@ framework:
             cache.rate_limiter:
                 adapter: cache.app
     messenger:
+        reset_on_message: true
         transports:
             default:
                 dsn: "enqueue://default?receiveTimeout=100"

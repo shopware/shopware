@@ -20,6 +20,9 @@ class AppLifecycleSubscriber implements EventSubscriberInterface
         $this->appRepository = $appRepository;
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [

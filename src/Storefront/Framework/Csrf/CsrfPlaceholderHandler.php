@@ -6,6 +6,9 @@ use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageFactoryInterface;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
@@ -21,15 +24,15 @@ class CsrfPlaceholderHandler
 
     private RequestStack $requestStack;
 
-    private SessionProvider $sessionProvider;
+    private SessionStorageFactoryInterface $sessionFactory;
 
-    public function __construct(CsrfTokenManagerInterface $csrfTokenManager, bool $csrfEnabled, string $csrfMode, RequestStack $requestStack, SessionProvider $sessionProvider)
+    public function __construct(CsrfTokenManagerInterface $csrfTokenManager, bool $csrfEnabled, string $csrfMode, RequestStack $requestStack, SessionStorageFactoryInterface $sessionFactory)
     {
         $this->csrfTokenManager = $csrfTokenManager;
         $this->csrfEnabled = $csrfEnabled;
         $this->csrfMode = $csrfMode;
         $this->requestStack = $requestStack;
-        $this->sessionProvider = $sessionProvider;
+        $this->sessionFactory = $sessionFactory;
     }
 
     public function replaceCsrfToken(Response $response, Request $request): Response
@@ -58,7 +61,7 @@ class CsrfPlaceholderHandler
         }
 
         // Get session from session provider if not provided in session. This happens when the page is fully cached
-        $session = $request->hasSession() ? $request->getSession() : $this->sessionProvider->getSession();
+        $session = $request->hasSession() ? $request->getSession() : $this->createSession($request);
         $request->setSession($session);
 
         if ($session !== null) {
@@ -101,5 +104,13 @@ class CsrfPlaceholderHandler
     private function getToken(string $intent): string
     {
         return $this->csrfTokenManager->getToken($intent)->getValue();
+    }
+
+    private function createSession(Request $request): SessionInterface
+    {
+        $session = new Session($this->sessionFactory->createStorage($request));
+        $request->setSession($session);
+
+        return $session;
     }
 }

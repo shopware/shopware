@@ -37,6 +37,8 @@
                 :placeholder="$tc('sw-product.variations.deliveryModal.listingPlaceholderSelectMainVariant')"
                 show-clearable-button
                 @change="updateMainVariant"
+                @select-collapsed="onSelectCollapsed"
+                @search-term-change="onSearchTermChange"
             >
                 <template #selection-label-property="{ item }">
                     <slot

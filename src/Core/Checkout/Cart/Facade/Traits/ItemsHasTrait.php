@@ -5,12 +5,9 @@ namespace Shopware\Core\Checkout\Cart\Facade\Traits;
 use Shopware\Core\Checkout\Cart\Facade\ItemFacade;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 
-/**
- * @internal The trait is not intended for re-usability in other domains
- */
 trait ItemsHasTrait
 {
-    protected LineItemCollection $items;
+    private LineItemCollection $items;
 
     /**
      * @param string|ItemFacade $id
@@ -45,10 +42,7 @@ trait ItemsHasTrait
         return false;
     }
 
-    /**
-     * @internal
-     */
-    protected function getItems(): LineItemCollection
+    private function getItems(): LineItemCollection
     {
         return $this->items;
     }

@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAwareT
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedHook;
 
+/**
+ * @internal (flag:FEATURE_NEXT_17441)
+ */
 class CheckoutFinishPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;

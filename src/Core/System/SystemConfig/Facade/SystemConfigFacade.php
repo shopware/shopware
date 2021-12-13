@@ -55,7 +55,7 @@ class SystemConfigFacade
     public function app(string $key, ?string $salesChannelId = null)
     {
         if (!$this->appId) {
-            throw new \RuntimeException('`system_config.getAppConfig()` can only be called from app scripts.');
+            throw new \BadMethodCallException('`config.app()` can only be called from app scripts.');
         }
 
         if (!$salesChannelId) {

@@ -81,7 +81,7 @@ class ProductsFacade implements \IteratorAggregate
         return new ItemFacade($product, $this->helper, $this->context);
     }
 
-    protected function getItems(): LineItemCollection
+    private function getItems(): LineItemCollection
     {
         return $this->items;
     }

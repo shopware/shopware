@@ -25,7 +25,7 @@ abstract class HookServiceFactory
     abstract public function getName(): string;
 
     /**
-     * Is executed after each script and allows to cleanup state or execute some finish task at the end of each script.
+     * Is executed after each script and allows cleaning up state or execute some finish tasks at the end of each script.
      *
      * The provided service is the instance of the `self::factory` method
      */

@@ -13,17 +13,12 @@ class CurrencyPriceDefinition extends Struct implements PriceDefinitionInterface
     public const TYPE = 'currency-price';
     public const SORTING_PRIORITY = 75;
 
-    /**
-     * @var RawPriceCollection
-     */
-    protected $price;
+    protected RawPriceCollection $price;
 
     /**
      * Allows to define a filter rule which line items should be considered for percentage discount/surcharge
-     *
-     * @var Rule|null
      */
-    protected $filter;
+    protected ?Rule $filter;
 
     public function __construct(RawPriceCollection $price, ?Rule $filter = null)
     {

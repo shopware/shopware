@@ -85,7 +85,7 @@ class AppEntity extends Entity
     protected $cookies;
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      *
      * @var string|null
      */
@@ -117,7 +117,7 @@ class AppEntity extends Entity
     protected $privacyPolicyExtensions;
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      *
      * @var string|null
      */
@@ -159,7 +159,7 @@ class AppEntity extends Entity
     protected $templates;
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      */
     protected ?ScriptCollection $scripts = null;
 
@@ -320,7 +320,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      */
     public function getIconRaw(): ?string
     {
@@ -330,7 +330,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      */
     public function setIconRaw(?string $iconRaw): void
     {
@@ -428,7 +428,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      */
     public function getAppSecret(): ?string
     {
@@ -438,7 +438,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      */
     public function setAppSecret(?string $appSecret): void
     {
@@ -496,7 +496,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      */
     public function getScripts(): ?ScriptCollection
     {
@@ -506,7 +506,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @internal
      */
     public function setScripts(ScriptCollection $scripts): void
     {

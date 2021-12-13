@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAwareT
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal (flag:FEATURE_NEXT_17441)
+ */
 class SalesChannelTestHook extends Hook implements SalesChannelContextAware
 {
     use SalesChannelContextAwareTrait;

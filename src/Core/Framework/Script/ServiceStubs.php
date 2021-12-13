@@ -11,13 +11,13 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacade;
  * This class is intended for auto completion in twig templates. So the developer can
  * set a doc block to get auto completion for all services.
  *
- * @example: {# @var services \Shopware\Core\Framework\Script\Services #}
+ * @example: {# @var services \Shopware\Core\Framework\Script\ServiceStubs #}
  *
  * @method CartFacade                   cart()
  * @method RepositoryFacade             repository()
  * @method SystemConfigFacade           config()
  * @method SalesChannelRepositoryFacade store()
  */
-abstract class Services
+abstract class ServiceStubs
 {
 }

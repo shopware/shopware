@@ -11,17 +11,13 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Util\FloatComparator;
 
-/**
- * @internal The trait is not intended for re-usability in other domains
- */
 trait DiscountTrait
 {
-    protected LineItemCollection $items;
+    private LineItemCollection $items;
 
     /**
-     * @public-api used for app scripting
-     *
      * @param float|PriceCollection $value
      */
     public function discount(string $key, string $type, $value, string $label): DiscountFacade
@@ -37,7 +33,7 @@ trait DiscountTrait
         return new DiscountFacade($item);
     }
 
-    protected function getItems(): LineItemCollection
+    private function getItems(): LineItemCollection
     {
         return $this->items;
     }
@@ -51,7 +47,7 @@ trait DiscountTrait
             if ($value instanceof PriceCollection) {
                 throw new \RuntimeException('Percentage discounts requires a provided float value');
             }
-            $value = (float) $value;
+            $value = FloatComparator::cast((float) $value);
 
             return new PercentagePriceDefinition(abs($value) * -1);
         }

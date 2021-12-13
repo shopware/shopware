@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Checkout\Cart\Facade;
 
-use Shopware\Core\Checkout\Cart\Error\CartError;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Checkout\Cart\Error\GenericCartError;
 
 /**
  * @implements \IteratorAggregate<array-key, \Shopware\Core\Checkout\Cart\Error\Error>
@@ -56,7 +56,7 @@ class ErrorsFacade implements \IteratorAggregate
     private function createError(string $key, bool $block, array $parameters, int $level, ?string $id = null): void
     {
         $this->collection->add(
-            new CartError($id ?? $key, $key, $parameters, $level, $block, true)
+            new GenericCartError($id ?? $key, $key, $parameters, $level, $block, true)
         );
     }
 }

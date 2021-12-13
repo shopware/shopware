@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Script\Execution;
 
 use Shopware\Core\Framework\Context;
 
+/**
+ * @internal (flag:FEATURE_NEXT_17441)
+ */
 abstract class Hook
 {
     protected Context $context;

@@ -8,20 +8,14 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @internal The trait is not intended for re-usability in other domains
- */
 trait ContainerFactoryTrait
 {
-    protected LineItemCollection $items;
+    private LineItemCollection $items;
 
-    protected CartFacadeHelper $helper;
+    private CartFacadeHelper $helper;
 
-    protected SalesChannelContext $context;
+    private SalesChannelContext $context;
 
-    /**
-     * @public-api used for app scripting
-     */
     public function container(string $id, ?string $label = null): ContainerFacade
     {
         $item = new LineItem($id, LineItem::CONTAINER_LINE_ITEM, $id);
@@ -32,10 +26,7 @@ trait ContainerFactoryTrait
         return new ContainerFacade($item, $this->helper, $this->context);
     }
 
-    /**
-     * @internal
-     */
-    protected function getItems(): LineItemCollection
+    private function getItems(): LineItemCollection
     {
         return $this->items;
     }

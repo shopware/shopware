@@ -11,17 +11,13 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Util\FloatComparator;
 
-/**
- * @internal The trait is not intended for re-usability in other domains
- */
 trait SurchargeTrait
 {
-    protected LineItemCollection $items;
+    private LineItemCollection $items;
 
     /**
-     * @public-api used for app scripting
-     *
      * @param float|string|PriceCollection $value
      */
     public function surcharge(string $key, string $type, $value, string $label): DiscountFacade
@@ -37,7 +33,7 @@ trait SurchargeTrait
         return new DiscountFacade($item);
     }
 
-    protected function getItems(): LineItemCollection
+    private function getItems(): LineItemCollection
     {
         return $this->items;
     }
@@ -52,12 +48,12 @@ trait SurchargeTrait
                 throw new \RuntimeException('Percentage discounts requires a provided float value');
             }
 
-            $value = (float) $value;
+            $value = FloatComparator::cast((float) $value);
 
             return new PercentagePriceDefinition(abs($value));
         }
         if ($type !== AbsolutePriceDefinition::TYPE) {
-            throw new \RuntimeException(sprintf('Discount type %s not supported', $type));
+            throw new \InvalidArgumentException(sprintf('Discount type %s not supported', $type));
         }
         if (!$value instanceof PriceCollection) {
             throw new \RuntimeException(sprintf('Absolute discounts %s requires a provided price collection. Use services.price(...) to create a price', $key));

@@ -22,7 +22,7 @@
     {# @deprecated tag:v6.5.0 - `cartItemClasses` & `isChild` will be removed with no replacement #}
     {% set cartItemClasses = '' %}
 
-    {% set label = nestedLineItem.label|trans|sw_sanitize %}
+    {% set label = lineItem.label|trans|sw_sanitize %}
     {% set label = label !== '' ? label : lineItem.label %}
 
     {% block page_checkout_item_container %}

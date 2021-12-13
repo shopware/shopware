@@ -148,7 +148,7 @@ class SystemConfigFacadeTest extends TestCase
             new Script('test', '', new \DateTimeImmutable(), null)
         );
 
-        static::expectException(\RuntimeException::class);
+        static::expectException(\BadMethodCallException::class);
         $facade->app('testValue');
     }
 

@@ -33,7 +33,7 @@ class ItemsFacade implements \IteratorAggregate
         $this->context = $context;
     }
 
-    protected function getItems(): LineItemCollection
+    private function getItems(): LineItemCollection
     {
         return $this->items;
     }

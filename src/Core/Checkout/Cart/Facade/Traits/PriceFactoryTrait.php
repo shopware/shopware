@@ -5,16 +5,10 @@ namespace Shopware\Core\Checkout\Cart\Facade\Traits;
 use Shopware\Core\Checkout\Cart\Facade\CartFacadeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 
-/**
- * @internal The trait is not intended for re-usability in other domains
- */
 trait PriceFactoryTrait
 {
-    protected CartFacadeHelper $helper;
+    private CartFacadeHelper $helper;
 
-    /**
-     * @public-api used for app scripting
-     */
     public function create(array $price): PriceCollection
     {
         return $this->helper->price($price);

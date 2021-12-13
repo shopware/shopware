@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Script\Service;
+namespace Shopware\Core\Framework\Script\Facade;
 
 /**
  * Used for scripting:
@@ -65,7 +65,7 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
      */
     public function remove($value): void
     {
-        $index = array_search($value, $this->items, true);
+        $index = \array_search($value, $this->items, true);
 
         if ($index !== false) {
             $this->removeBy($index);
@@ -75,7 +75,7 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
 
     public function reset(): void
     {
-        foreach (array_keys($this->items) as $key) {
+        foreach (\array_keys($this->items) as $key) {
             unset($this->items[$key]);
         }
         $this->update();
@@ -89,7 +89,7 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
         if ($array instanceof ArrayFacade) {
             $array = $array->items;
         }
-        $this->items = array_merge_recursive($this->items, $array);
+        $this->items = \array_merge_recursive($this->items, $array);
         $this->update();
     }
 
@@ -101,7 +101,7 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
         if ($array instanceof ArrayFacade) {
             $array = $array->items;
         }
-        $this->items = array_replace_recursive($this->items, $array);
+        $this->items = \array_replace_recursive($this->items, $array);
         $this->update();
     }
 

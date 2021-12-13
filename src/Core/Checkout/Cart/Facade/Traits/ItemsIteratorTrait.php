@@ -12,11 +12,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 trait ItemsIteratorTrait
 {
-    protected CartFacadeHelper $helper;
+    private CartFacadeHelper $helper;
 
-    protected LineItemCollection $items;
+    private LineItemCollection $items;
 
-    protected SalesChannelContext $context;
+    private SalesChannelContext $context;
 
     public function getIterator(): \ArrayIterator
     {
@@ -28,10 +28,7 @@ trait ItemsIteratorTrait
         return new \ArrayIterator($items);
     }
 
-    /**
-     * @internal
-     */
-    protected function getItems(): LineItemCollection
+    private function getItems(): LineItemCollection
     {
         return $this->items;
     }

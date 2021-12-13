@@ -7,6 +7,9 @@ use Shopware\Core\Checkout\Cart\Facade\CartFacadeHookFactory;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal (flag:FEATURE_NEXT_17441)
+ */
 class CartHook extends Hook implements CartAware
 {
     private Cart $cart;

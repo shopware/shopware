@@ -7,6 +7,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPage;
 use Shopware\Storefront\Page\PageLoadedHook;
 
+/**
+ * @internal (flag:FEATURE_NEXT_17441)
+ */
 class AccountRegisterPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;

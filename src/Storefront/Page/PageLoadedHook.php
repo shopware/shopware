@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 
+/**
+ * @internal (flag:FEATURE_NEXT_17441)
+ */
 abstract class PageLoadedHook extends Hook implements SalesChannelContextAware
 {
     public function getServiceIds(): array

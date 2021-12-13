@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Error;
 
-class CartError extends Error
+class GenericCartError extends Error
 {
     protected string $id;
 

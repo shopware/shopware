@@ -111,7 +111,7 @@ class ScriptEventRegistry
 
 ### Data Loading
 
-To allow apps to fetch additional for the storefront, we will introduce PageLoaded-Hooks.
+To allow apps to fetch additional data for the storefront, we will introduce PageLoaded-Hooks.
 Those hooks will orient themself on the Page and PageLoadedEvents already present in the storefront. So for each PageType and PageLoadedEvent we will create a seperate Hook class.
 We will create separate HookClasses and not just one generic class, so we are able to type hint all the dynamic data that is available for that hook. That will improve the developer experience as it allows for autocompletion in the scripts and allows us to generate documentation for the hooks.
 The hooks will be instantiated and passed to the HookExecutor from the Controllers where the pages are loaded, so we are able to pass additional data if it is needed or makes sense.

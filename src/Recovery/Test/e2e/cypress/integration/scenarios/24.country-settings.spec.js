@@ -37,6 +37,7 @@ describe('Storefront: test registration with country settings & invalid inputs',
         // Country settings
         cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Netherlands');
+        cy.wait('@getCountrySettings').its('response.statusCode').should('equal', 200);
         cy.get(`.sw-data-grid__cell--name`).contains('Netherlands').click();
         cy.get('input[name="sw-field--country-checkVatIdPattern"]').check();
         cy.get('.sw-button-process__content').click();
@@ -73,6 +74,7 @@ describe('Storefront: test registration with country settings & invalid inputs',
         // Country settings
         cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Netherlands');
+        cy.wait('@getCountrySettings').its('response.statusCode').should('equal', 200);
         cy.get(`.sw-data-grid__cell--name`).contains('Netherlands').click();
         cy.get('[name="sw-field--country-vatIdRequired"]').check();
         cy.get('.sw-button-process__content').click();
@@ -110,6 +112,7 @@ describe('Storefront: test registration with country settings & invalid inputs',
             .selectCountryForSalesChannel('Germany');
         cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Germany');
+        cy.wait('@getCountrySettings').its('response.statusCode').should('equal', 200);
         cy.get(`.sw-data-grid__cell--name`).contains('Germany').click();
         cy.get('[name="sw-field--country-forceStateInRegistration"]').check();
         cy.get('.sw-button-process__content').click();

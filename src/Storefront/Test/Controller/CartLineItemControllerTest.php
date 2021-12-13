@@ -68,47 +68,6 @@ class CartLineItemControllerTest extends TestCase
         ];
     }
 
-    public function testDeleteLineItemWithPaymentRule(): void
-    {
-        $contextToken = Uuid::randomHex();
-        $cartService = $this->getContainer()->get(CartService::class);
-
-        $products = [
-            Uuid::randomHex() => Uuid::randomHex(),
-            Uuid::randomHex() => Uuid::randomHex(),
-        ];
-
-        $salesChannelContext = $this->createSalesChannelContext($contextToken);
-        $paymentMethodId = $this->createPaymentWithRule($salesChannelContext);
-
-        foreach ($products as $productId => $productNumber) {
-            $this->createProduct($productId, $productNumber);
-            $salesChannelContext = $this->createSalesChannelContext($contextToken, $paymentMethodId);
-            $request = $this->createRequest(['number' => $productNumber]);
-            $this->getContainer()->get(CartLineItemController::class)->addProductByNumber($request, $salesChannelContext);
-        }
-
-        // two products should surpass the threshold of the total goods price condition and block the payment method
-        $flashBags = $this->getFlashBag()->all();
-        static::assertArrayHasKey('warning', $flashBags);
-        static::assertMatchesRegularExpression(
-            '/(checkout.payment-method-blocked|Test Payment with Rule)/',
-            json_encode($flashBags['warning'])
-        );
-
-        $cart = $cartService->getCart($contextToken, $salesChannelContext);
-        $cartLineItemId = $cart->getLineItems()->get($productId)->getId();
-
-        // removing one product from cart should allow the payment method, flashbag should not contain warning
-        $response = $this->getContainer()->get(CartLineItemController::class)
-            ->deleteLineItem($cart, $cartLineItemId, $this->createRequest(), $salesChannelContext);
-
-        static::assertSame(200, $response->getStatusCode());
-        $flashBags = $this->getFlashBag()->all();
-        static::assertArrayNotHasKey('warning', $flashBags);
-        static::assertArrayHasKey('success', $flashBags);
-    }
-
     private function getLineItemAddPayload(string $productId): array
     {
         return [

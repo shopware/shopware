@@ -41,6 +41,19 @@ class PaymentMethodValidatorTest extends TestCase
         static::assertCount(1, $errors);
     }
 
+    public function testValidateInactive(): void
+    {
+        $cart = Generator::createCart();
+        $context = Generator::createSalesChannelContext();
+        $paymentMethod = $context->getPaymentMethod();
+        $paymentMethod->setActive(false);
+        $errors = new ErrorCollection();
+
+        $this->validator->validate($cart, $errors, $context);
+
+        static::assertCount(1, $errors);
+    }
+
     public function testValidatePaymentMethodNotAvailableInSalesChannel(): void
     {
         $cart = Generator::createCart();

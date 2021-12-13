@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
@@ -22,6 +23,8 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
+use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedHook;
@@ -44,6 +47,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CheckoutController extends StorefrontController
 {
+    private const REDIRECTED_FROM_SAME_ROUTE = 'redirected';
+
     /**
      * @var CartService
      */
@@ -119,10 +124,25 @@ class CheckoutController extends StorefrontController
     public function cartPage(Request $request, SalesChannelContext $context): Response
     {
         $page = $this->cartPageLoader->load($request, $context);
+        $cart = $page->getCart();
+        $cartErrors = $cart->getErrors();
 
         $this->hook(new CheckoutCartPageLoadedHook($page, $context));
 
-        $this->addCartErrors($page->getCart());
+        $this->addCartErrors($cart);
+
+        if (!$request->query->getBoolean(self::REDIRECTED_FROM_SAME_ROUTE) && $this->routeNeedsReload($cartErrors)) {
+            $cartErrors->clear();
+
+            // To prevent redirect loops add the identifier that the request already got redirected from the same origin
+            return $this->redirectToRoute(
+                'frontend.checkout.cart.page',
+                [
+                    self::REDIRECTED_FROM_SAME_ROUTE => true,
+                ]
+            );
+        }
+        $cartErrors->clear();
 
         return $this->renderStorefront('@Storefront/storefront/page/checkout/cart/index.html.twig', ['page' => $page]);
     }
@@ -255,7 +275,21 @@ class CheckoutController extends StorefrontController
 
         $cart = $page->getCart();
         $this->addCartErrors($cart);
-        $cart->getErrors()->clear();
+        $cartErrors = $cart->getErrors();
+
+        if (!$request->query->getBoolean(self::REDIRECTED_FROM_SAME_ROUTE) && $this->routeNeedsReload($cartErrors)) {
+            $cartErrors->clear();
+
+            // To prevent redirect loops add the identifier that the request already got redirected from the same origin
+            return $this->redirectToRoute(
+                'frontend.cart.offcanvas',
+                [
+                    self::REDIRECTED_FROM_SAME_ROUTE => true,
+                ]
+            );
+        }
+
+        $cartErrors->clear();
 
         return $this->renderStorefront('@Storefront/storefront/component/checkout/offcanvas-cart.html.twig', ['page' => $page]);
     }
@@ -271,5 +305,16 @@ class CheckoutController extends StorefrontController
         if ($campaignCode) {
             $dataBag->set(AffiliateTrackingListener::CAMPAIGN_CODE_KEY, $campaignCode);
         }
+    }
+
+    private function routeNeedsReload(ErrorCollection $cartErrors): bool
+    {
+        foreach ($cartErrors as $error) {
+            if ($error instanceof ShippingMethodChangedError || $error instanceof PaymentMethodChangedError) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

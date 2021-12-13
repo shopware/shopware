@@ -53,4 +53,9 @@ class PaymentMethodBlockedError extends Error
     {
         return true;
     }
+
+    public function isPersistent(): bool
+    {
+        return false;
+    }
 }

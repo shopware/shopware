@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Page\Checkout\Confirm;
 use Shopware\Core\Checkout\Cart\Address\Error\AddressValidationError;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
@@ -18,50 +17,30 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class CheckoutConfirmPageLoader
 {
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var CartService
-     */
-    private $cartService;
+    private StorefrontCartFacade $cartService;
 
-    /**
-     * @var AbstractShippingMethodRoute
-     */
-    private $shippingMethodRoute;
+    private AbstractShippingMethodRoute $shippingMethodRoute;
 
-    /**
-     * @var AbstractPaymentMethodRoute
-     */
-    private $paymentMethodRoute;
+    private AbstractPaymentMethodRoute $paymentMethodRoute;
 
-    /**
-     * @var GenericPageLoaderInterface
-     */
-    private $genericPageLoader;
+    private GenericPageLoaderInterface $genericPageLoader;
 
-    /**
-     * @var DataValidationFactoryInterface
-     */
-    private $addressValidationFactory;
+    private DataValidationFactoryInterface $addressValidationFactory;
 
-    /**
-     * @var DataValidator
-     */
-    private $validator;
+    private DataValidator $validator;
 
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
-        CartService $cartService,
+        StorefrontCartFacade $cartService,
         AbstractShippingMethodRoute $shippingMethodRoute,
         AbstractPaymentMethodRoute $paymentMethodRoute,
         GenericPageLoaderInterface $genericPageLoader,
@@ -93,7 +72,7 @@ class CheckoutConfirmPageLoader
         $page->setPaymentMethods($this->getPaymentMethods($context));
         $page->setShippingMethods($this->getShippingMethods($context));
 
-        $cart = $this->cartService->getCart($context->getToken(), $context);
+        $cart = $this->cartService->get($context->getToken(), $context);
         $this->validateCustomerAddresses($cart, $context);
         $page->setCart($cart);
 

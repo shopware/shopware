@@ -3,7 +3,7 @@ import AccountPageObject from "../../support/pages/account.page-object";
 import createId from 'uuid/v4';
 
 let product = {};
-const blockedSnippet = 'The shipping method "Standard" is blocked for your current shopping cart.';
+const changedSnippet = '"Standard" shipping is not available for your current cart, the shipping was changed to "Express".';
 
 describe('Checkout rule builder handling for shipping and payment methods', () => {
     beforeEach(() => {
@@ -111,13 +111,11 @@ describe('Checkout rule builder handling for shipping and payment methods', () =
 
         // Check if we're getting a message that the current shipping method is not available
         cy.get('.alert-content-container .alert-content')
-            .contains(blockedSnippet);
+            .contains(changedSnippet);
 
-        // Also check that message in the offcanvas cart
+        // Message should not exist in offcanvas as it was displayed on checkout/cart
         cy.get('.header-cart').click();
-        // Check if we're getting a message in the offcanvas cart
-        cy.get(`${page.elements.offCanvasCart} .alert-warning .alert-content`)
-            .contains(blockedSnippet);
+        cy.get(`${page.elements.offCanvasCart} .alert-warning .alert-content`).should('not.exist');
     });
 
     it('@checkout @payment @shipping: Check rule conditions in checkout', () => {
@@ -172,7 +170,7 @@ describe('Checkout rule builder handling for shipping and payment methods', () =
         cy.reload();
 
         // There should be no alert
-        cy.contains(blockedSnippet).should('not.exist');
+        cy.contains(changedSnippet).should('not.exist');
 
         // Confirm TOS checkbox
         cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
@@ -189,9 +187,9 @@ describe('Checkout rule builder handling for shipping and payment methods', () =
 
         // Validate that the shipping method is not available
         cy.get('.alert  .alert-content')
-            .contains(blockedSnippet);
+            .contains(changedSnippet);
 
         // Check if the label is marked as invalid
-        cy.get('#confirmFormSubmit').should('be.disabled');
+        cy.get('#confirmFormSubmit').should('not.be.disabled');
     });
 });

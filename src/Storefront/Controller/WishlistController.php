@@ -215,7 +215,7 @@ class WishlistController extends StorefrontController
 
             $this->addFlash(self::SUCCESS, $this->trans('wishlist.itemAddedSuccess'));
         } catch (DuplicateWishlistProductException $exception) {
-            $this->addFlash(self::WARNING, $exception->getMessage());
+            $this->addFlash(self::WARNING, $this->trans('wishlist.duplicateItemError'));
         } catch (\Throwable $exception) {
             $this->addFlash(self::DANGER, $this->trans('error.message-default'));
         }

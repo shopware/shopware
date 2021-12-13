@@ -44,13 +44,6 @@ describe('Category: Test drag categories', () => {
             method: 'POST'
         }).as('loadCategory');
 
-        // expand home category
-        cy.get('.tree-items > .sw-tree-item')
-            .eq(0)
-            .find('.sw-tree-item__toggle')
-            .click();
-        cy.wait('@loadCategory').its('response.statusCode').should('equals', 200);
-
         // drag Child 1 to second position
         cy.get('.tree-items > .sw-tree-item > .sw-tree-item__children > .sw-tree-item')
             .eq(0)

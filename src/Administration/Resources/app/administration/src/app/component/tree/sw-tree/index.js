@@ -14,6 +14,8 @@ const { debounce, sort } = Shopware.Utils;
  *     :searchable="false"
  *     :disableContextMenu="() => { return true; }"
  *     :onChangeRoute="() => { return false; }"
+ *     :sortable="true"
+ *     initiallyExpandedRoot
  *     :items="[
  *         { id: 1, name: 'Example #1', childCount: 4, parentId: null, afterId: null, isDeleted: false },
  *             { id: 6, name: 'Example #6', childCount: 0, parentId: 1, afterId: null },
@@ -24,8 +26,7 @@ const { debounce, sort } = Shopware.Utils;
  *         { id: 3, name: 'Example #3', childCount: 0, parentId: null, afterId: 2 },
  *         { id: 4, name: 'Example #4', childCount: 0, parentId: null, afterId: 3 },
  *         { id: 5, name: 'Example #5', childCount: 0, parentId: null, afterId: 4 },
- *     ]"
- *     :sortable="true">
+ *     ]">
  *     <template slot="items" slot-scope="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute }">
  *         <sw-tree-item
  *             v-for="(item, index) in treeItems"
@@ -33,7 +34,8 @@ const { debounce, sort } = Shopware.Utils;
  *             :item="item"
  *             :disableContextMenu="disableContextMenu"
  *             :onChangeRoute="onChangeRoute"
- *             :sortable="true"></sw-tree-item>
+ *             :sortable="true">
+ *         </sw-tree-item>
  *     </template>
  * </sw-tree>
  */
@@ -49,87 +51,129 @@ Component.register('sw-tree', {
         rootParentId: {
             type: String,
             required: false,
-            default: null,
+            default: () => {
+                return null;
+            },
         },
 
         parentProperty: {
             type: String,
             required: false,
-            default: 'parentId',
+            default: () => {
+                return 'parentId';
+            },
         },
 
         afterIdProperty: {
             type: String,
             required: false,
-            default: 'afterId',
+            default: () => {
+                return 'afterId';
+            },
         },
 
         childCountProperty: {
             type: String,
             required: false,
-            default: 'childCount',
+            default: () => {
+                return 'childCount';
+            },
         },
 
         searchable: {
             type: Boolean,
             required: false,
-            default: true,
+            default: () => {
+                return true;
+            },
         },
 
         activeTreeItemId: {
             type: String,
             required: false,
-            default: '',
+            default: () => {
+                return '';
+            },
         },
 
         routeParamsActiveElementId: {
             type: String,
             required: false,
-            default() {
+            default: () => {
                 return 'id';
             },
         },
 
         translationContext: {
             type: String,
-            default: 'sw-tree',
+            required: false,
+            default: () => {
+                return 'sw-tree';
+            },
         },
 
         onChangeRoute: {
             type: Function,
-            default: null,
+            required: false,
+            default: () => {
+                return null;
+            },
         },
 
         disableContextMenu: {
             type: Boolean,
-            default: false,
+            required: false,
+            default: () => {
+                return false;
+            },
         },
 
         bindItemsToFolder: {
             type: Boolean,
-            default: false,
+            required: false,
+            default: () => {
+                return false;
+            },
         },
 
         sortable: {
             type: Boolean,
-            default: true,
+            required: false,
+            default: () => {
+                return true;
+            },
         },
 
         checkItemsInitial: {
             type: Boolean,
-            default: false,
+            required: false,
+            default: () => {
+                return false;
+            },
         },
 
         allowDeleteCategories: {
             type: Boolean,
-            default: true,
             required: false,
+            default: () => {
+                return true;
+            },
         },
 
         allowCreateCategories: {
             type: Boolean,
-            default: true,
             required: false,
+            default: () => {
+                return true;
+            },
+        },
+
+        initiallyExpandedRoot: {
+            type: Boolean,
+            required: false,
+            default: () => {
+                return false;
+            },
         },
     },
 
@@ -266,7 +310,7 @@ Component.register('sw-tree', {
                     parentId: parentId,
                     childCount: childCount,
                     children: this.getTreeItems(item.id),
-                    initialOpened: false,
+                    initialOpened: this.initiallyExpandedRoot && item.parentId === null,
                     active: false,
                     activeElementId: this.routeParamsActiveElementId,
                     checked: alreadyLoadedTreeItem?.checked ?? !!this.checkItemsInitial,

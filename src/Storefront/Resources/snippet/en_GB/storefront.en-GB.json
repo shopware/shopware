@@ -548,6 +548,7 @@
     "headline": "Your wishlist",
     "itemDeleteSuccess": "You have successfully removed the product from your wishlist.",
     "itemAddedSuccess": "You have successfully added the product to your wishlist.",
+    "duplicateItemError": "Product has already been added to your wishlist.",
     "currentlyNotAvailable": "Currently not available",
     "manufacturerDisplayName": "Manufacturer",
     "deliveryTimeAvailable": "Available, delivery time %name%",

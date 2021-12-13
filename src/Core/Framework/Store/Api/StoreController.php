@@ -225,7 +225,12 @@ class StoreController extends AbstractController
         $indexedExtensions = [];
 
         foreach ($extensions as $extension) {
-            $indexedExtensions[$extension->getName()] = $extension->getVersion();
+            $name = $extension->getName();
+            $indexedExtensions[$name] = [
+                'name' => $name,
+                'version' => $extension->getVersion(),
+                'active' => $extension->getActive(),
+            ];
         }
 
         try {

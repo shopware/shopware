@@ -168,6 +168,9 @@ $sw-tree-item-color-text: $color-darkgray-200;
     }
 
     .sw-tree-item__actions {
+        text-align: right;
+        margin-left: 4px;
+
         .sw-context-button__button {
             padding: 0 6px;
 
@@ -232,6 +235,8 @@ $sw-tree-item-color-text: $color-darkgray-200;
 
     .sw-tree-item__content {
         .tree-link {
+            overflow: hidden;
+            text-overflow: ellipsis;
             color: inherit;
             text-decoration: inherit;
             padding: 12px 0;

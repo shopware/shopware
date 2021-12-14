@@ -33,9 +33,7 @@ Cypress.Commands.add('takeSnapshot', (title, selectorToCheck = null, width = nul
  * @name createDefaultSalesChannel
  * @function
  */
-Cypress.Commands.add('createDefaultSalesChannel', () => {
-    const data = {};
-
+Cypress.Commands.add('createDefaultSalesChannel', (data = {}) => {
     return cy.searchViaAdminApi({
         endpoint: 'payment-method',
         data: {
@@ -44,7 +42,7 @@ Cypress.Commands.add('createDefaultSalesChannel', () => {
         },
     })
         .then((paymentMethod) => {
-            data.paymentMethod = paymentMethod;
+            data.paymentMethodId = paymentMethod.id;
 
             return cy.searchViaAdminApi({
                 endpoint: 'shipping-method',
@@ -55,7 +53,7 @@ Cypress.Commands.add('createDefaultSalesChannel', () => {
             });
         })
         .then((shippingMethod) => {
-            data.shippingMethod = shippingMethod;
+            data.shippingMethodId = shippingMethod.id;
 
             return cy.searchViaAdminApi({
                 endpoint: 'category',
@@ -66,7 +64,7 @@ Cypress.Commands.add('createDefaultSalesChannel', () => {
             });
         })
         .then((category) => {
-            data.category = category;
+            data.navigationCategoryId = category.id;
 
             return cy.searchViaAdminApi({
                 endpoint: 'country',
@@ -77,11 +75,8 @@ Cypress.Commands.add('createDefaultSalesChannel', () => {
             });
         })
         .then((country) => {
-            return cy.createDefaultFixture('sales-channel', {
-                paymentMethodId: data.paymentMethod.id,
-                countryId: country.id,
-                navigationCategoryId: data.category.id,
-                shippingMethodId: data.shippingMethod.id,
-            });
+            data.countryId = country.id;
+
+            return cy.createDefaultFixture('sales-channel', data);
         });
 });

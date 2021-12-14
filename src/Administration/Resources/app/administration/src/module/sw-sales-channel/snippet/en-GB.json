@@ -17,7 +17,9 @@
       "placeholderSearchBar": "Search Sales Channels...",
       "buttonAddSalesChannel": "Add Sales Channel",
       "columnName": "Sales Channel",
+      "columnType": "Type",
       "columnStatus": "Status",
+      "columnCreatedAt": "Created at",
       "status": {
         "maintenance": "Maintenance",
         "online": "Online",
@@ -25,7 +27,7 @@
       },
       "contextMenuEdit": "Edit",
       "productsLabel": "Products",
-      "productsCount": "products"
+      "productsCount": "products | product | products"
     },
     "modal": {
       "title": "Add Sales Channel",

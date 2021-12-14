@@ -28,6 +28,10 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Promotion\Rule\PromotionCodeOfTypeRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Cart\Rule\LineItemsInCartRule">
             <tag name="shopware.rule.definition"/>
         </service>

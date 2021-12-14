@@ -87,11 +87,7 @@ class CheapestPriceUpdater
             $cheapest = $this->getCheapest($ruleId, $variantPrices, $container->getDefault());
 
             if ($cheapest === null) {
-                throw new \RuntimeException(sprintf(
-                    'Could not find CheapestPrice for Variant "%s" for Rule "%s"',
-                    $variantId,
-                    $ruleId
-                ));
+                continue;
             }
             $mapped = [];
             foreach ($cheapest['price'] as $price) {
@@ -110,7 +106,11 @@ class CheapestPriceUpdater
             return $prices[$ruleId];
         }
 
-        return $prices['default'] ?? $default;
+        if ($ruleId === 'default') {
+            return $default;
+        }
+
+        return null;
     }
 
     private function mapPrice(array $price): array

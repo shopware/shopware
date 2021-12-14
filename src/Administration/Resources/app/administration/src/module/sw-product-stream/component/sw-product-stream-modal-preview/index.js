@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-product-stream-modal-preview', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'productStreamPreviewService'],
 
     props: {
         filters: {
@@ -18,7 +18,10 @@ Component.register('sw-product-stream-modal-preview', {
     data() {
         return {
             products: [],
+            selectedSalesChannel: null,
+            /* @deprecated tag:v6.5.0 - property systemCurrency will be removed */
             systemCurrency: null,
+            /* @deprecated tag:v6.5.0 - property criteria will be removed */
             criteria: null,
             searchTerm: '',
             page: 1,
@@ -29,12 +32,35 @@ Component.register('sw-product-stream-modal-preview', {
     },
 
     computed: {
+        /* @deprecated tag:v6.5.0 - computed property productRepository will be removed */
         productRepository() {
             return this.repositoryFactory.create('product');
         },
 
+        /* @deprecated tag:v6.5.0 - computed property currencyRepository will be removed */
         currencyRepository() {
             return this.repositoryFactory.create('currency');
+        },
+
+        salesChannelRepository() {
+            return this.repositoryFactory.create('sales_channel');
+        },
+
+        salesChannelCriteria() {
+            const criteria = new Criteria();
+            criteria.setLimit(1);
+            criteria.addSorting(Criteria.sort('type.iconName', 'ASC'));
+
+            return criteria;
+        },
+
+        previewCriteria() {
+            const criteria = new Criteria();
+            criteria.setLimit(this.limit);
+            criteria.setPage(this.page);
+            criteria.setTerm(this.term);
+
+            return criteria;
         },
 
         productColumns() {
@@ -93,39 +119,58 @@ Component.register('sw-product-stream-modal-preview', {
                     });
             }
         },
+        onSalesChannelChange() {
+            this.page = 1;
+            this.isLoading = true;
+            this.loadEntityData()
+                .then(() => {
+                    this.isLoading = false;
+                });
+        },
         createdComponent() {
             this.isLoading = true;
 
-            return this.loadSystemCurrency()
-                .then(this.loadEntityData())
+            return this.loadSalesChannels()
+                .then(() => {
+                    return this.loadEntityData();
+                })
                 .then(() => {
                     this.isLoading = false;
                 });
         },
 
         loadEntityData() {
-            const criteria = new Criteria(this.page, this.limit);
-            criteria.term = this.searchTerm || null;
-            criteria.filters = this.mapFiltersForSearch(this.filters);
-            criteria.addAssociation('manufacturer');
-            criteria.addAssociation('options.group');
+            if (!this.selectedSalesChannel) {
+                return false;
+            }
 
-            return this.productRepository.search(criteria, {
-                ...Context.api,
-                inheritance: true,
-            }).then((products) => {
-                this.products = products;
-                this.total = products.total;
-                this.criteria = products.criteria;
+            return this.productStreamPreviewService.preview(
+                this.selectedSalesChannel,
+                this.previewCriteria,
+                this.mapFiltersForSearch(this.filters),
+                {
+                    'sw-currency-id': Context.app.systemCurrencyId,
+                    'sw-inheritance': true,
+                },
+            ).then((result) => {
+                this.products = Object.values(result.elements);
+                this.total = result.total;
             });
         },
 
+        /* @deprecated tag:v6.5.0 - method loadSystemCurrency will be removed */
         loadSystemCurrency() {
             return this.currencyRepository
                 .get(Shopware.Context.app.systemCurrencyId, Context.api)
                 .then((systemCurrency) => {
                     this.systemCurrency = systemCurrency;
                 });
+        },
+
+        loadSalesChannels() {
+            return this.salesChannelRepository.searchIds(this.salesChannelCriteria).then(({ data }) => {
+                this.selectedSalesChannel = data.at(0);
+            });
         },
 
         mapFiltersForSearch(filters) {
@@ -153,10 +198,19 @@ Component.register('sw-product-stream-modal-preview', {
             this.$emit('modal-close');
         },
 
-        getPriceForDefaultCurrency(product, currency) {
-            return product.price.find((productPrice) => {
-                return productPrice.currencyId === currency.id;
-            });
+        getPriceForDefaultCurrency(product) {
+            const cheapest = product.calculatedCheapestPrice;
+            let real = product.calculatedPrice;
+
+            if (product.calculatedPrices.length > 0) {
+                real = product.calculatedPrices[product.calculatedPrices.length - 1];
+            }
+
+            if (cheapest.unitPrice !== real.unitPrice) {
+                return real;
+            }
+
+            return cheapest;
         },
 
         onPageChange({ page = 1, limit = 25 }) {

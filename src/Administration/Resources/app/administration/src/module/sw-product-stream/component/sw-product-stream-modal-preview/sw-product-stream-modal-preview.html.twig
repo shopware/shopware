@@ -3,24 +3,41 @@
     class="sw-product-stream-modal-preview"
     :title="`${$tc('sw-product-stream.previewModal.title')} (${total || 0})`"
     :is-loading="isLoading"
-    variant="large"
+    variant="full"
     @modal-close="closeModal"
 >
     {% block sw_product_stream_modal_preview_content %}
     <div class="sw-product-stream-modal-preview__content">
-        {% block sw_product_stream_modal_preview_search_field_label %}
-        <sw-label class="sw-product-stream-modal-preview__search-field-label">
-            {% block sw_product_stream_modal_preview_search_field %}
-            <sw-simple-search-field
-                v-model="searchTerm"
-                size="small"
-                variant="form"
-                :delay="750"
-                class="sw-product-stream-modal-preview__search-field"
-                @search-term-change="onSearchTermChange"
-            />
+        {% block sw_product_stream_modal_preview_content_header %}
+        <sw-container class="sw-product-stream-modal-preview__content-header">
+            {% block sw_product_stream_modal_preview_search_field_label %}
+            <sw-label class="sw-product-stream-modal-preview__search-field-label">
+                {% block sw_product_stream_modal_preview_search_field %}
+                <sw-simple-search-field
+                    v-model="searchTerm"
+                    variant="form"
+                    :delay="750"
+                    class="sw-product-stream-modal-preview__search-field"
+                    @search-term-change="onSearchTermChange"
+                />
+                {% endblock %}
+            </sw-label>
             {% endblock %}
-        </sw-label>
+            {% block sw_product_stream_modal_preview_sales_channel_field_label %}
+            <sw-label class="sw-product-stream-modal-preview__sales-channel-field-label">
+                {% block sw_product_stream_modal_preview_sales_channel_field %}
+                <sw-entity-single-select
+                    v-model="selectedSalesChannel"
+                    :disabled="isLoading"
+                    entity="sales_channel"
+                    class="sw-product-stream-modal-preview__sales-channel-field"
+                    :label="$tc('sw-settings.system-config.labelSalesChannelSelect')"
+                    @change="onSalesChannelChange"
+                />
+                {% endblock %}
+            </sw-label>
+            {% endblock %}
+        </sw-container>
         {% endblock %}
 
         {% block sw_product_stream_modal_preview_grid %}
@@ -56,7 +73,7 @@
 
             <template #column-price="{ item }">
                 {% block sw_product_stream_modal_preview_grid_column_price %}
-                {{ getPriceForDefaultCurrency(item, systemCurrency).gross | currency('EUR') }}
+                {{ getPriceForDefaultCurrency(item).unitPrice | currency('EUR') }}
                 {% endblock %}
             </template>
 

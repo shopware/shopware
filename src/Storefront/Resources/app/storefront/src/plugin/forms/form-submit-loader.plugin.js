@@ -40,7 +40,7 @@ export default class FormSubmitLoaderPlugin extends Plugin {
      * @private
      */
     _getSubmitButton() {
-        this._submitButton = DomAccess.querySelector(this._form, 'button[type=submit]');
+        this._submitButton = DomAccess.querySelector(this._form, 'button[type=submit]', false);
 
         if (!this._submitButton) {
             return this._getSubmitButtonWithId();
@@ -60,7 +60,7 @@ export default class FormSubmitLoaderPlugin extends Plugin {
         const id = this._form.id;
         if (!id) return false;
 
-        this._submitButton = DomAccess.querySelector(this._form, `button[type=submit][form=${id}]`);
+        this._submitButton = DomAccess.querySelector(document.body, `button[type=submit][form=${id}]`, false);
 
         return this._submitButton;
     }

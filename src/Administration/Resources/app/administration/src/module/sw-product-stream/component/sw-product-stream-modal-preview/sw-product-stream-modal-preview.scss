@@ -26,25 +26,60 @@ $sw-product-stream-modal-color-success: $color-emerald-500;
         grid-template-rows: [search-field] 80px [product-grid] auto;
         position: relative;
         width: 100%;
+
+        .sw-data-grid.sw-data-grid--full-page {
+            position: relative;
+        }
+    }
+
+    .sw-product-stream-modal-preview__content-header {
+        grid-template-columns: auto minmax(100px, 350px);
+        grid-row: search-field;
+        border-bottom: 1px solid $color-gray-300;
     }
 
     .sw-product-stream-modal-preview__search-field-label {
         width: 100%;
         height: 100%;
-        grid-row: search-field;
         background: $color-gray-100;
         -webkit-border-radius: 0;
         -moz-border-radius: 0;
         border-radius: 0;
         padding: 0;
-        border-bottom: 1px solid $color-gray-300;
+        margin: 0;
+        border: 0;
 
         &:hover {
             background: $color-gray-100;
         }
 
         .sw-product-stream-modal-preview__search-field {
-            margin: 24px 32px;
+            margin: 14px 22px;
+        }
+    }
+
+    .sw-product-stream-modal-preview__sales-channel-field-label {
+        width: 100%;
+        height: 100%;
+        background: $color-gray-100;
+        margin: 0;
+        padding: 14px 22px 14px 0;
+        border: 0;
+
+        &:hover {
+            background: $color-gray-100;
+        }
+
+        .sw-product-stream-modal-preview__sales-channel-field {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            margin: 0;
+
+            .sw-field__label {
+                margin: 0;
+                line-height: 46px;
+                padding-right: 10px;
+            }
         }
     }
 

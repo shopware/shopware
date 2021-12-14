@@ -5,16 +5,7 @@ const responses = global.repositoryFactoryMock.responses;
 
 responses.addResponse({
     method: 'Post',
-    url: '/search/currency',
-    status: 200,
-    response: {
-        data: []
-    }
-});
-
-responses.addResponse({
-    method: 'Post',
-    url: '/search/product',
+    url: '/search-ids/sales-channel',
     status: 200,
     response: {
         data: []
@@ -26,7 +17,12 @@ function createWrapper() {
         stubs: {
             'sw-modal': true,
             'sw-label': true,
-            'sw-simple-search-field': true
+            'sw-simple-search-field': true,
+            'sw-container': true,
+            'sw-entity-single-select': true
+        },
+        provide: {
+            productStreamPreviewService: {}
         },
         propsData: {
             filters: [

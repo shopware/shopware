@@ -282,7 +282,7 @@ class CheapestPriceTest extends TestCase
                     )
                     ->build(),
 
-                // no rule = 180 ||  rule-a = 210  || rule-b = 180 || a+b = 210 || b+a = 200/180
+                // no rule = 180 ||  rule-a = 210  || rule-b = 180 || a+b = 210 || b+a = 220
                 (new ProductBuilder($ids, 'p.12'))
                     ->price(180)
                     ->visibility(TestDefaults::SALES_CHANNEL)
@@ -302,7 +302,7 @@ class CheapestPriceTest extends TestCase
                     )
                     ->build(),
 
-                // no rule = 190 ||  rule-a = 220  || rule-b = 190 || a+b = 220 || b+a = 210/190
+                // no rule = 190 ||  rule-a = 220  || rule-b = 190 || a+b = 220 || b+a = 220
                 (new ProductBuilder($ids, 'p.13'))
                     ->price(190)
                     ->visibility(TestDefaults::SALES_CHANNEL)
@@ -673,7 +673,7 @@ class CheapestPriceTest extends TestCase
         ];
 
         yield 'Test sorting with rule b+a' => [
-            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.2', 'v.10.2', 'v.7.1', 'v.10.1', 'v.8.1', 'v.9.1', 'v.9.2', 'v.8.2', 'v.12.1', 'v.14.1', 'v.14.2', 'v.11.1', 'v.11.2', 'v.12.2', 'v.13.1', 'v.13.2'],
+            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.2', 'v.10.2', 'v.7.1', 'v.10.1', 'v.8.1', 'v.9.1', 'v.9.2', 'v.8.2', 'v.14.1', 'v.14.2', 'v.11.1', 'v.11.2', 'v.12.2', 'v.13.2', 'v.12.1', 'v.13.1'],
             'rules' => ['rule-b', 'rule-a'],
         ];
     }
@@ -722,8 +722,10 @@ class CheapestPriceTest extends TestCase
         yield 'Test 170€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 170, 'to' => 171, 'expected' => ['v.8.2']];
         yield 'Test 160€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 160, 'to' => 161, 'expected' => ['v.8.1', 'v.9.1', 'v.9.2', 'v.10.1']];
         yield 'Test 200€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 200, 'to' => 201, 'expected' => ['v.13.2']];
-        yield 'Test 180€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 180, 'to' => 181, 'expected' => ['v.12.1', 'v.14.1', 'v.14.2']];
-        yield 'Test 190€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 190, 'to' => 191, 'expected' => ['v.11.1', 'v.11.2', 'v.12.2', 'v.13.1']];
+        yield 'Test 210€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 210, 'to' => 211, 'expected' => ['v.12.1']];
+        yield 'Test 220€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 220, 'to' => 221, 'expected' => ['v.13.1']];
+        yield 'Test 180€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 180, 'to' => 181, 'expected' => ['v.14.1', 'v.14.2']];
+        yield 'Test 190€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 190, 'to' => 191, 'expected' => ['v.11.1', 'v.11.2', 'v.12.2']];
     }
 
     private function calculationProvider(IdsCollection $ids)
@@ -1287,6 +1289,6 @@ class CheapestPriceTest extends TestCase
         yield 'With rule a' => ['min' => 60, 'max' => 220, 'rules' => ['rule-a']];
         yield 'With rule b' => ['min' => 60, 'max' => 200, 'rules' => ['rule-b']];
         yield 'With rule a+b' => ['min' => 60, 'max' => 220, 'rules' => ['rule-a', 'rule-b']];
-        yield 'With rule b+a' => ['min' => 60, 'max' => 200, 'rules' => ['rule-b', 'rule-a']];
+        yield 'With rule b+a' => ['min' => 60, 'max' => 220, 'rules' => ['rule-b', 'rule-a']];
     }
 }

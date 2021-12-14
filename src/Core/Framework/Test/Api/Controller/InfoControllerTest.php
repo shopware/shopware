@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Context;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\Adapter\Twig\fixtures\BundleFixture;
 use Shopware\Core\Framework\Test\Api\Controller\fixtures\AdminExtensionApiPlugin;
+use Shopware\Core\Framework\Test\Api\Controller\fixtures\AdminExtensionApiPluginWithLocalEntryPoint\AdminExtensionApiPluginWithLocalEntryPoint;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Kernel;
@@ -233,7 +235,6 @@ class InfoControllerTest extends TestCase
         $this->loadAppsFromDir(__DIR__ . '/fixtures/AdminExtensionApiApp');
 
         $kernelMock = $this->createMock(Kernel::class);
-        $packagesMock = $this->createMock(Packages::class);
         $eventCollector = $this->createMock(FlowActionCollector::class);
         $infoController = new InfoController(
             $this->createMock(DefinitionService::class),
@@ -244,7 +245,7 @@ class InfoControllerTest extends TestCase
                 'shopware.admin_worker.transports' => 'transports',
             ]),
             $kernelMock,
-            $packagesMock,
+            $this->getContainer()->get('assets.packages'),
             $this->createMock(BusinessEventCollector::class),
             $this->getContainer()->get('shopware.increment.gateway.registry'),
             $this->getContainer()->get('app.repository'),
@@ -258,14 +259,24 @@ class InfoControllerTest extends TestCase
         $kernelMock
             ->expects(static::exactly(1))
             ->method('getBundles')
-            ->willReturn([new AdminExtensionApiPlugin(true, __DIR__ . '/fixtures/InfoController')]);
+            ->willReturn([
+                new AdminExtensionApiPlugin(true, __DIR__ . '/fixtures/InfoController'),
+                new AdminExtensionApiPluginWithLocalEntryPoint(true, __DIR__ . '/fixtures/AdminExtensionApiPluginWithLocalEntryPoint'),
+            ]);
 
         $config = json_decode($infoController->config(Context::createDefaultContext())->getContent(), true);
-        static::assertCount(2, $config['bundles']);
+        static::assertCount(3, $config['bundles']);
 
         static::assertArrayHasKey('AdminExtensionApiPlugin', $config['bundles']);
         static::assertEquals('https://extension-api.test', $config['bundles']['AdminExtensionApiPlugin']['baseUrl']);
         static::assertEquals('plugin', $config['bundles']['AdminExtensionApiPlugin']['type']);
+
+        static::assertArrayHasKey('AdminExtensionApiPluginWithLocalEntryPoint', $config['bundles']);
+        static::assertEquals(
+            EnvironmentHelper::getVariable('APP_URL') . '/bundles/adminextensionapipluginwithlocalentrypoint/administration/index.html',
+            $config['bundles']['AdminExtensionApiPluginWithLocalEntryPoint']['baseUrl'],
+        );
+        static::assertEquals('plugin', $config['bundles']['AdminExtensionApiPluginWithLocalEntryPoint']['type']);
 
         static::assertArrayHasKey('AdminExtensionApiApp', $config['bundles']);
         static::assertEquals('https://app-admin.test', $config['bundles']['AdminExtensionApiApp']['baseUrl']);

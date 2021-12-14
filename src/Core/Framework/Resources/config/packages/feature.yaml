@@ -235,6 +235,11 @@ shopware:
         major: false
         description: "Rework rule assignment tab"
         # issue: NEXT-16902
+      - name: FEATURE_NEXT_16148
+        default: false
+        major: false
+        description: "Add grouping to rule conditions"
+        # issue: NEXT-16148
       - name: FEATURE_NEXT_17546
         default: false
         major: false

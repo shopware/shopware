@@ -223,7 +223,7 @@ describe('Rule builder: Test crud operations', () => {
                     cy.get('@first-and-container').within(() => {
                         cy.get('.sw-condition').as('condition-general');
 
-                        page.selectTypeAndOperator('@condition-general', 'Line item property', 'Is one of');
+                        page.selectTypeAndOperator('@condition-general', 'Line items with property', 'Is one of');
 
                         cy.get('@condition-general').within(() => {
                             cy.get('.sw-select input').last().clearTypeAndCheck(resultCase.value);

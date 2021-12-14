@@ -38,6 +38,7 @@
       "placeholderName": "Namen eingeben ...",
       "placeholderPosition": "Position eingeben ...",
       "placeholderDescription": "Beschreibung eingeben ...",
+      "placeholderAvailabilityRule": "Verfügbarkeitsregel auswählen ...",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern"
     }

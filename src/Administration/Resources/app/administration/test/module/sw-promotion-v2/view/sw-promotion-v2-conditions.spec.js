@@ -47,7 +47,13 @@ function createWrapper(privileges = []) {
                     search: () => Promise.resolve([{ id: 'promotionId1' }])
                 })
             },
-            ruleConditionDataProviderService: {}
+            ruleConditionDataProviderService: {
+                getAwarenessConfigurationByAssignmentName: () => {
+                    return {
+                        snippet: ''
+                    };
+                }
+            }
         },
         propsData: {
             promotion: {

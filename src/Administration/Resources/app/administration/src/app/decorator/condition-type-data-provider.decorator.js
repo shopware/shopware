@@ -22,7 +22,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
                 'customerShippingStreet',
                 'customerShippingZipCode',
             ],
-            snippet: '', // TODO: NEXT-17414 - Should be filled
+            snippet: 'sw-restricted-rules.restrictedAssignment.personaPromotions',
         },
     );
 
@@ -47,7 +47,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
                 'customerShippingStreet',
                 'customerShippingZipCode',
             ],
-            snippet: '', // TODO: NEXT-17414 - Should be filled
+            snippet: 'sw-restricted-rules.restrictedAssignment.orderPromotions',
         },
     );
 
@@ -57,7 +57,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
             notEquals: [
                 'cartCartAmount',
             ],
-            snippet: '', // TODO: NEXT-17414 - Should be filled
+            snippet: 'sw-restricted-rules.restrictedAssignment.cartPromotions',
         },
     );
 
@@ -67,7 +67,17 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
             notEquals: [
                 'cartCartAmount',
             ],
-            snippet: '', // TODO: NEXT-17414 - Should be filled
+            snippet: 'sw-restricted-rules.restrictedAssignment.promotionSetGroups',
+        },
+    );
+
+    ruleConditionService.addAwarenessConfiguration(
+        'promotionDiscounts',
+        {
+            notEquals: [
+                'cartCartAmount',
+            ],
+            snippet: 'sw-restricted-rules.restrictedAssignment.promotionDiscounts',
         },
     );
 

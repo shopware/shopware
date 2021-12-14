@@ -173,6 +173,8 @@
                 :disabled="!acl.can('payment.editor')"
                 :rule-id="paymentMethod.availabilityRuleId"
                 :rule-filter="ruleFilter"
+                :placeholder="$tc('sw-settings-payment.detail.placeholderAvailabilityRule')"
+                :restriction="feature.isActive('FEATURE_NEXT_18215') ? 'paymentMethods' : ''"
                 @save-rule="onSaveRule"
                 @dismiss-rule="onDismissRule"
             />

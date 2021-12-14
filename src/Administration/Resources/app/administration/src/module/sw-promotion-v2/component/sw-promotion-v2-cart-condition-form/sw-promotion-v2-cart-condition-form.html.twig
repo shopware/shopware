@@ -2,8 +2,23 @@
 <div class="sw-promotion-v2-cart-condition-form">
 
     {% block sw_promotion_v2_cart_condition_form_rules_field %}
+    <sw-promotion-v2-rule-select
+        v-if="feature.isActive('FEATURE_NEXT_18215') && promotion"
+        v-model="promotion.cartRules"
+        class="sw-promotion-v2-cart-condition-form__rule-select-cart"
+        :local-mode="promotion.isNew()"
+        :criteria="ruleFilter"
+        :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelCartConditionSelect')"
+        :placeholder="$tc('sw-promotion-v2.detail.conditions.preConditions.placeholderCartConditionSelect')"
+        :rule-scope="['checkout', 'global', 'lineItem']"
+        :restricted-rules="restrictedRules"
+        :restriction-snippet="$tc(ruleConditionDataProviderService.getAwarenessConfigurationByAssignmentName('cartPromotions').snippet)"
+        :disabled="isEditingDisabled"
+    />
+
+    {# @deprecated tag:v6.5.0 - use sw-promotion-v2-rule-select instead #}
     <sw-promotion-rule-select
-        v-if="promotion"
+        v-else-if="!feature.isActive('FEATURE_NEXT_18215') && promotion"
         v-model="promotion.cartRules"
         class="sw-promotion-v2-cart-condition-form__rule-select-cart"
         :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelCartConditionSelect')"
@@ -132,7 +147,22 @@
             >
 
                 {% block sw_promotion_v2_cart_condition_setgroup_rules_field %}
+                <sw-promotion-v2-rule-select
+                    v-if="feature.isActive('FEATURE_NEXT_18215')"
+                    v-model="group.setGroupRules"
+                    class="sw-promotion-v2-cart-condition-form__setgroup-rules"
+                    :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelRules')"
+                    :placeholder="$tc('sw-promotion-v2.detail.conditions.setgroups.placeholder')"
+                    :criteria="ruleFilter"
+                    :rule-scope="['checkout', 'global', 'lineItem']"
+                    :disabled="isEditingDisabled"
+                    :restricted-rules="setGroupRestrictedRules"
+                    :restriction-snippet="$tc(ruleConditionDataProviderService.getAwarenessConfigurationByAssignmentName('promotionSetGroups').snippet)"
+                />
+
+                {# @deprecated tag:v6.5.0 - use sw-promotion-v2-rule-select instead #}
                 <sw-promotion-rule-select
+                    v-else
                     v-model="group.setGroupRules"
                     class="sw-promotion-v2-cart-condition-form__setgroup-rules"
                     :label="$tc('sw-promotion-v2.detail.conditions.setgroups.labelRules')"

@@ -8,6 +8,7 @@ Component.register('sw-promotion-v2-rule-select', {
 
     inject: [
         'repositoryFactory',
+        'feature',
     ],
 
     model: {
@@ -21,6 +22,7 @@ Component.register('sw-promotion-v2-rule-select', {
             required: false,
             default: null,
         },
+
         ruleScope: {
             type: Array,
             required: false,
@@ -28,12 +30,29 @@ Component.register('sw-promotion-v2-rule-select', {
                 return [];
             },
         },
+
         localMode: {
             type: Boolean,
             required: false,
             default() {
                 return false;
             },
+        },
+
+        /* @internal (flag:FEATURE_NEXT_18215) */
+        restrictedRules: {
+            type: Array,
+            required: false,
+            default() {
+                return [];
+            },
+        },
+
+        /* @internal (flag:FEATURE_NEXT_18215) */
+        restrictionSnippet: {
+            type: String,
+            required: false,
+            default: '',
         },
     },
 
@@ -60,6 +79,16 @@ Component.register('sw-promotion-v2-rule-select', {
                     this.$refs.ruleSelect.sendSearchRequest();
                 });
             });
+        },
+
+        /* @internal (flag:FEATURE_NEXT_18215) */
+        tooltipConfig(itemId) {
+            return {
+                message: this.$t('sw-restricted-rules.restrictedAssignment.general', {
+                    relation: this.restrictionSnippet,
+                }),
+                disabled: !this.restrictedRules.includes(itemId),
+            };
         },
     },
 });

@@ -124,6 +124,7 @@
                     "labelValue": "Wert",
                     "labelSorting": "Sortierung",
                     "labelRules": "Produktregeln",
+                    "placeholder": "Wähle eine Produktregel aus ...",
                     "packager": {
                         "COUNT": "Anzahl",
                         "PRICE_UNIT_GROSS": "Wert (Brutto)",

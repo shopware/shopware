@@ -1214,5 +1214,21 @@
     "messageNoResultSublineBefore": "Edit your filters or your search terms to find results. Please also check",
     "messageNoResultSublineLink": "the configuration",
     "messageNoResultSublineAfter": "of your search."
+  },
+  "sw-restricted-rules": {
+    "restrictedAssignment": {
+      "general": "This rule uses condition types that are not allowed for assignment to {relation}.",
+      "productPrices": "pricing rules",
+      "shippingMethodPrices": "pricing rules",
+      "shippingMethodPriceCalculations": "shipping cost calculation rules",
+      "shippingMethods": "shipping method rules",
+      "paymentMethods": "payment method rules",
+      "flowSequences": "Flow Builder rules",
+      "personaPromotions": "customer rules",
+      "orderPromotions": "order rules",
+      "cartPromotions": "shopping cart rules",
+      "promotionDiscounts": "product rules",
+      "promotionSetGroups": "product rules"
+    }
   }
 }

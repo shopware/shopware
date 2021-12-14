@@ -53,12 +53,15 @@
             :placeholder="$tc('sw-promotion-v2.detail.conditions.preConditions.placeholderCustomerSelect')"
             :rule-scope="['checkout']"
             :disabled="!acl.can('promotion.editor')"
+            :restricted-rules="personaRestrictedRules"
+            :restriction-snippet="$tc(ruleConditionDataProviderService.getAwarenessConfigurationByAssignmentName('personaPromotions').snippet)"
         />
         {% endblock %}
 
         {% block sw_promotion_v2_rule_conditions_rule_select_cart_conditions %}
         <sw-promotion-v2-cart-condition-form
             :promotion="promotion"
+            :restricted-rules="cartRestrictedRules"
         />
         {% endblock %}
 
@@ -72,6 +75,8 @@
             :criteria="orderConditionsFilter"
             :rule-scope="['checkout']"
             :disabled="!acl.can('promotion.editor')"
+            :restricted-rules="orderRestrictedRules"
+            :restriction-snippet="$tc(ruleConditionDataProviderService.getAwarenessConfigurationByAssignmentName('orderPromotions').snippet)"
         />
         {% endblock %}
 

@@ -124,6 +124,7 @@
                     "labelValue": "Value",
                     "labelSorting": "Sorting",
                     "labelRules": "Product rules",
+                    "placeholder": "Choose a product rule...",
                     "packager": {
                         "COUNT": "Quantity",
                         "PRICE_UNIT_GROSS": "Amount (gross)",

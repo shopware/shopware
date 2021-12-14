@@ -299,6 +299,54 @@
                                 {% endblock %}
                             </template>
 
+                            <template
+                                v-if="feature.isActive('FEATURE_NEXT_18215')"
+                                #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
+                            >
+                                <li
+                                    is="sw-select-result"
+                                    v-tooltip="getTooltipConfig(item.id)"
+                                    :selected="isSelected(item)"
+                                    :disabled="restrictedRules.includes(item.id)"
+                                    v-bind="{ item, index }"
+                                    @item-select="setValue"
+                                >
+                                    {% block sw_entity_single_select_base_results_list_result_label %}
+                                    <slot
+                                        name="result-label-property"
+                                        v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }"
+                                    >
+                                        <sw-product-variant-info
+                                            v-if="$attrs.displayVariants"
+                                            :variations="item.variation"
+                                            :highlighted="true"
+                                            :search-term="searchTerm"
+                                        >
+                                            {{ displayLabelProperty(item) }}
+                                        </sw-product-variant-info>
+                                        <template v-else>
+                                            <sw-highlight-text
+                                                v-if="highlightSearchTerm && !isSelected(item)"
+                                                :text="item.name"
+                                                :search-term="searchTerm"
+                                            />
+                                            <template v-else>
+                                                {{ item.name }}
+                                            </template>
+                                        </template>
+                                    </slot>
+                                    {% endblock %}
+                                    {% block sw_entity_multi_select_base_results_list_result_description %}
+                                    <template #description>
+                                        <slot
+                                            name="result-description-property"
+                                            v-bind="{ item, searchTerm, highlightSearchTerm }"
+                                        ></slot>
+                                    </template>
+                                    {% endblock %}
+                                </li>
+                            </template>
+
                             <template #result-label-property="{ item, labelProperty, getKey }">
                                 {{ getKey(item, labelProperty) }}
                             </template>

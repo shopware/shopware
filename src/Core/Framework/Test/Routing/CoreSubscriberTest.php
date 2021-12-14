@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Controller\ProductController;
+use Symfony\Component\HttpFoundation\Response;
 
 class CoreSubscriberTest extends TestCase
 {
@@ -55,6 +56,8 @@ class CoreSubscriberTest extends TestCase
         $browser = $this->getBrowser();
         $browser->request('GET', $_SERVER['APP_URL']);
         $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
 
         static::assertTrue($response->headers->has('X-Frame-Options'));
         static::assertTrue($response->headers->has('X-Content-Type-Options'));
@@ -117,7 +120,7 @@ class CoreSubscriberTest extends TestCase
         $browser->request('OPTIONS', '/api/_info/swagger.html');
         $response = $browser->getResponse();
 
-        static::assertSame(200, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertFalse($response->headers->has('Content-Security-Policy'));
     }
 }

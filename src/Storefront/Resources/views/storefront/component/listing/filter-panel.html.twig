@@ -52,7 +52,7 @@
                     {% block component_filter_panel_item_price %}
                         {% set price = listing.aggregations.get('price') %}
 
-                        {% if price.min > 0 and price.max > 0 %}
+                        {% if price.min >= 0 and price.max >= 0 %}
                             {% sw_include '@Storefront/storefront/component/listing/filter/filter-range.html.twig' with {
                                 price: price,
                                 sidebar: sidebar,

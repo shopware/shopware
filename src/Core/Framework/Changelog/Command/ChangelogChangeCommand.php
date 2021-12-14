@@ -41,7 +41,10 @@ class ChangelogChangeCommand extends Command
             ->addOption('keys-only', null, InputOption::VALUE_NONE, 'Returns only Jira ticket keys of all changes made.');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    /**
+     * @return int
+     */
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
         $IOHelper = new SymfonyStyle($input, $output);
         $IOHelper->title('Get all changes made in the given version');

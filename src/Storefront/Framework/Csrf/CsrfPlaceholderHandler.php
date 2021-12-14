@@ -109,6 +109,7 @@ class CsrfPlaceholderHandler
     private function createSession(Request $request): SessionInterface
     {
         $session = new Session($this->sessionFactory->createStorage($request));
+        $session->setName('session-');
         $request->setSession($session);
 
         return $session;

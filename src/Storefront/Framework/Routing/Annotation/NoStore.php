@@ -20,9 +20,9 @@ class NoStore extends ConfigurationAnnotation
     }
 
     /**
-     * {@inheritdoc}
+     * @return bool
      */
-    public function allowArray(): bool
+    public function allowArray()
     {
         return false;
     }

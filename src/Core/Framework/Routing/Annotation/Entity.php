@@ -14,12 +14,18 @@ class Entity extends ConfigurationAnnotation
      */
     private $value;
 
-    public function getAliasName(): string
+    /**
+     * @return string
+     */
+    public function getAliasName()
     {
         return 'entity';
     }
 
-    public function allowArray(): bool
+    /**
+     * @return bool
+     */
+    public function allowArray()
     {
         return false;
     }

@@ -22,12 +22,18 @@ class LoginRequired implements ConfigurationInterface
         $this->allowGuest = isset($values['allowGuest']) ? $values['allowGuest'] : false;
     }
 
-    public function getAliasName(): string
+    /**
+     * @return string
+     */
+    public function getAliasName()
     {
         return 'loginRequired';
     }
 
-    public function allowArray(): bool
+    /**
+     * @return bool
+     */
+    public function allowArray()
     {
         return false;
     }

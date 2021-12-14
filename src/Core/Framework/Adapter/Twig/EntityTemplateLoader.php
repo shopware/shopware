@@ -9,9 +9,6 @@ use Twig\Error\LoaderError;
 use Twig\Loader\LoaderInterface;
 use Twig\Source;
 
-/**
- * @internal
- */
 class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface
 {
     private array $databaseTemplateCache = [];

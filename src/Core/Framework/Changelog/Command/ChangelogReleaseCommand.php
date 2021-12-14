@@ -38,7 +38,10 @@ class ChangelogReleaseCommand extends Command
             ->addOption('force', 'f', InputOption::VALUE_NONE, 'Use the --force argument to override an existing release.');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    /**
+     * @return int
+     */
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
         $IOHelper = new SymfonyStyle($input, $output);
         $IOHelper->title('Creating or updating the final changelog for a new release');

@@ -40,7 +40,10 @@ class PhpSyntaxExtension extends AbstractExtension
         ];
     }
 
-    public function getFilters(): array
+    /**
+     * @return TwigFilter[]
+     */
+    public function getFilters()
     {
         return [
             new TwigFilter('intval', /** @param mixed $var */ function ($var): int {

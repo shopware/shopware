@@ -18,5 +18,8 @@ return [
         'Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\RetryableTransaction::retryable()', // This is a static method so extending this class is not necessary
         'The.+#__construct().+', // Todo make service constructors @internal
         'Default.+#__construct().+', // Todo make service constructors @internal
+        'The return type of Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Command\\\\Changelog(Check|Change|Create)Command#execute\(\) changed from no type to int',
+        'Symfony\\\\Component\\\\HttpFoundation\\\\Response::\\$statusTexts',
+        'Symfony\\\\Component\\\\HttpKernel\\\\Kernel#\\$bundles'
     ],
 ];

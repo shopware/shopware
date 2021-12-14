@@ -34,7 +34,10 @@ class ChangelogCheckCommand extends Command
             ->addArgument('changelog', InputArgument::OPTIONAL, 'The path of changelog file which need to check.');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    /**
+     * @return int
+     */
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
         $IOHelper = new SymfonyStyle($input, $output);
         $IOHelper->title('Check the validation of changelog files');

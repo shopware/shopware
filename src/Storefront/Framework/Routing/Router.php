@@ -52,7 +52,10 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
         return $this->decorated->warmUp($cacheDir);
     }
 
-    public function matchRequest(Request $request): array
+    /**
+     * @inheritdoc
+     */
+    public function matchRequest(Request $request)
     {
         if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID)) {
             return $this->decorated->matchRequest($request);

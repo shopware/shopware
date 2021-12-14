@@ -30,6 +30,17 @@ $sw-condition-color-border-default: $color-gray-300;
             margin: 0;
         }
 
+        &.sw-field--datepicker {
+            display: grid;
+            grid-template-columns: 1fr auto;
+
+            .sw-field__hint {
+                margin: 0;
+                padding: 0 16px;
+                border-left: 1px solid $color-gray-300;
+            }
+        }
+
         .sw-block-field__block {
             border: none;
             border-radius: 0;

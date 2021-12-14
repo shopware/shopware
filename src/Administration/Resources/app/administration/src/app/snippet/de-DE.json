@@ -676,6 +676,7 @@
         "shippingMethodRule": "Verwendete Versandart",
         "lineItemGoodsTotalRule": "Gesamtanzahl Produkte im Warenkorb",
         "orderTotalAmountRule": "Gesamtsumme aller abgeschlossenen Bestellungen",
+        "promotionLineItemRule": "Rabattaktion",
         "lineItemCustomField": {
           "field": {
             "fieldSetSelect": {

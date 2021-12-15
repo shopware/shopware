@@ -12,11 +12,22 @@ variables:
     DD_ENV: ci
     DATADOG_SITE: datadoghq.eu
     MYSQL_INITDB_SKIP_TZINFO: 1
+    RUNNER_INSTANCE_TYPE: t3.medium
 
-default:
+# for jobs which should run on each MR/Pipeline
+.base:
     image: shopware/development:7.4-composer-2
-    timeout: 1h 00m
+    # we want our base pipeline to finish fast
+    timeout: 30m
     interruptible: true
+    # do not download assets from previous stages by default
+    dependencies: []
+    tags:
+        - $RUNNER_INSTANCE_TYPE
+    rules:
+        - !reference [.rules, skip]
+        - !reference [.rules, run]
+        - when: always
     before_script:
         - composer run setup
         - chown -R application:application .
@@ -25,17 +36,6 @@ default:
     after_script:
         - !reference [.upload-junit-xml, after_script]
 
-# for jobs which should run on each MR/Pipeline
-.base:
-    # we want our base pipeline to finish fast
-    timeout: 30m
-    # do not download assets from previous stages by default
-    dependencies: []
-    rules:
-        - !reference [.rules, skip]
-        - !reference [.rules, run]
-        - when: always
-
 # sames as .base just without initializing shopware and starting a web server
 .base-no-setup:
     extends: .base
@@ -43,6 +43,7 @@ default:
 
 # only run in `merge_train`s or if the $CI_STAGE::all label is set
 .long-running:
+    extends: .base
     # this happens after the approve but before merge and may take longer
     timeout: 2h
     # do not download assets from previous stages by default

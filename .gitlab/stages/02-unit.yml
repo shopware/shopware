@@ -58,6 +58,7 @@ PHP coverage:
     image: shopware/development:7.4-composer-2
     stage: unit
     needs: []
+    timeout: 30m
     services:
         -   name: mariadb:10.4
             alias: database
@@ -97,7 +98,9 @@ PHP coverage:
             cobertura: cobertura.xml
     parallel:
         matrix:
-            - TESTSUITE: ["framework", "checkout", "content", "storefront,administration,system,elasticsearch,profiling,maintenance", "migration"]
+            - TESTSUITE: ["framework", "checkout", "storefront,administration,system,elasticsearch,profiling,maintenance", "migration"]
+            - TESTSUITE: "content"
+              RUNNER_INSTANCE_TYPE: m5.large
 
 PHP Full:
     extends: .long-running
@@ -117,6 +120,7 @@ PHP Full:
         TEST_SUITES: "docs administration storefront checkout content framework profiling migration system elasticsearch"
         APP_ENV: test
         GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
+        RUNNER_INSTANCE_TYPE: m5.large
     rules:
         - !reference [.rules, skip]
         - !reference [.rules, run]

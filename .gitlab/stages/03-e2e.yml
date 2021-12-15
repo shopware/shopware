@@ -27,8 +27,9 @@ E2E:
                 FEATURE_ALL: ["false", "minor", "major"]
             -   E2E_PROJECT: 'admin'
                 TEST_DIRECTORY:
-                    - "cypress/integration/content/**/*,cypress/integration/catalogue/**/*,cypress/integration/customer/**/*,cypress/integration/media-marketing/**/*"
-                    - "cypress/integration/general/**/*,cypress/integration/order/**/*,cypress/integration/rule-product-stream/**/*,cypress/integration/settings/**/*"
+                    - "cypress/integration/settings/**/*"
+                    - "cypress/integration/catalogue/**/*,cypress/integration/media-marketing/**/*"
+                    - "cypress/integration/content/**/*,cypress/integration/customer/**/*,cypress/integration/general/**/*,cypress/integration/order/**/*,cypress/integration/rule-product-stream/**/*"
                 BROWSER: 'chrome'
                 FEATURE_ALL: ["false", "minor", "major"]
             # firefox
@@ -38,8 +39,9 @@ E2E:
                 FEATURE_ALL: 'false'
             -   E2E_PROJECT: 'admin'
                 TEST_DIRECTORY:
-                    - "cypress/integration/content/**/*,cypress/integration/catalogue/**/*,cypress/integration/customer/**/*,cypress/integration/media-marketing/**/*"
-                    - "cypress/integration/general/**/*,cypress/integration/order/**/*,cypress/integration/rule-product-stream/**/*,cypress/integration/settings/**/*"
+                    - "cypress/integration/settings/**/*"
+                    - "cypress/integration/catalogue/**/*,cypress/integration/media-marketing/**/*"
+                    - "cypress/integration/content/**/*,cypress/integration/customer/**/*,cypress/integration/general/**/*,cypress/integration/order/**/*,cypress/integration/rule-product-stream/**/*"
                 BROWSER: 'firefox'
                 FEATURE_ALL: 'false'
 

@@ -463,7 +463,7 @@ class ThumbnailService
                 imagejpeg($thumbnail, null, $quality);
 
                 break;
-            case 'image/webp'
+            case 'image/webp':
                 imagewebp($thumbnail, null, $quality);
                 
                 break;

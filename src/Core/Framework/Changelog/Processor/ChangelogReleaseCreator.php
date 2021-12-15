@@ -166,7 +166,9 @@ class ChangelogReleaseCreator extends ChangelogProcessor
             return;
         }
 
-        array_unshift($append, sprintf('# Introduced in %s', $version));
+        $nextMajorVersionHeadline = '# ' . $this->getNextMajorVersion($version) . '.0.0' . \PHP_EOL;
+
+        array_unshift($append, sprintf('## Introduced in %s', $version));
 
         $upgradeFile = $this->getTargetNextMajorUpgradeFile($version);
         if (!$dryRun) {
@@ -181,8 +183,9 @@ class ChangelogReleaseCreator extends ChangelogProcessor
 
             $content
                 = substr($content, 0, $posLatestRelease)
+                . $nextMajorVersionHeadline
                 . implode("\n", $append) . "\n\n"
-                . substr($content, $posLatestRelease);
+                . substr($content, $posLatestRelease + \strlen($nextMajorVersionHeadline));
             file_put_contents($upgradeFile, $content);
 
             $output[] = '* Update the Upgrade Information in: ' . $this->getTargetNextMajorUpgradeFile($version, false);

@@ -101,7 +101,8 @@ class ChangelogCommandTest extends TestCase
                         '### THE INFORMATION',
                     ],
                     __DIR__ . '/_fixture/stage/command-valid/UPGRADE-12.14.md' => [
-                        '# Introduced in 12.13.14.15',
+                        '# 12.14.0.0',
+                        '## Introduced in 12.13.14.15',
                         '## DO THIS:',
                         '* FOO',
                     ],
@@ -120,14 +121,18 @@ class ChangelogCommandTest extends TestCase
                     __DIR__ . '/_fixture/stage/command-valid-minor-update/UPGRADE-12.13.md' => [
                         '# 12.13.14.15',
                         '# 12.13.15.0',
-                        '## UPGRADE',
+                        '## UPGRADE, second',
+                        '## UPGRADE, first',
                         '### THE INFORMATION',
                     ],
                     __DIR__ . '/_fixture/stage/command-valid-minor-update/UPGRADE-12.14.md' => [
-                        '# Introduced in 12.13.15.0',
-                        '# Introduced in 12.13.14.15',
+                        '# 12.14.0.0',
+                        '## Introduced in 12.13.15.0',
+                        '## Introduced in 12.13.14.15',
                         '## DO THIS:',
                         '* FOO',
+                        '## DO THAT:',
+                        '* BAR',
                     ],
                 ],
             ],
@@ -197,6 +202,7 @@ class ChangelogCommandTest extends TestCase
 
             foreach ($expectedFileContent as $line) {
                 static::assertStringContainsString($line, $fileContents);
+                static::assertSame(1, substr_count($fileContents, $line), sprintf("Multiple occurrences of %s in \n %s", $line, $fileContents));
             }
         }
     }

@@ -24,11 +24,11 @@ ___
 ___
 # Upgrade Information
 
-## UPGRADE
-### THE INFORMATION
+## UPGRADE, second
+### THE other INFORMATION
 ___
 # Next Major Version Changes
 
-## DO THIS:
+## DO THAT:
 
-* FOO
+* BAR

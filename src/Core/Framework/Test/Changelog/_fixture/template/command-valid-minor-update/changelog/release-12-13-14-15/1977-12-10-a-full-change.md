@@ -24,8 +24,8 @@ ___
 ___
 # Upgrade Information
 
-## UPGRADE
-### THE INFORMATION
+## UPGRADE, first
+### THE first INFORMATION
 ___
 # Next Major Version Changes
 

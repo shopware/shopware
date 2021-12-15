@@ -265,6 +265,12 @@ Shopware.Component.register('sw-import-export-activity', {
             this.selectedProfile = await this.profileRepository.get(id);
         },
 
+        onAbortProcess(item) {
+            this.importExport.cancel(item.id).then(() => {
+                this.fetchActivities();
+            });
+        },
+
         closeSelectedProfile() {
             this.selectedProfile = null;
         },

@@ -619,6 +619,7 @@
         "lineItemRule": "Line item",
         "lineItemsInCartRule": "Line items in cart",
         "lineItemsInCartCountRule": "Quantity of distinct line items",
+        "promotionsInCartCountRule": "Quantity of promotions",
         "lineItemUnitPriceRule": "Distinct line item price",
         "lineItemTotalPriceRule": "Total price of all line items",
         "lineItemWithQuantityRule": "Quantity of selected line item",

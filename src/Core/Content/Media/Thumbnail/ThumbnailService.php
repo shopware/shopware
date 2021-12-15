@@ -464,12 +464,11 @@ class ThumbnailService
 
                 break;
             case 'image/webp':
-                if (function_exists('imagewebp')) {
-                    imagewebp($thumbnail, null, $quality);
-                }
-                else {
+                if (!function_exists('imagewebp')) {
                     throw new ThumbnailCouldNotBeSavedException($url);
                 }
+
+               imagewebp($thumbnail, null, $quality);
                 
                 break;
         }

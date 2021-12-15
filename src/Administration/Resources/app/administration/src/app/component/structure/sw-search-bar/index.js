@@ -878,24 +878,28 @@ Component.register('sw-search-bar', {
 
         getDefaultMatchSearchableModules(regex, label, manifest) {
             const match = label.toLowerCase().match(regex);
+            const matchAddNew = (`${this.$tc('global.sw-search-bar.addNew')} ${label}`).toLowerCase().match(regex);
 
-            if (!match || (!manifest?.routes?.index && !manifest?.routes?.list)) {
+            if ((!match && !matchAddNew) || (!manifest?.routes?.index && !manifest?.routes?.list)) {
                 return false;
             }
 
             const route = manifest?.routes?.index || manifest?.routes?.list;
 
             const { name, icon, color, entity, routes } = manifest;
+            const entities = [];
 
-            const entities = [{
-                name,
-                icon,
-                color,
-                label,
-                entity,
-                route: route,
-                privilege: route?.meta?.privilege,
-            }];
+            if (match && routes.index) {
+                entities.push({
+                    name,
+                    icon,
+                    color,
+                    label,
+                    entity,
+                    route: route,
+                    privilege: routes.index?.meta?.privilege,
+                });
+            }
 
             if (routes.create) {
                 entities.push({

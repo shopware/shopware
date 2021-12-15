@@ -522,7 +522,8 @@
       "searchTypeAll": "All",
       "moduleFilter": "Module filter",
       "messageNoResultsV2": "We didn't find any exact matches for \"{term}\".",
-      "messageNoResultsDetailV2": "You might want to try using different keywords or check the configuration of your search."
+      "messageNoResultsDetailV2": "You might want to try using different keywords or check the configuration of your search.",
+      "addNew": "add new"
     },
     "sw-search-bar-item": {
       "typeLabelCustomer": "Customer",

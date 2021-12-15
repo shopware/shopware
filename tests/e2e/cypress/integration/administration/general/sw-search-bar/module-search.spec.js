@@ -195,4 +195,33 @@ describe('Search bar: Check search module with short keyword', () => {
             .should('be.visible')
             .contains('Media');
     });
+
+    it('@searchBar @search: Search for a product using the keyword add new prod', () => {
+        cy.createProductFixture()
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+            });
+
+        cy.get('.sw-dashboard')
+            .should('exist');
+
+        cy.get('.sw-loader__element')
+            .should('not.exist');
+
+        cy.get('input.sw-search-bar__input').type('add new prod');
+        cy.get('.sw-search-bar__results').should('be.visible');
+
+        cy.get('.sw-search-bar-item')
+            .should('be.visible')
+            .contains('Add new product');
+
+        cy.get('.sw-search-bar-item__link[href="#/sw/product/create"]')
+            .should('be.visible')
+            .contains('Add new product')
+            .click();
+        
+        cy.get('.smart-bar__header h2')
+            .should('be.visible')
+            .contains('New product');
+    });
 });

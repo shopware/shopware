@@ -57,9 +57,6 @@ function createWrapper(customField = customNormalField) {
     return shallowMount(Shopware.Component.build('sw-flow-set-entity-custom-field-modal'), {
         localVue,
         provide: {
-            flowBuilderService: {
-                getActionModalName: () => {}
-            },
             repositoryFactory: {
                 create: (entity) => {
                     if (entity === 'custom_field_set') {
@@ -161,6 +158,12 @@ function createWrapper(customField = customNormalField) {
 describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () => {
     beforeAll(() => {
         global.activeFeatureFlags = ['FEATURE_NEXT_17973'];
+
+        Shopware.Service().register('flowBuilderService', () => {
+            return {
+                convertEntityName: () => {}
+            };
+        });
     });
 
     Shopware.State.registerModule('swFlowState', {

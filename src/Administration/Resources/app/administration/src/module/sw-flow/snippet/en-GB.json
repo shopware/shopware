@@ -79,6 +79,7 @@
       "changeCustomerGroup": "Change customer group",
       "changeCustomerStatus": "Change customer status",
       "changeCustomFieldContent": "Change custom field content",
+      "addAffiliateAndCampaignCode": "Add affiliate and campaign code",
       "textStopFlowDescription": "Subsequent actions/ sequences will not be executed.",
       "labelDescription": "Description: {description}",
       "contextButton": {
@@ -94,7 +95,9 @@
       "labelCustomFieldSet": "Custom field set: {customFieldSet}",
       "labelCustomField": "Custom field: {customField}",
       "labelCustomFieldOption": "Custom field option: {customFieldOption}",
-      "placeholderSelectAction": "Select action..."
+      "placeholderSelectAction": "Select action...",
+      "labelAffiliateCode": "Affiliate code: {affiliateCode}",
+      "labelCampaignCode": "Campaign code: {campaignCode}"
     },
     "rule": {
       "addRule": "Add rule",
@@ -214,6 +217,16 @@
           "add": "Add",
           "remove": "Remove"
         }
+      },
+      "affiliateAndCampaignCode": {
+        "labelEntity": "Entity",
+        "placeholderEntity": "Select entity...",
+        "title": "Add affiliate code and campaign code",
+        "labelAffiliateCode": "Affiliate code",
+        "placeholderAffiliateCode": "Enter affiliate code...",
+        "labelCampaignCode": "Campaign code",
+        "placeholderCampaignCode": "Enter campaign code...",
+        "overwrite": "Overwrite"
       },
       "confirmation": {
         "textConfirmChangeTrigger": "Are you sure you want to change the trigger event? <br> The flow sequence will be reset if you press the confirm button."

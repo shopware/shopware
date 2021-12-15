@@ -79,6 +79,7 @@
       "changeCustomerGroup": "Kundengruppe ändern",
       "changeCustomerStatus": "Kundenstatus ändern",
       "changeCustomFieldContent": "Zusatzfeldinhalt ändern",
+      "addAffiliateAndCampaignCode": "Affiliate- und Kampagnen-Code hinzufügen",
       "textStopFlowDescription": "Nachfolgende Aktionen/Sequenzen werden nicht ausgeführt.",
       "labelDescription": "Beschreibung: {description}",
       "contextButton": {
@@ -94,7 +95,9 @@
       "labelCustomFieldSet": "Zusatzfeld-Set: {customFieldSet}",
       "labelCustomField": "Zusatzfeld: {customField}",
       "labelCustomFieldOption": "Zusatzfeld-Option: {customFieldOption}",
-      "placeholderSelectAction": "Aktion auswählen ..."
+      "placeholderSelectAction": "Aktion auswählen ...",
+      "labelAffiliateCode": "Affiliate-Code: {affiliateCode}",
+      "labelCampaignCode": "Kampagnen-Code: {campaignCode}"
     },
     "rule": {
       "addRule": "Regel hinzufügen",
@@ -214,6 +217,16 @@
           "add": "Hinzufügen",
           "remove": "Entfernen"
         }
+      },
+      "affiliateAndCampaignCode": {
+        "labelEntity": "Entität",
+        "placeholderEntity": "Etität auswählen ...",
+        "title": "Affiliate- und Kampagnen-Code hinzufügen",
+        "labelAffiliateCode": "Affiliate-Code",
+        "placeholderAffiliateCode": "Affiliate-Code eingeben ...",
+        "labelCampaignCode": "Kampagnen-Code",
+        "placeholderCampaignCode": "Kampagnen-Code eingeben ...",
+        "overwrite": "Überschreiben"
       },
       "confirmation": {
         "textConfirmChangeTrigger": "Bist Du sicher, dass Du das Trigger-Ereignis ändern willst? <br> Der Flow wird zurückgesetzt, sobald Du auf Bestätigen klickst."

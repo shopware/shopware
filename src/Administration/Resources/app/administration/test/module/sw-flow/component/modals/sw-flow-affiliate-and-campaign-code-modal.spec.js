@@ -1,5 +1,5 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import 'src/module/sw-flow/component/modals/sw-flow-tag-modal';
+import 'src/module/sw-flow/component/modals/sw-flow-affiliate-and-campaign-code-modal';
 import 'src/app/component/form/select/base/sw-single-select';
 import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/field-base/sw-block-field';
@@ -8,40 +8,29 @@ import 'src/app/component/form/select/entity/sw-entity-tag-select';
 import 'src/app/component/form/select/entity/sw-entity-multi-select';
 import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/form/select/base/sw-select-selection-list';
+import 'src/app/component/form/sw-text-field';
+import 'src/app/component/form/field-base/sw-contextual-field';
+import 'src/app/component/form/sw-switch-field';
+import 'src/app/component/form/sw-checkbox-field';
+import 'src/app/component/base/sw-container';
 
-import EntityCollection from 'src/core/data/entity-collection.data';
 import Vuex from 'vuex';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
 const fieldClasses = [
-    '.sw-flow-tag-modal__to-field',
-    '.sw-flow-tag-modal__tags-field'
+    '.sw-flow-affiliate-and-campaign-code-modal__entity',
+    '.sw-flow-affiliate-and-campaign-code-modal__affiliate-code',
+    '.sw-flow-affiliate-and-campaign-code-modal__campaign-code',
 ];
-
-function getTagCollection(collection = []) {
-    return new EntityCollection(
-        '/tag',
-        'tag',
-        null,
-        { isShopwareContext: true },
-        collection,
-        collection.length,
-        null
-    );
-}
 
 function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
-    return shallowMount(Shopware.Component.build('sw-flow-tag-modal'), {
+    return shallowMount(Shopware.Component.build('sw-flow-affiliate-and-campaign-code-modal'), {
         localVue,
         provide: {
-            flowBuilderService: {
-                getActionModalName: () => {},
-
-                convertEntityName: () => {}
-            },
+            validationService: {},
             repositoryFactory: {
                 create: () => {
                     return {
@@ -56,7 +45,6 @@ function createWrapper() {
         },
 
         stubs: {
-            'sw-entity-tag-select': Shopware.Component.build('sw-entity-tag-select'),
             'sw-single-select': Shopware.Component.build('sw-single-select'),
             'sw-select-base': Shopware.Component.build('sw-select-base'),
             'sw-block-field': Shopware.Component.build('sw-block-field'),
@@ -93,12 +81,23 @@ function createWrapper() {
             'sw-label': true,
             'sw-icon': true,
             'sw-field-error': true,
-            'sw-highlight-text': true
+            'sw-highlight-text': true,
+            'sw-text-field': Shopware.Component.build('sw-text-field'),
+            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
+            'sw-switch-field': Shopware.Component.build('sw-switch-field'),
+            'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
+            'sw-container': Shopware.Component.build('sw-container')
         }
     });
 }
 
-describe('module/sw-flow/component/sw-flow-tag-modal', () => {
+describe('module/sw-flow/component/sw-flow-affiliate-and-campaign-code-modal', () => {
+    Shopware.Service().register('flowBuilderService', () => {
+        return {
+            convertEntityName: () => {}
+        };
+    });
+
     Shopware.State.registerModule('swFlowState', {
         ...flowState,
         state: {
@@ -134,44 +133,51 @@ describe('module/sw-flow/component/sw-flow-tag-modal', () => {
         });
     });
 
-    it('should show error if these fields are invalid', async () => {
+    it('should show error if do not select entity', async () => {
         const wrapper = createWrapper();
         const removeEntity = wrapper.find('.sw-select__select-indicator-clear');
         await removeEntity.trigger('click');
-        const buttonSave = wrapper.find('.sw-flow-tag-modal__save-button');
+        const buttonSave = wrapper.find('.sw-flow-affiliate-and-campaign-code-modal__save-button');
         await buttonSave.trigger('click');
 
-        fieldClasses.forEach(elementClass => {
-            expect(wrapper.find(elementClass).classes()).toContain('has--error');
-        });
+        expect(wrapper.find('.sw-flow-affiliate-and-campaign-code-modal__entity').classes()).toContain('has--error');
     });
 
-    it('should remove error if these fields are valid ', async () => {
+    it('should emit process-finish when affiliate and campaign code are entered', async () => {
         const wrapper = createWrapper();
-
-        const removeEntity = wrapper.find('.sw-select__select-indicator-clear');
-        await removeEntity.trigger('click');
-        const buttonSave = wrapper.find('.sw-flow-tag-modal__save-button');
-        await buttonSave.trigger('click');
-
-        fieldClasses.forEach(elementClass => {
-            expect(wrapper.find(elementClass).classes()).toContain('has--error');
-        });
-
-        await wrapper.setData({
-            tagCollection: getTagCollection([{ name: 'new', id: '124' }])
-        });
 
         const entitySelect = wrapper.find('.sw-single-select__selection');
         await entitySelect.trigger('click');
 
-        const entityItem = wrapper.findAll('.sw-select-result');
-        await entityItem.at(0).trigger('click');
+        const entityInput = wrapper.find('.sw-select-result');
+        await entityInput.trigger('click');
 
-        await buttonSave.trigger('click');
+        const affiliateInput = wrapper.find('.sw-flow-affiliate-and-campaign-code-modal__affiliate-code #sw-field--affiliateCode-value');
+        await affiliateInput.setValue('abc');
+        await affiliateInput.trigger('input');
 
-        fieldClasses.forEach(elementClass => {
-            expect(wrapper.find(elementClass).classes()).not.toContain('has--error');
-        });
+        const switchAffiliate = wrapper.find('.sw-flow-affiliate-and-campaign-code-modal__affiliate-code-overwrite input');
+        await switchAffiliate.setChecked(true);
+
+        const campaignInput = wrapper.find('.sw-flow-affiliate-and-campaign-code-modal__campaign-code #sw-field--campaignCode-value');
+        await campaignInput.setValue('xyz');
+        await campaignInput.trigger('input');
+
+        const saveButton = wrapper.find('.sw-flow-affiliate-and-campaign-code-modal__save-button');
+        await saveButton.trigger('click');
+
+        expect(wrapper.emitted()['process-finish'][0]).toEqual([{
+            config: {
+                entity: 'customer',
+                affiliateCode: {
+                    value: 'abc',
+                    upsert: true
+                },
+                campaignCode: {
+                    value: 'xyz',
+                    upsert: false
+                },
+            }
+        }]);
     });
 });

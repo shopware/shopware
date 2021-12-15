@@ -463,6 +463,10 @@ class ThumbnailService
                 imagejpeg($thumbnail, null, $quality);
 
                 break;
+            case 'image/webp'
+                imagewebp($thumbnail, null, $quality);
+                
+                break;
         }
         $imageFile = ob_get_contents();
         ob_end_clean();

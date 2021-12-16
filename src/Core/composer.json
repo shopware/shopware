@@ -61,6 +61,7 @@
         "ezyang/htmlpurifier": "4.13.0",
         "google/cloud-storage": "~1.25.1",
         "guzzlehttp/guzzle": "~7.2",
+        "guzzlehttp/psr7": "^1.8.0",
         "jdorn/sql-formatter": "1.2.17",
         "lcobucci/jwt": "~4.1.5",
         "league/flysystem": "~1.1.4",

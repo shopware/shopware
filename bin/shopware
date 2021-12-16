@@ -32,7 +32,10 @@ if ($input->hasParameterOption('--no-debug', true)) {
     putenv('APP_DEBUG=' . $_SERVER['APP_DEBUG'] = $_ENV['APP_DEBUG'] = '0');
 }
 
-(new Dotenv())->usePutenv()->bootEnv(dirname(__DIR__) . '/.env');
+$projectRoot = dirname(__DIR__);
+if (class_exists(Dotenv::class) && (file_exists($projectRoot . '/.env.local.php') || file_exists($projectRoot . '/.env') || file_exists($projectRoot . '/.env.dist'))) {
+    (new Dotenv())->usePutenv()->bootEnv(dirname(__DIR__) . '/.env');
+}
 
 if ($_SERVER['APP_DEBUG']) {
     umask(0000);
@@ -42,7 +45,10 @@ if ($_SERVER['APP_DEBUG']) {
     }
 }
 
-$kernel = new HttpKernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG'], $classLoader);
+$appEnv = $_SERVER['APP_ENV'] ?? $_ENV['APP_ENV'] ?? 'dev';
+$debug = !($appEnv === 'e2e') && (bool)($_SERVER['APP_DEBUG'] ?? $_ENV['APP_DEBUG'] ?? ('prod' !== $appEnv));
+
+$kernel = new HttpKernel($appEnv, $debug, $classLoader);
 
 if ($_SERVER['COMPOSER_PLUGIN_LOADER'] ?? false) {
     $kernel->setPluginLoader(new \Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader($classLoader));

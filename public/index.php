@@ -15,14 +15,13 @@ if (PHP_VERSION_ID < 70403) {
 
 $classLoader = require __DIR__.'/../vendor/autoload.php';
 
-if (!class_exists(Dotenv::class)) {
-    throw new \RuntimeException('APP_ENV environment variable is not defined. You need to define environment variables for configuration or add "symfony/dotenv" as a Composer dependency to load variables from a .env file.');
+$projectRoot = dirname(__DIR__);
+if (class_exists(Dotenv::class) && (file_exists($projectRoot . '/.env.local.php') || file_exists($projectRoot . '/.env') || file_exists($projectRoot . '/.env.dist'))) {
+    (new Dotenv())->usePutenv()->bootEnv(dirname(__DIR__) . '/.env');
 }
 
-(new Dotenv())->usePutenv()->bootEnv(__DIR__.'/../.env');
-
 $appEnv = $_SERVER['APP_ENV'] ?? $_ENV['APP_ENV'] ?? 'dev';
-$debug = (bool) ($_SERVER['APP_DEBUG'] ?? $_ENV['APP_DEBUG'] ?? ('prod' !== $appEnv && 'e2e' !== $appEnv));
+$debug = !($appEnv === 'e2e') && (bool)($_SERVER['APP_DEBUG'] ?? $_ENV['APP_DEBUG'] ?? ('prod' !== $appEnv));
 
 if ($debug) {
     umask(0000);

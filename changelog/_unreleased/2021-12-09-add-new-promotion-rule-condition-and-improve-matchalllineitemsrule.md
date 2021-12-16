@@ -1,7 +1,7 @@
 ---
 title: Add new promotion rule condition and improve MatchAllLineItemsRule
 issue: NEXT-18987
-flag: NEXT-18982
+flag: FEATURE_NEXT_18982
 author: Krispin Lütjann
 author_email: k.luetjann@shopware.com 
 author_github: King-of-Babylon

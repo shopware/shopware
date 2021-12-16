@@ -55,6 +55,8 @@ class PromotionEntity extends Entity
      */
     protected $maxRedemptionsPerCustomer;
 
+    protected int $priority;
+
     /**
      * @var bool
      */
@@ -71,9 +73,8 @@ class PromotionEntity extends Entity
     protected $useSetGroups = false;
 
     /**
-     * stores if the persona condition uses
-     * rules or customer assignments.
-     * default modes is "use rules".
+     * Stores if the persona condition uses rules or customer assignments.
+     * Default mode is "use rules".
      *
      * @var bool
      */
@@ -214,6 +215,16 @@ class PromotionEntity extends Entity
     public function setMaxRedemptionsPerCustomer(?int $maxRedemptionsPerCustomer): void
     {
         $this->maxRedemptionsPerCustomer = $maxRedemptionsPerCustomer;
+    }
+
+    public function getPriority(): int
+    {
+        return $this->priority;
+    }
+
+    public function setPriority(int $priority): void
+    {
+        $this->priority = $priority;
     }
 
     public function isExclusive(): bool

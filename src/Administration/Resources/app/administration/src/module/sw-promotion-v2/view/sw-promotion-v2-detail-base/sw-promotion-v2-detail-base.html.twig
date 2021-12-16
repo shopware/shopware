@@ -10,13 +10,24 @@
     >
 
         {% block sw_promotion_v2_detail_base_general_name %}
-        <sw-text-field
-            v-model="promotion.name"
-            class="sw-promotion-v2-detail-base__field-name"
-            :label="$tc('sw-promotion-v2.detail.base.general.nameLabel')"
-            :disabled="!acl.can('promotion.editor')"
-            :error="promotionNameError"
-        />
+        <sw-container
+            columns="2fr 1fr"
+            gap="0 32px"
+        >
+            <sw-text-field
+                v-model="promotion.name"
+                class="sw-promotion-v2-detail-base__field-name"
+                :label="$tc('sw-promotion-v2.detail.base.general.nameLabel')"
+                :disabled="!acl.can('promotion.editor')"
+                :error="promotionNameError"
+            />
+
+            <sw-number-field
+                v-model="promotion.priority"
+                :disabled="!acl.can('promotion.editor')"
+                :label="$tc('sw-promotion-v2.detail.base.general.priorityLabel')"
+            />
+        </sw-container>
         {% endblock %}
 
         {% block sw_promotion_v2_detail_base_general_valid_container %}

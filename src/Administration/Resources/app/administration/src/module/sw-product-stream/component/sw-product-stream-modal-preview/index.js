@@ -58,7 +58,7 @@ Component.register('sw-product-stream-modal-preview', {
             const criteria = new Criteria();
             criteria.setLimit(this.limit);
             criteria.setPage(this.page);
-            criteria.setTerm(this.term);
+            criteria.setTerm(this.searchTerm);
 
             return criteria;
         },
@@ -134,7 +134,7 @@ Component.register('sw-product-stream-modal-preview', {
                 .then(() => {
                     return this.loadEntityData();
                 })
-                .then(() => {
+                .finally(() => {
                     this.isLoading = false;
                 });
         },

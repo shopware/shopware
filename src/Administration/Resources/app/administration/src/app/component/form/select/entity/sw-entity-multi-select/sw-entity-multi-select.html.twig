@@ -82,6 +82,7 @@
                         :selected="isSelected(item)"
                         v-bind="{ item, index }"
                         :disabled="isSelectionDisabled(item)"
+                        :description-position="descriptionPosition"
                         @item-select="addItem"
                     >
                         {% block sw_entity_multi_select_base_results_list_result_label %}

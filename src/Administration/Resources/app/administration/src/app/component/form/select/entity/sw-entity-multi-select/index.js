@@ -93,6 +93,15 @@ Component.register('sw-entity-multi-select', {
             required: false,
             default: () => false,
         },
+        descriptionPosition: {
+            type: String,
+            required: false,
+            default: 'right',
+            validValues: ['bottom', 'right'],
+            validator(value) {
+                return ['bottom', 'right'].includes(value);
+            },
+        },
     },
 
     data() {

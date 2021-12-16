@@ -71,6 +71,8 @@
     "actions": {
       "edit": "Edit",
       "save": "Save",
+      "saveClean": "Clean Save",
+      "saveCleanToolTip": "The current values will be rewritten completely. Use this to make a clean entry after fields were deleted or changed its types.",
       "rename": "Rename",
       "delete": "Delete",
       "duplicate": "Create duplicate",

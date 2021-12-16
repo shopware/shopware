@@ -71,6 +71,8 @@
     "actions": {
       "edit": "Bearbeiten",
       "save": "Speichern",
+      "saveClean": "Bereinigen",
+      "saveCleanToolTip": "Die aktuellen Werte werden komplett neu gespeichert. Zu nutzen, wenn Felder gelöscht wurden oder ihren Typ geändert haben.",
       "rename": "Umbenennen",
       "delete": "Löschen",
       "duplicate": "Duplikat erstellen",

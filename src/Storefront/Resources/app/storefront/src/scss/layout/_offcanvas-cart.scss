@@ -36,6 +36,12 @@ Extends the basic offcanvas component with additional cart styles.
         }
     }
 
+    .cart-item-row {
+        position: relative;
+        margin-right: 0;
+        margin-left: 0;
+    }
+
     .cart-item-img {
         height: 75px;
         width: 75px;
@@ -76,7 +82,7 @@ Extends the basic offcanvas component with additional cart styles.
 
     .cart-item-remove {
         position: absolute;
-        right: 10px;
+        right: 0;
     }
 
     .cart-quantity-price {

@@ -1,7 +1,8 @@
 import template from './sw-search-more-results.html.twig';
 import './sw-search-more-results.scss';
 
-const { Component } = Shopware;
+const { Component, Application } = Shopware;
+
 /**
  * @public
  * @description
@@ -33,14 +34,30 @@ Component.register('sw-search-more-results', {
     },
 
     computed: {
+        moduleFactory() {
+            return Application.getContainer('factory').module || {};
+        },
+
         /**
          * @return {string}
          */
         searchTypeRoute() {
-            if (!this.result ||
+            if (
+                !this.result ||
                 !this.result.entity ||
                 !this.searchTypes[this.result.entity] ||
-                !this.searchTypes[this.result.entity].listingRoute) {
+                !this.searchTypes[this.result.entity].listingRoute
+            ) {
+                const module = this.moduleFactory.getModuleByEntityName(this.result.entity);
+
+                if (module?.manifest?.routes?.index) {
+                    return module.manifest.routes.index.name;
+                }
+
+                if (module?.manifest?.routes?.list) {
+                    return module.manifest.routes.list.name;
+                }
+
                 return '';
             }
 

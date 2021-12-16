@@ -184,7 +184,7 @@
         v-else-if="type === 'cms_page'"
         ref="routerLink"
         class="sw-search-bar-item__link"
-        :to="{ name: 'sw.cms.detail.base', params: { id: item.id } }"
+        :to="{ name: 'sw.cms.detail', params: { id: item.id } }"
     >
 
         {% block sw_search_bar_item_cms_page_label %}
@@ -252,6 +252,26 @@
             {% endblock %}
         </span>
         {% endblock %}
+    </router-link>
+    {% endblock %}
+
+    {% block sw_search_bar_item_other_entity %}
+    <router-link
+        v-else-if="feature.isActive('FEATURE_NEXT_6040') && detailRoute && displayValue.length > 0"
+        ref="routerLink"
+        class="sw-search-bar-item__link"
+        :to="{ name: detailRoute, params: { id: item.id } }"
+    >
+
+        {% block sw_search_bar_item_other_entity_label %}
+        <span class="sw-search-bar-item__label">
+            <sw-highlight-text
+                :search-term="searchTerm"
+                :text="displayValue"
+            />
+        </span>
+        {% endblock %}
+
     </router-link>
     {% endblock %}
 </li>

@@ -321,7 +321,9 @@
         "labelLicensed": "Erworben"
       },
       "sw-extension-config": {
-        "messageSaveSuccess": "Konfiguration gespeichert."
+        "messageSaveSuccess": "Konfiguration gespeichert.",
+        "imageDescription": "Icon der Erweiterung \"{extensionName}\"",
+        "labelBy": "von"
       }
     }
   },

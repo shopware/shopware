@@ -1,5 +1,31 @@
+@import "~scss/variables";
+
 .sw-extension-config {
+    .sw-meteor-page__smart-bar .sw-meteor-page__smart-bar-module-info .sw-meteor-page__smart-bar-header {
+        display: block;
+    }
+
+    .sw-meteor-page__smart-bar .sw-meteor-page__smart-bar-module-info .sw-meteor-page__smart-bar-header .sw-meteor-page__smart-bar-title {
+        line-height: 36px;
+    }
+
     .sw-meteor-page__smart-bar-content {
         margin-bottom: 24px;
+
+        .sw-meteor-page__smart-bar-meta {
+            font-size: $font-size-extra-small;
+            color: $color-gray-500;
+            line-height: 12px;
+        }
+    }
+
+    &__extension-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 4px;
+    }
+
+    &__producer-link {
+        text-decoration: none;
     }
 }

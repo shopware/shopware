@@ -510,6 +510,13 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
             label: 'global.sw-condition.condition.promotionsInCartCountRule',
             scopes: ['cart'],
         });
+
+        ruleConditionService.addCondition('promotionValue', {
+            component: 'sw-condition-promotion-value',
+            label: 'global.sw-condition.condition.promotionValueRule',
+            scopes: ['cart'],
+            group: 'cart',
+        });
     }
 
     return ruleConditionService;

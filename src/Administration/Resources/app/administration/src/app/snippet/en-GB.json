@@ -677,6 +677,7 @@
         "shippingMethodRule": "Applied shipping method",
         "lineItemGoodsTotalRule": "Total number of products in cart",
         "orderTotalAmountRule": "Total value of completed orders",
+        "promotionValueRule": "Total value of all promotions",
         "promotionCodeOfType": "Promotions with code option",
         "promotionCodeOfTypeRule": {
           "global": "None",

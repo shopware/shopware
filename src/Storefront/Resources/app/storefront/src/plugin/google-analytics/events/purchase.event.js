@@ -5,30 +5,36 @@ import LineItemHelper from 'src/plugin/google-analytics/line-item.helper';
 export default class PurchaseEvent extends AnalyticsEvent
 {
     supports(controllerName, actionName) {
-        return controllerName === 'checkout' && actionName === 'confirmpage' && window.trackOrders;
+        return controllerName === 'checkout' && actionName === 'finishpage' && window.trackOrders;
     }
 
     execute() {
-        const tosInput = DomAccessHelper.querySelector(document, '#tos');
-
-        DomAccessHelper.querySelector(document, '#confirmFormSubmit').addEventListener('click', this._onConfirm.bind(this, tosInput));
-    }
-
-    _onConfirm(tosInput) {
         if (!this.active) {
             return;
         }
 
-        if (!tosInput.checked) {
+        const orderNumberElement = DomAccessHelper.querySelector(document, '.finish-ordernumber');
+        
+        if (!orderNumberElement) {
+            return;
+        }
+
+        const orderNumber = DomAccessHelper.getDataAttribute(orderNumberElement, 'order-number');
+        if (!orderNumber) {
+            console.warn('Cannot determine order number - Skip order tracking');
+
             return;
         }
 
         gtag('event', 'purchase', { ...{
-            'transaction_id': this.generateUuid(),
+            'transaction_id': orderNumber,
             'items':  LineItemHelper.getLineItems(),
         }, ...LineItemHelper.getAdditionalProperties() });
     }
 
+    /**
+     *  @deprecated tag:v6.5.0 - Unused function will be removed as the `execute` function now pulls the uuid from the template
+     */
     generateUuid() {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(replace) {
             const random = Math.random() * 16 | 0;

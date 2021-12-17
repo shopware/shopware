@@ -7,7 +7,7 @@ describe('Account: Login as customer', () => {
         });
     });
 
-    it('@base @customer: Change email and log in', () => {
+    it('@base @customer @package: Change email and log in', () => {
         const page = new AccountPageObject();
 
         cy.visit('/account/login');
@@ -49,7 +49,7 @@ describe('Account: Login as customer', () => {
         });
     });
 
-    it('@base @customer: Change password and log in', () => {
+    it('@base @customer @package: Change password and log in', () => {
         const page = new AccountPageObject();
 
         cy.visit('/account/login');

@@ -7,49 +7,49 @@ on:
     pull_request:
 
 jobs:
-    Administration:
-        runs-on: ubuntu-latest
-        container: shopware/development:7.4-composer-2
-        continue-on-error: true
-        strategy:
-            matrix:
-                test-directory: [ "cypress/integration/content/**/*", "cypress/integration/catalogue/**/*", "cypress/integration/customer/**/*", "cypress/integration/media-marketing/**/*", "cypress/integration/general/**/*", "cypress/integration/order/**/*", "cypress/integration/rule-product-stream/**/*", "cypress/integration/settings/**/*" ]
-        env:
-            SHOPWARE_HTTP_CACHE_ENABLED: 0
-            APP_ENV: e2e
-            CYPRESS_baseUrl: http://localhost:8000
-
-        services:
-            database:
-                image: mysql:5.7
-                env:
-                    MYSQL_ROOT_PASSWORD: root
-                    MYSQL_DATABASE: root
-
-        steps:
-            -   name: Clone platform
-                uses: actions/checkout@v2
-
-            -   name: Install Shopware
-                run: |
-                    composer run setup
-                    composer run init:e2e:admin
-                    composer run e2e:prepare
-                    chown -R application:application .
-                    export WEB_DOCUMENT_ROOT=$(pwd)/public
-                    /entrypoint supervisord > /dev/null 2>&1 &
-
-            -   name: Cypress run
-                run: |
-                    composer run e2e:admin:cypress -- run --browser chrome --spec "${{ matrix.test-directory }}" --headless --env grep=@base
-
-            -   uses: actions/upload-artifact@v2
-                if: failure()
-                with:
-                    name: cypress
-                    path: |
-                        src/Administration/Resources/app/administration/test/app/build
-                        var/logs
+#    Administration:
+#        runs-on: ubuntu-latest
+#        container: shopware/development:7.4-composer-2
+#        continue-on-error: true
+#        strategy:
+#            matrix:
+#                test-directory: [ "cypress/integration/content/**/*", "cypress/integration/catalogue/**/*", "cypress/integration/customer/**/*", "cypress/integration/media-marketing/**/*", "cypress/integration/general/**/*", "cypress/integration/order/**/*", "cypress/integration/rule-product-stream/**/*", "cypress/integration/settings/**/*" ]
+#        env:
+#            SHOPWARE_HTTP_CACHE_ENABLED: 0
+#            APP_ENV: e2e
+#            CYPRESS_baseUrl: http://localhost:8000
+#
+#        services:
+#            database:
+#                image: mysql:5.7
+#                env:
+#                    MYSQL_ROOT_PASSWORD: root
+#                    MYSQL_DATABASE: root
+#
+#        steps:
+#            -   name: Clone platform
+#                uses: actions/checkout@v2
+#
+#            -   name: Install Shopware
+#                run: |
+#                    composer run setup
+#                    composer run init:e2e:admin
+#                    composer run e2e:prepare
+#                    chown -R application:application .
+#                    export WEB_DOCUMENT_ROOT=$(pwd)/public
+#                    /entrypoint supervisord > /dev/null 2>&1 &
+#
+#            -   name: Cypress run
+#                run: |
+#                    composer run e2e:admin:cypress -- run --browser chrome --spec "${{ matrix.test-directory }}" --headless --env grep=@base
+#
+#            -   uses: actions/upload-artifact@v2
+#                if: failure()
+#                with:
+#                    name: cypress
+#                    path: |
+#                        src/Administration/Resources/app/administration/test/app/build
+#                        var/log
 
     Storefront:
         runs-on: ubuntu-latest
@@ -91,4 +91,4 @@ jobs:
                     name: cypress
                     path: |
                         src/Storefront/Resources/app/storefront/test/app/build
-                        var/logs
+                        var/log

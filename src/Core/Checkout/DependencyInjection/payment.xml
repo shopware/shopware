@@ -66,6 +66,7 @@
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry">
             <argument type="tagged_locator" tag="shopware.payment.method.sync"/>
             <argument type="tagged_locator" tag="shopware.payment.method.async"/>
+            <argument type="tagged_locator" tag="shopware.payment.method.prepared"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment">

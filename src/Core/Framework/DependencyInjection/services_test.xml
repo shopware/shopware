@@ -24,6 +24,15 @@
             <tag name="shopware.payment.method.async"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Test\Payment\Handler\V630\PreparedTestPaymentHandler">
+            <tag name="shopware.payment.method.prepared"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Test\Payment\Handler\V630\MultipleTestPaymentHandler">
+            <tag name="shopware.payment.method.sync"/>
+            <tag name="shopware.payment.method.prepared"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Test\Payment\Handler\SyncTestFailedPaymentHandler">
             <tag name="shopware.payment.method.sync"/>
         </service>

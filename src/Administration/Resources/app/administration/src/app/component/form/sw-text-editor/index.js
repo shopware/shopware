@@ -54,7 +54,6 @@ Component.register('sw-text-editor', {
             type: String,
             required: false,
             default: '',
-            validValues: ['', 'center', 'flex-start', 'flex-end'],
             validator(value) {
                 return ['', 'center', 'flex-start', 'flex-end'].includes(value);
             },
@@ -818,12 +817,55 @@ Component.register('sw-text-editor', {
             this.setWordCount();
         },
 
+        onCopy(event) {
+            event.preventDefault();
+
+            const nodes = [];
+
+            let element = this.selection.focusNode;
+            while (
+                element.parentNode &&
+                !element?.parentNode?.classList.contains('sw-text-editor__content-editor')
+            ) {
+                nodes.unshift(element.parentNode);
+                element = element.parentNode;
+            }
+
+            const formatedSting = nodes.map(node => node.tagName.toLowerCase())
+                .filter(nodeName => nodeName !== 'p')
+                .reduce((previousValue, currentElement) => {
+                    return `<${currentElement}>${previousValue}</${currentElement}>`;
+                }, this.selection.toString());
+
+            event.clipboardData.setData('text/html', formatedSting);
+            event.clipboardData.setData('text/plain', this.selection.toString());
+        },
+
         onPaste(event) {
             event.preventDefault();
 
-            const clipboardData = event.clipboardData || window.clipboardData;
-            const text = clipboardData.getData('text');
-            document.execCommand('insertText', false, text);
+            const settings = {
+                USE_PROFILES: {
+                    html: true,
+                },
+            };
+
+            const clipboardData = event.clipboardData;
+            const clipboardText = this.$sanitize(clipboardData.getData('text/plain'), settings);
+            const clipboardHTML = this.$sanitize(clipboardData.getData('text/html'), settings);
+
+            const selection = window.getSelection();
+
+            // if user has not clicked anywhere on the page
+            if (!selection.rangeCount) {
+                return;
+            }
+
+            selection.deleteFromDocument();
+
+            selection.getRangeAt(0).insertNode(clipboardHTML ?
+                document.createRange().createContextualFragment(clipboardHTML) :
+                document.createTextNode(clipboardText));
         },
 
         emitContent() {

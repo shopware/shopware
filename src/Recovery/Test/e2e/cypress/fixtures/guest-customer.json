@@ -1,0 +1,11 @@
+{
+  "salutation": "Mr.",
+  "firstName": "Wolf",
+  "lastName": "Kurt",
+  "email": "wolf@kurt.com",
+  "password": "shopware",
+  "street": "Test street",
+  "zipCode": "48500",
+  "city": "Amsterdam",
+  "country": "Netherlands"
+}

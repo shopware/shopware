@@ -619,6 +619,7 @@
         "lineItemRule": "Positionen",
         "lineItemsInCartRule": "Positionen im Warenkorb",
         "lineItemsInCartCountRule": "Anzahl unterschiedlicher Positionen",
+        "promotionsInCartCountRule": "Anzahl der Rabatte",
         "lineItemUnitPriceRule": "Preis einer bestimmten Position",
         "lineItemTotalPriceRule": "Gesamtpreis aller Positionen",
         "lineItemWithQuantityRule": "Anzahl ausgewählter Position",

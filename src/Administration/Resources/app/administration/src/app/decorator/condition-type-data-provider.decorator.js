@@ -504,6 +504,12 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
             label: 'global.sw-condition.condition.promotionCodeOfType',
             scopes: ['cart'],
         });
+
+        ruleConditionService.addCondition('promotionsInCartCount', {
+            component: 'sw-condition-promotions-in-cart-count',
+            label: 'global.sw-condition.condition.promotionsInCartCountRule',
+            scopes: ['cart'],
+        });
     }
 
     return ruleConditionService;

@@ -145,4 +145,126 @@ describe('Test payment and shipping methods selection', () => {
 
         cy.get('.account-welcome h1').contains('Orders');
     });
+
+    it('@base @confirm @package: should repeat the order with different payment method', () => {
+        const page = new CheckoutPageObject();
+
+        // add product to cart
+        cy.get('.header-search-input')
+            .should('be.visible')
+            .type(product.name);
+        cy.contains('.search-suggest-product-name', product.name).click();
+        cy.get('.product-detail-buy .btn-buy').click();
+
+        // Off canvas
+        cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
+        cy.get(`${page.elements.cartItem}-label`).contains(product.name);
+
+        // Go to cart
+        cy.get('.offcanvas-cart-actions [href="/checkout/confirm"]').click();
+        cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
+        cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
+
+        cy.get(`${page.elements.paymentMethodsContainer} > :nth-child(1) .payment-method-label`)
+            .should('exist')
+            .contains('Invoice');
+        cy.get(`${page.elements.paymentMethodsContainer} > :nth-child(1) .payment-method-label`).click(1, 1);
+        cy.get(`${page.elements.shippingMethodsContainer} .shipping-method-label`)
+            .contains('Standard').click(1, 1);
+        cy.get('#confirmFormSubmit').scrollIntoView();
+        cy.get('#confirmFormSubmit').click();
+        cy.get('.finish-header').contains('Thank you for your order with Demostore!');
+        cy.get('.finish-order-details .checkout-card .card-body p:nth-of-type(1)')
+            .should('contain', 'Invoice');
+        cy.get('.finish-order-details .checkout-card .card-body p:nth-of-type(2)')
+            .should('contain', 'Standard');
+
+        // repeat the order with changing payment method
+        cy.visit('/account/order');
+        cy.url().should('include', 'account/order');
+        cy.get('#accountOrderDropdown').click();
+        cy.contains('Repeat order').click();
+
+        // Off canvas
+        cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
+        cy.get(`${page.elements.cartItem}-label`).contains(product.name);
+
+        // Go to cart
+        cy.get('.offcanvas-cart-actions [href="/checkout/confirm"]').click();
+        cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
+        cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
+        cy.get(`${page.elements.paymentMethodsContainer} > :nth-child(3) .payment-method-label`)
+            .should('exist')
+            .contains('Paid in advance');
+        cy.get(`${page.elements.paymentMethodsContainer} > :nth-child(3) .payment-method-label`).click(1, 1);
+        cy.get(`${page.elements.shippingMethodsContainer} .shipping-method-label`)
+            .contains('Express').click(1, 1);
+
+        cy.get('#confirmFormSubmit').scrollIntoView();
+        cy.get('#confirmFormSubmit').click();
+        cy.get('.finish-header').contains('Thank you for your order with Demostore!');
+        cy.get('.finish-order-details .checkout-card .card-body p:nth-of-type(1)')
+            .should('contain', 'Paid in advance');
+        cy.get('.finish-order-details .checkout-card .card-body p:nth-of-type(2)')
+            .should('contain', 'Express');
+   });
+
+    it('@base @confirm @package: should cancel the order', () => {
+        cy.authenticate().then((result) => {
+            const requestConfig = {
+                headers: {
+                    Authorization: `Bearer ${result.access}`,
+                },
+                method: 'POST',
+                url: `api/_action/system-config/batch`,
+                body: {
+                    null: {
+                        'core.cart.enableOrderRefunds': true,
+                    },
+                },
+            };
+            return cy.request(requestConfig);
+        });
+        const page = new CheckoutPageObject();
+
+        // add product to cart
+        cy.get('.header-search-input')
+            .should('be.visible')
+            .type(product.name);
+        cy.contains('.search-suggest-product-name', product.name).click();
+        cy.get('.product-detail-buy .btn-buy').click();
+
+        // Off canvas
+        cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
+        cy.get(`${page.elements.cartItem}-label`).contains(product.name);
+
+        // Go to cart
+        cy.get('.offcanvas-cart-actions [href="/checkout/confirm"]').click();
+        cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
+        cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
+        cy.get(`${page.elements.paymentMethodsContainer} > :nth-child(1) .payment-method-label`)
+            .should('exist')
+            .contains('Invoice');
+        cy.get(`${page.elements.paymentMethodsContainer} > :nth-child(1) .payment-method-label`).click(1, 1);
+        cy.get(`${page.elements.shippingMethodsContainer} .shipping-method-label`)
+            .contains('Standard').click(1, 1)
+
+        cy.get('#confirmFormSubmit').scrollIntoView();
+        cy.get('#confirmFormSubmit').click();
+        cy.get('.finish-header').contains('Thank you for your order with Demostore!');
+        cy.get('.finish-order-details .checkout-card .card-body p:nth-of-type(1)')
+            .should('contain', 'Invoice');
+        cy.get('.finish-order-details .checkout-card .card-body p:nth-of-type(2)')
+            .should('contain', 'Standard');
+
+        // cancel the order
+        cy.visit('/account/order');
+        cy.url().should('include', 'account/order');
+        cy.get('#accountOrderDropdown').click();
+        cy.contains('Cancel order').click();
+        cy.get('[data-backdrop] .modal-title').should('be.visible');
+        cy.get('[data-backdrop] .modal-body').should('include.text', 'Are you sure you want to cancel your order after all?');
+        cy.get('[action] .btn-primary').click();
+        cy.get('.order-item-status-badge-cancelled').should('be.visible').contains('Cancelled');
+    });
 });

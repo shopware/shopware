@@ -6,7 +6,7 @@ const page = new ProductPageObject();
 const checkoutPage = new CheckoutPageObject();
 const promoCode = 'Flash sale';
 
-describe('Create promotion codes to the product and check it in the storefront', () => {
+describe('Create promotion codes to the product and check it at the storefront', () => {
     beforeEach(() => {
         cy.setToInitialState().then(() => {
             cy.loginViaApi();
@@ -247,7 +247,7 @@ describe('Create promotion codes to the product and check it in the storefront',
         cy.contains('Codes genereren').click();
         cy.get('#modalTitleEl').should('be.visible');
         cy.get('input#sw-field--pattern-prefix').clearTypeAndCheck('EK_');
-        cy.get('input#sw-field--pattern-codeLength').clearTypeAndCheck('6');
+        cy.get('input#sw-field--pattern-codeLength').clearTypeAndCheck('5');
         cy.get('input#sw-field--preview').should('have.attr', 'label', 'Voorbeeld promotieco');
         cy.get('.sw-promotion-v2-generate-codes-modal__button-generate').click();
         cy.get('.sw-loader').should('not.exist');
@@ -332,6 +332,6 @@ describe('Create promotion codes to the product and check it in the storefront',
             cy.get(`${checkoutPage.elements.cartItem}-promotion`).contains(promoCode);
             cy.get(`${checkoutPage.elements.cartItem}-promotion ${checkoutPage.elements.cartItem}-price`)
                 .should('include.text', '-6,00');
-        })
+        });
     });
-});
+ });

@@ -630,10 +630,10 @@ Component.register('sw-sales-channel-detail-base', {
 
         buildDisabledAlert(snippet, collection, property = 'name') {
             const data = {
-                name: collection.first().translated[property].replaceAll('|', '&vert;'),
-                addition: collection.length > 2
-                    ? this.$tc('sw-sales-channel.detail.warningDisabledAddition', 1, { amount: collection.length - 1 })
-                    : collection.last().translated[property].replaceAll('|', '&vert;'),
+                seperatedList: collection.map((item) => (
+                    `<a class="sw-internal-link sw-internal-link--inline"
+                        href="#/sw/settings/payment/detail/${item.id}">${item.translated[property]}</a>`
+                )).join(', '),
             };
 
             return this.$tc(snippet, collection.length, data);

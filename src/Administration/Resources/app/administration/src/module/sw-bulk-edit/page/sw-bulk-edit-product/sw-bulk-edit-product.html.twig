@@ -32,7 +32,7 @@
             @click="openModal"
         >
             {{
-                feature.isActive('FEATURE_NEXT_17261')
+                feature.isActive('FEATURE_NEXT_19244')
                     ? $tc('sw-bulk-edit.applyChanges')
                     : $tc('sw-settings-basic-information.general.buttonSave')
             }}
@@ -61,7 +61,7 @@
 
             {% block sw_bulk_edit_product_content_prices_card %}
             <sw-card
-                v-if="feature.isActive('FEATURE_NEXT_17261')"
+                v-if="feature.isActive('FEATURE_NEXT_19244')"
                 class="sw-bulk-edit-product-base__prices"
                 :title="$tc('sw-bulk-edit.product.prices.cardTitle')"
             >
@@ -78,7 +78,7 @@
 
             {% block sw_bulk_edit_product_content_advanced_prices_card %}
             <sw-card
-                v-if="feature.isActive('FEATURE_NEXT_17261')"
+                v-if="feature.isActive('FEATURE_NEXT_19244')"
                 class="sw-bulk-edit-product-base__advanced-prices"
                 :title="$tc('sw-bulk-edit.product.advancedPrices.cardTitle')"
             >
@@ -142,11 +142,11 @@
                     :title="$tc('sw-bulk-edit.product.advancedPrices.cardTitle')"
                     @modal-close="displayAdvancePricesModal = false"
                 >
-                    <template v-if="feature.isActive('FEATURE_NEXT_17261')">
+                    <template v-if="feature.isActive('FEATURE_NEXT_19244')">
                         <sw-product-detail-context-prices :is-set-default-price="true" />
                     </template>
 
-                    <template v-if="!feature.isActive('FEATURE_NEXT_17261')">
+                    <template v-if="!feature.isActive('FEATURE_NEXT_19244')">
                         <sw-product-detail-context-prices />
                     </template>
 

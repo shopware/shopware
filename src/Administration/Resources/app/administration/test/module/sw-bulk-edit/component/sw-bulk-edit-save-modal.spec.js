@@ -28,6 +28,9 @@ function createWrapper() {
             shortcutService: {
                 startEventListener: () => {},
                 stopEventListener: () => {}
+            },
+            feature: {
+                isActive: () => true
             }
         }
     });
@@ -267,8 +270,6 @@ describe('src/module/sw-bulk-edit/modal/sw-bulk-edit-save-modal', () => {
     });
 
     it('should add event listeners after component created', () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_17261'];
-
         wrapper.vm.addEventListeners = jest.fn();
         wrapper.vm.createdComponent();
 
@@ -277,8 +278,6 @@ describe('src/module/sw-bulk-edit/modal/sw-bulk-edit-save-modal', () => {
     });
 
     it('should remove event listeners before component destroyed', () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_17261'];
-
         wrapper.vm.removeEventListeners = jest.fn();
         wrapper.vm.beforeDestroyComponent();
 
@@ -287,8 +286,6 @@ describe('src/module/sw-bulk-edit/modal/sw-bulk-edit-save-modal', () => {
     });
 
     it('should be able to listen to beforeunload event', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_17261'];
-
         await wrapper.setProps({ isLoading: false });
         expect(
             wrapper.vm.beforeUnloadListener({ preventDefault: () => {}, returnValue: '' })

@@ -224,7 +224,8 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
         cy.get('.sw-settings-rule-detail-assignments__card-payment_method').find(`${page.elements.dataGridRow}`).should('have.length', 4);
     });
 
-    it('@rule: assign business events to rule via assignment tab, verify assignment and delete assignment', () => {
+    // NEXT-19333 - The delete request fails sometimes
+    it.skip('@rule: assign business events to rule via assignment tab, verify assignment and delete assignment', () => {
         const page = new RulePageObject();
 
         // Switch to assignments tab

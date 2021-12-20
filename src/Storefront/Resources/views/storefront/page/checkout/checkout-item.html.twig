@@ -160,7 +160,7 @@
                                                 {% endblock %}
 
                                                 {% block page_checkout_item_wishlist %}
-                                                    {% if config('core.cart.wishlistEnabled') and line == PRODUCT_LINE_ITEM_TYPE %}
+                                                    {% if config('core.cart.wishlistEnabled') and lineItem.type == PRODUCT_LINE_ITEM_TYPE %}
                                                         {% sw_include '@Storefront/storefront/component/product/card/wishlist.html.twig' with {
                                                             showText: true,
                                                             size: 'sm',

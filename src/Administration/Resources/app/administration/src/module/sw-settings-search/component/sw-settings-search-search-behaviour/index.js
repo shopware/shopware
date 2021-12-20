@@ -25,7 +25,7 @@ Shopware.Component.register('sw-settings-search-search-behaviour', {
 
     data: () => {
         return {
-            min: 2,
+            min: 1,
             max: 20,
         };
     },

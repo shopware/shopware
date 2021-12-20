@@ -955,14 +955,6 @@ class EntityReader implements EntityReaderInterface
         FieldCollection $fields
     ): FieldCollection {
         foreach ($criteria->getAssociations() as $fieldName => $_fieldCriteria) {
-            $regex = sprintf('#^(%s\.)?(extensions\.)?#i', $definition->getEntityName());
-            $fieldName = preg_replace($regex, '', $fieldName);
-
-            $dotPosition = mb_strpos($fieldName, '.');
-            if ($dotPosition !== false) {
-                $fieldName = mb_substr($fieldName, 0, $dotPosition);
-            }
-
             $field = $definition->getFields()->get($fieldName);
             if (!$field) {
                 continue;

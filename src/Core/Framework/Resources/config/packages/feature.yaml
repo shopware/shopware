@@ -271,3 +271,8 @@ shopware:
         major: true
         description: "Change component factory to work with extension overrides in Administration"
         # issue: NEXT-17978
+      - name: FEATURE_NEXT_17869
+        default: false
+        major: true
+        description: "Delayed flow actions"
+        # issue: NEXT_17869

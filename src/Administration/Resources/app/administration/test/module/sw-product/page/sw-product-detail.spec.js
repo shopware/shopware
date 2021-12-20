@@ -81,6 +81,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
                             });
                         }
                     })
+                },
+                systemConfigApiService: {
+                    getConfig: () => Promise.resolve({
+                        'core.tax.defaultTaxRate': ''
+                    })
                 }
             },
             stubs: {

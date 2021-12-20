@@ -12,7 +12,15 @@ const type = Shopware.Utils.types;
 Component.register('sw-product-detail', {
     template,
 
-    inject: ['mediaService', 'repositoryFactory', 'numberRangeService', 'seoUrlService', 'acl'],
+    inject: [
+        'mediaService',
+        'repositoryFactory',
+        'numberRangeService',
+        'seoUrlService',
+        'acl',
+        'systemConfigApiService',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -539,6 +547,13 @@ Component.register('sw-product-detail', {
 
                 this.product.purchasePrices = this.getDefaultPurchasePrices();
 
+                // Set default tax rate on creation
+                if (this.product.isNew && this.feature.isActive('FEATURE_NEXT_17546')) {
+                    this.getDefaultTaxRate().then((res) => {
+                        this.product.taxId = res;
+                    });
+                }
+
                 if (this.defaultFeatureSet && this.defaultFeatureSet.length > 0) {
                     this.product.featureSetId = this.defaultFeatureSet[0].id;
                 }
@@ -614,6 +629,14 @@ Component.register('sw-product-detail', {
             }).then(() => {
                 Shopware.State.commit('swProductDetail/setLoading', ['taxes', false]);
             });
+        },
+
+        getDefaultTaxRate() {
+            return this.systemConfigApiService
+                .getValues('core.tax')
+                .then(response => {
+                    return response['core.tax.defaultTaxRate'] ?? null;
+                });
         },
 
         loadAttributeSet() {

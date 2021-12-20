@@ -40,7 +40,7 @@ Component.register('sw-settings-tax-list', {
     },
 
     methods: {
-        async getList() {
+        getList() {
             const criteria = new Criteria(this.page, this.limit);
             this.isLoading = true;
             this.naturalSorting = this.sortBy === 'name';
@@ -52,10 +52,12 @@ Component.register('sw-settings-tax-list', {
                 criteria.addSorting(Criteria.sort('name', 'ASC', true));
             }
 
-            const defaultRate = await this.getDefaultTaxRate();
-
-            this.defaultTaxRateId = defaultRate;
-            this.selectedDefaultRate = defaultRate;
+            if (this.feature.isActive('FEATURE_NEXT_17546')) {
+                this.getDefaultTaxRate().then((defaultRate) => {
+                    this.defaultTaxRateId = defaultRate;
+                    this.selectedDefaultRate = defaultRate;
+                });
+            }
 
             this.taxRepository.search(criteria).then((items) => {
                 this.total = items.total;
@@ -78,21 +80,23 @@ Component.register('sw-settings-tax-list', {
                     return;
                 }
 
-                this.systemConfigApiService.saveValues({ 'core.tax.defaultTaxRate': this.selectedDefaultTaxRateId })
-                    .then(() => {
-                        this.defaultTaxRateId = this.selectedDefaultTaxRateId;
+                if (this.feature.isActive('FEATURE_NEXT_17546')) {
+                    this.systemConfigApiService.saveValues({ 'core.tax.defaultTaxRate': this.selectedDefaultTaxRateId })
+                        .then(() => {
+                            this.defaultTaxRateId = this.selectedDefaultTaxRateId;
 
-                        this.createNotificationSuccess({
-                            message: this.$tc('sw-settings-tax.detail.messageSaveSuccess', 0, { name: tax.name }),
-                        });
-                    })
-                    .catch(() => {
-                        this.getList();
+                            this.createNotificationSuccess({
+                                message: this.$tc('sw-settings-tax.detail.messageSaveSuccess', 0, { name: tax.name }),
+                            });
+                        })
+                        .catch(() => {
+                            this.getList();
 
-                        this.createNotificationError({
-                            message: this.$tc('sw-settings-tax.detail.messageSaveError'),
+                            this.createNotificationError({
+                                message: this.$tc('sw-settings-tax.detail.messageSaveError'),
+                            });
                         });
-                    });
+                }
             }).catch(() => {
                 this.createNotificationError({
                     message: this.$tc('sw-settings-tax.detail.messageSaveError'),
@@ -104,7 +108,12 @@ Component.register('sw-settings-tax-list', {
             await promise;
 
             this.selectedDefaultTaxRateId = null;
-            this.defaultTaxRateId = await this.getDefaultTaxRate();
+
+            if (this.feature.isActive('FEATURE_NEXT_17546')) {
+                this.getDefaultTaxRate().then((defaultRate) => {
+                    this.defaultTaxRateId = defaultRate;
+                });
+            }
         },
 
         onDelete(id) {
@@ -124,7 +133,7 @@ Component.register('sw-settings-tax-list', {
         },
 
         getTaxColumns() {
-            return [{
+            let colums = [{
                 property: 'name',
                 dataIndex: 'name',
                 inlineEdit: 'string',
@@ -136,11 +145,16 @@ Component.register('sw-settings-tax-list', {
                 property: 'taxRate',
                 inlineEdit: 'number',
                 label: 'sw-settings-tax.list.columnDefaultTaxRate',
-            }, {
-                property: 'default',
-                inlineEdit: 'boolean',
-                label: 'sw-settings-tax.list.columnDefault',
-            }];
+            }, ];
+
+            if (this.feature.isActive('FEATURE_NEXT_17546')) {
+                colums.push({
+                    property: 'default',
+                    inlineEdit: 'boolean',
+                    label: 'sw-settings-tax.list.columnDefault',
+                });
+            }
+            return colums;
         },
 
         isShopwareDefaultTax(tax) {
@@ -159,7 +173,7 @@ Component.register('sw-settings-tax-list', {
             this.selectedDefaultTaxRateId = checkBoxValue ? id : null;
         },
 
-        async getDefaultTaxRate() {
+        getDefaultTaxRate() {
             return this.systemConfigApiService
                 .getValues('core.tax')
                 .then(response => response['core.tax.defaultTaxRate'] ?? null)

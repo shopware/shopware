@@ -29,9 +29,8 @@
       "buttonSave": "Save",
       "messageSaveError": "An error occurred while saving the tax rate.",
       "messageSaveSuccess": "Tax rate has been saved.",
-      "labelDefault": "Use as default",
-      "defaultHelpText": "This tax rate will be preselected when creating new products.",
-      "titleModalDefault": "Change default"
+      "defaultTaxLabel": "Use as default",
+      "defaultTaxHelpText": "This tax rate will be preselected when creating new products. This can only be set for one single tax rate."
     },
     "taxRuleCard": {
       "tooltipCountries": "If not all available countries are shown, type in a name to access undisplayed countries. Countries may be created or edited in Settings/Countries.",

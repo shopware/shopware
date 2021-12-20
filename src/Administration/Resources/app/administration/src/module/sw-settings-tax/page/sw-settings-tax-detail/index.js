@@ -7,7 +7,7 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-settings-tax-detail', {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService', 'systemConfigApiService'],
+    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService', 'systemConfigApiService', 'feature'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -39,6 +39,9 @@ Component.register('sw-settings-tax-detail', {
             customFieldSets: null,
             defaultTaxRateId: null,
             changeDefaultTaxRate: false,
+            formerDefaultTaxName: '',
+            config: {},
+            isDefault: false,
         };
     },
 
@@ -101,6 +104,9 @@ Component.register('sw-settings-tax-detail', {
         },
 
         isDefaultTaxRate() {
+            if (!this.defaultTaxRateId) {
+                return false;
+            }
             return this.taxId === this.defaultTaxRateId;
         },
     },
@@ -110,6 +116,9 @@ Component.register('sw-settings-tax-detail', {
             if (!this.taxId) {
                 this.createdComponent();
             }
+        },
+        isDefaultTaxRate() {
+            this.isDefault = this.isDefaultTaxRate;
         },
     },
 
@@ -127,7 +136,10 @@ Component.register('sw-settings-tax-detail', {
                     this.isLoading = false;
                 });
                 this.loadCustomFieldSets();
-                this.reloadDefaultTaxRate();
+
+                if (this.feature.isActive('FEATURE_NEXT_17546')) {
+                    this.reloadDefaultTaxRate();
+                }
                 return;
             }
 
@@ -166,11 +178,16 @@ Component.register('sw-settings-tax-detail', {
                     this.$router.push({ name: 'sw.settings.tax.detail', params: { id: this.tax.id } });
                 }
 
-                this.reloadDefaultTaxRate();
-
                 this.taxRepository.get(this.tax.id).then((updatedTax) => {
                     this.tax = updatedTax;
-                    this.isLoading = false;
+                }).then(() => {
+                    if (this.feature.isActive('FEATURE_NEXT_17546')) {
+                        return this.systemConfigApiService.saveValues(this.config).then(() => {
+                            this.defaultTaxRateId = this.tax.id;
+                            this.reloadDefaultTaxRate();
+                            this.isLoading = false;
+                        });
+                    }
                 });
             }).catch(() => {
                 this.createNotificationError({
@@ -194,14 +211,23 @@ Component.register('sw-settings-tax-detail', {
                 .then(response => {
                     this.defaultTaxRateId = response['core.tax.defaultTaxRate'] ?? null;
                 })
+                .then(() => {
+                    if (this.defaultTaxRateId) {
+                        this.taxRepository.get(this.defaultTaxRateId).then((tax) => {
+                            this.formerDefaultTaxName = tax.name;
+                        });
+                    }
+                })
                 .catch(() => {
                     this.defaultTaxRateId = null;
                 });
         },
 
         onChangeDefaultTaxRate() {
-            console.log('LEL');
-            this.changeDefaultTaxRate = true;
+            const newDefaultTax = !this.isDefaultTaxRate ? this.taxId : '';
+
+            this.$set(this.config, 'core.tax.defaultTaxRate', newDefaultTax);
+            this.changeDefaultTaxRate = false;
         },
     },
 });

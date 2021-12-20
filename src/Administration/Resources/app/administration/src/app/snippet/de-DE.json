@@ -677,6 +677,7 @@
         "shippingMethodRule": "Verwendete Versandart",
         "lineItemGoodsTotalRule": "Gesamtanzahl Produkte im Warenkorb",
         "orderTotalAmountRule": "Gesamtsumme aller abgeschlossenen Bestellungen",
+        "promotionValueRule": "Gesamtwert aller Rabatte",
         "promotionCodeOfType": "Rabattaktionen mit Aktionscodetyp",
         "promotionCodeOfTypeRule": {
           "global": "Keiner",

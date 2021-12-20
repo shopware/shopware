@@ -550,6 +550,7 @@
     "headline": "Ihr Merkzettel",
     "itemDeleteSuccess": "Sie haben das Produkt erfolgreich von Ihrem Merkzettel entfernt.",
     "itemAddedSuccess": "Sie haben das Produkt erfolgreich zu Ihrem Merkzettel hinzugefügt.",
+    "duplicateItemError": "Dieses Produkt befindet sich bereits auf Ihrem Merkzettel.",
     "currentlyNotAvailable": "Derzeit nicht verfügbar",
     "manufacturerDisplayName": "Hersteller",
     "deliveryTimeAvailable": "Sofort verfügbar, Lieferzeit %name%",

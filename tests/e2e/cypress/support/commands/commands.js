@@ -376,7 +376,8 @@ Cypress.Commands.add('selectCountryForSalesChannel', (country) => {
         if (!$body.text().includes(country)) {
             cy.get('.sw-sales-channel-detail__select-countries .sw-select-selection-list__input').should('be.visible').type(country);
             cy.wait('@country').its('response.statusCode').should('equal', 200);
-            cy.get('.sw-select-result-list__content').contains(country).should('be.visible').click();
+            cy.get('.sw-select-result-list__content').should('have.length', 1);
+            cy.get('.sw-select-result-list__content').contains(country).should('be.visible').click({ force:true });
             cy.wait('@country').its('response.statusCode').should('equal', 200);
         }
     });
@@ -384,7 +385,8 @@ Cypress.Commands.add('selectCountryForSalesChannel', (country) => {
         if (!$body.text().includes(country)) {
             cy.get('.sw-sales-channel-detail__assign-countries').should('be.visible').type(country);
             cy.wait('@country').its('response.statusCode').should('equal', 200);
-            cy.contains('.sw-select-result', country).should('be.visible').click();
+            cy.get('.sw-select-result').should('have.length', 1);
+            cy.contains('.sw-select-result', country).should('be.visible').click({ force:true });
         }
     });
     cy.get('.sw-sales-channel-detail__save-action').should('be.visible').click();
@@ -496,7 +498,8 @@ Cypress.Commands.add('selectCurrencyForSalesChannel', (currency) => {
         if (!$body.text().includes(currency)) {
             cy.get('.sw-sales-channel-detail__select-currencies .sw-select-selection-list__input').type(currency).should('be.visible');
             cy.wait('@currency').its('response.statusCode').should('equal', 200);
-            cy.get('.sw-select-result-list__content').contains(currency).should('be.visible').click();
+            cy.get('.sw-select-result-list__content').should('have.length', 1);
+            cy.get('.sw-select-result-list__content').contains(currency).should('be.visible').click({ force:true });
             cy.wait('@currency').its('response.statusCode').should('equal', 200);
         }
     });
@@ -504,8 +507,8 @@ Cypress.Commands.add('selectCurrencyForSalesChannel', (currency) => {
         if (!$body.text().includes(currency)) {
             cy.get('.sw-sales-channel-detail__assign-currencies').type(currency).should('be.visible');
             cy.wait('@currency').its('response.statusCode').should('equal', 200);
-            cy.contains('.sw-select-result', currency).should('be.visible').click();
-            cy.wait('@currency').its('response.statusCode').should('equal', 200);
+            cy.get('.sw-select-result-list__content').should('have.length', 1);
+            cy.contains('.sw-select-result', currency).click({ force:true });
         }
     });
     cy.get('.sw-sales-channel-detail__save-action').click();
@@ -538,7 +541,8 @@ Cypress.Commands.add('selectLanguageForSalesChannel', (language) => {
         if (!$body.text().includes(language)) {
             cy.get('.sw-sales-channel-detail__select-languages .sw-select-selection-list__input').type(language).should('be.visible');
             cy.wait('@language').its('response.statusCode').should('equal', 200);
-            cy.get('.sw-select-result-list__content').contains(language).should('be.visible').click();
+            cy.get('.sw-select-result-list__content').should('have.length', 1);
+            cy.get('.sw-select-result-list__content').contains(language).should('be.visible').click({ force:true });
             cy.wait('@language').its('response.statusCode').should('equal', 200);
         }
     });
@@ -546,7 +550,8 @@ Cypress.Commands.add('selectLanguageForSalesChannel', (language) => {
         if (!$body.text().includes(language)) {
             cy.get('.sw-sales-channel-detail__assign-languages').type(language).should('be.visible');
             cy.wait('@language').its('response.statusCode').should('equal', 200);
-            cy.contains('.sw-select-result', language).should('be.visible').click();
+            cy.get('.sw-select-result-list__content').should('have.length', 1);
+            cy.contains('.sw-select-result', language).should('be.visible').click({ force:true });
         }
     });
     cy.get('.sw-sales-channel-detail__save-action').should('be.visible').click();

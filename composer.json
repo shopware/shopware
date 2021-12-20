@@ -53,9 +53,9 @@
         "ext-xml": "*",
         "ext-zip": "*",
         "ext-zlib": "*",
+        "composer-runtime-api": "^2.0",
         "aws/aws-sdk-php": "^3.198.5",
         "cocur/slugify": "4.0.0",
-        "composer-runtime-api": "^2.0",
         "composer/composer": "^2.1.9",
         "composer/semver": "^3.2",
         "doctrine/annotations": "1.13.1",
@@ -85,6 +85,8 @@
         "psr/log": "1.1.2",
         "scssphp/scssphp": "1.0.7",
         "sensio/framework-extra-bundle": "5.5.6",
+        "shopware/conflicts": "@dev",
+        "squirrelphp/twig-php-syntax": "1.6.0",
         "sroze/messenger-enqueue-transport": "0.4.0",
         "superbalist/flysystem-google-storage": "~7.2.2",
         "symfony/asset": "~5.3.11",
@@ -135,8 +137,7 @@
         "twig/intl-extra": "3.3.0",
         "twig/string-extra": "3.3.0",
         "twig/twig": "3.3.3",
-        "zircote/swagger-php": "3.1.0",
-        "squirrelphp/twig-php-syntax": "1.6.0"
+        "zircote/swagger-php": "3.1.0"
     },
     "require-dev": {
         "ext-tokenizer": "*",
@@ -328,10 +329,6 @@
         "e2e:recovery:open": [
             "@e2e:recovery:cypress open"
         ]
-    },
-    "conflict": {
-        "symfony/symfony": "*",
-        "symfony/notifier": "v5.3.8"
     },
     "autoload": {
         "psr-4": {

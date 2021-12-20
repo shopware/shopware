@@ -40,21 +40,8 @@ final class LocateDependenciesViaComposer implements LocateDependencies
     {
         Assert::file($installationPath . '/composer.json');
 
-        $this->runInDirectory(function () use ($installationPath): void {
-            $installer = ($this->makeComposerInstaller)($installationPath);
-
-            assert($installer instanceof Installer);
-
-            // Some defaults needed for this specific implementation:
-            $installer->setDevMode(false);
-            $installer->setDumpAutoloader(false);
-            $installer->setRunScripts(false);
-            $installer->setIgnorePlatformRequirements(true);
-
-            $installer->run();
-        }, $installationPath);
-
         // <shopware-hack>
+        exec(\sprintf('composer install -d %s --no-dev --no-scripts --ignore-platform-reqs', escapeshellarg($installationPath)));
         $this->fixeMarc1706FastImageSizeDirectories($installationPath);
         // </shopware-hack>
 

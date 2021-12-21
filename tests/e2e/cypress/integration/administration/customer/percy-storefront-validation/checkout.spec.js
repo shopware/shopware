@@ -89,6 +89,8 @@ describe('Checkout: Visual tests', () => {
         cy.get('#loginPassword').type('shopware');
         cy.get(`${accountPage.elements.loginSubmit} [type="submit"]`).click();
 
+        cy.wait(1000);
+
         // Confirm
         cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
 

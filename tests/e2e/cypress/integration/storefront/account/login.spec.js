@@ -1,11 +1,10 @@
 import AccountPageObject from '../../../support/pages/account.page-object';
 
 describe('Account: Login as customer', () => {
-
     beforeEach(() => {
-        cy.createCustomerFixtureStorefront().then(() => {
-            cy.createProductFixture();
-        });
+        cy.clearCookies()
+            .then(() => cy.createCustomerFixtureStorefront())
+            .then(() => cy.createProductFixture());
     });
 
     it('@login: Login with wrong credentials', () => {
@@ -74,8 +73,8 @@ describe('Account: Login as customer', () => {
         // Go to cart
         cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').click();
         cy.get('.cart-item-details-container [title]').contains('Product name');
-        cy.get('.cart-item-total-price.col-12.col-md-2.col-sm-4').contains('€10.00*');
-        cy.get('.header-cart-total').contains('€10.00*');
+        cy.get('.cart-item-total-price.col-12.col-md-2.col-sm-4').contains('€49.98*');
+        cy.get('.header-cart-total').contains('€49.98*');
 
         // Logout
         cy.get('button#accountWidget').click();

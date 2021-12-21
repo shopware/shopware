@@ -3,14 +3,11 @@ import CustomerPageObject from '../../../../support/pages/module/sw-customer.pag
 
 describe('Flow builder: add an affiliate and campaign code testing', () => {
     // eslint-disable-next-line no-undef
-    before(() => {
+    beforeEach(() => {
         // Clean previous state and prepare Administration
-        cy.setToInitialState()
-            .then(() => {
-                cy.loginViaApi();
-            }).then(() => {
-                return cy.createCustomerFixture();
-            });
+        cy.loginViaApi().then(() => {
+            return cy.createCustomerFixture();
+        });
     });
 
     it('@settings: add an affilicate and campaign code flow', () => {

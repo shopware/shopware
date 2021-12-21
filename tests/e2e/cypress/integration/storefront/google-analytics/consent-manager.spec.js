@@ -42,6 +42,8 @@ describe('Google Analytics: New analytics cookie in Cookie Consent Manager', () 
         cy.get('.js-cookie-configuration-button > .btn').click();
         cy.wait('@cookieOffcanvas')
             .its('response.statusCode').should('equal', 200);
+
+        cy.wait(1000);
         cy.get('.offcanvas-cookie').should('be.visible');
         cy.get('.offcanvas-cookie-group').eq(1).find('.custom-control-label').first().click();
         cy.get('.js-offcanvas-cookie-submit').click();
@@ -50,7 +52,8 @@ describe('Google Analytics: New analytics cookie in Cookie Consent Manager', () 
 
         cy.window().then((win) => {
             cy.waitUntil(() => cy.getCookie('_swag_ga_ga').then(cookie => cookie && cookie.value !== null));
-            cy.get('.offcanvas-cookie').should('not.exist').then(() => {
+
+            cy.get('.offcanvas-cookie').should('not.be.visible').then(() => {
                 win.PluginManager.getPluginInstances('CookieConfiguration')[0].openOffCanvas();
                 cy.get('.offcanvas-cookie').should('be.visible').then(() => {
                     cy.get('.offcanvas-cookie-group').eq(1).find('.custom-control-label').first().click();

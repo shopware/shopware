@@ -367,6 +367,7 @@
         ]
     },
     "autoload": {
+        "files":["src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php"],
         "psr-4": {
             "Shopware\\Administration\\": "src/Administration/",
             "Shopware\\Docs\\": "src/Docs/",

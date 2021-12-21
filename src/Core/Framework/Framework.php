@@ -207,18 +207,24 @@ class Framework extends Bundle
 
     private function registerCustomEntities(Connection $connection, DefinitionInstanceRegistry $registry): void
     {
+        if (!$connection->getSchemaManager()->tablesExist('custom_entity')) {
+            return;
+        }
+
         $definitions = $connection->fetchAllAssociative('SELECT name, fields FROM custom_entity');
 
         foreach ($definitions as $entity) {
             $name = $entity['name'];
 
-            $definition = DynamicEntityDefinition::create($name, json_decode($entity['fields'], true, 512, JSON_THROW_ON_ERROR));
+            $definition = DynamicEntityDefinition::create($name, json_decode($entity['fields'], true, 512, \JSON_THROW_ON_ERROR));
 
             $this->container->set($name, $definition);
 
             $this->container->set($definition->getEntityName() . '.repository', $this->createRepository($definition));
 
             $registry->register($definition, $name);
+
+            // build entity extensions for core table foreign key fields
         }
     }
 

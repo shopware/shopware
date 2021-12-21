@@ -28,16 +28,16 @@ class CustomEntityPersister
         }
 
         $existing = $this->connection->fetchAllKeyValue(
-            'SELECT name, created_at FROM custom_entity  WHERE name IN (:names)',
+            'SELECT name, created_at FROM custom_entity WHERE `name` IN (:names)',
             ['names' => $names],
             ['names' => Connection::PARAM_STR_ARRAY]
         );
 
-        $this->connection->executeStatement(
-            'DELETE FROM custom_entity WHERE name IN (:names)',
-            ['names' => $names],
-            ['names' => Connection::PARAM_STR_ARRAY]
-        );
+        if ($appId !== null) {
+            $this->connection->executeStatement('DELETE FROM custom_entity WHERE app_id = :id', ['id' => Uuid::fromHexToBytes($appId)]);
+        } else {
+            $this->connection->executeStatement('DELETE FROM custom_entity WHERE app_id IS NULL');
+        }
 
         $inserts = new MultiInsertQueryQueue($this->connection);
         foreach ($entities as $entity) {

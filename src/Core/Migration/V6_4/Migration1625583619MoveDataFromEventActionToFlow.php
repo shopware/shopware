@@ -331,7 +331,12 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
             ['salesChannelIds' => Connection::PARAM_STR_ARRAY]
         );
 
-        return implode(' & ', $salesChannelName);
+        $result = 'Match one of saleschannels';
+        if (\count($salesChannelName) === 1) {
+            $result = $salesChannelName[0];
+        }
+
+        return $result;
     }
 
     private function getEventFullNameByEventName(string $eventName): string

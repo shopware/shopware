@@ -14,14 +14,14 @@ class Migration1639139581AddPriorityToPromotions extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $columns = $connection->getSchemaManager()->listTableColumns('promotion');
+        $columns = array_column($connection->fetchAllAssociative('SHOW COLUMNS FROM promotion'), 'Field');
 
         // Column already exist?
-        if (\array_key_exists('priority', $columns)) {
+        if (\in_array('priority', $columns, true)) {
             return;
         }
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 ALTER TABLE `promotion` ADD COLUMN `priority` INT(11) NOT NULL DEFAULT 1 AFTER `max_redemptions_per_customer`;
 SQL;
 

@@ -970,9 +970,10 @@ class EntityReader implements EntityReaderInterface
 
             $field = $definition->getFields()->get($fieldName);
             if (!$field) {
-                $this->logger->warning(sprintf('Association "%s" could not be resolved. This can happen if your Criteria'
-                    . ' do not match the current EntityDefinition when you maintain forward/backward compatibility.'
-                    . ' If this was not intended, then you should double check your Criteria!', $fieldName));
+                $this->logger->warning(
+                    sprintf('Criteria association "%s" could not be resolved. Double check your Criteria!', $fieldName)
+                );
+
                 continue;
             }
 

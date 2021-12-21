@@ -106,6 +106,8 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaQueryBuilder"/>
             <argument>%shopware.dbal.time_zone_support_enabled%</argument>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder"/>
         </service>
 
         <service class="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface">

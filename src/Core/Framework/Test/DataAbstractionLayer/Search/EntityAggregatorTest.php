@@ -33,6 +33,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Util\DateHistogramCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -46,20 +48,11 @@ class EntityAggregatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityAggregatorInterface
-     */
-    private $aggregator;
+    private EntityAggregatorInterface $aggregator;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
-    /**
-     * @var ProductDefinition
-     */
-    private $definition;
+    private ProductDefinition $definition;
 
     protected function setUp(): void
     {
@@ -704,6 +697,91 @@ class EntityAggregatorTest extends TestCase
         static::assertEquals(1, $count->getCount());
     }
 
+    public function testCountAggregationWithScoreQuery(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $criteria = new Criteria(
+            $this->ids->getList(['p-1', 'p-2', 'p-3', 'p-4', 'p-5'])
+        );
+        $criteria->addQuery(new ScoreQuery(new EqualsFilter('productNumber', 'p-1'), 200));
+
+        $criteria->addAggregation(
+            new CountAggregation('count-manufacturer', 'product.manufacturerId')
+        );
+
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
+
+        static::assertTrue($result->has('count-manufacturer'));
+
+        /** @var CountResult|null $count */
+        $count = $result->get('count-manufacturer');
+        static::assertInstanceOf(CountResult::class, $count);
+
+        static::assertEquals(1, $count->getCount());
+    }
+
+    public function testCountAggregationWithScoreQueryAndAssociation(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $criteria = new Criteria(
+            $this->ids->getList(['p-1', 'p-2', 'p-3', 'p-4', 'p-5'])
+        );
+
+        $criteria->addQuery(new ScoreQuery(new EqualsFilter('manufacturer.id', $this->ids->get('m-1')), 200));
+
+        $criteria->addAggregation(
+            new CountAggregation('count-manufacturer', 'product.manufacturerId')
+        );
+
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
+
+        static::assertTrue($result->has('count-manufacturer'));
+
+        /** @var CountResult|null $count */
+        $count = $result->get('count-manufacturer');
+        static::assertInstanceOf(CountResult::class, $count);
+
+        static::assertEquals(1, $count->getCount());
+    }
+
+    public function testCountAggregationWithScoreCombinedWithFilter(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $criteria = new Criteria(
+            $this->ids->getList(['p-1', 'p-2', 'p-3', 'p-4', 'p-5'])
+        );
+
+        $criteria->addQuery(new ScoreQuery(new EqualsFilter('productNumber', 'p-1'), 200));
+        $criteria->addQuery(new ScoreQuery(new EqualsFilter('productNumber', 'p-2'), 200));
+
+        $criteria->addAggregation(
+            new FilterAggregation('filter', new CountAggregation('count-manufacturer', 'product.manufacturerId'), [new EqualsFilter('productNumber', 'p-1')])
+        );
+        $criteria->addAggregation(
+            new FilterAggregation('filter2', new CountAggregation('count-manufacturer2', 'product.manufacturerId'), [new EqualsFilter('productNumber', 'p-2')])
+        );
+
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
+
+        static::assertTrue($result->has('count-manufacturer'));
+        static::assertTrue($result->has('count-manufacturer2'));
+
+        /** @var CountResult|null $count */
+        $count = $result->get('count-manufacturer');
+        static::assertInstanceOf(CountResult::class, $count);
+
+        static::assertEquals(1, $count->getCount());
+
+        /** @var CountResult|null $count */
+        $count = $result->get('count-manufacturer2');
+        static::assertInstanceOf(CountResult::class, $count);
+
+        static::assertEquals(1, $count->getCount());
+    }
+
     public function testStatsAggregation(): void
     {
         $context = Context::createDefaultContext();
@@ -728,6 +806,33 @@ class EntityAggregatorTest extends TestCase
         static::assertEquals(250, $stats->getMax());
         static::assertEquals(150, $stats->getAvg());
         static::assertEquals(750, $stats->getSum());
+    }
+
+    public function testStatsAggregationWithScoreQuery(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $criteria = new Criteria(
+            $this->ids->getList(['p-1', 'p-2', 'p-3', 'p-4', 'p-5'])
+        );
+        $criteria->addQuery(new ScoreQuery(new EqualsFilter('productNumber', 'p-1'), 200));
+
+        $criteria->addAggregation(
+            new StatsAggregation('stats-price', 'product.price')
+        );
+
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
+
+        static::assertTrue($result->has('stats-price'));
+
+        /** @var StatsResult|null $stats */
+        $stats = $result->get('stats-price');
+        static::assertInstanceOf(StatsResult::class, $stats);
+
+        static::assertEquals(50, $stats->getMin());
+        static::assertEquals(50, $stats->getMax());
+        static::assertEquals(50, $stats->getAvg());
+        static::assertEquals(50, $stats->getSum());
     }
 
     public function testStatsAggregationWithTermsAggregation(): void
@@ -881,6 +986,33 @@ class EntityAggregatorTest extends TestCase
         $manufacturers = $bucket->getResult();
         static::assertCount(1, $manufacturers->getEntities());
         static::assertTrue($manufacturers->getEntities()->has($this->ids->get('m-2')));
+    }
+
+    public function testEntityAggregationWithScoreQuery(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $criteria = new Criteria(
+            $this->ids->getList(['p-1', 'p-2', 'p-3', 'p-4', 'p-5'])
+        );
+
+        $criteria->addQuery(new ScoreQuery(new EqualsFilter('productNumber', 'p-1'), 200));
+
+        $criteria->addAggregation(
+            new EntityAggregation('manufacturers', 'product.manufacturerId', 'product_manufacturer')
+        );
+
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
+
+        static::assertTrue($result->has('manufacturers'));
+
+        /** @var EntityResult|null $manufacturers */
+        $manufacturers = $result->get('manufacturers');
+        static::assertInstanceOf(EntityResult::class, $manufacturers);
+
+        static::assertCount(1, $manufacturers->getEntities());
+        static::assertInstanceOf(ProductManufacturerCollection::class, $manufacturers->getEntities());
+        static::assertTrue($manufacturers->getEntities()->has($this->ids->get('m-1')));
     }
 
     public function testFilterAggregation(): void

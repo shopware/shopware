@@ -11,9 +11,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQue
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\BucketAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
@@ -42,6 +44,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
 
 /**
  * Allows to execute aggregated queries for all entities in the system
@@ -58,18 +62,26 @@ class EntityAggregator implements EntityAggregatorInterface
 
     private bool $timeZoneSupportEnabled;
 
+    private SearchTermInterpreter $interpreter;
+
+    private EntityScoreQueryBuilder $scoreBuilder;
+
     public function __construct(
         Connection $connection,
         EntityDefinitionQueryHelper $queryHelper,
         DefinitionInstanceRegistry $registry,
         CriteriaQueryBuilder $criteriaQueryBuilder,
-        bool $timeZoneSupportEnabled
+        bool $timeZoneSupportEnabled,
+        SearchTermInterpreter $interpreter,
+        EntityScoreQueryBuilder $scoreBuilder
     ) {
         $this->connection = $connection;
         $this->helper = $queryHelper;
         $this->registry = $registry;
         $this->criteriaQueryBuilder = $criteriaQueryBuilder;
         $this->timeZoneSupportEnabled = $timeZoneSupportEnabled;
+        $this->interpreter = $interpreter;
+        $this->scoreBuilder = $scoreBuilder;
     }
 
     public function aggregate(EntityDefinition $definition, Criteria $criteria, Context $context): AggregationResultCollection
@@ -115,14 +127,25 @@ class EntityAggregator implements EntityAggregatorInterface
         $clone->resetPostFilters();
         $clone->resetGroupFields();
 
+        // Early resolve terms to extract score queries
+        if ($clone->getTerm()) {
+            $pattern = $this->interpreter->interpret((string) $criteria->getTerm());
+            $queries = $this->scoreBuilder->buildScoreQueries($pattern, $definition, $definition->getEntityName(), $context);
+            $clone->addQuery(...$queries);
+            $clone->setTerm(null);
+        }
+
+        $scoreCritera = clone $clone;
+        $clone->resetQueries();
+
         $query = new QueryBuilder($this->connection);
 
         // If an aggregation is to be created on a to many association that is already stored as a filter.
         // The association is therefore referenced twice in the query and would have to be created as a sub-join in each case. But since only the filters are considered, the association is referenced only once.
         // In this case we add the aggregation field as path to the criteria builder and the join group builder will consider this path for the sub-join logic
-        $paths = [$this->findToManyPath($aggregation, $definition)];
+        $paths = array_filter([$this->findToManyPath($aggregation, $definition)]);
 
-        $query = $this->criteriaQueryBuilder->build($query, $definition, $clone, $context, array_filter($paths));
+        $query = $this->criteriaQueryBuilder->build($query, $definition, $clone, $context, $paths);
         $query->resetQueryPart('orderBy');
 
         if ($criteria->getTitle()) {
@@ -132,6 +155,40 @@ class EntityAggregator implements EntityAggregatorInterface
         $this->helper->addIdCondition($criteria, $definition, $query);
 
         $table = $definition->getEntityName();
+
+        if (\count($scoreCritera->getQueries()) > 0) {
+            $escapedTable = EntityDefinitionQueryHelper::escape($table);
+            $scoreQuery = new QueryBuilder($this->connection);
+
+            $scoreQuery = $this->criteriaQueryBuilder->build($scoreQuery, $definition, $scoreCritera, $context, $paths);
+            $pks = $definition->getFields()->filterByFlag(PrimaryKey::class)->map(function (StorageAware $f) {
+                return $f->getStorageName();
+            });
+
+            $join = '';
+            foreach ($pks as $pk) {
+                $scoreQuery->addGroupBy($pk);
+
+                $pk = EntityDefinitionQueryHelper::escape($pk);
+                $scoreQuery->addSelect($escapedTable . '.' . $pk);
+
+                $join .= \sprintf('score_table.%s = %s.%s AND ', $pk, $escapedTable, $pk);
+            }
+
+            // Remove remaining AND
+            $join = substr($join, 0, -4);
+
+            foreach ($scoreQuery->getParameters() as $key => $value) {
+                $query->setParameter($key, $value, $scoreQuery->getParameterType($key));
+            }
+
+            $query->join(
+                EntityDefinitionQueryHelper::escape($table),
+                '(' . $scoreQuery->getSQL() . ')',
+                'score_table',
+                $join
+            );
+        }
 
         foreach ($aggregation->getFields() as $fieldName) {
             $this->helper->resolveAccessor($fieldName, $definition, $table, $query, $context, $aggregation);

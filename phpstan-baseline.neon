@@ -1801,16 +1801,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
 
 		-
-			message: "#^Parameter \\#1 \\$haystack of function mb_strpos expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
-
-		-
-			message: "#^Parameter \\#1 \\$str of function mb_substr expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityReader.php
-
-		-
 			message: "#^Cannot call method getFields\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|null\\.$#"
 			count: 2
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityDefinitionQueryHelper.php

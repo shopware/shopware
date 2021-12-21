@@ -6,7 +6,9 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Compatibility\AnnotationReaderCompilerPass;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
@@ -30,6 +32,7 @@ use Shopware\Core\Framework\Test\DependencyInjection\CompilerPass\ContainerVisib
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\CustomEntity\DynamicEntityDefinition;
+use Shopware\Core\System\CustomEntity\DynamicMappingEntityDefinition;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
@@ -44,6 +47,7 @@ use Symfony\Component\DependencyInjection\Loader\IniFileLoader;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 class Framework extends Bundle
 {
@@ -223,8 +227,31 @@ class Framework extends Bundle
             $this->container->set($definition->getEntityName() . '.repository', $this->createRepository($definition));
 
             $registry->register($definition, $name);
+        }
 
-            // build entity extensions for core table foreign key fields
+        foreach ($definitions as $entity) {
+            $fields = json_decode($entity['fields'], true, 512, \JSON_THROW_ON_ERROR);
+
+            foreach ($fields as $field) {
+                if ($field['type'] === 'many-to-many') {
+                    $mapping = DynamicMappingEntityDefinition::create($entity['name'], $field['reference']);
+                    $this->container->set($mapping->getEntityName(), $mapping);
+                    $registry->register($mapping, $mapping->getEntityName());
+
+                    continue;
+                }
+
+                if ($field['type'] === 'one-to-many') {
+                    $reference = $registry->getByEntityName($field['reference']);
+
+                    $fk = new FkField($entity['name'] . '_id', self::kebabCaseToCamelCase($entity['name']) . 'Id', DynamicEntityDefinition::class, 'id', $entity['name']);
+                    $fk->compile($registry);
+
+                    $reference->getFields()->add($fk);
+
+                    continue;
+                }
+            }
         }
     }
 
@@ -236,7 +263,13 @@ class Framework extends Bundle
             $this->container->get(VersionManager::class),
             $this->container->get(EntitySearcherInterface::class),
             $this->container->get(EntityAggregatorInterface::class),
-            $this->container->get('event_dispatcher')
+            $this->container->get('event_dispatcher'),
+            $this->container->get(EntityLoadedEventFactory::class)
         );
+    }
+
+    private static function kebabCaseToCamelCase(string $string): string
+    {
+        return (new CamelCaseToSnakeCaseNameConverter())->denormalize(str_replace('-', '_', $string));
     }
 }

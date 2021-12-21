@@ -19,7 +19,8 @@ class ManyToOneAssociationField extends AssociationField
         string $storageName,
         string $referenceClass,
         string $referenceField = 'id',
-        bool $autoload = false
+        bool $autoload = false,
+        ?string $referenceEntity = null
     ) {
         parent::__construct($propertyName);
 
@@ -27,6 +28,7 @@ class ManyToOneAssociationField extends AssociationField
         $this->storageName = $storageName;
         $this->referenceField = $referenceField;
         $this->autoload = $autoload;
+        $this->referenceEntity = $referenceEntity;
     }
 
     public function getStorageName(): string

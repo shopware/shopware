@@ -38,6 +38,7 @@ use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomEntity\CustomEntityPersister;
+use Shopware\Core\System\CustomEntity\CustomEntitySchemaUpdater;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -92,6 +93,8 @@ class AppLifecycle extends AbstractAppLifecycle
 
     private ScriptExecutor $scriptExecutor;
 
+    private CustomEntitySchemaUpdater $customEntitySchemaUpdater;
+
     public function __construct(
         EntityRepositoryInterface $appRepository,
         PermissionPersister $permissionPersister,
@@ -114,7 +117,8 @@ class AppLifecycle extends AbstractAppLifecycle
         AssetService $assetService,
         ScriptExecutor $scriptExecutor,
         string $projectDir,
-        CustomEntityPersister $customEntityPersister
+        CustomEntityPersister $customEntityPersister,
+        CustomEntitySchemaUpdater $customEntitySchemaUpdater
     ) {
         $this->appRepository = $appRepository;
         $this->permissionPersister = $permissionPersister;
@@ -138,6 +142,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->assetService = $assetService;
         $this->customEntityPersister = $customEntityPersister;
         $this->scriptExecutor = $scriptExecutor;
+        $this->customEntitySchemaUpdater = $customEntitySchemaUpdater;
     }
 
     public function getDecorated(): AbstractAppLifecycle
@@ -259,6 +264,8 @@ class AppLifecycle extends AbstractAppLifecycle
         $entities = $this->appLoader->getEntities($app);
         if ($entities !== null) {
             $this->customEntityPersister->update($entities->toStorage(), $id);
+
+            $this->customEntitySchemaUpdater->update();
         }
 
         $config = $this->appLoader->getConfiguration($app);

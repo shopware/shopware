@@ -152,8 +152,6 @@ abstract class AbstractAsset
      * Sets the name of this asset.
      *
      * @param string $name
-     *
-     * @return void
      */
     protected function _setName($name): void
     {

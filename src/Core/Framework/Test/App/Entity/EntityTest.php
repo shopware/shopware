@@ -44,7 +44,7 @@ class EntityTest extends TestCase
             __DIR__ . '/_fixtures/customEntities/Resources',
             new Entities([
                 new Entity([
-                    'name' => 'custom_blog',
+                    'name' => 'custom_entity_blog',
                     'storeApiAware' => true,
                     'fields' => [
                         new IntField(['name' => 'position', 'storeApiAware' => true]),
@@ -56,12 +56,12 @@ class EntityTest extends TestCase
                         new EmailField(['name' => 'email', 'storeApiAware' => false]),
                         new ManyToManyField(['name' => 'products', 'storeApiAware' => true, 'reference' => 'product']),
                         new ManyToOneField(['name' => 'top_seller', 'storeApiAware' => true, 'reference' => 'product', 'required' => true]),
-                        new OneToManyField(['name' => 'comments', 'storeApiAware' => true, 'reference' => 'custom_blog_comment']),
+                        new OneToManyField(['name' => 'comments', 'storeApiAware' => true, 'reference' => 'custom_entity_blog_comment']),
                         new OneToOneField(['name' => 'author', 'storeApiAware' => false, 'reference' => 'user']),
                     ],
                 ]),
                 new Entity([
-                    'name' => 'custom_blog_comment',
+                    'name' => 'custom_entity_blog_comment',
                     'storeApiAware' => true,
                     'fields' => [
                         new StringField(['name' => 'title', 'storeApiAware' => true, 'required' => true, 'translatable' => true]),
@@ -99,11 +99,11 @@ class EntityTest extends TestCase
             ['name' => 'email', 'type' => 'email', 'storeApiAware' => false],
             ['name' => 'products', 'type' => 'many-to-many', 'reference' => 'product', 'storeApiAware' => true],
             ['name' => 'top_seller', 'type' => 'many-to-one', 'required' => true, 'reference' => 'product', 'storeApiAware' => true],
-            ['name' => 'comments', 'type' => 'one-to-many', 'reference' => 'custom_blog_comment', 'storeApiAware' => true],
+            ['name' => 'comments', 'type' => 'one-to-many', 'reference' => 'custom_entity_blog_comment', 'storeApiAware' => true],
             ['name' => 'author', 'type' => 'one-to-one', 'reference' => 'user', 'storeApiAware' => false],
         ];
 
-        static::assertEquals('custom_blog', $storage[0]['name']);
+        static::assertEquals('custom_entity_blog', $storage[0]['name']);
         static::assertEquals($fields, json_decode($storage[0]['fields'], true));
 
         $fields = [
@@ -112,7 +112,7 @@ class EntityTest extends TestCase
             ['name' => 'email', 'type' => 'email', 'storeApiAware' => false],
             ['name' => 'products', 'type' => 'one-to-many', 'reference' => 'product', 'storeApiAware' => true],
         ];
-        static::assertEquals('custom_blog_comment', $storage[1]['name']);
+        static::assertEquals('custom_entity_blog_comment', $storage[1]['name']);
         static::assertEquals($fields, json_decode($storage[1]['fields'], true));
 
         static::assertNotNull($storage[0]['created_at']);
@@ -151,11 +151,11 @@ class EntityTest extends TestCase
             ->getSchemaManager()
             ->createSchema();
 
-        static::assertTrue($schema->hasTable('custom_blog'));
-        static::assertTrue($schema->hasTable('custom_blog_comment'));
-        static::assertTrue($schema->hasTable('custom_blog_product'));
+        static::assertTrue($schema->hasTable('custom_entity_blog'));
+        static::assertTrue($schema->hasTable('custom_entity_blog_comment'));
+        static::assertTrue($schema->hasTable('custom_entity_blog_product'));
 
-        $table = $schema->getTable('custom_blog');
+        $table = $schema->getTable('custom_entity_blog');
         static::assertTrue($table->hasColumn('id'));
         static::assertTrue($table->hasColumn('position'));
         static::assertTrue($table->hasColumn('rating'));
@@ -166,24 +166,27 @@ class EntityTest extends TestCase
         static::assertTrue($table->hasColumn('email'));
         static::assertTrue($table->hasColumn('top_seller_id'));
 
-        $table = $schema->getTable('custom_blog_comment');
+        $table = $schema->getTable('custom_entity_blog_comment');
         static::assertTrue($table->hasColumn('id'));
         static::assertTrue($table->hasColumn('title'));
         static::assertTrue($table->hasColumn('content'));
         static::assertTrue($table->hasColumn('email'));
-        static::assertTrue($table->hasColumn('custom_blog_id'));
+        static::assertTrue($table->hasColumn('custom_entity_blog_id'));
 
-        $table = $schema->getTable('custom_blog_product');
-        static::assertTrue($table->hasColumn('custom_blog_id'));
+        $table = $schema->getTable('custom_entity_blog_product');
+        static::assertTrue($table->hasColumn('custom_entity_blog_id'));
         static::assertTrue($table->hasColumn('product_id'));
 
         $table = $schema->getTable('product');
-        static::assertTrue($table->hasColumn('custom_blog_comment_id'));
+        static::assertTrue($table->hasColumn('custom_entity_blog_comment_id'));
     }
 
     public function testSchemaUpdate(): void
     {
         $entities = CustomEntities::createFromXmlFile(__DIR__ . '/_fixtures/customEntities/Resources/install.xml');
+
+        $this->cleanUp();
+
         $this->getContainer()
             ->get(CustomEntityPersister::class)
             ->update($entities->toStorage(), null);
@@ -193,14 +196,14 @@ class EntityTest extends TestCase
             ->update();
 
         $schema = $this->getSchema();
-        static::assertTrue($schema->hasTable('custom_blog'));
-        static::assertTrue($schema->getTable('custom_blog')->hasColumn('position'));
-        static::assertTrue($schema->getTable('custom_blog')->hasColumn('top_seller_id'));
-        static::assertTrue($schema->getTable('custom_blog')->hasColumn('author_id'));
+        static::assertTrue($schema->hasTable('custom_entity_blog'));
+        static::assertTrue($schema->getTable('custom_entity_blog')->hasColumn('position'));
+        static::assertTrue($schema->getTable('custom_entity_blog')->hasColumn('top_seller_id'));
+        static::assertTrue($schema->getTable('custom_entity_blog')->hasColumn('author_id'));
 
-        static::assertTrue($schema->hasTable('custom_blog_comment'));
-        static::assertTrue($schema->getTable('custom_blog_comment')->hasColumn('custom_blog_id'));
-        static::assertTrue($schema->getTable('product')->hasColumn('custom_blog_comment_id'));
+        static::assertTrue($schema->hasTable('custom_entity_blog_comment'));
+        static::assertTrue($schema->getTable('custom_entity_blog_comment')->hasColumn('custom_entity_blog_id'));
+        static::assertTrue($schema->getTable('product')->hasColumn('custom_entity_blog_comment_id'));
 
         $entities = CustomEntities::createFromXmlFile(__DIR__ . '/_fixtures/customEntities/Resources/update.xml');
         $this->getContainer()
@@ -213,18 +216,18 @@ class EntityTest extends TestCase
 
         $schema = $this->getSchema();
 
-        static::assertTrue($schema->hasTable('custom_blog'));
-        static::assertFalse($schema->getTable('custom_blog')->hasColumn('position'));
-        static::assertFalse($schema->getTable('custom_blog')->hasColumn('top_seller_id'));
-        static::assertFalse($schema->getTable('custom_blog')->hasColumn('author_id'));
-        static::assertFalse($schema->getTable('product')->hasColumn('custom_blog_comment_id'));
+        static::assertTrue($schema->hasTable('custom_entity_blog'));
+        static::assertFalse($schema->getTable('custom_entity_blog')->hasColumn('position'));
+        static::assertFalse($schema->getTable('custom_entity_blog')->hasColumn('top_seller_id'));
+        static::assertFalse($schema->getTable('custom_entity_blog')->hasColumn('author_id'));
+        static::assertFalse($schema->getTable('product')->hasColumn('custom_entity_blog_comment_id'));
 
-        static::assertInstanceOf(StringType::class, $schema->getTable('custom_blog')->getColumn('rating')->getType());
-        static::assertInstanceOf(FloatType::class, $schema->getTable('custom_blog')->getColumn('title')->getType());
+        static::assertInstanceOf(StringType::class, $schema->getTable('custom_entity_blog')->getColumn('rating')->getType());
+        static::assertInstanceOf(FloatType::class, $schema->getTable('custom_entity_blog')->getColumn('title')->getType());
 
         //many-to-many association removed
-        static::assertTrue($schema->hasTable('custom_blog_comment'));
-        static::assertFalse($schema->hasTable('custom_blog_product'));
+        static::assertTrue($schema->hasTable('custom_entity_blog_comment'));
+        static::assertFalse($schema->hasTable('custom_entity_blog_product'));
         static::assertFalse($schema->hasTable('custom_to_remove'));
     }
 
@@ -240,18 +243,21 @@ class EntityTest extends TestCase
     {
         try {
             $this->getContainer()->get(Connection::class)
-                ->executeStatement('ALTER TABLE product DROP COLUMN `custom_blog_comment_id`');
+                ->executeStatement('ALTER TABLE product DROP CONSTRAINT fk_ce_product_custom_entity_blog_comment_id');
+
+            $this->getContainer()->get(Connection::class)
+                ->executeStatement('ALTER TABLE product DROP COLUMN `custom_entity_blog_comment_id`');
         } catch (Exception $e) {
         }
 
         $this->getContainer()->get(Connection::class)
-            ->executeStatement('DROP TABLE IF EXISTS blog_product');
+            ->executeStatement('DROP TABLE IF EXISTS custom_entity_blog_product');
 
         $this->getContainer()->get(Connection::class)
-            ->executeStatement('DROP TABLE IF EXISTS blog_comment');
+            ->executeStatement('DROP TABLE IF EXISTS custom_entity_blog_comment');
 
         $this->getContainer()->get(Connection::class)
-            ->executeStatement('DROP TABLE IF EXISTS blog');
+            ->executeStatement('DROP TABLE IF EXISTS custom_entity_blog');
 
         $this->getContainer()->get(Connection::class)
             ->executeStatement('DELETE FROM custom_entity');

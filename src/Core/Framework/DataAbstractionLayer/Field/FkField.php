@@ -30,12 +30,15 @@ class FkField extends Field implements StorageAware
      */
     protected $referenceField;
 
-    public function __construct(string $storageName, string $propertyName, string $referenceClass, string $referenceField = 'id')
+    private ?string $referenceEntity;
+
+    public function __construct(string $storageName, string $propertyName, string $referenceClass, string $referenceField = 'id', ?string $referenceEntity = null)
     {
         $this->referenceClass = $referenceClass;
         $this->storageName = $storageName;
         $this->referenceField = $referenceField;
         parent::__construct($propertyName);
+        $this->referenceEntity = $referenceEntity;
     }
 
     public function compile(DefinitionInstanceRegistry $registry): void
@@ -46,7 +49,11 @@ class FkField extends Field implements StorageAware
 
         parent::compile($registry);
 
-        $this->referenceDefinition = $registry->get($this->referenceClass);
+        if ($this->referenceEntity !== null) {
+            $this->referenceDefinition = $registry->getByEntityName($this->referenceEntity);
+        } else {
+            $this->referenceDefinition = $registry->get($this->referenceClass);
+        }
     }
 
     public function getStorageName(): string

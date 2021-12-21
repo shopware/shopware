@@ -44,6 +44,8 @@ class ManyToManyAssociationField extends AssociationField
      */
     private $toManyDefinition;
 
+    private ?string $mappingReferenceEntity;
+
     public function __construct(
         string $propertyName,
         string $referenceDefinition,
@@ -51,7 +53,9 @@ class ManyToManyAssociationField extends AssociationField
         string $mappingLocalColumn,
         string $mappingReferenceColumn,
         string $sourceColumn = 'id',
-        string $referenceField = 'id'
+        string $referenceField = 'id',
+        ?string $mappingReferenceEntity = null,
+        ?string $referenceEntity = null
     ) {
         parent::__construct($propertyName);
         $this->toManyDefinitionClass = $referenceDefinition;
@@ -61,6 +65,8 @@ class ManyToManyAssociationField extends AssociationField
         $this->mappingReferenceColumn = $mappingReferenceColumn;
         $this->sourceColumn = $sourceColumn;
         $this->referenceField = $referenceField;
+        $this->referenceEntity = $referenceEntity;
+        $this->mappingReferenceEntity = $mappingReferenceEntity;
     }
 
     public function compile(DefinitionInstanceRegistry $registry): void
@@ -71,8 +77,17 @@ class ManyToManyAssociationField extends AssociationField
 
         parent::compile($registry);
 
-        $this->toManyDefinition = $registry->get($this->toManyDefinitionClass);
-        $this->mappingDefinition = $registry->get($this->mappingDefinitionClass);
+        if ($this->referenceEntity !== null) {
+            $this->toManyDefinition = $registry->getByEntityName($this->referenceEntity);
+        } else {
+            $this->toManyDefinition = $registry->get($this->toManyDefinitionClass);
+        }
+
+        if ($this->mappingReferenceEntity !== null) {
+            $this->mappingDefinition = $registry->getByEntityName($this->mappingReferenceEntity);
+        } else {
+            $this->mappingDefinition = $registry->get($this->mappingDefinitionClass);
+        }
     }
 
     public function getToManyReferenceDefinition(): EntityDefinition

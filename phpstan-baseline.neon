@@ -1992,11 +1992,6 @@ parameters:
 
 		-
 			message: "#^Cannot call method getPropertyName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/OneToManyAssociationFieldSerializer.php
-
-		-
-			message: "#^Cannot call method getPropertyName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null\\.$#"
 			count: 4
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/OneToOneAssociationFieldSerializer.php
 

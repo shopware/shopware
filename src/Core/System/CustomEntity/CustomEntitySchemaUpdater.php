@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\CustomEntity;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
@@ -28,10 +29,15 @@ class CustomEntitySchemaUpdater
 
         foreach ($schema->getTables() as $table) {
             if ($table->getComment() === self::COMMENT) {
-                error_log(print_r($table->getName(), true) . "\n", 3, '/var/www/html/sw6/var/log/test.log');
                 $schema->dropTable($table->getName());
 
                 continue;
+            }
+
+            foreach ($table->getForeignKeys() as $foreignKey) {
+                if (strpos($foreignKey->getName(), 'fk_ce_') === 0) {
+                    $table->removeForeignKey($foreignKey->getName());
+                }
             }
 
             foreach ($table->getColumns() as $column) {
@@ -44,7 +50,7 @@ class CustomEntitySchemaUpdater
         foreach ($tables as $table) {
             $fields = json_decode($table['fields'], true, 512, \JSON_THROW_ON_ERROR);
 
-            if (strpos($table['name'], 'custom_') !== 0) {
+            if (strpos($table['name'], 'custom_entity_') !== 0) {
                 throw new \RuntimeException(sprintf('Table %s has to be prefixed with custom_', $table['name']));
             }
 
@@ -62,7 +68,6 @@ class CustomEntitySchemaUpdater
             ->compare($from, $to);
 
         $queries = $diff->toSql($this->getPlatform());
-
         foreach ($queries as $query) {
             $this->connection->executeStatement($query);
         }
@@ -79,6 +84,14 @@ class CustomEntitySchemaUpdater
             $table->setPrimaryKey(['id']);
         }
         $table->setComment(self::COMMENT);
+
+        if (!$table->hasColumn('created_at')) {
+            $table->addColumn('created_at', Types::DATETIME_MUTABLE, ['notnull' => true]);
+        }
+
+        if (!$table->hasColumn('updated_at')) {
+            $table->addColumn('updated_at', Types::DATETIME_MUTABLE, ['notnull' => false]);
+        }
 
         $cascades = ['onUpdate' => 'cascade', 'onDelete' => 'cascade'];
         $nulls = ['onUpdate' => 'cascade', 'onDelete' => 'SET NULL'];
@@ -117,11 +130,15 @@ class CustomEntitySchemaUpdater
                 case 'many-to-many':
                     $reference = $field['reference'];
 
-                    if ($schema->hasTable($name . '_' . $reference)) {
+                    $mappingName = [$name, $reference];
+                    sort($mappingName);
+                    $mappingName = implode('_', $mappingName);
+
+                    if ($schema->hasTable($mappingName)) {
                         continue 2;
                     }
 
-                    $mapping = $schema->createTable($name . '_' . $reference);
+                    $mapping = $schema->createTable($mappingName);
                     $mapping->setComment(self::COMMENT);
 
                     $mapping->addColumn($name . '_id', Types::BINARY, ['length' => 16, 'fixed' => true]);
@@ -147,9 +164,16 @@ class CustomEntitySchemaUpdater
                         ? $schema->getTable($field['reference'])
                         : $schema->createTable($field['reference']);
 
-                    if (!$reference->hasColumn($name . '_id')) {
-                        $reference->addColumn($name . '_id', Types::BINARY, ['length' => 16, 'fixed' => true, 'notnull' => false, 'comment' => self::COMMENT]);
+                    if ($reference->hasColumn($name . '_id')) {
+                        continue 2;
                     }
+
+                    $reference->addColumn($name . '_id', Types::BINARY, ['length' => 16, 'fixed' => true, 'notnull' => false, 'comment' => self::COMMENT]);
+
+                    $options = strpos($reference->getName(), 'custom_entity_') === 0 ? $cascades : $nulls;
+
+                    $fk = substr('fk_ce_' . $reference->getName() . '_' . $name . '_id', 0, 64);
+                    $reference->addForeignKeyConstraint($table, [$name . '_id'], ['id'], $options, $fk);
 
                     break;
             }

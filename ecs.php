@@ -79,7 +79,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(GeneralPhpdocAnnotationRemoveFixer::class)
         ->call('configure', [['annotations' => ['copyright', 'category']]]);
     $services->set(NoSuperfluousPhpdocTagsFixer::class)
-        ->call('configure', [['allow_unused_params' => true]]);
+        ->call('configure', [['allow_unused_params' => true, 'allow_mixed' => true,]]);
     $services->set(PhpdocLineSpanFixer::class);
     $services->set(PhpdocOrderFixer::class);
     $services->set(PhpUnitConstructFixer::class);

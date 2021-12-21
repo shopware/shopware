@@ -95,7 +95,7 @@ class AccountLoginPageLoader
     {
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('active', true))
-            ->addAssociation('country.states');
+            ->addAssociation('states');
 
         $countries = $this->countryRoute->load(new Request(), $criteria, $salesChannelContext)->getCountries();
 

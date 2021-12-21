@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Test\Page\Account;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPage;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedEvent;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
@@ -29,16 +30,18 @@ class LoginPageTest extends TestCase
 
         static::assertInstanceOf(AccountLoginPage::class, $page);
         static::assertSame(StorefrontPageTestConstants::COUNTRY_COUNT, $page->getCountries()->count());
+        static::assertInstanceOf(CountryStateCollection::class, $page->getCountries()->first()->getStates());
         self::assertPageEvent(AccountLoginPageLoadedEvent::class, $event, $context, $request, $page);
     }
 
-    public function itLoadsWithoutACustomer(): void
+    public function testItLoadsWithoutACustomer(): void
     {
         $request = new Request();
         $context = $this->createSalesChannelContextWithNavigation();
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertSame(StorefrontPageTestConstants::COUNTRY_COUNT, $page->getCountries()->count());
+        static::assertInstanceOf(CountryStateCollection::class, $page->getCountries()->first()->getStates());
     }
 
     /**

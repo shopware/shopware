@@ -42,7 +42,7 @@ final class LocateDependenciesViaComposer implements LocateDependencies
 
         // <shopware-hack>
         // The tool does not support composer 2. Execute system wide installed composer binary
-        exec(\sprintf('composer install -d %s --no-dev --no-scripts --ignore-platform-reqs', escapeshellarg($installationPath)));
+        exec(\sprintf('composer install -d %s --no-dev --no-scripts --ignore-platform-reqs --no-interaction', escapeshellarg($installationPath)));
         $this->fixeMarc1706FastImageSizeDirectories($installationPath);
         // </shopware-hack>
 

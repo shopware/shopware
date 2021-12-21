@@ -5,8 +5,7 @@ namespace Shopware\Storefront\Theme;
 use League\Flysystem\FilesystemInterface;
 use Padaliyajay\PHPAutoprefixer\Autoprefixer;
 use ScssPhp\ScssPhp\Compiler;
-use ScssPhp\ScssPhp\Formatter\Crunched;
-use ScssPhp\ScssPhp\Formatter\Expanded;
+use ScssPhp\ScssPhp\OutputStyle;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedScriptsEvent;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
@@ -64,9 +63,11 @@ class ThemeCompiler implements ThemeCompilerInterface
         $this->themeFileImporter = $themeFileImporter;
 
         $this->scssCompiler = new Compiler();
-        $this->scssCompiler->setImportPaths('');
+        $cwd = \getcwd();
 
-        $this->scssCompiler->setFormatter($debug ? Expanded::class : Crunched::class);
+        $this->scssCompiler->setImportPaths($cwd === false ? '' : $cwd);
+
+        $this->scssCompiler->setOutputStyle($debug ? OutputStyle::EXPANDED : OutputStyle::COMPRESSED);
         $this->eventDispatcher = $eventDispatcher;
         $this->packages = $packages;
         $this->logger = $logger;

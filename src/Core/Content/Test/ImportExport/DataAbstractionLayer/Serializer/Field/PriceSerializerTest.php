@@ -35,40 +35,43 @@ class PriceSerializerTest extends TestCase
         $expectedSerialized = [
             'EUR' => [
                 'currencyId' => Defaults::CURRENCY,
-                'net' => 10.0,
+                'extensions' => [],
                 'gross' => 10.0,
                 'linked' => false,
                 'listPrice' => null,
+                'net' => 10.0,
                 'percentage' => null,
-                'extensions' => [],
             ],
             'DEFAULT' => [
                 'currencyId' => Defaults::CURRENCY,
-                'net' => 10.0,
+                'extensions' => [],
                 'gross' => 10.0,
                 'linked' => false,
                 'listPrice' => null,
+                'net' => 10.0,
                 'percentage' => null,
-                'extensions' => [],
             ],
         ];
         static::assertNull($this->first($priceSerializer->serialize($config, $priceField, [])));
         $serializedPrice = $this->first($priceSerializer->serialize($config, $priceField, [$price]));
+        ksort($serializedPrice['DEFAULT']);
+        ksort($serializedPrice['EUR']);
         static::assertSame($expectedSerialized, $serializedPrice);
 
         $expectedDeserialized = [
             Defaults::CURRENCY => [
                 'currencyId' => Defaults::CURRENCY,
-                'net' => 10.0,
+                'extensions' => [],
                 'gross' => 10.0,
                 'linked' => false,
                 'listPrice' => null,
+                'net' => 10.0,
                 'percentage' => null,
-                'extensions' => [],
             ],
         ];
         static::assertEmpty($priceSerializer->deserialize($config, $priceField, ''));
         $deserializedPrice = $priceSerializer->deserialize($config, $priceField, $expectedSerialized);
+        ksort($deserializedPrice[Defaults::CURRENCY]);
         static::assertSame($expectedDeserialized, $deserializedPrice);
     }
 
@@ -85,64 +88,70 @@ class PriceSerializerTest extends TestCase
         $expectedSerialized = [
             'EUR' => [
                 'currencyId' => Defaults::CURRENCY,
-                'net' => 10.0,
+                'extensions' => [],
                 'gross' => 10.0,
                 'linked' => false,
                 'listPrice' => [
                     'currencyId' => Defaults::CURRENCY,
-                    'net' => 11.0,
+                    'extensions' => [],
                     'gross' => 11.0,
                     'linked' => false,
                     'listPrice' => null,
+                    'net' => 11.0,
                     'percentage' => null,
-                    'extensions' => [],
                 ],
+                'net' => 10.0,
                 'percentage' => null,
-                'extensions' => [],
             ],
             'DEFAULT' => [
                 'currencyId' => Defaults::CURRENCY,
-                'net' => 10.0,
+                'extensions' => [],
                 'gross' => 10.0,
                 'linked' => false,
                 'listPrice' => [
                     'currencyId' => Defaults::CURRENCY,
-                    'net' => 11.0,
+                    'extensions' => [],
                     'gross' => 11.0,
                     'linked' => false,
                     'listPrice' => null,
+                    'net' => 11.0,
                     'percentage' => null,
-                    'extensions' => [],
                 ],
+                'net' => 10.0,
                 'percentage' => null,
-                'extensions' => [],
             ],
         ];
         static::assertNull($this->first($priceSerializer->serialize($config, $priceField, [])));
         $serializedPrice = $this->first($priceSerializer->serialize($config, $priceField, [$price]));
+        ksort($serializedPrice['EUR']);
+        ksort($serializedPrice['EUR']['listPrice']);
+        ksort($serializedPrice['DEFAULT']);
+        ksort($serializedPrice['DEFAULT']['listPrice']);
         static::assertSame($expectedSerialized, $serializedPrice);
 
         $expectedDeserialized = [
             Defaults::CURRENCY => [
                 'currencyId' => Defaults::CURRENCY,
-                'net' => 10.0,
+                'extensions' => [],
                 'gross' => 10.0,
                 'linked' => false,
                 'listPrice' => [
                     'currencyId' => Defaults::CURRENCY,
-                    'net' => 11.0,
+                    'extensions' => [],
                     'gross' => 11.0,
                     'linked' => false,
                     'listPrice' => null,
+                    'net' => 11.0,
                     'percentage' => null,
-                    'extensions' => [],
                 ],
+                'net' => 10.0,
                 'percentage' => null,
-                'extensions' => [],
             ],
         ];
         static::assertEmpty($priceSerializer->deserialize($config, $priceField, ''));
         $deserializedPrice = $priceSerializer->deserialize($config, $priceField, $expectedSerialized);
+        ksort($deserializedPrice[Defaults::CURRENCY]);
+        ksort($deserializedPrice[Defaults::CURRENCY]['listPrice']);
         static::assertSame($expectedDeserialized, $deserializedPrice);
     }
 

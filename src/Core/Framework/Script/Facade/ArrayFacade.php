@@ -155,7 +155,7 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
         yield from $this->items;
     }
 
-    public function count()
+    public function count(): int
     {
         return \count($this->items);
     }

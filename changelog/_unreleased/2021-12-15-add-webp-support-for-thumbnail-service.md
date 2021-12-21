@@ -1,6 +1,6 @@
 ---
 title: Add WebP support for ThumbnailService
-issue: <TODO>
+issue: NEXT-19365
 author: Simon Nitzsche
 author_email: simon.nitzsche@esera.de
 author_github: SimonNitzsche

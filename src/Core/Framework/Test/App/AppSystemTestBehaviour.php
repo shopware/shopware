@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -45,5 +46,12 @@ trait AppSystemTestBehaviour
         );
 
         $appService->doRefreshApps($activateApps, Context::createDefaultContext());
+    }
+
+    protected function getScriptTraces(): array
+    {
+        return $this->getContainer()
+            ->get(ScriptTraces::class)
+            ->getTraces();
     }
 }

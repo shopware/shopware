@@ -9,6 +9,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -18,7 +20,11 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Page\Wishlist\GuestWishlistPage;
+use Shopware\Storefront\Page\Wishlist\GuestWishlistPageLoadedHook;
 use Shopware\Storefront\Page\Wishlist\WishlistPage;
+use Shopware\Storefront\Page\Wishlist\WishlistPageLoadedHook;
+use Shopware\Storefront\Page\Wishlist\WishlistWidgetLoadedHook;
+use Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoadedHook;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -229,6 +235,81 @@ class WishlistControllerTest extends TestCase
         static::assertEquals('Product has already been added to your wishlist.', $warningFlash[0]);
     }
 
+    public function testWishlistPageLoadedHookScriptsAreExecuted(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $browser = $this->login();
+
+        $browser->request('GET', '/wishlist', []);
+        $response = $browser->getResponse();
+        static::assertEquals(200, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey(WishlistPageLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testGuestWishlistPageLoadedHookScriptsAreExecuted(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $response = $this->request('GET', '/wishlist', []);
+        static::assertEquals(200, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey(GuestWishlistPageLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testGuestWishlistPageletLoadedHookScriptsAreExecuted(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $browser = $this->registerAsGuest();
+        $browser->xmlHttpRequest(
+            'POST',
+            $_SERVER['APP_URL'] . '/wishlist/guest-pagelet'
+        );
+        $response = $browser->getResponse();
+
+        static::assertEquals(200, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey(GuestWishlistPageletLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testWishlistPageLoadedHookScriptsAreExecutedForWidget(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $browser = $this->login();
+
+        $browser->request('GET', '/widgets/wishlist', []);
+        $response = $browser->getResponse();
+        static::assertEquals(200, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey(WishlistPageLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testWishlistWidgetLoadedHookScriptsAreExecuted(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $browser = $this->login();
+
+        $browser->request('GET', '/wishlist/merge/pagelet', []);
+        $response = $browser->getResponse();
+        static::assertEquals(200, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey(WishlistWidgetLoadedHook::HOOK_NAME, $traces);
+    }
+
     private function createCustomer(): CustomerEntity
     {
         $addressId = Uuid::randomHex();
@@ -277,6 +358,40 @@ class WishlistControllerTest extends TestCase
             $this->tokenize('frontend.account.login', [
                 'username' => $customer->getEmail(),
                 'password' => 'test',
+            ])
+        );
+        $response = $browser->getResponse();
+        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+
+        $browser->request('GET', '/');
+        /** @var StorefrontResponse $response */
+        $response = $browser->getResponse();
+        static::assertNotNull($response->getContext()->getCustomer());
+
+        return $browser;
+    }
+
+    private function registerAsGuest(): KernelBrowser
+    {
+        $browser = KernelLifecycleManager::createBrowser($this->getKernel());
+        $browser->request(
+            'POST',
+            $_SERVER['APP_URL'] . '/account/register',
+            $this->tokenize('frontend.account.register.save', [
+                'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE,
+                'email' => 'max.mustermann@example.com',
+                'emailConfirmation' => 'max.mustermann@example.com',
+                'salutationId' => $this->getValidSalutationId(),
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'storefrontUrl' => 'http://localhost',
+                'guest' => true,
+                'billingAddress' => [
+                    'countryId' => $this->getValidCountryId(),
+                    'street' => 'Musterstrasse 13',
+                    'zipcode' => '48599',
+                    'city' => 'Epe',
+                ],
             ])
         );
         $response = $browser->getResponse();

@@ -85,8 +85,8 @@ class AvailableCombinationLoaderTest extends TestCase
             ->variant(
                 (new ProductBuilder($this->ids, 'a.1'))
                     ->visibility($differentChannel ? $this->ids->get('sales-channel') : TestDefaults::SALES_CHANNEL)
-                    ->option('red')
-                    ->option('xl')
+                    ->option('red', 'color')
+                    ->option('xl', 'size')
                     ->stock($stock)
                     ->closeout($isCloseout)
                     ->add('minPurchase', $minPurchase)

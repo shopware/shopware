@@ -28,7 +28,10 @@ use Shopware\Storefront\Framework\Captcha\Annotation\Captcha;
 use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\AbstractCustomerGroupRegistrationPageLoader;
+use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
+use Shopware\Storefront\Page\Account\Register\AccountRegisterPageLoadedHook;
+use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -101,6 +104,8 @@ class RegisterController extends StorefrontController
 
         $page = $this->loginPageLoader->load($request, $context);
 
+        $this->hook(new AccountRegisterPageLoadedHook($page, $context));
+
         return $this->renderStorefront('@Storefront/storefront/page/account/register/index.html.twig', [
             'redirectTo' => $redirect,
             'redirectParameters' => $request->get('redirectParameters', json_encode([])),
@@ -132,6 +137,8 @@ class RegisterController extends StorefrontController
             $data->set('accountType', CustomerEntity::ACCOUNT_TYPE_BUSINESS);
         }
 
+        $this->hook(new CustomerGroupRegistrationPageLoadedHook($page, $context));
+
         return $this->renderStorefront('@Storefront/storefront/page/account/customer-group-register/index.html.twig', [
             'redirectTo' => $redirect,
             'redirectParameters' => $request->get('redirectParameters', json_encode([])),
@@ -160,6 +167,8 @@ class RegisterController extends StorefrontController
         }
 
         $page = $this->registerPageLoader->load($request, $context);
+
+        $this->hook(new CheckoutRegisterPageLoadedHook($page, $context));
 
         return $this->renderStorefront(
             '@Storefront/storefront/page/checkout/address/index.html.twig',

@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Test\Cart\Common\FalseRule;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 
 class TestInternalFieldsAreFiltered extends SerializationFixture
@@ -19,7 +20,7 @@ class TestInternalFieldsAreFiltered extends SerializationFixture
         $rule->setName('Test rule');
         $rule->setDescription('Test description');
         $rule->setPayload(new AndRule([new TrueRule(), new FalseRule()]));
-        $rule->internalSetEntityName('rule');
+        $rule->internalSetEntityData('rule', new FieldVisibility([]));
         $ruleCollection->add($rule);
 
         return $ruleCollection;

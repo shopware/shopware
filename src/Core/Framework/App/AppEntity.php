@@ -85,6 +85,8 @@ class AppEntity extends Entity
     protected $cookies;
 
     /**
+     * @internal
+     *
      * @var string|null
      */
     protected $iconRaw;
@@ -115,6 +117,8 @@ class AppEntity extends Entity
     protected $privacyPolicyExtensions;
 
     /**
+     * @internal
+     *
      * @var string|null
      */
     protected $appSecret;
@@ -154,7 +158,10 @@ class AppEntity extends Entity
      */
     protected $templates;
 
-    protected ?ScriptCollection $scripts;
+    /**
+     * @internal
+     */
+    protected ?ScriptCollection $scripts = null;
 
     /**
      * @var CustomFieldSetCollection|null
@@ -312,11 +319,19 @@ class AppEntity extends Entity
         $this->cookies = $cookies;
     }
 
+    /**
+     * @internal
+     */
     public function getIconRaw(): ?string
     {
+        $this->checkIfPropertyAccessIsAllowed('iconRaw');
+
         return $this->iconRaw;
     }
 
+    /**
+     * @internal
+     */
     public function setIconRaw(?string $iconRaw): void
     {
         $this->iconRaw = $iconRaw;
@@ -412,11 +427,19 @@ class AppEntity extends Entity
         $this->customFieldSets = $customFieldSets;
     }
 
+    /**
+     * @internal
+     */
     public function getAppSecret(): ?string
     {
+        $this->checkIfPropertyAccessIsAllowed('appSecret');
+
         return $this->appSecret;
     }
 
+    /**
+     * @internal
+     */
     public function setAppSecret(?string $appSecret): void
     {
         $this->appSecret = $appSecret;
@@ -472,11 +495,19 @@ class AppEntity extends Entity
         $this->templates = $templates;
     }
 
+    /**
+     * @internal
+     */
     public function getScripts(): ?ScriptCollection
     {
+        $this->checkIfPropertyAccessIsAllowed('scripts');
+
         return $this->scripts;
     }
 
+    /**
+     * @internal
+     */
     public function setScripts(ScriptCollection $scripts): void
     {
         $this->scripts = $scripts;

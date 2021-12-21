@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation\PromotionTranslationDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsPageTranslation\CmsPageTranslationDefinition;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateTranslationDefinition;
@@ -105,5 +107,24 @@ class EntityDefinitionTest extends TestCase
             [ProductDefinition::class, ProductTranslationDefinition::class],
             [PromotionDefinition::class, PromotionTranslationDefinition::class],
         ];
+    }
+
+    public function testGetFieldVisibility(): void
+    {
+        $definition = $this->getContainer()->get(CustomerDefinition::class);
+
+        $internalFields = [
+            'password',
+            'newsletterSalesChannelIds',
+            'legacyPassword',
+            'legacyEncoder',
+        ];
+
+        foreach ($internalFields as $field) {
+            static::assertTrue($definition->getFieldVisibility()->isVisible($field));
+            FieldVisibility::$isInTwigRenderingContext = true;
+            static::assertFalse($definition->getFieldVisibility()->isVisible($field));
+            FieldVisibility::$isInTwigRenderingContext = false;
+        }
     }
 }

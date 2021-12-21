@@ -24,45 +24,24 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class SystemConfigService
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $systemConfigRepository;
+    private EntityRepositoryInterface $systemConfigRepository;
 
     /**
      * @var array[]
      */
-    private $configs = [];
+    private array $configs = [];
 
-    /**
-     * @var ConfigReader
-     */
-    private $configReader;
+    private ConfigReader $configReader;
 
-    /**
-     * @var array
-     */
-    private $keys = ['all' => true];
+    private array $keys = ['all' => true];
 
-    /**
-     * @var array
-     */
-    private $traces = [];
+    private array $traces = [];
 
-    /**
-     * @var AbstractSystemConfigLoader
-     */
-    private $loader;
+    private AbstractSystemConfigLoader $loader;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         Connection $connection,

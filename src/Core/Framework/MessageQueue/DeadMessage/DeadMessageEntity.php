@@ -16,6 +16,8 @@ class DeadMessageEntity extends Entity
     protected $originalMessageClass;
 
     /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     *
      * @var string
      */
     protected $serializedOriginalMessage;
@@ -92,11 +94,19 @@ class DeadMessageEntity extends Entity
         $this->originalMessageClass = $originalMessageClass;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     */
     public function getSerializedOriginalMessage(): string
     {
+        $this->checkIfPropertyAccessIsAllowed('serializedOriginalMessage');
+
         return $this->serializedOriginalMessage;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     */
     public function setSerializedOriginalMessage(string $serializedOriginalMessage): void
     {
         $this->serializedOriginalMessage = $serializedOriginalMessage;

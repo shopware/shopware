@@ -3,12 +3,18 @@
 namespace Shopware\Storefront\Test\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Storefront\Page\Search\SearchPageLoadedHook;
+use Shopware\Storefront\Page\Search\SearchWidgetLoadedHook;
+use Shopware\Storefront\Page\Suggest\SuggestPageLoadedHook;
 
 class SearchControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use StorefrontControllerTestBehaviour;
 
     /**
      * @dataProvider getProviderInvalidTerms
@@ -36,5 +42,41 @@ class SearchControllerTest extends TestCase
         yield ['<script src=1 href=1 onerror="javascript:alert(1)"></script>'];
         yield ['<svg onResize svg onResize="javascript:javascript:alert(1)"></svg onResize>'];
         yield ['"/><img/onerror=\x0Ajavascript:alert(1)\x0Asrc=xxx:x />'];
+    }
+
+    public function testSearchPageLoadedHookScriptsAreExecuted(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $response = $this->request('GET', '/search', ['search' => 'test']);
+        static::assertEquals(200, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey(SearchPageLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testSuggestPageLoadedHookScriptsAreExecuted(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $response = $this->request('GET', '/suggest', ['search' => 'test']);
+        static::assertEquals(200, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey(SuggestPageLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testSearchWidgetLoadedHookScriptsAreExecuted(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $response = $this->request('GET', '/widgets/search', ['search' => 'test']);
+        static::assertEquals(200, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey(SearchWidgetLoadedHook::HOOK_NAME, $traces);
     }
 }

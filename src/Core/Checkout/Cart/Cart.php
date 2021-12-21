@@ -87,6 +87,8 @@ class Cart extends Struct
      */
     private array $ruleIds = [];
 
+    private ?CartBehavior $behavior = null;
+
     public function __construct(string $name, string $token)
     {
         $this->name = $name;
@@ -318,5 +320,22 @@ class Cart extends Struct
     public function getRuleIds(): array
     {
         return $this->ruleIds;
+    }
+
+    /**
+     * Will be available after the cart gets calculated
+     * The `\Shopware\Core\Checkout\Cart\Processor::process` will set this
+     */
+    public function getBehavior(): ?CartBehavior
+    {
+        return $this->behavior;
+    }
+
+    /**
+     * @internal These function is reserved for the `\Shopware\Core\Checkout\Cart\Processor::process`
+     */
+    public function setBehavior(?CartBehavior $behavior): void
+    {
+        $this->behavior = $behavior;
     }
 }

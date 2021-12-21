@@ -10,6 +10,9 @@ use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @deprecated tag:v6.5.0 the according controller was already removed, use store-api ContactRoute instead
+ */
 class ContactPageLoader
 {
     /**

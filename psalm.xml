@@ -19,6 +19,9 @@
             <!-- Compatibility fixes for doctrine annotation parser https://github.com/doctrine/annotations/issues/421 -->
             <file name="src/Core/Framework/Compatibility/AnnotationReader.php"/>
             <file name="src/Core/Framework/Compatibility/DocParser.php"/>
+
+            <!-- twig override -->
+            <file name="src/Core/Framework/Adapter/Twig/TwigEnvironment.php"/>
         </ignoreFiles>
     </projectFiles>
 

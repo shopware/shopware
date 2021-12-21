@@ -28,30 +28,18 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 
 abstract class EntityDefinition
 {
-    /**
-     * @var CompiledFieldCollection|null
-     */
-    protected $fields;
+    protected ?CompiledFieldCollection $fields = null;
 
     /**
      * @var EntityExtension[]
      */
-    protected $extensions = [];
+    protected array $extensions = [];
 
-    /**
-     * @var TranslationsAssociationField|null
-     */
-    protected $translationField;
+    protected ?TranslationsAssociationField $translationField = null;
 
-    /**
-     * @var CompiledFieldCollection|null
-     */
-    protected $primaryKeys;
+    protected ?CompiledFieldCollection $primaryKeys = null;
 
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    protected $registry;
+    protected DefinitionInstanceRegistry $registry;
 
     /**
      * @var TranslatedField[]
@@ -69,6 +57,8 @@ abstract class EntityDefinition
     private $parentDefinition = false;
 
     private string $className;
+
+    private ?FieldVisibility $fieldVisibility = null;
 
     final public function __construct()
     {
@@ -204,6 +194,25 @@ abstract class EntityDefinition
     final public function getField(string $propertyName): ?Field
     {
         return $this->getFields()->get($propertyName);
+    }
+
+    final public function getFieldVisibility(): FieldVisibility
+    {
+        if ($this->fieldVisibility) {
+            return $this->fieldVisibility;
+        }
+
+        /** @var string[] $internalProperties */
+        $internalProperties = $this->getFields()
+            ->fmap(function (Field $field): ?string {
+                if ($field->is(ApiAware::class)) {
+                    return null;
+                }
+
+                return $field->getPropertyName();
+            });
+
+        return $this->fieldVisibility = new FieldVisibility(array_values($internalProperties));
     }
 
     /**

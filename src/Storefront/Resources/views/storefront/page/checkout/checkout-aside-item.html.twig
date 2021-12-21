@@ -56,7 +56,9 @@
 
                     {% block page_checkout_aside_item_title %}
                         <div class="checkout-aside-item-title">
-                            {{ lineItem.label|u.truncate(60) }}
+                            {% set label = lineItem.label|trans|sw_sanitize %}
+                            {% set label = label !== '' ? label : lineItem.label %}
+                            {{ label|u.truncate(60) }}
                         </div>
                     {% endblock %}
 

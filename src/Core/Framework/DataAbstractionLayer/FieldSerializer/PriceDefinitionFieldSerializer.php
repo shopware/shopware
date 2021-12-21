@@ -3,14 +3,16 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\CurrencyPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
-use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\ConditionTypeNotFound;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPriceFieldTypeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
@@ -81,6 +83,22 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                     }
 
                     break;
+                case CurrencyPriceDefinition::TYPE:
+                    $this->validateProperties(
+                        $value,
+                        CurrencyPriceDefinition::getConstraints(),
+                        $parameters->getPath()
+                    );
+                    if (!\array_key_exists('filter', $value) || $value['filter'] === null) {
+                        break;
+                    }
+
+                    $violations = $this->validateRules($value['filter'], $parameters->getPath() . '/filter');
+                    if ($violations->count() > 0) {
+                        throw new WriteConstraintViolationException($violations, $parameters->getPath());
+                    }
+
+                    break;
                 case PercentagePriceDefinition::TYPE:
                     $this->validateProperties(
                         $value,
@@ -110,7 +128,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
     }
 
     /**
-     * @return AbsolutePriceDefinition|PercentagePriceDefinition|QuantityPriceDefinition|null
+     * @return AbsolutePriceDefinition|PercentagePriceDefinition|QuantityPriceDefinition|CurrencyPriceDefinition|null
      *
      * @deprecated tag:v6.5.0 The parameter $value will be native typed and the return type is PriceDefinitionInterface|null
      */
@@ -136,6 +154,15 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                 $rules = (\array_key_exists('filter', $decoded) && $decoded['filter'] !== null) ? $this->decodeRule($decoded['filter']) : null;
 
                 return new AbsolutePriceDefinition($decoded['price'], $rules);
+            case CurrencyPriceDefinition::TYPE:
+                $rules = (\array_key_exists('filter', $decoded) && $decoded['filter'] !== null) ? $this->decodeRule($decoded['filter']) : null;
+
+                $collection = new PriceCollection();
+                foreach ($decoded['price'] as $price) {
+                    $collection->add(new Price($price['currencyId'], (float) $price['net'], (float) $price['gross'], (bool) $price['linked']));
+                }
+
+                return new CurrencyPriceDefinition($collection, $rules);
             case PercentagePriceDefinition::TYPE:
                 $rules = \array_key_exists('filter', $decoded) && $decoded['filter'] !== null ? $this->decodeRule($decoded['filter']) : null;
 

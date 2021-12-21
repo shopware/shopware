@@ -302,9 +302,9 @@ class SalesChannelContext extends Struct
         return $this->getSalesChannel()->getId();
     }
 
-    public function addState(string $state): void
+    public function addState(string ...$states): void
     {
-        $this->context->addState($state);
+        $this->context->addState(...$states);
     }
 
     public function removeState(string $state): void

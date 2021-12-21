@@ -20,10 +20,13 @@ use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestFailedPaymentHandler;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductOutOfStockError;
 use Shopware\Core\Defaults;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -37,6 +40,11 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\CheckoutController;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedHook;
+use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedHook;
+use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedHook;
+use Shopware\Storefront\Page\Checkout\Offcanvas\CheckoutInfoWidgetLoadedHook;
+use Shopware\Storefront\Page\Checkout\Offcanvas\CheckoutOffcanvasWidgetLoadedHook;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -57,10 +65,9 @@ class CheckoutControllerTest extends TestCase
     private const PROMOTION_NOT_FOUND_ERROR_CONTENT = 'Promotion with code "tn-08" could not be found.';
     private const PRODUCT_STOCK_REACHED_ERROR_CONTENT = 'The product "Car" is not available any more';
 
-    /**
-     * @var string
-     */
-    private $failedPaymentMethodId;
+    private string $failedPaymentMethodId;
+
+    private ?string $customerId = null;
 
     /**
      * @dataProvider customerComments
@@ -229,6 +236,92 @@ class CheckoutControllerTest extends TestCase
         ];
     }
 
+    public function testCheckoutCartPageLoadedHookScriptsAreExecuted(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $browser = $this->getBrowserWithLoggedInCustomer();
+
+        $browser->request(
+            'GET',
+            '/checkout/cart'
+        );
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey(CheckoutCartPageLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testCheckoutConfirmPageLoadedHookScriptsAreExecuted(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $contextToken = Uuid::randomHex();
+
+        $this->fillCart($contextToken);
+
+        $salesChannelContext = $this->createSalesChannelContext($contextToken);
+        $request = $this->createRequest($salesChannelContext);
+
+        $this->getContainer()->get(CheckoutController::class)->confirmPage($request, $salesChannelContext);
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertArrayHasKey(CheckoutConfirmPageLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testCheckoutFinishPageLoadedHookScriptsAreExecuted(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $contextToken = Uuid::randomHex();
+
+        $order = $this->performOrder('', false, null, $contextToken);
+
+        $salesChannelContext = $this->createSalesChannelContext($contextToken);
+        $request = $this->createRequest($salesChannelContext);
+        $request->request->set('orderId', $order->getId());
+        $requestDataBag = $this->createRequestDataBag('');
+
+        $this->getContainer()->get(CheckoutController::class)->finishPage($request, $salesChannelContext, $requestDataBag);
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertArrayHasKey(CheckoutFinishPageLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testCheckoutInfoWidgetLoadedHookScriptsAreExecuted(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $contextToken = Uuid::randomHex();
+
+        $this->fillCart($contextToken);
+
+        $salesChannelContext = $this->createSalesChannelContext($contextToken);
+        $request = $this->createRequest($salesChannelContext);
+
+        $this->getContainer()->get(CheckoutController::class)->info($request, $salesChannelContext);
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertArrayHasKey(CheckoutInfoWidgetLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testCheckoutOffcanvasWidgetLoadedHookScriptsAreExecuted(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $contextToken = Uuid::randomHex();
+
+        $this->fillCart($contextToken);
+
+        $salesChannelContext = $this->createSalesChannelContext($contextToken);
+        $request = $this->createRequest($salesChannelContext);
+
+        $this->getContainer()->get(CheckoutController::class)->offcanvas($request, $salesChannelContext);
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertArrayHasKey(CheckoutOffcanvasWidgetLoadedHook::HOOK_NAME, $traces);
+    }
+
     private function updateSalesChannel(string $salesChannelId): void
     {
         $data = [
@@ -256,6 +349,7 @@ class CheckoutControllerTest extends TestCase
             'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'domains' => [
                 [
+                    'id' => $salesChannelId,
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
                     'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                     'currencyId' => Defaults::CURRENCY,
@@ -297,9 +391,11 @@ class CheckoutControllerTest extends TestCase
     /**
      * @param string|float|int|bool|null $customerComment
      */
-    private function performOrder($customerComment, ?bool $useInactivePaymentMethod = false, ?Request $request = null): OrderEntity
+    private function performOrder($customerComment, ?bool $useInactivePaymentMethod = false, ?Request $request = null, ?string $contextToken = null): OrderEntity
     {
-        $contextToken = Uuid::randomHex();
+        if (!$contextToken) {
+            $contextToken = Uuid::randomHex();
+        }
 
         $this->fillCart($contextToken, $useInactivePaymentMethod);
 
@@ -329,16 +425,20 @@ class CheckoutControllerTest extends TestCase
 
     private function createCustomer(): string
     {
-        $customerId = Uuid::randomHex();
+        if ($this->customerId) {
+            return $this->customerId;
+        }
+
+        $this->customerId = Uuid::randomHex();
         $salutationId = $this->getValidSalutationId();
         $paymentMethodId = $this->getValidPaymentMethodId();
 
         $customer = [
             [
-                'id' => $customerId,
+                'id' => $this->customerId,
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
-                    'id' => $customerId,
+                    'id' => $this->customerId,
                     'firstName' => 'Test',
                     'lastName' => self::CUSTOMER_NAME,
                     'city' => 'Schöppingen',
@@ -347,7 +447,7 @@ class CheckoutControllerTest extends TestCase
                     'salutationId' => $salutationId,
                     'countryId' => $this->getValidCountryId(),
                 ],
-                'defaultBillingAddressId' => $customerId,
+                'defaultBillingAddressId' => $this->customerId,
                 'defaultPaymentMethodId' => $paymentMethodId,
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => Uuid::randomHex() . '@example.com',
@@ -361,7 +461,7 @@ class CheckoutControllerTest extends TestCase
 
         $this->getContainer()->get('customer.repository')->create($customer, Context::createDefaultContext());
 
-        return $customerId;
+        return $this->customerId;
     }
 
     private function createProduct(): string
@@ -485,10 +585,23 @@ class CheckoutControllerTest extends TestCase
         );
     }
 
-    private function createRequest(): Request
+    private function createRequest(?SalesChannelContext $context = null): Request
     {
         $request = new Request();
         $request->setSession($this->getContainer()->get('session'));
+
+        $request->attributes->add([
+            RequestTransformer::STOREFRONT_URL => EnvironmentHelper::getVariable('APP_URL'),
+        ]);
+
+        if ($context) {
+            $request->attributes->add([
+                PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $context,
+            ]);
+        }
+
+        $requestStack = $this->getContainer()->get('request_stack');
+        $requestStack->push($request);
 
         return $request;
     }

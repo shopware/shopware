@@ -17,9 +17,13 @@ use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
+use Shopware\Storefront\Page\Wishlist\GuestWishlistPageLoadedHook;
 use Shopware\Storefront\Page\Wishlist\GuestWishlistPageLoader;
+use Shopware\Storefront\Page\Wishlist\WishlistPageLoadedHook;
 use Shopware\Storefront\Page\Wishlist\WishlistPageLoader;
 use Shopware\Storefront\Page\Wishlist\WishListPageProductCriteriaEvent;
+use Shopware\Storefront\Page\Wishlist\WishlistWidgetLoadedHook;
+use Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoadedHook;
 use Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoader;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -80,8 +84,10 @@ class WishlistController extends StorefrontController
 
         if ($customer !== null && $customer->getGuest() === false) {
             $page = $this->wishlistPageLoader->load($request, $context, $customer);
+            $this->hook(new WishlistPageLoadedHook($page, $context));
         } else {
             $page = $this->guestPageLoader->load($request, $context);
+            $this->hook(new GuestWishlistPageLoadedHook($page, $context));
         }
 
         return $this->renderStorefront('@Storefront/storefront/page/wishlist/index.html.twig', ['page' => $page]);
@@ -100,6 +106,7 @@ class WishlistController extends StorefrontController
         }
 
         $pagelet = $this->guestPageletLoader->load($request, $context);
+        $this->hook(new GuestWishlistPageletLoadedHook($pagelet, $context));
 
         return $this->renderStorefront(
             '@Storefront/storefront/page/wishlist/wishlist-pagelet.html.twig',
@@ -117,6 +124,7 @@ class WishlistController extends StorefrontController
         $request->request->set('no-aggregations', true);
 
         $page = $this->wishlistPageLoader->load($request, $context, $customer);
+        $this->hook(new WishlistPageLoadedHook($page, $context));
 
         $response = $this->renderStorefront('@Storefront/storefront/page/wishlist/index.html.twig', ['page' => $page]);
         $response->headers->set('x-robots-tag', 'noindex');
@@ -253,7 +261,11 @@ class WishlistController extends StorefrontController
         $request->request->set('no-aggregations', true);
 
         $page = $this->wishlistPageLoader->load($request, $context, $customer);
+        $this->hook(new WishlistWidgetLoadedHook($page, $context));
 
-        return $this->renderStorefront('@Storefront/storefront/page/wishlist/wishlist-pagelet.html.twig', ['page' => $page]);
+        return $this->renderStorefront('@Storefront/storefront/page/wishlist/wishlist-pagelet.html.twig', [
+            'page' => $page,
+            'searchResult' => $page->getWishlist()->getProductListing(),
+        ]);
     }
 }

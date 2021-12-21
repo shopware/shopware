@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
+use Shopware\Core\Framework\Adapter\Twig\TokenParser\ReturnNodeTokenParser;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
+use Shopware\Core\Framework\Script\Facade\ArrayFacade;
 use Squirrel\TwigPhpSyntax\Operator\NotSameAsBinary;
 use Squirrel\TwigPhpSyntax\Operator\SameAsBinary;
 use Squirrel\TwigPhpSyntax\Test\ArrayTest;
@@ -22,6 +25,7 @@ use Twig\Extension\AbstractExtension;
 use Twig\Node\Expression\Binary\AndBinary;
 use Twig\Node\Expression\Binary\OrBinary;
 use Twig\TwigFilter;
+use Twig\TwigFunction;
 use Twig\TwigTest;
 
 class PhpSyntaxExtension extends AbstractExtension
@@ -32,6 +36,7 @@ class PhpSyntaxExtension extends AbstractExtension
             new ForeachTokenParser(),
             new BreakTokenParser(),
             new ContinueTokenParser(),
+            new ReturnNodeTokenParser(),
         ];
     }
 
@@ -74,7 +79,28 @@ class PhpSyntaxExtension extends AbstractExtension
 
                 return (bool) $var;
             }),
+            new TwigFilter('json_encode', /** @param mixed $var */ function ($var) {
+                try {
+                    FieldVisibility::$isInTwigRenderingContext = true;
+
+                    return json_encode($var, \JSON_PRESERVE_ZERO_FRACTION);
+                } finally {
+                    FieldVisibility::$isInTwigRenderingContext = false;
+                }
+            }),
         ];
+    }
+
+    public function getFunctions()
+    {
+        return [
+            new TwigFunction('array', [$this, 'createArray']),
+        ];
+    }
+
+    public function createArray(array $array): ArrayFacade
+    {
+        return new ArrayFacade($array);
     }
 
     public function getTests(): array

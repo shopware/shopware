@@ -22,6 +22,9 @@
     {# @deprecated tag:v6.5.0 - `cartItemClasses` & `isChild` will be removed with no replacement #}
     {% set cartItemClasses = '' %}
 
+    {% set label = lineItem.label|trans|sw_sanitize %}
+    {% set label = label !== '' ? label : lineItem.label %}
+
     {% block page_checkout_item_container %}
         <div class="cart-item cart-item-{{ lineItem.type }}{% if isDiscount %} is-discount{% endif %}{{ cartItemClasses }}">
             <div class="row cart-item-row">
@@ -54,7 +57,7 @@
                                                     {% else %}
                                                         <a href="{{ seoUrl('frontend.detail.page', {'productId': lineItem.referencedId}) }}"
                                                            class="cart-item-img-link"
-                                                           title="{{ lineItem.label }}"
+                                                           title="{{ label }}"
                                                            {% if controllerAction is same as('confirmPage') %}
                                                                data-toggle="modal"
                                                                data-modal-class="quickview-modal"
@@ -101,18 +104,18 @@
                                                     {% if lineItem.type == PRODUCT_LINE_ITEM_TYPE %}
                                                         <a href="{{ seoUrl('frontend.detail.page', {'productId': lineItem.referencedId}) }}"
                                                            class="cart-item-label"
-                                                           title="{{ lineItem.label }}"
+                                                           title="{{ label }}"
                                                            {% if controllerAction is same as('confirmPage') %}
                                                                data-toggle="modal"
                                                                data-modal-class="quickview-modal"
                                                                data-url="{{ path('widgets.quickview.minimal',{ 'productId': lineItem.referencedId }) }}"
                                                            {% endif %}
                                                         >
-                                                            {{ lineItem.label|u.truncate(60, '...', false) }}
+                                                            {{ label|u.truncate(60, '...', false) }}
                                                         </a>
                                                     {% else %}
                                                         <div class="cart-item-label">
-                                                            {{ lineItem.label|u.truncate(60, '...', false) }}
+                                                            {{ label|u.truncate(60, '...', false) }}
                                                         </div>
                                                     {% endif %}
                                                 {% endblock %}

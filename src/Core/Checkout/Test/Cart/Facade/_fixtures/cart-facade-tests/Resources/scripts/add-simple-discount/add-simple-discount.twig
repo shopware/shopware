@@ -1,0 +1,5 @@
+{# @var services \Shopware\Core\Framework\Script\Services #}
+
+{% do services.cart.products.add(hook.ids.get('p1')) %}
+
+{% do services.cart.discount('discount', 'percentage', -10, 'Fanzy discount') %}

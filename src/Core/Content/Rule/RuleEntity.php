@@ -39,6 +39,8 @@ class RuleEntity extends Entity
     protected $priority;
 
     /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     *
      * @var string|Rule|null
      */
     protected $payload;
@@ -130,11 +132,19 @@ class RuleEntity extends Entity
         $this->name = $name;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     */
     public function getPayload()
     {
+        $this->checkIfPropertyAccessIsAllowed('payload');
+
         return $this->payload;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     */
     public function setPayload($payload): void
     {
         $this->payload = $payload;

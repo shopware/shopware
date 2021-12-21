@@ -22,6 +22,13 @@ class LineItem extends Struct
     public const PRODUCT_LINE_ITEM_TYPE = 'product';
     public const CUSTOM_LINE_ITEM_TYPE = 'custom';
     public const PROMOTION_LINE_ITEM_TYPE = 'promotion';
+    public const DISCOUNT_LINE_ITEM = 'discount';
+    public const CONTAINER_LINE_ITEM = 'container';
+
+    /**
+     * @var array
+     */
+    protected $payload = [];
 
     /**
      * @var string
@@ -47,11 +54,6 @@ class LineItem extends Struct
      * @var string
      */
     protected $type;
-
-    /**
-     * @var array
-     */
-    protected $payload = [];
 
     /**
      * @var PriceDefinitionInterface|null

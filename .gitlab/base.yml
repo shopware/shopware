@@ -13,6 +13,9 @@ variables:
     DATADOG_SITE: datadoghq.eu
     MYSQL_INITDB_SKIP_TZINFO: 1
     RUNNER_INSTANCE_TYPE: t3.medium
+    DATABASE_URL: mysql://root:app@database:3306/root
+    APP_URL: http://localhost:8000
+    APP_SECRET: devsecret
 
 # for jobs which should run on each MR/Pipeline
 .base:

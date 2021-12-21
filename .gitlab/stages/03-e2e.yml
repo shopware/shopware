@@ -77,6 +77,7 @@ E2E install NL:
         E2E_PROJECT: recovery
         CYPRESS_dbHost: database
         CYPRESS_dbPassword: $MYSQL_ROOT_PASSWORD
+        CYPRESS_dbName: root
         CYPRESS_locale: nl-NL
     script:
         - apt-get update && apt-get -y install jq
@@ -101,6 +102,7 @@ E2E install NL:
         - composer run init:e2e
         - mkdir -p var/dumps
         - touch var/dumps/database_root.sql
+        - mysql -hdatabase -uroot -p$MYSQL_ROOT_PASSWORD -e "DROP DATABASE $CYPRESS_dbName"
         - composer run e2e:cypress -- run
             --browser chrome
             --spec "cypress/integration/recovery/installer/install_nl.spec.js"

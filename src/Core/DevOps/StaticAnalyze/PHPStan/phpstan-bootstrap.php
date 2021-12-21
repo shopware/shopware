@@ -4,6 +4,7 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan;
 
 use Shopware\Core\DevOps\StaticAnalyze\StaticAnalyzeKernel;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
+use Shopware\Core\Kernel;
 use Symfony\Component\Dotenv\Dotenv;
 
 if (!\defined('TEST_PROJECT_DIR')) {
@@ -35,8 +36,11 @@ if (!\defined('TEST_PROJECT_DIR')) {
 $_ENV['PROJECT_ROOT'] = $_SERVER['PROJECT_ROOT'] = TEST_PROJECT_DIR;
 $classLoader = require TEST_PROJECT_DIR . '/vendor/autoload.php';
 
-(new Dotenv())->loadEnv(TEST_PROJECT_DIR . '/.env');
+if (class_exists(Dotenv::class) && (file_exists(TEST_PROJECT_DIR . '/.env.local.php') || file_exists(TEST_PROJECT_DIR . '/.env') || file_exists(TEST_PROJECT_DIR . '/.env.dist'))) {
+    (new Dotenv())->usePutenv()->bootEnv(TEST_PROJECT_DIR . '/.env');
+}
 
+$_SERVER['DATABASE_URL'] = Kernel::PLACEHOLDER_DATABASE_URL;
 $pluginLoader = new StaticKernelPluginLoader($classLoader);
 $kernel = new StaticAnalyzeKernel('phpstan_dev', true, $pluginLoader, 'phpstan-test-cache-id');
 $kernel->boot();

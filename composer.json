@@ -32,7 +32,12 @@
             "php": "7.4.3"
         },
         "sort-packages": true,
-        "process-timeout": 7200
+        "process-timeout": 7200,
+        "allow-plugins": {
+            "bamarni/composer-bin-plugin": true,
+            "composer/package-versions-deprecated": true,
+            "phpstan/extension-installer": true
+        }
     },
     "require": {
         "php": "^7.4.3 || ^8.0",

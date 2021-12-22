@@ -388,22 +388,6 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
     },
 
     plugins: [
-        ...(() => {
-            if (process.env.DISABLE_ADMIN_COMPILATION_TYPECHECK) {
-                return [];
-            }
-
-            return [
-                new ForkTsCheckerWebpackPlugin({
-                    logger: {
-                        infrastructure: 'console',
-                        issues: 'console',
-                        devServer: false,
-                    }
-                }),
-            ];
-        })(),
-
         new webpack.DefinePlugin({
             'process.env': {
                 NODE_ENV: isDev ? '"development"' : '"production"',
@@ -503,6 +487,25 @@ const coreConfig = {
         new MiniCssExtractPlugin({
             filename: isDev ? 'bundles/administration/static/css/[name].css' : 'static/css/[name].css',
         }),
+
+        ...(() => {
+            if (process.env.DISABLE_ADMIN_COMPILATION_TYPECHECK) {
+                return [];
+            }
+
+            return [
+                new ForkTsCheckerWebpackPlugin({
+                    typescript: {
+                        mode: 'write-references'
+                    },
+                    logger: {
+                        infrastructure: 'console',
+                        issues: 'console',
+                        devServer: false,
+                    }
+                }),
+            ];
+        })(),
 
         ...(() => {
             if (isProd) {

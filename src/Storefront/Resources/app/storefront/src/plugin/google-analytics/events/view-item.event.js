@@ -12,12 +12,38 @@ export default class ViewItemEvent extends AnalyticsEvent
             return;
         }
 
-        const form = DomAccessHelper.querySelector(document, '#productDetailPageBuyProductForm');
-        const productId = this.findProductId(DomAccessHelper.querySelectorAll(form, 'input'));
-        const productName = DomAccessHelper.querySelector(form, 'input[name=product-name]').value;
+        const productItemElement = DomAccessHelper.querySelector(
+            document,
+            '[itemtype="https://schema.org/Product"]',
+            false
+        );
+        if (!productItemElement) {
+            console.warn('[Google Analytics Plugin] Product itemtype ([itemtype="https://schema.org/Product"]) could not be found in document.');
 
-        if (!productId) {
-            console.warn('[Google Analytics Plugin] Product ID could not be found.');
+            return;
+        }
+
+        const productIdElement = DomAccessHelper.querySelector(
+            productItemElement,
+            'meta[itemprop="productID"]',
+            false
+        );
+        const productNameElement = DomAccessHelper.querySelector(
+            productItemElement,
+            '[itemprop="name"]',
+            false
+        );
+        if (!productIdElement || !productNameElement) {
+            console.warn('[Google Analytics Plugin] Product ID (meta[itemprop="productID"]) or product name ([itemprop="name"]) could not be found within product scope.');
+
+            return;
+        }
+
+        const productId = productIdElement.content;
+        const productName = productNameElement.textContent.trim();
+        if (!productId || !productName) {
+            console.warn('[Google Analytics Plugin] Product ID or product name is empty, do not track page view.');
+
             return;
         }
 
@@ -27,21 +53,5 @@ export default class ViewItemEvent extends AnalyticsEvent
                 'name': productName,
             }],
         });
-    }
-
-    /**
-     * @param { NodeList } inputs
-     * @return ?string
-     */
-    findProductId(inputs) {
-        let productId = null;
-
-        inputs.forEach(item => {
-            if (DomAccessHelper.getAttribute(item, 'name').endsWith('[id]')) {
-                productId = item.value;
-            }
-        });
-
-        return productId;
     }
 }

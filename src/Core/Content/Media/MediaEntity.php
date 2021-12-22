@@ -62,6 +62,8 @@ class MediaEntity extends Entity
     protected $metaDataRaw;
 
     /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     *
      * @var string|null
      */
     protected $mediaTypeRaw;
@@ -167,6 +169,8 @@ class MediaEntity extends Entity
     protected $tags;
 
     /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     *
      * @var string|null
      */
     protected $thumbnailsRo;
@@ -457,11 +461,19 @@ class MediaEntity extends Entity
         $this->metaDataRaw = $metaDataRaw;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     */
     public function getMediaTypeRaw(): ?string
     {
+        $this->checkIfPropertyAccessIsAllowed('mediaTypeRaw');
+
         return $this->mediaTypeRaw;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     */
     public function setMediaTypeRaw(string $mediaTypeRaw): void
     {
         $this->mediaTypeRaw = $mediaTypeRaw;
@@ -487,11 +499,19 @@ class MediaEntity extends Entity
         $this->tags = $tags;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     */
     public function getThumbnailsRo(): ?string
     {
+        $this->checkIfPropertyAccessIsAllowed('thumbnailsRo');
+
         return $this->thumbnailsRo;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     */
     public function setThumbnailsRo(string $thumbnailsRo): void
     {
         $this->thumbnailsRo = $thumbnailsRo;

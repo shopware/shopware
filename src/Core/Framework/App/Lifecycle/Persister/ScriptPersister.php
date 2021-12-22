@@ -39,8 +39,10 @@ class ScriptPersister
     public function updateScripts(string $appPath, string $appId, Context $context): void
     {
         $app = $this->getAppWithExistingScripts($appId, $context);
+
         /** @var ScriptCollection $existingScripts */
         $existingScripts = $app->getScripts();
+
         $scriptPaths = $this->scriptReader->getScriptPathsForApp($appPath);
 
         $upserts = [];
@@ -115,7 +117,7 @@ class ScriptPersister
 
         /** @var AppEntity $app */
         foreach ($apps as $app) {
-            $this->updateScripts($this->projectDir . $app->getPath(), $app->getId(), Context::createDefaultContext());
+            $this->updateScripts(rtrim($this->projectDir, '/') . '/' . $app->getPath(), $app->getId(), Context::createDefaultContext());
         }
     }
 

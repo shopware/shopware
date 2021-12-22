@@ -1,7 +1,6 @@
 ---
 title: Update rule assignment appearance
 issue: NEXT-17034
-flag: FEATURE_NEXT_16902
 author: Krispin Lütjann
 author_email: k.luetjann@shopware.com 
 author_github: King-of-Babylon

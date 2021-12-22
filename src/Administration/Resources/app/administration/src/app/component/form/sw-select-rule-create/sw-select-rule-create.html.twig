@@ -49,7 +49,9 @@
             >
                 <li
                     is="sw-select-result"
+                    v-tooltip="getTooltipConfig(item.id)"
                     :selected="isSelected(item)"
+                    :disabled="restrictedRules.includes(item.id)"
                     v-bind="{ item, index }"
                     @item-select="setValue"
                 >

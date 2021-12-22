@@ -4,8 +4,10 @@ namespace Shopware\Core\Content\Sitemap\Service;
 
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\ImportExport\Exception\FileNotReadableException;
+use Shopware\Core\Content\Sitemap\Event\SitemapFilterOpenTagEvent;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class SitemapHandle implements SitemapHandleInterface
 {
@@ -16,6 +18,10 @@ class SitemapHandle implements SitemapHandleInterface
 
     private FilesystemInterface $filesystem;
 
+    private EventDispatcherInterface $eventDispatcher;
+
+    private SalesChannelContext $context;
+
     /**
      * @var resource|false
      */
@@ -25,15 +31,19 @@ class SitemapHandle implements SitemapHandleInterface
 
     private int $urlCount = 0;
 
-    private SalesChannelContext $context;
-
     private ?string $domainName = null;
 
-    public function __construct(FilesystemInterface $filesystem, SalesChannelContext $context, ?string $domain = null)
-    {
+    public function __construct(
+        FilesystemInterface $filesystem,
+        SalesChannelContext $context,
+        EventDispatcherInterface $eventDispatcher,
+        ?string $domain = null
+    ) {
         $this->setDomainName($domain);
-
         $this->filesystem = $filesystem;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->context = $context;
+
         $filePath = $this->getTmpFilePath($context);
         $this->handle = gzopen($filePath, 'ab');
         $this->printHeader();
@@ -43,7 +53,6 @@ class SitemapHandle implements SitemapHandleInterface
         }
 
         $this->tmpFiles[] = $filePath;
-        $this->context = $context;
     }
 
     /**
@@ -115,7 +124,12 @@ class SitemapHandle implements SitemapHandleInterface
 
     private function printHeader(): void
     {
-        gzwrite($this->handle, '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">');
+        /** @var SitemapFilterOpenTagEvent $sitemapOpenTagEvent */
+        $sitemapOpenTagEvent = $this->eventDispatcher->dispatch(
+            new SitemapFilterOpenTagEvent($this->context)
+        );
+
+        gzwrite($this->handle, $sitemapOpenTagEvent->getFullOpenTag());
     }
 
     private function printFooter(): void

@@ -793,11 +793,9 @@ describe('src/app/component/structure/sw-search-bar', () => {
         const module = wrapper.vm.results[0];
 
         expect(module.entity).toBe('module');
-        expect(module.total).toBe(2);
+        expect(module.total).toBe(1);
         expect(module.entities[0].label).toBe('Storefront');
-        expect(module.entities[0].route.name).toBe('sw.sales.channel.detail');
-        expect(module.entities[1].label).toBe('Storefront');
-        expect(module.entities[1].route.name).toBe('sw.sales.channel.create');
+        expect(module.entities[0].route.name).toBe('sw.sales.channel.create');
     });
 
     ['order', 'product', 'customer'].forEach(term => {
@@ -850,7 +848,11 @@ describe('src/app/component/structure/sw-search-bar', () => {
 
             await flushPromises();
 
-            expect(wrapper.vm.results).toEqual([]);
+            const results = wrapper.vm.results.filter(item => {
+                return item.entity === 'module';
+            });
+
+            expect(results).toEqual([]);
         });
     });
 

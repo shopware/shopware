@@ -218,6 +218,15 @@ Component.register('sw-product-list', {
 
             criteria = await this.addQueryScores(this.term, criteria);
 
+            if (this.feature.isActive('FEATURE_NEXT_6040')) {
+                // Clone product query to its variant
+                criteria.queries.forEach(query => {
+                    const queryPayload = query.query;
+                    const field = queryPayload.field.replace('product', 'children');
+                    criteria.addQuery(Criteria[queryPayload.type](field, queryPayload.value), query.score);
+                });
+            }
+
             this.activeFilterNumber = criteria.filters.length - 1;
 
             if (this.feature.isActive('FEATURE_NEXT_6040') && !this.entitySearchable) {

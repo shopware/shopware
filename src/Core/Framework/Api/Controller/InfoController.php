@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Asset\PackageInterface;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -317,6 +318,9 @@ class InfoController extends AbstractController
             }
 
             $bundleDirectoryName = preg_replace('/bundle$/', '', mb_strtolower($bundle->getName()));
+            if ($bundleDirectoryName === null) {
+                throw new \RuntimeException(sprintf('Unable to generate bundle directory for bundle "%s"', $bundle->getName()));
+            }
 
             $styles = array_map(static function (string $filename) use ($package, $bundleDirectoryName) {
                 $url = 'bundles/' . $bundleDirectoryName . '/' . $filename;
@@ -330,8 +334,10 @@ class InfoController extends AbstractController
                 return $package->getUrl($url);
             }, $this->getAdministrationScripts($bundle));
 
+            $baseUrl = $this->getBaseUrl($bundle, $package, $bundleDirectoryName);
+
             if (empty($styles) && empty($scripts)) {
-                if (!Feature::isActive('FEATURE_NEXT_17950') || !$bundle instanceof Plugin || !$bundle->getAdminBaseUrl()) {
+                if (!Feature::isActive('FEATURE_NEXT_17950') || $baseUrl === null) {
                     continue;
                 }
             }
@@ -342,7 +348,7 @@ class InfoController extends AbstractController
             ];
 
             if (Feature::isActive('FEATURE_NEXT_17950')) {
-                $assets[$bundle->getName()]['baseUrl'] = $bundle instanceof Plugin ? $bundle->getAdminBaseUrl() : null;
+                $assets[$bundle->getName()]['baseUrl'] = $baseUrl;
                 $assets[$bundle->getName()]['type'] = 'plugin';
             }
         }
@@ -383,6 +389,28 @@ class InfoController extends AbstractController
         }
 
         return [$path];
+    }
+
+    private function getBaseUrl(Bundle $bundle, PackageInterface $package, string $bundleDirectoryName): ?string
+    {
+        if (!$bundle instanceof Plugin) {
+            return null;
+        }
+
+        if ($bundle->getAdminBaseUrl()) {
+            return $bundle->getAdminBaseUrl();
+        }
+
+        $defaultEntryFile = 'administration/index.html';
+        $bundlePath = $bundle->getPath();
+
+        if (!file_exists($bundlePath . '/Resources/public/' . $defaultEntryFile)) {
+            return null;
+        }
+
+        $url = 'bundles/' . $bundleDirectoryName . '/' . $defaultEntryFile;
+
+        return $package->getUrl($url);
     }
 
     private function getActiveApps(Context $context): AppCollection

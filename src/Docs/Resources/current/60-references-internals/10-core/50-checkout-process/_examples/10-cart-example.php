@@ -223,7 +223,7 @@ namespace DocsTest {
         public function testLineItemIsInCorrectVersion(): void
         {
             static::assertSame(
-                'd8f923b265f3e772c7570b3ee2b5aaed35654383',
+                'e8fe4f69f5f8fd18a1756f8cf6c17a19f2a3570e',
                 sha1_file($this->getContainer()->getParameter('kernel.shopware_core_dir') . '/Checkout/Cart/LineItem/LineItem.php'),
                 'The line item class changed apparently, ensure the docs are up to date'
             );

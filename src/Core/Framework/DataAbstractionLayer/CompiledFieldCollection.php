@@ -58,7 +58,7 @@ class CompiledFieldCollection extends FieldCollection
     public function add($field): void
     {
         if (!$field->isCompiled()) {
-            throw new \BadMethodCallException('This action is not recommended nif you still need to ');
+            throw new \BadMethodCallException('This action is not recommended if you still need to compile the field');
         }
         $this->addField($field);
     }

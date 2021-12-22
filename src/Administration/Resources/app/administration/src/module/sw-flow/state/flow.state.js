@@ -19,6 +19,8 @@ export default {
         customFieldSets: [],
         customFields: [],
         customerGroups: [],
+        /* @internal (flag:FEATURE_NEXT_18215) */
+        restrictedRules: [],
     },
 
     mutations: {
@@ -117,6 +119,11 @@ export default {
 
         setCustomFields(state, customField) {
             state.customFields = customField;
+        },
+
+        /* @internal (flag:FEATURE_NEXT_18215) */
+        setRestrictedRules(state, rules) {
+            state.restrictedRules = rules;
         },
     },
 

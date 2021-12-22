@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\ImportExport\Message;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\ImportExport\ImportExportFactory;
+use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -35,6 +36,10 @@ class ImportExportHandler extends AbstractMessageHandler
     {
         $importExport = $this->importExportFactory->create($message->getLogId(), 50, 50);
         $logEntity = $importExport->getLogEntity();
+
+        if ($logEntity->getState() === Progress::STATE_ABORTED) {
+            return;
+        }
 
         if (
             $logEntity->getActivity() === ImportExportLogEntity::ACTIVITY_IMPORT

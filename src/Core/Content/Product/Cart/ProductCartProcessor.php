@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryTime;
 use Shopware\Core\Checkout\Cart\Exception\MissingLineItemPriceException;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\QuantityInformation;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -77,12 +78,12 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         SalesChannelContext $context,
         CartBehavior $behavior
     ): void {
-        $lineItems = $original
-            ->getLineItems()
-            ->filterFlatByType(LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $lineItems = $this->getProducts($original->getLineItems());
+
+        $items = array_column($lineItems, 'item');
 
         // find products in original cart which requires data from gateway
-        $ids = $this->getNotCompleted($data, $lineItems, $context);
+        $ids = $this->getNotCompleted($data, $items, $context);
 
         if (!empty($ids)) {
             // fetch missing data over gateway
@@ -96,7 +97,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             $hash = $this->generator->getSalesChannelContextHash($context);
 
             // refresh data timestamp to prevent unnecessary gateway calls
-            foreach ($lineItems as $lineItem) {
+            foreach ($items as $lineItem) {
                 if (\in_array($lineItem->getReferencedId(), $products->getIds(), true)) {
                     $lineItem->setDataTimestamp(new \DateTimeImmutable());
                     $lineItem->setDataContextHash($hash);
@@ -104,12 +105,21 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             }
         }
 
-        foreach ($lineItems as $lineItem) {
+        foreach ($lineItems as $match) {
             // enrich all products in original cart
-            $this->enrich($original, $context, $lineItem, $data, $behavior);
+            $this->enrich($context, $match['item'], $data, $behavior);
+
+            // remove "parent" products which should never be displayed in storefront
+            $this->validateParents($match['item'], $data, $match['scope']);
+
+            // validate data timestamps that inactive products (or not assigned to sales channel) are removed
+            $this->validateTimestamp($match['item'], $original, $data, $behavior, $match['scope']);
+
+            // validate availability of the product stock
+            $this->validateStock($match['item'], $original, $match['scope'], $behavior);
         }
 
-        $this->featureBuilder->prepare($lineItems, $data, $context);
+        $this->featureBuilder->prepare($items, $data, $context);
     }
 
     /**
@@ -122,107 +132,78 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         SalesChannelContext $context,
         CartBehavior $behavior
     ): void {
-        // handle all products which stored in root level
-        $lineItems = $original
-            ->getLineItems()
-            ->filterType(LineItem::PRODUCT_LINE_ITEM_TYPE);
-
         $hash = $this->generator->getSalesChannelContextHash($context);
 
-        foreach ($lineItems as $lineItem) {
-            $definition = $lineItem->getPriceDefinition();
+        $items = $original->getLineItems()->filterFlatByType(LineItem::PRODUCT_LINE_ITEM_TYPE);
+
+        foreach ($items as $item) {
+            $definition = $item->getPriceDefinition();
 
             if (!$definition instanceof QuantityPriceDefinition) {
-                throw new MissingLineItemPriceException($lineItem->getId());
+                throw new MissingLineItemPriceException($item->getId());
             }
+            $definition->setQuantity($item->getQuantity());
 
-            $definition->setQuantity($lineItem->getQuantity());
-
-            if ($behavior->hasPermission(self::SKIP_PRODUCT_STOCK_VALIDATION)) {
-                $lineItem->setPrice($this->calculator->calculate($definition, $context));
-                $toCalculate->add($lineItem);
-
-                continue;
-            }
-
-            $minPurchase = 1;
-            $steps = 1;
-            $available = $lineItem->getQuantity();
-
-            if ($lineItem->getQuantityInformation() !== null) {
-                $minPurchase = $lineItem->getQuantityInformation()->getMinPurchase();
-                $available = $lineItem->getQuantityInformation()->getMaxPurchase();
-                $steps = $lineItem->getQuantityInformation()->getPurchaseSteps() ?? 1;
-            }
-
-            if ($lineItem->getQuantity() < $minPurchase) {
-                $lineItem->setQuantity($minPurchase);
-                $definition->setQuantity($minPurchase);
-            }
-
-            if ($available <= 0 || $available < $minPurchase) {
-                $original->remove($lineItem->getId());
-
-                $toCalculate->addErrors(
-                    new ProductOutOfStockError((string) $lineItem->getReferencedId(), (string) $lineItem->getLabel())
-                );
-
-                continue;
-            }
-
-            if ($available < $lineItem->getQuantity()) {
-                $lineItem->setQuantity($available);
-
-                $definition->setQuantity($available);
-
-                $toCalculate->addErrors(
-                    new ProductStockReachedError((string) $lineItem->getReferencedId(), (string) $lineItem->getLabel(), $available)
-                );
-            }
-
-            $fixedQuantity = $this->fixQuantity($minPurchase, $lineItem->getQuantity(), $steps);
-            if ($lineItem->getQuantity() !== $fixedQuantity) {
-                $lineItem->setQuantity($fixedQuantity);
-                $definition->setQuantity($fixedQuantity);
-
-                $toCalculate->addErrors(
-                    new PurchaseStepsError((string) $lineItem->getReferencedId(), (string) $lineItem->getLabel(), $fixedQuantity)
-                );
-            }
-
-            $lineItem->setPrice($this->calculator->calculate($definition, $context));
-            $lineItem->setDataContextHash($hash);
-
-            $toCalculate->add($lineItem);
+            $item->setPrice($this->calculator->calculate($definition, $context));
+            $item->setDataContextHash($hash);
         }
 
-        $this->featureBuilder->add($lineItems, $data, $context);
+        $this->featureBuilder->add($items, $data, $context);
+
+        // handle all products which stored in root level
+        $items = $original->getLineItems()->filterType(LineItem::PRODUCT_LINE_ITEM_TYPE);
+
+        foreach ($items as $item) {
+            $toCalculate->add($item);
+        }
     }
 
-    private function enrich(
-        Cart $cart,
-        SalesChannelContext $context,
-        LineItem $lineItem,
-        CartDataCollection $data,
-        CartBehavior $behavior
-    ): void {
-        $id = $lineItem->getReferencedId();
+    /**
+     * @return list<array{'item': LineItem, 'scope': LineItemCollection}>
+     */
+    private function getProducts(LineItemCollection $items): array
+    {
+        $matches = [];
+        foreach ($items as $item) {
+            if ($item->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE) {
+                $matches[] = ['item' => $item, 'scope' => $items];
+            }
 
+            $nested = $this->getProducts($item->getChildren());
+
+            foreach ($nested as $match) {
+                $matches[] = $match;
+            }
+        }
+
+        return $matches;
+    }
+
+    private function validateTimestamp(LineItem $item, Cart $cart, CartDataCollection $data, CartBehavior $behavior, LineItemCollection $items): void
+    {
         $product = $data->get(
-            $this->getDataKey((string) $id)
+            $this->getDataKey((string) $item->getReferencedId())
         );
 
         // product data was never detected and the product is not inside the data collection
-        if ($product === null && $lineItem->getDataTimestamp() === null) {
-            if ($context->hasPermission(self::KEEP_INACTIVE_PRODUCT)) {
-                return;
-            }
-
-            $cart->addErrors(new ProductNotFoundError($lineItem->getLabel() ?: $lineItem->getId()));
-            $cart->getLineItems()->remove($lineItem->getId());
-
+        if ($product !== null || $item->getDataTimestamp() !== null) {
             return;
         }
+
+        if ($behavior->hasPermission(self::KEEP_INACTIVE_PRODUCT)) {
+            return;
+        }
+
+        $cart->addErrors(new ProductNotFoundError($item->getLabel() ?: $item->getId()));
+
+        $items->remove($item->getId());
+    }
+
+    private function validateParents(LineItem $item, CartDataCollection $data, LineItemCollection $items): void
+    {
+        $product = $data->get(
+            $this->getDataKey((string) $item->getReferencedId())
+        );
 
         // no data for enrich exists
         if (!$product instanceof SalesChannelProductEntity) {
@@ -230,9 +211,71 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
 
         // container products can not be bought
-        if ($product->getChildCount() > 0) {
-            $cart->remove($lineItem->getId());
+        if ($product->getChildCount() <= 0) {
+            return;
+        }
 
+        $items->remove($item->getId());
+    }
+
+    private function validateStock(LineItem $item, Cart $cart, LineItemCollection $scope, CartBehavior $behavior): void
+    {
+        if ($behavior->hasPermission(self::SKIP_PRODUCT_STOCK_VALIDATION)) {
+            return;
+        }
+
+        $minPurchase = 1;
+        $steps = 1;
+        $available = $item->getQuantity();
+
+        if ($item->getQuantityInformation() !== null) {
+            $minPurchase = $item->getQuantityInformation()->getMinPurchase();
+            $available = $item->getQuantityInformation()->getMaxPurchase();
+            $steps = $item->getQuantityInformation()->getPurchaseSteps() ?? 1;
+        }
+
+        if ($item->getQuantity() < $minPurchase) {
+            $item->setQuantity($minPurchase);
+        }
+
+        if ($available <= 0 || $available < $minPurchase) {
+            $scope->remove($item->getId());
+
+            $cart->addErrors(
+                new ProductOutOfStockError((string) $item->getReferencedId(), (string) $item->getLabel())
+            );
+
+            return;
+        }
+
+        if ($available < $item->getQuantity()) {
+            $item->setQuantity($available);
+
+            $cart->addErrors(
+                new ProductStockReachedError((string) $item->getReferencedId(), (string) $item->getLabel(), $available)
+            );
+        }
+
+        $fixedQuantity = $this->fixQuantity($minPurchase, $item->getQuantity(), $steps);
+        if ($item->getQuantity() !== $fixedQuantity) {
+            $item->setQuantity($fixedQuantity);
+
+            $cart->addErrors(
+                new PurchaseStepsError((string) $item->getReferencedId(), (string) $item->getLabel(), $fixedQuantity)
+            );
+        }
+    }
+
+    private function enrich(SalesChannelContext $context, LineItem $lineItem, CartDataCollection $data, CartBehavior $behavior): void
+    {
+        $id = $lineItem->getReferencedId();
+
+        $product = $data->get(
+            $this->getDataKey((string) $id)
+        );
+
+        // no data for enrich exists
+        if (!$product instanceof SalesChannelProductEntity) {
             return;
         }
 

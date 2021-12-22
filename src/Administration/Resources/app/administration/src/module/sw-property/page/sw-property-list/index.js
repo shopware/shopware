@@ -24,7 +24,7 @@ Component.register('sw-property-list', {
             isLoading: false,
             sortDirection: 'ASC',
             showDeleteModal: false,
-            searchConfigEntity: 'property',
+            searchConfigEntity: 'property_group',
         };
     },
 

@@ -619,6 +619,7 @@
         "lineItemRule": "Line item",
         "lineItemsInCartRule": "Line items in cart",
         "lineItemsInCartCountRule": "Quantity of distinct line items",
+        "promotionsInCartCountRule": "Quantity of promotions",
         "lineItemUnitPriceRule": "Distinct line item price",
         "lineItemTotalPriceRule": "Total price of all line items",
         "lineItemWithQuantityRule": "Quantity of selected line item",
@@ -676,6 +677,13 @@
         "shippingMethodRule": "Applied shipping method",
         "lineItemGoodsTotalRule": "Total number of products in cart",
         "orderTotalAmountRule": "Total value of completed orders",
+        "promotionValueRule": "Total value of all promotions",
+        "promotionCodeOfType": "Promotions with code option",
+        "promotionCodeOfTypeRule": {
+          "global": "None",
+          "fixed": "Fixed",
+          "individual": "Individual"
+        },
         "promotionLineItemRule": "Promotion",
         "lineItemCustomField": {
           "field": {
@@ -1208,5 +1216,21 @@
     "messageNoResultSublineBefore": "Edit your filters or your search terms to find results. Please also check",
     "messageNoResultSublineLink": "the configuration",
     "messageNoResultSublineAfter": "of your search."
+  },
+  "sw-restricted-rules": {
+    "restrictedAssignment": {
+      "general": "This rule uses condition types that are not allowed for assignment to {relation}.",
+      "productPrices": "pricing rules",
+      "shippingMethodPrices": "pricing rules",
+      "shippingMethodPriceCalculations": "shipping cost calculation rules",
+      "shippingMethods": "shipping method rules",
+      "paymentMethods": "payment method rules",
+      "flowSequences": "Flow Builder rules",
+      "personaPromotions": "customer rules",
+      "orderPromotions": "order rules",
+      "cartPromotions": "shopping cart rules",
+      "promotionDiscounts": "product rules",
+      "promotionSetGroups": "product rules"
+    }
   }
 }

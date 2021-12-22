@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
+use Shopware\Storefront\Page\LandingPage\LandingPageLoadedHook;
 use Shopware\Storefront\Page\LandingPage\LandingPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,6 +36,8 @@ class LandingPageController extends StorefrontController
     public function index(SalesChannelContext $context, Request $request): Response
     {
         $page = $this->landingPageLoader->load($request, $context);
+
+        $this->hook(new LandingPageLoadedHook($page, $context));
 
         return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => $page]);
     }

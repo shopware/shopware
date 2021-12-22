@@ -19,6 +19,7 @@
             "contextMenu": {
                 "showLog": "Open log entry",
                 "showLogInfo": "Open log information",
+                "abortProcess": "Abort process",
                 "downloadFile": "Download file",
                 "downloadImportFile": "Download import file",
                 "downloadExportFile": "Download export file",

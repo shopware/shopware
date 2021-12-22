@@ -55,6 +55,10 @@ function createWrapper(privileges = []) {
                     }
                     return { search: () => Promise.resolve([{ id: 'promotionId1' }]) };
                 }
+            },
+
+            ruleConditionDataProviderService: {
+                getRestrictedRules: () => Promise.resolve([])
             }
         },
         propsData: {

@@ -57,6 +57,7 @@ interface ModuleManifest {
         route: string,
     },
     entity?: string,
+    entityDisplayProperty?: string,
     snippets?: {
         [lang: string]: unknown
     },

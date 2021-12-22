@@ -88,6 +88,8 @@ class CustomerEntity extends Entity
     protected $company;
 
     /**
+     * @deprecated tag:v6.5.0 - will be internal from 6.5.0
+     *
      * @var string|null
      */
     protected $password;
@@ -199,11 +201,15 @@ class CustomerEntity extends Entity
     protected $updatedAt;
 
     /**
+     * @deprecated tag:v6.5.0 - will be internal from 6.5.0
+     *
      * @var string|null
      */
     protected $legacyEncoder;
 
     /**
+     * @deprecated tag:v6.5.0 - will be internal from 6.5.0
+     *
      * @var string|null
      */
     protected $legacyPassword;
@@ -453,11 +459,19 @@ class CustomerEntity extends Entity
         $this->company = $company;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - will be internal from 6.5.0
+     */
     public function getPassword(): ?string
     {
+        $this->checkIfPropertyAccessIsAllowed('password');
+
         return $this->password;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - will be internal from 6.5.0
+     */
     public function setPassword(?string $password): void
     {
         $this->password = $password;
@@ -578,6 +592,8 @@ class CustomerEntity extends Entity
      */
     public function getNewsletterSalesChannelIds(): ?array
     {
+        $this->checkIfPropertyAccessIsAllowed('newsletterSalesChannelIds');
+
         return $this->newsletterSalesChannelIds;
     }
 
@@ -645,21 +661,37 @@ class CustomerEntity extends Entity
         $this->orderTotalAmount = $orderTotalAmount;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - will be internal from 6.5.0
+     */
     public function getLegacyEncoder(): ?string
     {
+        $this->checkIfPropertyAccessIsAllowed('legacyEncoder');
+
         return $this->legacyEncoder;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - will be internal from 6.5.0
+     */
     public function setLegacyEncoder(?string $legacyEncoder): void
     {
         $this->legacyEncoder = $legacyEncoder;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - will be internal from 6.5.0
+     */
     public function getLegacyPassword(): ?string
     {
+        $this->checkIfPropertyAccessIsAllowed('legacyPassword');
+
         return $this->legacyPassword;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - will be internal from 6.5.0
+     */
     public function setLegacyPassword(?string $legacyPassword): void
     {
         $this->legacyPassword = $legacyPassword;

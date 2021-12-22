@@ -123,6 +123,22 @@
             <tag name="shopware.feature" flag="FEATURE_NEXT_17973"/>
         </service>
 
+        <service id="Shopware\Core\Content\Flow\Dispatching\Action\AddCustomerAffiliateAndCampaignCodeAction">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="customer.repository" />
+            <tag name="kernel.event_subscriber" />
+            <tag name="flow.action" priority="350" />
+            <tag name="shopware.feature" flag="FEATURE_NEXT_17973"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\Action\AddOrderAffiliateAndCampaignCodeAction">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="order.repository" />
+            <tag name="kernel.event_subscriber" />
+            <tag name="flow.action" priority="350" />
+            <tag name="shopware.feature" flag="FEATURE_NEXT_17973"/>
+        </service>
+
         <service id="Shopware\Core\Content\Flow\Dispatching\Action\StopFlowAction">
             <tag name="kernel.event_subscriber" />
             <tag name="flow.action" priority="1" />

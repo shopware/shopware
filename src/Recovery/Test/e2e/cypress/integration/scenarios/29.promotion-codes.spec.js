@@ -6,7 +6,7 @@ const page = new ProductPageObject();
 const checkoutPage = new CheckoutPageObject();
 const promoCode = 'Flash sale';
 
-describe('Create promotion codes to the product and check it in the storefront', () => {
+describe('Create promotion codes to the product and check it at the storefront', () => {
     beforeEach(() => {
         cy.setToInitialState().then(() => {
             cy.loginViaApi();
@@ -331,6 +331,6 @@ describe('Create promotion codes to the product and check it in the storefront',
             cy.get(`${checkoutPage.elements.cartItem}-promotion`).contains(promoCode);
             cy.get(`${checkoutPage.elements.cartItem}-promotion ${checkoutPage.elements.cartItem}-price`)
                 .should('include.text', '-6,00');
-        })
+        });
     });
-});
+ });

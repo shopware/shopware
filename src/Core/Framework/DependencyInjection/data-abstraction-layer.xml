@@ -91,6 +91,18 @@
             <argument type="tagged" tag="shopware.entity.extension"/>
         </service>
 
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFactory" public="true">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Acl\AclCriteriaValidator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacadeHookFactory" public="true">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+        </service>
+
         <!-- EntityDefinition[] -->
         <service class="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityReader" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
@@ -98,6 +110,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaQueryBuilder"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service class="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityAggregator" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface">
@@ -106,6 +119,8 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaQueryBuilder"/>
             <argument>%shopware.dbal.time_zone_support_enabled%</argument>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder"/>
         </service>
 
         <service class="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface">

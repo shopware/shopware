@@ -20,6 +20,8 @@ Component.register('sw-select-rule-create', {
 
     inject: [
         'repositoryFactory',
+        'feature',
+        'ruleConditionDataProviderService',
     ],
 
     props: {
@@ -28,11 +30,13 @@ Component.register('sw-select-rule-create', {
             required: false,
             default: null,
         },
+
         rules: {
             type: Array,
             required: false,
             default: null,
         },
+
         ruleFilter: {
             type: Object,
             required: false,
@@ -43,6 +47,13 @@ Component.register('sw-select-rule-create', {
                 return criteria;
             },
         },
+
+        /* @internal (flag:FEATURE_NEXT_18215) */
+        restriction: {
+            type: String,
+            required: false,
+            default: '',
+        },
     },
 
     data() {
@@ -52,6 +63,8 @@ Component.register('sw-select-rule-create', {
                 id: '',
             },
             showRuleModal: false,
+            /* @internal (flag:FEATURE_NEXT_18215) */
+            restrictedRules: [],
         };
     },
 
@@ -75,11 +88,25 @@ Component.register('sw-select-rule-create', {
         },
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        /* @internal (flag:FEATURE_NEXT_18215) */
+        createdComponent() {
+            if (!this.feature.isActive('FEATURE_NEXT_18215') || !this.restriction) {
+                return;
+            }
+
+            this.getRestrictions();
+        },
+
         onSaveRule(ruleId, rule) {
             if (this.rules) {
                 this.rules.add(rule);
             }
+
             this.$emit('save-rule', ruleId, rule);
         },
 
@@ -92,6 +119,7 @@ Component.register('sw-select-rule-create', {
         openCreateRuleModal() {
             this.showRuleModal = true;
         },
+
         onCloseRuleModal() {
             this.showRuleModal = false;
         },
@@ -100,6 +128,24 @@ Component.register('sw-select-rule-create', {
             if (!event) {
                 this.$emit('dismiss-rule');
             }
+        },
+
+        /* @internal (flag:FEATURE_NEXT_18215) */
+        getRestrictions() {
+            this.ruleConditionDataProviderService
+                .getRestrictedRules(this.restriction).then(result => {
+                    this.restrictedRules = result;
+                });
+        },
+
+        /* @internal (flag:FEATURE_NEXT_18215) */
+        getTooltipConfig(itemId) {
+            return {
+                message: this.$t('sw-restricted-rules.restrictedAssignment.general', {
+                    relation: this.$tc('sw-restricted-rules.restrictedAssignment.productPrices'),
+                }),
+                disabled: !this.restrictedRules.includes(itemId),
+            };
         },
     },
 });

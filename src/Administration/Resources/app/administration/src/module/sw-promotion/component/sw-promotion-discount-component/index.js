@@ -13,7 +13,12 @@ const discountHandler = new DiscountHandler();
 Component.register('sw-promotion-discount-component', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'feature',
+        'ruleConditionDataProviderService',
+    ],
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -47,6 +52,8 @@ Component.register('sw-promotion-discount-component', {
             httpClient: null,
             sorterKeys: [],
             pickerKeys: [],
+            /* @internal (flag: FEATURE_NEXT_18215) */
+            restrictedRules: [],
         };
     },
 
@@ -65,25 +72,30 @@ Component.register('sw-promotion-discount-component', {
 
         ruleFilter() {
             const criteria = new Criteria();
-
-            criteria.addFilter(
-                Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])]),
-            );
-
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
+
+
+            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
+                criteria.addFilter(
+                    Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])]),
+                );
+            }
 
             return criteria;
         },
 
         currencyPriceColumns() {
-            return [{
-                property: 'currency.translated.name',
-                label: this.$tc('sw-promotion.detail.main.discounts.pricesModal.labelCurrency'),
-            }, {
-                property: 'price',
-                dataIndex: 'price',
-                label: this.$tc('sw-promotion.detail.main.discounts.pricesModal.labelPrice'),
-            }];
+            return [
+                {
+                    property: 'currency.translated.name',
+                    label: this.$tc('sw-promotion.detail.main.discounts.pricesModal.labelCurrency'),
+                },
+                {
+                    property: 'price',
+                    dataIndex: 'price',
+                    label: this.$tc('sw-promotion.detail.main.discounts.pricesModal.labelPrice'),
+                },
+            ];
         },
 
         scopes() {
@@ -303,6 +315,13 @@ Component.register('sw-promotion-discount-component', {
             return true;
         },
 
+        promotionDiscountSnippet() {
+            return this.$tc(
+                this.ruleConditionDataProviderService
+                    .getAwarenessConfigurationByAssignmentName('promotionDiscounts').snippet,
+            );
+        },
+
     },
     created() {
         this.createdComponent();
@@ -335,6 +354,12 @@ Component.register('sw-promotion-discount-component', {
             this.loadPickers().then((keys) => {
                 this.pickerKeys = keys;
             });
+
+            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
+                return;
+            }
+
+            this.loadRestrictedRules();
         },
 
         onDiscountScopeChanged(value) {
@@ -506,6 +531,10 @@ Component.register('sw-promotion-discount-component', {
             });
         },
 
+        /* @internal (flag:FEATURE_NEXT_18215) */
+        loadRestrictedRules() {
+            this.ruleConditionDataProviderService.getRestrictedRules('promotionSetGroups')
+                .then((result) => { this.restrictedRules = result; });
+        },
     },
-
 });

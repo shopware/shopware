@@ -72,7 +72,7 @@ describe('Contact form', () => {
         openContactForm();
     });
 
-    it('@contact: Should be possible to fill out and submit the contact form', () => {
+    it('@contact @package: Should be possible to fill out and submit the contact form', () => {
         /**
          * This is a regression test for NEXT-12092.
          *

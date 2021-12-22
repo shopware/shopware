@@ -58,6 +58,10 @@ class AdminProductStreamController extends AbstractController
             )
         );
 
+        if (empty($request->request->get('ids'))) {
+            $request->request->remove('ids');
+        }
+
         $criteria = $this->criteriaBuilder->handleRequest(
             $request,
             new Criteria(),

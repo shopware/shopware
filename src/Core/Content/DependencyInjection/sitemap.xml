@@ -22,7 +22,9 @@
             <argument type="tagged" tag="shopware.sitemap.config_handler"/>
         </service>
 
-        <service id="Shopware\Core\Content\Sitemap\Service\SitemapHandleFactoryInterface" class="Shopware\Core\Content\Sitemap\Service\SitemapHandleFactory"/>
+        <service id="Shopware\Core\Content\Sitemap\Service\SitemapHandleFactoryInterface" class="Shopware\Core\Content\Sitemap\Service\SitemapHandleFactory">
+            <argument type="service" id="event_dispatcher"/>
+        </service>
 
         <service id="Shopware\Core\Content\Sitemap\SalesChannel\SitemapRoute" public="true">
             <argument type="service" id="Shopware\Core\Content\Sitemap\Service\SitemapLister"/>

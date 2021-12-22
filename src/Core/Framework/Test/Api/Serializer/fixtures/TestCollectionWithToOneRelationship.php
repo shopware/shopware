@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Api\Serializer\fixtures;
 
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\System\User\UserEntity;
 
 class TestCollectionWithToOneRelationship extends SerializationFixture
@@ -23,7 +24,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
         $user->setAdmin(true);
         $user->setEmail('user1@shop.de');
         $user->setCreatedAt(new \DateTime('2018-01-15T08:01:16.000+00:00'));
-        $user->internalSetEntityName('user');
+        $user->internalSetEntityData('user', new FieldVisibility([]));
 
         $media1 = new MediaEntity();
         $media1->setId('3e352be2d85846dd97529c0f6b544870');
@@ -35,7 +36,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
         $media1->setCreatedAt(new \DateTime('2012-08-15T00:00:00.000+00:00'));
         $media1->setUpdatedAt(new \DateTime('2017-11-21T11:25:34.000+00:00'));
         $media1->setTitle('Lagerkorn-5,0klein');
-        $media1->internalSetEntityName('media');
+        $media1->internalSetEntityData('media', new FieldVisibility([]));
 
         $media2 = new MediaEntity();
         $media2->setId('f1ad1d0c02454a40abf250f764d16248');
@@ -47,7 +48,7 @@ class TestCollectionWithToOneRelationship extends SerializationFixture
         $media2->setCreatedAt(new \DateTime('2012-08-17T00:00:00.000+00:00'));
         $media2->setUpdatedAt(new \DateTime('2017-11-21T11:25:34.000+00:00'));
         $media2->setTitle('Jasmine-Lotus-Cover');
-        $media2->internalSetEntityName('media');
+        $media2->internalSetEntityData('media', new FieldVisibility([]));
 
         $mediaCollection->add($media1);
         $mediaCollection->add($media2);

@@ -39,7 +39,8 @@ flag: FEATURE_NEXT_6040
     * `/src/module/sw-settings-customers-group/index.js`
     * `/src/module/sw-settings-payment/index.js`
     * `/src/module/sw-settings-shipping/index.js`
-* Added new property `searchEntity` in `/src/module/sw-property/index.js` with value is `property_group` to overwrite the current `entity` without impacting to the previous function (just using for search ranking function)
+* Changed property `entity` in `/src/module/sw-property/index.js` to `property_group`
+* Added property `entityDisplayProperty: email` in `src/module/sw-newsletter-recipient/index.js` to `property_group`
 ___
 # Upgrade Information
 ## Adding default search configuration
@@ -63,4 +64,4 @@ src
 ```
 to determine the list of the ranking fields of the entity with default configuration (score and searchable) and adding two new properties in each module definition (`index.js`),
 - `defaultSearchConfigurations` (mandatory): import from `./default-search-configuration.js`
-- `searchEntity` (optional): determine the entity name of the module (just in case the current entity name of the module does not match with the entity name from the Back-end side)
+- `entityDisplayProperty` (optional, default is `name`): determine the property of the module's entity to show on the `sw-search-bar`

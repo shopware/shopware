@@ -13,6 +13,7 @@ Component.register('sw-flow-sequence-condition', {
     inject: [
         'repositoryFactory',
         'flowBuilderService',
+        'feature',
     ],
 
     props: {
@@ -67,7 +68,7 @@ Component.register('sw-flow-sequence-condition', {
             return this.sequence.rule.description.replace(/\n/g, '<br>');
         },
 
-        ...mapState('swFlowState', ['invalidSequences']),
+        ...mapState('swFlowState', ['invalidSequences', 'restrictedRules']),
         ...mapGetters('swFlowState', ['sequences']),
     },
 
@@ -297,6 +298,16 @@ Component.register('sw-flow-sequence-condition', {
         onEditRule() {
             this.selectedRuleId = this.sequence?.rule?.id;
             this.showCreateRuleModal = true;
+        },
+
+        /* @internal (flag:FEATURE_NEXT_18215) */
+        getTooltipConfig(itemId) {
+            return {
+                message: this.$t('sw-restricted-rules.restrictedAssignment.general', {
+                    relation: this.$tc('sw-restricted-rules.restrictedAssignment.flowSequences'),
+                }),
+                disabled: !this.restrictedRules.includes(itemId),
+            };
         },
     },
 });

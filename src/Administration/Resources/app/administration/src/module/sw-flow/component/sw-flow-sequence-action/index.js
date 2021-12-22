@@ -103,6 +103,10 @@ Component.register('sw-flow-sequence-action', {
                 // eslint-disable-next-line max-len
                 actionDescription[ACTION.SET_CUSTOMER_GROUP_CUSTOM_FIELD] = (config) => this.getCustomFieldDescription(config);
                 actionDescription[ACTION.SET_ORDER_CUSTOM_FIELD] = (config) => this.getCustomFieldDescription(config);
+                actionDescription[ACTION.ADD_CUSTOMER_AFFILIATE_AND_CAMPAIGN_CODE] =
+                    (config) => this.getAffiliateAndCampaignCodeDescription(config);
+                actionDescription[ACTION.ADD_ORDER_AFFILIATE_AND_CAMPAIGN_CODE] =
+                    (config) => this.getAffiliateAndCampaignCodeDescription(config);
             }
 
             return actionDescription;
@@ -451,6 +455,26 @@ Component.register('sw-flow-sequence-action', {
             })}<br>${this.$tc('sw-flow.actions.labelCustomFieldOption', 0, {
                 customFieldOption: config.optionLabel,
             })}`;
+        },
+
+        getAffiliateAndCampaignCodeDescription(config) {
+            let description = this.$tc('sw-flow.actions.labelTo', 0, {
+                entity: config.entity,
+            });
+
+            if (config.affiliateCode.upsert || config.affiliateCode.value != null) {
+                description = `${description}<br>${this.$tc('sw-flow.actions.labelAffiliateCode', 0, {
+                    affiliateCode: config.affiliateCode.value ? config.affiliateCode.value : 'null',
+                })}`;
+            }
+
+            if (config.campaignCode.upsert || config.campaignCode.value != null) {
+                description = `${description}<br>${this.$tc('sw-flow.actions.labelCampaignCode', 0, {
+                    campaignCode: config.campaignCode.value ? config.campaignCode.value : 'null',
+                })}`;
+            }
+
+            return description;
         },
     },
 });

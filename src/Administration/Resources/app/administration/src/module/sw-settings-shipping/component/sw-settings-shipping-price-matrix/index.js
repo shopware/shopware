@@ -26,6 +26,24 @@ Component.register('sw-settings-shipping-price-matrix', {
             required: false,
             default: false,
         },
+
+        /* @internal (flag:FEATURE_NEXT_18215) */
+        restrictedShippingMethodRules: {
+            type: Array,
+            required: false,
+            default() {
+                return [];
+            },
+        },
+
+        /* @internal (flag:FEATURE_NEXT_18215) */
+        restrictedShippingPriceRules: {
+            type: Array,
+            required: false,
+            default() {
+                return [];
+            },
+        },
     },
 
     data() {
@@ -313,7 +331,7 @@ Component.register('sw-settings-shipping-price-matrix', {
             }
 
             // Next tick is necessary because otherwise the modal can not be removed from the dom, since it is moved
-            // to the body and Vue cant keep track of it if the parent component is removed(by isLoading)
+            // to the body and Vue can't keep track of it if the parent component is removed (by isLoading)
             this.$nextTick(() => { this.isLoading = true; });
             this.ruleRepository.get(ruleId, Context.api).then(rule => {
                 shippingPrice.calculationRuleId = ruleId;
@@ -452,6 +470,51 @@ Component.register('sw-settings-shipping-price-matrix', {
             }
 
             this.onAddNewShippingPrice();
+        },
+
+        /* @internal (flag:FEATURE_NEXT_18215) */
+        tooltipConfig(item, isSelected, restrictedRules, usedRules, restrictionSnippet, usedSnippet) {
+            const restrictedByConditions = this[restrictedRules].includes(item.id);
+            const showDelay = 300;
+
+            if (restrictedByConditions) {
+                return {
+                    showDelay,
+                    message: this.$t('sw-restricted-rules.restrictedAssignment.general', {
+                        relation: restrictionSnippet,
+                    }),
+                };
+            }
+
+            return {
+                showDelay,
+                message: usedSnippet,
+                disabled: !this[usedRules].includes(item.id) && !isSelected,
+            };
+        },
+
+        /* @internal (flag:FEATURE_NEXT_18215) */
+        shippingMethodRuleTooltipConfig(item, isSelected) {
+            return this.tooltipConfig(
+                item,
+                isSelected,
+                'restrictedShippingMethodRules',
+                'usedRules',
+                this.$tc('sw-restricted-rules.restrictedAssignment.shippingMethodPrices'),
+                this.$tc('sw-settings-shipping.priceMatrix.ruleAlreadyUsed'),
+            );
+        },
+
+        /* @internal (flag:FEATURE_NEXT_18215) */
+        shippingPriceRuleTooltipConfig(item, isSelected) {
+            return this.tooltipConfig(
+                item,
+                isSelected,
+                'restrictedShippingPriceRules',
+                'usedRules',
+                this.$tc('sw-restricted-rules.restrictedAssignment.shippingMethodPriceCalculations'),
+                this.$tc('sw-settings-shipping.priceMatrix.ruleAlreadyUsedInMatrix'),
+            );
         },
     },
 });

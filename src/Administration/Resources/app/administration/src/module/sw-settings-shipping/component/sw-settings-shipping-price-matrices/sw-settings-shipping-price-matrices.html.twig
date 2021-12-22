@@ -5,6 +5,8 @@
         v-for="priceGroup in shippingPriceGroups"
         :key="priceGroup.ruleId"
         :price-group="priceGroup"
+        :restricted-shipping-method-rules="restrictedShippingMethodRules"
+        :restricted-shipping-price-rules="restrictedShippingPriceRules"
         :disabled="disabled"
         @duplicate-price-matrix="onDuplicatePriceMatrix"
         @delete-price-matrix="onDeletePriceMatrix"

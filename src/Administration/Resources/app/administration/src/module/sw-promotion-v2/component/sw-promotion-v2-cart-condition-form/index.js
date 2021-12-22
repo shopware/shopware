@@ -21,6 +21,15 @@ Component.register('sw-promotion-v2-cart-condition-form', {
             required: false,
             default: null,
         },
+
+        /* @internal (flag:FEATURE_NEXT_18215) */
+        restrictedRules: {
+            type: Array,
+            required: false,
+            default() {
+                return [];
+            },
+        },
     },
     data() {
         return {

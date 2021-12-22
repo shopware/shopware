@@ -115,6 +115,16 @@
                 {{ $tc('sw-import-export.activity.contextMenu.showProfile') }}
             </sw-context-menu-item>
             {% endblock %}
+            {% block sw_import_export_activity_listing_actions_abort_process %}
+            <sw-context-menu-item
+                v-if="item.state === 'progress'"
+                class="sw-import-export-activity__abort-process-action"
+                variant="danger"
+                @click="onAbortProcess(item)"
+            >
+                {{ $tc('sw-import-export.activity.contextMenu.abortProcess') }}
+            </sw-context-menu-item>
+            {% endblock %}
             {% block sw_import_export_activity_listing_actions_download_invalid %}
             <template v-if="item.invalidRecordsLog">
                 <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->

@@ -53,47 +53,7 @@ class DeliveryBuilder
             $deliveryTime = DeliveryTime::createFromEntity($shippingMethod->getDeliveryTime());
         }
 
-        foreach ($collection as $item) {
-            if ($item->getDeliveryInformation() === null) {
-                continue;
-            }
-
-            // each line item can override the delivery time
-            if ($item->getDeliveryInformation()->getDeliveryTime()) {
-                $deliveryTime = $item->getDeliveryInformation()->getDeliveryTime();
-            }
-
-            if ($deliveryTime === null) {
-                continue;
-            }
-
-            // create the estimated delivery date by detected delivery time
-            $deliveryDate = DeliveryDate::createFromDeliveryTime($deliveryTime);
-
-            // create a restock date based on the detected delivery time
-            $restockDate = DeliveryDate::createFromDeliveryTime($deliveryTime);
-
-            $restockTime = $item->getDeliveryInformation()->getRestockTime();
-
-            // if the line item has a restock time, add this days to the restock date
-            if ($restockTime) {
-                $restockDate = $restockDate->add(new \DateInterval('P' . $restockTime . 'D'));
-            }
-
-            if ($item->getPrice() === null) {
-                continue;
-            }
-
-            // if the item is completely instock, use the delivery date
-            if ($item->getDeliveryInformation()->getStock() >= $item->getQuantity()) {
-                $position = new DeliveryPosition($item->getId(), clone $item, $item->getQuantity(), $item->getPrice(), $deliveryDate);
-            } else {
-                // otherwise use the restock date as delivery date
-                $position = new DeliveryPosition($item->getId(), clone $item, $item->getQuantity(), $item->getPrice(), $restockDate);
-            }
-
-            $positions->add($position);
-        }
+        $this->buildPositions($collection, $positions, $deliveryTime);
 
         if ($positions->count() <= 0) {
             return null;
@@ -130,5 +90,58 @@ class DeliveryBuilder
         }
 
         return $max;
+    }
+
+    private function buildPositions(
+        LineItemCollection $items,
+        DeliveryPositionCollection $positions,
+        ?DeliveryTime $default
+    ): void {
+        foreach ($items as $item) {
+            if ($item->getDeliveryInformation() === null) {
+                if ($item->getChildren()->count() > 0) {
+                    $this->buildPositions($item->getChildren(), $positions, $default);
+                }
+
+                continue;
+            }
+
+            // each line item can override the delivery time
+            $deliveryTime = $default;
+            if ($item->getDeliveryInformation()->getDeliveryTime()) {
+                $deliveryTime = $item->getDeliveryInformation()->getDeliveryTime();
+            }
+
+            if ($deliveryTime === null) {
+                continue;
+            }
+
+            // create the estimated delivery date by detected delivery time
+            $deliveryDate = DeliveryDate::createFromDeliveryTime($deliveryTime);
+
+            // create a restock date based on the detected delivery time
+            $restockDate = DeliveryDate::createFromDeliveryTime($deliveryTime);
+
+            $restockTime = $item->getDeliveryInformation()->getRestockTime();
+
+            // if the line item has a restock time, add this days to the restock date
+            if ($restockTime) {
+                $restockDate = $restockDate->add(new \DateInterval('P' . $restockTime . 'D'));
+            }
+
+            if ($item->getPrice() === null) {
+                continue;
+            }
+
+            // if the item is completely instock, use the delivery date
+            if ($item->getDeliveryInformation()->getStock() >= $item->getQuantity()) {
+                $position = new DeliveryPosition($item->getId(), clone $item, $item->getQuantity(), $item->getPrice(), $deliveryDate);
+            } else {
+                // otherwise use the restock date as delivery date
+                $position = new DeliveryPosition($item->getId(), clone $item, $item->getQuantity(), $item->getPrice(), $restockDate);
+            }
+
+            $positions->add($position);
+        }
     }
 }

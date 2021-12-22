@@ -145,4 +145,14 @@ export default class ImportExportService extends ApiService {
 
         return logEntry;
     }
+
+    /**
+     * @param logId {String} log id
+     * @returns {*} - ApiService.handleResponse(response)
+     */
+    cancel(logId) {
+        return this.httpClient.post(`/_action/${this.getApiBasePath()}/cancel`, {
+            logId: logId,
+        }, { headers: this.getBasicHeaders() }).then(response => ApiService.handleResponse(response));
+    }
 }

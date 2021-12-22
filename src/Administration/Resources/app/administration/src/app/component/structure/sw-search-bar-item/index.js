@@ -1,7 +1,7 @@
 import template from './sw-search-bar-item.html.twig';
 import './sw-search-bar-item.scss';
 
-const { Component } = Shopware;
+const { Component, Application } = Shopware;
 /**
  * @public
  * @description
@@ -15,7 +15,10 @@ const { Component } = Shopware;
 Component.register('sw-search-bar-item', {
     template,
 
-    inject: ['feature'],
+    inject: [
+        'searchTypeService',
+        'feature',
+    ],
 
     props: {
         item: {
@@ -53,11 +56,38 @@ Component.register('sw-search-bar-item', {
     data() {
         return {
             isActive: false,
-            searchTypes: null,
         };
     },
 
     computed: {
+        searchTypes() {
+            return this.searchTypeService.getTypes();
+        },
+
+        moduleManifest() {
+            const moduleFactory = Application.getContainer('factory').module;
+
+            const module = moduleFactory.getModuleByEntityName(this.type) ?? {};
+
+            return module.manifest;
+        },
+
+        detailRoute() {
+            return this.moduleManifest?.routes?.detail?.name;
+        },
+
+        displayValue() {
+            if (!this.moduleManifest.hasOwnProperty('entityDisplayProperty')) {
+                return this.item.hasOwnProperty('name') ? this.item.name : this.item.id;
+            }
+
+            if (!this.item.hasOwnProperty(this.moduleManifest.entityDisplayProperty)) {
+                return this.item.hasOwnProperty('name') ? this.item.name : this.item.id;
+            }
+
+            return this.item[this.moduleManifest.entityDisplayProperty];
+        },
+
         componentClasses() {
             return [
                 {

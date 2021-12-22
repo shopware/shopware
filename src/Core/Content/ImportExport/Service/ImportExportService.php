@@ -117,7 +117,10 @@ class ImportExportService
             throw new ProcessingException('LogEntity not found');
         }
 
-        $this->saveProgress(new Progress($logId, Progress::STATE_ABORTED));
+        $canceledProgress = new Progress($logId, Progress::STATE_ABORTED);
+        $canceledProgress->addProcessedRecords($logEntity->getRecords());
+
+        $this->saveProgress($canceledProgress);
     }
 
     public function getProgress(string $logId, int $offset): Progress
@@ -146,9 +149,11 @@ class ImportExportService
     {
         $logData = [
             'id' => $progress->getLogId(),
-            'state' => $progress->getState(),
             'records' => $progress->getProcessedRecords(),
         ];
+        if ($progress->getState() !== Progress::STATE_PROGRESS) {
+            $logData['state'] = $progress->getState();
+        }
         if ($progress->getInvalidRecordsLogId()) {
             $logData['invalidRecordsLogId'] = $progress->getInvalidRecordsLogId();
         }

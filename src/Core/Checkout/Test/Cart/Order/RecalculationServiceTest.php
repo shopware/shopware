@@ -202,6 +202,8 @@ class RecalculationServiceTest extends TestCase
             $this->resetDataTimestamps($delivery->getPositions()->getLineItems());
         }
         $cart->setRuleIds([]);
+        // The behaviour will be set during the process, therefore we remove it here
+        $cart->setBehavior(null);
 
         static::assertEquals($cart, $convertedCart);
     }

@@ -22,7 +22,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
                 'customerShippingStreet',
                 'customerShippingZipCode',
             ],
-            snippet: '', // TODO: NEXT-17414 - Should be filled
+            snippet: 'sw-restricted-rules.restrictedAssignment.personaPromotions',
         },
     );
 
@@ -47,7 +47,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
                 'customerShippingStreet',
                 'customerShippingZipCode',
             ],
-            snippet: '', // TODO: NEXT-17414 - Should be filled
+            snippet: 'sw-restricted-rules.restrictedAssignment.orderPromotions',
         },
     );
 
@@ -57,7 +57,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
             notEquals: [
                 'cartCartAmount',
             ],
-            snippet: '', // TODO: NEXT-17414 - Should be filled
+            snippet: 'sw-restricted-rules.restrictedAssignment.cartPromotions',
         },
     );
 
@@ -67,7 +67,17 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
             notEquals: [
                 'cartCartAmount',
             ],
-            snippet: '', // TODO: NEXT-17414 - Should be filled
+            snippet: 'sw-restricted-rules.restrictedAssignment.promotionSetGroups',
+        },
+    );
+
+    ruleConditionService.addAwarenessConfiguration(
+        'promotionDiscounts',
+        {
+            notEquals: [
+                'cartCartAmount',
+            ],
+            snippet: 'sw-restricted-rules.restrictedAssignment.promotionDiscounts',
         },
     );
 
@@ -487,6 +497,25 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
             component: 'sw-condition-promotion-line-item',
             label: 'global.sw-condition.condition.promotionLineItemRule',
             scopes: ['cart'],
+        });
+
+        ruleConditionService.addCondition('promotionCodeOfType', {
+            component: 'sw-condition-promotion-code-of-type',
+            label: 'global.sw-condition.condition.promotionCodeOfType',
+            scopes: ['cart'],
+        });
+
+        ruleConditionService.addCondition('promotionsInCartCount', {
+            component: 'sw-condition-promotions-in-cart-count',
+            label: 'global.sw-condition.condition.promotionsInCartCountRule',
+            scopes: ['cart'],
+        });
+
+        ruleConditionService.addCondition('promotionValue', {
+            component: 'sw-condition-promotion-value',
+            label: 'global.sw-condition.condition.promotionValueRule',
+            scopes: ['cart'],
+            group: 'cart',
         });
     }
 

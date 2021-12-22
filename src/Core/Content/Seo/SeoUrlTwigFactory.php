@@ -4,6 +4,8 @@ namespace Shopware\Core\Content\Seo;
 
 use Cocur\Slugify\Bridge\Twig\SlugifyExtension;
 use Cocur\Slugify\SlugifyInterface;
+use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
+use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Twig\Environment;
 use Twig\Extension\EscaperExtension;
 use Twig\Loader\ArrayLoader;
@@ -12,10 +14,11 @@ class SeoUrlTwigFactory
 {
     public function createTwigEnvironment(SlugifyInterface $slugify, iterable $twigExtensions = []): Environment
     {
-        $twig = new Environment(new ArrayLoader());
+        $twig = new TwigEnvironment(new ArrayLoader());
         $twig->setCache(false);
         $twig->enableStrictVariables();
         $twig->addExtension(new SlugifyExtension($slugify));
+        $twig->addExtension(new PhpSyntaxExtension());
 
         /** @var EscaperExtension $coreExtension */
         $coreExtension = $twig->getExtension(EscaperExtension::class);

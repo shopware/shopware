@@ -175,6 +175,7 @@
                     :disabled="!acl.can('shipping.editor')"
                     required
                     :error="shippingMethodAvailabilityRuleIdError"
+                    :restriction="feature.isActive('FEATURE_NEXT_18215') ? 'shippingMethods' : ''"
                     :label="$tc('sw-settings-shipping.detail.topRule')"
                     class="sw-settings-shipping-detail__top-rule"
                     @save-rule="onSaveRule"

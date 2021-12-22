@@ -1,7 +1,15 @@
 /* eslint-disable max-len */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
+import 'src/module/sw-settings-rule/component/sw-settings-rule-assignment-listing';
 import 'src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments';
+import 'src/app/component/entity/sw-entity-listing';
+import 'src/app/component/data-grid/sw-data-grid';
+import 'src/app/component/context-menu/sw-context-button';
+import 'src/app/component/context-menu/sw-context-menu';
+import 'src/app/component/context-menu/sw-context-menu-item';
+import 'src/app/component/utils/sw-popover';
 import EntityCollection from 'src/core/data/entity-collection.data';
+import flushPromises from 'flush-promises';
 
 function createEntityCollectionMock(entityName, items = []) {
     return new EntityCollection('/route', entityName, {}, {}, items, items.length);
@@ -15,16 +23,24 @@ function createWrapper(entitiesWithResults = []) {
         localVue,
         stubs: {
             'sw-card': {
-                template: '<div class="sw-card"><slot name="grid"></slot></div>'
+                template: '<div class="sw-card"><slot name="toolbar"></slot><slot name="grid"></slot></div>'
             },
             'sw-loader': true,
             'sw-empty-state': true,
-            'sw-entity-listing': {
-                props: ['items'],
-                template: `
-<div class="sw-entity-listing-stub">
-    <li v-for="(item, index) in items" :key="index">{{ item.name }}</li>
-</div>`
+            'sw-settings-rule-assignment-listing': Shopware.Component.build('sw-settings-rule-assignment-listing'),
+            'sw-entity-listing': Shopware.Component.build('sw-entity-listing'),
+            'sw-data-grid': Shopware.Component.build('sw-data-grid'),
+            'sw-pagination': true,
+            'sw-context-button': Shopware.Component.build('sw-context-button'),
+            'sw-checkbox-field': true,
+            'sw-context-menu-item': true,
+            'sw-icon': true,
+            'sw-button': true,
+            'sw-field-error': true,
+            'sw-card-filter': true,
+            'router-link': {
+                template: '<a class="router-link" :detail-route="to.name"><slot></slot></a>',
+                props: ['to']
             }
         },
         propsData: {
@@ -37,6 +53,14 @@ function createWrapper(entitiesWithResults = []) {
             }
         },
         provide: {
+            validationService: {},
+            shortcutService: {
+                startEventListener: () => {
+                },
+                stopEventListener: () => {
+                }
+            },
+
             repositoryFactory: {
                 create: (entityName) => {
                     return {
@@ -102,9 +126,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
             'promotion',
             'event_action'
         ]);
-
-        // Wait for repository request
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const expectedEntityCollectionResult = expect.arrayContaining([
             expect.objectContaining({ name: 'Foo' }),
@@ -134,85 +156,84 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
             'promotion',
             'event_action'
         ]);
-
-        // Wait for repository request
-        await wrapper.vm.$nextTick();
-
-        // Wait for loading to be disabled and re-render
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // Expect entity listings to be present
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-product .sw-entity-listing-stub').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-shipping_method .sw-entity-listing-stub').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-payment_method .sw-entity-listing-stub').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion .sw-entity-listing-stub').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-event_action .sw-entity-listing-stub').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-product .router-link').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-shipping_method_availability_rule .router-link').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-shipping_method_prices .router-link').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-payment_method .router-link').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion_order_rule .router-link').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion_customer_rule .router-link').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion_cart_rule .router-link').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion_discount_rule .router-link').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion_group_rule .router-link').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-event_action .router-link').exists()).toBeTruthy();
 
-        // Loader and empty-state should not be present
-        expect(wrapper.find('sw-settings-rule-detail-assignments__empty-state').exists()).toBeFalsy();
+        // Empty states should not be present
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-product').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-shipping_method_availability_rule').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-shipping_method_prices').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-payment_method').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion_order_rule').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion_customer_rule').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion_cart_rule').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion_discount_rule').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion_group_rule').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-event_action').exists()).toBeFalsy();
+
+        // Loader should not be present
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-loader').exists()).toBeFalsy();
     });
 
-    it('should render an entity-listing only for entities which return a result', async () => {
-        const wrapper = createWrapper([
-            'shipping_method',
-            'payment_method',
-            'promotion'
-        ]);
+    it('should render an entity-listing also if no assignment is found', async () => {
+        const wrapper = createWrapper([]);
+        await flushPromises();
 
-        // Wait for repository request
-        await wrapper.vm.$nextTick();
+        // Expect entity listings to not be present
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-product .router-link').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-shipping_method_availability_rule .router-link').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-shipping_method_prices .router-link').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-payment_method .router-link').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion_order_rule .router-link').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion_customer_rule .router-link').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion_cart_rule .router-link').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion_discount_rule .router-link').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion_group_rule .router-link').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-event_action .router-link').exists()).toBeFalsy();
 
-        // Wait for loading to be disabled and re-render
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        // Expect empty states to be present
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-product').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-shipping_method_availability_rule').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-shipping_method_prices').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-payment_method').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion_order_rule').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion_customer_rule').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion_cart_rule').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion_discount_rule').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion_group_rule').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-event_action').exists()).toBeTruthy();
 
-        // Expect entity listings to be present
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-shipping_method .sw-entity-listing-stub').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-payment_method .sw-entity-listing-stub').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion .sw-entity-listing-stub').exists()).toBeTruthy();
-
-        // Expect entity listings to be not present for entities without result
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-product .sw-entity-listing-stub').exists()).toBeFalsy();
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-event_action .sw-entity-listing-stub').exists()).toBeFalsy();
-
-        // Loader and empty-state should not be present
-        expect(wrapper.find('sw-settings-rule-detail-assignments__empty-state').exists()).toBeFalsy();
+        // Loader should not be present
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-loader').exists()).toBeFalsy();
     });
 
     it('should render an empty-state when none of the associated entities returns a result', async () => {
         const wrapper = createWrapper();
+        await flushPromises();
 
-        // Wait for repository request
-        await wrapper.vm.$nextTick();
-
-        // Wait for loading to be disabled and re-render
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__empty-state').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state').exists()).toBeTruthy();
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-loader').exists()).toBeFalsy();
     });
 
     it('should render names of product variants', async () => {
         const wrapper = await createWrapper(['product']);
-
-        // Wait for repository request
-        await wrapper.vm.$nextTick();
-
-        // Wait for loading to be disabled and re-render
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // expect entity listing for products to be present
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-product .sw-entity-listing-stub').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-product .router-link').exists()).toBeTruthy();
 
-        const productAssignments = wrapper.findAll('.sw-settings-rule-detail-assignments__entity-listing-product li');
+        const productAssignments = wrapper.findAll('.sw-settings-rule-detail-assignments__entity-listing-product .sw-data-grid__cell--name');
 
         // expect the right amount of items
         expect(productAssignments.length).toBe(4);
@@ -229,18 +250,13 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         const wrapper = createWrapper([
             'promotion'
         ]);
+        await flushPromises();
 
-        // Wait for repository request
-        await wrapper.vm.$nextTick();
-
-        // Wait for loading to be disabled and re-render
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
-
-        const promotionListing = wrapper.find('.sw-settings-rule-detail-assignments__entity-listing-promotion');
+        const promotionListing = wrapper.find('.sw-settings-rule-detail-assignments__entity-listing-promotion_order_rule .sw-data-grid__cell--name  .router-link');
 
         // expect promotion entity listing to exist
         expect(promotionListing.exists()).toBe(true);
+
 
         const detailRouteAttribute = promotionListing.attributes('detail-route');
 

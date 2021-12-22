@@ -7,6 +7,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer {
     use Shopware\Core\Content\Product\ProductDefinition;
     use Shopware\Core\Content\Product\ProductEntity;
     use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+    use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
     use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
     use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
     use Test\Foo\FooBar;
@@ -68,7 +69,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer {
         public function testCustomApiAliasHasPrecedence(): void
         {
             $entity = new FooBarEntity();
-            $entity->internalSetEntityName('custom_entity_name');
+            $entity->internalSetEntityData('custom_entity_name', new FieldVisibility([]));
 
             static::assertSame('custom_entity_name', $entity->getApiAlias());
         }

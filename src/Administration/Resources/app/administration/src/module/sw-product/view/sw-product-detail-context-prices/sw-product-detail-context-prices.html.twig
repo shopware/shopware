@@ -38,8 +38,21 @@
                 >
 
                     {% block sw_product_detail_prices_price_card_toolbar_rule_selection %}
+                    <sw-select-rule-create
+                        v-if="feature.isActive('FEATURE_NEXT_18215') && rules.entity"
+                        id="rule"
+                        :rule-id="priceGroup.ruleId"
+                        :placeholder="$tc('sw-product.advancedPrices.selectRule')"
+                        :disabled="!acl.can('product.editor')"
+                        class="sw-product-detail-context-prices__toolbar-selection"
+                        size="small"
+                        restriction="productPrices"
+                        @save-rule="onRuleChange($event, priceGroup.ruleId)"
+                    />
+
+                    {# @deprecated tag:v6.5.0 - component `sw-entity-single-select` will be removed, use `sw-select-rule-create` instead #}
                     <sw-entity-single-select
-                        v-if="rules.entity"
+                        v-else-if="rules.entity"
                         id="rule"
                         class="sw-product-detail-context-prices__toolbar-selection"
                         size="small"
@@ -398,8 +411,19 @@
             {% endblock %}
 
             {% block sw_product_detail_prices_price_empty_state_select_rule %}
+            <sw-select-rule-create
+                v-if="rules.entity && feature.isActive('FEATURE_NEXT_18215')"
+                id="rule"
+                class="sw-product-detail-context-prices__empty-state-select-rule"
+                :placeholder="$tc('sw-product.advancedPrices.selectRule')"
+                :disabled="isInherited || !acl.can('product.editor')"
+                restriction="productPrices"
+                @save-rule="onAddNewPriceGroup($event)"
+            />
+
+            {# @feature-deprecated (flag:FEATURE_NEXT_18215) - tag will be removed use `sw-select-rule-create` instead #}
             <sw-entity-single-select
-                v-if="rules.entity"
+                v-else-if="rules.entity"
                 id="rule"
                 :disabled="isInherited || !acl.can('product.editor')"
                 class="sw-product-detail-context-prices__empty-state-select-rule"

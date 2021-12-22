@@ -100,6 +100,7 @@
         {% block sw_product_stream_modal_preview_empty_state %}
         <sw-empty-state
             v-if="!total && !isLoading"
+            :absolute="false"
             :title="$tc('sw-product-stream.previewModal.empty')"
         />
         {% endblock %}

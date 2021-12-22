@@ -235,14 +235,29 @@ Component.register('sw-product-detail-context-prices', {
         },
 
         onRuleChange(value, ruleId) {
-            this.product.prices.forEach((priceRule) => {
-                if (priceRule.ruleId === ruleId) {
-                    priceRule.ruleId = value;
-                }
-            });
+            const changeRules = () => {
+                this.product.prices.forEach((priceRule) => {
+                    if (priceRule.ruleId === ruleId) {
+                        priceRule.ruleId = value;
+                    }
+                });
+            };
+
+            /*
+             * Adding a $nextTick here for the case when the user creates a new rule.
+             * this $nextTick is needed because vue first needs to remove the modal from the DOM.
+             * without it this would not happen.
+             */
+            this.$nextTick(() => { changeRules(); });
         },
 
-        onAddNewPriceGroup(ruleId = null) {
+        async onAddNewPriceGroup(ruleId = null) {
+            /*
+             * Adding a nextTick to wait until DOM has been updated. We do this because of the rule create modal.
+             * Otherwise the modal won't disappear.
+             */
+            await this.$nextTick();
+
             if (this.emptyPriceRuleExists) {
                 return;
             }
@@ -273,16 +288,16 @@ Component.register('sw-product-detail-context-prices', {
 
             this.product.prices.add(newPriceRule);
 
-            this.$nextTick(() => {
-                const scrollableArea = this.$parent.$el.children.item(0);
+            await this.$nextTick();
 
-                if (scrollableArea) {
-                    scrollableArea.scrollTo({
-                        top: scrollableArea.scrollHeight,
-                        behavior: 'smooth',
-                    });
-                }
-            });
+            const scrollableArea = this.$parent.$el.children.item(0);
+
+            if (scrollableArea) {
+                scrollableArea.scrollTo({
+                    top: scrollableArea.scrollHeight,
+                    behavior: 'smooth',
+                });
+            }
         },
 
         onPriceGroupDelete(ruleId) {

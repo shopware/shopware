@@ -6,12 +6,15 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 
 class AccountProfileControllerTest extends TestCase
@@ -38,6 +41,44 @@ class AccountProfileControllerTest extends TestCase
 
         static::assertArrayHasKey('success', $this->getFlashBag()->all());
         static::assertTrue($response->isRedirect(), $response->getContent());
+    }
+
+    public function testAccountOverviewPageLoadedScriptsAreExecuted(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $context = Context::createDefaultContext();
+        $customer = $this->createCustomer($context);
+
+        $browser = $this->login($customer->getEmail());
+
+        $browser->request('GET', '/account');
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey('account-overview-page-loaded', $traces);
+    }
+
+    public function testAccountProfilePageLoadedScriptsAreExecuted(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $context = Context::createDefaultContext();
+        $customer = $this->createCustomer($context);
+
+        $browser = $this->login($customer->getEmail());
+
+        $browser->request('GET', '/account/profile');
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey('account-profile-page-loaded', $traces);
     }
 
     private function login(string $email): KernelBrowser

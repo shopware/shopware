@@ -5,24 +5,30 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="Shopware\Core\Framework\Script\Registry\ExecutableScriptLoader">
+        <service id="Shopware\Core\Framework\Script\Execution\ScriptLoader">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister"/>
+            <argument type="service" id="cache.object"/>
             <argument>%kernel.cache_dir%</argument>
-            <argument>%kernel.environment%</argument>
+            <argument>%kernel.debug%</argument>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Script\Registry\ScriptRegistry">
-            <argument type="service" id="Shopware\Core\Framework\Script\Registry\ExecutableScriptLoader"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Script\Executor\ScriptExecutor" public="true">
-            <argument type="service" id="Shopware\Core\Framework\Script\Registry\ScriptRegistry"/>
+        <service id="Shopware\Core\Framework\Script\Execution\ScriptExecutor" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptLoader"/>
             <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Core\Framework\Script\Debugging\ScriptTraces"/>
+            <argument type="service" id="service_container"/>
         </service>
 
         <service id="Shopware\Core\Framework\Script\ScriptDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Script\Debugging\ScriptTraces">
+            <tag name="data_collector"/>
+        </service>
     </services>
 </container>
+

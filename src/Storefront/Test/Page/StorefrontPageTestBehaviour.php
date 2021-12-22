@@ -203,7 +203,7 @@ trait StorefrontPageTestBehaviour
         ]);
     }
 
-    protected function createSalesChannelContext(): SalesChannelContext
+    protected function createSalesChannelContext(?array $salesChannelData = null): SalesChannelContext
     {
         $paymentMethodId = $this->getValidPaymentMethodId();
         $shippingMethodId = $this->getAvailableShippingMethod()->getId();
@@ -234,6 +234,10 @@ trait StorefrontPageTestBehaviour
                 ['url' => 'http://test.com/' . Uuid::randomHex(), 'currencyId' => Defaults::CURRENCY, 'languageId' => Defaults::LANGUAGE_SYSTEM, 'snippetSetId' => $snippetSetId],
             ],
         ];
+
+        if ($salesChannelData) {
+            $data = array_merge($data, $salesChannelData);
+        }
 
         return $this->createContext($data, []);
     }

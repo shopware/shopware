@@ -1,9 +1,32 @@
-<sw-meteor-page
-    class="sw-extension-config"
-    hide-icon
->
+<sw-meteor-page class="sw-extension-config">
+    <template #smart-bar-icon>
+        <img
+            class="sw-extension-config__extension-icon"
+            :src="image"
+            :alt="$tc('sw-extension-store.component.sw-extension-config.imageDescription', 0, { extensionName: extensionLabel})"
+        >
+    </template>
+
     <template #smart-bar-header>
-        {{ namespace }}
+        {{ extensionLabel }}
+    </template>
+
+    <template v-if="extension" #smart-bar-header-meta>
+        <span v-if="extension.producerWebsite && extension.producerName">
+            {{ $tc('sw-extension-store.component.sw-extension-config.labelBy') }}
+
+            <sw-external-link
+                small
+                :href="extension.producerWebsite"
+                class="sw-extension-config__producer-link"
+            >
+                {{ extension.producerName }}
+            </sw-external-link>
+        </span>
+
+        <span v-else-if="extension.producerName">
+            {{ $tc('sw-extension-store.component.sw-extension-config.labelBy') }} {{ extension.producerName }}
+        </span>
     </template>
 
     <template #smart-bar-actions>

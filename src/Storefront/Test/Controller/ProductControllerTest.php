@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Test\Controller;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -10,6 +11,8 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -22,7 +25,7 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\ProductController;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
-use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
+use Shopware\Storefront\Page\Product\QuickView\ProductQuickViewWidgetLoadedHook;
 use Shopware\Storefront\Page\Product\Review\ReviewLoaderResult;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\DomCrawler\Crawler;
@@ -80,11 +83,6 @@ class ProductControllerTest extends TestCase
     public function testSwitchOptionsToLoadOptionDefault(): void
     {
         $productId = $this->createProduct();
-
-        $productRepository = $this->createMock(ProductCombinationFinder::class);
-        $productRepository->method('find')->willThrowException(
-            new ProductNotFoundException($productId)
-        );
 
         $response = $this->request(
             'GET',
@@ -146,40 +144,40 @@ class ProductControllerTest extends TestCase
             ->closeout(true)
             ->variant(
                 (new ProductBuilder($this->ids, 'a.1'))
-                    ->option('red')
-                    ->option('xl')
+                    ->option('red', 'color')
+                    ->option('xl', 'size')
                     ->stock(0)
                     ->closeout(false)
                     ->build()
             )
             ->variant(
                 (new ProductBuilder($this->ids, 'a.2'))
-                    ->option('green')
-                    ->option('xl')
+                    ->option('green', 'color')
+                    ->option('xl', 'size')
                     ->stock(0)
                     ->closeout(null) // inherited
                     ->build()
             )
             ->variant(
                 (new ProductBuilder($this->ids, 'a.3'))
-                    ->option('red')
-                    ->option('l')
+                    ->option('red', 'color')
+                    ->option('l', 'size')
                     ->stock(10)
                     ->closeout(null) // inherited
                     ->build()
             )
             ->variant(
                 (new ProductBuilder($this->ids, 'a.4'))
-                    ->option('green')
-                    ->option('l')
+                    ->option('green', 'color')
+                    ->option('l', 'size')
                     ->stock(10)
                     ->closeout(false)
                     ->build()
             )
             ->variant(
                 (new ProductBuilder($this->ids, 'a.5'))
-                    ->option('blue')
-                    ->option('xl')
+                    ->option('blue', 'color')
+                    ->option('xl', 'size')
                     ->visibility(TestDefaults::SALES_CHANNEL)
                     ->visibility($this->ids->get('sales-channel'))
                     ->stock(10)
@@ -188,8 +186,8 @@ class ProductControllerTest extends TestCase
             )
             ->variant(
                 (new ProductBuilder($this->ids, 'a.6'))
-                    ->option('blue')
-                    ->option('l')
+                    ->option('blue', 'color')
+                    ->option('l', 'size')
                     ->visibility($this->ids->get('sales-channel'))
                     ->stock(10)
                     ->closeout(null) // inherited
@@ -197,8 +195,8 @@ class ProductControllerTest extends TestCase
             )
             ->variant(
                 (new ProductBuilder($this->ids, 'a.7'))
-                    ->option('red')
-                    ->option('m')
+                    ->option('red', 'color')
+                    ->option('m', 'size')
                     ->visibility($this->ids->get('sales-channel'))
                     ->stock(10)
                     ->closeout(null) // inherited
@@ -206,8 +204,8 @@ class ProductControllerTest extends TestCase
             )
             ->variant(
                 (new ProductBuilder($this->ids, 'a.8'))
-                    ->option('green')
-                    ->option('m')
+                    ->option('green', 'color')
+                    ->option('m', 'size')
                     ->visibility($this->ids->get('sales-channel'))
                     ->stock(0)
                     ->closeout(null) // inherited
@@ -215,8 +213,8 @@ class ProductControllerTest extends TestCase
             )
             ->variant(
                 (new ProductBuilder($this->ids, 'a.9'))
-                    ->option('blue')
-                    ->option('m')
+                    ->option('blue', 'color')
+                    ->option('m', 'size')
                     ->visibility($this->ids->get('sales-channel'))
                     ->stock(0)
                     ->closeout(false)
@@ -300,6 +298,63 @@ class ProductControllerTest extends TestCase
         yield 'test color: blue - size: m' => ['a.9', false, false, false, false, false, true]; // a.9 m should throw exception
     }
 
+    public function testProductPageLoadedScriptsAreExecuted(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $productId = $this->createProduct();
+
+        $response = $this->request(
+            'GET',
+            '/detail/' . $productId,
+            []
+        );
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey('product-page-loaded', $traces);
+    }
+
+    public function testMProductQuickViewWidgetLoadedHookScriptsAreExecuted(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $productId = $this->createProduct();
+
+        $response = $this->request(
+            'GET',
+            '/quickview/' . $productId,
+            []
+        );
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey(ProductQuickViewWidgetLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testProductReviewsLoadedScriptsAreExecuted(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $productId = $this->createProduct();
+
+        $response = $this->request(
+            'GET',
+            '/product/' . $productId . '/reviews',
+            []
+        );
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey('product-reviews-loaded', $traces);
+    }
+
     private function createDetailRequest(SalesChannelContext $context, string $productId): Request
     {
         $request = new Request();
@@ -317,6 +372,9 @@ class ProductControllerTest extends TestCase
     {
         $id = Uuid::randomHex();
 
+        $ids = $this->getContainer()->get(Connection::class)
+            ->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM sales_channel');
+
         $product = [
             'id' => $id,
             'productNumber' => $id,
@@ -326,12 +384,9 @@ class ProductControllerTest extends TestCase
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
             'tax' => ['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 19],
             'manufacturer' => ['name' => 'test'],
-            'visibilities' => [
-                [
-                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                    'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
-                ],
-            ],
+            'visibilities' => array_map(static function ($id) {
+                return ['salesChannelId' => $id, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL];
+            }, $ids),
         ];
 
         $product = array_replace_recursive($product, $config);

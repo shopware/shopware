@@ -90,6 +90,15 @@ Component.register('sw-entity-single-select', {
                 return { message: '' };
             },
         },
+        descriptionPosition: {
+            type: String,
+            required: false,
+            default: 'right',
+            validValues: ['bottom', 'right'],
+            validator(value) {
+                return ['bottom', 'right'].includes(value);
+            },
+        },
     },
 
     data() {

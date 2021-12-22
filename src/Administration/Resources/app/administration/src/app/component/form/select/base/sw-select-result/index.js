@@ -33,6 +33,15 @@ Component.register('sw-select-result', {
             required: false,
             default: false,
         },
+        descriptionPosition: {
+            type: String,
+            required: false,
+            default: 'right',
+            validValues: ['bottom', 'right'],
+            validator(value) {
+                return ['bottom', 'right'].includes(value);
+            },
+        },
     },
 
     data() {
@@ -48,6 +57,7 @@ Component.register('sw-select-result', {
                     'is--active': this.active,
                     'is--disabled': this.disabled,
                     'has--description': this.hasDescriptionSlot,
+                    [`is--description-${this.descriptionPosition}`]: this.hasDescriptionSlot,
                 },
                 `sw-select-option--${this.index}`,
             ];

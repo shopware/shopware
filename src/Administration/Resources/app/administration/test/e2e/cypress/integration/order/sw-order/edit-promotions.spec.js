@@ -112,7 +112,7 @@ describe('Order: Test promotions in existing orders', () => {
             .contains('GET5');
     });
 
-    it('@base @order: add automatic promotion to existing order', () => {
+    it.skip('@base @order: add automatic promotion to existing order', () => {
         const page = new OrderPageObject();
 
         cy.createDefaultFixture('promotion', {

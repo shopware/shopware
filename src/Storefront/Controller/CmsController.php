@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\SwitchBuyBoxVariantEvent;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
+use Shopware\Storefront\Page\Cms\CmsPageLoadedHook;
 use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -98,9 +99,11 @@ class CmsController extends StorefrontController
             throw new MissingRequestParameterException('Parameter id missing');
         }
 
-        $cmsPage = $this->cmsRoute->load($id, $request, $salesChannelContext)->getCmsPage();
+        $page = $this->cmsRoute->load($id, $request, $salesChannelContext)->getCmsPage();
 
-        $response = $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $cmsPage]);
+        $this->hook(new CmsPageLoadedHook($page, $salesChannelContext));
+
+        $response = $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $page]);
         $response->headers->set('x-robots-tag', 'noindex');
 
         return $response;
@@ -126,11 +129,14 @@ class CmsController extends StorefrontController
 
         $category = $this->categoryRoute->load($navigationId, $request, $salesChannelContext)->getCategory();
 
-        if (!$category->getCmsPage()) {
+        $page = $category->getCmsPage();
+        if (!$page) {
             throw new PageNotFoundException('');
         }
 
-        $response = $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $category->getCmsPage()]);
+        $this->hook(new CmsPageLoadedHook($page, $salesChannelContext));
+
+        $response = $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $page]);
         $response->headers->set('x-robots-tag', 'noindex');
 
         return $response;

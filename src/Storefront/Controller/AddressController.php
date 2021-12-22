@@ -28,7 +28,10 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
 use Shopware\Storefront\Page\Address\AddressEditorModalStruct;
+use Shopware\Storefront\Page\Address\Detail\AddressDetailPageLoadedHook;
 use Shopware\Storefront\Page\Address\Detail\AddressDetailPageLoader;
+use Shopware\Storefront\Page\Address\Listing\AddressBookWidgetLoadedHook;
+use Shopware\Storefront\Page\Address\Listing\AddressListingPageLoadedHook;
 use Shopware\Storefront\Page\Address\Listing\AddressListingPageLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -87,6 +90,8 @@ class AddressController extends StorefrontController
     {
         $page = $this->addressListingPageLoader->load($request, $context, $customer);
 
+        $this->hook(new AddressListingPageLoadedHook($page, $context));
+
         return $this->renderStorefront('@Storefront/storefront/page/account/addressbook/index.html.twig', ['page' => $page]);
     }
 
@@ -101,6 +106,8 @@ class AddressController extends StorefrontController
     public function accountCreateAddress(Request $request, RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         $page = $this->addressDetailPageLoader->load($request, $context, $customer);
+
+        $this->hook(new AddressDetailPageLoadedHook($page, $context));
 
         return $this->renderStorefront('@Storefront/storefront/page/account/addressbook/create.html.twig', [
             'page' => $page,
@@ -119,6 +126,8 @@ class AddressController extends StorefrontController
     public function accountEditAddress(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         $page = $this->addressDetailPageLoader->load($request, $context, $customer);
+
+        $this->hook(new AddressDetailPageLoadedHook($page, $context));
 
         return $this->renderStorefront('@Storefront/storefront/page/account/addressbook/edit.html.twig', ['page' => $page]);
     }
@@ -228,7 +237,11 @@ class AddressController extends StorefrontController
         $this->handleAddressCreation($viewData, $dataBag, $context, $customer);
         $this->handleAddressSelection($viewData, $dataBag, $context, $customer);
 
-        $viewData->setPage($this->addressListingPageLoader->load($request, $context, $customer));
+        $page = $this->addressListingPageLoader->load($request, $context, $customer);
+
+        $this->hook(new AddressBookWidgetLoadedHook($page, $context));
+
+        $viewData->setPage($page);
         if (Feature::isActive('FEATURE_NEXT_15957')) {
             $this->handleCustomerVatIds($dataBag, $context, $customer);
         }

@@ -14,6 +14,8 @@ export const ACTION = Object.freeze({
     SET_CUSTOMER_GROUP_CUSTOM_FIELD: 'action.set.customer.group.custom.field',
     CHANGE_CUSTOMER_GROUP: 'action.change.customer.group',
     CHANGE_CUSTOMER_STATUS: 'action.change.customer.status',
+    ADD_CUSTOMER_AFFILIATE_AND_CAMPAIGN_CODE: 'action.add.customer.affiliate.and.campaign.code',
+    ADD_ORDER_AFFILIATE_AND_CAMPAIGN_CODE: 'action.add.order.affiliate.and.campaign.code',
 });
 
 export default {

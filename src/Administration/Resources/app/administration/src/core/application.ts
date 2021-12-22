@@ -7,7 +7,9 @@ import { ContextState } from '../app/state/context.store';
 
 interface bundlesSinglePluginResponse {
     css?: string | string[],
-    js?: string | string[]
+    js?: string | string[],
+    baseUrl?: null | string,
+    type?: string,
 }
 
 interface bundlesPluginResponse {
@@ -562,6 +564,17 @@ class ApplicationBootstrapper {
 
         const injectAllPlugins = Object.values(plugins).map((plugin) => this.injectPlugin(plugin));
 
+        // inject iFrames of plugins
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        const bundles = Shopware.Context.app.config.bundles as bundlesPluginResponse;
+        Object.entries(bundles).forEach(([bundleName, bundle]) => {
+            if (!bundle.baseUrl) {
+                return;
+            }
+
+            this.injectIframe(bundleName, bundle.baseUrl);
+        });
+
         return Promise.all(injectAllPlugins);
     }
 
@@ -642,6 +655,16 @@ class ApplicationBootstrapper {
 
             // Append the style to the end of head
             document.head.appendChild(link);
+        });
+    }
+
+    /**
+     * Inject hiden iframes
+     */
+    private injectIframe(bundleName: string, iframeSrc: string): void {
+        Shopware.State.commit('extensions/addExtension', {
+            name: bundleName,
+            baseUrl: iframeSrc,
         });
     }
 }

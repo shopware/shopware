@@ -6,6 +6,8 @@ Danger:
     image:
         name: ghcr.io/shyim/danger-php:latest
         entrypoint: ["/bin/sh", "-c"]
+    tags:
+        - t3.nano
     rules:
         - !reference [.rules, skip]
         - !reference [.rules, run]

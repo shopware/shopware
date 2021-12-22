@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
+use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoadedHook;
 use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -47,6 +48,8 @@ class AccountPaymentController extends StorefrontController
     public function paymentOverview(Request $request, SalesChannelContext $context): Response
     {
         $page = $this->paymentMethodPageLoader->load($request, $context);
+
+        $this->hook(new AccountPaymentMethodPageLoadedHook($page, $context));
 
         return $this->renderStorefront('@Storefront/storefront/page/account/payment/index.html.twig', ['page' => $page]);
     }

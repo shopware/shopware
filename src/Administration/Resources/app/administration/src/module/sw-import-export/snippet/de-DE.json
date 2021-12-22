@@ -19,6 +19,7 @@
             "contextMenu": {
                 "showLog": "Öffne Logeintrag",
                 "showLogInfo": "Öffne Log-Informationen",
+                "abortProcess": "Vorgang abbrechen",
                 "downloadFile": "Datei herunterladen",
                 "downloadImportFile": "Import-Datei herunterladen",
                 "downloadExportFile": "Export-Datei herunterladen",

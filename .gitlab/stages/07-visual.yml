@@ -1,5 +1,6 @@
 
 Percy:
+    extends: .base
     stage: visual
     services:
         -   name: mariadb:10.3

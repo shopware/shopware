@@ -32,8 +32,11 @@ use Shopware\Storefront\Event\RouteRequest\CancelOrderRouteRequestEvent;
 use Shopware\Storefront\Event\RouteRequest\HandlePaymentMethodRouteRequestEvent;
 use Shopware\Storefront\Event\RouteRequest\SetPaymentOrderRouteRequestEvent;
 use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
+use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedHook;
 use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoader;
+use Shopware\Storefront\Page\Account\Order\AccountOrderDetailPageLoadedHook;
 use Shopware\Storefront\Page\Account\Order\AccountOrderDetailPageLoader;
+use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoadedHook;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -109,6 +112,8 @@ class AccountOrderController extends StorefrontController
     {
         $page = $this->orderPageLoader->load($request, $context);
 
+        $this->hook(new AccountOrderPageLoadedHook($page, $context));
+
         return $this->renderStorefront('@Storefront/storefront/page/account/order-history/index.html.twig', ['page' => $page]);
     }
 
@@ -150,6 +155,8 @@ class AccountOrderController extends StorefrontController
     {
         try {
             $page = $this->orderPageLoader->load($request, $context);
+
+            $this->hook(new AccountOrderPageLoadedHook($page, $context));
         } catch (GuestNotAuthenticatedException | WrongGuestCredentialsException | CustomerAuthThrottledException $exception) {
             return $this->redirectToRoute(
                 'frontend.account.guest.login.page',
@@ -173,6 +180,8 @@ class AccountOrderController extends StorefrontController
     public function ajaxOrderDetail(Request $request, SalesChannelContext $context): Response
     {
         $page = $this->orderDetailPageLoader->load($request, $context);
+
+        $this->hook(new AccountOrderDetailPageLoadedHook($page, $context));
 
         $response = $this->renderStorefront('@Storefront/storefront/page/account/order-history/order-detail-list.html.twig', [
             'orderDetails' => $page->getLineItems(),
@@ -225,6 +234,8 @@ class AccountOrderController extends StorefrontController
         }
 
         $page = $this->accountEditOrderPageLoader->load($request, $context);
+
+        $this->hook(new AccountEditOrderPageLoadedHook($page, $context));
 
         if ($page->isPaymentChangeable() === false) {
             $refundsEnabled = $this->systemConfigService->get('core.cart.enableOrderRefunds');

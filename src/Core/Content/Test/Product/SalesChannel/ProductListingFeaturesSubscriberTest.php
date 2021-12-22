@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -182,6 +183,40 @@ class ProductListingFeaturesSubscriberTest extends TestCase
             [true, new Request(['shipping-free' => true])],
             [null, new Request(['shipping-free' => false])],
             [null, new Request(['shipping-free' => null])],
+        ];
+    }
+
+    /**
+     * @dataProvider priceFilterProvider
+     */
+    public function testPriceFilter(array $expected, Request $request): void
+    {
+        $criteria = new Criteria();
+        $event = new ProductListingCriteriaEvent($request, $criteria, Generator::createSalesChannelContext());
+        $this->eventDispatcher->dispatch($event);
+
+        if (empty($expected)) {
+            static::assertCount(0, $criteria->getPostFilters());
+
+            return;
+        }
+
+        static::assertCount(1, $criteria->getPostFilters());
+        $filter = $criteria->getPostFilters()[0];
+
+        static::assertInstanceOf(RangeFilter::class, $filter);
+        static::assertSame($expected['min'], $filter->getParameter(RangeFilter::GTE));
+        static::assertSame($expected['max'], $filter->getParameter(RangeFilter::LTE));
+    }
+
+    public function priceFilterProvider(): array
+    {
+        return [
+            [['min' => 10, 'max' => null], new Request(['min-price' => 10])],
+            [['min' => null, 'max' => 10], new Request(['max-price' => 10])],
+            [['min' => 0, 'max' => 0], new Request(['min-price' => 0, 'max-price' => 0])],
+            [['min' => 10, 'max' => 10], new Request(['min-price' => 10, 'max-price' => 10])],
+            [[], new Request(['min-price' => -10, 'max-price' => -10])],
         ];
     }
 

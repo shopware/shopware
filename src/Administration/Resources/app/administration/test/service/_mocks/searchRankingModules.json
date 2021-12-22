@@ -18,8 +18,7 @@
   },
   {
     "name": "property-module",
-    "entity": "property",
-    "searchEntity": "property_group",
+    "entity": "property_group",
     "routes": {
       "index": {
         "path": "index",

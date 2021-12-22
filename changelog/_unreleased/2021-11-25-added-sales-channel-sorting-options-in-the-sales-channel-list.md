@@ -1,7 +1,7 @@
 ---
 title: Added sales-channel sorting options in the sales channel list
 issue: NEXT-18280
-flag: NEXT-17421
+flag: FEATURE_NEXT_17421
 author: Patrick Stahl
 author_email: p.stahl@shopware.com 
 author_github: PaddyS

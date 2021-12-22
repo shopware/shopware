@@ -46,6 +46,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
         $this->promotion = new PromotionEntity();
         $this->promotion->setId('PR-1');
         $this->promotion->setUseCodes(false);
+        $this->promotion->setUseIndividualCodes(false);
         $this->promotion->setUseSetGroups(false);
 
         $this->salesChannelContext = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
@@ -98,6 +99,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             ],
             'exclusions' => [],
             'preventCombination' => false,
+            'promotionCodeType' => 'fixed',
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -125,6 +127,9 @@ class PromotionItemBuilderPayloadTest extends TestCase
         $discount->setMaxValue(23.0);
         $discount->setScope(PromotionDiscountEntity::SCOPE_CART);
 
+        // Set promotion code to type individual
+        $this->promotion->setUseIndividualCodes(true);
+
         $builder = new PromotionItemBuilder();
 
         $item = $builder->buildDiscountLineItem('my-code', $this->promotion, $discount, Defaults::CURRENCY, $currencyFactor);
@@ -147,6 +152,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             ],
             'exclusions' => [],
             'preventCombination' => false,
+            'promotionCodeType' => 'individual',
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -199,6 +205,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             ],
             'exclusions' => [],
             'preventCombination' => false,
+            'promotionCodeType' => 'fixed',
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -301,6 +308,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             ],
             'exclusions' => [],
             'preventCombination' => false,
+            'promotionCodeType' => 'global',
         ];
 
         static::assertEquals($expected, $item->getPayload());

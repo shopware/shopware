@@ -91,6 +91,7 @@
                         v-tooltip="getDisabledSelectionTooltip(item)"
                         :selected="isSelected(item)"
                         :disabled="isSelectionDisabled(item)"
+                        :description-position="descriptionPosition"
                         v-bind="{ item, index }"
                         @item-select="setValue"
                     >

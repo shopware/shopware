@@ -15,7 +15,7 @@ class MatchAllLineItemsRule extends Container
 {
     protected ?int $minimumShouldMatch = null;
 
-    protected ?string $type;
+    protected ?string $type = null;
 
     public function __construct(array $rules = [], ?int $minimumShouldMatch = null, ?string $type = null)
     {

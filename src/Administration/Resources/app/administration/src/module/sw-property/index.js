@@ -19,8 +19,7 @@ Module.register('sw-property', {
     color: '#57D9A3',
     icon: 'default-symbol-products',
     favicon: 'icon-module-products.png',
-    entity: 'property',
-    searchEntity: 'property_group',
+    entity: 'property_group',
 
     routes: {
         index: {

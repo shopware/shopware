@@ -17,6 +17,7 @@ Module.register('sw-newsletter-recipient', {
     icon: 'default-object-marketing',
     favicon: 'default-object-marketing',
     entity: 'newsletter_recipient',
+    entityDisplayProperty: 'email',
 
     routes: {
         index: {

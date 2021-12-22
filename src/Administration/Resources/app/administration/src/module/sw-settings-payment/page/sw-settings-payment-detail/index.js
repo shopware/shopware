@@ -8,7 +8,12 @@ const { warn } = Shopware.Utils.debug;
 Component.register('sw-settings-payment-detail', {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'customFieldDataProviderService',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),

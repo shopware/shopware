@@ -619,6 +619,7 @@
         "lineItemRule": "Positionen",
         "lineItemsInCartRule": "Positionen im Warenkorb",
         "lineItemsInCartCountRule": "Anzahl unterschiedlicher Positionen",
+        "promotionsInCartCountRule": "Anzahl der Rabatte",
         "lineItemUnitPriceRule": "Preis einer bestimmten Position",
         "lineItemTotalPriceRule": "Gesamtpreis aller Positionen",
         "lineItemWithQuantityRule": "Anzahl ausgewählter Position",
@@ -676,6 +677,13 @@
         "shippingMethodRule": "Verwendete Versandart",
         "lineItemGoodsTotalRule": "Gesamtanzahl Produkte im Warenkorb",
         "orderTotalAmountRule": "Gesamtsumme aller abgeschlossenen Bestellungen",
+        "promotionValueRule": "Gesamtwert aller Rabatte",
+        "promotionCodeOfType": "Rabattaktionen mit Aktionscodetyp",
+        "promotionCodeOfTypeRule": {
+          "global": "Keiner",
+          "fixed": "Festgelegt",
+          "individual": "Individuell"
+        },
         "promotionLineItemRule": "Rabattaktion",
         "lineItemCustomField": {
           "field": {
@@ -1208,5 +1216,21 @@
     "messageNoResultSublineBefore": "Bearbeite Deine Filter, oder Suchbegriffe um Ergebnisse zu finden. Bitte überprüfe auch",
     "messageNoResultSublineLink": "die Konfiguration",
     "messageNoResultSublineAfter": "Deiner Suche."
+  },
+  "sw-restricted-rules": {
+    "restrictedAssignment": {
+      "general": "Diese Regel verwendet Bedingungen, die für die Zuweisung zu {relation} nicht zulässig sind.",
+      "productPrices": "Preis-Regel",
+      "shippingMethodPrices": "Preis-Regel",
+      "shippingMethodPriceCalculations": "Versankosten-Berechnungs-Regel",
+      "shippingMethods": "Versandarten-Regel",
+      "paymentMethods": "Zahlarten-Regel",
+      "flowSequences": "Flow-Builder-Regeln",
+      "personaPromotions": "Kunden-Regeln",
+      "orderPromotions": "Bestellungs-Regeln",
+      "cartPromotions": "Warenkorb-Regeln",
+      "promotionDiscounts": "Produkt-Regeln",
+      "promotionSetGroups": "Produkt-Regeln"
+    }
   }
 }

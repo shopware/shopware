@@ -7,11 +7,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Sitemap\Service\SitemapHandle;
 use Shopware\Core\Content\Sitemap\Struct\Url;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class SitemapHandleTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     /**
      * @var SitemapHandle
      */
@@ -29,7 +32,11 @@ class SitemapHandleTest extends TestCase
         $fileSystem = $this->createMock(Filesystem::class);
         $fileSystem->expects(static::never())->method('write');
 
-        $this->handle = new SitemapHandle($fileSystem, $this->getContext());
+        $this->handle = new SitemapHandle(
+            $fileSystem,
+            $this->getContext(),
+            $this->getContainer()->get('event_dispatcher')
+        );
 
         $this->handle->write([
             $url,
@@ -49,7 +56,11 @@ class SitemapHandleTest extends TestCase
         $fileSystem->expects(static::once())->method('write');
         $fileSystem->method('listContents')->willReturn([]);
 
-        $this->handle = new SitemapHandle($fileSystem, $this->getContext());
+        $this->handle = new SitemapHandle(
+            $fileSystem,
+            $this->getContext(),
+            $this->getContainer()->get('event_dispatcher')
+        );
 
         $this->handle->write([$url]);
         $this->handle->finish();
@@ -74,7 +85,11 @@ class SitemapHandleTest extends TestCase
         $fileSystem->expects(static::atLeast(3))->method('write');
         $fileSystem->method('listContents')->willReturn([]);
 
-        $this->handle = new SitemapHandle($fileSystem, $this->getContext());
+        $this->handle = new SitemapHandle(
+            $fileSystem,
+            $this->getContext(),
+            $this->getContainer()->get('event_dispatcher')
+        );
 
         $this->handle->write($list);
         $this->handle->finish();

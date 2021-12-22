@@ -321,7 +321,9 @@
         "labelLicensed": "Purchased"
       },
       "sw-extension-config": {
-        "messageSaveSuccess": "Configuration saved."
+        "messageSaveSuccess": "Configuration saved.",
+        "imageDescription": "Icon of extension \"{extensionName}\"",
+        "labelBy": "by"
       }
     }
   },

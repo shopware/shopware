@@ -206,6 +206,17 @@ class PromotionItemBuilder
         // set value of discount in payload
         $payload['value'] = (string) $discount->getValue();
 
+        // specifies the type of the promotion code (fixed, individual, global)
+        $promotionCodeType = 'fixed';
+        if ($promotion->isUseIndividualCodes()) {
+            $promotionCodeType = 'individual';
+        }
+
+        if ($code === '') {
+            $promotionCodeType = 'global';
+        }
+        $payload['promotionCodeType'] = $promotionCodeType;
+
         // set our max value for maximum percentage discounts
         $payload['maxValue'] = '';
         if ($discount->getType() === PromotionDiscountEntity::TYPE_PERCENTAGE && $discount->getMaxValue() !== null) {

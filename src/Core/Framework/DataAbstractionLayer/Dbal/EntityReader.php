@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Connection;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
@@ -49,18 +50,22 @@ class EntityReader implements EntityReaderInterface
 
     private CriteriaQueryBuilder $criteriaQueryBuilder;
 
+    private LoggerInterface $logger;
+
     public function __construct(
         Connection $connection,
         EntityHydrator $hydrator,
         EntityDefinitionQueryHelper $queryHelper,
         SqlQueryParser $parser,
-        CriteriaQueryBuilder $criteriaQueryBuilder
+        CriteriaQueryBuilder $criteriaQueryBuilder,
+        LoggerInterface $logger
     ) {
         $this->connection = $connection;
         $this->hydrator = $hydrator;
         $this->queryHelper = $queryHelper;
         $this->parser = $parser;
         $this->criteriaQueryBuilder = $criteriaQueryBuilder;
+        $this->logger = $logger;
     }
 
     public function read(EntityDefinition $definition, Criteria $criteria, Context $context): EntityCollection
@@ -955,16 +960,12 @@ class EntityReader implements EntityReaderInterface
         FieldCollection $fields
     ): FieldCollection {
         foreach ($criteria->getAssociations() as $fieldName => $_fieldCriteria) {
-            $regex = sprintf('#^(%s\.)?(extensions\.)?#i', $definition->getEntityName());
-            $fieldName = preg_replace($regex, '', $fieldName);
-
-            $dotPosition = mb_strpos($fieldName, '.');
-            if ($dotPosition !== false) {
-                $fieldName = mb_substr($fieldName, 0, $dotPosition);
-            }
-
             $field = $definition->getFields()->get($fieldName);
             if (!$field) {
+                $this->logger->warning(
+                    sprintf('Criteria association "%s" could not be resolved. Double check your Criteria!', $fieldName)
+                );
+
                 continue;
             }
 

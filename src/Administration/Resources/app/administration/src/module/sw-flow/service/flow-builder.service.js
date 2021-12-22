@@ -16,6 +16,7 @@ export default function flowBuilderService() {
         changeCustomerStatus: 'default-avatar-single',
         stopFlow: 'default-basic-x-circle',
         setCustomField: 'default-documentation-paper-pencil-signed',
+        addAffiliateAndCampaignCode: 'default-documentation-paper-pencil-signed',
     };
 
     const $labelSnippet = {
@@ -28,11 +29,13 @@ export default function flowBuilderService() {
         changeCustomerStatus: 'sw-flow.actions.changeCustomerStatus',
         stopFlow: 'sw-flow.actions.stopFlow',
         setCustomField: 'sw-flow.actions.changeCustomFieldContent',
+        addAffiliateAndCampaignCode: 'sw-flow.actions.addAffiliateAndCampaignCode',
     };
 
     return {
         getActionTitle,
         getActionModalName,
+        convertEntityName,
     };
 
     function getActionTitle(actionName) {
@@ -64,6 +67,14 @@ export default function flowBuilderService() {
                     value: actionName,
                     icon: $icon.setCustomField,
                     label: $labelSnippet.setCustomField,
+                };
+            }
+
+            if (actionName.includes('affiliate')) {
+                return {
+                    value: actionName,
+                    icon: $icon.addAffiliateAndCampaignCode,
+                    label: $labelSnippet.addAffiliateAndCampaignCode,
                 };
             }
         }
@@ -103,8 +114,19 @@ export default function flowBuilderService() {
             if (actionName.includes('custom') && actionName.includes('field')) {
                 return 'sw-flow-set-entity-custom-field-modal';
             }
+
+            if (actionName.includes('affiliate') && actionName.includes('campaign')) {
+                return 'sw-flow-affiliate-and-campaign-code-modal';
+            }
         }
 
         return `${actionName.replace(/\./g, '-').replace('action', 'sw-flow')}-modal`;
+    }
+
+    function convertEntityName(camelCaseText) {
+        if (!camelCaseText) return '';
+
+        const normalText = camelCaseText.replace(/([A-Z])/g, ' $1');
+        return capitalizeString(normalText);
     }
 }

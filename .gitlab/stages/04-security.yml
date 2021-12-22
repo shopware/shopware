@@ -5,6 +5,8 @@ Symfony security check:
     stage: security
     needs: []
     image: shopware/development:7.4-composer-2
+    tags:
+        - t3.nano
     before_script: []
     script:
         - composer install --no-interaction --no-scripts

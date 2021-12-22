@@ -380,9 +380,22 @@ class ProductBuilder
         return $this;
     }
 
-    public function option(string $key): self
+    public function option(string $key, string $group): self
     {
-        $this->options[] = ['id' => $this->ids->get($key)];
+        if ($this->ids->has($key)) {
+            $this->options[] = ['id' => $this->ids->get($key)];
+
+            return $this;
+        }
+
+        $this->options[] = [
+            'id' => $this->ids->get($key),
+            'name' => $key,
+            'group' => [
+                'id' => $this->ids->get($group),
+                'name' => $group,
+            ],
+        ];
 
         return $this;
     }

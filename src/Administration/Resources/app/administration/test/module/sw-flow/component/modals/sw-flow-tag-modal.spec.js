@@ -38,7 +38,9 @@ function createWrapper() {
         localVue,
         provide: {
             flowBuilderService: {
-                getActionModalName: () => {}
+                getActionModalName: () => {},
+
+                convertEntityName: () => {}
             },
             repositoryFactory: {
                 create: () => {

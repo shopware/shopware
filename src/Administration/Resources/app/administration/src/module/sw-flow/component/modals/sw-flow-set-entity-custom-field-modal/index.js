@@ -1,7 +1,7 @@
 import template from './sw-flow-set-entity-custom-field-modal.html.twig';
 import './sw-flow-set-entity-custom-field-modal.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, Service } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
@@ -113,6 +113,12 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
     },
 
     watch: {
+        entity(value) {
+            if (value && this.entityError) {
+                this.entityError = null;
+            }
+        },
+
         renderedFieldConfig(value) {
             if (value.customFieldType === 'colorpicker' && !this.renderedFieldConfig.zIndex) {
                 this.renderedFieldConfig = {
@@ -274,7 +280,7 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
                 }
 
                 options.push({
-                    label: this.convertEntityName(key),
+                    label: Service('flowBuilderService').convertEntityName(key),
                     value: key,
                 });
             });
@@ -286,6 +292,9 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
             this.entityOptions = options;
         },
 
+        /**
+         * @major-deprecated tag:v6.5.0 - will be removed, use convertEntityName method of flowBuilderService instead
+         */
         convertEntityName(camelCaseText) {
             if (!camelCaseText) return '';
 

@@ -25,6 +25,35 @@
             {% endblock %}
 
         </template>
+
+        <template
+            v-if="feature.isActive('FEATURE_NEXT_18215')"
+            #result-item="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey }"
+        >
+            <sw-select-result
+                v-tooltip="tooltipConfig(item.id)"
+                :selected="isSelected(item)"
+                :disabled="restrictedRules.includes(item.id)"
+                v-bind="{ item, index }"
+                @item-select="addItem"
+            >
+                {% block sw_entity_many_to_many_select_base_results_list_result_label %}
+                <slot
+                    name="result-label-property"
+                    v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, getKey }"
+                >
+                    <sw-highlight-text
+                        v-if="highlightSearchTerm"
+                        :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                        :search-term="searchTerm"
+                    />
+                    <template v-else>
+                        {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                    </template>
+                </slot>
+                {% endblock %}
+            </sw-select-result>
+        </template>
     </sw-entity-many-to-many-select>
     {% endblock %}
 

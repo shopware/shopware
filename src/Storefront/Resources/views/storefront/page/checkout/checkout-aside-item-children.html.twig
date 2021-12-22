@@ -73,7 +73,9 @@
                                             {% block page_checkout_aside_item_child_headline_label %}
                                                 <div class="cart-aside-item-child-label-bullet">
                                                     <div class="swag-fade-container swag-fade-container-shrinked">
-                                                        {{ nestedLineItem.label }}
+                                                        {% set label = nestedLineItem.label|trans|sw_sanitize %}
+                                                        {% set label = label !== '' ? label : nestedLineItem.label %}
+                                                        {{ label }}
                                                     </div>
                                                     <a href="#" class="swag-fading-link-more swag-fade-link-hidden">{{ 'checkout.lineItemShowMore'|trans|sw_sanitize }}</a>
                                                     <a href="#" class="swag-fading-link-less swag-fade-link-hidden">{{ 'checkout.lineItemShowLess'|trans|sw_sanitize }}</a>

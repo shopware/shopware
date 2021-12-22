@@ -36,6 +36,7 @@
                 "general": {
                     "cardTitle": "General settings",
                     "nameLabel": "Name",
+                    "priorityLabel": "Priority",
                     "validFromLabel": "Valid from",
                     "validFromPlaceholder": "Select start date...",
                     "validUntilLabel": "Valid until",
@@ -124,6 +125,7 @@
                     "labelValue": "Value",
                     "labelSorting": "Sorting",
                     "labelRules": "Product rules",
+                    "placeholder": "Choose a product rule...",
                     "packager": {
                         "COUNT": "Quantity",
                         "PRICE_UNIT_GROSS": "Amount (gross)",

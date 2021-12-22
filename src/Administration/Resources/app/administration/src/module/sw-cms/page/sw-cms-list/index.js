@@ -28,7 +28,7 @@ Component.register('sw-cms-list', {
                 gridView: 10,
                 cardView: 9,
             },
-            term: null,
+            term: '',
             currentPageType: null,
             showMediaModal: false,
             currentPage: null,

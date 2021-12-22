@@ -57,7 +57,7 @@ Component.register('sw-bulk-edit-order-documents', {
                 this.documentTypes = res;
 
                 this.documentTypes.forEach(type => {
-                    this.value.documentType[type] = null;
+                    this.value.documentType[type.technicalName] = null;
                 });
             });
         },

@@ -33,9 +33,8 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
 
                 promises = orders.map((order) => {
                     const optionsMail = {
-                        documentIds: [
-                            // TODO: NEXT-15616 - allow sending email for status changes including document attachments
-                        ],
+                        documentTypes: change.documentTypes,
+                        skipSentDocuments: change.skipSentDocuments,
                         sendMail: change.sendMail,
                     };
 

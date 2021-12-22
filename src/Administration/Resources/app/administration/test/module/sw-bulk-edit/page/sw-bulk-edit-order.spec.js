@@ -267,8 +267,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         expect(wrapper.find('.sw-bulk-edit-change-field-renderer').exists()).toBeTruthy();
     });
 
-    // TODO: NEXT-6061 - Enable the test once sending status mails and documents are ready
-    it.skip('should disable status mails and documents by default', async () => {
+    it('should disable status mails and documents by default', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_17261'];
         wrapper = await createWrapper();
 
         await flushPromises();
@@ -277,8 +277,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         expect(wrapper.find('.sw-bulk-edit-change-field-documents .sw-field__checkbox input').attributes().disabled).toBeTruthy();
     });
 
-    // TODO: NEXT-6061 - Enable the test once sending status mails and documents are ready
-    it.skip('should enable status mails when one of the status fields has changed', async () => {
+    it('should enable status mails when one of the status fields has changed', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_17261'];
+
         wrapper = createWrapper();
 
         await flushPromises();
@@ -298,8 +299,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         expect(wrapper.find('.sw-bulk-edit-change-field-statusMails .sw-field__checkbox input').attributes().disabled).toBeFalsy();
     });
 
-    // TODO: NEXT-6061 - Enable the test once sending status mails and documents are ready
-    it.skip('should enable documents when status mails is enabled', async () => {
+    it('should enable documents when status mails is enabled', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_17261'];
+
         wrapper = createWrapper();
 
         await flushPromises();

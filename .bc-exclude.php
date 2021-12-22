@@ -15,6 +15,7 @@ return [
         'Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Util\\\\ConfigReader#\\$xsdFile', // Can not be inspected through reflection (__DIR__ constant)
         'Shopware\\\\Core\\\\Framework\\\\Migration\\\\Exception\\\\UnknownMigrationSourceExceptionBase', // Can not be inspected through reflection if() {class Foo {} }
         'Type.+documentation.+for.+property', // Doc type to native type conversions seems to not correctly be detected by the BC checker
+        'Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\RetryableTransaction::retryable()', // This is a static method so extending this class is not necessary
         'The.+#__construct().+', // Todo make service constructors @internal
         'Default.+#__construct().+', // Todo make service constructors @internal
     ],

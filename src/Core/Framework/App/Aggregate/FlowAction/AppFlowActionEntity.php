@@ -43,7 +43,7 @@ class AppFlowActionEntity extends Entity
 
     protected ?AppFlowActionTranslationCollection $translations;
 
-    protected ?FlowSequenceCollection $flowSequences;
+    protected ?FlowSequenceCollection $flowSequences = null;
 
     public function getAppId(): string
     {

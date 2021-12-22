@@ -10,6 +10,10 @@ use Symfony\Component\Config\Util\XmlUtils;
  */
 class Component extends XmlElement
 {
+    private const BOOLEAN_FIELD = [
+        'required',
+    ];
+
     protected string $componentName;
 
     protected string $name;
@@ -17,6 +21,8 @@ class Component extends XmlElement
     protected string $entity;
 
     protected array $label;
+
+    protected ?bool $required = null;
 
     public function __construct(array $data)
     {
@@ -45,6 +51,11 @@ class Component extends XmlElement
         return $this->label;
     }
 
+    public function getRequired(): ?bool
+    {
+        return $this->required;
+    }
+
     public static function fromXml(\DOMElement $element): self
     {
         return new self(self::parse($element));
@@ -66,6 +77,12 @@ class Component extends XmlElement
             // translated
             if (\in_array($child->tagName, ['label'], true)) {
                 $values = self::mapTranslatedTag($child, $values);
+
+                continue;
+            }
+
+            if (\in_array($child->nodeName, self::BOOLEAN_FIELD, true)) {
+                $values[$child->nodeName] = $child->nodeValue === 'true';
 
                 continue;
             }

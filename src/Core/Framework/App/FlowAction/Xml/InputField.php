@@ -39,8 +39,6 @@ class InputField extends XmlElement
 
     protected ?array $options = [];
 
-    protected ?string $flag = null;
-
     protected ?string $type = null;
 
     public function __construct(array $data)
@@ -93,11 +91,6 @@ class InputField extends XmlElement
     public function getOptions(): ?array
     {
         return $this->options;
-    }
-
-    public function getFlag(): ?string
-    {
-        return $this->flag;
     }
 
     public function getType(): ?string

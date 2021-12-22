@@ -77,7 +77,7 @@ export default function flowBuilderService() {
 
         return {
             value: actionName,
-            icon: $icon[keyName],
+            icon: $icon[keyName] !== undefined ? $icon[keyName] : $icon.addEntityTag,
             label: $labelSnippet[keyName],
         };
     }
@@ -85,6 +85,10 @@ export default function flowBuilderService() {
     function getActionModalName(actionName) {
         if (!actionName) {
             return '';
+        }
+
+        if (actionName.slice(0, 4) === 'app.') {
+            return 'sw-flow-app-action-modal';
         }
 
         if (mapActionType(actionName) === ACTION_TYPE.ADD_TAG

@@ -6,6 +6,7 @@
     v-model="currentValue"
     class="sw-form-field-renderer"
     @change="emitChange"
+    @input="emitUpdate"
 >
     {% block sw_form_field_renderer_scope_slots %}
     <!-- eslint-disable vue/v-slot-style -->

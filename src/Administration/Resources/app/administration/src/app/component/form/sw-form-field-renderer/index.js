@@ -238,11 +238,19 @@ Component.register('sw-form-field-renderer', {
             }
         },
 
-        emitChange(data) {
+        emitChange(data, field = null) {
             if (this.type === 'price') {
                 return;
             }
             this.$emit('change', data);
+            this.emitUpdate(data, field);
+        },
+
+        emitUpdate(data, field = null) {
+            this.$emit('update', {
+                value: data,
+                field,
+            });
         },
 
         getTranslations(componentName, config = this.config, translatableFields = ['label', 'placeholder', 'helpText']) {

@@ -40,6 +40,18 @@ const sequencesFixture = [
     }
 ];
 
+const appFlowResponse = [
+    {
+        label: 'Telegram send message',
+        name: 'app.telegram.send.message',
+        swIcon: 'default-communication-speech-bubbles',
+        requirements: [
+            'Shopware\\Core\\Framework\\Event\\CustomerAware',
+            'Shopware\\Core\\Framework\\Event\\OrderAware'
+        ]
+    }
+];
+
 function getSequencesCollection(collection = []) {
     return new EntityCollection(
         '/flow_sequence',
@@ -52,7 +64,7 @@ function getSequencesCollection(collection = []) {
     );
 }
 
-function createWrapper(propsData = {}) {
+function createWrapper(propsData = {}, flag = null) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
@@ -120,10 +132,20 @@ function createWrapper(propsData = {}) {
         provide: {
             repositoryFactory: {
                 create: () => {
+                    if (flag === 'appFlowAction') {
+                        return {
+                            create: () => {
+                                return {};
+                            },
+                            search: () => Promise.resolve(appFlowResponse)
+                        };
+                    }
+
                     return {
                         create: () => {
                             return {};
-                        }
+                        },
+                        search: () => Promise.resolve([])
                     };
                 }
             },
@@ -538,5 +560,16 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
 
         const description = wrapper.find('.sw-flow-sequence-action__action-description');
         expect(description.text()).toContain('sw-flow.modals.status.labelOrderStatus: In Progress');
+    });
+
+    it('should has app flow action', async () => {
+        const wrapper = await createWrapper({}, 'appFlowAction');
+        await wrapper.vm.$nextTick();
+
+        const actionSelect = wrapper.find('.sw-single-select__selection');
+        await actionSelect.trigger('click');
+
+        const actionItems = wrapper.findAll('.sw-select-result');
+        expect(actionItems.length).toEqual(5);
     });
 });

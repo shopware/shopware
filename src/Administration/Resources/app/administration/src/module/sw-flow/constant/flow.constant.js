@@ -16,6 +16,7 @@ export const ACTION = Object.freeze({
     CHANGE_CUSTOMER_STATUS: 'action.change.customer.status',
     ADD_CUSTOMER_AFFILIATE_AND_CAMPAIGN_CODE: 'action.add.customer.affiliate.and.campaign.code',
     ADD_ORDER_AFFILIATE_AND_CAMPAIGN_CODE: 'action.add.order.affiliate.and.campaign.code',
+    APP_FLOW_ACTION: 'action.app.flow',
 });
 
 export const ACTION_TYPE = Object.freeze({

@@ -31,7 +31,6 @@
                 <place-holder lang="de-DE">Enter to DE...</place-holder>
                 <helpText>Help text</helpText>
                 <helpText lang="de-DE">Help text DE</helpText>
-                <flag>1</flag>
                 <required>true</required>
                 <disabled>true</disabled>
                 <editable>false</editable>

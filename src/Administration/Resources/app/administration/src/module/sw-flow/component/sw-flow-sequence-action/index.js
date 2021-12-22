@@ -8,6 +8,7 @@ const { cloneDeep } = utils.object;
 const { ShopwareError } = Shopware.Classes;
 const { mapState, mapGetters } = Component.getComponentHelper();
 const { snakeCase } = utils.string;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-flow-sequence-action', {
     template,
@@ -36,6 +37,9 @@ Component.register('sw-flow-sequence-action', {
             fieldError: null,
             selectedAction: '',
             currentSequence: {},
+            appFlowActions: [],
+            isAppAction: false,
+            appActionEntities: {},
         };
     },
 
@@ -48,10 +52,37 @@ Component.register('sw-flow-sequence-action', {
             return this.repositoryFactory.create('custom_field_set');
         },
 
+        appFlowActionRepository() {
+            return this.repositoryFactory.create('app_flow_action');
+        },
+
         actionOptions() {
-            return this.availableActions.map((action) => {
+            const actions = this.availableActions.map((action) => {
                 return this.getActionTitle(action);
             });
+
+            if (!this.appFlowActions?.length) {
+                return actions;
+            }
+
+            let appActions = [];
+            this.appFlowActions.forEach((appFlowAction) => {
+                if (!this.isAware(appFlowAction)) {
+                    return;
+                }
+
+                appActions = [...appActions, {
+                    value: appFlowAction.name,
+                    icon: appFlowAction.swIcon,
+                    label: appFlowAction.label || appFlowAction.translated?.label,
+                }];
+            });
+
+            if (appActions.length > 0) {
+                return [...appActions, ...actions];
+            }
+
+            return actions;
         },
 
         sequenceData() {
@@ -89,6 +120,13 @@ Component.register('sw-flow-sequence-action', {
             return this.flowBuilderService.getActionModalName(this.selectedAction);
         },
 
+        appFlowActionCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('translations');
+
+            return criteria;
+        },
+
         actionDescription() {
             return {
                 [ACTION.STOP_FLOW]: () => this.$tc('sw-flow.actions.textStopFlowDescription'),
@@ -105,6 +143,7 @@ Component.register('sw-flow-sequence-action', {
                     (config) => this.getAffiliateAndCampaignCodeDescription(config),
                 [ACTION.ADD_ORDER_AFFILIATE_AND_CAMPAIGN_CODE]:
                     (config) => this.getAffiliateAndCampaignCodeDescription(config),
+                [ACTION.APP_FLOW_ACTION]: (config, actionName) => this.getAppFlowActionDescription(config, actionName),
             };
         },
 
@@ -117,6 +156,8 @@ Component.register('sw-flow-sequence-action', {
                 'customerGroups',
                 'customFieldSets',
                 'customFields',
+                'triggerEvent',
+                'appFlowActionEntities',
             ]),
         ...mapGetters('swFlowState', ['availableActions']),
     },
@@ -136,9 +177,16 @@ Component.register('sw-flow-sequence-action', {
     methods: {
         createdComponent() {
             this.showAddButton = this.sequenceData.length > 1 || !!this.sequence?.actionName;
+            this.getAppFlowAction();
         },
 
         openDynamicModal(value) {
+            const appAction = this.getSelectedAppFlowAction(value);
+            if (appAction) {
+                this.isAppAction = true;
+                this.currentSequence.propsAppFlowAction = appAction;
+            }
+
             if (value === ACTION.STOP_FLOW) {
                 this.addAction({
                     name: ACTION.STOP_FLOW,
@@ -147,6 +195,10 @@ Component.register('sw-flow-sequence-action', {
                 return;
             }
             this.selectedAction = value;
+        },
+
+        getSelectedAppFlowAction(actionName) {
+            return this.appFlowActions.find((item) => item.name === actionName);
         },
 
         onSaveActionSuccess(sequence) {
@@ -175,9 +227,50 @@ Component.register('sw-flow-sequence-action', {
             this.onCloseModal();
         },
 
+        getAppFlowActionEntity(config, actionName) {
+            const appAction = this.getSelectedAppFlowAction(actionName);
+            if (appAction === undefined) {
+                return null;
+            }
+
+            appAction.config.forEach((actionConfig) => {
+                if (!config[actionConfig.name]) {
+                    return;
+                }
+
+                this.appActionEntities[actionConfig.name] = {
+                    entity: actionConfig.entity,
+                    value: config[actionConfig.name],
+                };
+            });
+
+            return this.getAppActionFlowValues();
+        },
+
+        async getAppActionFlowValues() {
+            if (Object.keys(this.appActionEntities).length <= 0) {
+                return;
+            }
+
+            await Object.values(this.appActionEntities).forEach((actionEntity) => {
+                if (actionEntity.entity === undefined) {
+                    return;
+                }
+
+                const ids = (typeof actionEntity.value === 'string') ? [actionEntity.value] : actionEntity.value;
+                const criteria = new Criteria(1, ids.length);
+                criteria.setIds(ids);
+                this.repositoryFactory.create(actionEntity.entity).search(criteria, Shopware.Context.api).then(res => {
+                    this.$set(this.entities, actionEntity.entity, res);
+                });
+            });
+        },
+
         onCloseModal() {
             this.currentSequence = {};
             this.selectedAction = '';
+            this.isAppAction = false;
+            this.$delete(this.sequence, 'propsAppFlowAction');
         },
 
         addAction(action) {
@@ -185,12 +278,20 @@ Component.register('sw-flow-sequence-action', {
                 return;
             }
 
+            const appAction = this.getSelectedAppFlowAction(action.name);
+
             if (!this.sequence.actionName && this.sequence.id) {
-                State.commit('swFlowState/updateSequence', {
+                const data = {
                     id: this.sequence.id,
                     actionName: action.name,
                     config: action.config,
-                });
+                };
+
+                if (appAction !== undefined) {
+                    data.appFlowActionId = appAction.id;
+                }
+
+                State.commit('swFlowState/updateSequence', data);
             } else {
                 const lastSequence = this.sequenceData[this.sequenceData.length - 1];
 
@@ -206,6 +307,10 @@ Component.register('sw-flow-sequence-action', {
                     config: action.config,
                     id: utils.createId(),
                 };
+
+                if (appAction !== undefined) {
+                    newSequence.appFlowActionId = appAction.id;
+                }
 
                 sequence = Object.assign(sequence, newSequence);
                 State.commit('swFlowState/addSequence', sequence);
@@ -267,6 +372,7 @@ Component.register('sw-flow-sequence-action', {
                 return;
             }
 
+            sequence.propsAppFlowAction = this.getSelectedAppFlowAction(sequence.actionName);
             this.currentSequence = sequence;
             this.selectedAction = sequence.actionName;
         },
@@ -282,11 +388,26 @@ Component.register('sw-flow-sequence-action', {
                 return null;
             }
 
+            const appAction = this.getSelectedAppFlowAction(actionName);
+            if (appAction !== undefined) {
+                return {
+                    label: appAction.label || appAction.translated?.label,
+                    icon: appAction.swIcon,
+                    value: appAction.name,
+                };
+            }
+
             const actionTitle = this.flowBuilderService.getActionTitle(actionName);
             return {
                 ...actionTitle,
                 label: this.$tc(actionTitle.label),
             };
+        },
+
+        getAppFlowAction() {
+            return this.appFlowActionRepository.search(this.appFlowActionCriteria, Shopware.Context.api).then((response) => {
+                this.appFlowActions = response;
+            });
         },
 
         toggleAddButton() {
@@ -314,6 +435,11 @@ Component.register('sw-flow-sequence-action', {
 
             if (!actionName) return '';
 
+            const appAction = this.getSelectedAppFlowAction(actionName);
+            if (appAction !== undefined) {
+                return this.actionDescription[ACTION.APP_FLOW_ACTION](config, actionName);
+            }
+
             if (actionName.includes('tag') &&
                 (actionName.includes('add') || actionName.includes('remove'))) {
                 return `${this.$tc('sw-flow.actions.labelTo', 0, {
@@ -323,7 +449,7 @@ Component.register('sw-flow-sequence-action', {
                 })}`;
             }
 
-            if (typeof this.actionDescription[actionName] !== 'function') {
+            if (typeof this.actionDescription[actionName] !== 'function' && !this.isAppAction) {
                 return '';
             }
 
@@ -467,6 +593,125 @@ Component.register('sw-flow-sequence-action', {
             }
 
             return description;
+        },
+
+        convertLabel(res, entity) {
+            if (res === undefined) {
+                return null;
+            }
+
+            if (entity === 'customer') {
+                return `${res?.firstName} ${res?.lastName}`;
+            }
+
+            if (entity === 'order') {
+                return res.orderNumber;
+            }
+
+            return res.name;
+        },
+
+        getAppFlowActionDescription(config, actionName) {
+            const cloneConfig = { ...config };
+            let descriptions = '';
+
+            Object.entries(cloneConfig).forEach(([fieldName, optionsSelected]) => {
+                const entityCollections = this.appFlowActionEntities[optionsSelected.entity];
+
+                if (entityCollections !== undefined && entityCollections !== null) {
+                    let optionsSelectedPreview = [];
+                    if (typeof optionsSelected.value === 'string') {
+                        const itemSelected = entityCollections.find(item => item.id === optionsSelected.value);
+                        optionsSelectedPreview =
+                            [...optionsSelectedPreview, this.convertLabel(itemSelected, optionsSelected.entity)];
+                    }
+
+                    if (typeof optionsSelected.value === 'object') {
+                        optionsSelected.value.forEach((option) => {
+                            const itemSelected = entityCollections.find(item => item.id === option);
+                            optionsSelectedPreview =
+                                [...optionsSelectedPreview, this.convertLabel(itemSelected, optionsSelected.entity)];
+                        });
+                    }
+
+                    cloneConfig[fieldName] = optionsSelectedPreview;
+                }
+
+                if (typeof cloneConfig[fieldName] === 'object' && cloneConfig[fieldName].length > 1) {
+                    let html = '';
+                    cloneConfig[fieldName].forEach((val) => {
+                        const valPreview = this.formatValuePreview(fieldName, actionName, val);
+                        html = `${html}- ${valPreview}<br/>`;
+                    });
+
+                    descriptions = `${descriptions}${this.convertLabelPreview(fieldName, actionName)}:<br/> ${html}`;
+
+                    return;
+                }
+
+                const valPreview = this.formatValuePreview(fieldName, actionName, cloneConfig[fieldName]);
+                descriptions = `${descriptions}${this.convertLabelPreview(fieldName, actionName)}: ${valPreview}<br/>`;
+            });
+
+            return descriptions;
+        },
+
+        formatValuePreview(fieldName, actionName, val) {
+            const appAction = this.getSelectedAppFlowAction(actionName);
+            if (appAction === undefined) {
+                return val;
+            }
+
+            const config = appAction.config.find((field) => field.name === fieldName);
+            if (config === undefined) {
+                return val;
+            }
+
+            if (['password'].includes(config.type)) {
+                return val.replace(/([^;])/g, '*');
+            }
+
+            if (['single-select', 'multi-select'].includes(config.type)) {
+                const value = typeof val === 'string' ? val : val[0];
+                const option = config.options.find((opt) => opt.value === value);
+                if (option === undefined) {
+                    return val;
+                }
+
+                const lang = Shopware.State.get('session').currentLocale;
+
+                return option.label[lang] ?? config.label['en-GB'] ?? val;
+            }
+
+            if (['datetime', 'date', 'time'].includes(config.type)) {
+                return new Date(val);
+            }
+
+            if (['colorpicker'].includes(config.type)) {
+                return `<span class="sw-color-badge is--default" style="background: ${val};"></span>`;
+            }
+
+            return val;
+        },
+
+        convertLabelPreview(fieldName, actionName) {
+            const appAction = this.getSelectedAppFlowAction(actionName);
+            if (appAction === undefined) {
+                return fieldName;
+            }
+
+            const config = appAction.config.find((field) => field.name === fieldName);
+            if (config === undefined) {
+                return fieldName;
+            }
+
+            const lang = Shopware.State.get('session').currentLocale;
+
+            return config.label[lang] ?? config.label['en-GB'] ?? fieldName;
+        },
+
+        isAware(appFlowAction) {
+            return appFlowAction.requirements.filter(aware => this.triggerEvent?.aware.includes(aware)).length;
         },
     },
 });

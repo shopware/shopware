@@ -463,6 +463,14 @@ class ThumbnailService
                 imagejpeg($thumbnail, null, $quality);
 
                 break;
+            case 'image/webp':
+                if (!\function_exists('imagewebp')) {
+                    throw new ThumbnailCouldNotBeSavedException($url);
+                }
+
+                imagewebp($thumbnail, null, $quality);
+
+                break;
         }
         $imageFile = ob_get_contents();
         ob_end_clean();

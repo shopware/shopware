@@ -3,6 +3,8 @@
 namespace Shopware\Storefront\Test\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
@@ -13,9 +15,7 @@ use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Checkout\Order\Exception\PaymentMethodNotAvailableException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
-use Shopware\Core\Checkout\Payment\Cart\Error\PaymentMethodBlockedError;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotFoundError;
-use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
 use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestFailedPaymentHandler;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductOutOfStockError;
@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
@@ -32,11 +33,12 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
+use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
 use Shopware\Storefront\Controller\CheckoutController;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
@@ -45,6 +47,7 @@ use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Offcanvas\CheckoutInfoWidgetLoadedHook;
 use Shopware\Storefront\Page\Checkout\Offcanvas\CheckoutOffcanvasWidgetLoadedHook;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -60,10 +63,12 @@ class CheckoutControllerTest extends TestCase
     private const CUSTOMER_NAME = 'Tester';
     private const TEST_AFFILIATE_CODE = 'testAffiliateCode';
     private const TEST_CAMPAIGN_CODE = 'testCampaignCode';
-    private const SHIPPING_METHOD_BLOCKED_ERROR_CONTENT = 'The shipping method "Standard" is blocked for your current shopping cart.';
-    private const PAYMENT_METHOD_BLOCKED_ERROR_CONTENT = 'The payment method "Cash On Delivery" is blocked for your current shopping cart.';
+    private const SHIPPING_METHOD_BLOCKED_ERROR_CONTENT = 'The shipping method "%s" is blocked for your current shopping cart.';
+    private const SHIPPING_METHOD_CHANGED_ERROR_CONTENT = '"%s" shipping is not available for your current cart, the shipping was changed to "%s".';
+    private const PAYMENT_METHOD_BLOCKED_ERROR_CONTENT = 'The payment method "Cash on delivery" is blocked for your current shopping cart.';
+    private const PAYMENT_METHOD_CHANGED_ERROR_CONTENT = '"%s" payment is not available for your current cart, the payment was changed to "%s".';
     private const PROMOTION_NOT_FOUND_ERROR_CONTENT = 'Promotion with code "tn-08" could not be found.';
-    private const PRODUCT_STOCK_REACHED_ERROR_CONTENT = 'The product "Car" is not available any more';
+    private const PRODUCT_STOCK_REACHED_ERROR_CONTENT = 'The product "Test product" is not available any more';
 
     private string $failedPaymentMethodId;
 
@@ -183,38 +188,44 @@ class CheckoutControllerTest extends TestCase
 
     /**
      * @dataProvider errorDataProvider
+     *
+     * @param string[] $errorKeys
      */
-    public function testOffCanvasWithErrorsFlash($errorTypes, $errorKeys): void
+    public function testOffCanvasWithErrorsFlash(ErrorCollection $errors, array $errorKeys, bool $testSwitchToDefault = false): void
     {
-        static::markTestSkipped('Flaky due to wrong flash message. Fix with NEXT-17888');
+        $browser = $this->getBrowserWithLoggedInCustomer();
+        $browser->followRedirects(true);
+        $browserSalesChannelId = $browser->getServerParameter('test-sales-channel-id');
 
-        $contextToken = Uuid::randomHex();
         $productId = Uuid::randomHex();
-        $cartService = $this->getContainer()->get(CartService::class);
-        $this->createProductOnDatabase($productId, 'test.123');
+        $this->createProductOnDatabase($productId, 'test.123', $browserSalesChannelId);
 
-        $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
-            $contextToken,
-            TestDefaults::SALES_CHANNEL
-        );
-        $this->updateSalesChannel(TestDefaults::SALES_CHANNEL);
-        $request = $this->createRequest();
-        $request->attributes->add([
-            '_route' => 'frontend.cart.offcanvas',
-            SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
-            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $salesChannelContext,
-            RequestTransformer::STOREFRONT_URL => 'http://test.de',
-            SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE => 'en-GB',
-            SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID => $this->getSnippetSetIdForLocale('en-GB'),
-        ]);
-        $this->getContainer()->get('request_stack')->push($request);
-        $cartLineItem = $cartService->getCart($contextToken, $salesChannelContext);
-        foreach ($errorTypes as $errorType) {
-            $cartLineItem->addErrors(
-                $errorType
+        foreach ($errors as $error) {
+            $this->prepareErrors(
+                $error,
+                $browser,
+                $browserSalesChannelId,
+                $productId,
+                $testSwitchToDefault
             );
         }
-        $response = $this->getContainer()->get(CheckoutController::class)->offcanvas($request, $salesChannelContext);
+
+        // Always add a product to the cart
+        $browser->request(
+            'POST',
+            '/checkout/product/add-by-number',
+            [
+                'number' => 'test.123',
+            ]
+        );
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $browser->request(
+            'GET',
+            '/checkout/offcanvas'
+        );
+        $response = $browser->getResponse();
         $contentReturn = $response->getContent();
         static::assertNotFalse($contentReturn);
 
@@ -229,10 +240,103 @@ class CheckoutControllerTest extends TestCase
     public function errorDataProvider(): array
     {
         return [
-            [[new ShippingMethodBlockedError('Standard'), new PaymentMethodBlockedError('Cash On Delivery')], [self::SHIPPING_METHOD_BLOCKED_ERROR_CONTENT, self::PAYMENT_METHOD_BLOCKED_ERROR_CONTENT]],
-            [[new PaymentMethodBlockedError('Cash On Delivery')], [self::PAYMENT_METHOD_BLOCKED_ERROR_CONTENT]],
-            [[new PromotionNotFoundError('tn-08')], [self::PROMOTION_NOT_FOUND_ERROR_CONTENT]],
-            [[new ProductOutOfStockError('product id', 'Car')], [self::PRODUCT_STOCK_REACHED_ERROR_CONTENT]],
+            // One shipping method blocked is expected to be switched
+            [
+                new ErrorCollection(
+                    [
+                        new ShippingMethodChangedError('Standard', 'Express'),
+                    ]
+                ),
+                [
+                    \sprintf(self::SHIPPING_METHOD_CHANGED_ERROR_CONTENT, 'Standard', 'Express'),
+                ],
+            ],
+            // All shipping methods blocked expected to stay blocked
+            [
+                new ErrorCollection(
+                    [
+                        new ShippingMethodChangedError('Standard', 'Express'),
+                        new ShippingMethodChangedError('Express', 'Standard'),
+                    ]
+                ),
+                [
+                    \sprintf(self::SHIPPING_METHOD_BLOCKED_ERROR_CONTENT, 'Express'),
+                ],
+            ],
+            // One payment method blocked is expected to be switched
+            [
+                new ErrorCollection(
+                    [
+                        new PaymentMethodChangedError('Cash On Delivery', 'Paid in advance'),
+                    ]
+                ),
+                [
+                    \sprintf(self::PAYMENT_METHOD_CHANGED_ERROR_CONTENT, 'Cash on delivery', 'Paid in advance'),
+                ],
+            ],
+            // All payment methods blocked expected to stay blocked
+            [
+                new ErrorCollection(
+                    [
+                        new PaymentMethodChangedError('Paid in advance', 'Direct Debit'),
+                        new PaymentMethodChangedError('Direct Debit', 'Invoice'),
+                        new PaymentMethodChangedError('Invoice', 'Cash On Delivery'),
+                        new PaymentMethodChangedError('Cash On Delivery', 'Paid in advance'),
+                    ]
+                ),
+                [
+                    self::PAYMENT_METHOD_BLOCKED_ERROR_CONTENT,
+                ],
+            ],
+            // Standard shipping and payment method blocked expected to switch both
+            [
+                new ErrorCollection(
+                    [
+                        new ShippingMethodChangedError('Standard', 'Express'),
+                        new PaymentMethodChangedError('Cash On Delivery', 'Paid in advance'),
+                    ]
+                ),
+                [
+                    \sprintf(self::SHIPPING_METHOD_CHANGED_ERROR_CONTENT, 'Standard', 'Express'),
+                    \sprintf(self::PAYMENT_METHOD_CHANGED_ERROR_CONTENT, 'Cash on delivery', 'Paid in advance'),
+                ],
+            ],
+            // None defaults blocked, should switch to defaults
+            [
+                new ErrorCollection(
+                    [
+                        new ShippingMethodChangedError('Express', 'Standard'),
+                        new PaymentMethodChangedError('Invoice', 'Paid in advance'),
+                    ]
+                ),
+                [
+                    \sprintf(self::SHIPPING_METHOD_CHANGED_ERROR_CONTENT, 'Express', 'Standard'),
+                    \sprintf(self::PAYMENT_METHOD_CHANGED_ERROR_CONTENT, 'Invoice', 'Paid in advance'),
+                ],
+                true,
+            ],
+            // Promotion not found
+            [
+                new ErrorCollection(
+                    [
+                        new PromotionNotFoundError('tn-08'),
+                    ]
+                ),
+                [
+                    self::PROMOTION_NOT_FOUND_ERROR_CONTENT,
+                ],
+            ],
+            // Product out of stock
+            [
+                new ErrorCollection(
+                    [
+                        new ProductOutOfStockError('product id', 'Car'),
+                    ]
+                ),
+                [
+                    self::PRODUCT_STOCK_REACHED_ERROR_CONTENT,
+                ],
+            ],
         ];
     }
 
@@ -324,34 +428,39 @@ class CheckoutControllerTest extends TestCase
 
     private function updateSalesChannel(string $salesChannelId): void
     {
+        $snippetSetId = $this->getSnippetSetIdForLocale('en-GB');
+        $paymentMethodId = $this->getValidPaymentMethodId();
+        $shippingMethodId = $this->getValidShippingMethodId();
+        $countryId = $this->getValidCountryId();
+
         $data = [
             'id' => $salesChannelId,
             'name' => 'test',
             'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
             'languageId' => Defaults::LANGUAGE_SYSTEM,
-            'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+            'snippetSetId' => $snippetSetId,
             'currencyId' => Defaults::CURRENCY,
             'currencyVersionId' => Defaults::LIVE_VERSION,
-            'paymentMethodId' => $this->getValidPaymentMethodId(),
+            'paymentMethodId' => $paymentMethodId,
             'paymentMethodVersionId' => Defaults::LIVE_VERSION,
-            'shippingMethodId' => $this->getValidShippingMethodId(),
+            'shippingMethodId' => $shippingMethodId,
             'shippingMethodVersionId' => Defaults::LIVE_VERSION,
-            'countryId' => $this->getValidCountryId(),
+            'countryId' => $countryId,
             'countryVersionId' => Defaults::LIVE_VERSION,
             'navigationCategoryVersionId' => Defaults::LIVE_VERSION,
             'serviceCategoryVersionId' => Defaults::LIVE_VERSION,
             'footerCategoryVersionId' => Defaults::LIVE_VERSION,
             'currencies' => [['id' => Defaults::CURRENCY]],
-            'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
-            'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
-            'countries' => [['id' => $this->getValidCountryId()]],
+            'paymentMethods' => [['id' => $paymentMethodId]],
+            'shippingMethods' => [['id' => $shippingMethodId]],
+            'countries' => [['id' => $countryId]],
             'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'domains' => [
                 [
                     'id' => $salesChannelId,
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
-                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'snippetSetId' => $snippetSetId,
                     'currencyId' => Defaults::CURRENCY,
                     'url' => 'http://test.123',
                 ],
@@ -360,7 +469,7 @@ class CheckoutControllerTest extends TestCase
         $this->getContainer()->get('sales_channel.repository')->update([$data], Context::createDefaultContext());
     }
 
-    private function createProductOnDatabase(string $productId, string $productNumber): void
+    private function createProductOnDatabase(string $productId, string $productNumber, string $salesChannelId): void
     {
         $taxId = Uuid::randomHex();
         $context = Context::createDefaultContext();
@@ -380,7 +489,7 @@ class CheckoutControllerTest extends TestCase
             'visibilities' => [
                 [
                     'id' => $productId,
-                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                    'salesChannelId' => $salesChannelId,
                     'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                 ],
             ],
@@ -629,5 +738,185 @@ class CheckoutControllerTest extends TestCase
         $this->failedPaymentMethodId = $paymentId;
 
         return $paymentId;
+    }
+
+    /**
+     * Prepares all conditions for the given error to occur on a cart page visit.
+     */
+    private function prepareErrors(
+        Error $error,
+        KernelBrowser $browser,
+        string $salesChannelId,
+        string $productId,
+        bool $shouldSwitchToDefault
+    ): void {
+        $availabilityRuleId = $this->createAvailabilityRule($salesChannelId);
+        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+
+        if ($error instanceof ShippingMethodChangedError) {
+            $shippingMethodRepository = $this->getContainer()->get('shipping_method.repository');
+            $blockedId = $this->getShippingMethodIdByName($error->getOldShippingMethodName());
+            $newId = $this->getShippingMethodIdByName($error->getNewShippingMethodName());
+
+            $shippingMethodRepository->update([
+                [
+                    'id' => $blockedId,
+                    'availabilityRuleId' => $availabilityRuleId,
+                ],
+            ], Context::createDefaultContext());
+
+            $salesChannelRepository->update([
+                [
+                    'id' => $salesChannelId,
+                    'shippingMethodId' => $shouldSwitchToDefault ? $newId : $blockedId,
+                ],
+            ], Context::createDefaultContext());
+
+            if ($shouldSwitchToDefault) {
+                $browser->request(
+                    'POST',
+                    '/checkout/configure',
+                    [
+                        SalesChannelContextService::SHIPPING_METHOD_ID => $blockedId,
+                    ]
+                );
+            }
+
+            return;
+        }
+
+        if ($error instanceof PaymentMethodChangedError) {
+            $paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
+            $blockedId = $this->getPaymentMethodIdByName($error->getOldPaymentMethodName());
+            $newId = $this->getPaymentMethodIdByName($error->getNewPaymentMethodName());
+
+            $paymentMethodRepository->update([
+                [
+                    'id' => $blockedId,
+                    'availabilityRuleId' => $availabilityRuleId,
+                ],
+            ], Context::createDefaultContext());
+
+            $salesChannelRepository->update([
+                [
+                    'id' => $salesChannelId,
+                    'paymentMethodId' => $shouldSwitchToDefault ? $newId : $blockedId,
+                ],
+            ], Context::createDefaultContext());
+
+            if ($shouldSwitchToDefault) {
+                $browser->request(
+                    'POST',
+                    '/checkout/configure',
+                    [
+                        SalesChannelContextService::PAYMENT_METHOD_ID => $blockedId,
+                    ]
+                );
+            }
+
+            return;
+        }
+
+        if ($error instanceof PromotionNotFoundError) {
+            $browser->request(
+                'POST',
+                '/checkout/promotion/add',
+                [
+                    'code' => $error->getParameters()['code'],
+                ]
+            );
+
+            return;
+        }
+
+        if ($error instanceof ProductOutOfStockError) {
+            $productRepository = $this->getContainer()->get('product.repository');
+            $productRepository->update([
+                [
+                    'id' => $productId,
+                    'isCloseout' => true,
+                    'stock' => 0,
+                ],
+            ], Context::createDefaultContext());
+
+            return;
+        }
+
+        static::fail(\sprintf('Could not provoke error of type %s. Did you forget to implement it?', \get_class($error)));
+    }
+
+    private function createAvailabilityRule(string $salesChannelId): string
+    {
+        $ruleRepository = $this->getContainer()->get('rule.repository');
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new EqualsFilter('name', 'NotAvailableWithTestSalesChannel')
+        );
+        $ruleId = $ruleRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        if ($ruleId !== null) {
+            return $ruleId;
+        }
+
+        $ruleId = Uuid::randomHex();
+        $orContainerId = Uuid::randomHex();
+        $andContainerId = Uuid::randomHex();
+        $ruleRepository->create([
+            [
+                'id' => $ruleId,
+                'name' => 'NotAvailableWithTestDefaultSalesChannel',
+                'priority' => 1,
+                'conditions' => [
+                    [
+                        'id' => $orContainerId,
+                        'type' => 'orContainer',
+                    ],
+                    [
+                        'id' => $andContainerId,
+                        'type' => 'andContainer',
+                        'parentId' => $orContainerId,
+                    ],
+                    [
+                        'type' => 'salesChannel',
+                        'parentId' => $andContainerId,
+                        'value' => [
+                            'operator' => '!=',
+                            'salesChannelIds' => [
+                                $salesChannelId,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        return $ruleId;
+    }
+
+    private function getShippingMethodIdByName(string $name): string
+    {
+        $shippingMethodRepository = $this->getContainer()->get('shipping_method.repository');
+        $c = new Criteria();
+        $c->addFilter(
+            new EqualsFilter('name', $name)
+        );
+
+        $shippingMethodId = $shippingMethodRepository->searchIds($c, Context::createDefaultContext())->firstId();
+        static::assertNotNull($shippingMethodId);
+
+        return $shippingMethodId;
+    }
+
+    private function getPaymentMethodIdByName(string $name): string
+    {
+        $paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
+        $c = new Criteria();
+        $c->addFilter(
+            new EqualsFilter('name', $name)
+        );
+
+        $paymentMethodId = $paymentMethodRepository->searchIds($c, Context::createDefaultContext())->firstId();
+        static::assertNotNull($paymentMethodId);
+
+        return $paymentMethodId;
     }
 }

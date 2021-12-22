@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Page\Checkout\Offcanvas;
 
-use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
@@ -10,35 +9,24 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class OffcanvasCartPageLoader
 {
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var CartService
-     */
-    private $cartService;
+    private StorefrontCartFacade $cartService;
 
-    /**
-     * @var GenericPageLoaderInterface
-     */
-    private $genericLoader;
+    private GenericPageLoaderInterface $genericLoader;
 
-    /**
-     * @var AbstractShippingMethodRoute
-     */
-    private $shippingMethodRoute;
+    private AbstractShippingMethodRoute $shippingMethodRoute;
 
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
-        CartService $cartService,
+        StorefrontCartFacade $cartService,
         GenericPageLoaderInterface $genericLoader,
         AbstractShippingMethodRoute $shippingMethodRoute
     ) {
@@ -63,7 +51,7 @@ class OffcanvasCartPageLoader
             $page->getMetaInformation()->assign(['robots' => 'noindex,follow']);
         }
 
-        $page->setCart($this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext));
+        $page->setCart($this->cartService->get($salesChannelContext->getToken(), $salesChannelContext));
 
         $page->setShippingMethods($this->getShippingMethods($salesChannelContext));
 

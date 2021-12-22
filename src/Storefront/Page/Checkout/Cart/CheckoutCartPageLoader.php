@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Page\Checkout\Cart;
 
-use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
@@ -14,46 +13,29 @@ use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\SalesChannel\AbstractCountryRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class CheckoutCartPageLoader
 {
-    /**
-     * @var GenericPageLoaderInterface
-     */
-    private $genericLoader;
+    private GenericPageLoaderInterface $genericLoader;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var CartService
-     */
-    private $cartService;
+    private StorefrontCartFacade $cartService;
 
-    /**
-     * @var AbstractPaymentMethodRoute
-     */
-    private $paymentMethodRoute;
+    private AbstractPaymentMethodRoute $paymentMethodRoute;
 
-    /**
-     * @var AbstractShippingMethodRoute
-     */
-    private $shippingMethodRoute;
+    private AbstractShippingMethodRoute $shippingMethodRoute;
 
-    /**
-     * @var AbstractCountryRoute
-     */
-    private $countryRoute;
+    private AbstractCountryRoute $countryRoute;
 
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,
-        CartService $cartService,
+        StorefrontCartFacade $cartService,
         AbstractPaymentMethodRoute $paymentMethodRoute,
         AbstractShippingMethodRoute $shippingMethodRoute,
         AbstractCountryRoute $countryRoute
@@ -87,7 +69,7 @@ class CheckoutCartPageLoader
 
         $page->setShippingMethods($this->getShippingMethods($salesChannelContext));
 
-        $page->setCart($this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext));
+        $page->setCart($this->cartService->get($salesChannelContext->getToken(), $salesChannelContext));
 
         $this->eventDispatcher->dispatch(
             new CheckoutCartPageLoadedEvent($page, $salesChannelContext, $request)

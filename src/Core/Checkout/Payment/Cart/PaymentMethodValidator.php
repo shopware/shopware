@@ -12,29 +12,24 @@ class PaymentMethodValidator implements CartValidatorInterface
 {
     public function validate(Cart $cart, ErrorCollection $errors, SalesChannelContext $context): void
     {
-        foreach ($cart->getErrors() as $key => $error) {
-            if ($error instanceof PaymentMethodBlockedError) {
-                $cart->getErrors()->remove($key);
-            }
-        }
-
-        if (!$context->getPaymentMethod()->getActive()) {
+        $paymentMethod = $context->getPaymentMethod();
+        if (!$paymentMethod->getActive()) {
             $errors->add(
-                new PaymentMethodBlockedError((string) $context->getPaymentMethod()->getTranslation('name'))
+                new PaymentMethodBlockedError((string) $paymentMethod->getTranslation('name'))
             );
         }
 
-        $ruleId = $context->getPaymentMethod()->getAvailabilityRuleId();
+        $ruleId = $paymentMethod->getAvailabilityRuleId();
 
         if ($ruleId && !\in_array($ruleId, $context->getRuleIds(), true)) {
             $errors->add(
-                new PaymentMethodBlockedError((string) $context->getPaymentMethod()->getTranslation('name'))
+                new PaymentMethodBlockedError((string) $paymentMethod->getTranslation('name'))
             );
         }
 
-        if (!\in_array($context->getPaymentMethod()->getId(), $context->getSalesChannel()->getPaymentMethodIds() ?? [], true)) {
+        if (!\in_array($paymentMethod->getId(), $context->getSalesChannel()->getPaymentMethodIds() ?? [], true)) {
             $errors->add(
-                new PaymentMethodBlockedError((string) $context->getPaymentMethod()->getTranslation('name'))
+                new PaymentMethodBlockedError((string) $paymentMethod->getTranslation('name'))
             );
         }
     }

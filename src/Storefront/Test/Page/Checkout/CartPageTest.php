@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Test\Page\Checkout;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRouteResponse;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Country\SalesChannel\CountryRoute;
+use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPage;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader;
@@ -62,7 +62,7 @@ class CartPageTest extends TestCase
         $loader = new CheckoutCartPageLoader(
             $this->getContainer()->get(GenericPageLoader::class),
             $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->get(CartService::class),
+            $this->getContainer()->get(StorefrontCartFacade::class),
             $this->getContainer()->get(PaymentMethodRoute::class),
             $route,
             $this->getContainer()->get(CountryRoute::class)

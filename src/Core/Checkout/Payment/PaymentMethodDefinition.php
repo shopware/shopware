@@ -63,7 +63,7 @@ class PaymentMethodDefinition extends EntityDefinition
         $fields = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             new FkField('plugin_id', 'pluginId', PluginDefinition::class),
-            (new StringField('handler_identifier', 'handlerIdentifier'))->removeFlag(ApiAware::class),
+            new StringField('handler_identifier', 'handlerIdentifier'),
             (new TranslatedField('name'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new TranslatedField('distinguishableName'))->addFlags(new ApiAware(), new WriteProtected(Context::SYSTEM_SCOPE)),
             (new TranslatedField('description'))->addFlags(new ApiAware()),

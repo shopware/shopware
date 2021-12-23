@@ -16,6 +16,8 @@ variables:
     DATABASE_URL: mysql://root:app@database:3306/root
     APP_URL: http://localhost:8000
     APP_SECRET: devsecret
+    SHOPWARE_ES_HOSTS: elasticsearch:9200
+    BLUE_GREEN_DEPLOYMENT: 1
 
 # for jobs which should run on each MR/Pipeline
 .base:

@@ -67,9 +67,14 @@ class PluginZipImportCommand extends Command
         $io->success('Successfully import zip file ' . basename($zipFile));
 
         if (!$input->getOption('no-refresh')) {
+            $composerInput = clone $input;
+            $composerInput->setInteractive(false);
+            $helperSet = $this->getHelperSet();
+            \assert($helperSet instanceof HelperSet);
+
             $this->pluginService->refreshPlugins(
                 Context::createDefaultContext(),
-                new ConsoleIO($input, $output, new HelperSet())
+                new ConsoleIO($composerInput, $output, $helperSet)
             );
             $io->success('Plugin list refreshed');
         }

@@ -144,6 +144,8 @@ class WebhookDispatcher implements EventDispatcherInterface
 
     /**
      * @param string|null $eventName
+     *
+     * @return array<array-key, array<array-key, callable>|callable>
      */
     public function getListeners($eventName = null): array
     {

@@ -14,11 +14,17 @@ class Since extends ConfigurationAnnotation
      */
     private $value;
 
+    /**
+     * @return string
+     */
     public function getAliasName()
     {
         return 'since';
     }
 
+    /**
+     * @return bool
+     */
     public function allowArray()
     {
         return false;

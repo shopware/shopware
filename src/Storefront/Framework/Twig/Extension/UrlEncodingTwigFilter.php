@@ -8,6 +8,9 @@ use Twig\TwigFilter;
 
 class UrlEncodingTwigFilter extends AbstractExtension
 {
+    /**
+     * @return TwigFilter[]
+     */
     public function getFilters()
     {
         return [

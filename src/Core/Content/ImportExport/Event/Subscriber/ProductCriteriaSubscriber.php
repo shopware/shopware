@@ -11,6 +11,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ProductCriteriaSubscriber implements EventSubscriberInterface
 {
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [

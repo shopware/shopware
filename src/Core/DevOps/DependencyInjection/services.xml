@@ -13,5 +13,10 @@
         <service id="Shopware\Core\DevOps\System\Command\SystemGenerateJwtSecretCommand">
             <argument>%kernel.project_dir%</argument>
         </service>
+
+        <service id="Shopware\Core\DevOps\System\Command\SyncComposerVersionCommand">
+            <argument>%kernel.project_dir%</argument>
+            <tag name="console.command"/>
+        </service>
     </services>
 </container>

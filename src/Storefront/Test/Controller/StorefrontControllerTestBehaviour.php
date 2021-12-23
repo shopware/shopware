@@ -17,6 +17,9 @@ trait StorefrontControllerTestBehaviour
 {
     public function request(string $method, string $path, array $data): Response
     {
+        // Init the session service for csrf processing
+        KernelLifecycleManager::getKernel()->getContainer()->get('session')->all();
+
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
         $browser->request($method, EnvironmentHelper::getVariable('APP_URL') . '/' . $path, $data);
 

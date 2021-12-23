@@ -8,6 +8,7 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Content\Media\MediaEvents;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -123,10 +124,13 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
         return $entity === 'media';
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [
-            'media.written' => 'persistMedia',
+            MediaEvents::MEDIA_WRITTEN_EVENT => 'persistMedia',
         ];
     }
 

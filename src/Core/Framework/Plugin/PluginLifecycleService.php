@@ -562,7 +562,7 @@ class PluginLifecycleService
         }
 
         $this->container = $newContainer;
-        $this->eventDispatcher = $this->container->get('event_dispatcher');
+        $this->eventDispatcher = $newContainer->get('event_dispatcher');
     }
 
     private function getPluginInstance(string $pluginBaseClassString): Plugin

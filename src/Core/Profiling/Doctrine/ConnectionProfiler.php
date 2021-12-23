@@ -29,6 +29,9 @@ class ConnectionProfiler implements DataCollectorInterface
         $this->logger = $logger;
     }
 
+    /**
+     * @return string
+     */
     public function getName()
     {
         return 'app.connection_collector';

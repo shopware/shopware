@@ -95,7 +95,6 @@ class DocsModuleCharacteristics extends Command
     {
         $finder = $this->createModuleFinder();
         $characteristics = new CharacteristicsCollection();
-        /** @var SplFileInfo $moduleDirectory */
         foreach ($finder as $moduleDirectory) {
             $tags = $this->moduleInspector->inspectModule($moduleDirectory);
             $characteristics->add($tags);

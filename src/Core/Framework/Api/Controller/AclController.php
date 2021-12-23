@@ -14,28 +14,27 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @RouteScope(scopes={"api"})
  */
 class AclController extends AbstractController
 {
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionInstanceRegistry;
+    private DefinitionInstanceRegistry $definitionInstanceRegistry;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
+
+    private RouterInterface $router;
 
     public function __construct(
         DefinitionInstanceRegistry $definitionInstanceRegistry,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        RouterInterface $router
     ) {
         $this->definitionInstanceRegistry = $definitionInstanceRegistry;
         $this->eventDispatcher = $eventDispatcher;
+        $this->router = $router;
     }
 
     /**
@@ -46,8 +45,7 @@ class AclController extends AbstractController
     public function getPrivileges(): JsonResponse
     {
         $privileges = $this->getFromAnnotations();
-        $privileges = array_merge($privileges, $this->getFromDefinitions());
-        $privileges = array_unique($privileges);
+        $privileges = array_unique(array_merge($privileges, $this->getFromDefinitions()));
 
         return new JsonResponse($privileges);
     }
@@ -75,14 +73,14 @@ class AclController extends AbstractController
     {
         $privileges = [];
         $annotationReader = new AnnotationReader();
-        $routes = $this->container->get('router')->getRouteCollection()->all();
+        $routes = $this->router->getRouteCollection()->all();
 
         $seenServices = [];
         foreach ($routes as $param) {
             $defaults = $param->getDefaults();
 
             if (isset($defaults['_controller'])) {
-                list($controllerService, $controllerMethod) = explode('::', $defaults['_controller']);
+                [$controllerService, $controllerMethod] = explode('::', $defaults['_controller']);
                 if ($this->container->has($controllerService)) {
                     $reflectedMethod = new \ReflectionMethod(\get_class($this->container->get($controllerService)), $controllerMethod);
                     $annotation = $annotationReader->getMethodAnnotation($reflectedMethod, Acl::class);

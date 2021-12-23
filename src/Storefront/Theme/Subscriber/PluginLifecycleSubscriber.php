@@ -44,6 +44,9 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
         $this->themeLifecycleService = $themeLifecycleService;
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [

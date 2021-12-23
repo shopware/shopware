@@ -14,20 +14,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class UpdateSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var ThemeService
-     */
-    private $themeService;
+    private ThemeService $themeService;
 
-    /**
-     * @var ThemeLifecycleService
-     */
-    private $themeLifecycleService;
+    private ThemeLifecycleService $themeLifecycleService;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $salesChannelRepository;
+    private EntityRepositoryInterface $salesChannelRepository;
 
     public function __construct(
         ThemeService $themeService,
@@ -39,6 +30,9 @@ class UpdateSubscriber implements EventSubscriberInterface
         $this->salesChannelRepository = $salesChannelRepository;
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [

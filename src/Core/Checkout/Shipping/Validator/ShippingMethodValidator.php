@@ -27,6 +27,9 @@ class ShippingMethodValidator implements EventSubscriberInterface
         $this->connection = $connection;
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [

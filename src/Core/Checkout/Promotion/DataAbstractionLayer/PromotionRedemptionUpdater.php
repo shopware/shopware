@@ -23,6 +23,9 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
         $this->connection = $connection;
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [
@@ -32,7 +35,7 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
 
     public function update(array $ids, Context $context): void
     {
-        $ids = array_filter(array_unique($ids));
+        $ids = array_unique(array_filter($ids));
 
         if (empty($ids) || $context->getVersionId() !== Defaults::LIVE_VERSION) {
             return;

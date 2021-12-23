@@ -40,6 +40,9 @@ class SetOrderStateAction extends FlowAction
         return 'action.set.order.state';
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [

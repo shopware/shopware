@@ -14,16 +14,16 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class LandingPageValidator implements EventSubscriberInterface
 {
-    /**
-     * @var ValidatorInterface
-     */
-    private $validator;
+    private ValidatorInterface $validator;
 
     public function __construct(ValidatorInterface $validator)
     {
         $this->validator = $validator;
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [

@@ -11,21 +11,18 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterface, EventSubscriberInterface
 {
-    /**
-     * @var array
-     */
-    private $themes;
+    private array $themes = [];
 
-    /**
-     * @var ThemeInheritanceBuilderInterface
-     */
-    private $themeInheritanceBuilder;
+    private ThemeInheritanceBuilderInterface $themeInheritanceBuilder;
 
     public function __construct(ThemeInheritanceBuilderInterface $themeInheritanceBuilder)
     {
         $this->themeInheritanceBuilder = $themeInheritanceBuilder;
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [

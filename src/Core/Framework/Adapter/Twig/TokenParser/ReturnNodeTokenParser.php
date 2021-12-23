@@ -8,7 +8,7 @@ use Twig\TokenParser\AbstractTokenParser;
 
 final class ReturnNodeTokenParser extends AbstractTokenParser
 {
-    public function parse(Token $token)
+    public function parse(Token $token): ReturnNode
     {
         $stream = $this->parser->getStream();
         $nodes = [];

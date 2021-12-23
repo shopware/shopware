@@ -22,6 +22,9 @@ class DefaultSalutationValidator implements EventSubscriberInterface
 
     private const MESSAGE = 'The default salutation entity may not be deleted.';
 
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         if (Feature::isActive('FEATURE_NEXT_7739')) {

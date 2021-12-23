@@ -3581,11 +3581,6 @@ parameters:
 			path: src/Docs/Inspection/ModuleInspector.php
 
 		-
-			message: "#^Parameter \\#1 \\$configuration of method Symfony\\\\Component\\\\DependencyInjection\\\\Extension\\\\Extension\\:\\:processConfiguration\\(\\) expects Symfony\\\\Component\\\\Config\\\\Definition\\\\ConfigurationInterface, Symfony\\\\Component\\\\Config\\\\Definition\\\\ConfigurationInterface\\|null given\\.$#"
-			count: 1
-			path: src/Elasticsearch/DependencyInjection/ElasticsearchExtension.php
-
-		-
 			message: "#^Property Shopware\\\\Elasticsearch\\\\Elasticsearch\\:\\:\\$name has no typehint specified\\.$#"
 			count: 1
 			path: src/Elasticsearch/Elasticsearch.php

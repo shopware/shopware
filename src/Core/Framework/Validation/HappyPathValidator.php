@@ -14,7 +14,10 @@ use Symfony\Component\Validator\Constraints\Optional;
 use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Validator\Mapping\MetadataInterface;
+use Symfony\Component\Validator\Validator\ContextualValidatorInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -32,6 +35,8 @@ class HappyPathValidator implements ValidatorInterface
 
     /**
      * @param Constraint|Constraint[]|null $constraints
+     *
+     * @return ConstraintViolationListInterface
      */
     public function validate($value, $constraints = null, $groups = null)
     {
@@ -51,11 +56,17 @@ class HappyPathValidator implements ValidatorInterface
         return new ConstraintViolationList();
     }
 
+    /**
+     * @return MetadataInterface
+     */
     public function getMetadataFor($value)
     {
         return $this->inner->getMetadataFor($value);
     }
 
+    /**
+     * @return bool
+     */
     public function hasMetadataFor($value)
     {
         return $this->inner->hasMetadataFor($value);
@@ -63,22 +74,33 @@ class HappyPathValidator implements ValidatorInterface
 
     /**
      * @param object $object can not use native type hint as it is incompatible with symfony <5.3.4
+     *
+     * @return ConstraintViolationListInterface
      */
     public function validateProperty($object, $propertyName, $groups = null)
     {
         return $this->inner->validateProperty($object, $propertyName, $groups);
     }
 
+    /**
+     * @return ConstraintViolationListInterface
+     */
     public function validatePropertyValue($objectOrClass, $propertyName, $value, $groups = null)
     {
         return $this->inner->validatePropertyValue($objectOrClass, $propertyName, $value, $groups);
     }
 
+    /**
+     * @return ContextualValidatorInterface
+     */
     public function startContext()
     {
         return $this->inner->startContext();
     }
 
+    /**
+     * @return ContextualValidatorInterface
+     */
     public function inContext(ExecutionContextInterface $context)
     {
         return $this->inner->inContext($context);

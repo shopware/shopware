@@ -45,6 +45,9 @@ class ProductVariantsSubscriber implements EventSubscriberInterface
         $this->optionRepository = $optionRepository;
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [

@@ -18,11 +18,17 @@ class RouteScope extends ConfigurationAnnotation
      */
     private $scopes;
 
+    /**
+     * @return string
+     */
     public function getAliasName()
     {
         return 'routeScope';
     }
 
+    /**
+     * @return bool
+     */
     public function allowArray()
     {
         return false;

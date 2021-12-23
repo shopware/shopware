@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Test\Framework\Csrf;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler;
-use Shopware\Storefront\Framework\Csrf\SessionProvider;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -144,7 +143,7 @@ class CsrfPlaceholderHandlerTest extends TestCase
             $csrfEnabled,
             $csrfMode,
             $this->getContainer()->get('request_stack'),
-            new SessionProvider($this->getContainer()->get('session'))
+            $this->getContainer()->get('session.storage.factory')
         );
     }
 

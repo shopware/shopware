@@ -33,7 +33,7 @@ class DefaultSenderLocator implements SendersLocatorInterface
         }
 
         if (!$foundSender && $this->defaultSender !== null) {
-            $senderAlias = $this->defaultSenderName ?? 0;
+            $senderAlias = $this->defaultSenderName ?? '0';
             yield $senderAlias => $this->defaultSender;
         }
     }

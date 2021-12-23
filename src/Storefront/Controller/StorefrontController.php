@@ -38,7 +38,7 @@ abstract class StorefrontController extends AbstractController
 
     protected function renderStorefront(string $view, array $parameters = []): Response
     {
-        $request = $this->get('request_stack')->getCurrentRequest();
+        $request = $this->container->get('request_stack')->getCurrentRequest();
 
         if ($request === null) {
             $request = new Request();
@@ -54,7 +54,7 @@ abstract class StorefrontController extends AbstractController
 
             $event = new StorefrontRenderEvent($inheritedView, $parameters, $request, $salesChannelContext);
         }
-        $this->get('event_dispatcher')->dispatch($event);
+        $this->container->get('event_dispatcher')->dispatch($event);
 
         $response = $this->render($view, $event->getParameters(), new StorefrontResponse());
 
@@ -64,7 +64,7 @@ abstract class StorefrontController extends AbstractController
 
         $host = $request->attributes->get(RequestTransformer::STOREFRONT_URL);
 
-        $seoUrlReplacer = $this->get(SeoUrlPlaceholderHandlerInterface::class);
+        $seoUrlReplacer = $this->container->get(SeoUrlPlaceholderHandlerInterface::class);
         $content = $response->getContent();
         if ($content !== false) {
             $response->setContent(
@@ -112,7 +112,7 @@ abstract class StorefrontController extends AbstractController
 
     protected function forwardToRoute(string $routeName, array $attributes = [], array $routeParameters = []): Response
     {
-        $router = $this->get('router');
+        $router = $this->container->get('router');
 
         $url = $this->generateUrl($routeName, $routeParameters, Router::PATH_INFO);
 
@@ -125,14 +125,14 @@ abstract class StorefrontController extends AbstractController
         $route = $router->match($url);
         $router->getContext()->setMethod($method);
 
-        $request = $this->get('request_stack')->getCurrentRequest();
+        $request = $this->container->get('request_stack')->getCurrentRequest();
 
         if ($request === null) {
             $request = new Request();
         }
 
         $attributes = array_merge(
-            $this->get(RequestTransformerInterface::class)->extractInheritableAttributes($request),
+            $this->container->get(RequestTransformerInterface::class)->extractInheritableAttributes($request),
             $route,
             $attributes,
             ['_route_params' => $routeParameters]
@@ -228,7 +228,7 @@ abstract class StorefrontController extends AbstractController
 
     protected function getTemplateFinder(): TemplateFinder
     {
-        return $this->get(TemplateFinder::class);
+        return $this->container->get(TemplateFinder::class);
     }
 
     protected function hook(Hook $hook): void

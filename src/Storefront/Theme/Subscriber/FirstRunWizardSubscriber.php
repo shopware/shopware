@@ -38,6 +38,9 @@ class FirstRunWizardSubscriber implements EventSubscriberInterface
         $this->salesChannelRepository = $salesChannelRepository;
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [

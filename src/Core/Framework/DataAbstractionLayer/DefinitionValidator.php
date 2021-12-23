@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
-use Doctrine\Common\Inflector\Inflector;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Events;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\Inflector\InflectorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -29,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Symfony\Component\String\Inflector\EnglishInflector;
 
 class DefinitionValidator
 {
@@ -52,7 +53,12 @@ class DefinitionValidator
     ];
 
     private const PLURAL_EXCEPTIONS = [
-        'children', 'categoriesRo', 'properties', 'media',
+        'children',
+        'categoriesRo',
+        'properties',
+        'media',
+        'productMedia',
+        'mailTemplateMedia',
     ];
 
     private const CUSTOM_PREFIXED_NAMED = [
@@ -843,7 +849,7 @@ class DefinitionValidator
         $def = $this->getShortClassName($definition);
 
         $ref = str_replace($def, '', $ref);
-        $refPlural = Inflector::pluralize($ref);
+        $refPlural = (new EnglishInflector())->pluralize($ref)[0];
 
         if (mb_stripos($propName, $refPlural) === mb_strlen($propName) - mb_strlen($refPlural)) {
             return [];
@@ -862,7 +868,7 @@ class DefinitionValidator
 
     private function mapRefNameContainedName(string $ref): string
     {
-        $normalized = mb_strtolower(Inflector::tableize($ref));
+        $normalized = mb_strtolower(InflectorFactory::create()->build()->tableize($ref));
         if (!isset(self::CUSTOM_SHORT_NAMES[$normalized])) {
             return $ref;
         }
@@ -896,9 +902,9 @@ class DefinitionValidator
         }
 
         $ref = $this->mapRefNameContainedName($ref);
-        $refPlural = Inflector::pluralize($ref);
+        $refPlural = (new EnglishInflector())->pluralize($ref)[0];
         $refSalesChannelPart = str_replace('SalesChannel', '', $ref);
-        $refSalesChannelPartPlural = Inflector::pluralize($refSalesChannelPart);
+        $refSalesChannelPartPlural = (new EnglishInflector())->pluralize($refSalesChannelPart)[0];
 
         if (
             mb_stripos($prop, $ref) === false && mb_stripos($prop, $refPlural) === false

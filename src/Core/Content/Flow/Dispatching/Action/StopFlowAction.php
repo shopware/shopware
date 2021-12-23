@@ -11,6 +11,9 @@ class StopFlowAction extends FlowAction
         return 'action.stop.flow';
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [

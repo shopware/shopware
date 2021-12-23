@@ -21,7 +21,7 @@ class RegisteredIndexerSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @codeCoverageIgnore
+     * @inheritdoc
      */
     public static function getSubscribedEvents()
     {

@@ -108,7 +108,6 @@ class ConvertMarkdownDocsCommand extends Command
 
         $documents = [];
 
-        /** @var SplFileInfo $file */
         foreach ($files as $file) {
             foreach ($blacklist as $blacklistedFile) {
                 $blacklistedFile = trim($blacklistedFile);

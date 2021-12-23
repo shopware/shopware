@@ -53,6 +53,9 @@ class CacheStore implements StoreInterface
         $this->maintenanceResolver = $maintenanceModeResolver;
     }
 
+    /**
+     * @return Response|null
+     */
     public function lookup(Request $request)
     {
         // maintenance mode active and current ip is whitelisted > disable caching
@@ -82,6 +85,9 @@ class CacheStore implements StoreInterface
         return $response;
     }
 
+    /**
+     * @return string
+     */
     public function write(Request $request, Response $response)
     {
         $key = $this->cacheKeyGenerator->generate($request);
@@ -194,6 +200,9 @@ class CacheStore implements StoreInterface
         );
     }
 
+    /**
+     * @return bool
+     */
     public function purge(string $url)
     {
         $http = preg_replace('#^https:#', 'http:', $url);

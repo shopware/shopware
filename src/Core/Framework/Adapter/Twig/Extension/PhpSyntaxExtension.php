@@ -40,6 +40,9 @@ class PhpSyntaxExtension extends AbstractExtension
         ];
     }
 
+    /**
+     * @return TwigFilter[]
+     */
     public function getFilters()
     {
         return [

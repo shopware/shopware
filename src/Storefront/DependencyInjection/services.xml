@@ -148,7 +148,7 @@
             <argument>%storefront.csrf.enabled%</argument>
             <argument>%storefront.csrf.mode%</argument>
             <argument type="service" id="request_stack"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Csrf\SessionProvider"/>
+            <argument type="service" id="session.storage.factory"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Media\StorefrontMediaUploader">

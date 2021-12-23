@@ -101,7 +101,7 @@ class TranslatorTest extends TestCase
 
         $this->translator->resetInMemoryCache();
         $catalogue = $this->translator->getCatalogue('en_GB');
-        static::assertEquals('en', $catalogue->getFallbackCatalogue()->getLocale());
+        static::assertEquals('en_001', $catalogue->getFallbackCatalogue()->getLocale());
 
         $this->translator->resetInMemoryCache();
         $catalogue = $this->translator->getCatalogue('en-GB');
@@ -139,7 +139,7 @@ class TranslatorTest extends TestCase
 
         $this->translator->resetInMemoryCache();
         $catalogue = $this->translator->getCatalogue('en_GB');
-        static::assertEquals('en', $catalogue->getFallbackCatalogue()->getLocale());
+        static::assertEquals('en_001', $catalogue->getFallbackCatalogue()->getLocale());
 
         $this->translator->resetInMemoryCache();
         $catalogue = $this->translator->getCatalogue('en-GB');

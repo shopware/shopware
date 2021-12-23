@@ -18,16 +18,16 @@ class CacheStateSubscriber implements EventSubscriberInterface
 
     public const STATE_CART_FILLED = 'cart-filled';
 
-    /**
-     * @var CartService
-     */
-    private $cartService;
+    private CartService $cartService;
 
     public function __construct(CartService $cartService)
     {
         $this->cartService = $cartService;
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [

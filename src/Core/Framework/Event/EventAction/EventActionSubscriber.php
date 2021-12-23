@@ -13,16 +13,16 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class EventActionSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(Connection $connection)
     {
         $this->connection = $connection;
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function getSubscribedEvents()
     {
         return [

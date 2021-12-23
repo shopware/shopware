@@ -139,7 +139,7 @@ class CaptchaRouteListenerTest extends TestCase
         $response = $browser->getResponse();
 
         static::assertInstanceOf(Response::class, $response);
-        static::assertSame(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode(), $response->getContent());
         static::assertSame('frontend.account.home.page', $response->getData()['redirectTo']);
     }
 

@@ -34,7 +34,7 @@ class CaptchaControllerTest extends TestCase
         /** @var StorefrontResponse $response */
         $response = $browser->getResponse();
 
-        static::assertSame(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode(), $response->getContent());
         static::assertInstanceOf(StorefrontResponse::class, $response);
         static::assertInstanceOf(BasicCaptchaPagelet::class, $response->getData()['page']);
     }

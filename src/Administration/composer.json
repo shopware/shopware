@@ -30,8 +30,8 @@
     "require": {
         "php": "^7.4.3 || ^8.0",
         "shopware/core": "*",
-        "symfony/framework-bundle": "~5.4.0",
-        "symfony/http-foundation": "~5.4.0",
+        "symfony/framework-bundle": "~5.4.1",
+        "symfony/http-foundation": "~5.4.1",
         "symfony/routing": "~5.4.0",
         "symfony/mime": "~5.4.0"
     }

@@ -98,7 +98,7 @@ PHP coverage:
             cobertura: cobertura.xml
     parallel:
         matrix:
-            - TESTSUITE: ["framework", "checkout", "storefront,administration,system,elasticsearch,profiling,maintenance", "migration"]
+            - TESTSUITE: ["framework", "checkout", "storefront,administration,system,elasticsearch,profiling,maintenance,docs", "migration"]
             - TESTSUITE: "content"
               RUNNER_INSTANCE_TYPE: m5.large
 
@@ -159,7 +159,7 @@ PHP Full:
     script:
         - >
             if [ "$PREFER_LOWEST" == "true" ]; then
-                composer update --prefer-lowest
+                composer update --prefer-lowest --optimize-autoloader
             fi
         - >
             if [ "$ONLY_CORE" == "true" ]; then

@@ -12,6 +12,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 
+/**
+ * The `repository` service allows you to query data, that is stored inside shopware.
+ * Keep in mind that your app needs to have the correct permissions for the data it queries through this service.
+ *
+ * @script-service data_loading
+ */
 class RepositoryFacade
 {
     private DefinitionInstanceRegistry $registry;
@@ -34,6 +40,14 @@ class RepositoryFacade
         $this->context = $context;
     }
 
+    /**
+     * The `search()` method allows you to search for Entities that match a given criteria.
+     *
+     * @param string $entityName The name of the Entity you want to search for, e.g. `product` or `media`.
+     * @param array $criteria The criteria used for your search.
+     *
+     * @return EntitySearchResult A `EntitySearchResult` including all entities that matched your criteria.
+     */
     public function search(string $entityName, array $criteria): EntitySearchResult
     {
         $criteriaObject = $this->prepareCriteria($entityName, $criteria);
@@ -43,6 +57,14 @@ class RepositoryFacade
         return $repository->search($criteriaObject, $this->context);
     }
 
+    /**
+     * The `ids()` method allows you to search for the Ids of Entities that match a given criteria.
+     *
+     * @param string $entityName The name of the Entity you want to search for, e.g. `product` or `media`.
+     * @param array $criteria The criteria used for your search.
+     *
+     * @return IdSearchResult A `IdSearchResult` including all entity-ids that matched your criteria.
+     */
     public function ids(string $entityName, array $criteria): IdSearchResult
     {
         $criteriaObject = $this->prepareCriteria($entityName, $criteria);
@@ -52,6 +74,14 @@ class RepositoryFacade
         return $repository->searchIds($criteriaObject, $this->context);
     }
 
+    /**
+     * The `aggregate()` method allows you to execute aggregations specified in the given criteria.
+     *
+     * @param string $entityName The name of the Entity you want to aggregate data on, e.g. `product` or `media`.
+     * @param array $criteria The criteria that define your aggregations.
+     *
+     * @return AggregationResultCollection A `AggregationResultCollection` including the results of the aggregations you specified in the criteria.
+     */
     public function aggregate(string $entityName, array $criteria): AggregationResultCollection
     {
         $criteriaObject = $this->prepareCriteria($entityName, $criteria);

@@ -8,6 +8,10 @@ use Shopware\Storefront\Page\Account\Login\AccountLoginPage;
 use Shopware\Storefront\Page\PageLoadedHook;
 
 /**
+ * Triggered when the AccountLoginPage is loaded
+ *
+ * @hook-use-case data_loading
+ *
  * @internal (flag:FEATURE_NEXT_17441)
  */
 class AccountRegisterPageLoadedHook extends PageLoadedHook

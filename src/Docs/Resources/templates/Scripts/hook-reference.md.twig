@@ -1,0 +1,21 @@
+# List of all available Hooks for Scripting
+
+{% for useCase in data %}
+## {{ useCase.title }}
+
+{{ useCase.description }}
+
+{% for hook in useCase.hooks %}
+#### {{ hook.name }}
+
+| <!-- -->               | <!-- -->                |
+|:-----------------------|:------------------------|
+| **Name**               | {{ hook.name }}         |
+| **Class**              | `{{ hook.class }}`      |
+| **Description**        | {{ hook.trigger|raw }}  |
+| **Available Data**     | {{ hook.data|raw }}     |
+| **Available Services** | {{ hook.services|raw }} |
+
+{% endfor %}
+
+{% endfor %}

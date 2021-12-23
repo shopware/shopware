@@ -157,6 +157,7 @@
         "mbezhanov/faker-provider-collection": "~2.0.1",
         "nikic/php-parser": "~4.10.4",
         "opis/json-schema": "~1.0.19",
+        "phpdocumentor/reflection-docblock": "^5.3.0",
         "phpstan/extension-installer": "^1.1.0",
         "phpstan/phpstan": "0.12.90",
         "phpstan/phpstan-doctrine": "0.12.39",
@@ -201,7 +202,7 @@
             "@npm:storefront clean-install"
         ],
         "setup": [
-            "@composer install",
+            "@composer install -o",
             "@composer install -d src/Recovery",
             "mkdir -p config/jwt || true",
             "mkdir -p custom/plugins || true",

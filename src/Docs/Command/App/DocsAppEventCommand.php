@@ -69,6 +69,7 @@ class DocsAppEventCommand extends Command
 
         $this->collectEntityWrittenEvent($eventsDoc);
 
+        $originalLoader = $this->twig->getLoader();
         $this->twig->setLoader(new ArrayLoader([
             'hookableEventsList.md.twig' => file_get_contents($this->templateEvents),
         ]));
@@ -79,7 +80,9 @@ class DocsAppEventCommand extends Command
                 ['eventDocs' => $eventsDoc]
             );
         } catch (LoaderError | RuntimeError | SyntaxError $e) {
-            throw new \RuntimeException('Can not render Webhook Events');
+            throw new \RuntimeException('Can not render Webhook Events', $e->getCode(), $e);
+        } finally {
+            $this->twig->setLoader($originalLoader);
         }
     }
 

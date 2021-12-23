@@ -1,0 +1,41 @@
+# {{ title }} scripting services reference
+
+{% for service in services %}
+## {{ service.name }}
+
+{{ service.summary }}
+{{ service.description }}
+
+{% for method in service.methods %}
+### {{ method.title }}
+
+{{ method.summary }}
+{{ method.description }}
+
+{% if method.arguments is not empty %}
+#### Arguments
+
+{% for argument in method.arguments %}
+##### `{{ argument.name }}`: {{ argument.type }}
+
+{% if argument.default is not null %}
+**Default**: {{ argument.default }}
+{% endif %}
+
+{{ argument.description }}
+
+{% endfor %}
+{% endif %}
+
+{% if method.return is not empty %}
+#### Return value
+
+**Type**: `{{ method.return.type }}`
+
+{{ method.return.description }}
+
+{% endif %}
+{% endfor %}
+
+
+{% endfor %}

@@ -39,5 +39,23 @@
 
             <tag name="console.command"/>
         </service>
+
+        <service id="Shopware\Docs\Command\Script\ScriptReferenceGeneratorCommand">
+            <argument type="tagged" tag="shopware.scripting_reference.generator"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Docs\Command\Script\HooksReferenceGenerator">
+            <argument type="service" id="service_container"/>
+
+            <tag name="shopware.scripting_reference.generator"/>
+        </service>
+
+        <service id="Shopware\Docs\Command\Script\ServiceReferenceGenerator">
+            <argument type="service" id="service_container"/>
+
+            <tag name="shopware.scripting_reference.generator"/>
+        </service>
     </services>
 </container>

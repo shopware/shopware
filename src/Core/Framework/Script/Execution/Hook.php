@@ -20,7 +20,7 @@ abstract class Hook
      * The services returned here must all implement the HookAwareService interface.
      * These are then available in the script under the variable `services`.
      */
-    abstract public function getServiceIds(): array;
+    abstract public static function getServiceIds(): array;
 
     /**
      * The name returned here serves as an accessor in the script for the service.

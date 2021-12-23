@@ -77,7 +77,7 @@ PHP coverage:
           - 'adr/*'
           - .gitlab/stages/02-unit.yml
     before_script:
-        - composer install --optimize-autoloader
+        - composer install --optimize-autoloader --no-interaction
         - mkdir -p config/jwt || true
     script:
         - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|Test|node_modules)~'"

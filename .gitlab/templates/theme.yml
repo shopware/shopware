@@ -64,7 +64,7 @@ workflow:
     - export THEME_NAME="${THEME_NAME:-${CI_PROJECT_TITLE}}"
 
 .base_install: &base_install
-    - composer install --quiet
+    - composer install --quiet --no-interaction
     - mkdir -p config/jwt || true
     - bin/console system:generate-jwt || true
     - bin/console system:install --drop-database --basic-setup --force >/dev/null

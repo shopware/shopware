@@ -159,7 +159,7 @@ PHP Full:
     script:
         - >
             if [ "$PREFER_LOWEST" == "true" ]; then
-                composer update --prefer-lowest
+                composer update --prefer-lowest --optimize-autoloader
             fi
         - >
             if [ "$ONLY_CORE" == "true" ]; then

@@ -5,13 +5,15 @@
       "lastName": "Eroni",
       "street": "Ebbinghoff 10",
       "zipcode": "48624",
-      "city": "Schöppingen"
+      "city": "Schöppingen",
+      "company": "shopware AG"
     }, {
       "firstName": "Lemon",
       "lastName": "Zitrone",
       "street": "Ebbinghoff 10A",
       "zipcode": "48624",
-      "city": "Schöppingen"
+      "city": "Schöppingen",
+      "company": "shopware AG"
     }
   ]
 }

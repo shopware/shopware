@@ -15,8 +15,8 @@ describe('Minimal auto update', () => {
             method: 'POST'
         }).as('dataRequest');
 
-        cy.visit('/admin#/sw/product/index');
         cy.login();
+        cy.visit('/admin#/sw/product/index');
         cy.get('.sw-loader').should('not.exist');
 
         cy.contains('.sw-data-grid__cell--name', 'Travel Pack | Proof Black').should('be.visible');

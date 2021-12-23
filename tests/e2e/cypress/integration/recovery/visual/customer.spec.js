@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 
-import CustomerPageObject from '../../support/pages/module/sw-customer.page-object';
+import CustomerPageObject from '../../../support/pages/module/sw-customer.page-object';
 
 let customer = {
     salutation: 'Mr.',

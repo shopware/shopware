@@ -1,5 +1,5 @@
-import CheckoutPageObject from '../../support/pages/checkout.page-object';
-import AccountPageObject from '../../support/pages/account.page-object';
+import CheckoutPageObject from '../../../support/pages/checkout.page-object';
+import AccountPageObject from '../../../support/pages/account.page-object';
 
 let product = {};
 
@@ -113,8 +113,8 @@ describe('Checkout: Visual tests', () => {
         // Take snapshot for visual testing on desktop
         cy.takeSnapshot('Checkout - Finish', '.finish-header', {widths: [375, 1920]});
 
-        cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
         cy.login();
+        cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
 
         cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.prepareAdminForScreenshot();

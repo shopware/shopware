@@ -4,6 +4,8 @@
   "lastName": "Eroni",
   "email": "test@example.com",
   "password": "shopware",
+  "company": "shopware AG",
+  "department": "product engineering",
   "addresses": [
     {}
   ]

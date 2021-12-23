@@ -26,7 +26,7 @@ describe('Minimal auto update', () => {
 
         cy.get('.sw-alert__actions > :nth-child(1) > .sw-button__content').should('be.visible').click();
 
-        cy.get('.smart-bar__header > h2').contains('(' + version + ')').should('be.visible');
+        cy.get('.smart-bar__header > h2').contains('(' + version).should('be.visible');
 
         // TODO: plugin step
 

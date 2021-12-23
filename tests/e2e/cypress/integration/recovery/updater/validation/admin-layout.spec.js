@@ -15,8 +15,8 @@ describe('Minimal auto update', () => {
             method: 'POST'
         }).as('dataRequest');
 
-        cy.visit('/admin#/sw/cms/index');
         cy.login();
+        cy.visit('/admin#/sw/cms/index');
 
         cy.contains('.sw-cms-list-item', 'Beste Produkte Landingpage').click();
         cy.get('.sw-loader').should('not.exist');

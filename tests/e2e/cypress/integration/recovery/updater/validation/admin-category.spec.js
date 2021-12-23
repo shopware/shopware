@@ -15,8 +15,8 @@ describe('Minimal auto update', () => {
             method: 'POST'
         }).as('dataRequest');
 
-        cy.visit('/admin#/sw/category/index');
         cy.login();
+        cy.visit('/admin#/sw/category/index');
 
         cy.contains('.sw-tree-item__label', 'Startseite').click();
         cy.get('.sw-loader').should('not.exist');

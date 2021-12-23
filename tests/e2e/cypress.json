@@ -27,7 +27,8 @@
     "dbUser": "root",
     "dbPassword": "root",
     "dbHost": "mysql",
-    "dbName": "shopware_e2e"
+    "dbName": "shopware_e2e",
+    "expectedVersion": "6.4."
   },
   "retries": {
     "runMode": 2,

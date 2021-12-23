@@ -1,4 +1,4 @@
-import AccountPageObject from '../../support/pages/account.page-object';
+import AccountPageObject from '../../../support/pages/account.page-object';
 
 describe('Account - Register: Visual tests', () => {
 

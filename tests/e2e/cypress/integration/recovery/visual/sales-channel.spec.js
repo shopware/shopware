@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 
-import SalesChannelPageObject from '../../support/pages/module/sw-sales-channel.page-object';
+import SalesChannelPageObject from '../../../support/pages/module/sw-sales-channel.page-object';
 
 describe('Sales Channel: Visual tests', () => {
     beforeEach(() => {
@@ -28,7 +28,7 @@ describe('Sales Channel: Visual tests', () => {
 
         // Open sales channel
         const saleschannel = Cypress.env('testDataUsage') ? 'Footwear' : 'E2E install test';
-        
+
         cy.contains(saleschannel).click();
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-loader__element').should('not.exist');

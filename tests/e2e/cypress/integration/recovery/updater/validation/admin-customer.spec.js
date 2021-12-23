@@ -15,8 +15,8 @@ describe('Minimal auto update', () => {
             method: 'POST'
         }).as('dataRequest');
 
-        cy.visit('/admin#/sw/customer/index');
         cy.login();
+        cy.visit('/admin#/sw/customer/index');
 
         cy.contains('.sw-data-grid__cell--firstName', 'Knopf').click();
         cy.get('.sw-loader').should('not.exist');

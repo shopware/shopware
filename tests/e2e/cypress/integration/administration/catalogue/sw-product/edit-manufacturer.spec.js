@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 
-import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
+import ProductPageObject from '../../../../support/pages/module/sw-product.page-object';
 
 describe('Product: Edit manufacturer', () => {
     beforeEach(() => {
@@ -47,7 +47,7 @@ describe('Product: Edit manufacturer', () => {
         cy.get('.sw-loader__element').should('not.exist');
         cy.get('.sw-select-product__select_manufacturer .sw-entity-single-select__selection-input')
             .typeAndCheck('Instant Manufacturer LLC');
-        cy.contains('.sw-select-result__result-item-text', 'Create new Manufacturer').should('be.visible');
+        cy.contains('.sw-select-result__result-item-text', 'Create new manufacturer').should('be.visible');
         cy.contains('.sw-highlight-text__highlight', 'Instant Manufacturer LLC').should('be.visible');
         cy.get('.sw-select-product__select_manufacturer .sw-entity-single-select__selection-input')
             .type('{enter}');
@@ -56,7 +56,7 @@ describe('Product: Edit manufacturer', () => {
         cy.wait('@createManufacturer')
             .its('response.statusCode').should('equal', 204);
         cy.awaitAndCheckNotification(
-            'The Manufacturer with the name "Instant Manufacturer LLC" was created successfully.'
+            'The manufacturer with the name "Instant Manufacturer LLC" was created successfully.'
         );
 
         // Verify manufacturer's creation in sw-manufacturer

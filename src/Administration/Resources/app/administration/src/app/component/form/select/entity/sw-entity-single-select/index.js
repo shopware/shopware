@@ -100,7 +100,7 @@ Component.register('sw-entity-single-select', {
                 return ['bottom', 'right'].includes(value);
             },
         },
-        creatable: {
+        allowEntityCreation: {
             type: Boolean,
             required: false,
             default: false,
@@ -108,7 +108,9 @@ Component.register('sw-entity-single-select', {
         entityCreationLabel: {
             type: String,
             required: false,
-            default: null,
+            default() {
+                return this.$tc('global.sw-single-select.labelEntity');
+            },
         },
     },
 
@@ -124,7 +126,6 @@ Component.register('sw-entity-single-select', {
             lastSelection: null,
             entityExists: true,
             newEntityName: '',
-            entityTitle: '',
         };
     },
 
@@ -176,11 +177,6 @@ Component.register('sw-entity-single-select', {
 
     methods: {
         createdComponent() {
-            if (this.creatable && this.feature.isActive('FEATURE_NEXT_17546')) {
-                this.entityTitle = this.entityCreationLabel ?
-                    this.entityCreationLabel
-                    : this.$tc('global.sw-single-select.labelEntity');
-            }
             this.loadSelected();
         },
 
@@ -253,14 +249,14 @@ Component.register('sw-entity-single-select', {
         loadData() {
             this.isLoading = true;
 
-            if (this.creatable && this.feature.isActive('FEATURE_NEXT_17546')) {
+            if (this.allowEntityCreation && this.feature.isActive('FEATURE_NEXT_17546')) {
                 return this.checkEntityExists(this.searchTerm).then(() => {
                     if (!this.entityExists) {
                         const newEntity = this.repository.create(this.context, -1);
                         newEntity.name = this.$tc('global.sw-single-select.labelEntityAdd',
                             0, {
                                 term: this.searchTerm,
-                                entity: this.entityTitle,
+                                entity: this.entityCreationLabel,
                             });
                         this.newEntityName = this.searchTerm;
                         this.displaySearch([newEntity]);
@@ -296,6 +292,9 @@ Component.register('sw-entity-single-select', {
             }
 
             const criteria = new Criteria();
+            criteria.addIncludes({
+                [this.entity]: ['id', 'name'],
+            });
             criteria.addFilter(
                 Criteria.equals('name', term),
             );
@@ -390,7 +389,6 @@ Component.register('sw-entity-single-select', {
             this.isExpanded = false;
         },
 
-
         closeResultList() {
             this.$refs.selectBase.collapse();
         },
@@ -403,7 +401,7 @@ Component.register('sw-entity-single-select', {
             }
 
             // Add new entity if not exists yet
-            if (this.creatable && !this.entityExists && this.feature.isActive('FEATURE_NEXT_17546')) {
+            if (this.allowEntityCreation && !this.entityExists && this.feature.isActive('FEATURE_NEXT_17546')) {
                 this.addItem(item);
                 return item;
             }
@@ -418,7 +416,7 @@ Component.register('sw-entity-single-select', {
         },
 
         addItem(item) {
-            if (!this.creatable) {
+            if (!this.allowEntityCreation) {
                 return null;
             }
 
@@ -496,7 +494,7 @@ Component.register('sw-entity-single-select', {
                         'global.sw-single-select.labelEntityAddedSuccess',
                         0, {
                             term: entity.name,
-                            entity: this.entityTitle,
+                            entity: this.entityCreationLabel,
                         },
                     ),
                 });
@@ -504,6 +502,7 @@ Component.register('sw-entity-single-select', {
                 this.createNotificationError({
                     message: this.$tc('global.notification.notificationSaveErrorMessage', 0, { entityName: this.entity }),
                 });
+                Shopware.Utils.debug.error('Only Entities with "name" as the only required field are creatable.');
                 this.isLoading = false;
             });
         },

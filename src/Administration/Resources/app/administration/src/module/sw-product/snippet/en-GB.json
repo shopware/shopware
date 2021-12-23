@@ -33,6 +33,7 @@
       "labelDescription": "Description",
       "labelProductNumber": "Product number",
       "labelManufacturer": "Manufacturer",
+      "labelManufacturerCreation": "manufacturer",
       "placeholderName": "Enter product title...",
       "placeholderDescriptionLong": "Enter product description...",
       "placeholderId": "Enter product number...",

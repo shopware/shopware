@@ -485,7 +485,7 @@
     "sw-single-select": {
       "messageNoResults": "No results found for \"{term}\".",
       "valuePlaceholder": "Select...",
-      "labelEntity": "New element",
+      "labelEntity": "element",
       "labelEntityAdd": "Create new {entity} \"{term}\"",
       "labelEntityAddedSuccess": "The {entity} with the name \"{term}\" was created successfully."
     },

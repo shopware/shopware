@@ -118,6 +118,9 @@ interface Filter {
     filter: SingleFilter[],
     aggregation: Aggregation[],
 }
+interface Include {
+    [entityName: string]: string[]
+}
 interface Association {
     association: string,
     criteria: Criteria,
@@ -148,6 +151,7 @@ interface RequestParams {
     associations?: {
         [association: string]: RequestParams
     },
+    includes?: Include,
     'total-count-mode'?: TotalCountMode
 }
 
@@ -178,11 +182,14 @@ export default class Criteria {
 
     private totalCountMode: TotalCountMode | null;
 
+    private includes: Include | null;
+
     constructor(page: number|null = 1, limit: number|null = 25) {
         this.page = page;
         this.limit = limit;
         this.term = null;
         this.filters = [];
+        this.includes = null;
         this.ids = [];
         this.queries = [];
         this.associations = [];
@@ -245,6 +252,9 @@ export default class Criteria {
                 params.associations[item.association] = item.criteria.parse();
             });
         }
+        if (this.includes !== null) {
+            params.includes = this.includes;
+        }
 
         if (this.totalCountMode !== null) {
             params['total-count-mode'] = this.totalCountMode;
@@ -294,6 +304,14 @@ export default class Criteria {
     addFilter(filter: Filter): this {
         this.filters.push(filter);
 
+        return this;
+    }
+
+    addIncludes(include: Include): this {
+        this.includes = {
+            ...this.includes,
+            ...include,
+        };
         return this;
     }
 

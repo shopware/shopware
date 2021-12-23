@@ -627,19 +627,19 @@ describe('components/sw-entity-single-select', () => {
             propsData: {
                 value: 'asdf555',
                 entity: 'product_manufacturer',
-                creatable: true
+                allowEntityCreation: true
             },
             provide: {
                 repositoryFactory: {
                     create: () => ({
                         search: (context) => {
                             // Should return no manufacturer when component searches for "Cars"
-                            if (context.filters[0].value === 'Cars') {
+                            if (context.term === 'Cars') {
                                 return Promise.resolve(nonExistingEntityMock);
                             }
 
                             // Should return one manufacturer when component searches for "Bikes"
-                            if (context.filters[0].value === 'Bikes') {
+                            if (context.term === 'Bikes') {
                                 return Promise.resolve(existingEntityMock);
                             }
 
@@ -682,7 +682,7 @@ describe('components/sw-entity-single-select', () => {
 
         // Ensure non-existing manufacturer is offered to be created by a new select result item
         expect(createableWrapper.vm.newEntityName).toBe('Cars');
-        expect(displaySearchSpy).toHaveBeenCalledTimes(1);
+        expect(displaySearchSpy).toHaveBeenCalled();
         expect(resultItem.text()).toBe('global.sw-single-select.labelEntityAdd');
         expect(resultItem.props().searchTerm).toBe('Cars');
     });

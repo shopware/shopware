@@ -21,7 +21,7 @@ class IdFieldSerializer extends AbstractFieldSerializer
             $data[$key] = Uuid::randomHex();
         }
 
-        $parameters->getContext()->set($parameters->getDefinition()->getClass(), $key, $data[$key]);
+        $parameters->getContext()->set($parameters->getDefinition()->getEntityName(), $key, $data[$key]);
 
         return $data;
     }
@@ -43,7 +43,7 @@ class IdFieldSerializer extends AbstractFieldSerializer
             $value = Uuid::randomHex();
         }
 
-        $parameters->getContext()->set($parameters->getDefinition()->getClass(), $data->getKey(), $value);
+        $parameters->getContext()->set($parameters->getDefinition()->getEntityName(), $data->getKey(), $value);
 
         yield $field->getStorageName() => Uuid::fromHexToBytes($value);
     }

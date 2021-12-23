@@ -78,6 +78,8 @@ class ProductBuilder
 
     protected array $crossSellings = [];
 
+    protected ?string $coverId = null;
+
     public function __construct(IdsCollection $ids, string $number, int $stock = 1, string $taxKey = 't1')
     {
         $this->ids = $ids;
@@ -112,7 +114,7 @@ class ProductBuilder
 
         $this->tax = [
             'id' => $this->ids->create($key),
-            'name' => 'test',
+            'name' => $key,
             'taxRate' => $rate,
         ];
 
@@ -423,6 +425,12 @@ class ProductBuilder
 
     public function cover(string $key): ProductBuilder
     {
+        $this->media[] = [
+            'id' => $this->ids->get($key),
+            'position' => -1,
+            'media' => ['fileName' => $key],
+        ];
+
         $this->coverId = $this->ids->get($key);
 
         return $this;
@@ -577,4 +585,5 @@ class ProductBuilder
 
         return $price;
     }
+
 }

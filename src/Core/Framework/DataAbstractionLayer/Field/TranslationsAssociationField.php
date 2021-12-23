@@ -14,13 +14,14 @@ class TranslationsAssociationField extends OneToManyAssociationField
         string $referenceClass,
         string $referenceField,
         string $propertyName = 'translations',
-        string $localField = 'id'
+        string $localField = 'id',
+        ?string $referenceEntity = null
     ) {
         if (!is_subclass_of($referenceClass, EntityTranslationDefinition::class)) {
             throw new \InvalidArgumentException('$referenceClass needs to be an `EntityTranslationDefinition`');
         }
 
-        parent::__construct($propertyName, $referenceClass, $referenceField, $localField);
+        parent::__construct($propertyName, $referenceClass, $referenceField, $localField, $referenceEntity);
         $this->addFlags(new CascadeDelete());
     }
 

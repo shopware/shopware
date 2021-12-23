@@ -106,6 +106,7 @@
     <xs:complexType name="field-one-to-one-type">
         <xs:attribute type="xs:string" name="name" use="required"/>
         <xs:attribute type="xs:string" name="reference" use="required" />
+        <xs:attribute type="xs:boolean" name="required" default="false" />
         <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
     </xs:complexType>
 

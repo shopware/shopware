@@ -143,8 +143,8 @@ class JsonApiEncoder
 
     private function createSerializedEntity(ResponseFields $fields, EntityDefinition $definition, JsonApiEncodingResult $result): Record
     {
-        if (isset($this->serializeCache[$definition->getClass()])) {
-            return clone $this->serializeCache[$definition->getClass()];
+        if (isset($this->serializeCache[$definition->getEntityName()])) {
+            return clone $this->serializeCache[$definition->getEntityName()];
         }
 
         $serialized = new Record();
@@ -206,7 +206,7 @@ class JsonApiEncoder
             }
         }
 
-        return $this->serializeCache[$definition->getClass()] = $serialized;
+        return $this->serializeCache[$definition->getEntityName()] = $serialized;
     }
 
     private function formatToJson(JsonApiEncodingResult $result): string

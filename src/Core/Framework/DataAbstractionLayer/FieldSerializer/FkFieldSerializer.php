@@ -26,8 +26,8 @@ class FkFieldSerializer extends AbstractFieldSerializer
 
         $writeContext = $parameters->getContext();
 
-        if ($this->shouldUseContext($field, true, $value) && $writeContext->has($field->getReferenceDefinition()->getClass(), $field->getReferenceField())) {
-            $data[$field->getPropertyName()] = $writeContext->get($field->getReferenceDefinition()->getClass(), $field->getReferenceField());
+        if ($this->shouldUseContext($field, true, $value) && $writeContext->has($field->getReferenceDefinition()->getEntityName(), $field->getReferenceField())) {
+            $data[$field->getPropertyName()] = $writeContext->get($field->getReferenceDefinition()->getEntityName(), $field->getReferenceField());
         }
 
         return $data;
@@ -47,7 +47,7 @@ class FkFieldSerializer extends AbstractFieldSerializer
 
         if ($this->shouldUseContext($field, $data->isRaw(), $value)) {
             try {
-                $value = $parameters->getContext()->get($field->getReferenceDefinition()->getClass(), $field->getReferenceField());
+                $value = $parameters->getContext()->get($field->getReferenceDefinition()->getEntityName(), $field->getReferenceField());
             } catch (\InvalidArgumentException $exception) {
                 if ($this->requiresValidation($field, $existence, $value, $parameters)) {
                     $this->validate($this->getConstraints($field), $data, $parameters->getPath());

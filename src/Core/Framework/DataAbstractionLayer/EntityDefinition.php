@@ -237,13 +237,15 @@ abstract class EntityDefinition
             return $this->parentDefinition;
         }
 
-        $parentDefinitionClass = $this->getParentDefinitionClass();
-
-        if ($parentDefinitionClass === null) {
-            return $this->parentDefinition = null;
+        if ($this->getParentDefinitionClass() !== null) {
+            return $this->parentDefinition = $this->registry->get($this->getParentDefinitionClass());
         }
 
-        return $this->parentDefinition = $this->registry->get($parentDefinitionClass);
+        if ($this->getParentDefinitionEntity() !== null) {
+            return $this->parentDefinition = $this->registry->getByEntityName($this->getParentDefinitionEntity());
+        }
+
+        return $this->parentDefinition = null;
     }
 
     final public function getTranslationDefinition(): ?EntityDefinition
@@ -365,6 +367,14 @@ abstract class EntityDefinition
     }
 
     protected function getParentDefinitionClass(): ?string
+    {
+        return null;
+    }
+
+    /**
+     * can be used instead of `getParentDefinitionClass`
+     */
+    protected function getParentDefinitionEntity(): ?string
     {
         return null;
     }

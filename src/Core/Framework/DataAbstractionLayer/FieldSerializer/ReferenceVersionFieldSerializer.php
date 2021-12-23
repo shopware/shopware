@@ -35,14 +35,14 @@ class ReferenceVersionFieldSerializer implements FieldSerializerInterface
         if ($value !== null || $definition === $reference) {
             // parent inheritance with versioning
             $value ??= Defaults::LIVE_VERSION;
-        } elseif ($context->has($reference->getClass(), 'versionId')) {
+        } elseif ($context->has($reference->getEntityName(), 'versionId')) {
             // if the reference is already written, use the version id of the written entity
-            $value = $context->get($reference->getClass(), 'versionId');
-        } elseif ($definition->getParentDefinition() === $reference && $context->has($definition->getClass(), 'versionId')) {
+            $value = $context->get($reference->getEntityName(), 'versionId');
+        } elseif ($definition->getParentDefinition() === $reference && $context->has($definition->getEntityName(), 'versionId')) {
             // if the current entity is a sub entity (e.g. order -> line-item)
             // and the version id isn't set, use the same version id of the own entity
             // this is the case, if a entity is created over a sub api call
-            $value = $context->get($definition->getClass(), 'versionId');
+            $value = $context->get($definition->getEntityName(), 'versionId');
         } else {
             $value = Defaults::LIVE_VERSION;
         }
@@ -71,14 +71,14 @@ class ReferenceVersionFieldSerializer implements FieldSerializerInterface
         if ($data->getValue() !== null || $definition === $reference) {
             // parent inheritance with versioning
             $value = $data->getValue() ?? Defaults::LIVE_VERSION;
-        } elseif ($context->has($reference->getClass(), 'versionId')) {
+        } elseif ($context->has($reference->getEntityName(), 'versionId')) {
             // if the reference is already written, use the version id of the written entity
-            $value = $context->get($reference->getClass(), 'versionId');
-        } elseif ($definition->getParentDefinition() === $reference && $context->has($definition->getClass(), 'versionId')) {
+            $value = $context->get($reference->getEntityName(), 'versionId');
+        } elseif ($definition->getParentDefinition() === $reference && $context->has($definition->getEntityName(), 'versionId')) {
             // if the current entity is a sub entity (e.g. order -> line-item)
             // and the version id isn't set, use the same version id of the own entity
             // this is the case, if a entity is created over a sub api call
-            $value = $context->get($definition->getClass(), 'versionId');
+            $value = $context->get($definition->getEntityName(), 'versionId');
         } else {
             $value = Defaults::LIVE_VERSION;
         }

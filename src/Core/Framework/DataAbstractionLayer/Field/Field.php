@@ -78,9 +78,13 @@ abstract class Field extends Struct
         return $this;
     }
 
-    public function addFlags(Flag ...$flags): self
+    public function addFlags(...$flags): self
     {
+        /** @var Flag $flag */
         foreach ($flags as $flag) {
+            if ($flag === null) {
+                continue;
+            }
             $this->flags[\get_class($flag)] = $flag;
         }
 

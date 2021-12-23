@@ -2,10 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity;
 
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
@@ -13,18 +10,28 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 /**
  * @internal Used for custom entities
  */
-class DynamicEntityDefinition extends EntityDefinition
+class DynamicTranslationEntityDefinition extends EntityTranslationDefinition
 {
-    protected string $name;
+    protected string $root;
 
     protected array $fieldDefinitions;
 
     protected ContainerInterface $container;
 
-    public static function create(string $name, array $fields, ContainerInterface $container): DynamicEntityDefinition
+    protected function getParentDefinitionEntity(): string
+    {
+        return $this->root;
+    }
+
+    protected function getParentDefinitionClass(): ?string
+    {
+        return null;
+    }
+
+    public static function create(string $root, array $fields, ContainerInterface $container): DynamicTranslationEntityDefinition
     {
         $self = new self();
-        $self->name = $name;
+        $self->root = $root;
         $self->fieldDefinitions = $fields;
         $self->container = $container;
 
@@ -33,23 +40,16 @@ class DynamicEntityDefinition extends EntityDefinition
 
     public function getEntityName(): string
     {
-        return $this->name;
+        return $this->root . '_translation';
     }
 
     protected function defineFields(): FieldCollection
     {
-        $collection = DynamicFieldFactory::create($this->container, $this->getEntityName(), $this->fieldDefinitions);
-
-        $collection->add(
-            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
-        );
-
-        return $collection;
+        return DynamicFieldFactory::create($this->container, $this->getEntityName(), $this->fieldDefinitions);
     }
 
     protected static function kebabCaseToCamelCase(string $string): string
     {
         return (new CamelCaseToSnakeCaseNameConverter())->denormalize(str_replace('-', '_', $string));
     }
-
 }

@@ -38,7 +38,7 @@ class OneToManyAssociationFieldSerializer implements FieldSerializerInterface
             return $data;
         }
 
-        $id = $parameters->getContext()->get($parameters->getDefinition()->getClass(), $field->getLocalField());
+        $id = $parameters->getContext()->get($parameters->getDefinition()->getEntityName(), $field->getLocalField());
         $reference = $field->getReferenceDefinition();
 
         $fkField = $reference->getFields()->getByStorageName($field->getReferenceField());

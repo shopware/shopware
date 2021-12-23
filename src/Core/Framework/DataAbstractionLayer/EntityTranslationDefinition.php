@@ -40,7 +40,7 @@ abstract class EntityTranslationDefinition extends EntityDefinition
             > 0;
     }
 
-    protected function getParentDefinitionClass(): string
+    protected function getParentDefinitionClass(): ?string
     {
         throw new \RuntimeException('`getParentDefinitionClass` not implemented');
     }
@@ -58,9 +58,9 @@ abstract class EntityTranslationDefinition extends EntityDefinition
         $propertyBaseName = lcfirst(implode('', $propertyBaseName));
 
         $baseFields = [
-            (new FkField($entityName . '_id', $propertyBaseName . 'Id', $translatedDefinition->getClass()))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
-            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
-            new ManyToOneAssociationField($propertyBaseName, $entityName . '_id', $translatedDefinition->getClass(), 'id', false),
+            (new FkField($entityName . '_id', $propertyBaseName . 'Id', $translatedDefinition->getClass(), 'id', $this->getParentDefinitionEntity()))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new FkField('language_id', 'languageId', LanguageDefinition::class, 'id', $this->getParentDefinitionEntity()))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            new ManyToOneAssociationField($propertyBaseName, $entityName . '_id', $translatedDefinition->getClass(), 'id', false, $this->getParentDefinitionEntity()),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false),
         ];
 

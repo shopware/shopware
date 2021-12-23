@@ -3,10 +3,12 @@
 namespace Shopware\Core\Framework\App\Entity\Xml\Field;
 
 use Shopware\Core\Framework\App\Entity\Xml\Field\Traits\ReferenceTrait;
+use Shopware\Core\Framework\App\Entity\Xml\Field\Traits\RequiredTrait;
 
 class OneToOneField extends Field
 {
     use ReferenceTrait;
+    use RequiredTrait;
 
     protected string $type = 'one-to-one';
 

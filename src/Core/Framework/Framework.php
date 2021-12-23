@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension as DalExtension;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
@@ -33,12 +36,14 @@ use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\CustomEntity\DynamicEntityDefinition;
 use Shopware\Core\System\CustomEntity\DynamicMappingEntityDefinition;
+use Shopware\Core\System\CustomEntity\DynamicTranslationEntityDefinition;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\ClosureLoader;
 use Symfony\Component\DependencyInjection\Loader\DirectoryLoader;
@@ -145,6 +150,7 @@ class Framework extends Bundle
         );
 
         $this->registerCustomEntities(
+            $this->container,
             $this->container->get(Connection::class),
             $this->container->get(DefinitionInstanceRegistry::class),
         );
@@ -209,49 +215,30 @@ class Framework extends Bundle
         }
     }
 
-    private function registerCustomEntities(Connection $connection, DefinitionInstanceRegistry $registry): void
+    private function registerCustomEntities(ContainerInterface $container, Connection $connection, DefinitionInstanceRegistry $registry): void
     {
         if (!$connection->getSchemaManager()->tablesExist('custom_entity')) {
             return;
         }
 
-        $definitions = $connection->fetchAllAssociative('SELECT name, fields FROM custom_entity');
+        $entities = $connection->fetchAllAssociative('SELECT name, fields FROM custom_entity');
 
-        foreach ($definitions as $entity) {
-            $name = $entity['name'];
-
-            $definition = DynamicEntityDefinition::create($name, json_decode($entity['fields'], true, 512, \JSON_THROW_ON_ERROR));
-
-            $this->container->set($name, $definition);
-
-            $this->container->set($definition->getEntityName() . '.repository', $this->createRepository($definition));
-
-            $registry->register($definition, $name);
-        }
-
-        foreach ($definitions as $entity) {
+        $definitions = [];
+        foreach ($entities as $entity) {
             $fields = json_decode($entity['fields'], true, 512, \JSON_THROW_ON_ERROR);
 
-            foreach ($fields as $field) {
-                if ($field['type'] === 'many-to-many') {
-                    $mapping = DynamicMappingEntityDefinition::create($entity['name'], $field['reference']);
-                    $this->container->set($mapping->getEntityName(), $mapping);
-                    $registry->register($mapping, $mapping->getEntityName());
+            $definition = DynamicEntityDefinition::create($entity['name'], $fields, $container);
 
-                    continue;
-                }
+            $definitions[] = $definition;
 
-                if ($field['type'] === 'one-to-many') {
-                    $reference = $registry->getByEntityName($field['reference']);
+            $this->container->set($definition->getEntityName(), $definition);
+            $this->container->set($definition->getEntityName() . '.repository', $this->createRepository($definition));
+            $registry->register($definition, $definition->getEntityName());
+        }
 
-                    $fk = new FkField($entity['name'] . '_id', self::kebabCaseToCamelCase($entity['name']) . 'Id', DynamicEntityDefinition::class, 'id', $entity['name']);
-                    $fk->compile($registry);
-
-                    $reference->getFields()->add($fk);
-
-                    continue;
-                }
-            }
+        foreach ($definitions as $definition) {
+            // triggers field generation to generate reverse foreign keys, translation definitions and mapping definitions
+            $definition->getFields();
         }
     }
 

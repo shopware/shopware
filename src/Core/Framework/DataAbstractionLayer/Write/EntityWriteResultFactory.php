@@ -166,13 +166,13 @@ class EntityWriteResultFactory
                 return false;
             }
 
-            return $field->getReferenceDefinition()->getClass() === $parent->getClass();
+            return $field->getReferenceDefinition()->getEntityName() === $parent->getEntityName();
         });
 
         // find foreign key field for parent definition (product_price.product_id in case of product_price provided)
         $fkField = $fkField->first();
         if (!$fkField instanceof FkField) {
-            throw new \RuntimeException(sprintf('Can not detect foreign key for parent definition %s', $parent->getClass()));
+            throw new \RuntimeException(sprintf('Can not detect foreign key for parent definition %s', $parent->getEntityName()));
         }
 
         $primaryKeys = $this->getPrimaryKeysOfFkField($definition, $ids, $fkField);
@@ -297,7 +297,7 @@ class EntityWriteResultFactory
         // we have to create the written events in the written order, otherwise the version manager would
         // trace the change sets in a wrong order
         foreach ($queue->getCommandsInOrder() as $command) {
-            $class = $command->getDefinition()->getClass();
+            $class = $command->getDefinition()->getEntityName();
             if (isset($order[$class])) {
                 continue;
             }
@@ -448,7 +448,7 @@ class EntityWriteResultFactory
                 throw new \RuntimeException(
                     sprintf(
                         'Primary key field %s::%s not found in payload or command primary key',
-                        $command->getDefinition()->getClass(),
+                        $command->getDefinition()->getEntityName(),
                         $primaryKey->getStorageName()
                     )
                 );
@@ -472,7 +472,7 @@ class EntityWriteResultFactory
                 sprintf(
                     'Can not detect reference field with storage name %s in definition %s',
                     $fkField->getReferenceField(),
-                    $parent->getClass()
+                    $parent->getEntityName()
                 )
             );
         }

@@ -5,19 +5,19 @@ const customers = [
     {
         firstName: 'Net',
         lastName: 'Customer',
-        email: "tester@example.com",
+        email: 'tester@example.com',
         displayGross: false
     },
     {
         firstName: 'Gross',
         lastName: 'Customer',
-        email: "tester@example.com",
+        email: 'tester@example.com',
         displayGross: true
     },
     {
         firstName: 'Differing',
         lastName: 'Addresses',
-        email: "tester@example.com",
+        email: 'tester@example.com',
         displayGross: true
     }
 ];

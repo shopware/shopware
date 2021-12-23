@@ -1,4 +1,4 @@
-import CheckoutPageObject from "../../../support/pages/checkout.page-object";
+import CheckoutPageObject from '../../../support/pages/checkout.page-object';
 
 let product = {};
 

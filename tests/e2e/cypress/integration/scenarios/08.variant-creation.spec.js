@@ -177,7 +177,7 @@ describe('Create a variant product using default customer and buy it via cash on
         cy.get('.finish-header').contains(`Thank you for your order with E2E install test!`);
     });
 
-    // TODO: fix dependency
+    // NEXT-19404: fix dependency
     it.skip('@package: should verify the order from the order page', () => {
         cy.loginViaApi();
         cy.visit(`${Cypress.env('admin')}#/sw/order/index`);

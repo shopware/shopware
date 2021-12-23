@@ -43,7 +43,9 @@ describe('Google Analytics: New analytics cookie in Cookie Consent Manager', () 
         cy.wait('@cookieOffcanvas')
             .its('response.statusCode').should('equal', 200);
 
+        // waiting on the request is not sufficient on all systems, so we wait a second
         cy.wait(1000);
+
         cy.get('.offcanvas-cookie').should('be.visible');
         cy.get('.offcanvas-cookie-group').eq(1).find('.custom-control-label').first().click();
         cy.get('.js-offcanvas-cookie-submit').click();

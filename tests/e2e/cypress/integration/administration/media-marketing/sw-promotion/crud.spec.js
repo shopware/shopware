@@ -28,7 +28,7 @@ describe('Promotion: Test crud operations', () => {
             });
     });
 
-    it.only('@base @marketing: create, update and read promotion', () => {
+    it('@base @marketing: create, update and read promotion', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

@@ -30,7 +30,7 @@ describe('Filter on startpage', () => {
         });
     });
 
-    it("Filter for manufacturer", () => {
+    it('Filter for manufacturer', () => {
         const actualItems = 3;
         const filteredItems = 1;
         const manufacturer = 'shopware AG';
@@ -47,9 +47,9 @@ describe('Filter on startpage', () => {
         cy.url().should('contain', '?manufacturer=');
         cy.get('.has-element-loader').should('not.exist');
 
-        cy.get("@productCard").should('have.length', filteredItems);
+        cy.get('@productCard').should('have.length', filteredItems);
 
-        cy.get("@productCard").first().click();
+        cy.get('@productCard').first().click();
 
         cy.get(elements.productDetailManufacturerLink).should(
             'contain',

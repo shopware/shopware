@@ -37,12 +37,12 @@ Cypress.Commands.add('takeSnapshot', (title, selectorToCheck = null, width = nul
  */
 Cypress.Commands.add('createDefaultSalesChannel', (data = {}) => {
     return cy.searchViaAdminApi({
-        endpoint: 'payment-method',
-        data: {
-            field: 'name',
-            value: 'Invoice',
-        },
-    })
+            endpoint: 'payment-method',
+            data: {
+                field: 'name',
+                value: 'Invoice',
+            },
+        })
         .then((paymentMethod) => {
             data.paymentMethodId = paymentMethod.id;
 
@@ -92,8 +92,6 @@ Cypress.Commands.add('createDefaultSalesChannel', (data = {}) => {
  * @param {String} [salesChannelName=Storefront] - The name of the sales channel for visibility
  */
 Cypress.Commands.add('createStorefrontProductVariantFixture', () => {
-    cy.log('##### Overwritten #######')
-
     return cy.createDefaultFixture('tax', {
         id: '91b5324352dc4ee58ec320df5dcf2bf4',
     }).then(() => {
@@ -244,7 +242,6 @@ Cypress.Commands.add('createCustomerFixtureStorefront', (userData) => {
                 }, a)
             })
         };
-
     }).then(() => {
         return Cypress._.merge(customerJson, {
             salutationId: salutationId,
@@ -263,7 +260,6 @@ Cypress.Commands.add('createCustomerFixtureStorefront', (userData) => {
         });
     });
 });
-
 
 /**
  * Returns default sales channel for products

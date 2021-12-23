@@ -149,6 +149,9 @@ describe('Order: Read order', () => {
             cy.wait('@orderRecalculateCall').its('response.statusCode').should('equal', 204);
             cy.wait('@orderSearchCall').its('response.statusCode').should('equal', 200);
 
+            // saving too fast results in a patch request that fails
+            cy.wait(1000);
+
             cy.get(page.elements.smartBarSave).click();
             cy.wait('@orderSaveCall').its('response.statusCode').should('equal', 204);
 
@@ -209,6 +212,8 @@ describe('Order: Read order', () => {
             cy.wait('@orderRecalculateCall').its('response.statusCode').should('equal', 204);
             cy.wait('@orderSearchCall').its('response.statusCode').should('equal', 200);
 
+            // saving too fast results in a patch request that fails
+            cy.wait(1000);
             cy.get(page.elements.smartBarSave).click();
             cy.wait('@orderSaveCall').its('response.statusCode').should('equal', 204);
 
@@ -289,6 +294,7 @@ describe('Order: Read order', () => {
             cy.wait('@orderRecalculateCall').its('response.statusCode').should('equal', 204);
             cy.wait('@orderSearchCall').its('response.statusCode').should('equal', 200);
 
+            // saving too fast results in a patch request that fails
             cy.wait(1000);
             cy.get(page.elements.smartBarSave).click();
             cy.wait('@orderSaveCall').its('response.statusCode').should('equal', 204);
@@ -356,6 +362,9 @@ describe('Order: Read order', () => {
             cy.get(page.elements.dataGridInlineEditSave).click();
             cy.wait('@orderRecalculateCall').its('response.statusCode').should('equal', 204);
             cy.wait('@orderSearchCall').its('response.statusCode').should('equal', 200);
+
+            // saving too fast results in a patch request that fails
+            cy.wait(1000);
 
             cy.get(page.elements.smartBarSave).click();
             cy.wait('@orderSaveCall').its('response.statusCode').should('equal', 204);

@@ -131,7 +131,7 @@ describe('@package: Currency: checkout with tax-free and price rounding', () => 
         cy.get('.finish-header').contains(`Thank you for your order with E2E install test!`);
     });
 
-    // TODO: fix dependency
+    // NEXT-19404: fix dependency
     it.skip('Should check the order in admin', ()=>{
         cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Test Tester');

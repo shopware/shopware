@@ -40,7 +40,7 @@ describe('Admin & Storefront: private customer registration by using product cre
 
     });
 
-    // TODO: fix dependency
+    // NEXT-19404: fix dependency
     it.skip('@package: add product via UI', () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/sync`,
@@ -95,7 +95,7 @@ describe('Admin & Storefront: private customer registration by using product cre
 
     });
 
-    // TODO: fix dependency
+    // NEXT-19404: fix dependency
     it.skip('@package: register as private customer and complete shopping', ()=>{
 
         cy.intercept({
@@ -155,7 +155,7 @@ describe('Admin & Storefront: private customer registration by using product cre
 
     });
 
-    // TODO: fix dependency
+    // NEXT-19404: fix dependency
     it.skip('@package: check order in admin', ()=>{
 
         cy.visit(`${Cypress.env('admin')}#/sw/order/index`);

@@ -31,7 +31,6 @@ describe('Documents: Test crud operations', () => {
             // scroll the checkbox for the option "Display header" into view
             cy.get('.sw-field--checkbox__content:nth(8)').scrollIntoView()
 
-
             // check that the correct element is selected and check the checkbox
             cy.get('.sw-field--checkbox__content:nth(8)').contains('Display "intra-Community delivery" label')
             cy.get('.sw-field--checkbox__content:nth(8) input[type=checkbox]').check()

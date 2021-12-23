@@ -1,6 +1,6 @@
 // / <reference types="Cypress" />
 
-import ProductStreamObject from "../../../../support/pages/module/sw-product-stream.page-object";
+import ProductStreamObject from '../../../../support/pages/module/sw-product-stream.page-object';
 
 describe('Dynamic product group: Test product has cover image filter with and without cover image', () => {
     beforeEach(() => {

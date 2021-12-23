@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 
-import ProductPageObject from "../../support/pages/module/sw-product.page-object";
+import ProductPageObject from '../../support/pages/module/sw-product.page-object';
 
 describe('@package: Admin & Storefront - commercial customer registration by using product created via API', () => {
     beforeEach(() => {
@@ -68,7 +68,7 @@ describe('@package: Admin & Storefront - commercial customer registration by usi
         cy.get('.sw-loader').should('not.exist');
     });
 
-    // TODO: fix dependency
+    // NEXT-19404: fix dependency
     it.skip('Register as commercial customer and complete shopping', ()=>{
         cy.intercept({
             url: `/account/register`,
@@ -128,7 +128,7 @@ describe('@package: Admin & Storefront - commercial customer registration by usi
         cy.get('.finish-header').contains(`Thank you for your order with E2E install test!`).should('be.visible');
     });
 
-    // TODO: fix dependency
+    // NEXT-19404: fix dependency
     it.skip('Check order in admin', ()=>{
         cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
         cy.get('.sw-search-bar__input').should('be.visible').typeAndCheckSearchField('Test Tester');

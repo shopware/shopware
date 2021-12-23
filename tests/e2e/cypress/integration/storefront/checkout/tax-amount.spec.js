@@ -8,10 +8,10 @@ const additionalProducts = [
         productNumber: 'RS-1919',
         price: [
             {
-                "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
-                "net": 8.40,
-                "linked": false,
-                "gross": 10
+                'currencyId': 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                'net': 8.40,
+                'linked': false,
+                'gross': 10
             }
         ]
     },
@@ -19,12 +19,12 @@ const additionalProducts = [
         name: '7% Product',
         taxName: 'Reduced rate',
         productNumber: 'RS-777',
-        "price": [
+        'price': [
             {
-                "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
-                "net": 8.40,
-                "linked": false,
-                "gross": 10
+                'currencyId': 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                'net': 8.40,
+                'linked': false,
+                'gross': 10
             }
         ]
     },
@@ -32,12 +32,12 @@ const additionalProducts = [
         name: 'Mixed Products',
         taxName: 'Reduced rate',
         productNumber: 'RS-719719',
-        "price": [
+        'price': [
             {
-                "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
-                "net": 8.40,
-                "linked": false,
-                "gross": 10
+                'currencyId': 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                'net': 8.40,
+                'linked': false,
+                'gross': 10
             }
         ]
     }

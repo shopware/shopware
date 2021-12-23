@@ -1,5 +1,5 @@
-import CheckoutPageObject from "../../../support/pages/checkout.page-object";
-import AccountPageObject from "../../../support/pages/account.page-object";
+import CheckoutPageObject from '../../../support/pages/checkout.page-object';
+import AccountPageObject from '../../../support/pages/account.page-object';
 let product = {};
 
 describe(`Checkout as Guest`, () => {

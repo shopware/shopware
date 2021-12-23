@@ -36,7 +36,6 @@ Cypress.on('window:before:load', (window) => {
     })
 })
 
-
 beforeEach(() => {
     if (!Cypress.env('SKIP_INIT')) {
         return cy.setToInitialState();

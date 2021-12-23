@@ -21,45 +21,34 @@ E2E:
         CYPRESS_COMMIT_BRANCH: $CI_COMMIT_BRANCH
     parallel:
         matrix:
-            -   E2E_PROJECT: 'storefront'
-                TEST_DIRECTORY: "cypress/integration/**/**/*"
-                BROWSER: 'chrome'
-                FEATURE_ALL: ["false", "minor", "major"]
-            -   E2E_PROJECT: 'admin'
-                TEST_DIRECTORY:
-                    - "cypress/integration/settings/**/*"
-                    - "cypress/integration/catalogue/**/*,cypress/integration/media-marketing/**/*"
-                    - "cypress/integration/content/**/*,cypress/integration/customer/**/*,cypress/integration/general/**/*,cypress/integration/order/**/*,cypress/integration/rule-product-stream/**/*"
+            -   TEST_DIRECTORY:
+                    - "cypress/integration/administration/settings/**/*"
+                    - "cypress/integration/administration/catalogue/**/*,cypress/integration/administration/media-marketing/**/*,cypress/integration/administration/customer/**/*"
+                    - "cypress/integration/administration/content/**/*,cypress/integration/administration/general/**/*,cypress/integration/administration/order/**/*,cypress/integration/administration/rule-product-stream/**/*"
+                    - "cypress/integration/storefront/**/*"
                 BROWSER: 'chrome'
                 FEATURE_ALL: ["false", "minor", "major"]
             # firefox
-            -   E2E_PROJECT: 'storefront'
-                TEST_DIRECTORY: "cypress/integration/**/**/*"
+            -   TEST_DIRECTORY:
+                    - "cypress/integration/administration/settings/**/*"
+                    - "cypress/integration/administration/catalogue/**/*,cypress/integration/administration/media-marketing/**/*,cypress/integration/administration/customer/**/*"
+                    - "cypress/integration/administration/content/**/*,cypress/integration/administration/general/**/*,cypress/integration/administration/order/**/*,cypress/integration/administration/rule-product-stream/**/*"
+                    - "cypress/integration/storefront/**/*"
                 BROWSER: 'firefox'
                 FEATURE_ALL: 'false'
-            -   E2E_PROJECT: 'admin'
-                TEST_DIRECTORY:
-                    - "cypress/integration/settings/**/*"
-                    - "cypress/integration/catalogue/**/*,cypress/integration/media-marketing/**/*"
-                    - "cypress/integration/content/**/*,cypress/integration/customer/**/*,cypress/integration/general/**/*,cypress/integration/order/**/*,cypress/integration/rule-product-stream/**/*"
-                BROWSER: 'firefox'
-                FEATURE_ALL: 'false'
-
     script:
-        - composer run init:e2e:$E2E_PROJECT
+        - composer run init:e2e
         - composer run e2e:prepare
-        - composer run e2e:$E2E_PROJECT:cypress -- run
+        - composer run e2e:cypress -- run
             --browser chrome
             --spec "$TEST_DIRECTORY"
             --headless
     after_script:
         - mkdir $CI_PROJECT_DIR/var/log/e2e
-        - composer run npm:e2e:$E2E_PROJECT -- run combine-reports
-        - composer run npm:e2e:$E2E_PROJECT -- run generate-report
-        - mv $ADMIN_PATH/test/e2e/cypress/results/single-reports/*.xml var/log/e2e/ || true
-        - mv $STOREFRONT_PATH/test/e2e/cypress/results/single-reports/*.xml var/log/e2e/ || true
-        - mv $ADMIN_PATH/test/e2e/mochareports/ var/log/e2e/ || true
-        - mv $STOREFRONT_PATH/test/e2e/mochareports/ var/log/e2e/ || true
+        - composer run npm:e2e -- run combine-reports
+        - composer run npm:e2e -- run generate-report
+        - mv tests/E2E/cypress/results/single-reports/*.xml var/log/e2e/ || true
+        - mv tests/E2E/mochareports/ var/log/e2e/ || true
         - !reference [.upload-junit-xml, after_script]
     artifacts:
         when: always
@@ -109,21 +98,23 @@ E2E install NL:
             store:
               frw: true
           EOF
-        - composer run init:e2e:recovery
-        - composer run e2e:recovery:cypress -- run
+        - composer run init:e2e
+        - mkdir -p var/dumps
+        - touch var/dumps/database_root.sql
+        - composer run e2e:cypress -- run
             --browser chrome
-            --spec "cypress/integration/installer/install_nl.spec.js"
+            --spec "cypress/integration/recovery/installer/install_nl.spec.js"
             --headless
         - .gitlab/bin/install_store_plugin.bash SwagLanguagePack SwagPayPal
         - composer run e2e:prepare
-        - composer run e2e:recovery:cypress -- run
+        - composer run e2e:cypress -- run
             --browser chrome
             --spec "cypress/integration/scenarios/**/*.spec.js"
             --headless
     after_script:
         - mkdir -p $CI_PROJECT_DIR/var/log/e2e $CI_PROJECT_DIR/src/Recovery/Test/e2e/cypress/mochareports || true
-        - composer run npm:e2e:$E2E_PROJECT -- run combine-reports
-        - composer run npm:e2e:$E2E_PROJECT -- run generate-report
+        - composer run npm:e2e -- run combine-reports
+        - composer run npm:e2e -- run generate-report
         - mv $CI_PROJECT_DIR/src/Recovery/Test/e2e/cypress/results/single-reports/*.xml var/log/e2e/ || true
         - mv $CI_PROJECT_DIR/src/Recovery/Test/e2e/mochareports/ var/log/e2e/ || true
         - !reference [ .upload-junit-xml, after_script ]

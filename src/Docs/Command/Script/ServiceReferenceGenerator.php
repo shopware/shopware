@@ -3,6 +3,7 @@
 namespace Shopware\Docs\Command\Script;
 
 use phpDocumentor\Reflection\DocBlock;
+use phpDocumentor\Reflection\DocBlock\Tags\Example;
 use phpDocumentor\Reflection\DocBlock\Tags\Generic;
 use phpDocumentor\Reflection\DocBlock\Tags\Method;
 use phpDocumentor\Reflection\DocBlock\Tags\Param;
@@ -46,6 +47,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
 
         $this->docFactory = DocBlockFactory::createInstance([
             'script-service' => Generic::class,
+            'example' => Example::class,
         ]);
 
         /** @var Method[] $methodDocs */
@@ -215,6 +217,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
                 'description' => $docBlock->getDescription()->render(),
                 'arguments' => $this->parseArguments($method, $docBlock),
                 'return' => $this->parseReturn($method, $docBlock),
+                'examples' => $this->parseExamples($method, $docBlock),
             ];
         }
 
@@ -299,5 +302,53 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
             'type' => $typeName,
             'description' => $tag->getDescription() ? $tag->getDescription()->render() : '',
         ];
+    }
+
+    private function parseExamples(\ReflectionMethod $method, DocBlock $docBlock): array
+    {
+        $examples = [];
+
+        /** @var Example $example */
+        foreach ($docBlock->getTagsByName('example') as $example) {
+            /** @var string $classFile */
+            $classFile = $method->getFileName();
+            $filename = \dirname($classFile) . '/' . ltrim($example->getFilePath(), '/');
+
+            if (!file_exists($filename) || !is_file($filename)) {
+                throw new \RuntimeException(sprintf(
+                    'Undefined filename configured in `@example` annotation for method "%s()" in class "%s". File "%s" can not be found',
+                    $method->getName(),
+                    $method->getDeclaringClass()->getName(),
+                    $example->getFilePath()
+                ));
+            }
+
+            $examples[] = [
+                'description' => $example->getDescription(),
+                'src' => $this->getExampleSource($filename, $example),
+                'extension' => pathinfo($filename, \PATHINFO_EXTENSION),
+            ];
+        }
+
+        return $examples;
+    }
+
+    private function getExampleSource(string $filename, Example $example): string
+    {
+        $file = new \SplFileObject($filename);
+
+        // SplFileObject expects zero-based line-numbers
+        $startingLine = $example->getStartingLine() - 1;
+        $file->seek($startingLine);
+
+        $content = '';
+        $lineCount = $example->getLineCount() === 0 ? \PHP_INT_MAX : $example->getLineCount();
+
+        while (($file->key() - $startingLine) < $lineCount && !$file->eof()) {
+            $content .= $file->current();
+            $file->next();
+        }
+
+        return trim($content);
     }
 }

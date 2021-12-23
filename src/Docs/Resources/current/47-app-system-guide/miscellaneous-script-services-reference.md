@@ -30,6 +30,12 @@ The SalesChannelId if you need the config value for a specific SalesChannel, if 
 
 
 
+#### Examples
+
+Read an arbitrary system_config value.
+```twig
+{% set systemConfig = services.config.get('core.listing.productsPerPage') %}
+```
 ### app()
 
 The `app()` method allows you to access the config values your app&#039;s configuration.
@@ -55,5 +61,11 @@ The SalesChannelId if you need the config value for a specific SalesChannel, if 
 
 
 
+#### Examples
+
+Read your app&#039;s config value.
+```twig
+{% set appConfig = services.config.app('app_config') %}
+```
 
 

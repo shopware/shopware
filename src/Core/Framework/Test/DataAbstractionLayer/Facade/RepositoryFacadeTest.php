@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Facade;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\Script\Execution\TestHook;
@@ -225,7 +227,7 @@ class RepositoryFacadeTest extends TestCase
         ];
     }
 
-    public function testIntegrationCase(): void
+    public function testSearchByIdIntegration(): void
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
 
@@ -236,7 +238,7 @@ class RepositoryFacadeTest extends TestCase
 
         $page = new Page();
         $hook = new TestHook(
-            'test-page-loaded',
+            'repository-search-by-id',
             Context::createDefaultContext(),
             [
                 'productId' => $this->ids->get('p1'),
@@ -255,10 +257,133 @@ class RepositoryFacadeTest extends TestCase
         static::assertEquals($this->ids->get('p1'), $product->getId());
     }
 
+    public function testSearchWithFilterIntegration(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $this->ids = new IdsCollection();
+        $this->createProducts();
+
+        $this->installApp(__DIR__ . '/_fixtures/apps/pageLoadedExample');
+
+        $page = new Page();
+        $hook = new TestHook(
+            'repository-filter',
+            Context::createDefaultContext(),
+            [
+                'page' => $page,
+            ],
+            [
+                RepositoryFacadeHookFactory::class,
+            ]
+        );
+
+        $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
+
+        static::assertTrue($page->hasExtension('myProduct'));
+        $product = $page->getExtension('myProduct');
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertEquals($this->ids->get('p1'), $product->getId());
+    }
+
+    public function testSearchWithAssociationIntegration(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $this->ids = new IdsCollection();
+        $this->createProducts();
+
+        $this->installApp(__DIR__ . '/_fixtures/apps/pageLoadedExample');
+
+        $page = new Page();
+        $hook = new TestHook(
+            'repository-association',
+            Context::createDefaultContext(),
+            [
+                'productId' => $this->ids->get('p1'),
+                'page' => $page,
+            ],
+            [
+                RepositoryFacadeHookFactory::class,
+            ]
+        );
+
+        $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
+
+        static::assertTrue($page->hasExtension('myProduct'));
+        $product = $page->getExtension('myProduct');
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertEquals($this->ids->get('p1'), $product->getId());
+        static::assertInstanceOf(ProductManufacturerEntity::class, $product->getManufacturer());
+
+        $manufacturer = $page->getExtension('myManufacturer');
+        static::assertInstanceOf(ProductManufacturerEntity::class, $manufacturer);
+        static::assertEquals($this->ids->get('m1'), $manufacturer->getId());
+    }
+
+    public function testSearchIdsIntegration(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $this->ids = new IdsCollection();
+        $this->createProducts();
+
+        $this->installApp(__DIR__ . '/_fixtures/apps/pageLoadedExample');
+
+        $page = new Page();
+        $hook = new TestHook(
+            'repository-search-ids',
+            Context::createDefaultContext(),
+            [
+                'page' => $page,
+            ],
+            [
+                RepositoryFacadeHookFactory::class,
+            ]
+        );
+
+        $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
+
+        static::assertTrue($page->hasExtension('myProductIds'));
+        $extension = $page->getExtension('myProductIds');
+        static::assertInstanceOf(ArrayStruct::class, $extension);
+        static::assertEquals([$this->ids->get('p1')], $extension->get('ids'));
+    }
+
+    public function testAggregateIntegration(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $this->ids = new IdsCollection();
+        $this->createProducts();
+
+        $this->installApp(__DIR__ . '/_fixtures/apps/pageLoadedExample');
+
+        $page = new Page();
+        $hook = new TestHook(
+            'repository-aggregate',
+            Context::createDefaultContext(),
+            [
+                'page' => $page,
+            ],
+            [
+                RepositoryFacadeHookFactory::class,
+            ]
+        );
+
+        $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
+
+        static::assertTrue($page->hasExtension('myProductAggregations'));
+        $extension = $page->getExtension('myProductAggregations');
+        static::assertInstanceOf(ArrayStruct::class, $extension);
+        static::assertEquals(600, $extension->get('sum'));
+    }
+
     private function createProducts(): void
     {
         $product1 = (new ProductBuilder($this->ids, 'p1'))
             ->price(100)
+            ->manufacturer('m1')
             ->variant(
                 (new ProductBuilder($this->ids, 'v1.1'))
                 ->build()

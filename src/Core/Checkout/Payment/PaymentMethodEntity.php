@@ -25,8 +25,6 @@ class PaymentMethodEntity extends Entity
     protected $pluginId;
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
-     *
      * @var string
      */
     protected $handlerIdentifier;
@@ -142,19 +140,11 @@ class PaymentMethodEntity extends Entity
         $this->pluginId = $pluginId;
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
-     */
     public function getHandlerIdentifier(): string
     {
-        $this->checkIfPropertyAccessIsAllowed('handlerIdentifier');
-
         return $this->handlerIdentifier;
     }
 
-    /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
-     */
     public function setHandlerIdentifier(string $handlerIdentifier): void
     {
         $this->handlerIdentifier = $handlerIdentifier;

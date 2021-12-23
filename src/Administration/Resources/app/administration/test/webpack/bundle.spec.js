@@ -1,12 +1,9 @@
 /* global adminPath */
 /* global projectRoot */
 
-// eslint-disable-next-line
 const util = require('util');
 const fs = require('fs');
-// eslint-disable-next-line
 const path = require('path');
-// eslint-disable-next-line
 const { sep } = require('path');
 const dircompare = require('dir-compare');
 const exec = util.promisify(require('child_process').exec);
@@ -15,9 +12,12 @@ const readdir = util.promisify(fs.readdir);
 
 jest.spyOn(global.console, 'info').mockImplementation(() => jest.fn());
 
-const runBundleTests = process.env.CI === 'true' ? describe : describe.skip;
-
-runBundleTests('webpack/bundle', () => {
+/**
+ * This test is skipped. It should only be executed manually when
+ * a developer want to make sure that the webpack build with and
+ * without plugins are delivering the same code.
+ */
+describe.skip('webpack/bundle', () => {
     beforeEach(async () => {
         // Increase default timeout for the webpack build
         jest.setTimeout(5 * 60 * 1000);

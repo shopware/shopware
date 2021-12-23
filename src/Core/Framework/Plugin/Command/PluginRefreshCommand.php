@@ -48,7 +48,12 @@ class PluginRefreshCommand extends Command
         $io = new ShopwareStyle($input, $output);
         $io->title('Shopware Plugin Service');
         $context = Context::createDefaultContext();
-        $errors = $this->pluginService->refreshPlugins($context, new ConsoleIO($input, $output, new HelperSet()));
+
+        $composerInput = clone $input;
+        $composerInput->setInteractive(false);
+        $helperSet = $this->getHelperSet();
+        \assert($helperSet instanceof HelperSet);
+        $errors = $this->pluginService->refreshPlugins($context, new ConsoleIO($composerInput, $output, $helperSet));
         $io->success('Plugin list refreshed');
 
         if (\count($errors) !== 0) {

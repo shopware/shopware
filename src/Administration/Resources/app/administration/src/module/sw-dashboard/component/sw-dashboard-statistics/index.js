@@ -1,35 +1,26 @@
-import template from './sw-dashboard-index.html.twig';
-import './sw-dashboard-index.scss';
+import template from './sw-dashboard-statistics.html.twig';
+import './sw-dashboard-statistics.scss';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
-Component.register('sw-dashboard-index', {
+Component.register('sw-dashboard-statistics', {
     template,
 
     inject: [
         'repositoryFactory',
         'stateStyleDataProviderService',
         'acl',
-        'feature',
     ],
 
     data() {
         return {
-            /** @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead */
             historyOrderDataCount: null,
-            /** @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead */
             historyOrderDataSum: null,
-            /** @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead */
             todayOrderData: [],
-            /** @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead */
             todayOrderDataLoaded: false,
-            /** @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead */
             todayOrderDataSortBy: 'orderDateTime',
-            /** @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead */
             todayOrderDataSortDirection: 'DESC',
-            cachedHeadlineGreetingKey: null,
-            /** @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead */
             statisticDateRanges: {
                 value: '30Days',
                 options: {
@@ -43,50 +34,7 @@ Component.register('sw-dashboard-index', {
         };
     },
 
-    metaInfo() {
-        return {
-            title: this.$createTitle(),
-        };
-    },
-
     computed: {
-        welcomeMessage() {
-            const greetingName = this.greetingName;
-            const welcomeMessage = this.$tc(
-                this.cachedHeadlineGreetingKey,
-                1,
-                { greetingName },
-            );
-
-            // in the headline we want to greet the user by his firstname
-            // if his first name is not available, we remove the personalized greeting part
-            // but we want to make sure the punctuation like `.`, `!` or `?` is kept
-            // for example "Still awake, ?" -> "Still awake?"…
-            if (!greetingName) {
-                return welcomeMessage.replace(/\,\s*/, '');
-            }
-
-            return welcomeMessage;
-        },
-
-        welcomeSubline() {
-            return this.$tc(this.getGreetingTimeKey('daytimeWelcomeText'));
-        },
-
-        greetingName() {
-            const { currentUser } = Shopware.State.get('session');
-
-            // if currentUser?.firstName returns a loose falsy value
-            // like `""`, `0`, `false`, `null`, `undefined`
-            // we want to use `null` in the ongoing process chain,
-            // otherwise we would need to take care of `""` and `null`
-            // or `undefined` in tests and other places
-            return currentUser?.firstName || null;
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead
-         */
         chartOptionsOrderCount() {
             return {
                 title: {
@@ -113,9 +61,6 @@ Component.register('sw-dashboard-index', {
             };
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead
-         */
         chartOptionsOrderSum() {
             return {
                 title: {
@@ -143,24 +88,14 @@ Component.register('sw-dashboard-index', {
             };
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead.
-         */
         orderRepository() {
             return this.repositoryFactory.create('order');
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be renamed, use orderCountSeries instead
-         * @deprecated tag:v6.5.0 - Will be removed to `sw-dashboard/component/sw-dashboard-statistics`
-         */
         orderCountMonthSeries() {
             return this.orderCountSeries;
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead.
-         */
         orderCountSeries() {
             if (!this.historyOrderDataCount) {
                 return [];
@@ -179,9 +114,6 @@ Component.register('sw-dashboard-index', {
             return [{ name: this.$tc('sw-dashboard.monthStats.numberOfOrders'), data: seriesData }];
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead.
-         */
         orderCountToday() {
             if (this.todayBucket) {
                 return this.todayBucket.count;
@@ -189,17 +121,10 @@ Component.register('sw-dashboard-index', {
             return 0;
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be renamed, use orderSumSeries instead
-         * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead.
-         */
         orderSumMonthSeries() {
             return this.orderSumSeries;
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead.
-         */
         orderSumSeries() {
             if (!this.historyOrderDataSum) {
                 return [];
@@ -218,9 +143,6 @@ Component.register('sw-dashboard-index', {
             return [{ name: this.$tc('sw-dashboard.monthStats.totalTurnover'), data: seriesData }];
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead.
-         */
         orderSumToday() {
             if (this.todayBucket) {
                 return this.todayBucket.totalAmount.sum;
@@ -228,23 +150,14 @@ Component.register('sw-dashboard-index', {
             return 0;
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead.
-         */
         hasOrderToday() {
             return this.todayOrderData.length > 0;
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead.
-         */
         hasOrderInMonth() {
             return !!this.historyOrderDataCount && !!this.historyOrderDataSum;
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead.
-         */
         dateAgo() {
             const date = new Date();
             const selectedDateRange = this.statisticDateRanges.value;
@@ -263,18 +176,12 @@ Component.register('sw-dashboard-index', {
             return date;
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead.
-         */
         today() {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             return today;
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead.
-         */
         todayBucket() {
             if (!(this.historyOrderDataCount && this.historyOrderDataSum)) {
                 return null;
@@ -301,9 +208,6 @@ Component.register('sw-dashboard-index', {
             return null;
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead.
-         */
         getTimeUnitInterval() {
             const statisticDateRange = this.statisticDateRanges.value;
 
@@ -314,71 +218,54 @@ Component.register('sw-dashboard-index', {
             return 'day';
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead.
-         */
         systemCurrencyISOCode() {
             return Shopware.Context.app.systemCurrencyISOCode;
         },
+
+        isSessionLoaded() {
+            return !Shopware.State.get('session')?.userPending;
+        },
     },
 
-    created() {
-        this.createdComponent();
+    watch: {
+        isSessionLoaded: {
+            immediate: true,
+            handler() {
+                if (this.isSessionLoaded) {
+                    this.initializeOrderData();
+                }
+            },
+        },
     },
 
     methods: {
-        /**
-         * @deprecated tag:v6.5.0 - won't call getHistoryOrderData nor fetchTodayData after FEATURE_NEXT_18187 is removed
-         */
-        createdComponent() {
-            this.cachedHeadlineGreetingKey = this.cachedHeadlineGreetingKey ?? this.getGreetingTimeKey('daytimeHeadline');
-
-            if (this.feature.isActive('FEATURE_NEXT_18187')) {
-                return;
-            }
-
+        async initializeOrderData() {
             if (!this.acl.can('order.viewer')) {
-                // check if user object is set up, if not recall this function…
-                if (Shopware.State.get('session')?.userPending) {
-                    // this.$nextTick was blocking whole renderflow, so setTimeout (aka a task) must do the job
-                    window.setTimeout(() => {
-                        this.createdComponent();
-                    }, 0);
-                }
                 return;
             }
-
-            this.getHistoryOrderData();
 
             this.todayOrderDataLoaded = false;
-            this.fetchTodayData().then((response) => {
-                this.todayOrderData = response;
-                this.todayOrderDataLoaded = true;
-            });
+
+            await this.getHistoryOrderData();
+            this.todayOrderData = await this.fetchTodayData();
+            this.todayOrderDataLoaded = true;
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead.
-         */
         getHistoryOrderData() {
-            this.fetchHistoryOrderDataCount()
-                .then((response) => {
+            return Promise.all([
+                this.fetchHistoryOrderDataCount().then((response) => {
                     if (response.aggregations) {
                         this.historyOrderDataCount = response.aggregations.order_count_bucket;
                     }
-                });
-
-            this.fetchHistoryOrderDataSum()
-                .then((response) => {
+                }),
+                this.fetchHistoryOrderDataSum().then((response) => {
                     if (response.aggregations) {
                         this.historyOrderDataSum = response.aggregations.order_sum_bucket;
                     }
-                });
+                }),
+            ]);
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead.
-         */
         fetchHistoryOrderDataCount() {
             const criteria = new Criteria(1, 1);
 
@@ -398,9 +285,6 @@ Component.register('sw-dashboard-index', {
             return this.orderRepository.search(criteria);
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead.
-         */
         fetchHistoryOrderDataSum() {
             const criteria = new Criteria(1, 1);
 
@@ -423,9 +307,6 @@ Component.register('sw-dashboard-index', {
             return this.orderRepository.search(criteria);
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead.
-         */
         fetchTodayData() {
             const criteria = new Criteria(1, 10);
 
@@ -437,16 +318,10 @@ Component.register('sw-dashboard-index', {
             return this.orderRepository.search(criteria);
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead.
-         */
         formatDate(date) {
             return Shopware.Utils.format.toISODate(date, false);
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead.
-         */
         orderGridColumns() {
             return [{
                 property: 'orderNumber',
@@ -477,58 +352,13 @@ Component.register('sw-dashboard-index', {
             }];
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead.
-         */
         getVariantFromOrderState(order) {
             return this.stateStyleDataProviderService.getStyle('order.state', order.stateMachineState.technicalName).variant;
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead.
-         */
         parseDate(date) {
             const parsedDate = new Date(date.replace(/-/g, '/').replace('T', ' ').replace(/\..*|\+.*/, ''));
             return parsedDate.valueOf();
-        },
-
-        /**
-         * getGreetingTimeKey reads through the existing dictionary and returns a localtime aware
-         * `$tc ()` compatible String. The timebased dictionary keys look like `5h` or `11h` or `16h`
-         * and contains an array with different greeting messages.
-         * @param {String} type either 'daytimeHeadline' or 'daytimeWelcomeText'
-         * @returns {String}
-         */
-        getGreetingTimeKey(type = 'daytimeHeadline') {
-            const translateKey = `sw-dashboard.introduction.${type}`;
-            const greetings = this.getGreetings(type);
-            const hourNow = new Date().getHours();
-
-            if (greetings === undefined) {
-                return '';
-            }
-
-            // to find the right timeslot, we user array.find() which will stop after first match
-            // for that reason the greetingTimes must be ordered from latest to earliest hour
-            const greetingTimes = Object.keys(greetings)
-                .map(entry => parseInt(entry.replace('h', ''), 10))
-                .sort((a, b) => a - b)
-                .reverse();
-
-            /* find the current time slot */
-            const greetingTime = greetingTimes.find(time => hourNow >= time) || greetingTimes[0];
-            const greetingIndex = Math.floor(Math.random() * greetings[`${greetingTime}h`].length);
-
-            return `${translateKey}.${greetingTime}h[${greetingIndex}]`;
-        },
-
-        getGreetings(type = 'daytimeHeadline') {
-            const i18nMessages = this.$i18n.messages;
-
-            const localeGreetings = i18nMessages?.[this.$i18n.locale]?.['sw-dashboard']?.introduction?.[type];
-            const fallbackGreetings = i18nMessages?.[this.$i18n.fallbackLocale]?.['sw-dashboard']?.introduction?.[type];
-
-            return localeGreetings ?? fallbackGreetings;
         },
     },
 });

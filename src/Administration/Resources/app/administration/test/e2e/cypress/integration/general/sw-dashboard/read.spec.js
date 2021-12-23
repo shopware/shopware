@@ -44,9 +44,19 @@ describe('Dashboard: Test first sight of the Administration', () => {
     it('@base @general: read dashboard', () => {
         // Check today stats
         cy.get('.sw-dashboard-index__welcome-title').should('be.visible');
-        cy.get('.sw-dashboard-index__intro-stats-today-single-stat-number-value').should('be.visible');
-        cy.get('.sw-dashboard-index__intro-stats-today-single-stat-number-value').contains('1');
-        cy.get('.sw-dashboard-index__intro-stats-today-single-stat-number-value').contains(product.price[0].gross);
+
+        cy.skipOnFeature('FEATURE_NEXT_18187', () => {
+            cy.get('.sw-dashboard-index__intro-stats-today-single-stat-number-value').should('be.visible');
+            cy.get('.sw-dashboard-index__intro-stats-today-single-stat-number-value').contains('1');
+            cy.get('.sw-dashboard-index__intro-stats-today-single-stat-number-value').contains(product.price[0].gross);
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_18187', () => {
+            cy.get('.sw-dashboard-statistics__intro-stats-today-single-stat-number-value').should('be.visible');
+            cy.get('.sw-dashboard-statistics__intro-stats-today-single-stat-number-value').contains('1');
+            cy.get('.sw-dashboard-statistics__intro-stats-today-single-stat-number-value').contains(product.price[0].gross);
+
+        });
 
         // check today orders
         cy.get('.sw-data-grid__row--0').should('be.visible');

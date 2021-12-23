@@ -33,7 +33,8 @@ function createWrapper(privileges = [], orderSumToday = null) {
             'sw-chart': true,
             'sw-icon': true,
             'sw-campaign-property-mapping': true,
-            'sw-select-field': true
+            'sw-select-field': true,
+            'sw-dashboard-statistics': true,
         },
         mocks: {
             $tc: (...args) => JSON.stringify([...args]),
@@ -117,6 +118,9 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
     });
 
     it('should show the stats', async () => {
+        // destroy wrapper from before each hook
+        wrapper.destroy();
+
         wrapper = await createWrapper(['order.viewer']);
         await wrapper.vm.$nextTick();
 
@@ -254,12 +258,28 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
         );
     });
 
-    it('should not exceed decimal places of two', async () => {
+    it('should not exceed decimal places of two if FEATURE_NEXT_18187 is inactive', async () => {
+        // destroy wrapper from beforeEach hook
+        wrapper.destroy();
+
+        // deactivate FEATURE_NEXT_18187
+        global.activeFeatureFlags = [];
+
         wrapper = await createWrapper(['order.viewer'], 43383.13234554);
         await wrapper.vm.$nextTick();
 
         const todaysTotalSum =
             wrapper.find('.sw-dashboard-index__intro-stats-today-single-stat:nth-of-type(2) span:nth-of-type(2)').text();
         expect(todaysTotalSum).toBe('€43,383.13');
+    });
+
+    it('should display sw-dashboard-statistics if FEATURE_NEXT_18187 is active', async () => {
+        // destroy wrapper from before each hook
+        wrapper.destroy();
+
+        global.activeFeatureFlags = ['FEATURE_NEXT_18187'];
+        wrapper = await createWrapper(['order.viewer']);
+
+        wrapper.get('sw-dashboard-statistics-stub');
     });
 });

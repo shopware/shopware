@@ -114,7 +114,7 @@ PHP analysis:
               - 'src/**/snippet/**/*.json'
               - '**/*.php'
     before_script:
-        - composer install --quiet
+        - composer install --quiet --no-interaction
     script:
         - composer run ecs -- src --no-progress-bar
         - composer run phpstan -- --error-format=gitlab --no-progress | tee phpstan-report.json

@@ -153,6 +153,7 @@ $content-max-width: 960px;
         max-width: $content-max-width !important;
     }
 
+    /** @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use classes starting with `.sw-dashboard-statistics__*` instead  */
     .sw-dashboard-index__card-headline {
         display: flex;
         justify-content: space-between;
@@ -170,22 +171,26 @@ $content-max-width: 960px;
             margin-bottom: 0;
         }
 
+        /** @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use classes starting with `.sw-dashboard-statistics__*` instead  */
         .sw-dashboard-index__card-headline-timerange {
             color: $color-gray-500;
         }
     }
 
+    /** @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use classes starting with `.sw-dashboard-statistics__*` instead  */
     .sw-dashboard-index__intro-stats-today-stats {
         display: flex;
         justify-content: center;
         padding: 40px 20px;
         border-bottom: 1px solid $color-gray-300;
 
+        /** @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use classes starting with `.sw-dashboard-statistics__*` instead  */
         .sw-dashboard-index__intro-stats-today-single-stat {
             display: flex;
             margin-right: 40px;
         }
 
+        /** @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use classes starting with `.sw-dashboard-statistics__*` instead  */
         .sw-dashboard-index__intro-stats-today-single-stat-number-type {
             font-size: $font-size-large;
             color: $color-gray-800;
@@ -193,6 +198,7 @@ $content-max-width: 960px;
             margin-right: 10px;
         }
 
+        /** @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use classes starting with `.sw-dashboard-statistics__*` instead  */
         .sw-dashboard-index__intro-stats-today-single-stat-number-value {
             font-size: ($font-size-large * 2.5);
         }

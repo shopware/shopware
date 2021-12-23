@@ -120,7 +120,10 @@
                 {% endblock %}
 
                 {% block sw_sales_channel_list_grid_column_created_at %}
-                <template v-if="feature.isActive('FEATURE_NEXT_17421')" #column-createdAt="{ item }">
+                <template
+                    v-if="feature.isActive('FEATURE_NEXT_17421')"
+                    #column-createdAt="{ item }"
+                >
                     {{ item.createdAt | date({ hour: '2-digit', minute: '2-digit' }) }}
                 </template>
                 {% endblock %}

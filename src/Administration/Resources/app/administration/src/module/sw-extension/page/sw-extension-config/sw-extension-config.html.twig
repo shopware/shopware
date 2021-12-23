@@ -11,7 +11,10 @@
         {{ extensionLabel }}
     </template>
 
-    <template v-if="extension" #smart-bar-header-meta>
+    <template
+        v-if="extension"
+        #smart-bar-header-meta
+    >
         <span v-if="extension.producerWebsite && extension.producerName">
             {{ $tc('sw-extension-store.component.sw-extension-config.labelBy') }}
 

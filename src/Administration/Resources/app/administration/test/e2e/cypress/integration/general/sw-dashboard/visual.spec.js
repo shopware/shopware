@@ -40,7 +40,12 @@ describe('Dashboard:  Visual tests', () => {
             .invoke('prop', 'innerText', 'If it wasn\'t for you… This message would never happened.');
 
         // Wait for Dashboard stats to be visible
-        cy.get('.sw-dashboard-index__card-headline').should('be.visible');
+        cy.skipOnFeature('FEATURE_NEXT_18187', () => {
+            cy.get('.sw-dashboard-index__card-headline').should('be.visible');
+        });
+        cy.onlyOnFeature('FEATURE_NEXT_18187', () => {
+            cy.get('.sw-dashboard-statistics__card-headline').should('be.visible');
+        });
 
         // Take snapshot for visual testing
         cy.takeSnapshot('[Dashboard] overview', '.sw-dashboard-index__content');

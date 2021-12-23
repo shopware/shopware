@@ -50,7 +50,6 @@
             {% block sw_dashboard_index_content_info__grid_inner_welcome_card %}
             <div class="sw-dashboard-index__card sw-dashboard-index__card--bg-checklist">
                 {% block sw_dashboard_index_content_info_grid_welcome_card_content %}
-
                 {% block sw_dashboard_index_content_info_grid_welcome_headline %}
                 <h2 class="sw-dashboard-index__card-title">
                     {{ $tc('sw-dashboard.helpcard.headline') }}
@@ -105,231 +104,255 @@
         </div>
         {% endblock %}
 
-        {# deprecated '@deprecated tag:v6.5.0 - will be removed' #}
+        {# @deprecated tag:v6.5.0 - will be removed #}
         {% block sw_dashboard_index_content_intro_content_external_link_doc_enduser %}
         {% endblock %}
 
-        {# deprecated '@deprecated tag:v6.5.0 - will be removed' #}
+        {# @deprecated tag:v6.5.0 - will be removed #}
         {% block sw_dashboard_index_content_intro_content_external_link_doc_developer %}
         {% endblock %}
 
-        {# deprecated '@deprecated tag:v6.5.0 - will be removed' #}
+        {# @deprecated tag:v6.5.0 - will be removed #}
         {% block sw_dashboard_index_content_intro_content_external_link_doc_migration %}
         {% endblock %}
 
-        {# deprecated '@deprecated tag:v6.5.0 - will be removed' #}
+        {# @deprecated tag:v6.5.0 - will be removed #}
         {% block sw_dashboard_index_content_intro_content_external_link_intro_buttons %}
-
-        {# deprecated '@deprecated tag:v6.5.0 - will be removed' #}
+        {# @deprecated tag:v6.5.0 - will be removed #}
         {% block sw_dashboard_index_content_intro_content_external_link_intro_buttons_roadmap %}
         {% endblock %}
 
-        {# deprecated '@deprecated tag:v6.5.0 - will be removed' #}
+        {# @deprecated tag:v6.5.0 - will be removed #}
         {% block sw_dashboard_index_content_intro_content_external_link_intro_buttons_feedback %}
         {% endblock %}
         {% endblock %}
-        {# deprecated '@deprecated tag:v6.5.0 - will be removed' #}
+
+        {# @deprecated tag:v6.5.0 - will be removed #}
         {% block sw_dashboard_index_content_intro_image %}
         {% endblock %}
 
-        <template v-if="hasOrderToday && acl.can('order.viewer')">
-            {% block sw_dashboard_index_content_intro_stats_headline %}
-            <div class="sw-dashboard-index__card-headline">
-                {% block sw_dashboard_index_content_intro_stats_headline_title %}
-                <h1>{{ $tc('sw-dashboard.todayStats.headline') }}</h1>
+        <template v-if="feature.isActive('FEATURE_NEXT_18187')">
+            <sw-dashboard-statistics />
+        </template>
+        <template v-else>
+            <template v-if="hasOrderToday && acl.can('order.viewer')">
+                {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_intro_stats_headline` instead #}
+                {% block sw_dashboard_index_content_intro_stats_headline %}
+                <div class="sw-dashboard-index__card-headline">
+
+                    {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_intro_stats_headline_title` instead #}
+                    {% block sw_dashboard_index_content_intro_stats_headline_title %}
+                    <h1>{{ $tc('sw-dashboard.todayStats.headline') }}</h1>
+                    {% endblock %}
+
+                    {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_intro_stats_headline_date` instead #}
+                    {% block sw_dashboard_index_content_intro_stats_headline_date %}
+                    <span class="sw-dashboard-index__card-headline-timerange">
+                        {{ today.toUTCString() | date({ minute: undefined, hour: undefined, month: 'short', year: undefined }) }}
+                    </span>
+                    {% endblock %}
+                </div>
                 {% endblock %}
 
-                {% block sw_dashboard_index_content_intro_stats_headline_date %}
-                <span class="sw-dashboard-index__card-headline-timerange">
-                    {{ today.toUTCString() | date({ minute: undefined, hour: undefined, month: 'short', year: undefined }) }}
-                </span>
-                {% endblock %}
-            </div>
-            {% endblock %}
+                <sw-card>
+                    {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_intro_stats_today` instead #}
+                    {% block sw_dashboard_index_content_intro_stats_today %}
+                    <div class="sw-dashboard-index__intro-stats-today">
 
-            <sw-card>
-                {% block sw_dashboard_index_content_intro_stats_today %}
-                <div class="sw-dashboard-index__intro-stats-today">
+                        {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_intro_stats_today_stats` instead #}
+                        {% block sw_dashboard_index_content_intro_stats_today_stats %}
+                        <div
+                            v-if="hasOrderToday"
+                            class="sw-dashboard-index__intro-stats-today-stats"
+                        >
+                            {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_intro_stats_today_stats_single_count` instead #}
+                            {% block sw_dashboard_index_content_intro_stats_today_stats_single_count %}
+                            <div class="sw-dashboard-index__intro-stats-today-single-stat">
+                                <span class="sw-dashboard-index__intro-stats-today-single-stat-number-type">{{ $tc('sw-dashboard.todayStats.orders') }}</span>
+                                <span class="sw-dashboard-index__intro-stats-today-single-stat-number-value">{{ orderCountToday }}</span>
+                            </div>
+                            {% endblock %}
 
-                    {% block sw_dashboard_index_content_intro_stats_today_stats %}
-                    <div
-                        v-if="hasOrderToday"
-                        class="sw-dashboard-index__intro-stats-today-stats"
-                    >
-
-                        {% block sw_dashboard_index_content_intro_stats_today_stats_single_count %}
-                        <div class="sw-dashboard-index__intro-stats-today-single-stat">
-                            <span class="sw-dashboard-index__intro-stats-today-single-stat-number-type">{{ $tc('sw-dashboard.todayStats.orders') }}</span>
-                            <span class="sw-dashboard-index__intro-stats-today-single-stat-number-value">{{ orderCountToday }}</span>
+                            {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_intro_stats_today_stats_single_sum` instead #}
+                            {% block sw_dashboard_index_content_intro_stats_today_stats_single_sum %}
+                            <div class="sw-dashboard-index__intro-stats-today-single-stat">
+                                <span class="sw-dashboard-index__intro-stats-today-single-stat-number-type">{{ $tc('sw-dashboard.todayStats.turnover') }}</span>
+                                {# price aggregations do not support currencies yet, see NEXT-5069 #}
+                                <span class="sw-dashboard-index__intro-stats-today-single-stat-number-value">{{ orderSumToday | currency(systemCurrencyISOCode, 2) }}</span>
+                            </div>
+                            {% endblock %}
                         </div>
                         {% endblock %}
+                    </div>
+                    {% endblock %}
 
-                        {% block sw_dashboard_index_content_intro_stats_today_stats_single_sum %}
-                        <div class="sw-dashboard-index__intro-stats-today-single-stat">
-                            <span class="sw-dashboard-index__intro-stats-today-single-stat-number-type">{{ $tc('sw-dashboard.todayStats.turnover') }}</span>
-                            {# price aggregations do not support currencies yet, see NEXT-5069 #}
-                            <span class="sw-dashboard-index__intro-stats-today-single-stat-number-value">{{ orderSumToday | currency(systemCurrencyISOCode, 2) }}</span>
-                        </div>
-                        {% endblock %}
+                    {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_grid` instead #}
+                    {% block sw_dashboard_index_content_grid %}
+                    <template slot="grid">
+                        <sw-entity-listing
+                            v-if="todayOrderDataLoaded"
+                            :sort-by="todayOrderDataSortBy"
+                            :sort-direction="todayOrderDataSortDirection"
+                            :repository="orderRepository"
+                            :items="todayOrderData"
+                            :columns="orderGridColumns()"
+                            :show-selection="false"
+                            :allow-column-edit="false"
+                            :full-page="false"
+                        >
+                            {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_grid_created_at` instead #}
+                            {% block sw_dashboard_index_content_grid_created_at %}
+                            <template
+                                slot="column-orderDateTime"
+                                slot-scope="{ item }"
+                            >
+                                {{ item.orderDateTime | date({
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    year: undefined,
+                                    month: undefined,
+                                    day: undefined
+                                }) }}
+                            </template>
+                            {% endblock %}
+
+                            {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_grid_first_name` instead #}
+                            {% block sw_dashboard_index_content_grid_first_name %}
+                            <template
+                                slot="column-orderCustomer.firstName"
+                                slot-scope="{ item }"
+                            >
+                                <router-link
+                                    :to="{ name: 'sw.order.detail', params: { id: item.id } }"
+                                    class="sw-data-grid__cell-value"
+                                >
+                                    {{ item.orderCustomer.firstName }} {{ item.orderCustomer.lastName }}
+                                </router-link>
+                            </template>
+                            {% endblock %}
+
+                            {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_grid_short_name` instead #}
+                            {% block sw_dashboard_index_content_grid_short_name %}
+                            <template
+                                slot="column-amountTotal"
+                                slot-scope="{ item }"
+                            >
+                                {{ item.amountTotal | currency(item.currency.shortName) }}
+                            </template>
+                            {% endblock %}
+
+                            {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_grid_state` instead #}
+                            {% block sw_dashboard_index_content_grid_state %}
+                            <template
+                                slot="column-stateMachineState.name"
+                                slot-scope="{ item }"
+                            >
+                                <sw-label
+                                    :variant="getVariantFromOrderState(item)"
+                                    appearance="pill"
+                                >
+                                    {{ item.stateMachineState.translated.name }}
+                                </sw-label>
+                            </template>
+                            {% endblock %}
+
+                            {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_grid_actions` instead #}
+                            {% block sw_dashboard_index_content_grid_actions %}
+                            <template
+                                slot="actions"
+                                slot-scope="{ item }"
+                            >
+                                {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_grid_actions_view` instead #}
+                                {% block sw_dashboard_index_content_grid_actions_view %}
+                                <sw-context-menu-item
+                                    class="sw-order-list__order-view-action"
+                                    :router-link="{ name: 'sw.order.detail', params: { id: item.id } }"
+                                >
+                                    {{ $tc('sw-order.list.contextMenuView') }}
+                                </sw-context-menu-item>
+                                {% endblock %}
+
+                            </template>
+                            {% endblock %}
+
+                        </sw-entity-listing>
+
+                        <sw-loader v-else-if="!todayOrderDataLoaded" />
+                    </template>
+                    {% endblock %}
+
+                </sw-card>
+            </template>
+
+            <template v-if="hasOrderInMonth && acl.can('order.viewer')">
+                {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_headline` instead #}
+                {% block sw_dashboard_index_content_statistics_headline %}
+                <div class="sw-dashboard-index__card-headline">
+                    {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_headline_title` instead #}
+                    {% block sw_dashboard_index_content_statistics_headline_title %}
+                    <h1>
+                        {{ $tc('sw-dashboard.monthStats.headline') }}
+                        <span class="sw-dashboard-index__card-headline-timerange">
+                            ({{ dateAgo.toUTCString() | date({ minute: undefined, hour: undefined, month: 'short', year: undefined }) }}
+                            -
+                            {{ today.toUTCString() | date({ minute: undefined, hour: undefined, month: 'short', year: undefined }) }})
+                        </span>
+                    </h1>
+                    {% endblock %}
+
+                    {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_headline_date` instead #}
+                    {% block sw_dashboard_index_content_statistics_headline_date %}
+                    <div class="sw-dashboard-index__card-headline-select">
+                        <sw-select-field
+                            v-model="statisticDateRanges.value"
+                            size="small"
+                            @change="getHistoryOrderData"
+                        >
+                            <option
+                                v-for="(value, option) in statisticDateRanges.options"
+                                :key="option"
+                                :value="option"
+                            >
+                                {{ $tc(`sw-dashboard.monthStats.dateRanges.${option}`) }}
+                            </option>
+                        </sw-select-field>
                     </div>
                     {% endblock %}
                 </div>
                 {% endblock %}
 
-                {% block sw_dashboard_index_content_grid %}
-                <template slot="grid">
-                    <sw-entity-listing
-                        v-if="todayOrderDataLoaded"
-                        :sort-by="todayOrderDataSortBy"
-                        :sort-direction="todayOrderDataSortDirection"
-                        :repository="orderRepository"
-                        :items="todayOrderData"
-                        :columns="orderGridColumns()"
-                        :show-selection="false"
-                        :allow-column-edit="false"
-                        :full-page="false"
-                    >
-
-                        {% block sw_dashboard_index_content_grid_created_at %}
-                        <template
-                            slot="column-orderDateTime"
-                            slot-scope="{ item }"
-                        >
-                            {{ item.orderDateTime | date({
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                year: undefined,
-                                month: undefined,
-                                day: undefined
-                            }) }}
-                        </template>
-                        {% endblock %}
-
-                        {% block sw_dashboard_index_content_grid_first_name %}
-                        <template
-                            slot="column-orderCustomer.firstName"
-                            slot-scope="{ item }"
-                        >
-                            <router-link
-                                :to="{ name: 'sw.order.detail', params: { id: item.id } }"
-                                class="sw-data-grid__cell-value"
-                            >
-                                {{ item.orderCustomer.firstName }} {{ item.orderCustomer.lastName }}
-                            </router-link>
-                        </template>
-                        {% endblock %}
-
-                        {% block sw_dashboard_index_content_grid_short_name %}
-                        <template
-                            slot="column-amountTotal"
-                            slot-scope="{ item }"
-                        >
-                            {{ item.amountTotal | currency(item.currency.shortName) }}
-                        </template>
-                        {% endblock %}
-
-                        {% block sw_dashboard_index_content_grid_state %}
-                        <template
-                            slot="column-stateMachineState.name"
-                            slot-scope="{ item }"
-                        >
-                            <sw-label
-                                :variant="getVariantFromOrderState(item)"
-                                appearance="pill"
-                            >
-                                {{ item.stateMachineState.translated.name }}
-                            </sw-label>
-                        </template>
-                        {% endblock %}
-
-                        {% block sw_dashboard_index_content_grid_actions %}
-                        <template
-                            slot="actions"
-                            slot-scope="{ item }"
-                        >
-
-                            {% block sw_dashboard_index_content_grid_actions_view %}
-                            <sw-context-menu-item
-                                class="sw-order-list__order-view-action"
-                                :router-link="{ name: 'sw.order.detail', params: { id: item.id } }"
-                            >
-                                {{ $tc('sw-order.list.contextMenuView') }}
-                            </sw-context-menu-item>
-                            {% endblock %}
-
-                        </template>
-                        {% endblock %}
-
-                    </sw-entity-listing>
-
-                    <sw-loader v-else-if="!todayOrderDataLoaded" />
-                </template>
+                {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_count` instead #}
+                {% block sw_dashboard_index_content_statistics_count %}
+                <sw-card class="sw-dashboard-index__statistics-count">
+                    {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_count_chart` instead #}
+                    {% block sw_dashboard_index_content_statistics_count_chart_count %}
+                    <sw-chart
+                        type="line"
+                        :series="orderCountSeries"
+                        :options="chartOptionsOrderCount"
+                        :fill-empty-values="getTimeUnitInterval"
+                        sort
+                    />
+                    {% endblock %}
+                </sw-card>
                 {% endblock %}
 
-            </sw-card>
-        </template>
-
-        <template v-if="hasOrderInMonth && acl.can('order.viewer')">
-            {% block sw_dashboard_index_content_statistics_headline %}
-            <div class="sw-dashboard-index__card-headline">
-                {% block sw_dashboard_index_content_statistics_headline_title %}
-                <h1>
-                    {{ $tc('sw-dashboard.monthStats.headline') }}
-                    <span class="sw-dashboard-index__card-headline-timerange">
-                        ({{ dateAgo.toUTCString() | date({ minute: undefined, hour: undefined, month: 'short', year: undefined }) }}
-                        -
-                        {{ today.toUTCString() | date({ minute: undefined, hour: undefined, month: 'short', year: undefined }) }})
-                    </span>
-                </h1>
+                {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_sum` instead #}
+                {% block sw_dashboard_index_content_statistics_sum %}
+                <sw-card class="sw-dashboard-index__statistics-sum">
+                    {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_sum_chart` instead #}
+                    {% block sw_dashboard_index_content_statistics_count_chart_sum %}
+                    <sw-chart
+                        type="line"
+                        :series="orderSumSeries"
+                        :options="chartOptionsOrderSum"
+                        :fill-empty-values="getTimeUnitInterval"
+                        sort
+                    />
+                    {% endblock %}
+                </sw-card>
                 {% endblock %}
-
-                {% block sw_dashboard_index_content_statistics_headline_date %}
-                <div class="sw-dashboard-index__card-headline-select">
-                    <sw-select-field
-                        v-model="statisticDateRanges.value"
-                        size="small"
-                        @change="getHistoryOrderData"
-                    >
-                        <option
-                            v-for="(value, option) in statisticDateRanges.options"
-                            :key="option"
-                            :value="option"
-                        >
-                            {{ $tc(`sw-dashboard.monthStats.dateRanges.${option}`) }}
-                        </option>
-                    </sw-select-field>
-                </div>
-                {% endblock %}
-            </div>
-            {% endblock %}
-
-            {% block sw_dashboard_index_content_statistics_count %}
-            <sw-card class="sw-dashboard-index__statistics-count">
-                {% block sw_dashboard_index_content_statistics_count_chart_count %}
-                <sw-chart
-                    type="line"
-                    :series="orderCountSeries"
-                    :options="chartOptionsOrderCount"
-                    :fill-empty-values="getTimeUnitInterval"
-                    sort
-                />
-                {% endblock %}
-            </sw-card>
-            {% endblock %}
-
-            {% block sw_dashboard_index_content_statistics_sum %}
-            <sw-card class="sw-dashboard-index__statistics-sum">
-                {% block sw_dashboard_index_content_statistics_count_chart_sum %}
-                <sw-chart
-                    type="line"
-                    :series="orderSumSeries"
-                    :options="chartOptionsOrderSum"
-                    :fill-empty-values="getTimeUnitInterval"
-                    sort
-                />
-                {% endblock %}
-            </sw-card>
-            {% endblock %}
+            </template>
         </template>
     </sw-card-view>
     {% endblock %}

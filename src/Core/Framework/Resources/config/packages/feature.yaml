@@ -265,6 +265,11 @@ shopware:
         major: true
         description: "one to one inheritance"
         # issue: NEXT-19163
+      - name: FEATURE_NEXT_18187
+        default: false
+        major: true
+        description: "Move admin dashboard statistics into separate component"
+        # issue: NEXT-18187
 
       - name: FEATURE_NEXT_17978
         default: false

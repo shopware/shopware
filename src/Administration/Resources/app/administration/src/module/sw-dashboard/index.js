@@ -1,5 +1,6 @@
-import './page/sw-dashboard-index';
 import './component/sw-dashboard-external-link';
+import './component/sw-dashboard-statistics';
+import './page/sw-dashboard-index';
 
 const { Module } = Shopware;
 

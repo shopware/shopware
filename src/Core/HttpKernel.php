@@ -108,6 +108,9 @@ class HttpKernel
         }
 
         $url = EnvironmentHelper::getVariable('DATABASE_URL', getenv('DATABASE_URL'));
+        if ($url === false) {
+            $url = Kernel::PLACEHOLDER_DATABASE_URL;
+        }
 
         $parameters = [
             'url' => $url,

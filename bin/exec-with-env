@@ -27,7 +27,10 @@ if ($input->hasParameterOption('--no-debug', true)) {
     putenv('APP_DEBUG=' . $_SERVER['APP_DEBUG'] = $_ENV['APP_DEBUG'] = '0');
 }
 
-(new Dotenv())->usePutenv()->bootEnv(dirname(__DIR__) . '/.env');
+$projectRoot = dirname(__DIR__);
+if (class_exists(Dotenv::class) && (file_exists($projectRoot . '/.env.local.php') || file_exists($projectRoot . '/.env') || file_exists($projectRoot . '/.env.dist'))) {
+    (new Dotenv())->usePutenv()->bootEnv(dirname(__DIR__) . '/.env');
+}
 
 $args = $_SERVER['argv'];
 array_shift($args);

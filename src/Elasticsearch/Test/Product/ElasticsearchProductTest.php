@@ -1708,6 +1708,16 @@ class ElasticsearchProductTest extends TestCase
                     '2024-12-12 00:00:00' => 1,
                 ], null, 'Europe/Berlin'),
             ],
+            // case with time zone alias
+            [
+                new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
+                    '2019-01-01 00:00:00' => 2,
+                    '2019-06-15 00:00:00' => 1,
+                    '2020-09-30 00:00:00' => 1,
+                    '2021-12-10 00:00:00' => 2,
+                    '2024-12-12 00:00:00' => 1,
+                ], null, 'Asia/Saigon'),
+            ],
         ];
     }
 

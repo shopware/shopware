@@ -103,6 +103,12 @@ class JsonApiEncodingResult implements \JsonSerializable
         return isset($this->data[$key]);
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - return type will be changed to string
+     *
+     * @return array
+     */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $output = [

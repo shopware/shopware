@@ -66,8 +66,8 @@
         "doctrine/annotations": "1.13.1",
         "doctrine/dbal": "2.13.3",
         "doctrine/inflector": "~1.4.4",
-        "dompdf/dompdf": "1.0.2",
-        "elasticsearch/elasticsearch": "7.11.0",
+        "dompdf/dompdf": "1.1.1",
+        "elasticsearch/elasticsearch": "7.16.0",
         "enqueue/dbal": "0.10.11",
         "erusev/parsedown-extra": "0.8.1",
         "ezyang/htmlpurifier": "4.13.0",
@@ -88,7 +88,7 @@
         "psr/http-factory": "1.0.1",
         "psr/http-message": "1.0.1",
         "psr/log": "1.1.2",
-        "scssphp/scssphp": "1.0.7",
+        "scssphp/scssphp": "1.9.0",
         "sensio/framework-extra-bundle": "~6.2.1",
         "shopware/conflicts": "*",
         "sroze/messenger-enqueue-transport": "0.4.0",
@@ -140,8 +140,8 @@
         "true/punycode": "2.1.1",
         "twig/intl-extra": "3.3.0",
         "twig/string-extra": "3.3.0",
-        "twig/twig": "3.3.3",
-        "zircote/swagger-php": "3.1.0",
+        "twig/twig": "3.3.4",
+        "zircote/swagger-php": "3.3.2",
         "squirrelphp/twig-php-syntax": "1.7.0"
     },
     "require-dev": {
@@ -278,7 +278,7 @@
             "phpstan analyze --memory-limit=2G"
         ],
         "psalm": "psalm --config=psalm.xml --threads=4",
-        "bc-check": "vendor-bin/roave-backward-compatibility-check/bin/bc-check --from=$(git merge-base $(git rev-parse HEAD) $(git rev-parse origin/trunk))",
+        "bc-check": "vendor-bin/roave-backward-compatibility-check/bin/bc-check --from=$(git merge-base $(git rev-parse HEAD) $(git rev-parse $(git tag --sort=-creatordate | head -1)))",
         "static-analyze": [
             "@phpstan src/",
             "@psalm src/"

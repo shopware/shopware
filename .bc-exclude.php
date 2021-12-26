@@ -20,6 +20,21 @@ return [
         'Default.+#__construct().+', // Todo make service constructors @internal
         'The return type of Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Command\\\\Changelog(Check|Change|Create)Command#execute\(\) changed from no type to int',
         'Symfony\\\\Component\\\\HttpFoundation\\\\Response::\\$statusTexts',
-        'Symfony\\\\Component\\\\HttpKernel\\\\Kernel#\\$bundles'
+        'Symfony\\\\Component\\\\HttpKernel\\\\Kernel#\\$bundles',
+
+        // OpenAPI library update
+        'The return type of Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi\\\\DeactivateValidationAnalysis#validate',
+        'OpenApi\\\\Analysis',
+
+        // BC changes between last release and trunk
+        'Shopware\\\\Storefront\\\\Page\\\\Product\\\\Configurator\\\\AvailableCombinationLoader was marked "@internal"',
+        'The return type of Shopware\\\\Core\\\\System\\\\StateMachine\\\\StateMachineEntity#getName',
+        'The return type of Shopware\\\\Core\\\\System\\\\StateMachine\\\\StateMachineEntity#setName',
+        'The parameter \\$name of Shopware\\\\Core\\\\System\\\\StateMachine\\\\StateMachineEntity#setName\(\) changed from string to \?string',
+        'The return type of Symfony\\\\Component\\\\Console\\\\Command\\\\Command#configure',
+        'Class Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\MonitoringBusDecorator has been deleted',
+        'Class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\InheritanceExtension has been deleted',
+        'Class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\InstanceOfExtension has been deleted',
+        'Class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\FeatureFlagExtension has been deleted',
     ],
 ];

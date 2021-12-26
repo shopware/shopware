@@ -39,7 +39,7 @@ class EntityExistence
     private $entityName;
 
     public function __construct(
-        ?string $entityName = null, // @see a hack in \Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer
+        ?string $entityName, // @see a hack in \Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer
         array $primaryKey,
         bool $exists,
         bool $isChild,

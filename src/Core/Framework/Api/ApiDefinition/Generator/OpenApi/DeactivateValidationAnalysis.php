@@ -6,8 +6,9 @@ use OpenApi\Analysis;
 
 class DeactivateValidationAnalysis extends Analysis
 {
-    public function validate(): void
+    public function validate(): bool
     {
+        return false;
         //deactivate Validitation
     }
 }

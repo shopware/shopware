@@ -48,7 +48,7 @@ class DateHistogramAggregation extends BucketAggregation
             throw new \RuntimeException('Provided date histogram interval is not supported');
         }
 
-        if (\is_string($timeZone) && !\in_array($timeZone, \DateTimeZone::listIdentifiers(), true)) {
+        if (\is_string($timeZone) && !\in_array($timeZone, \DateTimeZone::listIdentifiers(\DateTimeZone::ALL_WITH_BC), true)) {
             throw new \InvalidArgumentException(\sprintf('Given "%s" is not a valid timezone', $timeZone));
         }
 

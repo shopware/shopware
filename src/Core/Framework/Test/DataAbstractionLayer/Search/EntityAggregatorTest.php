@@ -1177,6 +1177,16 @@ class EntityAggregatorTest extends TestCase
                     '2024-12-12 00:00:00' => 1,
                 ], null, 'Europe/Berlin'),
             ] : [],
+            // This case works only when timezone support is enabled, test time zone aliases can be used
+            EnvironmentHelper::getVariable('SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED', 0) ? [
+                new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
+                    '2019-01-01 00:00:00' => 2,
+                    '2019-06-15 00:00:00' => 1,
+                    '2020-09-30 00:00:00' => 1,
+                    '2021-12-10 00:00:00' => 1,
+                    '2024-12-12 00:00:00' => 1,
+                ], null, 'Asia/Saigon'),
+            ] : [],
         ]);
     }
 

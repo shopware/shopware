@@ -24,7 +24,10 @@
     >
         <template #column-active="{ item }">
             {% block sw_search_preferences_modal_grid_column_active %}
-            <sw-checkbox-field v-model="item._searchable" />
+            <sw-checkbox-field
+                v-model="item._searchable"
+                @change="onChangeSearchPreference(item)"
+            />
             {% endblock %}
         </template>
 

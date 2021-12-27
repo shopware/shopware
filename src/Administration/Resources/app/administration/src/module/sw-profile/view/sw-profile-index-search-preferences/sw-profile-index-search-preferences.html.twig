@@ -59,6 +59,7 @@
                         <sw-checkbox-field
                             v-model="searchPreference._searchable"
                             :label="getModuleTitle(searchPreference.entityName)"
+                            @change="onChangeSearchPreference(searchPreference)"
                         />
                         <ul class="sw-profile-index-search-preferences-searchable-elements__entity">
                             <li

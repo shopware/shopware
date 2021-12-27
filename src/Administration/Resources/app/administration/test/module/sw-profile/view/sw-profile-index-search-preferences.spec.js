@@ -191,4 +191,82 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
             ])
         );
     });
+
+    it('should be able to change search preference', async () => {
+        const wrapper = createWrapper();
+
+        await Shopware.State.commit('swProfile/setSearchPreferences', [{
+            entityName: 'product',
+            _searchable: false,
+            fields: [
+                {
+                    fieldName: 'name',
+                    _searchable: false
+                },
+                {
+                    fieldName: 'productNumber',
+                    _searchable: false
+                }
+            ]
+        }]);
+
+        wrapper.vm.searchPreferences[0]._searchable = true;
+        wrapper.vm.onChangeSearchPreference(wrapper.vm.searchPreferences[0]);
+
+        expect(wrapper.vm.searchPreferences).toEqual(
+            expect.arrayContaining([expect.objectContaining({
+                entityName: 'product',
+                _searchable: true,
+                fields: expect.arrayContaining([
+                    expect.objectContaining({
+                        fieldName: 'name',
+                        _searchable: true
+                    }),
+                    expect.objectContaining({
+                        fieldName: 'productNumber',
+                        _searchable: true
+                    }),
+                ])
+            })])
+        );
+    });
+
+    it('should not be able to change search preference', async () => {
+        const wrapper = createWrapper();
+
+        await Shopware.State.commit('swProfile/setSearchPreferences', [{
+            entityName: 'product',
+            _searchable: false,
+            fields: [
+                {
+                    fieldName: 'name',
+                    _searchable: true
+                },
+                {
+                    fieldName: 'productNumber',
+                    _searchable: false
+                }
+            ]
+        }]);
+
+        wrapper.vm.searchPreferences[0]._searchable = true;
+        wrapper.vm.onChangeSearchPreference(wrapper.vm.searchPreferences[0]);
+
+        expect(wrapper.vm.searchPreferences).toEqual(
+            expect.arrayContaining([expect.objectContaining({
+                entityName: 'product',
+                _searchable: true,
+                fields: expect.arrayContaining([
+                    expect.objectContaining({
+                        fieldName: 'name',
+                        _searchable: true
+                    }),
+                    expect.objectContaining({
+                        fieldName: 'productNumber',
+                        _searchable: false
+                    }),
+                ])
+            })])
+        );
+    });
 });

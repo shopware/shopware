@@ -122,6 +122,14 @@ Component.register('sw-search-preferences-modal', {
             return this.$tc(module?.manifest.title);
         },
 
+        onChangeSearchPreference(searchPreference) {
+            if (searchPreference._searchable && searchPreference.fields.every((field) => !field._searchable)) {
+                searchPreference.fields.forEach((field) => {
+                    field._searchable = true;
+                });
+            }
+        },
+
         onClose() {
             this.$emit('modal-close');
         },

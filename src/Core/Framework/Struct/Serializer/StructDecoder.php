@@ -6,6 +6,9 @@ use Symfony\Component\Serializer\Encoder\DecoderInterface;
 
 class StructDecoder implements DecoderInterface
 {
+    /**
+     * @return array|mixed
+     */
     public function decode($data, $format, array $context = [])
     {
         return $this->format($data);

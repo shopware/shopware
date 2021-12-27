@@ -140,7 +140,7 @@ class AnnotationReader implements Reader
     }
 
     /**
-     * {@inheritDoc}
+     * @return array<object>
      */
     public function getClassAnnotations(ReflectionClass $class)
     {
@@ -153,7 +153,7 @@ class AnnotationReader implements Reader
     }
 
     /**
-     * {@inheritDoc}
+     * @return object|null
      */
     public function getClassAnnotation(ReflectionClass $class, $annotationName)
     {
@@ -169,7 +169,7 @@ class AnnotationReader implements Reader
     }
 
     /**
-     * {@inheritDoc}
+     * @return array<object>
      */
     public function getPropertyAnnotations(ReflectionProperty $property)
     {
@@ -185,7 +185,7 @@ class AnnotationReader implements Reader
     }
 
     /**
-     * {@inheritDoc}
+     * @return object|null
      */
     public function getPropertyAnnotation(ReflectionProperty $property, $annotationName)
     {
@@ -201,7 +201,7 @@ class AnnotationReader implements Reader
     }
 
     /**
-     * {@inheritDoc}
+     * @return object|null
      */
     public function getMethodAnnotations(ReflectionMethod $method)
     {
@@ -217,7 +217,7 @@ class AnnotationReader implements Reader
     }
 
     /**
-     * {@inheritDoc}
+     * @return array<object>
      */
     public function getMethodAnnotation(ReflectionMethod $method, $annotationName)
     {

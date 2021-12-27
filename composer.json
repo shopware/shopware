@@ -151,7 +151,7 @@
         "brianium/paratest": "^6.2",
         "dms/phpunit-arraysubset-asserts": "^0.2.1",
         "fakerphp/faker": "~1.14.1",
-        "johnkary/phpunit-speedtrap": "~3.3.0",
+        "johnkary/phpunit-speedtrap": "~4.0.0",
         "league/flysystem-memory": "~1.0.2",
         "maltyxx/images-generator": "~1.0.0",
         "mbezhanov/faker-provider-collection": "~2.0.1",

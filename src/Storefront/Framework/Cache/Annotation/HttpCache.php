@@ -11,21 +11,21 @@ class HttpCache extends ConfigurationAnnotation
 {
     public const ALIAS = 'httpCache';
 
-    /**
-     * @var int|null
-     */
-    private $maxAge;
+    private ?int $maxAge = null;
+
+    private ?array $states = null;
 
     /**
-     * @var array|null
+     * @return string
      */
-    private $states;
-
     public function getAliasName()
     {
         return self::ALIAS;
     }
 
+    /**
+     * @return bool
+     */
     public function allowArray()
     {
         return true;

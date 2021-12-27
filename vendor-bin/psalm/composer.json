@@ -1,12 +1,12 @@
 {
   "require-dev": {
-    "psalm/plugin-phpunit": "0.15.2",
-    "psalm/plugin-symfony": "2.3.1",
-    "vimeo/psalm": "4.8.1"
+    "psalm/plugin-phpunit": "0.16.1",
+    "psalm/plugin-symfony": "2.5.1",
+    "vimeo/psalm": "4.16.1"
   },
   "config": {
     "platform": {
-      "php": "7.4.0"
+      "php": "7.4.3"
     },
     "allow-plugins": {
       "composer/package-versions-deprecated": true

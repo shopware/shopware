@@ -597,7 +597,7 @@ class EntityAggregator implements EntityAggregatorInterface
             $buckets[] = new Bucket((string) $value, $count, $nested);
         }
 
-        return new TermsResult($aggregation->getName(), array_values($buckets));
+        return new TermsResult($aggregation->getName(), $buckets);
     }
 
     private function addSorting(FieldSorting $sorting, EntityDefinition $definition, QueryBuilder $query, Context $context): void

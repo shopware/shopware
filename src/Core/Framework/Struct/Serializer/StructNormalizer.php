@@ -39,7 +39,7 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return mixed
      */
     public function denormalize($data, $type = null, $format = null, array $context = [])
     {

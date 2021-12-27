@@ -497,7 +497,7 @@ class ProductSuggestRouteTest extends TestCase
         sort($expected);
         sort($resultProductName);
 
-        static::assertEquals($expected, array_values($resultProductName));
+        static::assertEquals($expected, $resultProductName);
     }
 
     private function createData(): void

@@ -425,7 +425,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     });
 
     it('should be selected taxRate on click change tax field', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_17261'];
+        global.activeFeatureFlags = ['FEATURE_NEXT_19244'];
 
         const productEntity = {
             taxId: null
@@ -504,7 +504,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     });
 
     it('should be getting the price', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_17261'];
+        global.activeFeatureFlags = ['FEATURE_NEXT_19244'];
 
         wrapper = createWrapper();
 
@@ -530,7 +530,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     });
 
     it('should be getting the list price when the price field is exists', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_17261'];
+        global.activeFeatureFlags = ['FEATURE_NEXT_19244'];
 
         wrapper = createWrapper();
 
@@ -563,7 +563,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     });
 
     it('should be getting the listPrice when the price field is enabled', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_17261'];
+        global.activeFeatureFlags = ['FEATURE_NEXT_19244'];
 
         wrapper = createWrapper();
 
@@ -689,7 +689,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     });
 
     it('should be correct data when select prices', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_17261'];
+        global.activeFeatureFlags = ['FEATURE_NEXT_19244'];
 
         const productEntity = {
             prices: [

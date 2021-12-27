@@ -14,6 +14,8 @@ jobs:
     steps:
     - name: Clone platform
       uses: actions/checkout@v2
+      with:
+        fetch-depth: '0'
 
     - name: Install Shopware
       run: |
@@ -24,3 +26,6 @@ jobs:
         composer run ecs -- src --no-progress-bar
         composer run phpstan -- --error-format=gitlab --no-progress | tee phpstan-report.json
         composer run psalm -- --threads=$(nproc) --show-info=false --no-progress
+        composer run lint:changelog
+        composer run lint:snippets
+        composer run bc-check

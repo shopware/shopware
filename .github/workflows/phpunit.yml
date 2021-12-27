@@ -13,6 +13,11 @@ jobs:
     env:
       TEST_SUITES: 'administration storefront checkout content framework profiling migration system elasticsearch docs'
       APP_ENV: test
+      DATABASE_URL: mysql://root:root@database:3306/root
+      APP_URL: http://localhost:8000
+      APP_SECRET: devsecret
+      SHOPWARE_ES_HOSTS: elasticsearch:9200
+      BLUE_GREEN_DEPLOYMENT: 1
 
     services:
       database:

@@ -233,6 +233,6 @@ abstract class StorefrontController extends AbstractController
 
     protected function hook(Hook $hook): void
     {
-        $this->get(ScriptExecutor::class)->execute($hook);
+        $this->container->get(ScriptExecutor::class)->execute($hook);
     }
 }

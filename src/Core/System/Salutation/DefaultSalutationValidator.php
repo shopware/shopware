@@ -23,7 +23,7 @@ class DefaultSalutationValidator implements EventSubscriberInterface
     private const MESSAGE = 'The default salutation entity may not be deleted.';
 
     /**
-     * @inheritdoc
+     * @return \array[][]
      */
     public static function getSubscribedEvents()
     {

@@ -21,7 +21,7 @@ class RegisteredIndexerSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @inheritdoc
+     * @return \array[][]
      */
     public static function getSubscribedEvents()
     {

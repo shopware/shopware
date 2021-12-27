@@ -12,7 +12,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class ProductCriteriaSubscriber implements EventSubscriberInterface
 {
     /**
-     * @inheritdoc
+     * @return \array[][]
      */
     public static function getSubscribedEvents()
     {

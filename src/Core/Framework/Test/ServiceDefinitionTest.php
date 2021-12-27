@@ -17,15 +17,7 @@ class ServiceDefinitionTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    public function __construct()
-    {
-        parent::__construct();
-    }
+    private ContainerInterface $container;
 
     public function testEverythingIsInstantiatable(): void
     {

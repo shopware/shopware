@@ -29,7 +29,7 @@ abstract class AbstractFilesystem implements FilesystemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return string|false
      */
     public function read($path)
     {
@@ -39,7 +39,7 @@ abstract class AbstractFilesystem implements FilesystemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return resource|null
      */
     public function readStream($path)
     {
@@ -48,9 +48,6 @@ abstract class AbstractFilesystem implements FilesystemInterface
         return $this->filesystem->readStream($path);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function listContents($directory = '', $recursive = false): array
     {
         $directory = $this->preparePath($directory);
@@ -67,7 +64,7 @@ abstract class AbstractFilesystem implements FilesystemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return array
      */
     public function getMetadata($path)
     {
@@ -84,7 +81,7 @@ abstract class AbstractFilesystem implements FilesystemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return int|false
      */
     public function getSize($path)
     {
@@ -94,7 +91,7 @@ abstract class AbstractFilesystem implements FilesystemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return string|false
      */
     public function getMimetype($path)
     {
@@ -104,7 +101,7 @@ abstract class AbstractFilesystem implements FilesystemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return int|false
      */
     public function getTimestamp($path)
     {
@@ -114,7 +111,7 @@ abstract class AbstractFilesystem implements FilesystemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return string|false
      */
     public function getVisibility($path)
     {
@@ -246,7 +243,7 @@ abstract class AbstractFilesystem implements FilesystemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return string|false
      */
     public function readAndDelete($path)
     {

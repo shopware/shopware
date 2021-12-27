@@ -12,7 +12,7 @@ class JsonApiDecoder implements DecoderInterface
     public const FORMAT = 'jsonapi';
 
     /**
-     * {@inheritdoc}
+     * @return array|mixed
      */
     public function decode($data, $format, array $context = [])
     {

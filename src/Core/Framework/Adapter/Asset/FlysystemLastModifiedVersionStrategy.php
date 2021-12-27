@@ -23,11 +23,17 @@ class FlysystemLastModifiedVersionStrategy implements VersionStrategyInterface
         $this->cacheTag = $cacheTag;
     }
 
+    /**
+     * @return string
+     */
     public function getVersion(string $path)
     {
         return $this->applyVersion($path);
     }
 
+    /**
+     * @return string
+     */
     public function applyVersion(string $path)
     {
         try {

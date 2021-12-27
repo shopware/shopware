@@ -10,7 +10,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class CategoryCriteriaSubscriber implements EventSubscriberInterface
 {
     /**
-     * @inheritdoc
+     * @return \array[][]
      */
     public static function getSubscribedEvents()
     {

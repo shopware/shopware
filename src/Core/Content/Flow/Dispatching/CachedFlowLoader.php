@@ -35,7 +35,7 @@ class CachedFlowLoader extends AbstractFlowLoader implements EventSubscriberInte
     }
 
     /**
-     * @inheritdoc
+     * @return \array[][]
      */
     public static function getSubscribedEvents()
     {

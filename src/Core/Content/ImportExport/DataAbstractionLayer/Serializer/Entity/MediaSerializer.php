@@ -125,7 +125,7 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
     }
 
     /**
-     * @inheritdoc
+     * @return \array[][]
      */
     public static function getSubscribedEvents()
     {

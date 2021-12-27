@@ -134,7 +134,7 @@
         "bheller/images-generator": "~1.0.1",
         "dms/phpunit-arraysubset-asserts": "^0.2.1",
         "fzaninotto/faker": "~1.9.1",
-        "johnkary/phpunit-speedtrap": "~3.3.0",
+        "johnkary/phpunit-speedtrap": "~4.0.0",
         "league/flysystem-memory": "~1.0.2",
         "mbezhanov/faker-provider-collection": "~2.0.1",
         "nikic/php-parser": "~4.10.4",

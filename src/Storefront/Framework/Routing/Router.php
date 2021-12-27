@@ -45,7 +45,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
     }
 
     /**
-     * @inheritdoc
+     * @return string[]
      */
     public function warmUp(string $cacheDir)
     {
@@ -53,7 +53,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
     }
 
     /**
-     * @inheritdoc
+     * @return array
      */
     public function matchRequest(Request $request)
     {

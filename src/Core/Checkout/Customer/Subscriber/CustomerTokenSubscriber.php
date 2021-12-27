@@ -26,7 +26,7 @@ class CustomerTokenSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @inheritdoc
+     * @return \array[][]
      */
     public static function getSubscribedEvents()
     {

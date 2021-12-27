@@ -94,6 +94,9 @@ class PhpSyntaxExtension extends AbstractExtension
         ];
     }
 
+    /**
+     * @return TwigFunction[]
+     */
     public function getFunctions()
     {
         return [

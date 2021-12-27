@@ -88,7 +88,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @inheritdoc
+     * @return \array[][]
      */
     public static function getSubscribedEvents()
     {

@@ -140,6 +140,7 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Csrf\SessionProvider" lazy="true">
+            <deprecated package="shopware/storefront" version="6.5.0.0">This service %service_id% is deprecated. Please inject request_stack and use the session from current request</deprecated>
             <argument type="service" id="session"/>
         </service>
 

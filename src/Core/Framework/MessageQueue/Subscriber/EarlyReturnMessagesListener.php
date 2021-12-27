@@ -13,6 +13,9 @@ class EarlyReturnMessagesListener implements EventSubscriberInterface
      */
     private $handled = false;
 
+    /**
+     * @return string[]
+     */
     public static function getSubscribedEvents()
     {
         return [

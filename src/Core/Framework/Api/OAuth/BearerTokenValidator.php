@@ -38,8 +38,8 @@ class BearerTokenValidator implements AuthorizationValidatorInterface
         $this->configuration = $configuration;
     }
 
-    /**A
-     * {@inheritdoc}
+    /**
+     * @return ServerRequestInterface
      */
     public function validateAuthorization(ServerRequestInterface $request)
     {

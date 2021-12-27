@@ -41,7 +41,7 @@ class StockUpdater implements EventSubscriberInterface
     /**
      * Returns a list of custom business events to listen where the product maybe changed
      *
-     * @inheritdoc
+     * @return string[]
      */
     public static function getSubscribedEvents()
     {

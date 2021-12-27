@@ -16,7 +16,7 @@ class UpdatePostFinishSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @inheritDoc
+     * @return \array[][]
      */
     public static function getSubscribedEvents(): array
     {

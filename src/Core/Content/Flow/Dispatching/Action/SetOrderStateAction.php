@@ -41,7 +41,7 @@ class SetOrderStateAction extends FlowAction
     }
 
     /**
-     * @inheritdoc
+     * @return \array[][]
      */
     public static function getSubscribedEvents()
     {

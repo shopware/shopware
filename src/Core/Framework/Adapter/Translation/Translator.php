@@ -243,6 +243,11 @@ class Translator extends AbstractTranslator
         return $this->snippetSetId;
     }
 
+    public function getCatalogues(): array
+    {
+        return array_values($this->isCustomized);
+    }
+
     private function isFallbackLocaleCatalogue(MessageCatalogueInterface $catalog, string $fallbackLocale): bool
     {
         return mb_strpos($catalog->getLocale(), $fallbackLocale) === 0;

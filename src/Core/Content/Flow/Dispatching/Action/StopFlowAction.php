@@ -12,7 +12,7 @@ class StopFlowAction extends FlowAction
     }
 
     /**
-     * @inheritdoc
+     * @return \array[][]
      */
     public static function getSubscribedEvents()
     {

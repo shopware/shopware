@@ -197,7 +197,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         $variables = $this->dumpVariables($configuration->getThemeConfig(), $salesChannelId);
 
         try {
-            $cssOutput = $this->scssCompiler->compile($variables . $concatenatedStyles);
+            $cssOutput = $this->scssCompiler->compileString($variables . $concatenatedStyles)->getCss();
         } catch (\Throwable $exception) {
             throw new ThemeCompileException(
                 $configuration->getTechnicalName(),

@@ -89,20 +89,24 @@ function createWrapper(props, searchTypes = searchTypeServiceTypes, privileges =
 
                     return Promise.resolve(result);
                 },
-                searchQuery: () => {
-                    const result = {
-                        data: {
-                            foo: {
-                                total: 1,
-                                data: [
-                                    { name: 'Baz', id: '12345' }
-                                ]
-                            }
-                        }
-                    };
 
-                    return Promise.resolve(result);
-                }
+                searchQuery: () => Promise.resolve({
+                    data: {
+                        product: {
+                            data: [{
+                                id: 'dfe80a0ec016413e8e03fa2d85db3dea',
+                                name: 'Lightweight Iron Tossed Cookie Salad'
+                            }]
+                        },
+
+                        foo: {
+                            total: 1,
+                            data: [
+                                { name: 'Baz', id: '12345' }
+                            ]
+                        }
+                    }
+                })
             },
             repositoryFactory: {
                 create: (entity) => ({
@@ -219,6 +223,25 @@ function createWrapper(props, searchTypes = searchTypeServiceTypes, privileges =
                         }
                     };
                 }
+            },
+            userActivityApiService: {
+                getIncrement: () => Promise.resolve({
+                    'dashboard@sw.dashboard.index': {
+                        key: 'dashboard@sw.dashboard.index',
+                        count: '1'
+                    }
+                })
+            },
+            recentlySearchService: {
+                get: () => {
+                    return [
+                        {
+                            entity: 'product',
+                            id: 'dfe80a0ec016413e8e03fa2d85db3dea',
+                            timestamp: 1633605899167
+                        }
+                    ];
+                }
             }
         },
         propsData: props
@@ -245,6 +268,9 @@ describe('src/app/component/structure/sw-search-bar', () => {
     });
 
     beforeEach(() => {
+        Shopware.State.get('session').currentUser = {
+            id: 'id'
+        };
         Module.getModuleRegistry().clear();
     });
 
@@ -972,6 +998,8 @@ describe('src/app/component/structure/sw-search-bar', () => {
         await searchInput.trigger('focus');
         await searchInput.setValue('#');
 
+        await searchInput.setValue('#');
+
         const moduleFilterFooter = wrapper.find('.sw-search-bar__types_container--v2 .sw-search-bar__footer');
         expect(moduleFilterFooter.exists()).toBeTruthy();
 
@@ -1170,5 +1198,110 @@ describe('src/app/component/structure/sw-search-bar', () => {
         });
 
         expect(wrapper.find('sw-search-preferences-modal-stub').exists()).toBe(false);
+    });
+
+    it('should always show frequently used searches correctly', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+
+        register('sw-dashboard', {
+            title: 'sw-dashboard.general.mainMenuItemGeneral',
+            color: '#6AD6F0',
+            icon: 'default-device-dashboard',
+            name: 'dashboard',
+
+            routes: {
+                index: {
+                    components: {
+                        default: 'sw-dashboard-index',
+                    },
+                    path: 'index',
+                },
+            }
+        });
+
+        wrapper = createWrapper();
+
+        const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
+
+        expect(moduleFilterSelect.text()).toBe('global.entities.all');
+
+        const searchInput = wrapper.find('.sw-search-bar__input');
+        await searchInput.trigger('focus');
+
+        await flushPromises();
+
+        const resultsContent = wrapper.find('.sw-search-bar__results--v2 .sw-search-bar__results-wrapper-content');
+
+        const headerEntity = resultsContent.find('.sw-search-bar__types-header-entity');
+        const searchBarItemStub = resultsContent.find('sw-search-bar-item-stub');
+
+        expect(headerEntity.text()).toBe('global.entities.frequently_used');
+        expect(searchBarItemStub.attributes().type).toBe('frequently_used');
+
+        const frequentlyUsed = wrapper.vm.resultsSearchTrends
+            .find(item => item.entity === 'frequently_used');
+
+        expect(frequentlyUsed.entity).toBe('frequently_used');
+        expect(frequentlyUsed.total).toBe(1);
+
+        const { route, ...frequently } = frequentlyUsed.entities[0];
+        expect(frequently).toEqual({
+            color: '#6AD6F0',
+            icon: 'default-device-dashboard',
+            title: 'sw-dashboard.general.mainMenuItemGeneral',
+            name: 'dashboard',
+            privilege: undefined,
+            action: false
+        });
+
+        expect({
+            routeName: route.name,
+            routeKey: route.routeKey
+        }).toEqual({
+            routeName: 'sw.dashboard.index',
+            routeKey: 'index'
+        });
+    });
+
+    it('should always show recently searches correctly', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+
+        wrapper = createWrapper(
+            {},
+            searchTypeServiceTypes,
+            ['product:read']
+        );
+
+        const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
+
+        expect(moduleFilterSelect.text()).toBe('global.entities.all');
+
+        const searchInput = wrapper.find('.sw-search-bar__input');
+        await searchInput.trigger('focus');
+
+        await flushPromises();
+
+        const resultsContent = wrapper.find('.sw-search-bar__results--v2 .sw-search-bar__results-wrapper-content');
+        const lastColumn = resultsContent.findAll('.sw-search-bar__results-column').at(1);
+
+        const headerEntity = lastColumn.find('.sw-search-bar__types-header-entity');
+        const searchBarItemStub = lastColumn.find('sw-search-bar-item-stub');
+
+        expect(headerEntity.text()).toBe('global.entities.recently_searched');
+        expect(searchBarItemStub.attributes().type).toBe('product');
+
+        const recentlySearched = wrapper.vm.resultsSearchTrends
+            .find(item => item.entity === 'recently_searched');
+
+        expect(recentlySearched.entity).toBe('recently_searched');
+        expect(recentlySearched.total).toBe(1);
+
+        expect(recentlySearched.entities[0]).toEqual({
+            entity: 'product',
+            item: {
+                id: 'dfe80a0ec016413e8e03fa2d85db3dea',
+                name: 'Lightweight Iron Tossed Cookie Salad'
+            }
+        });
     });
 });

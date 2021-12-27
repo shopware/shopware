@@ -434,6 +434,70 @@
             {% endblock %}
         </div>
         {% endblock %}
+
+        {% block sw_search_bar_trends_results %}
+        <div
+            v-if="showResultsSearchTrends && !currentSearchType && feature.isActive('FEATURE_NEXT_6040')"
+            class="sw-search-bar__results sw-search-bar__results--v2"
+        >
+            {% block sw_search_bar_trends_results_content %}
+            <div class="sw-search-bar__results-wrapper-content">
+                <template v-for="(entity, column) in resultsSearchTrends">
+                    {% block sw_search_bar_trends_results_list %}
+                    <div
+                        :key="entity.entity"
+                        class="sw-search-bar__results-column"
+                    >
+                        {% block sw_search_bar_trends_results_list_column %}
+                        {% block sw_search_bar_trends_results_list_column_header %}
+                        <div class="sw-search-bar__results-column-header">
+                            {% block sw_search_bar_trends_results_list_column_header_title %}
+                            <span class="sw-search-bar__types-header-entity">
+                                {{ $tc(`global.entities.${entity.entity}`, entity.total) }}
+                            </span>
+                            {% endblock %}
+                        </div>
+                        {% endblock %}
+                        <ul class="sw-search-bar__results-list">
+                            <sw-search-bar-item
+                                v-for="(item, index) in entity.entities"
+                                :key="index"
+                                :item="entity.entity === 'frequently_used' ? item : item.item"
+                                :type="entity.entity === 'frequently_used' ? entity.entity : item.entity"
+                                :search-term="searchTerm"
+                                :column="column"
+                                :index="index"
+                                :entity-icon-color="getEntityIconColor(item.entity)"
+                                :entity-icon-name="getEntityIconName(item.entity)"
+                            />
+                        </ul>
+                        {% endblock %}
+                    </div>
+                    {% endblock %}
+                </template>
+            </div>
+            {% endblock %}
+
+            {% block sw_search_bar_trends_results_empty_content %}{% endblock %}
+
+            {% block sw_search_bar_trends_results_footer %}
+            <div class="sw-search-bar__footer">
+                <p
+                    class="sw-search-bar__shortcut-tip"
+                    v-html="$tc('global.sw-search-bar.placeholderSearchShortcutInfo')"
+                ></p>
+
+                <sw-icon
+                    :style="{ 'color': '#7d8c9b' }"
+                    name="default-action-settings"
+                    small
+                    class="sw-search-bar__footer-action-setting"
+                    @click="toggleSearchPreferencesModal"
+                />
+            </div>
+            {% endblock %}
+        </div>
+        {% endblock %}
     </div>
     {% endblock %}
 

@@ -74,6 +74,7 @@ declare global {
         repositoryFactory: RepositoryFactory,
         snippetService: $TSFixMe,
         extensionStoreActionService: $TSFixMe,
+        recentlySearchService: $TSFixMe
     }
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface InitContainer extends SubContainer<'init'>{

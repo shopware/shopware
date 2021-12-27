@@ -782,7 +782,9 @@
       "custom-field-set": "Zusatzfeld-Set",
       "store_settings": "Produkt-Sortierung",
       "flow": "Flow Builder",
-      "module": "Modul"
+      "module": "Modul",
+      "frequently_used": "Häufig verwendete",
+      "recently_searched": "Kürzlich gesucht"
     },
     "day-of-week": {
       "monday": "Montag",

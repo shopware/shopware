@@ -14,6 +14,7 @@ export default {
     getModuleRegistry,
     getModuleByEntityName,
     getModuleSnippets,
+    getModuleByKey,
 };
 
 export type ModuleTypes = 'plugin' | 'core';
@@ -505,4 +506,13 @@ function addEntryRouteToExtensionRouteStore(config: { extensionName: string, rou
     }
 
     Shopware.State.commit('extensionEntryRoutes/addItem', config);
+}
+
+/**
+ * Returns the first found module with the given key-value
+ */
+function getModuleByKey(key: string, value: string): ModuleDefinition | undefined {
+    return Array.from(modules.values()).find((module) => {
+        return value === module.manifest[key as keyof ModuleManifest];
+    });
 }

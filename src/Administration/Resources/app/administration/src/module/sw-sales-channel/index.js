@@ -41,6 +41,26 @@ Module.register('sw-sales-channel', {
     icon: 'default-device-server',
     entity: 'sales_channel',
 
+    searchMatcher: (regex, labelType, manifest) => {
+        const match = labelType.toLowerCase().match(regex);
+
+        if (!match) {
+            return false;
+        }
+
+        return [
+            {
+                name: manifest.name,
+                icon: manifest.icon,
+                color: manifest.color,
+                label: labelType,
+                entity: manifest.entity,
+                route: manifest.routes.list,
+                privilege: manifest.routes.list?.meta.privilege,
+            },
+        ];
+    },
+
     routes: {
         detail: {
             component: 'sw-sales-channel-detail',

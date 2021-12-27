@@ -94,7 +94,7 @@ $sw-search-bar-item-label-hover-color-text: $color-shopware-brand-500;
             width: 350px;
         }
 
-        .sw-highlight-text:last-child {
+        .sw-highlight-text:not(:first-child) {
             color: $color-gray-500;
         }
     }

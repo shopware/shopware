@@ -181,6 +181,8 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         const moduleRegistry = moduleFactory.getModuleRegistry();
 
         let foundModule = null;
+        let parentModule = null;
+
         moduleRegistry.forEach((module) => {
             if (foundModule) {
                 return;
@@ -194,11 +196,11 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
             const parentPath = to.meta?.parentPath ? to.meta.parentPath : undefined;
 
             if (parentPath && module.routes.has(to.meta.parentPath)) {
-                foundModule = module;
+                parentModule = module;
             }
         });
 
-        return foundModule;
+        return foundModule || parentModule;
     }
 
     /**

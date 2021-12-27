@@ -22,6 +22,8 @@ Component.register('sw-search-bar', {
         'acl',
         'feature',
         'searchRankingService',
+        'userActivityApiService',
+        'recentlySearchService',
     ],
 
     shortcuts: {
@@ -70,6 +72,8 @@ Component.register('sw-search-bar', {
             typeSelectResults: [],
             salesChannelTypes: [],
             moduleFactory: Application.getContainer('factory').module || {},
+            showResultsSearchTrends: false,
+            resultsSearchTrends: [],
             showSearchPreferencesModal: false,
             searchLimit: 10,
             userSearchPreference: null,
@@ -157,6 +161,10 @@ Component.register('sw-search-bar', {
                 product: new Criteria().setLimit(this.searchLimit).addAssociation('options.group'),
             };
         },
+
+        currentUser() {
+            return Shopware.State.get('session').currentUser;
+        },
     },
 
     watch: {
@@ -173,6 +181,17 @@ Component.register('sw-search-bar', {
             }
 
             this.searchTerm = newValue.query.term ? newValue.query.term : '';
+        },
+
+        '$route.name': {
+            handler(to, from) {
+                if (!this.feature.isActive('FEATURE_NEXT_6040') || from === undefined || to === from) {
+                    return;
+                }
+
+                this.resultsSearchTrends = [];
+            },
+            immediate: true,
         },
     },
 
@@ -256,6 +275,7 @@ Component.register('sw-search-bar', {
 
         clearSearchTerm() {
             this.showResultsContainer = false;
+            this.showResultsSearchTrends = false;
             this.activeResultPosition = 0;
         },
 
@@ -266,6 +286,18 @@ Component.register('sw-search-bar', {
                 if (this.searchTerm === '#') {
                     this.showTypeContainer();
                 }
+
+                if (this.resultsSearchTrends?.length) {
+                    this.showResultsSearchTrends = true;
+                    return;
+                }
+
+                this.loadSearchTrends().then(response => {
+                    this.resultsSearchTrends = response;
+
+                    this.showResultsSearchTrends = true;
+                });
+
                 return;
             }
 
@@ -313,6 +345,7 @@ Component.register('sw-search-bar', {
             }
 
             this.showTypeSelectContainer = false;
+            this.showResultsSearchTrends = false;
 
             if (this.typeSearchAlwaysInContainer && this.currentSearchType) {
                 this.doListSearchWithContainer();
@@ -341,6 +374,7 @@ Component.register('sw-search-bar', {
             this.showTypeSelectContainer = true;
             this.showModuleFiltersContainer = false;
             this.showResultsContainer = false;
+            this.showResultsSearchTrends = false;
             this.activeTypeListIndex = 0;
         },
 
@@ -364,6 +398,7 @@ Component.register('sw-search-bar', {
             this.currentSearchType = type;
             this.showTypeSelectContainer = false;
             this.showModuleFiltersContainer = false;
+            this.showResultsSearchTrends = false;
             this.searchTerm = '';
         },
 
@@ -399,12 +434,14 @@ Component.register('sw-search-bar', {
                 this.loadResults(searchTerm);
             } else {
                 this.showResultsContainer = false;
+                this.showResultsSearchTrends = false;
             }
         }, 400),
 
         async loadResults(searchTerm) {
             this.isLoading = true;
             this.results = [];
+
             if (this.feature.isActive('FEATURE_NEXT_6040')) {
                 const entities = this.getModuleEntities(searchTerm);
 
@@ -773,6 +810,7 @@ Component.register('sw-search-bar', {
             this.isActive = true;
             this.showModuleFiltersContainer = true;
             this.showTypeSelectContainer = false;
+            this.showResultsSearchTrends = false;
         },
 
         /**
@@ -881,7 +919,6 @@ Component.register('sw-search-bar', {
                 }
 
                 return [
-                    ...salesChannelTypes,
                     {
                         name: 'sales-channel',
                         icon: saleChannelType?.iconName ?? 'default-device-server',
@@ -902,6 +939,115 @@ Component.register('sw-search-bar', {
             this.searchTerm = null;
             this.showResultsContainer = false;
             this.showTypeSelectContainer = false;
+            this.showResultsSearchTrends = false;
+        },
+
+        loadSearchTrends() {
+            return Promise.all([this.getFrequentlyUsedModules(), this.getRecentlySearch()])
+                .then(response => response.filter(item => item?.total));
+        },
+
+        getFrequentlyUsedModules() {
+            return this.userActivityApiService
+                .getIncrement({ cluster: this.currentUser.id })
+                .then(response => {
+                    const entities = Object.keys(response);
+
+                    return {
+                        entity: 'frequently_used',
+                        total: entities.length,
+                        entities: entities?.map(item => this.getInfoModuleFrequentlyUsed(item)),
+                    };
+                })
+                .catch(() => {});
+        },
+
+        getRecentlySearch() {
+            return new Promise(async resolve => {
+                const items = this.recentlySearchService.get(this.currentUser.id);
+
+                const queries = {};
+
+                items.forEach(item => {
+                    if (!this.acl.can(`${item.entity}:read`)) {
+                        return;
+                    }
+
+                    if (!queries.hasOwnProperty(item.entity)) {
+                        queries[item.entity] = this.criteriaCollection.hasOwnProperty(item.entity)
+                            ? this.criteriaCollection[item.entity]
+                            : new Criteria();
+                    }
+
+                    const ids = [item.id, ...queries[item.entity].ids];
+                    queries[item.entity].setIds(ids);
+                });
+
+                if (Object.keys(queries).length === 0) {
+                    resolve();
+                    return;
+                }
+
+                const searchResult = await this.searchService.searchQuery(queries, { 'sw-inheritance': true });
+
+                if (!searchResult.data) {
+                    resolve();
+                    return;
+                }
+
+                const mapResult = [];
+
+                items.forEach(item => {
+                    const entities = searchResult.data[item.entity] ? searchResult.data[item.entity].data : [];
+
+                    const foundEntity = entities.find(entity => entity.id === item.id);
+
+                    if (foundEntity) {
+                        mapResult.push({
+                            item: foundEntity,
+                            entity: item.entity,
+                        });
+                    }
+                });
+
+                resolve({
+                    entity: 'recently_searched',
+                    total: mapResult.length,
+                    entities: mapResult,
+                });
+            });
+        },
+
+        getInfoModuleFrequentlyUsed(key) {
+            const [moduleName, routeName] = key.split('@');
+            const module = this.moduleFactory.getModuleByKey('name', moduleName);
+
+            if (!module) {
+                return {};
+            }
+
+            const { routes, ...manifest } = module.manifest;
+
+            if (typeof manifest.searchMatcher === 'function') {
+                // get metadata in searchMatcher
+                const metadata = manifest.searchMatcher(
+                    new RegExp(`^${this.$tc(manifest.title).toLowerCase()}(.*)`),
+                    this.$tc(manifest.title, 2),
+                    module.manifest,
+                );
+
+                return metadata.find(item => item.route.name === routeName);
+            }
+
+            const route = Object.values(routes)
+                .find(item => item.name === routeName);
+
+            return {
+                ...manifest,
+                route,
+                privilege: route?.meta?.privilege,
+                action: route.routeKey === 'create',
+            };
         },
     },
 });

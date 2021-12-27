@@ -177,7 +177,7 @@ class DeprecatedTagTest extends TestCase
             $manifestVersions[] = DeprecationTagTester::getVersionFromManifestFileName($file->getFilename());
         }
 
-        return $this->getHighestVersion(array_values($manifestVersions));
+        return $this->getHighestVersion($manifestVersions);
     }
 
     private function exec(string $command): array

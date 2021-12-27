@@ -13,7 +13,7 @@ class CreditOrderLineItemListener implements EventSubscriberInterface
     public const ACL_ORDER_CREATE_DISCOUNT_PRIVILEGE = 'order:create:discount';
 
     /**
-     * @return \array[][]
+     * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
     public static function getSubscribedEvents()
     {

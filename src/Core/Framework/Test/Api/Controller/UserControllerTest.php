@@ -153,7 +153,7 @@ class UserControllerTest extends TestCase
         $assigned = array_column($assigned, 'id');
         $expectedIds = $ids->getList(['role-1', 'role-2']);
         sort($expectedIds);
-        static::assertEquals(array_values($expectedIds), $assigned);
+        static::assertEquals($expectedIds, $assigned);
     }
 
     public function testDeleteUser(): void

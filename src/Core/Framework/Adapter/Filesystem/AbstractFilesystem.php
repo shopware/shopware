@@ -39,7 +39,7 @@ abstract class AbstractFilesystem implements FilesystemInterface
     }
 
     /**
-     * @return resource|null
+     * @return resource|false
      */
     public function readStream($path)
     {

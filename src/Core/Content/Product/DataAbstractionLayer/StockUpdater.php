@@ -41,7 +41,7 @@ class StockUpdater implements EventSubscriberInterface
     /**
      * Returns a list of custom business events to listen where the product maybe changed
      *
-     * @return string[]
+     * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
     public static function getSubscribedEvents()
     {

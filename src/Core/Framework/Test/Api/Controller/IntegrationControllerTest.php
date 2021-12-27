@@ -199,7 +199,7 @@ class IntegrationControllerTest extends TestCase
         $expectedIds = $ids->getList(['role-1', 'role-2']);
         sort($expectedIds);
 
-        static::assertEquals(array_values($expectedIds), $aclRoleIds);
+        static::assertEquals($expectedIds, $aclRoleIds);
     }
 
     public function testPreventUpdateIntegrationWithAdministratorRoleAsNonAdmin(): void

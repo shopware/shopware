@@ -519,7 +519,7 @@ class EntityDefinitionQueryHelper
                 EntityDefinitionQueryHelper::escape($primaryKeyField->getStorageName())
             ));
 
-            $query->setParameter('ids', array_values($primaryKeys), Connection::PARAM_STR_ARRAY);
+            $query->setParameter('ids', $primaryKeys, Connection::PARAM_STR_ARRAY);
 
             return;
         }

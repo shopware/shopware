@@ -4,7 +4,6 @@ namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -19,10 +18,6 @@ class Migration1636964297AddDefaultTaxRate extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_17546')) {
-            return;
-        }
-
         if ($connection->fetchOne('SELECT 1 FROM `system_config` WHERE `configuration_key` = ? LIMIT 1', [self::CONFIG_KEY])) {
             return;
         }

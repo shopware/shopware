@@ -133,7 +133,7 @@ Component.register('sw-settings-tax-list', {
         },
 
         getTaxColumns() {
-            let colums = [{
+            const columns = [{
                 property: 'name',
                 dataIndex: 'name',
                 inlineEdit: 'string',
@@ -145,16 +145,16 @@ Component.register('sw-settings-tax-list', {
                 property: 'taxRate',
                 inlineEdit: 'number',
                 label: 'sw-settings-tax.list.columnDefaultTaxRate',
-            }, ];
+            }];
 
             if (this.feature.isActive('FEATURE_NEXT_17546')) {
-                colums.push({
+                columns.push({
                     property: 'default',
                     inlineEdit: 'boolean',
                     label: 'sw-settings-tax.list.columnDefault',
                 });
             }
-            return colums;
+            return columns;
         },
 
         isShopwareDefaultTax(tax) {

@@ -49,16 +49,13 @@ class Migration1636964297AddDefaultTaxRateTest extends TestCase
 
     private function readConfigValue(Connection $connection): string
     {
-        $value = $connection->fetchColumn(
+        $value = $connection->fetchOne(
             'SELECT `configuration_value` FROM `system_config` WHERE `configuration_key` = :config_key LIMIT 1;',
             ['config_key' => Migration1636964297AddDefaultTaxRate::CONFIG_KEY]
         );
 
-        $jsonValue = json_decode($value, true);
-        if (json_last_error() === \JSON_ERROR_NONE) {
-            return $jsonValue['_value'];
-        }
+        $jsonValue = \json_decode($value, true, 512, \JSON_THROW_ON_ERROR);
 
-        throw new \UnexpectedValueException(sprintf('Unexpected value \'%s\' for setting: %s', $value, Migration1636964297AddDefaultTaxRate::CONFIG_KEY));
+        return $jsonValue['_value'];
     }
 }

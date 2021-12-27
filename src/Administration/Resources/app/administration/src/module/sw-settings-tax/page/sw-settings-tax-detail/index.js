@@ -188,6 +188,7 @@ Component.register('sw-settings-tax-detail', {
                             this.isLoading = false;
                         });
                     }
+                    return null;
                 });
             }).catch(() => {
                 this.createNotificationError({

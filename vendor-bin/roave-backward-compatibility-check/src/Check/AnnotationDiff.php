@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\RoaveBackwardCompatibility\Check;
 
@@ -7,16 +7,68 @@ use phpDocumentor\Reflection\DocBlock\Tags\Generic;
 use phpDocumentor\Reflection\DocBlockFactory;
 use Roave\BackwardCompatibility\Change;
 use Roave\BackwardCompatibility\Changes;
-use Shopware\RoaveBackwardCompatibility\AnnotationFactory;
 use Shopware\RoaveBackwardCompatibility\SimpleAnnotation\ParseConfig;
 use Shopware\RoaveBackwardCompatibility\SimpleAnnotation\SimpleAnnotationParser;
 
 class AnnotationDiff
 {
+    private const ANNOTATION_MAPPING = [
+        'Route' => [
+            'index' => 'name',
+            'numeric' => ['path', 'name'],
+            'check' => [
+                'name' => 'string',
+                'path' => 'string',
+                'methods' => 'array'
+            ]
+        ],
+        'RouteScope' => [
+            'index' => 'scopes',
+            'numeric' => ['scopes'],
+            'check' => [
+                'scopes' => 'array',
+            ]
+        ],
+        'LoginRequired' => [
+            'index' => 'unknown',
+            'numeric' => ['allowGuest'],
+            'check' => [
+                'allowGuest' => 'string',
+            ]
+        ],
+        'ContextTokenRequired' => [
+            'index' => 'unknown',
+            'numeric' => ['required'],
+            'check' => [
+                'required' => 'string',
+            ]
+        ],
+        'Entity' => [
+            'index' => 'unknown',
+            'numeric' => ['value'],
+            'check' => [
+                'value' => 'string',
+            ]
+        ],
+        'Since' => [
+            'index' => 'unknown',
+            'numeric' => ['value'],
+            'check' => [
+                'value' => 'string',
+            ],
+        ],
+        'Acl' => [
+            'index' => 'unknown',
+            'numeric' => ['privileges'],
+            'check' => [
+                'privileges' => 'array',
+            ],
+        ],
+    ];
+
     public static function diff(string $identifier, string $before, string $after): Changes
     {
-        $excludes = require __DIR__ . '/../../../../.bc-exclude.php';
-        $mapping = $excludes['annotationMapping'];
+        $mapping = self::ANNOTATION_MAPPING;
         $factoryConfig = [];
 
         foreach (array_keys($mapping) as $name) {
@@ -70,7 +122,8 @@ class AnnotationDiff
 
                                 if ($beforeValue !== $afterValue) {
                                     return Changes::fromList(Change::changed(
-                                        \sprintf('The annotation "%s" parameter "%s" has been changed on %s from "%s" to "%s"',
+                                        \sprintf(
+                                            'The annotation "%s" parameter "%s" has been changed on %s from "%s" to "%s"',
                                             $name,
                                             $checkProperty,
                                             $identifier,
@@ -80,6 +133,7 @@ class AnnotationDiff
                                         true
                                     ));
                                 }
+
                                 break;
                             case 'array':
                                 $beforeValue = $beforeAnnotation[$checkProperty] ?? [];
@@ -87,7 +141,8 @@ class AnnotationDiff
 
                                 if (array_diff($beforeValue, $afterValue) !== []) {
                                     return Changes::fromList(Change::changed(
-                                        \sprintf('The annotation "%s" parameter "%s" has been changed on %s from "%s" to "%s"',
+                                        \sprintf(
+                                            'The annotation "%s" parameter "%s" has been changed on %s from "%s" to "%s"',
                                             $name,
                                             $checkProperty,
                                             $identifier,
@@ -97,6 +152,7 @@ class AnnotationDiff
                                         true
                                     ));
                                 }
+
                                 break;
                             default:
                                 throw new \RuntimeException('Unknown compare type ' . $compareType);
@@ -120,7 +176,7 @@ class AnnotationDiff
             $parsed = SimpleAnnotationParser::parse($match[0], $config);
 
             $indexValue = $parsed[$index] ?? 'unknown';
-            if (is_array($indexValue)) {
+            if (\is_array($indexValue)) {
                 ksort($indexValue);
                 $indexValue = hash('sha512', json_encode($indexValue));
             }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\RoaveBackwardCompatibility\Tests\SimpleAnnotation;
 
@@ -27,8 +27,8 @@ class SimpleAnnotationParserTest extends TestCase
                 'options' => [
                     'seo' => 'false',
                 ],
-                'methods' => ['GET', 'POST']
-            ]
+                'methods' => ['GET', 'POST'],
+            ],
         ];
 
         yield [
@@ -39,8 +39,8 @@ class SimpleAnnotationParserTest extends TestCase
                 'defaults' => [
                     'auth_required' => 'false',
                 ],
-                'methods' => ['GET']
-            ]
+                'methods' => ['GET'],
+            ],
         ];
 
         yield [
@@ -51,8 +51,8 @@ class SimpleAnnotationParserTest extends TestCase
                 'defaults' => [
                     'XmlHttpRequest' => 'true',
                 ],
-                'methods' => ['GET', 'POST']
-            ]
+                'methods' => ['GET', 'POST'],
+            ],
         ];
 
         yield [
@@ -60,14 +60,14 @@ class SimpleAnnotationParserTest extends TestCase
             [
                 'path' => 'GET',
                 'name' => 'POST',
-            ]
+            ],
         ];
 
         yield [
             '"seo"="false"',
             [
                 'seo' => 'false',
-            ]
+            ],
         ];
 
         yield [
@@ -79,8 +79,8 @@ class SimpleAnnotationParserTest extends TestCase
                     'csrf_protected' => 'false',
                     'XmlHttpRequest' => 'true',
                 ],
-                'methods' => ['POST']
-            ]
+                'methods' => ['POST'],
+            ],
         ];
 
         yield [
@@ -91,8 +91,8 @@ class SimpleAnnotationParserTest extends TestCase
                 'defaults' => [
                     'XmlHttpRequest' => 'true',
                 ],
-                'methods' => ['POST']
-            ]
+                'methods' => ['POST'],
+            ],
         ];
 
         yield [
@@ -107,20 +107,20 @@ class SimpleAnnotationParserTest extends TestCase
                     'entity' => '[a-zA-Z-]+',
                     'id' => '[0-9a-f]{32}',
                 ],
-                'methods' => ['POST']
-            ]
+                'methods' => ['POST'],
+            ],
         ];
 
         yield [
             '()',
-            []
+            [],
         ];
 
         yield [
             '({"promotion.editor"})',
             [
-                'path' => ['promotion.editor']
-            ]
+                'path' => ['promotion.editor'],
+            ],
         ];
     }
 }

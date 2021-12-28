@@ -1,0 +1,84 @@
+diff --git a/src/Factory/ComposerInstallationReflectorFactory.php b/src/Factory/ComposerInstallationReflectorFactory.php
+index 4edd527..aa84243 100644
+--- a/src/Factory/ComposerInstallationReflectorFactory.php
++++ b/src/Factory/ComposerInstallationReflectorFactory.php
+@@ -5,6 +5,8 @@ declare(strict_types=1);
+ namespace Roave\BackwardCompatibility\Factory;
+
+ use Roave\BackwardCompatibility\LocateSources\LocateSources;
++use Roave\BetterReflection\Reflection\Reflection;
++use Roave\BetterReflection\Reflection\ReflectionClass;
+ use Roave\BetterReflection\Reflector\ClassReflector;
+ use Roave\BetterReflection\SourceLocator\Exception\InvalidDirectory;
+ use Roave\BetterReflection\SourceLocator\Exception\InvalidFileInfo;
+@@ -29,14 +31,63 @@ final class ComposerInstallationReflectorFactory
+      * @throws InvalidDirectory
+      */
+     public function __invoke(
+-        string $installationDirectory,
++        string        $installationDirectory,
+         SourceLocator $dependencies
+-    ): ClassReflector {
+-        return new ClassReflector(
+-            new MemoizingSourceLocator(new AggregateSourceLocator([
+-                $this->locateSources->__invoke($installationDirectory),
+-                $dependencies,
+-            ]))
++    ): ClassReflector
++    {
++        $reflector = new FilteredLocator(
++            new MemoizingSourceLocator(
++                new AggregateSourceLocator([
++                    $this->locateSources->__invoke($installationDirectory),
++                    $dependencies,
++                ])
++            )
++        );
++
++        return $reflector;
++    }
++}
++
++class FilteredLocator extends ClassReflector
++{
++    private array $excludePatterns;
++
++    public function __construct(SourceLocator $sourceLocator)
++    {
++        parent::__construct($sourceLocator);
++
++        $excludes = require __DIR__ . '/../../../../../../../.bc-exclude.php';
++        $this->excludePatterns = $excludes['filePatterns'];
++    }
++
++
++    public function reflect(string $className): Reflection
++    {
++        return parent::reflect($className);
++    }
++
++    public function getAllClasses(): array
++    {
++        return array_filter(
++            parent::getAllClasses(),
++            fn(ReflectionClass $class) => !$this->isExcluded($class->getFileName())
+         );
+     }
++
++    public function isExcluded(?string $file): bool
++    {
++        if (null === $file) {
++            return false;
++        }
++
++        foreach ($this->excludePatterns as $pattern) {
++            if (fnmatch($pattern, $file)) {
++                return true;
++            }
++        }
++
++
++        return false;
++    }
++
+ }

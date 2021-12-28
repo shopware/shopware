@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\RoaveBackwardCompatibility\Check\ClassBased;
 
@@ -12,6 +12,7 @@ final class AnnotationClassCheck implements ClassBased
     public function __invoke(ReflectionClass $fromClass, ReflectionClass $toClass): Changes
     {
         $identifier = $fromClass->getName();
+
         return AnnotationDiff::diff($identifier, $fromClass->getDocComment(), $toClass->getDocComment());
     }
 }

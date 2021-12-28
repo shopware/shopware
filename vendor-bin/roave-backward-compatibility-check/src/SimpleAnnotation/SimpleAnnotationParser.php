@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\RoaveBackwardCompatibility\SimpleAnnotation;
 
@@ -21,9 +21,9 @@ class SimpleAnnotationParser
             return [];
         }
 
-        while (strlen($text) > 0) {
+        while ($text !== '') {
             if (preg_match(self::NUMERIC_ARGUMENT, $text, $match)) {
-                $text = self::cleanup($text, strlen($match[0]));
+                $text = self::cleanup($text, \strlen($match[0]));
                 $parsed = trim($match[1], '"');
 
                 if (isset($config->numericArgumentMapping[$index])) {
@@ -31,9 +31,9 @@ class SimpleAnnotationParser
                 } else {
                     $result[] = $parsed;
                 }
-                $index++;
-            } else if(preg_match(self::ARRAY_ARGUMENT, $text, $match)) {
-                $text = self::cleanup($text, strlen($match[0]));
+                ++$index;
+            } elseif (preg_match(self::ARRAY_ARGUMENT, $text, $match)) {
+                $text = self::cleanup($text, \strlen($match[0]));
                 $parsed = self::parse(trim($match['args']), new ParseConfig([]), $comment);
 
                 if (isset($config->numericArgumentMapping[$index])) {
@@ -41,13 +41,13 @@ class SimpleAnnotationParser
                 } else {
                     $result[] = $parsed;
                 }
-                $index++;
-            } else if (preg_match(self::NAMED_ARRAY_ARGUMENT, $text, $match)) {
-                $text = self::cleanup($text, strlen($match[0]));
+                ++$index;
+            } elseif (preg_match(self::NAMED_ARRAY_ARGUMENT, $text, $match)) {
+                $text = self::cleanup($text, \strlen($match[0]));
 
                 $result[$match['name']] = self::parse(trim($match['args']), new ParseConfig([]), $comment);
-            } else if (preg_match(self::NAMED_ARGUMENT, $text, $match)) {
-                $text = self::cleanup($text, strlen($match[0]));
+            } elseif (preg_match(self::NAMED_ARGUMENT, $text, $match)) {
+                $text = self::cleanup($text, \strlen($match[0]));
                 $value = trim($match['value']);
 
                 if ($value[0] === '{') {
@@ -58,7 +58,7 @@ class SimpleAnnotationParser
                 }
             }
 
-            $max--;
+            --$max;
 
             if ($max === 0) {
                 throw new \RuntimeException(\sprintf('Cannot parse %s at point %s', $previousComment ?? $comment, $comment));

@@ -1,6 +1,7 @@
 {
     "require-dev": {
-        "roave/backward-compatibility-check": "^5.0"
+        "roave/backward-compatibility-check": "^5.0",
+        "phpunit/phpunit": "^9.5"
     },
     "bin": [
         "bin/bc-check"
@@ -8,6 +9,11 @@
     "autoload": {
         "psr-4": {
             "Shopware\\RoaveBackwardCompatibility\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Shopware\\RoaveBackwardCompatibility\\Tests\\": "tests/"
         }
     },
     "config": {

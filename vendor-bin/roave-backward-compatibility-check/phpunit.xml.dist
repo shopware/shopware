@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit backupGlobals="false"
+         bootstrap="vendor/autoload.php"
+         verbose="true">
+    <testsuite name="Compatibility Check">
+        <directory suffix="Test.php">tests</directory>
+    </testsuite>
+</phpunit>

@@ -37,4 +37,57 @@ return [
         'Class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\InstanceOfExtension has been deleted',
         'Class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\FeatureFlagExtension has been deleted',
     ],
+    'annotationMapping' => [
+        'Route' => [
+            'index' => 'name',
+            'numeric' => ['path', 'name'],
+            'check' => [
+                'name' => 'string',
+                'path' => 'string',
+                'methods' => 'array'
+            ]
+        ],
+        'RouteScope' => [
+            'index' => 'scopes',
+            'numeric' => ['scopes'],
+            'check' => [
+                'scopes' => 'array',
+            ]
+        ],
+        'LoginRequired' => [
+            'index' => 'unknown',
+            'numeric' => ['allowGuest'],
+            'check' => [
+                'allowGuest' => 'string',
+            ]
+        ],
+        'ContextTokenRequired' => [
+            'index' => 'unknown',
+            'numeric' => ['required'],
+            'check' => [
+                'required' => 'string',
+            ]
+        ],
+        'Entity' => [
+            'index' => 'unknown',
+            'numeric' => ['value'],
+            'check' => [
+                'value' => 'string',
+            ]
+        ],
+        'Since' => [
+            'index' => 'unknown',
+            'numeric' => ['value'],
+            'check' => [
+                'value' => 'string',
+            ]
+        ],
+        'Acl' => [
+            'index' => 'unknown',
+            'numeric' => ['privileges'],
+            'check' => [
+                'privileges' => 'array',
+            ]
+        ]
+    ]
 ];

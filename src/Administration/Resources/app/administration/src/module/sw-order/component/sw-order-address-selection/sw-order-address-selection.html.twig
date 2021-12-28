@@ -1,0 +1,100 @@
+{% block sw_order_address_selection %}
+<div class="sw-order-address">
+    {% block sw_order_address_selection_modal %}
+    <sw-modal
+        v-if="currentAddress"
+        :title="modalTitle"
+        @modal-close="currentAddress = null"
+    >
+        {% block sw_order_address_modal_content %}
+        <sw-customer-address-form
+            :address="currentAddress"
+            :customer="customer"
+        >
+            <sw-customer-address-form-options
+                v-if="currentAddress._isNew"
+                :address="currentAddress"
+                :customer="customer"
+                :custom-field-sets="customerAddressCustomFieldSets"
+                @default-address-change="onChangeDefaultAddress"
+            />
+        </sw-customer-address-form>
+        {% endblock %}
+
+        {% block sw_order_address_modal_actions %}
+        <template #modal-footer>
+            {% block sw_order_address_modal_action_close %}
+            <sw-button
+                size="small"
+                @click="currentAddress = null"
+            >
+                {{ $tc('global.default.cancel') }}
+            </sw-button>
+            {% endblock %}
+
+            {% block sw_order_address_modal_actions_apply %}
+            <sw-button
+                variant="primary"
+                size="small"
+                @click="onSaveAddress"
+            >
+                {{ $tc('global.default.apply') }}
+            </sw-button>
+            {% endblock %}
+        </template>
+        {% endblock %}
+    </sw-modal>
+    {% endblock %}
+
+    {% block sw_order_address_selection_entity_single_select %}
+    <sw-single-select
+        v-model="orderAddressId"
+        class="sw-order-address-selection"
+        :options="addressOptions"
+        value-property="id"
+        :label="label"
+        :placeholder="$tc('sw-order.createBase.detailsBody.placeholderAddress')"
+        :popover-classes="['sw-order-address-selection__popover']"
+        :disabled="disabled"
+        @change="onAddressChange"
+    >
+        <template #before-item-list>
+            <ul class="sw-select-result__item-list">
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+                <li
+                    class="sw-select-result sw-select-result__add-new-address"
+                    @click="onCreateNewAddress"
+                >
+                    {{ $tc('sw-order.createBase.detailsBody.buttonAddNewAddress') }}
+                </li>
+            </ul>
+        </template>
+
+        <template #result-item="{ item, index, labelProperty, isSelected }">
+            <li
+                is="sw-select-result"
+                :selected="isSelected(item)"
+                v-bind="{ item, index }"
+                :class="{'sw-order-address-selection__order-address': isSelected(item)}"
+            >
+                <div class="sw-order-address-selection__information">
+                    <p>{{ item.firstName }} {{ item.lastName }}</p>
+                    <p class="text-gray">
+                        {{ item.street }}
+                    </p>
+                    <p class="text-gray">
+                        {{ item.zipcode }} {{ item.city }}
+                    </p>
+                </div>
+
+                <div class="sw-order-address-selection__edit-action">
+                    <sw-context-menu-item @click="onEditAddress(item.id)">
+                        {{ $tc('global.default.edit') }}
+                    </sw-context-menu-item>
+                </div>
+            </li>
+        </template>
+    </sw-single-select>
+    {% endblock %}
+</div>
+{% endblock %}

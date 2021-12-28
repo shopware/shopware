@@ -5,6 +5,7 @@ import swOrderDetailState from '../../state/order-detail.store';
 const { Component, State, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Shopware.Component.getComponentHelper();
+const ApiService = Shopware.Classes.ApiService;
 
 Component.register('sw-order-detail', {
     template,
@@ -50,6 +51,7 @@ Component.register('sw-order-detail', {
         ...mapState('swOrderDetail', [
             'order',
             'versionContext',
+            'orderAddressIds',
         ]),
 
         orderIdentifier() {
@@ -172,9 +174,24 @@ Component.register('sw-order-detail', {
             this.$root.$emit('order-edit-start');
         },
 
-        onSaveEdits() {
+        async onSaveEdits() {
             if (Shopware.Feature.isActive('FEATURE_NEXT_7530')) {
                 this.isLoading = true;
+
+                // change new order address
+                if (this.orderAddressIds?.length) {
+                    await Promise.all([
+                        ...this.orderAddressIds
+                            .filter(ids => ids.orderAddressId !== ids.customerAddressId)
+                            .map(ids => this.changeOrderAddress(ids)),
+                    ]).then(() => {
+                        State.commit('swOrderDetail/setOrderAddressIds', false);
+                    }).catch((error) => {
+                        this.createNotificationError({
+                            message: error,
+                        });
+                    });
+                }
 
                 this.orderRepository.save(this.order, this.versionContext)
                     .then(() => {
@@ -344,6 +361,17 @@ Component.register('sw-order-detail', {
                     return Promise.reject();
                 });
             });
+        },
+
+        changeOrderAddress(ids) {
+            const { orderAddressId, customerAddressId } = ids;
+
+            return this.orderService.changeOrderAddress(
+                orderAddressId,
+                customerAddressId,
+                {},
+                ApiService.getVersionHeader(this.order.versionId),
+            );
         },
     },
 });

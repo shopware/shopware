@@ -11,6 +11,7 @@ export default {
             editing: true,
             savedSuccessful: false,
             versionContext: null,
+            orderAddressIds: [],
         };
     },
 
@@ -48,6 +49,28 @@ export default {
 
         setVersionContext(state, versionContext) {
             state.versionContext = versionContext;
+        },
+
+        setOrderAddressIds(state, value) {
+            if (!value) {
+                state.orderAddressIds = [];
+                return;
+            }
+
+            const { orderAddressId, customerAddressId } = value;
+
+            if (!state.orderAddressIds.some(ids => ids.orderAddressId === orderAddressId)) {
+                state.orderAddressIds.push(value);
+                return;
+            }
+
+            state.orderAddressIds.forEach(ids => {
+                if (ids.orderAddressId !== orderAddressId) {
+                    return;
+                }
+
+                ids.customerAddressId = customerAddressId;
+            });
         },
     },
 };

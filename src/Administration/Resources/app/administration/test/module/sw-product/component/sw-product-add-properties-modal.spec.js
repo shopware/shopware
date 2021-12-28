@@ -399,6 +399,7 @@ describe('src/module/sw-product/component/sw-product-add-properties-modal', () =
         expect(wrapper.vm.searchTerm).toBe('Size');
         expect(wrapper.vm.propertiesPage).toEqual(1);
         expect(wrapper.vm.propertyGroupCriteria.term).toBe('Size');
+        expect(wrapper.vm.propertyGroupOptionCriteria.term).toBe('Size');
         wrapper.vm.getProperties.mockRestore();
     });
 

@@ -67,6 +67,10 @@ Component.register('sw-product-add-properties-modal', {
             criteria.setLimit(this.propertyValuesLimit);
             criteria.addSorting(Criteria.sort('name', 'ASC', true));
 
+            if (this.searchTerm) {
+                criteria.setTerm(this.searchTerm);
+            }
+
             return criteria;
         },
 

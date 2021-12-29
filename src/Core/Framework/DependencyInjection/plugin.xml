@@ -162,7 +162,7 @@
         <!-- Composer -->
         <service id="Shopware\Core\Framework\Plugin\Composer\PackageProvider"/>
 
-        <service id="Shopware\Core\Framework\Plugin\Composer\CommandExecutor">
+        <service id="Shopware\Core\Framework\Plugin\Composer\CommandExecutor" lazy="true">
             <argument>%kernel.project_dir%</argument>
         </service>
 

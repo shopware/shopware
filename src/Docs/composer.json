@@ -42,7 +42,7 @@
         "symfony/dependency-injection": "~5.4.1",
         "symfony/filesystem": "~5.4.0",
         "symfony/finder": "~5.4.0",
-        "symfony/http-kernel": "~5.4.1"
+        "symfony/http-kernel": "~5.4.2"
     },
     "require-dev": {
         "phpunit/phpunit": "~9.5.6"

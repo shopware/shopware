@@ -4,7 +4,8 @@ namespace Shopware\Core\Framework;
 
 use Shopware\Core\Framework\Adapter\Asset\AssetPackageService;
 use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
-use Shopware\Core\Framework\Event\BusinessEventRegistry;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\AddCoreMigrationPathCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\BusinessEventRegisterCompilerPass;
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Kernel;
 use Symfony\Component\Config\FileLocator;
@@ -109,10 +110,12 @@ abstract class Bundle extends SymfonyBundle
             ->addTag('shopware.migration_source');
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Use own migration source instead
+     */
     protected function addCoreMigrationPath(ContainerBuilder $container, string $path, string $namespace): void
     {
-        $container->getDefinition(MigrationSource::class . '.core')
-            ->addMethodCall('addDirectory', [$path, $namespace]);
+        $container->addCompilerPass(new AddCoreMigrationPathCompilerPass($path, $namespace));
     }
 
     private function registerFilesystem(ContainerBuilder $container, string $key): void
@@ -135,8 +138,13 @@ abstract class Bundle extends SymfonyBundle
 
     private function registerEvents(ContainerBuilder $container): void
     {
-        $definition = $container->getDefinition(BusinessEventRegistry::class);
-        $definition->addMethodCall('addClasses', [$this->getActionEventClasses()]);
+        $classes = $this->getActionEventClasses();
+
+        if ($classes === []) {
+            return;
+        }
+
+        $container->addCompilerPass(new BusinessEventRegisterCompilerPass($classes));
     }
 
     /**

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\DisableTwigCacheWar
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\EntityCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FilesystemConfigMigrationCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\FrameworkMigrationReplacementCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RateLimiterCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RouteScopeCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigEnvironmentCompilerPass;
@@ -19,7 +20,6 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCom
 use Shopware\Core\Framework\DependencyInjection\FrameworkExtension;
 use Shopware\Core\Framework\Increment\IncrementerGatewayCompilerPass;
 use Shopware\Core\Framework\Migration\MigrationCompilerPass;
-use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Framework\Test\DependencyInjection\CompilerPass\ContainerVisibilityCompilerPass;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
 use Shopware\Core\Kernel;
@@ -106,19 +106,7 @@ class Framework extends Bundle
             $container->addCompilerPass(new ContainerVisibilityCompilerPass());
         }
 
-        // configure migration directories
-        $migrationSourceV3 = $container->getDefinition(MigrationSource::class . '.core.V6_3');
-        $migrationSourceV3->addMethodCall('addDirectory', [__DIR__ . '/../Migration/V6_3', 'Shopware\Core\Migration\V6_3']);
-
-        // we've moved the migrations from Shopware\Core\Migration to Shopware\Core\Migration\V6_3
-        $migrationSourceV3->addMethodCall('addReplacementPattern', ['#^(Shopware\\\\Core\\\\Migration\\\\)V6_3\\\\([^\\\\]*)$#', '$1$2']);
-
-        $migrationSourceV4 = $container->getDefinition(MigrationSource::class . '.core.V6_4');
-        $migrationSourceV4->addMethodCall('addDirectory', [__DIR__ . '/../Migration/V6_4', 'Shopware\Core\Migration\V6_4']);
-        $migrationSourceV3->addMethodCall('addReplacementPattern', ['#^(Shopware\\\\Core\\\\Migration\\\\)V6_4\\\\([^\\\\]*)$#', '$1$2']);
-
-        $migrationSourceV5 = $container->getDefinition(MigrationSource::class . '.core.V6_5');
-        $migrationSourceV5->addMethodCall('addDirectory', [__DIR__ . '/../Migration/V6_5', 'Shopware\Core\Migration\V6_5']);
+        $container->addCompilerPass(new FrameworkMigrationReplacementCompilerPass());
 
         parent::build($container);
     }

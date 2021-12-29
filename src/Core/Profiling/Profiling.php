@@ -19,9 +19,22 @@ class Profiling extends Bundle
      */
     public function build(ContainerBuilder $container): void
     {
+        /** @var string $environment */
+        $environment = $container->getParameter('kernel.environment');
+
+        /** @var array<string, string> $bundles */
+        $bundles = $container->getParameter('kernel.bundles');
+
+        if (!isset($bundles['WebProfilerBundle'])) {
+            if ($environment === 'dev') {
+                throw new \RuntimeException('Profiling bundle requires WebProfilerBundle to work');
+            }
+
+            return;
+        }
+
         parent::build($container);
 
-        $environment = $container->getParameter('kernel.environment');
         $this->buildConfig($container, $environment);
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));

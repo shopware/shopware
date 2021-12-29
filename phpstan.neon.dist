@@ -19,7 +19,7 @@ parameters:
         container_xml_path: 'var/cache/phpstan_dev/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml'
         console_application_loader: src/Core/DevOps/StaticAnalyze/PHPStan/console-application.php
 
-    excludes_analyse:
+    excludePaths:
         - src/Recovery/*
         - src/Docs/Resources/current/60-references-internals/10-core/50-checkout-process/_examples/10-cart-example.php
         - src/Docs/Resources/deprecated/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php
@@ -66,6 +66,10 @@ parameters:
         - src/Core/Framework/Adapter/Twig/TwigEnvironment.php
 
     ignoreErrors:
+        -
+            message: '#Service ".*" is private#'
+            path: src/**/*Test.php
+
         # PhpStan does not recognize the Faker plugins correctly. They are called via magic methods
         - '#Access to an undefined property Faker\\Generator::\$[^.]+\.#'
         # Method gets always an EntityCollection

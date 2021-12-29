@@ -3,10 +3,14 @@
 namespace Shopware\Core\Framework\Adapter\Console;
 
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ShopwareStyle extends SymfonyStyle
 {
+    /**
+     * @return ProgressBar
+     */
     public function createProgressBar(int $max = 0)
     {
         $progressBar = parent::createProgressBar($max);

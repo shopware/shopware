@@ -46,7 +46,7 @@
         "symfony/event-dispatcher-contracts": "2.2.0",
         "symfony/framework-bundle": "~5.4.1",
         "symfony/http-foundation": "~5.4.1",
-        "symfony/http-kernel": "~5.4.1",
+        "symfony/http-kernel": "~5.4.2",
         "symfony/routing": "~5.4.0",
         "symfony/polyfill-php80": "~1.23.1",
         "symfony/security-csrf": "~5.4.0",

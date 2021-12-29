@@ -8,6 +8,7 @@ import VueRouter from 'vue-router';
 import VueI18n from 'vue-i18n';
 import VueMeta from 'vue-meta';
 import VuePlugins from 'src/app/plugin';
+import setupShopwareDevtools from 'src/app/adapter/view/sw-vue-devtools';
 
 const { Component, State, Mixin } = Shopware;
 
@@ -73,6 +74,10 @@ export default class VueAdapter extends ViewAdapter {
                 };
             },
         });
+
+        if (process.env.NODE_ENV === 'development') {
+            setupShopwareDevtools(this.root);
+        }
 
         return this.root;
     }

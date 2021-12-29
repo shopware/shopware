@@ -62,6 +62,7 @@ function createWrapper(defaultValues = {}) {
         stubs: {
             'sw-form-field-renderer': Shopware.Component.build('sw-form-field-renderer'),
             'sw-card': Shopware.Component.build('sw-card'),
+            'sw-ignore-class': true,
             'sw-sales-channel-switch': Shopware.Component.build('sw-sales-channel-switch'),
             'sw-entity-single-select': Shopware.Component.build('sw-entity-single-select'),
             'sw-button': Shopware.Component.build('sw-button'),

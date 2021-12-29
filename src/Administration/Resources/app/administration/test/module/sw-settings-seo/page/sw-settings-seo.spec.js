@@ -25,6 +25,7 @@ function createWrapper() {
             'sw-search-bar': true,
             'sw-notification-center': true,
             'sw-card': Shopware.Component.build('sw-card'),
+            'sw-ignore-class': true,
             'sw-loader': true,
             'sw-app-actions': true
         },

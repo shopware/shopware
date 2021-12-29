@@ -5,6 +5,7 @@ import type VueRouter from 'vue-router';
 import type FeatureService from 'src/app/service/feature.service';
 import type { LoginService } from 'src/core/service/login.service';
 import type { ContextState } from 'src/app/state/context.store';
+import type { ExtensionComponentSectionsState } from 'src/app/state/extension-component-sections.store';
 import type { AxiosInstance } from 'axios';
 import type { ShopwareClass } from 'src/core/shopware';
 import type { ModuleTypes } from 'src/core/factory/module.factory';
@@ -109,6 +110,7 @@ declare global {
     interface VuexRootState {
         context: ContextState,
         extensions: ExtensionsState,
+        extensionComponentSections: ExtensionComponentSectionsState,
         session: {
             currentLocale: string,
             currentUser: $TSFixMe,
@@ -164,6 +166,13 @@ declare module 'vue/types/options' {
                 active: boolean | ((this: V) => boolean),
                 method: string
             }
+        },
+
+        extensionApiDevtoolInformation?: {
+            property?: string,
+            method?: string,
+            positionId?: (currentComponent: any) => string,
+            helpText?: string,
         }
     }
 }

@@ -36,7 +36,7 @@ describe('Product Search: Test crud operations of custom field', () => {
 
         // change to custom field tab
         cy.get('.sw-settings-search__searchable-content-tab-title').last().click();
-        cy.get('.sw-settings-search__view-general .sw-card:nth-child(1)').scrollIntoView();
+        cy.get('.sw-settings-search__view-general .sw-card').eq(0).scrollIntoView();
 
         cy.wait('@getCustomField')
             .its('response.statusCode').should('equal', 200);
@@ -98,7 +98,7 @@ describe('Product Search: Test crud operations of custom field', () => {
 
         // change to custom field tab
         cy.get('.sw-settings-search__searchable-content-tab-title').last().click();
-        cy.get('.sw-settings-search__view-general .sw-card:nth-child(2)').scrollIntoView();
+        cy.get('.sw-settings-search__view-general .sw-card').eq(1).scrollIntoView();
 
         cy.wait('@getCustomField')
             .its('response.statusCode').should('equal', 200);
@@ -170,7 +170,7 @@ describe('Product Search: Test crud operations of custom field', () => {
 
         // change to customfield tab
         cy.get('.sw-settings-search__searchable-content-tab-title').last().click();
-        cy.get('.sw-settings-search__view-general .sw-card:nth-child(2)').scrollIntoView();
+        cy.get('.sw-settings-search__view-general .sw-card').eq(1).scrollIntoView();
 
         cy.wait('@getCustomField')
             .its('response.statusCode').should('equal', 200);
@@ -195,7 +195,7 @@ describe('Product Search: Test crud operations of custom field', () => {
         cy.wait('@createSearchConfig')
             .its('response.statusCode').should('equal', 204);
 
-        cy.get('.sw-settings-search__view-general .sw-card:nth-child(2)').scrollIntoView();
+        cy.get('.sw-settings-search__view-general .sw-card').eq(1).scrollIntoView();
         cy.clickContextMenuItem(
             '.sw-settings-search__searchable-content-list-remove',
             page.elements.contextMenuButton,

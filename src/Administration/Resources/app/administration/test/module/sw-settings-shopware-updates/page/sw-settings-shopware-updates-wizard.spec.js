@@ -184,6 +184,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                 'sw-data-grid': Shopware.Component.build('sw-data-grid'),
                 'sw-card-view': Shopware.Component.build('sw-card-view'),
                 'sw-card': Shopware.Component.build('sw-card'),
+                'sw-ignore-class': true,
                 'sw-settings-shopware-updates-info': {
                     template: '<div></div>'
                 },

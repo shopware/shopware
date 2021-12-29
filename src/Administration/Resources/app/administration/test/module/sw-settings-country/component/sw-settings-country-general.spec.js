@@ -68,6 +68,7 @@ function createWrapper(privileges = [], customPropsData = {}) {
 
         stubs: {
             'sw-card': Shopware.Component.build('sw-card'),
+            'sw-ignore-class': true,
             'sw-container': Shopware.Component.build('sw-container'),
             'sw-text-field': true,
             'sw-switch-field': true,

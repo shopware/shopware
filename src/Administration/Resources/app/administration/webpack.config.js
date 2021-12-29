@@ -210,14 +210,17 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 options: {
                     compact: true,
                     cacheDirectory: true,
-                    presets: [[
-                        '@babel/preset-env', {
-                            modules: false,
-                            targets: {
-                                browsers: ['last 2 versions', 'edge >= 17'],
+                    presets: [
+                        [
+                            '@babel/preset-env', {
+                                modules: false,
+                                targets: {
+                                    browsers: ['last 2 versions', 'edge >= 17'],
+                                },
                             },
-                        },
-                    ]],
+                        ],
+                        '@babel/preset-typescript'
+                    ],
                 },
             },
             {
@@ -603,11 +606,12 @@ const configsForPlugins = pluginEntries.map((plugin) => {
                     // to be able to access all files in multi-compiler-mode
                     ? path.resolve(__dirname, `v_dist/bundles/${plugin.technicalFolderName}/administration/`)
                     : path.resolve(plugin.path, '../../../public/'),
-                publicPath: isDev ? `/bundles/${plugin.technicalFolderName}/administration/` : '/bundles/administration/',
+                publicPath: isDev ? `/bundles/${plugin.technicalFolderName}/administration/` : `/bundles/${plugin.technicalFolderName}/`,
                 // filenames aren´t in static folder when using watcher to match the build environment
                 filename: isDev ? 'js/[name].js' : 'static/js/[name].js',
                 chunkFilename: isDev ? 'js/[name].js' : 'static/js/[name].js',
                 globalObject: 'this',
+                jsonpFunction: `webpackJsonpPlugin${plugin.technicalName}`
             },
 
             plugins: [

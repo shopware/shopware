@@ -9,6 +9,7 @@ import settingsItems from './settings-item.store';
 import shopwareApps from './shopware-apps.store';
 import extensionEntryRoutes from './extension-entry-routes';
 import marketing from './marketing.store';
+import extensionComponentSections from './extension-component-sections.store';
 import extensions from './extensions.store';
 
 export default {
@@ -23,5 +24,6 @@ export default {
     shopwareApps,
     extensionEntryRoutes,
     marketing,
+    extensionComponentSections,
     extensions,
 };

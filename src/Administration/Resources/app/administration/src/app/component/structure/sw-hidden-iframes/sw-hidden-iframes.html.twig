@@ -1,12 +1,11 @@
 <div
     class="sw-hidden-iframes"
-    style="display: none"
+    style="display: none;"
 >
-    <iframe
+    <sw-iframe-renderer
         v-for="iFrame in iFrames"
         :key="iFrame"
-        :title="iFrame"
         :src="iFrame"
-        frameborder="0"
-    ></iframe>
+        :location-id="MAIN_HIDDEN"
+    />
 </div>

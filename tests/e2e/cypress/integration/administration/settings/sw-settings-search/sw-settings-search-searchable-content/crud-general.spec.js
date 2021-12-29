@@ -27,7 +27,7 @@ describe('Product Search: Test crud operations', () => {
             method: 'PATCH'
         }).as('updateSearchConfig');
 
-        cy.get('.sw-settings-search__view-general .sw-card:nth-child(2)').scrollIntoView();
+        cy.get('.sw-settings-search__view-general .sw-card').eq(1).scrollIntoView();
 
         cy.get(`.sw-settings-search__searchable-content-general ${page.elements.dataGridRow}--0`).dblclick();
 
@@ -109,7 +109,7 @@ describe('Product Search: Test crud operations', () => {
         cy.get('.sw-settings-search__searchable-content-general ' +
             `${page.elements.dataGridRowInlineEdit}`).click();
 
-        cy.get('.sw-settings-search__view-general .sw-card:nth-child(2)').scrollIntoView();
+        cy.get('.sw-settings-search__view-general .sw-card').eq(1).scrollIntoView();
 
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);

@@ -74,6 +74,7 @@ function createWrapper(privileges = []) {
 
         stubs: {
             'sw-card': Shopware.Component.build('sw-card'),
+            'sw-ignore-class': true,
             'sw-container': Shopware.Component.build('sw-container'),
             'sw-button': true,
             'sw-icon': true,

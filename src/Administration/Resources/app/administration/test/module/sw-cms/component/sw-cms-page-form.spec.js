@@ -1,6 +1,7 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-cms/component/sw-cms-page-form';
 import 'src/app/component/base/sw-card';
+import 'src/app/component/utils/sw-ignore-class';
 
 function createWrapper() {
     const localVue = createLocalVue();
@@ -18,7 +19,8 @@ function createWrapper() {
             'sw-card': Shopware.Component.build('sw-card'),
             'sw-cms-el-config-text': {
                 template: '<div class="config-element">Config element</div>'
-            }
+            },
+            'sw-ignore-class': Shopware.Component.build('sw-ignore-class'),
         },
         provide: {
             cmsService: {
@@ -69,8 +71,9 @@ describe('module/sw-cms/component/sw-cms-page-form', () => {
 
     it('should have only one empty state \'card\'', async () => {
         const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
         const lengthOfEmptyStates = wrapper.findAll('.sw-cms-page-form__block-card.is--empty').length;
-
 
         expect(lengthOfEmptyStates).toBe(1);
     });

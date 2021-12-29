@@ -46,6 +46,7 @@ const detailPage = (additionalOptions = {}, privileges = []) => {
             'sw-card-view': true,
             'sw-language-info': true,
             'sw-card': Shopware.Component.build('sw-card'),
+            'sw-ignore-class': true,
             'sw-field': Shopware.Component.build('sw-field'),
             'sw-text-field': Shopware.Component.build('sw-text-field'),
             'sw-textarea-field': Shopware.Component.build('sw-textarea-field'),

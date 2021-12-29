@@ -57,6 +57,7 @@ function createWrapper(privileges = []) {
             'sw-context-menu-item': true,
             'sw-card-view': true,
             'sw-card': Shopware.Component.build('sw-card'),
+            'sw-ignore-class': true,
             'sw-entity-listing': {
                 props: ['items', 'allowEdit', 'allowDelete', 'detailRoute'],
                 template: `

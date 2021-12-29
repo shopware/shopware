@@ -308,10 +308,17 @@ export default class Criteria {
     }
 
     addIncludes(include: Include): this {
-        this.includes = {
-            ...this.includes,
-            ...include,
-        };
+        Object.entries(include).forEach(([entityName, includeValues]) => {
+            if (this.includes === null) {
+                this.includes = {};
+            }
+            if (!this.includes[entityName]) {
+                this.includes[entityName] = [];
+            }
+
+            this.includes[entityName].push(...includeValues);
+        });
+
         return this;
     }
 

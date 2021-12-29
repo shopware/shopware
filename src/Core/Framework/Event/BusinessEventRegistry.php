@@ -7,7 +7,7 @@ class BusinessEventRegistry
     /**
      * @var string[]
      */
-    private $classes = [];
+    private array $classes = [];
 
     public function addClasses(array $classes): void
     {

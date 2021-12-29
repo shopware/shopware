@@ -991,6 +991,8 @@ class ApiController extends AbstractController
         }
 
         $parts = array_filter($parts);
+
+        /** @var array{'entity': string, 'value': string|null} $first */
         $first = array_shift($parts);
 
         try {

@@ -42,7 +42,7 @@ class EntityNotExists extends Constraint
     public $primaryProperty = 'id';
 
     /**
-     * @var array
+     * @var array<string, string>
      */
     protected static $errorNames = [
         self::ENTITY_EXISTS => 'ENTITY_EXISTS',

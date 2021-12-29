@@ -14,7 +14,7 @@ class DatabaseConnectionFactory
     {
         $connection = DriverManager::getConnection($connectionInformation->toDBALParameters($withoutDatabase), new Configuration());
 
-        static::checkVersion($connection);
+        self::checkVersion($connection);
 
         return $connection;
     }

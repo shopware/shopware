@@ -195,7 +195,7 @@ class AggregationParser
 
         $field = null;
         if ($type !== 'filter') {
-            $field = static::buildFieldName($definition, $aggregation['field']);
+            $field = self::buildFieldName($definition, $aggregation['field']);
         }
         switch ($type) {
             case 'avg':

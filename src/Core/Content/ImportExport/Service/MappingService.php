@@ -209,6 +209,7 @@ class MappingService extends AbstractMappingService
         }
 
         // try to guess associations
+        /** @var string[] $mappedKeyParts */
         $mappedKeyParts = explode(
             ' ',
             strtolower(
@@ -224,7 +225,7 @@ class MappingService extends AbstractMappingService
             )
         );
 
-        if (!empty($mappedKeyParts) && strcmp($mappedKeyParts[0], $mappedKey) !== 0) {
+        if (isset($mappedKeyParts[0]) && strcmp($mappedKeyParts[0], $mappedKey) !== 0) {
             $associationField = $definition->getField($mappedKeyParts[0]);
 
             if ($associationField !== null && $associationField instanceof ManyToOneAssociationField) {

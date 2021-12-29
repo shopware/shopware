@@ -86,6 +86,8 @@ class FlowEntity extends Entity
 
     /**
      * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     *
+     * @return string|Flow|null
      */
     public function getPayload()
     {
@@ -96,6 +98,8 @@ class FlowEntity extends Entity
 
     /**
      * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     *
+     * @param string|Flow|null $payload
      */
     public function setPayload($payload): void
     {

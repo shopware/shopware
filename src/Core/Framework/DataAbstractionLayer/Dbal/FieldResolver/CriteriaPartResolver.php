@@ -214,9 +214,6 @@ class CriteriaPartResolver
         $root = $definition->getEntityName();
 
         $parts = explode('.', $accessor);
-        if (empty($parts)) {
-            return;
-        }
 
         if ($parts[0] === $root) {
             unset($parts[0]);

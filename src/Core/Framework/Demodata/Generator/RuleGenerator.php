@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Demodata\Generator;
 
+use Faker\Generator;
 use Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule;
 use Shopware\Core\Checkout\Customer\Rule\CustomerGroupRule;
 use Shopware\Core\Checkout\Customer\Rule\IsNewCustomerRule;
@@ -52,6 +53,8 @@ class RuleGenerator implements DemodataGeneratorInterface
      */
     private $ruleDefinition;
 
+    private Generator $faker;
+
     public function __construct(
         EntityRepositoryInterface $ruleRepository,
         EntityWriterInterface $writer,
@@ -73,6 +76,8 @@ class RuleGenerator implements DemodataGeneratorInterface
 
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
     {
+        $this->faker = $context->getFaker();
+
         $paymentMethodIds = $this->paymentMethodRepository->searchIds(new Criteria(), $context->getContext());
         $shippingMethodIds = $this->shippingMethodRepository->searchIds(new Criteria(), $context->getContext());
 
@@ -161,7 +166,7 @@ class RuleGenerator implements DemodataGeneratorInterface
             return $rule;
         }
 
-        $rules = \array_slice($pool, random_int(0, \count($pool) - 2), random_int(1, 2));
+        $rules = $this->faker->randomElements($pool, 2);
 
         $classes = array_column($rules, 'rule');
 

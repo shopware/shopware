@@ -26,7 +26,7 @@ class CartTestHook extends Hook implements CartAware
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
         $this->name = $name;
-        static::$serviceIds = $serviceIds;
+        self::$serviceIds = $serviceIds;
         $this->cart = $cart;
 
         foreach ($data as $key => $value) {
@@ -41,7 +41,7 @@ class CartTestHook extends Hook implements CartAware
 
     public static function getServiceIds(): array
     {
-        return static::$serviceIds;
+        return self::$serviceIds;
     }
 
     public function getName(): string

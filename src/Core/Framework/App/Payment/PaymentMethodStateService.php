@@ -28,11 +28,12 @@ class PaymentMethodStateService
         $criteria->addFilter(new EqualsFilter('appPaymentMethod.appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', false));
 
-        $templates = $this->paymentMethodRepository->searchIds($criteria, $context);
+        /** @var string[] $templates */
+        $templates = $this->paymentMethodRepository->searchIds($criteria, $context)->getIds();
 
         $updateSet = array_map(function (string $id) {
             return ['id' => $id, 'active' => true];
-        }, $templates->getIds());
+        }, $templates);
 
         $this->paymentMethodRepository->update($updateSet, $context);
     }
@@ -43,11 +44,12 @@ class PaymentMethodStateService
         $criteria->addFilter(new EqualsFilter('appPaymentMethod.appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', true));
 
-        $templates = $this->paymentMethodRepository->searchIds($criteria, $context);
+        /** @var string[] $templates */
+        $templates = $this->paymentMethodRepository->searchIds($criteria, $context)->getIds();
 
         $updateSet = array_map(function (string $id) {
             return ['id' => $id, 'active' => false];
-        }, $templates->getIds());
+        }, $templates);
 
         $this->paymentMethodRepository->update($updateSet, $context);
     }

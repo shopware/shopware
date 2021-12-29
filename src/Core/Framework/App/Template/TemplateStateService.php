@@ -28,11 +28,12 @@ class TemplateStateService
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', false));
 
-        $templates = $this->templateRepo->searchIds($criteria, $context);
+        /** @var string[] $templates */
+        $templates = $this->templateRepo->searchIds($criteria, $context)->getIds();
 
         $updateSet = array_map(function (string $id) {
             return ['id' => $id, 'active' => true];
-        }, $templates->getIds());
+        }, $templates);
 
         $this->templateRepo->update($updateSet, $context);
     }
@@ -43,11 +44,12 @@ class TemplateStateService
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', true));
 
-        $templates = $this->templateRepo->searchIds($criteria, $context);
+        /** @var string[] $templates */
+        $templates = $this->templateRepo->searchIds($criteria, $context)->getIds();
 
         $updateSet = array_map(function (string $id) {
             return ['id' => $id, 'active' => false];
-        }, $templates->getIds());
+        }, $templates);
 
         $this->templateRepo->update($updateSet, $context);
     }

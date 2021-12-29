@@ -295,9 +295,6 @@ class EntityDefinitionQueryHelper
         $accessor = str_replace('extensions.', '', $accessor);
 
         $parts = explode('.', $accessor);
-        if (empty($parts)) {
-            return;
-        }
 
         if ($parts[0] === $root) {
             unset($parts[0]);

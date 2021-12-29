@@ -340,6 +340,8 @@ abstract class EntityDefinition
 
     /**
      * @internal
+     *
+     * @return mixed
      */
     public function decode(string $property, ?string $value)
     {

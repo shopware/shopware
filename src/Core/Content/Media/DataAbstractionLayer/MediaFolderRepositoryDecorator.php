@@ -125,9 +125,11 @@ class MediaFolderRepositoryDecorator implements EntityRepositoryInterface
             $mediaResult = $this->mediaRepository->searchIds($criteria, $context);
 
             if ($mediaResult->getTotal() > 0) {
+                /** @var string[] $ids */
+                $ids = $mediaResult->getIds();
                 $affectedMediaIds = array_map(static function (string $id) {
                     return ['id' => $id];
-                }, $mediaResult->getIds());
+                }, $ids);
 
                 $this->mediaRepository->delete($affectedMediaIds, $context);
             }

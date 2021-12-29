@@ -35,7 +35,7 @@ class CustomerVatIdentification extends Constraint
     protected $countryId;
 
     /**
-     * @var array
+     * @var array<string, string>
      */
     protected static $errorNames = [
         self::VAT_ID_FORMAT_NOT_CORRECT => 'VAT_ID_FORMAT_NOT_CORRECT',

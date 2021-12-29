@@ -24,7 +24,7 @@ class TemplateLoader extends AbstractTemplateLoader
      */
     public function getTemplatePathsForApp(Manifest $app): array
     {
-        $viewDirectory = $app->getPath() . static::TEMPLATE_DIR;
+        $viewDirectory = $app->getPath() . self::TEMPLATE_DIR;
 
         if (!is_dir($viewDirectory)) {
             return [];
@@ -33,8 +33,8 @@ class TemplateLoader extends AbstractTemplateLoader
         $finder = new Finder();
         $finder->files()
             ->in($viewDirectory)
-            ->name(static::ALLOWED_FILE_EXTENSIONS)
-            ->path(static::ALLOWED_TEMPLATE_DIRS)
+            ->name(self::ALLOWED_FILE_EXTENSIONS)
+            ->path(self::ALLOWED_TEMPLATE_DIRS)
             ->ignoreUnreadableDirs();
 
         return array_values(array_map(static function (\SplFileInfo $file) use ($viewDirectory): string {
@@ -48,10 +48,10 @@ class TemplateLoader extends AbstractTemplateLoader
      */
     public function getTemplateContent(string $path, Manifest $app): string
     {
-        $content = @file_get_contents($app->getPath() . static::TEMPLATE_DIR . '/' . $path);
+        $content = @file_get_contents($app->getPath() . self::TEMPLATE_DIR . '/' . $path);
 
         if ($content === false) {
-            throw new \RuntimeException(sprintf('Unable to read file from: %s.', $app->getPath() . static::TEMPLATE_DIR . '/' . $path));
+            throw new \RuntimeException(sprintf('Unable to read file from: %s.', $app->getPath() . self::TEMPLATE_DIR . '/' . $path));
         }
 
         return $content;

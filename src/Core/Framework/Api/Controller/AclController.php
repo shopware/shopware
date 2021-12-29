@@ -82,7 +82,9 @@ class AclController extends AbstractController
             if (isset($defaults['_controller'])) {
                 [$controllerService, $controllerMethod] = explode('::', $defaults['_controller']);
                 if ($this->container->has($controllerService)) {
-                    $reflectedMethod = new \ReflectionMethod(\get_class($this->container->get($controllerService)), $controllerMethod);
+                    $className = \get_class($this->container->get($controllerService));
+                    \assert(\is_string($className));
+                    $reflectedMethod = new \ReflectionMethod($className, $controllerMethod);
                     $annotation = $annotationReader->getMethodAnnotation($reflectedMethod, Acl::class);
                     $privileges = array_merge($privileges, $annotation ? $annotation->getValue() : []);
 
@@ -90,7 +92,7 @@ class AclController extends AbstractController
                         continue;
                     }
 
-                    $reflectedClass = new \ReflectionClass(\get_class($this->container->get($controllerService)));
+                    $reflectedClass = new \ReflectionClass($className);
                     $annotation = $annotationReader->getClassAnnotation($reflectedClass, Acl::class);
                     $privileges = array_merge($privileges, $annotation ? $annotation->getValue() : []);
                     $seenServices[] = $controllerService;

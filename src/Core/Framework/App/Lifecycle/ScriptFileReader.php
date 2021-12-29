@@ -15,7 +15,7 @@ class ScriptFileReader implements ScriptFileReaderInterface
 
     public function getScriptPathsForApp(string $appPath): array
     {
-        $scriptDirectory = $appPath . static::SCRIPT_DIR;
+        $scriptDirectory = $appPath . self::SCRIPT_DIR;
 
         if (!is_dir($scriptDirectory)) {
             return [];
@@ -24,7 +24,7 @@ class ScriptFileReader implements ScriptFileReaderInterface
         $finder = new Finder();
         $finder->files()
             ->in($scriptDirectory)
-            ->name(static::ALLOWED_FILE_EXTENSIONS)
+            ->name(self::ALLOWED_FILE_EXTENSIONS)
             ->ignoreUnreadableDirs();
 
         return array_values(array_map(static function (\SplFileInfo $file) use ($scriptDirectory): string {
@@ -35,10 +35,10 @@ class ScriptFileReader implements ScriptFileReaderInterface
 
     public function getScriptContent(string $name, string $appPath): string
     {
-        $content = @file_get_contents($appPath . static::SCRIPT_DIR . '/' . $name);
+        $content = @file_get_contents($appPath . self::SCRIPT_DIR . '/' . $name);
 
         if ($content === false) {
-            throw new \RuntimeException(sprintf('Unable to read file from: %s.', $appPath . static::SCRIPT_DIR . '/' . $name));
+            throw new \RuntimeException(sprintf('Unable to read file from: %s.', $appPath . self::SCRIPT_DIR . '/' . $name));
         }
 
         return $content;

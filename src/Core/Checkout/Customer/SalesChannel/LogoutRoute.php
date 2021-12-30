@@ -77,7 +77,7 @@ class LogoutRoute extends AbstractLogoutRoute
      *      @OA\Response(
      *          response="403",
      *          description="If the user is not logged in, a 403 error is returned.",
-     *          @OA\JsonContent(ref="#/components/responses/403")
+     *          ref="#/components/responses/403"
      *     )
      * )
      * @LoginRequired(allowGuest=true)

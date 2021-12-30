@@ -13,6 +13,7 @@ import type RepositoryFactory from 'src/core/data/repository-factory.data';
 import type { default as VueType } from 'vue';
 import type { ComponentConfig } from './core/factory/component.factory';
 import type { ExtensionsState } from './app/state/extensions.store';
+import type { TabsState } from './app/state/tabs.store';
 
 // trick to make it an "external module" to support global type extension
 export {};
@@ -110,6 +111,7 @@ declare global {
     interface VuexRootState {
         context: ContextState,
         extensions: ExtensionsState,
+        tabs: TabsState,
         extensionComponentSections: ExtensionComponentSectionsState,
         session: {
             currentLocale: string,

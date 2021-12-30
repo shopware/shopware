@@ -21,6 +21,7 @@ import initializeNotifications from 'src/app/init/notification.init';
 import initializeContext from 'src/app/init/context.init';
 import initializeWindow from 'src/app/init/window.init';
 import initializeExtensionComponentSections from 'src/app/init/extension-component-sections.init';
+import tabs from 'src/app/init/tabs.init';
 
 export default {
     coreMixin: initMixin,
@@ -42,4 +43,5 @@ export default {
     context: initializeContext,
     window: initializeWindow,
     extensionComponentSections: initializeExtensionComponentSections,
+    tabs: tabs,
 };

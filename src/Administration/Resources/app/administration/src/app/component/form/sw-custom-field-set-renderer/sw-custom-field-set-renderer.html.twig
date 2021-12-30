@@ -72,6 +72,7 @@
             class="sw-custom-field-set-renderer__card-tabs"
             variant="minimal"
             :default-item="visibleCustomFieldSets[0].name"
+            :position-identifier="'sw-custom-field-set-renderer'"
         >
             {% block sw_custom_field_set_renderer_card_tabs %}
             <template slot-scope="{ active }">

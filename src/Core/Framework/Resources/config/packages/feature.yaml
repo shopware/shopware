@@ -268,7 +268,7 @@ shopware:
       - name: FEATURE_NEXT_18129
         default: false
         major: true
-        description: "Require positionIdentifier for sw-cards"
+        description: "Require positionIdentifier for some components"
         # issue: NEXT-18129
       - name: FEATURE_NEXT_19163
         default: false

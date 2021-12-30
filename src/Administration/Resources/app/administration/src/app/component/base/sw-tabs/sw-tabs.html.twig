@@ -13,6 +13,19 @@
         {% block sw_tabs_content_slot %}
         <slot :active="active"></slot>
         {% endblock %}
+
+        <sw-tabs-item
+            v-for="tabExtension in tabExtensions"
+            :key="tabExtension.componentSectionId"
+            :name="tabExtension.componentSectionId"
+            :active-tab="active"
+            :route="hasRoutes ? {
+                path: tabExtension.componentSectionId
+            } : ''"
+        >
+            {{ tabExtension.label }}
+        </sw-tabs-item>
+
         {% block sw_tabs_slider %}
         <span
             class="sw-tabs__slider"
@@ -58,6 +71,16 @@
             :active="active"
         ></slot>
         {% endblock %}
+
+        <template v-if="!hasRoutes">
+            <template v-for="tabExtension in tabExtensions">
+                <sw-extension-component-section
+                    v-if="tabExtension.componentSectionId === active"
+                    :key="tabExtension.componentSectionId"
+                    :position-id="tabExtension.componentSectionId"
+                />
+            </template>
+        </template>
     </div>
 
 </div>

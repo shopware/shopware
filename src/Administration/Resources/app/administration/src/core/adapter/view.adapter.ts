@@ -18,6 +18,8 @@ export default abstract class ViewAdapter {
 
     public root: Vue | null;
 
+    public router: VueRouter | undefined;
+
     /**
      * @constructor
      */

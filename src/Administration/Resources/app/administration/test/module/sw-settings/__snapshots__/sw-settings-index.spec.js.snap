@@ -36,7 +36,7 @@ exports[`module/sw-settings/page/sw-settings-index should render correctly 1`] =
         </a>
          
         <!---->
-         
+          
         <span
           class="sw-tabs__slider"
           style="transform: translate(0, 0px) rotate(90deg); width: 0px;"
@@ -200,6 +200,7 @@ exports[`module/sw-settings/page/sw-settings-index should render correctly 1`] =
             </a>
           </div>
         </div>
+         
       </div>
     </div>
   </div>

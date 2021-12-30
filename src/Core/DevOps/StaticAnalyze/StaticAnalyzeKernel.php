@@ -3,6 +3,8 @@
 namespace Shopware\Core\DevOps\StaticAnalyze;
 
 use Shopware\Core\Kernel;
+use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class StaticAnalyzeKernel extends Kernel
 {
@@ -13,5 +15,14 @@ class StaticAnalyzeKernel extends Kernel
             $this->getProjectDir(),
             $this->getEnvironment()
         );
+    }
+
+    /**
+     * @see https://github.com/phpstan/phpstan/issues/6075
+     */
+    protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
+    {
+        parent::configureContainer($container, $loader);
+        $container->setParameter('container.dumper.inline_class_loader', false);
     }
 }

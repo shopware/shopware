@@ -244,6 +244,12 @@ parameters:
             count: 1
             path: src/Core/Content/ProductExport/Error/Error.php
 
+        # PhpStan cannot understand the multiple traits implemented in this class
+        -
+            message: "#^Call to private method get\\(\\) of class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\CartFacade\\.$#"
+            count: 1
+            path: src/Core/Checkout/Test/Cart/Facade/CartFacadeTest.php
+
 services:
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Decoratable\DecoratableImplementsInterfaceRule

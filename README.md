@@ -12,29 +12,41 @@
 </div>
 
 
-<p align="center"><a href="https://shopware.com" target="_blank" rel="noopener noreferrer"><img width="250" src="https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/swlogo_x250.png"></a></p>
+<p align="center"><a href="https://shopware.com" target="_blank" rel="noopener noreferrer"><img width="250" src="https://www.shopware.com/media/image/dd/e4/b3/composable-customer-experience-illustration.png"></a></p>
 
 <h1 align="center">Shopware 6</h1>
 
-<p align="center"><strong>Realize your ideas - fast and without friction.</strong>
+<p align="center"><strong>Modern open source e-Commerce</strong>
 
 [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Start%20your%20dev%20journey%20now!&url=https%3A%2F%2Fgithub.com%2Fshopware%2Fplatform&via=ShopwareDevs&hashtags=Shopware6,community)
 </p>
 
-Shopware 6 is an open source ecommerce platform based on a quite modern technology stack that is powered by [Symfony](https://symfony.com) and [Vue.js](https://vuejs.org).
-It's the successor of the very successful ecommerce shopping cart [Shopware 5](https://github.com/shopware/shopware) which has over 800,000 downloads.
-Shopware 6 is focused on an API-first approach, so it's quite easy to think in different sales channels and make ecommerce happen whereever you want it.
 
-If you like Shopware 6, give us a star on Github ★
+Shopware 6 is an open headless commerce platform powered by [Symfony](https://symfony.com) and [Vue.js](https://vuejs.org) that is used by thousands of shops and supported by a huge worldwide community of developers, agencies and merchants.
 
-- **Read the docs**: [https://developer.shopware.com/docs/](https://developer.shopware.com/docs/)
-- **Start developing**: [https://developer.shopware.com/docs/guides/installation/overview](https://developer.shopware.com/docs/guides/installation/overview)
-- **File an issue**: [https://issues.shopware.com](https://issues.shopware.com)
+If you like Shopware 6, give us a&nbsp;⭐️ &nbsp;on Github
+
+* 🙋‍♂️&nbsp;[Join us on our mission!](https://jobs.shopware.com) ‍&nbsp;We are hiring!  🙋
+* 🌍 &nbsp;Website - Learn more about [Shopware](https://en.shopware.com)
+* 🧩 &nbsp;Extensions - Browse more then [1.500 Apps](https://store.shopware.com) that are already available
+* 📖 &nbsp;Learn how to [develop apps](https://developer.shopware.com/docs/)
+* 🉐 &nbsp;Help [translating](https://crowdin.com/project/shopware6) Shopware!
+* 👍 &nbsp;Follow us on [Twitter](https://twitter.com/shopwaredevs)
+* 🛠 &nbsp;Issue Tracker - [Report bugs or suggest new features](https://issues.shopware.com)
+* 🗨 &nbsp;Forums - [Community support and discussions](https://forum.shopware.com/)
+* 👪 &nbsp;Community Chat - [Slack](https://shopwarecommunity.slack.com/join/shared_invite/zt-ogexp21s-T_ROUf99S6oaz6rMfc37Tw#/shared-invite/email)
+* 🕹 &nbsp;[Download Shopware](https://www.shopware.com/de/download/) or start playing with [Dockware](https://github.com/dockware/dockware)
+
 
 ## Table of contents
 
-- [Take a glimpse](#take-a-glimpse)
-- [Technology](#technology)
+- [Open Commerce Platform](#open-commerce-platform)
+- [Business Model Composer](#business-model-composer)
+- [Composable Customer Experience](#composable-customer-experience)
+- [Under the hood](#under-the-hood)
+- [Extension-system](#extension-system)
+- [Demo](#Demo)
+- [Technology](#Technology)
 - [Repository structure](#shopware-6-repository-structure)
 - [Installation](#quickstart--installation)
 - [Roadmap](#roadmap)
@@ -44,35 +56,157 @@ If you like Shopware 6, give us a star on Github ★
 - [License](#license)
 - [Authors](#authors)
 
-## Take a glimpse
+## Open Commerce platform
+**We are always open,
+you are always free**
 
-The **Shopware 6 Storefront** is based on [Twig](https://twig.symfony.com/doc/2.x/templates.html)
-and [Bootstrap](https://getbootstrap.com/docs/4.3/getting-started/introduction/).
-Two well known and easy to learn frameworks, making the creation of templates a breeze! 
+With Shopware you control your destiny. Always having access to the source, you own it. No lock-ins, no compromises, no limits.
+**Your freedom to grow.**
 
-[![](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/storefrontT.png)](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/storefront.png)
+Open commerce empowers you to seize the collective force of our community and partnerships. You benefit from a worldwide network of established developers, looking into the future of ecommerce and continuously advancing the platform in order to meet the latest market developments. It is exactly this focus that makes the difference and enables our merchants to grow strongly and sustainably in the ever-evolving world of digital commerce.
 
-The **Shopware 6 Administration** is based on [Vue.js](https://vuejs.org/v2/guide/) and [twig.js](https://github.com/twigjs/twig.js/wiki),
-making the creation of new modules fast and easy.
-Get started with the [design documentation](https://shopware.design/).   
+<img src='https://www.shopware.com/media/image/0a/6e/57/open-commerce-platform-mood-image.png'></td>
 
-[![](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/rulebuilder.gif)](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/rulebuilder.gif)
 
-The Rulebuilder makes the implementation of business processes easy.
+
+
+<img src='https://assets.shopware.com/media/icons/marketing/blue/headless-api-first.svg' width='32' align='left'>&nbsp;
+**Innovative and future-oriented: Open, headless, API-first, cloud & self-managed**<br /><br />
+<img src='https://assets.shopware.com/media/icons/marketing/blue/seamless-integration-system-landscape.svg' width='32' align='left'>&nbsp;
+**Seamless integration into your system landscape**<br /><br />
+<img src='https://assets.shopware.com/media/icons/marketing/blue/open-established-technologies.svg' width='32' align='left'>&nbsp;
+**Established technologies such as Symfony and vue.js**
 
 ---
+
+## Business Model Composer
+### Plug and play your business model:
+
+<img src='https://www.shopware.com/media/image/d2/6d/6e/business-model-composer-illustration.png'>
+
+<p>
+Adapt fast and test various business models on-time: Digital events, subscription services, consultations, and highly customisable goods – whether to buy or to rent. There are no limits to the power of human imagination. Dare to dream, we'll make it happen!
+</p>
+
+
+<img src='https://www.shopware.com/media/vector/c1/5d/9f/flowbuilder.svg'>
+
+
+#### The Flow-builder makes the implementation of business processes easy
+
+
+<img src='https://www.shopware.com/media/vector/09/d0/ab/flow-builder-intro-illustration.svg'>
+
+<img src='https://assets.shopware.com/media/icons/marketing/blue/business-models-on-time.svg' width='32' align='left'>&nbsp;
+**Run different business models on-time with one solution** <br />
+
+<img src='https://assets.shopware.com/media/icons/marketing/blue/unique-business-flow.svg' width='32' align='left'>&nbsp;
+**Compose your unique business flow with no-code/low-code**<br />
+
+<img src='https://assets.shopware.com/media/icons/marketing/blue/rules-and-pioneer.svg' width='32' align='left'>&nbsp;
+**Set your own rules and pioneer into new territory**<br />
+
+
+## Composable Customer Experience
+
+<p align="center"><img src='https://www.shopware.com/media/image/dd/e4/b3/composable-customer-experience-illustration.png' width=500 align='center'></p>
+
+<br />
+
+### Engage your customers across all channels with the perfect harmony of content and commerce
+
+<br />
 
 [![](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/shoppingexp.gif)](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/shoppingexp.gif)
 
 [![](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/cms.gif)](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/cms.gif)
 
-Designing content is fast and intuitive with the Shopping Experiences.
+**Designing content is fast and intuitive with the Shopping Experiences.**
+
+
+<img src='https://assets.shopware.com/media/icons/marketing/blue/seamless-integration-content-and-commerce.svg' width='32' align='left'>&nbsp;
+**Strengthen your brand ID with our flawless integration of content and commerce** <br />
+
+<img src='https://assets.shopware.com/media/icons/marketing/blue/touchpoints-into-trust-points.svg' width='32' align='left'>&nbsp;
+**Convert casual touch-points into fundamental trust-points**<br />
+
+<img src='https://assets.shopware.com/media/icons/marketing/blue/pwa.svg' width='32' align='left'>&nbsp;
+**Fly high and create the next-level user experience with Shopware's PWA**<br />
+
+## Under the hood
+
+
+The build-in **Shopware 6 Storefront** is based on [Twig](https://twig.symfony.com/doc/2.x/templates.html)
+and [Bootstrap](https://getbootstrap.com/docs/4.3/getting-started/introduction/).
+Two well known and easy to learn frameworks, making the creation of templates a breeze and bringing many advantages for merchants & developers:
+
+* Lightweight and fast storefront
+* Works perfectly on all end devices
+* Reduced costs & effort required to make customisations, thanks to being built upon basic code & development standards that can be easily and widely used
+* Flexible basis for creating your own custom themes
+* Clear product presentation – filter according to properties and variants
+* Numerous sorting options for product lists in the storefront
+* Customer ratings can be handled conveniently in the administration and easily published in the storefront
+
+
+[![](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/storefrontT.png)](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/storefront.png)
+
+Together with our friends of [VueStorefront](https://github.com/vuestorefront) we also provide an open source PWA frontend called [**"Shopware PWA"**](https://github.com/vuestorefront/shopware-pwa):<br />
+
+**What makes Shopware PWA unique:**
+
+* Quick integration & drop-in replacement for standard storefront
+* Unrestricted creativity for frontend developers
+* Modern tech-stack
+* Made for enterprise-level complexity
+
+<div align="center">
+<img align='center' src='https://www.shopware.com/media/vector/90/68/81/shopware-pwa-framework.svg'>
+</div>
+
+
+----
+
+The **Shopware 6 Administration** is based on [Vue.js](https://vuejs.org/v2/guide/) and [twig.js](https://github.com/twigjs/twig.js/wiki),
+making the creation of new modules fast and easy.
+Get started with the [design documentation](https://shopware.design/).
+
+[![](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/rulebuilder.gif)](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/rulebuilder.gif)
+
+## Extension-system
+
+Shopware 6 is a lean and extremely flexible product that can be easily adapted to meet your requirements – and the Plugin Manager is your command centre for managing the apps and themes added to your shop. Using this module, you can install, purchase, update or delete apps.
+
+<img src='https://www.shopware.com/media/image/2b/e5/c2/EN-Plugin_Manager_Updates-190520.png'>
+<br />
+<br />
+<p align="center">
+<img src='https://ecommerce.shopware.com/hubfs/21-T1-App-Development-Keyvisual.svg' width=250 align="center">
+
+You can *easily* build your own apps and extensions by following our [developer documentation](https://developer.shopware.com/docs/guides/plugins)
+
+</p>
+<br />
+
+<br />
+
 
 ---
 
+## Demo
+
+You can easily setup shopware by:
+
+* [Download](https://www.shopware.com/en/download/#shopware-6) shopware and run it on your server
+* using [Dockware](https://dockware.io/)
+* or simply setup a [cloud shop](https://www.shopware.com/en/download/#create-onlineshop) and tryout everything
+
 ## Technology
 
-Shopware 6 provides Services through REST-APIs and rich user interfaces to customers and administrators alike.
+Shopware 6 uses Symfony as the standard framework, while the administration is completely based on Vue.js. In relying on technological standards, we’ve made it even easier to work with Shopware – while reducing dependency on specialised knowledge. Our goal is to make it as comfortable as possible to get started with Shopware by providing you with various resources, completely free of charge.
+
+### API First
+We want commerce to take place where people are; independent of place, time and end device. Following to the API-first approach, Shopware 6 provides retailers with the technological foundation to effortlessly build retail strategies across channels and devices.
 
 ![The core architecture](https://s3.eu-central-1.amazonaws.com/shopware-platform-assets/github-platform/readme/platformcontext.svg)
 
@@ -80,23 +214,23 @@ The chart shows how the Shopware Platform fits into your enterprise.
 It provides web frontends for management and for commerce through a multitude of sales channels.
 It comes with a set of user facing interfaces and provides the ability to connect to your own infrastructure and outside services through REST-APIs.
 
-More information can be found [in the documentation](https://docs.shopware.com/en/shopware-platform-dev-en/internals).
+More information can be found [in the documentation](https://developer.shopware.com/docs/concepts/api).
 
 ## Shopware 6 repository structure
 
 Shopware 6 consists of multiple repositories, two of them are important to you:
 
 - `shopware/platform` is a [mono repository](https://www.atlassian.com/git/tutorials/monorepos)
-  - This is where the shopware core is developed. You need it as dependency in your projects
-  - This is where you can participate in the development of Shopware through pull requests 
-  - It's split into multiple repositories for production setups, all read-only
+    - This is where the shopware core is developed. You need it as dependency in your projects
+    - This is where you can participate in the development of Shopware through pull requests
+    - It's split into multiple repositories for production setups, all read-only
 - [`shopware/development`](https://github.com/shopware/development) is the development template
-  - **This is where your journey with shopware starts**
-  - Installation see below!
+    - **This is where your journey with shopware starts**
+    - Installation see below!
 
 ## Quickstart / Installation
 
-A full installation guide covering different dev environments is available in the [docs](https://docs.shopware.com/en/shopware-platform-dev-en/system-guide/installation).
+A full installation guide covering different dev environments is available in the [docs](https://developer.shopware.com/docs/guides/installation).
 
 *For the impatient reader, here is a tl;dr using docker.*
 
@@ -135,14 +269,14 @@ Access the application container:
 Execute the installer:
 
 ```bash
-> ./psh.phar install 
+> ./psh.phar install
 ```
 
 This may take a while since many caches need to be generated on first execution, but only on first execution.
 
 To be sure that the installation succeeded, just open the following URL in your favorite browser: [localhost:8000](http://localhost:8000/)
 
-[Now you're all set to start developing your first plugin.](https://docs.shopware.com/en/shopware-platform-dev-en/internals/plugins/plugin-quick-start?category=shopware-platform-dev-en/internals/plugins)
+[Now you're all set to start developing your first plugin.](https://developer.shopware.com/docs/guides/plugins/plugins/plugin-base-guide)
 
 ## Roadmap
 
@@ -162,7 +296,7 @@ In today’s information-based world, you cannot thrive in closed systems. Black
 The future of IT is all about collaboration. At Shopware, we believe that the best ecommerce solution can only be developed in constant exchange with the people that use it every day. This is why we made a clear promise to the open source approach and embrace everyone willing to participate. We consider our community to be our greatest strength; not our competitor, like many companies tend to do.
 
 We believe that our open source edition is our strongest asset and that we need, now more than ever, to invest in our ecosystem of partners and developers. So that we can work together to collaborate across backgrounds, experiences and ideas and mutually benefit from the software that results.
- 
+
 **Join the community now** 🖤
 
 - **Discuss:** [forum.shopware.com](https://forum.shopware.com/categories/international)
@@ -202,24 +336,18 @@ Subscribe to our **[developer newsletter](https://www.shopware.com/en/community/
 ## Ecosystem
 
 Our Shopware Ecosystem gives you all the information you need to dive deep into the Shopware universe.
- 
+
 ### Shopware Community Store
 
-Whether plugin, theme or marketing tool: You can easily extend the functionality of your shop with over 3,500 available plugins in the Community Store.
- 
+Whether plugin, theme or marketing tool: You can easily extend the functionality of your shop with over 1,500 available apps and extensions in the Community Store.
+
 [store.shopware.com](https://store.shopware.com)
 
 ### Academy
 
 Do you want to become a Shopware expert or get a sneak peek into the software? Find a training session that is individually tailored to your interests.
- 
-[shopware.com/academy/](https://www.shopware.com/academy/)
- 
-### Shopware Community Day
 
-Held annually, the Shopware Community Day informs ecommerce enthusiasts from across Europe about the current state - and future - of digital commerce.
- 
-[scd.shopware.com](https://scd.shopware.com)
+[shopware.com/academy/](https://www.shopware.com/academy/)
 
 ## Contribution
 
@@ -230,7 +358,7 @@ You want to participate in the development of Shopware? There are many ways to c
 -   Submitting pull requests
 -   Reporting issues on the [issue tracker](https://issues.shopware.com/)
 -   Discuss shopware on e.g [Slack](https://slack.shopware.com) or our [forum](https://forum.shopware.com/categories/shopware-6)
-- Write a translation for shopware on [crowdin](https://crowdin.com/project/shopware6) 
+- Write a translation for shopware on [crowdin](https://crowdin.com/project/shopware6)
 
 You have a question regarding contribution, or you want to contribute in another way?
 
@@ -241,7 +369,7 @@ Please write us an email: contributors@shopware.com
 If you have decided to contribute code to Shopware and become a member of the Shopware community,
 we appreciate your hard work and want to handle it with the most possible respect.
 To ensure the quality of our code and our products we have created a guideline we all should endorse to.
-It helps you and us to collaborate. Following these guidelines will help us to integrate your changes in our daily workflow. 
+It helps you and us to collaborate. Following these guidelines will help us to integrate your changes in our daily workflow.
 
 Read more in [our contribution guideline](https://docs.shopware.com/en/shopware-platform-dev-en/contribution/contribution-guideline)
 or in our short [HowTo contribute code](https://docs.shopware.com/en/shopware-platform-dev-en/contribution/contributing-code).

@@ -1,0 +1,29 @@
+name: Lint Storefront
+
+on:
+  push:
+    branches:
+      - trunk
+  pull_request:
+    paths:
+      - src/Storefront/Resources/app/storefront/**/*
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    container: shopware/development:7.4-composer-2
+
+    steps:
+      - name: Clone platform
+        uses: actions/checkout@v2
+
+      - name: NPM Setup
+        run: |
+          cd src/Storefront/Resources/app/storefront
+          npm clean-install
+
+      - name: Check Code
+        run: |
+          cd src/Storefront/Resources/app/storefront
+          npm run lint:js
+          npm run lint:scss

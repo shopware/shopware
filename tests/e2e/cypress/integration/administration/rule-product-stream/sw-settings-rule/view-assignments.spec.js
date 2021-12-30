@@ -139,7 +139,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
         cy.get('.sw-settings-rule-detail-assignments__card-promotion_customer_rule .sw-settings-rule-detail-assignments__add-button').should('be.disabled');
     });
 
-    it('@rule: assign rule to shipping method and verify assignment', () => {
+    it('@rule @package: assign rule to shipping method and verify assignment', () => {
         const page = new RulePageObject();
 
         cy.intercept({
@@ -190,7 +190,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
         cy.get(`.sw-settings-rule-detail-assignments__card-shipping_method_availability_rule ${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('Testing Method');
     });
 
-    it('@rule: assign shipping method to rule via assignment tab, verify assignment and delete assignment', () => {
+    it('@rule @package: assign shipping method to rule via assignment tab, verify assignment and delete assignment', () => {
         const page = new RulePageObject();
 
         cy.intercept({

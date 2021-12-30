@@ -51,7 +51,7 @@ describe('Checkout rule builder handling for shipping and payment methods', () =
         });
     });
 
-    it('@cart @payment @shipping: Check rule conditions in cart', () => {
+    it('@cart @payment @shipping @package: Check rule conditions in cart', () => {
         // Scenario: The shipping method "Standard" has a custom availability rule. This rules only allows "Standard"
         // shipping, if the payment method "invoice" is selected.
 
@@ -118,7 +118,7 @@ describe('Checkout rule builder handling for shipping and payment methods', () =
         cy.get(`${page.elements.offCanvasCart} .alert-warning .alert-content`).should('not.exist');
     });
 
-    it('@checkout @payment @shipping: Check rule conditions in checkout', () => {
+    it('@checkout @payment @shipping @package: Check rule conditions in checkout', () => {
         const accountPage = new AccountPageObject();
         const page = new CheckoutPageObject();
 

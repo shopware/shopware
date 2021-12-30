@@ -157,15 +157,14 @@ class SalesChannelCreator
 
     private function getAllIdsOf(string $entity, Context $context): array
     {
-        $repository = $this->definitionRegistry->getRepository($entity);
-
-        $ids = $repository->searchIds(new Criteria(), $context);
+        /** @var string[] $ids */
+        $ids = $this->definitionRegistry->getRepository($entity)->searchIds(new Criteria(), $context)->getIds();
 
         return array_map(
             function (string $id) {
                 return ['id' => $id];
             },
-            $ids->getIds()
+            $ids
         );
     }
 

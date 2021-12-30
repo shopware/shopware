@@ -68,7 +68,7 @@ class AppLoader extends AbstractAppLoader
             return null;
         }
 
-        $iconPath = sprintf('%s/%s', $app->getPath(), $app->getMetadata()->getIcon() ?: '');
+        $iconPath = sprintf('%s/%s', $app->getPath(), $app->getMetadata()->getIcon());
         $icon = @file_get_contents($iconPath);
 
         if (!$icon) {

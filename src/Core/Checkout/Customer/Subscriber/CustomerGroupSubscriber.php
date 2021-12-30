@@ -102,6 +102,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
         $criteria->addFilter(new EqualsAnyFilter('foreignKey', $ids));
         $criteria->addFilter(new EqualsFilter('routeName', self::ROUTE_NAME));
 
+        /** @var string[] $ids */
         $ids = array_values($this->seoUrlRepository->searchIds($criteria, $event->getContext())->getIds());
 
         if (\count($ids) === 0) {
@@ -134,6 +135,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
                     continue;
                 }
 
+                /** @var string[] $languageIds */
                 $languageIds = $registrationSalesChannel->getLanguages()->getIds();
                 $criteria = new Criteria($languageIds);
                 $languageCollection = $this->languageRepository->search($criteria, $context)->getEntities();
@@ -165,7 +167,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
                 $context->getSource(),
                 $context->getRuleIds(),
                 $context->getCurrencyId(),
-                [$languageId]
+                array_filter([$languageId])
             );
 
             $this->persister->updateSeoUrls(

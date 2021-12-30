@@ -12,7 +12,7 @@ class AccessKeyHelper
     private const PRODUCT_EXPORT_IDENTIFIER = 'SWPE';
 
     /**
-     * @var array
+     * @var array<string,string>
      */
     public static $mapping = [
         self::USER_IDENTIFIER => 'user',

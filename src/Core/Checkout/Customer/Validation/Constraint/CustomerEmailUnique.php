@@ -31,7 +31,7 @@ class CustomerEmailUnique extends Constraint
     public $salesChannelContext;
 
     /**
-     * @var array
+     * @var array<string, string>
      */
     protected static $errorNames = [
         self::CUSTOMER_EMAIL_NOT_UNIQUE => 'CUSTOMER_EMAIL_NOT_UNIQUE',

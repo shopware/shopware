@@ -84,11 +84,12 @@ class ScriptPersister
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', false));
 
-        $scripts = $this->scriptRepository->searchIds($criteria, $context);
+        /** @var string[] $scripts */
+        $scripts = $this->scriptRepository->searchIds($criteria, $context)->getIds();
 
         $updateSet = array_map(function (string $id) {
             return ['id' => $id, 'active' => true];
-        }, $scripts->getIds());
+        }, $scripts);
 
         $this->scriptRepository->update($updateSet, $context);
     }
@@ -99,11 +100,12 @@ class ScriptPersister
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', true));
 
-        $scripts = $this->scriptRepository->searchIds($criteria, $context);
+        /** @var string[] $scripts */
+        $scripts = $this->scriptRepository->searchIds($criteria, $context)->getIds();
 
         $updateSet = array_map(function (string $id) {
             return ['id' => $id, 'active' => false];
-        }, $scripts->getIds());
+        }, $scripts);
 
         $this->scriptRepository->update($updateSet, $context);
     }

@@ -3,6 +3,7 @@ includes:
     - vendor/phpstan/phpstan/conf/bleedingEdge.neon
 
 parameters:
+    phpVersion: 70400
     level: 8
     treatPhpDocTypesAsCertain: false
     checkMissingIterableValueType: false
@@ -19,7 +20,7 @@ parameters:
         container_xml_path: 'var/cache/phpstan_dev/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml'
         console_application_loader: src/Core/DevOps/StaticAnalyze/PHPStan/console-application.php
 
-    excludes_analyse:
+    excludePaths:
         - src/Recovery/*
         - src/Docs/Resources/current/60-references-internals/10-core/50-checkout-process/_examples/10-cart-example.php
         - src/Docs/Resources/deprecated/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php
@@ -66,6 +67,10 @@ parameters:
         - src/Core/Framework/Adapter/Twig/TwigEnvironment.php
 
     ignoreErrors:
+        -
+            message: '#Service ".*" is private#'
+            path: src/**/*Test.php
+
         # PhpStan does not recognize the Faker plugins correctly. They are called via magic methods
         - '#Access to an undefined property Faker\\Generator::\$[^.]+\.#'
         # Method gets always an EntityCollection
@@ -102,10 +107,6 @@ parameters:
         -
             message: '#Strict comparison using#'
             path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiLoader.php
-        # The implementations should always declare their specific return type
-        -
-            message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\FieldSerializer\\FieldSerializerInterface::decode\(\) has no return typehint specified\.#'
-            path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/FieldSerializerInterface.php
         # For handling type errors
         -
             message: '#Dead catch - Error\|Exception is never thrown in the try block\.#'
@@ -117,9 +118,6 @@ parameters:
         -
             message: '#Access to protected property *#'
             path: src/*/*Hydrator.php
-        -
-            message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityDefinition::decode\(\) has no return typehint specified\.#'
-            path: src/Core/Framework/DataAbstractionLayer/EntityDefinition.php
         -
             message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity::\_\_.*\(\) has.*#'
             path: src/Core/Framework/DataAbstractionLayer/Entity.php
@@ -140,21 +138,32 @@ parameters:
             message: '#Parameter \#2 \$success of class Shopware\\Core\\Framework\\Api\\Sync\\SyncResult constructor expects bool, array given\.#'
             path: src/Core/Framework/Api/Sync/SyncService.php
         # Closures with no specific return type
-        -
-            message: '#Method Shopware\\Core\\Checkout\\Cart\\CartBehavior::disableHooks\(\) has no return typehint specified\.#'
-            path: src/Core/Checkout/Cart/CartBehavior.php
         # EventDispatcherInterface::dispatch() should be return object
         -
-            message: '#Method Shopware\\Core\\Content\\Flow\\Dispatching\\FlowDispatcher\:\:dispatch\(\) should return TEvent of object but returns \(Shopware\\Core\\Framework\\Event\\BusinessEvent\&TEvent of object\)\|\(Shopware\\Core\\Framework\\Event\\FlowEvent&Shopware\\Core\\Framework\\Event\\FlowEventAware\&TEvent of object\)\.#'
+            message: "#^Method Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\FlowDispatcher\\:\\:dispatch\\(\\) should return TEvent of object but returns \\(Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEvent&TEvent of object\\)\\|\\(Shopware\\\\Core\\\\Framework\\\\Event\\\\FlowEvent&Shopware\\\\Core\\\\Framework\\\\Event\\\\FlowEventAware&TEvent of object\\)\\.$#"
+            count: 1
             path: src/Core/Content/Flow/Dispatching/FlowDispatcher.php
+        -
+            message: "#^Method Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\FlowDispatcher\\:\\:dispatch\\(\\) should return TEvent of object but returns \\(Psr\\\\EventDispatcher\\\\StoppableEventInterface&Shopware\\\\Core\\\\Framework\\\\Event\\\\FlowEventAware&TEvent of object\\)\\|\\(Shopware\\\\Core\\\\Framework\\\\Event\\\\FlowEventAware&TEvent of object\\)\\.$#"
+            count: 2
+            path: src/Core/Content/Flow/Dispatching/FlowDispatcher.php
+        -
+            message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEventDispatcher\\:\\:dispatch\\(\\) should return TEvent of object but returns \\(Psr\\\\EventDispatcher\\\\StoppableEventInterface&Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEventInterface&TEvent of object\\)\\|\\(Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEventInterface&TEvent of object\\)\\.$#"
+            count: 1
+            path: src/Core/Framework/Event/BusinessEventDispatcher.php
+        -
+            message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEventDispatcher\\:\\:dispatch\\(\\) should return TEvent of object but returns \\(Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEventInterface&TEvent of object\\)\\|TEvent of object\\.$#"
+            count: 1
+            path: src/Core/Framework/Event/BusinessEventDispatcher.php
+        -
+            message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\NestedEventDispatcher\\:\\:dispatch\\(\\) should return TEvent of object but returns \\(Shopware\\\\Core\\\\Framework\\\\Event\\\\NestedEvent&TEvent of object\\)\\|TEvent of object\\.$#"
+            count: 1
+            path: src/Core/Framework/Event/NestedEventDispatcher.php
+        -
+            message: "#^Method Shopware\\\\Core\\\\Framework\\\\Webhook\\\\WebhookDispatcher\\:\\:dispatch\\(\\) should return TEvent of object but returns \\(Shopware\\\\Core\\\\Framework\\\\App\\\\Event\\\\AppChangedEvent&Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEventInterface&TEvent of object\\)\\|\\(Shopware\\\\Core\\\\Framework\\\\App\\\\Event\\\\AppChangedEvent&Shopware\\\\Core\\\\Framework\\\\Event\\\\FlowEventAware&TEvent of object\\)\\|\\(Shopware\\\\Core\\\\Framework\\\\App\\\\Event\\\\AppChangedEvent&TEvent of object\\)\\|\\(Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenContainerEvent&Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEventInterface&TEvent of object\\)\\|\\(Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenContainerEvent&Shopware\\\\Core\\\\Framework\\\\Event\\\\FlowEventAware&TEvent of object\\)\\|\\(Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenContainerEvent&TEvent of object\\)\\|\\(Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEventInterface&TEvent of object\\)\\|\\(Shopware\\\\Core\\\\Framework\\\\Event\\\\FlowEventAware&TEvent of object\\)\\|TEvent of object\\.$#"
+            count: 1
+            path: src/Core/Framework/Webhook/WebhookDispatcher.php
         # can be removed with feature flag FEATURE_NEXT_12455
-        # Ignore these error because the payload property in FlowEntity have 3 specific types
-        -
-            message: '#Method Shopware\\Core\\Content\\Flow\\FlowEntity::getPayload\(\) has no return typehint specified\.#'
-            path: src/Core/Content/Flow/FlowEntity.php
-        -
-            message: '#Method Shopware\\Core\\Content\\Flow\\FlowEntity::setPayload\(\) has parameter \$payload with no typehint specified\.#'
-            path: src/Core/Content/Flow/FlowEntity.php
 
         -
             message: '#Method Shopware\\Core\\Content\\Seo\\SeoUrlRoute\\SeoUrlRouteInterface::prepareCriteria\(\) invoked with 2 parameters, 1 required.#'
@@ -194,15 +203,46 @@ parameters:
 
         # Can be removed with Symfony 6.0 upgrade
         -
-            message: '#Method Shopware\\Storefront\\Framework\\Twig\\TwigAppVariable::getFlashes\(\) has parameter \$types with no typehint specified.#'
+            message: '#Method Shopware\\Storefront\\Framework\\Twig\\TwigAppVariable::getFlashes\(\) has parameter \$types with no type specified.#'
             path: src/Storefront/Framework/Twig/TwigAppVariable.php
 
         -
-            message: '#Parameter \#1 \$min \(int\<0, max\>\) of function random_int expects lower number than parameter \#2 \$max \(int\<0, max\>\)\.#'
-            path: src/Core/Framework/Demodata/Generator/ProductGenerator.php
+            message: "#^Class Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\MailerTransportFactory extends @final class Symfony\\\\Component\\\\Mailer\\\\Transport\\.$#"
+            count: 1
+            path: src/Core/Content/Mail/Service/MailerTransportFactory.php
+
         -
-            message: '#Method Shopware\\Core\\Framework\\Script\\Debugging\\Debug::dump\(\) has parameter \$value with no typehint specified\.#'
-            path: src/Core/Framework/Script/Debugging/Debug.php
+            message: "#^Parameter \\#1 \\$min \\(0\\) of function random_int expects lower number than parameter \\#2 \\$max \\(int\\<\\-3, max\\>\\)\\.$#"
+            count: 1
+            path: src/Core/Framework/Demodata/Generator/ProductGenerator.php
+
+        -
+            message: "#^Parameter \\#1 \\$min \\(int\\<0, 2\\>\\) of function random_int expects lower number than parameter \\#2 \\$max \\(int\\<0, 4\\>\\)\\.$#"
+            count: 1
+            path: src/Core/Framework/Demodata/Generator/ProductGenerator.php
+
+        # Is in the new super class nullable as the extended class
+        -
+            message: "#^PHPDoc type string\\|null of property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\ReferenceVersionField\\:\\:\\$storageName is not covariant with PHPDoc type string of overridden property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\FkField\\:\\:\\$storageName\\.$#"
+            count: 1
+            path: src/Core/Framework/DataAbstractionLayer/Field/ReferenceVersionField.php
+
+        # PhpStan cannot follow the referenced cursor
+        -
+            message: "#^Variable \\$extensions in empty\\(\\) always exists and is always falsy\\.$#"
+            count: 1
+            path: src/Core/Framework/DataAbstractionLayer/VersionManager.php
+
+        # Invalid trait usage
+        -
+            message: "#^Dead catch \\- ReflectionException is never thrown in the try block\\.$#"
+            count: 1
+            path: src/Core/Checkout/Cart/Error/Error.php
+
+        -
+            message: "#^Dead catch \\- ReflectionException is never thrown in the try block\\.$#"
+            count: 1
+            path: src/Core/Content/ProductExport/Error/Error.php
 
 services:
     -

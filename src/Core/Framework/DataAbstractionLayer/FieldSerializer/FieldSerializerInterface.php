@@ -22,6 +22,8 @@ interface FieldSerializerInterface
      *
      * @param string|null $value
      *
+     * @return mixed
+     *
      * @deprecated tag:v6.5.0 The parameter $value will be native typed
      */
     public function decode(Field $field, /*?string */$value);

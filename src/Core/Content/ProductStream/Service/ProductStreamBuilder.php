@@ -55,10 +55,6 @@ class ProductStreamBuilder implements ProductStreamBuilderInterface
             $filters[] = QueryStringParser::fromArray($this->productDefinition, $filter, $exception, '');
         }
 
-        if (empty($filters)) {
-            throw new NoFilterException($id);
-        }
-
         return $filters;
     }
 }

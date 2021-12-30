@@ -41,6 +41,8 @@ class CartBehavior extends Struct
 
     /**
      * @internal
+     *
+     * @return mixed
      */
     public function disableHooks(\Closure $closure)
     {

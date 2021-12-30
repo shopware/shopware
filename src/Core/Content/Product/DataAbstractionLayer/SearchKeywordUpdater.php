@@ -75,7 +75,7 @@ class SearchKeywordUpdater
                 new SystemSource(),
                 [],
                 Defaults::CURRENCY,
-                [$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM],
+                array_filter([$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM]),
                 $context->getVersionId()
             );
 

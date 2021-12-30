@@ -21,7 +21,7 @@ class CustomerPasswordMatches extends Constraint
     protected $context;
 
     /**
-     * @var array
+     * @var array<string, string>
      */
     protected static $errorNames = [
         self::CUSTOMER_PASSWORD_NOT_CORRECT => 'CUSTOMER_PASSWORD_NOT_CORRECT',

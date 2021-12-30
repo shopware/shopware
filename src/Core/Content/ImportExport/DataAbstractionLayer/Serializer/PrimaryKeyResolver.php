@@ -209,6 +209,8 @@ class PrimaryKeyResolver
             $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, $orQueries));
 
             $repository = $this->definitionInstanceRegistry->getRepository($manyToManyDefinition->getEntityName());
+
+            /** @var string[] $ids */
             $ids = $repository->searchIds($criteria, Context::createDefaultContext())->getIds();
 
             $record[$field->getPropertyName()] = implode('|', $ids);

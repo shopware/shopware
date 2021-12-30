@@ -93,6 +93,9 @@ class Context extends Struct
      */
     protected $rounding;
 
+    /**
+     * @param string[] $languageIdChain
+     */
     public function __construct(
         ContextSource $source,
         array $ruleIds = [],

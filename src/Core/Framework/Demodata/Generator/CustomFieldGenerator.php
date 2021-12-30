@@ -164,6 +164,8 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
                 break;
         }
 
+        \assert(\is_string($name));
+
         return [
             'id' => Uuid::randomHex(),
             'name' => mb_strtolower($prefix) . '_' . str_replace(' ', '_', $name),

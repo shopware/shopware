@@ -13,6 +13,7 @@
         :on-change-route="changeCategory"
         :disable-context-menu="disableContextMenu"
         :allow-delete-categories="allowDelete"
+        initially-expanded-root
         @batch-delete="deleteCheckedItems"
         @delete-element="onDeleteCategory"
         @drag-end="onUpdatePositions"
@@ -22,7 +23,8 @@
     >
 
         <template slot="headline">
-            <span></span></template>
+            <span></span>
+        </template>
 
         {% block sw_category_tree_items %}
         <template

@@ -13,7 +13,7 @@ Component.register('sw-tree-item', {
         item: {
             type: Object,
             required: true,
-            default() {
+            default: () => {
                 return {};
             },
         },
@@ -21,112 +21,150 @@ Component.register('sw-tree-item', {
         draggedItem: {
             type: Object,
             required: false,
-            default: null,
+            default: () => {
+                return null;
+            },
         },
 
         newElementId: {
             type: String,
             required: false,
-            default: null,
+            default: () => {
+                return null;
+            },
         },
 
         translationContext: {
             type: String,
-            default: 'sw-tree',
+            default: () => {
+                return 'sw-tree';
+            },
         },
 
         onChangeRoute: {
             type: Function,
-            default: null,
+            default: () => {
+                return null;
+            },
         },
 
         disableContextMenu: {
             type: Boolean,
-            default: false,
+            default: () => {
+                return false;
+            },
         },
 
         contextMenuTooltipText: {
             type: String,
             required: false,
-            default: null,
+            default: () => {
+                return null;
+            },
         },
 
         activeParentIds: {
             type: Array,
             required: false,
-            default: null,
+            default: () => {
+                return null;
+            },
         },
 
         activeItemIds: {
             type: Array,
             required: false,
-            default: null,
+            default: () => {
+                return null;
+            },
         },
 
         sortable: {
             type: Boolean,
             required: false,
-            default: true,
+            default: () => {
+                return true;
+            },
         },
 
         markInactive: {
             type: Boolean,
             required: false,
-            default: false,
+            default: () => {
+                return false;
+            },
         },
 
         shouldFocus: {
             type: Boolean,
             required: false,
-            default: false,
+            default: () => {
+                return false;
+            },
         },
 
         shouldShowActiveState: {
             type: Boolean,
             required: false,
-            default: false,
+            default: () => {
+                return false;
+            },
         },
 
         activeFocusId: {
             type: String,
             required: false,
-            default: '',
+            default: () => {
+                return '';
+            },
         },
 
         displayCheckbox: {
             type: Boolean,
             required: false,
-            default: true,
+            default: () => {
+                return true;
+            },
         },
 
         allowNewCategories: {
             type: Boolean,
             required: false,
-            default: true,
+            default: () => {
+                return true;
+            },
         },
 
         allowDeleteCategories: {
             type: Boolean,
             required: false,
-            default: true,
+            default: () => {
+                return true;
+            },
         },
 
         allowCreateWithoutPosition: {
             type: Boolean,
-            default: false,
             required: false,
+            default: () => {
+                return false;
+            },
         },
 
         allowDuplicate: {
             type: Boolean,
             required: false,
-            default: false,
+            default: () => {
+                return false;
+            },
         },
 
         getItemUrl: {
             type: Function,
             required: false,
-            default: null,
+            default: () => {
+                return null;
+            },
         },
 
         getIsHighlighted: {

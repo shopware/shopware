@@ -649,13 +649,24 @@ class CriteriaParser
 
     private function parseAndMultiFilter(MultiFilter $filter, EntityDefinition $definition, string $root, Context $context): BuilderInterface
     {
+        $grouped = [];
         $bool = new BoolQuery();
 
         foreach ($filter->getQueries() as $nested) {
-            $bool->add(
-                $this->parseFilter($nested, $definition, $root, $context),
-                BoolQuery::MUST
-            );
+            $query = $this->parseFilter($nested, $definition, $root, $context);
+
+            if (!$query instanceof NestedQuery) {
+                $bool->add($query, BoolQuery::MUST);
+
+                continue;
+            }
+
+            if (!\array_key_exists($query->getPath(), $grouped)) {
+                $grouped[$query->getPath()] = new BoolQuery();
+                $bool->add(new NestedQuery($query->getPath(), $grouped[$query->getPath()]));
+            }
+
+            $grouped[$query->getPath()]->add($query->getQuery());
         }
 
         return $bool;

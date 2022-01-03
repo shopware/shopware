@@ -2,6 +2,7 @@
 
 namespace Shopware\Docs\Command\Script;
 
+use League\ConstructFinder\ConstructFinder;
 use phpDocumentor\Reflection\DocBlock\Tags\Generic;
 use phpDocumentor\Reflection\DocBlockFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
@@ -70,25 +71,23 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
     {
         $hookClasses = [];
 
-        $classLoader = require __DIR__ . '/../../../../vendor/autoload.php';
-        foreach ($classLoader->getClassMap() as $namespace => $path) {
-            try {
-                if (str_starts_with($namespace, 'Shopware\\')) {
-                    require_once $path;
-                }
-            } catch (\Throwable $e) {
-                // nth, continue
-            }
-        }
+        $shopwareClasses = ConstructFinder::locatedIn(__DIR__ . '/../../..')
+            ->exclude('*/Test/*', '*/vendor/*')
+            ->findClassNames();
 
-        foreach (get_declared_classes() as $class) {
-            if (is_subclass_of($class, Hook::class) && !(new \ReflectionClass($class))->isAbstract() && !str_contains($class, '\\Test\\')) {
+        foreach ($shopwareClasses as $class) {
+            if (!class_exists($class)) {
+                // skip not autoloadable test classes
+                continue;
+            }
+
+            if (is_subclass_of($class, Hook::class) && !(new \ReflectionClass($class))->isAbstract()) {
                 $hookClasses[] = $class;
             }
         }
 
         if (\count($hookClasses) === 0) {
-            throw new \RuntimeException('No HookClasses found, please ensure the composer autoloader is optimized by running `composer:install -o`.');
+            throw new \RuntimeException('No HookClasses found.');
         }
 
         sort($hookClasses);

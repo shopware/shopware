@@ -1,7 +1,7 @@
 import template from './sw-tabs.html.twig';
 import './sw-tabs.scss';
 
-const { Component } = Shopware;
+const { Component, Feature } = Shopware;
 const util = Shopware.Utils;
 const dom = Shopware.Utils.dom;
 
@@ -26,7 +26,19 @@ const dom = Shopware.Utils.dom;
 Component.register('sw-tabs', {
     template,
 
+    extensionApiDevtoolInformation: {
+        property: 'ui.tabs',
+        positionId: (currentComponent) => currentComponent.positionIdentifier,
+    },
+
     props: {
+        positionIdentifier: {
+            type: String,
+            // eslint-disable-next-line no-unneeded-ternary
+            required: Feature.isActive('FEATURE_NEXT_18129') ? true : false,
+            default: null,
+        },
+
         isVertical: {
             type: Boolean,
             required: false,
@@ -61,6 +73,7 @@ Component.register('sw-tabs', {
             scrollRightPossible: true,
             firstScroll: false,
             scrollbarOffset: '',
+            hasRoutes: false,
         };
     },
 
@@ -131,6 +144,10 @@ Component.register('sw-tabs', {
                 'padding-bottom': `${this.scrollbarOffset}px`,
             };
         },
+
+        tabExtensions() {
+            return Shopware.State.get('tabs').tabItems[this.positionIdentifier] ?? [];
+        },
     },
 
     watch: {
@@ -152,6 +169,10 @@ Component.register('sw-tabs', {
     },
 
     methods: {
+        createdComponent() {
+            this.updateActiveItem();
+        },
+
         mountedComponent() {
             const tabContent = this.$refs.swTabContent;
 
@@ -175,6 +196,11 @@ Component.register('sw-tabs', {
                 component: this,
             });
             this.recalculateSlider();
+
+            // check if tab bar contains items with url routes
+            if (this.$scopedSlots.default()?.[0]?.componentOptions?.propsData?.route) {
+                this.hasRoutes = true;
+            }
         },
 
         recalculateSlider() {
@@ -183,10 +209,6 @@ Component.register('sw-tabs', {
                 this.activeItem = null;
                 this.activeItem = activeItem;
             }, 0);
-        },
-
-        createdComponent() {
-            this.updateActiveItem();
         },
 
         updateActiveItem() {

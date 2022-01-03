@@ -11,6 +11,7 @@ import extensionEntryRoutes from './extension-entry-routes';
 import marketing from './marketing.store';
 import extensionComponentSections from './extension-component-sections.store';
 import extensions from './extensions.store';
+import tabs from './tabs.store';
 
 export default {
     notification,
@@ -26,4 +27,5 @@ export default {
     marketing,
     extensionComponentSections,
     extensions,
+    tabs,
 };

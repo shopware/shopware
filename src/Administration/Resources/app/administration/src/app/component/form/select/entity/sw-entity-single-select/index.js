@@ -254,10 +254,12 @@ Component.register('sw-entity-single-select', {
                     if (!this.entityExists) {
                         const newEntity = this.repository.create(this.context, -1);
                         newEntity.name = this.$tc('global.sw-single-select.labelEntityAdd',
-                            0, {
+                            0,
+                            {
                                 term: this.searchTerm,
                                 entity: this.entityCreationLabel,
                             });
+
                         this.newEntityName = this.searchTerm;
                         this.displaySearch([newEntity]);
                         this.isLoading = false;
@@ -265,7 +267,10 @@ Component.register('sw-entity-single-select', {
                         return null;
                     }
 
-                    return this.repository.search(this.criteria, { ...this.context, inheritance: true }).then((result) => {
+                    return this.repository.search(this.criteria, {
+                        ...this.context,
+                        inheritance: true,
+                    }).then((result) => {
                         this.displaySearch(result);
 
                         this.isLoading = false;
@@ -483,7 +488,6 @@ Component.register('sw-entity-single-select', {
             const entity = this.repository.create(this.context);
             entity.name = this.newEntityName;
 
-
             this.repository.save(entity, this.context).then(() => {
                 this.lastSelection = entity;
                 this.$emit('change', entity.id, entity);
@@ -492,7 +496,8 @@ Component.register('sw-entity-single-select', {
                 this.createNotificationSuccess({
                     message: this.$tc(
                         'global.sw-single-select.labelEntityAddedSuccess',
-                        0, {
+                        0,
+                        {
                             term: entity.name,
                             entity: this.entityCreationLabel,
                         },

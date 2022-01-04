@@ -5,8 +5,8 @@ describe('Admin & Storefront: private customer registration by using product cre
         cy.loginViaApi();
     });
 
-    it('@package: add initial settings', ()=>{
-
+    // NEXT-19404: flaky
+    it.skip('@package: add initial settings', () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {

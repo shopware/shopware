@@ -98,8 +98,8 @@ PHP coverage:
             cobertura: cobertura.xml
     parallel:
         matrix:
-            - TESTSUITE: ["framework", "checkout", "storefront,administration,system,elasticsearch,profiling,maintenance,docs", "migration"]
-            - TESTSUITE: "content"
+            - TESTSUITE: ["framework", "storefront,administration,system,elasticsearch,profiling,maintenance,docs", "migration"]
+            - TESTSUITE: ["content", "checkout"]
               RUNNER_INSTANCE_TYPE: m5.large
 
 PHP Full:

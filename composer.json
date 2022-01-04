@@ -233,6 +233,7 @@
             "@php bin/console assets:install"
         ],
         "build:js:storefront": [
+            "@php bin/console feature:dump",
             "@npm:storefront run production",
             "cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js"
         ],

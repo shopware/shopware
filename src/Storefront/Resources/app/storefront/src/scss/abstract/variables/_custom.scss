@@ -26,6 +26,7 @@ $spacer-md: $spacer !default;
 $spacer-lg: ( $spacer * 1.5 ) !default;
 $spacer-xl: ( $spacer * 3 ) !default;
 $sw-asset-theme-url: '' !default;
+$sw-features: () !default;
 
 /// @deprecated tag:v6.5.0 Use `app-css-relative-asset-path` instead
 $asset-path: '#{$sw-asset-theme-url}/bundles/storefront/assets' !default;

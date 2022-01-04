@@ -4,6 +4,7 @@ const path = require('path');
 const webpack = require('webpack');
 const fs = require('fs');
 const chokidar = require('chokidar');
+const chalk = require('chalk');
 const TerserPlugin = require('terser-webpack-plugin');
 const WebpackBar = require('webpackbar');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
@@ -18,10 +19,18 @@ const projectRootPath = process.env.PROJECT_ROOT
     : path.resolve('../../../../..');
 
 let themeFiles;
+let features;
 
 if (isHotMode) {
     const themeFilesConfigPath = path.resolve(projectRootPath, 'var/theme-files.json');
     themeFiles = require(themeFilesConfigPath);
+}
+const featureConfigPath = path.resolve(projectRootPath, 'var/config_js_features.json');
+
+if (fs.existsSync(featureConfigPath)) {
+    features = require(featureConfigPath);
+} else {
+    console.error(chalk.red('\n \u{26A0}️  The feature dump file "config_js_features.json" cannot be found. All features will be deactivated. Please execute bin/console feature:dump.  \u{26A0}️\n'));
 }
 
 let hostName;
@@ -343,9 +352,30 @@ let webpackConfig = {
 
 if (isHotMode) {
     /**
-     * Adds all entry points from the theme-variables.json "style" array as imports to one string.
+     * Converts the feature config JSON to a SCSS map syntax.
+     * This allows reading of the feature flag config inside SCSS via `map.get` function.
      *
-    */
+     * Output example:
+     * $sw-features: ("FEATURE_NEXT_1234": false, "FEATURE_NEXT_1235": true);
+     *
+     * @see https://sass-lang.com/documentation/values/maps
+     */
+    const scssFeatureConfig = (() => {
+        // Return an empty SCSS map when feature dump cannot be found. All feature checks will be false.
+        if (!features) {
+            return '$sw-features: ();'
+        }
+
+        const featuresScss = Object.entries(features).map(([key, val]) => {
+            return `'${key}': ${val}`;
+        }).join(',');
+
+        return `$sw-features: (${featuresScss});`;
+    })();
+
+    /**
+     * Adds all entry points from the theme-variables.json "style" array as imports to one string.
+     */
     const scssEntryFilePath = path.resolve(projectRootPath, 'var/theme-entry.scss');
     const scssDumpedVariables = path.resolve(projectRootPath, 'var/theme-variables.scss');
     const scssEntryFileContent = (() => {
@@ -357,13 +387,12 @@ if (isHotMode) {
             return `@import "${value.filepath}";\n`;
         })];
 
-        return fileComment + collectedImports.join('');
+        return fileComment + scssFeatureConfig + collectedImports.join('');
     })();
 
     /**
      * Auto generates file under given path.
-     * The generated file is is used by webpack.hot.config.js as a single entry point.
-     *
+     * The generated file is used by webpack.hot.config.js as a single entry point.
      */
     try {
         fs.writeFileSync(scssEntryFilePath, scssEntryFileContent, 'utf8');

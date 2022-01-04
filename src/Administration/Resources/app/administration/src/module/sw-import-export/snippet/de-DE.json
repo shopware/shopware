@@ -100,6 +100,12 @@
                 "succeeded": "Erfolgreich",
                 "failed": "Fehlgeschlagen",
                 "aborted": "Abgebrochen"
+            },
+            "emptyState": {
+              "titleExport": "Keine Exporte",
+              "titleImport": "Keine Importe",
+              "subLineExport": "Bisher keine Export-Aktivitäten",
+              "subLineImport": "Bisher keine Import-Aktivitäten"
             }
         },
         "profile": {

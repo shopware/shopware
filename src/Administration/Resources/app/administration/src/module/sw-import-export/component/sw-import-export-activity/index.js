@@ -163,6 +163,33 @@ Shopware.Component.register('sw-import-export-activity', {
                 this.$tc('sw-import-export.activity.contextMenu.downloadExportFile') :
                 this.$tc('sw-import-export.activity.contextMenu.downloadImportFile');
         },
+
+        // show when not loading and logs are there
+        showGrid() {
+            return !this.isLoading && !!this.logs?.length > 0;
+        },
+
+        // show when not loading and logs aren't there
+        showEmptyState() {
+            return !this.isLoading && !!this.logs?.length <= 0;
+        },
+
+        // show when loading
+        showSpinner() {
+            return this.isLoading;
+        },
+
+        emptyStateSubLine() {
+            return this.type === 'export' ?
+                this.$tc('sw-import-export.activity.emptyState.subLineExport') :
+                this.$tc('sw-import-export.activity.emptyState.subLineImport');
+        },
+
+        emptyStateTitle() {
+            return this.type === 'export' ?
+                this.$tc('sw-import-export.activity.emptyState.titleExport') :
+                this.$tc('sw-import-export.activity.emptyState.titleImport');
+        },
     },
 
     watch: {

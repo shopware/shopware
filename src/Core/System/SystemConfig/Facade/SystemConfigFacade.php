@@ -43,7 +43,7 @@ class SystemConfigFacade
      *
      * @return array|bool|float|int|string|null
      *
-     * @example ../../Test/SystemConfig/Facade/_fixtures/apps/systemConfigExample/Resources/scripts/test-config/script.twig 4 1 Read an arbitrary system_config value.
+     * @example test-config/script.twig 4 1 Read an arbitrary system_config value.
      */
     public function get(string $key, ?string $salesChannelId = null)
     {
@@ -71,7 +71,7 @@ class SystemConfigFacade
      *
      * @return array|bool|float|int|string|null
      *
-     * @example ../../Test/SystemConfig/Facade/_fixtures/apps/systemConfigExample/Resources/scripts/test-config/script.twig 5 1 Read your app's config value.
+     * @example test-config/script.twig 5 1 Read your app's config value.
      */
     public function app(string $key, ?string $salesChannelId = null)
     {

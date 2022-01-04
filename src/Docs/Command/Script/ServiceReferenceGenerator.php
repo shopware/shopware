@@ -11,6 +11,8 @@ use phpDocumentor\Reflection\DocBlock\Tags\Return_;
 use phpDocumentor\Reflection\DocBlockFactory;
 use Shopware\Core\Framework\Script\ServiceStubs;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 
@@ -308,34 +310,58 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
     {
         $examples = [];
 
+        $start = microtime(true);
         /** @var Example $example */
         foreach ($docBlock->getTagsByName('example') as $example) {
-            /** @var string $classFile */
-            $classFile = $method->getFileName();
-            $filename = \dirname($classFile) . '/' . ltrim($example->getFilePath(), '/');
+            $finder = new Finder();
+            $finder->files()
+                ->in(__DIR__ . '/../../../')
+                // exclude js files including node_modules for performance reasons, filtering with `notPath`, etc. has no performance impact
+                // note that excluded paths need to be relative to platform/src and that no wildcards are supported
+                ->exclude([
+                    'Administration/Resources/app',
+                    'Storefront/Resources/app',
+                ])
+                ->path($example->getFilePath())
+                ->ignoreUnreadableDirs();
 
-            if (!file_exists($filename) || !is_file($filename)) {
+            $files = iterator_to_array($finder);
+
+            if (\count($files) === 0) {
                 throw new \RuntimeException(sprintf(
-                    'Undefined filename configured in `@example` annotation for method "%s()" in class "%s". File "%s" can not be found',
+                    'Cannot find configured example file in `@example` annotation for method "%s()" in class "%s". File with pattern "%s" can not be found.',
                     $method->getName(),
                     $method->getDeclaringClass()->getName(),
                     $example->getFilePath()
                 ));
             }
 
+            if (\count($files) > 1) {
+                throw new \RuntimeException(sprintf(
+                    'Configured file pattern in `@example` annotation for method "%s()" in class "%s" is not unique. File pattern "%s" matched "%s".',
+                    $method->getName(),
+                    $method->getDeclaringClass()->getName(),
+                    $example->getFilePath(),
+                    implode('", "', array_keys($files))
+                ));
+            }
+
+            /** @var SplFileInfo $file */
+            $file = array_values($files)[0];
+
             $examples[] = [
                 'description' => $example->getDescription(),
-                'src' => $this->getExampleSource($filename, $example),
-                'extension' => pathinfo($filename, \PATHINFO_EXTENSION),
+                'src' => $this->getExampleSource($file, $example),
+                'extension' => $file->getExtension(),
             ];
         }
 
         return $examples;
     }
 
-    private function getExampleSource(string $filename, Example $example): string
+    private function getExampleSource(SplFileInfo $file, Example $example): string
     {
-        $file = new \SplFileObject($filename);
+        $file = new \SplFileObject($file->getPathname());
 
         // SplFileObject expects zero-based line-numbers
         $startingLine = $example->getStartingLine() - 1;

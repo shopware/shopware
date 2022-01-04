@@ -48,9 +48,9 @@ class RepositoryFacade
      *
      * @return EntitySearchResult A `EntitySearchResult` including all entities that matched your criteria.
      *
-     * @example ../../Test/DataAbstractionLayer/Facade/_fixtures/apps/pageLoadedExample/Resources/scripts/repository-search-by-id/script.twig Load a single product.
-     * @example ../../Test/DataAbstractionLayer/Facade/_fixtures/apps/pageLoadedExample/Resources/scripts/repository-filter/script.twig Filter the search result.
-     * @example ../../Test/DataAbstractionLayer/Facade/_fixtures/apps/pageLoadedExample/Resources/scripts/repository-association/script.twig Add associations that should be included in the result.
+     * @example repository-search-by-id/script.twig Load a single product.
+     * @example repository-filter/script.twig Filter the search result.
+     * @example repository-association/script.twig Add associations that should be included in the result.
      */
     public function search(string $entityName, array $criteria): EntitySearchResult
     {
@@ -69,7 +69,7 @@ class RepositoryFacade
      *
      * @return IdSearchResult A `IdSearchResult` including all entity-ids that matched your criteria.
      *
-     * @example ../../Test/DataAbstractionLayer/Facade/_fixtures/apps/pageLoadedExample/Resources/scripts/repository-search-ids/script.twig Get the Ids of products with the given ProductNumber.
+     * @example repository-search-ids/script.twig Get the Ids of products with the given ProductNumber.
      */
     public function ids(string $entityName, array $criteria): IdSearchResult
     {
@@ -88,7 +88,7 @@ class RepositoryFacade
      *
      * @return AggregationResultCollection A `AggregationResultCollection` including the results of the aggregations you specified in the criteria.
      *
-     * @example ../../Test/DataAbstractionLayer/Facade/_fixtures/apps/pageLoadedExample/Resources/scripts/repository-aggregate/script.twig Aggregate data for multiple entities, e.g. the sum of the gross price of all products.
+     * @example repository-aggregate/script.twig Aggregate data for multiple entities, e.g. the sum of the gross price of all products.
      */
     public function aggregate(string $entityName, array $criteria): AggregationResultCollection
     {

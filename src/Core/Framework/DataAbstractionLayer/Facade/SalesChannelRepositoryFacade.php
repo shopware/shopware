@@ -46,9 +46,9 @@ class SalesChannelRepositoryFacade
      *
      * @return EntitySearchResult A `EntitySearchResult` including all entities that matched your criteria.
      *
-     * @example ../../Test/DataAbstractionLayer/Facade/_fixtures/apps/pageLoadedExample/Resources/scripts/store-search-by-id/script.twig Load a single storefront product.
-     * @example ../../Test/DataAbstractionLayer/Facade/_fixtures/apps/pageLoadedExample/Resources/scripts/store-filter/script.twig Filter the search result.
-     * @example ../../Test/DataAbstractionLayer/Facade/_fixtures/apps/pageLoadedExample/Resources/scripts/store-association/script.twig Add associations that should be included in the result.
+     * @example store-search-by-id/script.twig Load a single storefront product.
+     * @example store-filter/script.twig Filter the search result.
+     * @example store-association/script.twig Add associations that should be included in the result.
      */
     public function search(string $entityName, array $criteria): EntitySearchResult
     {
@@ -67,7 +67,7 @@ class SalesChannelRepositoryFacade
      *
      * @return IdSearchResult A `IdSearchResult` including all entity-ids that matched your criteria.
      *
-     * @example ../../Test/DataAbstractionLayer/Facade/_fixtures/apps/pageLoadedExample/Resources/scripts/store-search-ids/script.twig Get the Ids of products with the given ProductNumber.
+     * @example store-search-ids/script.twig Get the Ids of products with the given ProductNumber.
      */
     public function ids(string $entityName, array $criteria): IdSearchResult
     {
@@ -86,7 +86,7 @@ class SalesChannelRepositoryFacade
      *
      * @return AggregationResultCollection A `AggregationResultCollection` including the results of the aggregations you specified in the criteria.
      *
-     * @example ../../Test/DataAbstractionLayer/Facade/_fixtures/apps/pageLoadedExample/Resources/scripts/store-aggregate/script.twig Aggregate data for multiple entities, e.g. the sum of the children of all products.
+     * @example store-aggregate/script.twig Aggregate data for multiple entities, e.g. the sum of the children of all products.
      */
     public function aggregate(string $entityName, array $criteria): AggregationResultCollection
     {

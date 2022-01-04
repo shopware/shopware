@@ -13,7 +13,8 @@ describe('Promotion v2: Test crud operations', () => {
             });
     });
 
-    it('@base @marketing: generate and save a fixed promotion code', () => {
+    // NEXT-19453
+    it.skip('@base @marketing: generate and save a fixed promotion code', () => {
         const testPromoCode = 'WelcomeIAmAPromotionCode';
 
         // Select fixed code type and edit manually
@@ -35,7 +36,8 @@ describe('Promotion v2: Test crud operations', () => {
         });
     });
 
-    it("@base @marketing: show empty state, if there're no individual codes", () => {
+    // NEXT-19453
+    it.skip("@base @marketing: show empty state, if there're no individual codes", () => {
         cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').should('not.be.visible');
         cy.get('#sw-field--selectedCodeType').select('Individual promotion codes');
         cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').should('be.visible');
@@ -47,7 +49,8 @@ describe('Promotion v2: Test crud operations', () => {
         cy.get('.sw-promotion-v2-generate-codes-modal').should('be.visible');
     });
 
-    it.only('@base @marketing: generate and save individual promotion codes and replace afterwards with a custom pattern', () => {
+    // NEXT-19453
+    it.skip('@base @marketing: generate and save individual promotion codes and replace afterwards with a custom pattern', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/promotion/codes/preview?codePattern=pre_%25s%25s%25s%25s%25s_post`,
             method: 'GET'

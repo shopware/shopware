@@ -12,6 +12,7 @@ Component.register('sw-entity-single-select', {
 
     mixins: [
         Mixin.getByName('remove-api-error'),
+        Mixin.getByName('notification'),
     ],
 
     model: {
@@ -99,6 +100,18 @@ Component.register('sw-entity-single-select', {
                 return ['bottom', 'right'].includes(value);
             },
         },
+        allowEntityCreation: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        entityCreationLabel: {
+            type: String,
+            required: false,
+            default() {
+                return this.$tc('global.sw-single-select.labelEntity');
+            },
+        },
     },
 
     data() {
@@ -111,6 +124,8 @@ Component.register('sw-entity-single-select', {
             // used to track if an item was selected before closing the result list
             itemRecentlySelected: false,
             lastSelection: null,
+            entityExists: true,
+            newEntityName: '',
         };
     },
 
@@ -234,12 +249,65 @@ Component.register('sw-entity-single-select', {
         loadData() {
             this.isLoading = true;
 
+            if (this.allowEntityCreation && this.feature.isActive('FEATURE_NEXT_17546')) {
+                return this.checkEntityExists(this.searchTerm).then(() => {
+                    if (!this.entityExists) {
+                        const newEntity = this.repository.create(this.context, -1);
+                        newEntity.name = this.$tc('global.sw-single-select.labelEntityAdd',
+                            0,
+                            {
+                                term: this.searchTerm,
+                                entity: this.entityCreationLabel,
+                            });
+
+                        this.newEntityName = this.searchTerm;
+                        this.displaySearch([newEntity]);
+                        this.isLoading = false;
+
+                        return null;
+                    }
+
+                    return this.repository.search(this.criteria, {
+                        ...this.context,
+                        inheritance: true,
+                    }).then((result) => {
+                        this.displaySearch(result);
+
+                        this.isLoading = false;
+
+                        return result;
+                    });
+                });
+            }
+
             return this.repository.search(this.criteria, { ...this.context, inheritance: true }).then((result) => {
                 this.displaySearch(result);
 
                 this.isLoading = false;
 
                 return result;
+            });
+        },
+
+        checkEntityExists(term) {
+            // Set existing entity to true to display all manufacturers when no search term is given
+            if (term.trim().length === 0) {
+                this.entityExists = true;
+                return Promise.resolve();
+            }
+
+            const criteria = new Criteria();
+            criteria.addIncludes({
+                [this.entity]: ['id', 'name'],
+            });
+            criteria.addFilter(
+                Criteria.equals('name', term),
+            );
+
+            return this.repository.search(criteria, this.context).then((response) => {
+                this.entityExists = response.total > 0;
+
+                return response.total > 0;
             });
         },
 
@@ -326,7 +394,6 @@ Component.register('sw-entity-single-select', {
             this.isExpanded = false;
         },
 
-
         closeResultList() {
             this.$refs.selectBase.collapse();
         },
@@ -338,12 +405,32 @@ Component.register('sw-entity-single-select', {
                 this.closeResultList();
             }
 
+            // Add new entity if not exists yet
+            if (this.allowEntityCreation && !this.entityExists && this.feature.isActive('FEATURE_NEXT_17546')) {
+                this.addItem(item);
+                return item;
+            }
+
             // This is a little against v-model. But so we dont need to load the selected item on every selection
             // from the server
             this.lastSelection = item;
             this.$emit('change', item.id, item);
 
             this.$emit('option-select', Utils.string.camelCase(this.entity), item);
+            return null;
+        },
+
+        addItem(item) {
+            if (!this.allowEntityCreation) {
+                return null;
+            }
+
+            if (item.id === -1) {
+                this.createNewEntity();
+            } else {
+                this.$super('addItem', item);
+            }
+            return null;
         },
 
         clearSelection() {
@@ -395,6 +482,34 @@ Component.register('sw-entity-single-select', {
                 ...this.disabledSelectionTooltip,
                 disabled: this.disabledSelectionTooltip.disabled || !this.selectionDisablingMethod(selection),
             };
+        },
+
+        createNewEntity() {
+            const entity = this.repository.create(this.context);
+            entity.name = this.newEntityName;
+
+            this.repository.save(entity, this.context).then(() => {
+                this.lastSelection = entity;
+                this.$emit('change', entity.id, entity);
+
+                this.$emit('option-select', Utils.string.camelCase(this.entity), entity);
+                this.createNotificationSuccess({
+                    message: this.$tc(
+                        'global.sw-single-select.labelEntityAddedSuccess',
+                        0,
+                        {
+                            term: entity.name,
+                            entity: this.entityCreationLabel,
+                        },
+                    ),
+                });
+            }).catch(() => {
+                this.createNotificationError({
+                    message: this.$tc('global.notification.notificationSaveErrorMessage', 0, { entityName: this.entity }),
+                });
+                Shopware.Utils.debug.error('Only Entities with "name" as the only required field are creatable.');
+                this.isLoading = false;
+            });
         },
     },
 });

@@ -8,10 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension as DalExtension;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
@@ -34,9 +30,7 @@ use Shopware\Core\Framework\Migration\MigrationCompilerPass;
 use Shopware\Core\Framework\Test\DependencyInjection\CompilerPass\ContainerVisibilityCompilerPass;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
 use Shopware\Core\Kernel;
-use Shopware\Core\System\CustomEntity\DynamicEntityDefinition;
-use Shopware\Core\System\CustomEntity\DynamicMappingEntityDefinition;
-use Shopware\Core\System\CustomEntity\DynamicTranslationEntityDefinition;
+use Shopware\Core\System\CustomEntity\Schema\DynamicEntityDefinition;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
@@ -148,12 +142,6 @@ class Framework extends Bundle
             $this->container->get(SalesChannelDefinitionInstanceRegistry::class),
             $this->container->get(ExtensionRegistry::class)
         );
-
-        $this->registerCustomEntities(
-            $this->container,
-            $this->container->get(Connection::class),
-            $this->container->get(DefinitionInstanceRegistry::class),
-        );
     }
 
     protected function getCoreMigrationPaths(): array
@@ -215,48 +203,4 @@ class Framework extends Bundle
         }
     }
 
-    private function registerCustomEntities(ContainerInterface $container, Connection $connection, DefinitionInstanceRegistry $registry): void
-    {
-        if (!$connection->getSchemaManager()->tablesExist('custom_entity')) {
-            return;
-        }
-
-        $entities = $connection->fetchAllAssociative('SELECT name, fields FROM custom_entity');
-
-        $definitions = [];
-        foreach ($entities as $entity) {
-            $fields = json_decode($entity['fields'], true, 512, \JSON_THROW_ON_ERROR);
-
-            $definition = DynamicEntityDefinition::create($entity['name'], $fields, $container);
-
-            $definitions[] = $definition;
-
-            $this->container->set($definition->getEntityName(), $definition);
-            $this->container->set($definition->getEntityName() . '.repository', $this->createRepository($definition));
-            $registry->register($definition, $definition->getEntityName());
-        }
-
-        foreach ($definitions as $definition) {
-            // triggers field generation to generate reverse foreign keys, translation definitions and mapping definitions
-            $definition->getFields();
-        }
-    }
-
-    private function createRepository(DynamicEntityDefinition $definition): EntityRepository
-    {
-        return new EntityRepository(
-            $definition,
-            $this->container->get(EntityReaderInterface::class),
-            $this->container->get(VersionManager::class),
-            $this->container->get(EntitySearcherInterface::class),
-            $this->container->get(EntityAggregatorInterface::class),
-            $this->container->get('event_dispatcher'),
-            $this->container->get(EntityLoadedEventFactory::class)
-        );
-    }
-
-    private static function kebabCaseToCamelCase(string $string): string
-    {
-        return (new CamelCaseToSnakeCaseNameConverter())->denormalize(str_replace('-', '_', $string));
-    }
 }

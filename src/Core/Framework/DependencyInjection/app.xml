@@ -196,8 +196,8 @@
             <argument type="service" id="Shopware\Core\Framework\Plugin\Util\AssetService"/>
             <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
             <argument type="string">%kernel.project_dir%</argument>
-            <argument type="service" id="Shopware\Core\System\CustomEntity\CustomEntityPersister"/>
-            <argument type="service" id="Shopware\Core\System\CustomEntity\CustomEntitySchemaUpdater"/>
+            <argument type="service" id="Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister"/>
+            <argument type="service" id="Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator">

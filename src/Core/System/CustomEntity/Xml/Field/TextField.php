@@ -1,0 +1,26 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\System\CustomEntity\Xml\Field;
+
+use Shopware\Core\System\CustomEntity\Xml\Field\Traits\RequiredTrait;
+use Shopware\Core\System\CustomEntity\Xml\Field\Traits\TranslatableTrait;
+
+class TextField extends Field
+{
+    use TranslatableTrait;
+    use RequiredTrait;
+
+    protected bool $allowHtml;
+
+    protected string $type = 'text';
+
+    public static function fromXml(\DOMElement $element): Field
+    {
+        return new self(self::parse($element));
+    }
+
+    public function allowHtml(): bool
+    {
+        return $this->allowHtml;
+    }
+}

@@ -5,7 +5,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="Shopware\Core\System\CustomEntity\CustomEntityPersister">
+        <service id="Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
@@ -13,7 +13,7 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\System\CustomEntity\CustomEntitySchemaUpdater" public="true">
+        <service id="Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
     </services>

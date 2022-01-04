@@ -140,6 +140,15 @@ class ArrayEntity extends Entity implements \ArrayAccess
         return $this->data;
     }
 
+    public function getVars(): array
+    {
+        $vars = parent::getVars();
+
+        unset($vars['data']);
+
+        return array_merge($vars, $this->data);
+    }
+
     /**
      * @deprecated tag:v6.5.0 - return type will be changed to mixed
      */

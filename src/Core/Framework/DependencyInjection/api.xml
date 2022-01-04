@@ -50,7 +50,7 @@
             </call>
         </service>
 
-        <service id="Shopware\Core\Framework\Api\Controller\CustomEntityApiController" public="true">
+        <service id="Shopware\Core\System\CustomEntity\Api\CustomEntityApiController" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
@@ -61,6 +61,10 @@
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+        </service>
+
+        <service id="Shopware\Core\System\CustomEntity\Api\CustomEntityRouteLoader">
+            <tag name="routing.loader"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher">

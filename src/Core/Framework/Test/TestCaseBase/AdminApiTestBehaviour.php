@@ -132,9 +132,9 @@ trait AdminApiTestBehaviour
     {
         $username = Uuid::randomHex();
         $password = Uuid::randomHex();
+        $userId = Uuid::randomBytes();
 
         $connection = $browser->getContainer()->get(Connection::class);
-        $userId = Uuid::randomBytes();
 
         $user = [
             'id' => $userId,
@@ -167,9 +167,8 @@ trait AdminApiTestBehaviour
         } else {
             $user['admin'] = 1;
             $user['email'] = 'admin@example.com';
-            if ($connection->fetchColumn('SELECT email FROM user WHERE email = "admin@example.com"', [], 0) !== 'admin@example.com') {
-                $connection->insert('user', $user);
-            }
+            $connection->executeStatement('DELETE FROM user WHERE email = :mail', ['mail' => 'admin@example.com']);
+            $connection->insert('user', $user);
         }
 
         $this->apiUsernames[] = $username;

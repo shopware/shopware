@@ -1,5 +1,6 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount, enableAutoDestroy } from '@vue/test-utils';
 import 'src/module/sw-product/component/sw-product-variant-modal';
+import flushPromises from 'flush-promises';
 
 function getOptions() {
     return [
@@ -13,7 +14,8 @@ function getOptions() {
                     name: 'color'
                 }
             },
-            position: 1
+            position: 1,
+            id: 'option_b'
         },
         {
             name: 'c',
@@ -25,7 +27,8 @@ function getOptions() {
                     name: 'size'
                 }
             },
-            position: 5
+            position: 5,
+            id: 'option_c'
         },
         {
             name: 'a',
@@ -37,7 +40,71 @@ function getOptions() {
                     name: 'material'
                 }
             },
-            position: 1
+            position: 1,
+            id: 'option_a'
+        }
+    ];
+}
+
+function getGroups() {
+    return [
+        {
+            id: 'group1',
+            name: 'color',
+            displayType: 'text',
+            sortingType: 'alphanumeric',
+            options: [{
+                name: 'b',
+                translated: {
+                    name: 'b'
+                },
+                position: 1,
+                id: 'option_b'
+            },
+            {
+                name: 'b1',
+                translated: {
+                    name: 'b1'
+                },
+                position: 2,
+                id: 'option_b1'
+            }],
+        },
+        {
+            id: 'group2',
+            name: 'size',
+            displayType: 'text',
+            sortingType: 'alphanumeric',
+            options: [{
+                name: 'c',
+                translated: {
+                    name: 'c'
+                },
+                position: 5,
+                id: 'option_c'
+            },
+            {
+                name: 'c1',
+                translated: {
+                    name: 'c1'
+                },
+                position: 1,
+                id: 'option_c1'
+            }],
+        },
+        {
+            id: 'group3',
+            name: 'material',
+            displayType: 'text',
+            sortingType: 'alphanumeric',
+            options: [{
+                name: 'a',
+                translated: {
+                    name: 'a'
+                },
+                position: 1,
+                id: 'option_a'
+            }],
         }
     ];
 }
@@ -84,15 +151,54 @@ function createWrapper() {
                 translated: {
                     name: 'name'
                 },
-                id: '72bfaf5d90214ce592715a9649d8760a'
-            }
+                id: '72bfaf5d90214ce592715a9649d8760a',
+                configuratorSettings: [
+                    {
+                        productId: '72bfaf5d90214ce592715a9649d8760a',
+                        id: '1',
+                        option: {
+                            groupId: 'group1',
+                            name: 'b',
+                            id: 'option_b'
+                        },
+                    },
+                    {
+                        productId: '72bfaf5d90214ce592715a9649d8760a',
+                        id: '2',
+                        option: {
+                            groupId: 'group2',
+                            name: 'a',
+                            id: 'option_a'
+                        },
+                    },
+                    {
+                        productId: '72bfaf5d90214ce592715a9649d8760a',
+                        id: '3',
+                        option: {
+                            groupId: 'group3',
+                            name: 'c',
+                            id: 'option_c'
+                        },
+                    }
+                ]
+            },
         },
         provide: {
             repositoryFactory: {
-                create: () => {
+                create: (entity) => {
                     return {
                         get: () => Promise.resolve(),
-                        search: () => Promise.resolve(getVariants())
+                        search: () => {
+                            if (entity === 'product') {
+                                return Promise.resolve(getVariants());
+                            }
+
+                            if (entity === 'property_group') {
+                                return Promise.resolve(getGroups());
+                            }
+
+                            return Promise.resolve([]);
+                        }
                     };
                 }
             },
@@ -104,14 +210,70 @@ function createWrapper() {
             }
         },
         stubs: {
-            'sw-modal': true,
+            'sw-modal': {
+                template: `
+                    <div class="sw-modal">
+                      <slot name="modal-header"></slot>
+                      <slot></slot>
+                      <slot name="modal-footer"></slot>
+                    </div>
+                `
+            },
             'sw-label': true,
             'sw-simple-search-field': true,
             'sw-empty-state': true,
-            'sw-button': true
+            'sw-button': {
+                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
+            },
+            'sw-container': {
+                template: '<div><slot></slot></div>'
+            },
+            'sw-context-menu': {
+                template: '<div class="sw-context-menu"><slot></slot></div>'
+            },
+            'sw-tree': {
+                props: ['items'],
+                template: `
+                    <div class="sw-tree">
+                      <slot name="items" :treeItems="items" :checkItem="() => {}"></slot>
+                    </div>
+                `
+            },
+            'sw-tree-item': {
+                props: ['item', 'activeItemIds', 'activeParentIds'],
+                data() {
+                    return {
+                        checked: false
+                    };
+                },
+                template: `
+                    <div class="sw-tree-item">
+                      <input class="sw-tree-item__selection"
+                             type="checkbox"
+                             :value="checked"
+                             @change="toggleItemCheck($event, item)">
+                      <slot name="content" v-bind="{ item }">
+                          <span class="sw-tree-item__label">
+                              {{ item.name }}
+                          </span>
+                      </slot>
+                    </div>
+                `,
+                methods: {
+                    toggleItemCheck(event, item) {
+                        this.checked = event;
+                        this.item.checked = event;
+
+                        this.$emit('check-item', item);
+                    }
+                }
+            },
+            'sw-icon': true,
         }
     });
 }
+
+enableAutoDestroy(afterEach);
 
 describe('module/sw-product/component/sw-product-variant-modal', () => {
     let wrapper;
@@ -128,9 +290,9 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
         const sortedOptions = wrapper.vm.sortOptions(getOptions());
 
         expect(sortedOptions).toEqual([
-            { name: 'a', translated: { name: 'a' }, group: { translated: { name: 'material' } }, position: 1 },
-            { name: 'b', translated: { name: 'b' }, group: { translated: { name: 'color' } }, position: 1 },
-            { name: 'c', translated: { name: 'c' }, group: { translated: { name: 'size' } }, position: 5 }
+            { name: 'a', translated: { name: 'a' }, group: { translated: { name: 'material' } }, id: 'option_a', position: 1 },
+            { name: 'b', translated: { name: 'b' }, group: { translated: { name: 'color' } }, id: 'option_b', position: 1 },
+            { name: 'c', translated: { name: 'c' }, group: { translated: { name: 'size' } }, id: 'option_c', position: 5 }
         ]);
     });
 
@@ -146,19 +308,19 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
         expect(builtVariantName).toBe('random product (material: a, color: b, size: c)');
     });
 
-    it('should ommit the paranthesis', () => {
+    it('should omit the parenthesis', () => {
         const builtVariantOptions = wrapper.vm.buildVariantOptions(getVariants(), ', ', true);
 
         expect(builtVariantOptions).toBe('material: a, color: b, size: c');
     });
 
-    it('should use a custom seperator', () => {
+    it('should use a custom separator', () => {
         const builtVariantOptions = wrapper.vm.buildVariantOptions(getVariants(), ' - ');
 
         expect(builtVariantOptions).toBe('(material: a - color: b - size: c)');
     });
 
-    it('should ommit the group name', () => {
+    it('should omit the group name', () => {
         const builtVariantOptions = wrapper.vm.buildVariantOptions(getVariants(), ', ', false, true);
 
         expect(builtVariantOptions).toBe('(a, b, c)');
@@ -192,5 +354,50 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
             showOnDisabledElements: true,
             disabled: true
         });
+    });
+
+    it('should get list groups of product', async () => {
+        await flushPromises();
+
+        const filterContextMenu = wrapper.find('.sw-product-variant-modal__filter-context-menu');
+
+        expect(filterContextMenu.attributes().style).toEqual('display: none;');
+
+        await wrapper.find('.sw-product-variant-modal__button-filter').trigger('click');
+
+        expect(filterContextMenu.attributes().style).toBeFalsy();
+        expect(wrapper.findAll('.sw-tree-item').length).toEqual(6);
+    });
+
+    it('should able to select filter option', async () => {
+        await flushPromises();
+        await wrapper.find('.sw-product-variant-modal__button-filter').trigger('click');
+
+        const treeItemSelects = wrapper.findAll('.sw-tree-item');
+        await treeItemSelects.at(3).find('input').setChecked();
+        await treeItemSelects.at(3).trigger('change');
+
+        expect(wrapper.vm.includeOptions).toEqual([{
+            id: 'option_b',
+            groupId: 'group1'
+        }]);
+    });
+
+    it('should able to reset filter option', async () => {
+        await flushPromises();
+        await wrapper.find('.sw-product-variant-modal__button-filter').trigger('click');
+
+        const treeItemSelects = wrapper.findAll('.sw-tree-item');
+        await treeItemSelects.at(4).find('input').setChecked();
+        await treeItemSelects.at(4).trigger('change');
+
+        expect(wrapper.vm.includeOptions).toEqual([{
+            id: 'option_a',
+            groupId: 'group2'
+        }]);
+
+        await wrapper.find('.sw-product-variant-modal__reset-filter').trigger('click');
+
+        expect(wrapper.vm.includeOptions).toEqual([]);
     });
 });

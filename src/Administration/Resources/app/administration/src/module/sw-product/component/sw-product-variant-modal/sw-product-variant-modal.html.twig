@@ -9,25 +9,106 @@
     {% block sw_product_variant_modal_body %}
     <template>
 
-        {% block sw_product_variant_modal_body_label %}
-        <sw-label class="sw-product-variant-modal__label">
+        {% block sw_product_variant_modal_toolbar %}
+        <div class="sw-configuration-option-list__toolbar">
+            {% block sw_product_variant_modal_toolbar_container %}
+            <sw-container
+                columns="1fr minmax(50px, max-content)"
+                gap="0 16px"
+            >
 
-            {% block sw_product_variant_modal_body_label_search %}
-            <sw-simple-search-field
-                v-model="searchTerm"
-                class="sw-product-variant-modal__search"
-                size="small"
-                variant="form"
-                @search-term-change="onSearchTermChange"
-            />
-            {% endblock %}
-        </sw-label>
+                {% block sw_product_variant_modal_body_label_search %}
+                <sw-simple-search-field
+                    v-model="searchTerm"
+                    class="sw-product-variant-modal__search"
+                    size="small"
+                    variant="form"
+                    @search-term-change="onSearchTermChange"
+                />
+                {% endblock %}
+
+                {% block sw_product_variant_modal_option_list_toolbar_container_filter_list %}
+                <div class="sw-product-variant-modal__filter-list-button">
+
+                    {% block sw_product_variant_modal_option_list_toolbar_container_filter_list_button %}
+                    <sw-button
+                        class="sw-product-variant-modal__button-filter"
+                        @click="toggleFilterMenu"
+                    >
+                        {{ $tc('sw-product.variations.generatedFilterList') }}
+                        <sw-icon name="default-action-filter" />
+                    </sw-button>
+                    {% endblock %}
+
+                    {% block sw_product_variant_modal_option_list_toolbar_container_filter_context_menu %}
+                    <sw-context-menu
+                        v-show="filterWindowOpen"
+                        class="sw-product-variant-modal__filter-context-menu"
+                    >
+                        <sw-container
+                            columns="1fr"
+                            gap="5px"
+                        >
+
+                            {% block sw_product_variant_modal_option_list_toolbar_container_filter_tree %}
+                            <sw-tree
+                                v-show="filterOptions.length"
+                                :sortable="false"
+                                :items="filterOptions"
+                                :searchable="false"
+                                disable-context-menu
+                                bind-items-to-folder
+                            >
+                                <template #items="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute, checkItem}">
+                                    <sw-tree-item
+                                        v-for="(item, index) in treeItems"
+                                        :key="item.id"
+                                        :sortable="false"
+                                        :item="item"
+                                        disable-context-menu
+                                        @check-item="filterOptionChecked"
+                                    />
+                                </template>
+                            </sw-tree>
+                            {% endblock %}
+
+                            {% block sw_product_variant_modal_option_list_toolbar_container_filter_buttons %}
+                            <div class="sw-product-variant-modal__filter-buttons">
+                                {% block sw_product_variant_modal_option_list_toolbar_container_button_filter_reset %}
+                                <sw-button
+                                    class="sw-product-variant-modal__reset-filter"
+                                    @click="resetFilterOptions"
+                                >
+                                    {{ $tc('sw-product.variations.overview.filterReset') }}
+                                </sw-button>
+                                {% endblock %}
+
+                                {% block sw_product_variant_modal_option_list_toolbar_container_button_update_list %}
+                                <sw-button
+                                    variant="primary"
+                                    @click="fetchProductVariants"
+                                >
+                                    {{ $tc('sw-product.variations.overview.filter') }}
+                                </sw-button>
+                                {% endblock %}
+                            </div>
+                            {% endblock %}
+
+                        </sw-container>
+                    </sw-context-menu>
+                    {% endblock %}
+                </div>
+                {% endblock %}
+            </sw-container>
+        {% endblock %}
+        </div>
         {% endblock %}
 
         {% block sw_product_variant_modal_body_grid %}
         <sw-data-grid
             v-if="productVariants.length > 0"
             ref="variantGrid"
+            :is-loading="isLoading"
             :columns="gridColumns"
             :data-source="productVariants"
             :sort-by="sortBy"

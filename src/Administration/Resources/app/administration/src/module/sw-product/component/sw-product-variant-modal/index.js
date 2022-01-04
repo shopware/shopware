@@ -8,7 +8,6 @@ Component.register('sw-product-variant-modal', {
     template,
 
     inject: [
-        'feature',
         'repositoryFactory',
         'acl',
     ],
@@ -38,6 +37,11 @@ Component.register('sw-product-variant-modal', {
             isDeletionOver: false,
             sortDirection: 'ASC',
             sortBy: 'productNumber',
+            isLoading: false,
+            groups: [],
+            filterOptions: [],
+            includeOptions: [],
+            filterWindowOpen: false,
         };
     },
 
@@ -62,10 +66,46 @@ Component.register('sw-product-variant-modal', {
             return this.repositoryFactory.create('currency');
         },
 
+        groupRepository() {
+            return this.repositoryFactory.create('property_group');
+        },
+
         contextMenuEditText() {
             return this.acl.can('product.editor') ?
                 this.$tc('global.default.edit') :
                 this.$tc('global.default.view');
+        },
+
+        filterCriteria() {
+            if (this.includeOptions.length <= 0) {
+                return [];
+            }
+
+            // Collect each selected option in a group
+            // [
+            //   {id: 'abc123', options: [...optionIds]},
+            //   {id: 'def456', options: [...optionIds]},
+            // ]
+            const optionInGroups = this.includeOptions.reduce((result, option) => {
+                const parentGroup = result.find((group) => group.id === option.groupId);
+
+                // Push to group when array exists
+                if (parentGroup) {
+                    parentGroup.options.push(option.id);
+                } else {
+                    // otherwise create new group with the option
+                    result.push({
+                        id: option.groupId,
+                        options: [option.id],
+                    });
+                }
+
+                return result;
+            }, []);
+
+            return optionInGroups.map((group) => {
+                return Criteria.equalsAny('product.optionIds', group.options);
+            });
         },
 
         productVariantCriteria() {
@@ -92,6 +132,13 @@ Component.register('sw-product-variant-modal', {
                 terms.forEach(term => {
                     criteria.addQuery(Criteria.equals('product.options.name', term), 3500);
                     criteria.addQuery(Criteria.contains('product.options.name', term), 500);
+                });
+            }
+
+            // User selected filters
+            if (this.filterCriteria) {
+                this.filterCriteria.forEach((cri) => {
+                    criteria.addFilter(cri);
                 });
             }
 
@@ -163,6 +210,85 @@ Component.register('sw-product-variant-modal', {
 
             return criteria;
         },
+
+        groupCriteria() {
+            const criteria = new Criteria();
+            criteria
+                .setLimit(100)
+                .setPage(1);
+
+            return criteria;
+        },
+
+        selectedGroups() {
+            // get groups for selected options
+            const groupIds = this.productEntity?.configuratorSettings.reduce((result, element) => {
+                if (result.indexOf(element.option.groupId) < 0) {
+                    result.push(element.option.groupId);
+                }
+
+                return result;
+            }, []);
+
+            return this.groups?.filter((group) => {
+                return groupIds.indexOf(group.id) >= 0;
+            });
+        },
+
+        filterOptionsListing() {
+            // Prepare groups
+            const groups = [...this.selectedGroups]
+                .sort((a, b) => a.position - b.position).map((group, index) => {
+                    const children = this.getOptionsForGroup(group.id);
+
+                    return {
+                        id: group.id,
+                        name: group.name,
+                        childCount: children.length,
+                        parentId: null,
+                        afterId: index > 0 ? this.selectedGroups[index - 1].id : null,
+                        storeObject: group,
+                    };
+                });
+
+            // Prepare options
+            const children = groups.reduce((result, group) => {
+                const options = this.getOptionsForGroup(group.id);
+
+                // Iterate for each group options
+                const optionsForGroup = options.sort((elementA, elementB) => {
+                    return elementA.position - elementB.position;
+                }).map((element, index) => {
+                    const option = element.option;
+
+                    // Get previous element
+                    let afterId = null;
+                    if (index > 0) {
+                        afterId = options[index - 1].option.id;
+                    }
+
+                    return {
+                        id: option.id,
+                        name: option.name,
+                        childCount: 0,
+                        parentId: option.groupId,
+                        afterId,
+                        storeObject: element,
+                    };
+                });
+
+                return [...result, ...optionsForGroup];
+            }, []);
+
+            // Assign groups and children to order objects
+            return [...groups, ...children];
+        },
+    },
+
+    watch: {
+        selectedGroups() {
+            this.filterOptions = this.filterOptionsListing;
+        },
     },
 
     created() {
@@ -173,6 +299,7 @@ Component.register('sw-product-variant-modal', {
         createdComponent() {
             this.fetchProductVariants();
             this.fetchSystemCurrency();
+            this.loadGroups();
         },
 
         fetchSystemCurrency() {
@@ -184,9 +311,14 @@ Component.register('sw-product-variant-modal', {
         },
 
         fetchProductVariants() {
-            this.productRepository.search(this.productVariantCriteria).then(response => {
-                this.productVariants = response;
-            });
+            this.isLoading = true;
+
+            return this.productRepository.search(this.productVariantCriteria)
+                .then(response => {
+                    this.productVariants = response;
+                }).finally(() => {
+                    this.isLoading = false;
+                });
         },
 
         getDefaultPriceForVariant(variant) {
@@ -498,6 +630,45 @@ Component.register('sw-product-variant-modal', {
 
                 variant.media.push(mediaItem);
             });
+        },
+
+        loadGroups() {
+            return this.groupRepository.search(this.groupCriteria).then((searchResult) => {
+                this.groups = searchResult;
+            });
+        },
+
+        resetFilterOptions() {
+            this.filterOptions = [];
+            this.includeOptions = [];
+
+            this.$nextTick(() => {
+                this.filterOptions = this.filterOptionsListing;
+                this.fetchProductVariants();
+            });
+        },
+
+        filterOptionChecked(option) {
+            if (option.checked) {
+                // Remove from include list
+                this.includeOptions.push({
+                    id: option.id,
+                    groupId: option.parentId,
+                });
+                return;
+            }
+            // Remove option from option list which is unchecked
+            this.includeOptions = this.includeOptions.filter((includeOption) => includeOption.id !== option.id);
+        },
+
+        getOptionsForGroup(groupId) {
+            return this.productEntity?.configuratorSettings.filter((element) => {
+                return !element.isDeleted && element.option.groupId === groupId;
+            });
+        },
+
+        toggleFilterMenu() {
+            this.filterWindowOpen = !this.filterWindowOpen;
         },
     },
 });

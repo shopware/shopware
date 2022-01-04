@@ -131,7 +131,7 @@ Component.register('sw-product-variants-overview', {
     },
 
     watch: {
-        'selectedGroups'() {
+        selectedGroups() {
             this.getFilterOptions();
         },
     },

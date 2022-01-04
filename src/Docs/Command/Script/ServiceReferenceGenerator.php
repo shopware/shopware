@@ -2,6 +2,7 @@
 
 namespace Shopware\Docs\Command\Script;
 
+use League\ConstructFinder\ConstructFinder;
 use phpDocumentor\Reflection\DocBlock;
 use phpDocumentor\Reflection\DocBlock\Tags\Generic;
 use phpDocumentor\Reflection\DocBlock\Tags\Method;
@@ -90,18 +91,16 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
     {
         $scriptServices = [];
 
-        $classLoader = require __DIR__ . '/../../../../vendor/autoload.php';
-        foreach ($classLoader->getClassMap() as $namespace => $path) {
-            try {
-                if (str_starts_with($namespace, 'Shopware\\')) {
-                    require_once $path;
-                }
-            } catch (\Throwable $e) {
-                // nth, continue
-            }
-        }
+        $shopwareClasses = ConstructFinder::locatedIn(__DIR__ . '/../../..')
+            ->exclude('*/Test/*', '*/vendor/*')
+            ->findClassNames();
 
-        foreach (get_declared_classes() as $class) {
+        foreach ($shopwareClasses as $class) {
+            if (!class_exists($class)) {
+                // skip not autoloadable test classes
+                continue;
+            }
+
             $reflection = new \ReflectionClass($class);
 
             if (!$reflection->getDocComment()) {
@@ -118,7 +117,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
         }
 
         if (\count($scriptServices) === 0) {
-            throw new \RuntimeException('No ScriptServices found, please ensure the composer autoloader is optimized by running `composer:install -o`.');
+            throw new \RuntimeException('No ScriptServices found.');
         }
         sort($scriptServices);
 

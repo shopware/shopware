@@ -154,6 +154,7 @@
         "dms/phpunit-arraysubset-asserts": "^0.2.1",
         "fakerphp/faker": "~1.14.1",
         "johnkary/phpunit-speedtrap": "~4.0.0",
+        "league/construct-finder": "^1.1",
         "maltyxx/images-generator": "~1.0.0",
         "mbezhanov/faker-provider-collection": "~2.0.1",
         "nikic/php-parser": "~4.10.4",

@@ -3,9 +3,12 @@
 namespace Shopware\Storefront\Test\Theme;
 
 use League\Flysystem\Filesystem;
+use League\Flysystem\Memory\MemoryAdapter;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -15,6 +18,8 @@ use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Test\Theme\fixtures\MockThemeCompilerConcatenatedSubscriber;
 use Shopware\Storefront\Test\Theme\fixtures\MockThemeVariablesSubscriber;
+use Shopware\Storefront\Theme\Event\ThemeCopyToLiveEvent;
+use Shopware\Storefront\Theme\Exception\ThemeFileCopyException;
 use Shopware\Storefront\Theme\MD5ThemePathBuilder;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -47,10 +52,13 @@ class ThemeCompilerTest extends TestCase
      */
     private $mockMediaId;
 
+    private EventDispatcherInterface $eventDispatcher;
+
     public function setUp(): void
     {
         $themeFileResolver = $this->getContainer()->get(ThemeFileResolver::class);
-        $eventDispatcher = $this->getContainer()->get(EventDispatcherInterface::class);
+        /** @var EventDispatcherInterface eventDispatcher */
+        $this->eventDispatcher = $this->getContainer()->get(EventDispatcherInterface::class);
 
         // Avoid filesystem operations
         $mockFilesystem = $this->createMock(FileSystem::class);
@@ -74,7 +82,7 @@ class ThemeCompilerTest extends TestCase
             $mockFilesystem,
             $themeFileResolver,
             true,
-            $eventDispatcher,
+            $this->eventDispatcher,
             $this->getContainer()->get(ThemeFileImporter::class),
             ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
             $this->getContainer()->get(CacheInvalidator::class),
@@ -374,9 +382,14 @@ PHP_EOL;
         $importer = $this->createMock(ThemeFileImporter::class);
         $importer->method('getCopyBatchInputsForAssets')->with($testFolder);
 
+        $fs = new Filesystem(new MemoryAdapter());
+        $fs->addPlugin(new CopyBatch());
+        $tmpFs = new Filesystem(new MemoryAdapter());
+        $tmpFs->addPlugin(new CopyBatch());
+
         $compiler = new ThemeCompiler(
-            $this->createMock(Filesystem::class),
-            $this->createMock(Filesystem::class),
+            $fs,
+            $tmpFs,
             $resolver,
             true,
             $this->createMock(EventDispatcher::class),
@@ -398,5 +411,109 @@ PHP_EOL;
         );
 
         rmdir($testFolder);
+    }
+
+    /**
+     * @dataProvider copyToLiveData
+     */
+    public function testCopyToLive(bool $success, string $failedPath): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_15381', $this);
+        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
+        $testFolder = $projectDir . '/bla';
+
+        if (!file_exists($testFolder)) {
+            mkdir($testFolder);
+        }
+
+        $resolver = $this->createMock(ThemeFileResolver::class);
+        $resolver->method('resolveFiles')->willReturn([ThemeFileResolver::SCRIPT_FILES => new FileCollection(), ThemeFileResolver::STYLE_FILES => new FileCollection()]);
+
+        $importer = $this->createMock(ThemeFileImporter::class);
+        $importer->method('getCopyBatchInputsForAssets')->with($testFolder);
+
+        $fs = new Filesystem(new MemoryAdapter());
+        $fs->addPlugin(new CopyBatch());
+        $tmpFs = new Filesystem(new MemoryAdapter());
+        $tmpFs->addPlugin(new CopyBatch());
+
+        $compiler = new ThemeCompiler(
+            $fs,
+            $tmpFs,
+            $resolver,
+            true,
+            $this->eventDispatcher,
+            $importer,
+            [],
+            $this->createMock(CacheInvalidator::class),
+            new MD5ThemePathBuilder(),
+            $this->getContainer()->getParameter('kernel.project_dir')
+        );
+
+        $config = new StorefrontPluginConfiguration('test');
+        $config->setAssetPaths(['bla']);
+
+        $pathBuilder = new MD5ThemePathBuilder();
+        $themePrefix = $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test');
+
+        $toLiveFn = function (ThemeCopyToLiveEvent $event) use ($failedPath, $success, $fs, $themePrefix): void {
+            $pathPrefix = 'theme' . \DIRECTORY_SEPARATOR;
+
+            if ($success === true) {
+                static::assertSame($event->getPath(), $pathPrefix . $themePrefix);
+                static::assertSame(
+                    $event->getBackupPath(),
+                    $pathPrefix . 'backup' . \DIRECTORY_SEPARATOR . $themePrefix
+                );
+                static::assertSame($event->getTmpPath(), $pathPrefix . 'temp' . \DIRECTORY_SEPARATOR . $themePrefix);
+            } elseif ($failedPath === 'temp') {
+                $event->setTmpPath('anywhere');
+            } elseif ($failedPath === 'backup') {
+                $fs->createDir($event->getPath());
+                $fs->write($event->getBackupPath(), '');
+            }
+        };
+
+        if ($success === false && $failedPath === 'temp') {
+            $this->expectException(ThemeFileCopyException::class);
+            $this->expectExceptionMessage('Unable to move the files of theme "test". Compilation error. Compiled files not found in anywhere.');
+        } elseif ($success === false && $failedPath === 'backup') {
+            $this->expectException(ThemeFileCopyException::class);
+            $this->expectExceptionMessage(
+                'Unable to move the files of theme "test". File already exists at path: theme' . \DIRECTORY_SEPARATOR
+                . 'backup' . \DIRECTORY_SEPARATOR . $themePrefix
+            );
+        }
+
+        try {
+            $this->addEventListener($this->eventDispatcher, ThemeCopyToLiveEvent::class, $toLiveFn);
+
+            $compiler->compileTheme(
+                TestDefaults::SALES_CHANNEL,
+                'test',
+                $config,
+                new StorefrontPluginConfigurationCollection()
+            );
+        } finally {
+            rmdir($testFolder);
+        }
+    }
+
+    public function copyToLiveData(): array
+    {
+        return [
+            [
+                true,
+                '',
+            ],
+            [
+                false,
+                'temp',
+            ],
+            [
+                false,
+                'backup',
+            ],
+        ];
     }
 }

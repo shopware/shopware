@@ -33,6 +33,7 @@ class BulkEditCustomerHandler extends BulkEditBaseHandler {
 
     async bulkEditRequestedGroup(entityIds, payload) {
         const promises = [];
+        const shouldTriggerFlows = Shopware.State.get('swBulkEdit').isFlowTriggered;
 
         try {
             payload.forEach((change) => {
@@ -43,12 +44,26 @@ class BulkEditCustomerHandler extends BulkEditBaseHandler {
                 switch (change.value) {
                     case 'decline':
                         promises.push(this.customerGroupRegistrationService.decline(
-                            entityIds, {}, {}, { silentError: true },
+                            entityIds,
+                            {},
+                            {
+                                'sw-skip-trigger-flow': !shouldTriggerFlows,
+                            },
+                            {
+                                silentError: true,
+                            },
                         ));
                         break;
                     case 'accept':
                         promises.push(this.customerGroupRegistrationService.accept(
-                            entityIds, {}, {}, { silentError: true },
+                            entityIds,
+                            {},
+                            {
+                                'sw-skip-trigger-flow': !shouldTriggerFlows,
+                            },
+                            {
+                                silentError: true,
+                            },
                         ));
                         break;
                     default:

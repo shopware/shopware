@@ -27,8 +27,8 @@ class CustomEntityPersister
             throw new \RuntimeException('Some of the entities has no configured name');
         }
 
-        $existing = $this->connection->fetchAllKeyValue(
-            'SELECT name, created_at FROM custom_entity WHERE `name` IN (:names)',
+        $existings = $this->connection->fetchAllAssociativeIndexed(
+            'SELECT name, LOWER(HEX(id)) as id, created_at FROM custom_entity WHERE `name` IN (:names)',
             ['names' => $names],
             ['names' => Connection::PARAM_STR_ARRAY]
         );
@@ -39,18 +39,18 @@ class CustomEntityPersister
             $this->connection->executeStatement('DELETE FROM custom_entity WHERE app_id IS NULL');
         }
 
-        $inserts = new MultiInsertQueryQueue($this->connection);
+        $inserts = new MultiInsertQueryQueue($this->connection, 250, false, true);
         foreach ($entities as $entity) {
             $name = $entity['name'];
 
             $entity['fields'] = json_encode($entity['fields'], \JSON_THROW_ON_ERROR | \JSON_PRESERVE_ZERO_FRACTION);
             $entity['app_id'] = $appId !== null ? Uuid::fromHexToBytes($appId) : null;
 
-            $id = $entity['id'] ?? Uuid::randomHex();
+            $id = isset($existings[$name]) ? $existings[$name]['id'] : Uuid::randomHex();
             $entity['id'] = Uuid::fromHexToBytes($id);
 
-            $entity['created_at'] = $existing[$name] ?? (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-            $entity['updated_at'] = isset($existing[$name]) ? (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null;
+            $entity['created_at'] = isset($existings[$name]) ? $existings[$name]['created_at'] : (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+            $entity['updated_at'] = isset($existings[$name]) ? (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null;
 
             $inserts->addInsert('custom_entity', $entity);
         }

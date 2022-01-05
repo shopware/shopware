@@ -18,16 +18,6 @@ class DynamicTranslationEntityDefinition extends EntityTranslationDefinition
 
     protected ContainerInterface $container;
 
-    protected function getParentDefinitionEntity(): string
-    {
-        return $this->root;
-    }
-
-    protected function getParentDefinitionClass(): ?string
-    {
-        return null;
-    }
-
     public static function create(string $root, array $fields, ContainerInterface $container): DynamicTranslationEntityDefinition
     {
         $self = new self();
@@ -41,6 +31,16 @@ class DynamicTranslationEntityDefinition extends EntityTranslationDefinition
     public function getEntityName(): string
     {
         return $this->root . '_translation';
+    }
+
+    protected function getParentDefinitionEntity(): string
+    {
+        return $this->root;
+    }
+
+    protected function getParentDefinitionClass(): ?string
+    {
+        return null;
     }
 
     protected function defineFields(): FieldCollection

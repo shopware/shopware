@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes;
 
-use Shopware\Core\Framework\App\Exception\CustomFieldTypeNotFoundException;
+use Shopware\Core\System\CustomEntity\Exception\CustomFieldTypeNotFoundException;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward

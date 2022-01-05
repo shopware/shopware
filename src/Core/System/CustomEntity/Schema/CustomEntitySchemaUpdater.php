@@ -30,6 +30,7 @@ class CustomEntitySchemaUpdater
         foreach ($schema->getTables() as $table) {
             if ($table->getComment() === self::COMMENT) {
                 $schema->dropTable($table->getName());
+
                 continue;
             }
 
@@ -82,7 +83,7 @@ class CustomEntitySchemaUpdater
         }
         $table->setComment(self::COMMENT);
 
-        $noneTranslated = array_filter($fields, function(array $field) {
+        $noneTranslated = array_filter($fields, function (array $field) {
             $translated = $field['translatable'] ?? false;
 
             return $translated === false;
@@ -92,7 +93,7 @@ class CustomEntitySchemaUpdater
 
         $binary = ['length' => 16, 'fixed' => true];
 
-        $translated = array_filter($fields, function(array $field) {
+        $translated = array_filter($fields, function (array $field) {
             return $field['translatable'] ?? false;
         });
 
@@ -106,10 +107,10 @@ class CustomEntitySchemaUpdater
         $translation->addColumn('language_id', Types::BINARY, $binary);
 
         $fk = 'fk_ce_' . $translation->getName() . '_root';
-        $translation->addForeignKeyConstraint($table, [$name . '_id'], ['id'],['onUpdate' => 'cascade', 'onDelete' => 'cascade'], $fk);
+        $translation->addForeignKeyConstraint($table, [$name . '_id'], ['id'], ['onUpdate' => 'cascade', 'onDelete' => 'cascade'], $fk);
 
         $fk = 'fk_ce_' . $translation->getName() . '_language_id';
-        $translation->addForeignKeyConstraint($table, [$name . '_id'], ['id'],['onUpdate' => 'cascade', 'onDelete' => 'cascade'], $fk);
+        $translation->addForeignKeyConstraint($table, [$name . '_id'], ['id'], ['onUpdate' => 'cascade', 'onDelete' => 'cascade'], $fk);
 
         $this->addColumns($schema, $translation, $translated);
     }

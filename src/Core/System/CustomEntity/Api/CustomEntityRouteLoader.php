@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\System\CustomEntity\Api;
 
@@ -6,7 +6,7 @@ use Symfony\Component\Config\Loader\Loader;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 
-class CustomEntityRouteLoader  extends Loader
+class CustomEntityRouteLoader extends Loader
 {
     private bool $isLoaded = false;
 
@@ -83,10 +83,5 @@ class CustomEntityRouteLoader  extends Loader
         $route->setDefault('_controller', $class . '::create');
         $route->addRequirements(['path' => $listSuffix, 'version' => '\d+']);
         $routes->add('api.custom_entity_entity.create', $route);
-
-        $route = new Route('/store-api/custom-entity-{entityName}');
-        $route->setMethods(['POST', 'GET']);
-        $route->setDefault('_controller', CustomEntityStoreApiRoute::class . '::load');
-        $routes->add('store-api.custom_entity', $route);
     }
 }

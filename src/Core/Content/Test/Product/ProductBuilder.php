@@ -585,5 +585,4 @@ class ProductBuilder
 
         return $price;
     }
-
 }

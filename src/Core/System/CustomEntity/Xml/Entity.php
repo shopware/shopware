@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml;
 
+use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 use Shopware\Core\System\CustomEntity\Xml\Field\Field;
 use Shopware\Core\System\CustomEntity\Xml\Field\FieldFactory;
-use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**

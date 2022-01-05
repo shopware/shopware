@@ -16,5 +16,27 @@
         <service id="Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
+
+        <service id="Shopware\Core\System\CustomEntity\Api\CustomEntityApiController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="serializer"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionValidator"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Acl\AclCriteriaValidator"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Shopware\Core\System\CustomEntity\Api\CustomEntityRouteLoader">
+            <tag name="routing.loader"/>
+        </service>
+
+        <service id="Shopware\Core\System\CustomEntity\Api\CustomEntityStoreApiRoute" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
     </services>
 </container>

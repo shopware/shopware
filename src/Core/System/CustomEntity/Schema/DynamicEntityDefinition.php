@@ -51,5 +51,4 @@ class DynamicEntityDefinition extends EntityDefinition
     {
         return (new CamelCaseToSnakeCaseNameConverter())->denormalize(str_replace('-', '_', $string));
     }
-
 }

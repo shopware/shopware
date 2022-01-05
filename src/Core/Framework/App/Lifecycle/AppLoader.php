@@ -4,9 +4,9 @@ namespace Shopware\Core\Framework\App\Lifecycle;
 
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Cms\CmsExtensions as CmsManifest;
-use Shopware\Core\System\CustomEntity\Xml\CustomEntitySchema;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\System\CustomEntity\Xml\CustomEntitySchema;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\Filesystem\Filesystem;

@@ -2,16 +2,9 @@
 
 namespace Shopware\Core\Framework;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Compatibility\AnnotationReaderCompilerPass;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ActionEventCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetRegistrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DefaultTransportCompilerPass;
@@ -30,14 +23,12 @@ use Shopware\Core\Framework\Migration\MigrationCompilerPass;
 use Shopware\Core\Framework\Test\DependencyInjection\CompilerPass\ContainerVisibilityCompilerPass;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
 use Shopware\Core\Kernel;
-use Shopware\Core\System\CustomEntity\Schema\DynamicEntityDefinition;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\ClosureLoader;
 use Symfony\Component\DependencyInjection\Loader\DirectoryLoader;
@@ -46,7 +37,6 @@ use Symfony\Component\DependencyInjection\Loader\IniFileLoader;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
-use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 class Framework extends Bundle
 {
@@ -202,5 +192,4 @@ class Framework extends Bundle
             }
         }
     }
-
 }

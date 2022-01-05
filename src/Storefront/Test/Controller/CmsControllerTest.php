@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Test\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -26,8 +25,6 @@ class CmsControllerTest extends TestCase
 
     public function testCmsPageLoadedHookScriptsAreExecuted(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $response = $this->request('GET', '/widgets/cms/' . $this->ids->get('page'), []);
         static::assertEquals(200, $response->getStatusCode());
 
@@ -38,8 +35,6 @@ class CmsControllerTest extends TestCase
 
     public function testCmsPageLoadedHookScriptsAreExecutedForCategory(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $response = $this->request('GET', '/widgets/cms/navigation/' . $this->ids->get('category'), []);
         static::assertEquals(200, $response->getStatusCode());
 

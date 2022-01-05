@@ -26,7 +26,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -342,8 +341,6 @@ class CheckoutControllerTest extends TestCase
 
     public function testCheckoutCartPageLoadedHookScriptsAreExecuted(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $browser = $this->getBrowserWithLoggedInCustomer();
 
         $browser->request(
@@ -358,8 +355,6 @@ class CheckoutControllerTest extends TestCase
 
     public function testCheckoutConfirmPageLoadedHookScriptsAreExecuted(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $contextToken = Uuid::randomHex();
 
         $this->fillCart($contextToken);
@@ -375,8 +370,6 @@ class CheckoutControllerTest extends TestCase
 
     public function testCheckoutFinishPageLoadedHookScriptsAreExecuted(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $contextToken = Uuid::randomHex();
 
         $order = $this->performOrder('', false, null, $contextToken);
@@ -394,8 +387,6 @@ class CheckoutControllerTest extends TestCase
 
     public function testCheckoutInfoWidgetLoadedHookScriptsAreExecuted(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $contextToken = Uuid::randomHex();
 
         $this->fillCart($contextToken);
@@ -411,8 +402,6 @@ class CheckoutControllerTest extends TestCase
 
     public function testCheckoutOffcanvasWidgetLoadedHookScriptsAreExecuted(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $contextToken = Uuid::randomHex();
 
         $this->fillCart($contextToken);

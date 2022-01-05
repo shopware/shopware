@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Test\Script\Execution;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -12,11 +11,6 @@ class ScriptLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
-
-    public function setUp(): void
-    {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-    }
 
     public function testGetScripts(): void
     {

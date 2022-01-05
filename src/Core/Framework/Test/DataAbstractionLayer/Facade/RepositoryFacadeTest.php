@@ -14,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -229,8 +228,6 @@ class RepositoryFacadeTest extends TestCase
 
     public function testSearchByIdIntegration(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $this->ids = new IdsCollection();
         $this->createProducts();
 

@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Test\Script\Execution;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Exception\NoHookServiceFactoryException;
 use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
@@ -21,8 +20,6 @@ class ScriptExecutorTest extends TestCase
 
     public function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $this->executor = $this->getContainer()->get(ScriptExecutor::class);
     }
 

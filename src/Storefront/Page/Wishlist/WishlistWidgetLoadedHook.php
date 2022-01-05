@@ -10,8 +10,6 @@ use Shopware\Storefront\Page\PageLoadedHook;
  * Triggered when the WishlistWidget is loaded
  *
  * @hook-use-case data_loading
- *
- * @internal (flag:FEATURE_NEXT_17441)
  */
 class WishlistWidgetLoadedHook extends PageLoadedHook
 {

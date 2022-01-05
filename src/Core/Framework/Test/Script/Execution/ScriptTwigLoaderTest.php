@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Test\Script\Execution;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptTwigLoader;
 use Twig\Error\LoaderError;
@@ -16,8 +15,6 @@ class ScriptTwigLoaderTest extends TestCase
 
     public function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $this->script = new Script(
             'simple-function-case.twig',
             file_get_contents(__DIR__ . '/_fixtures/simple-function-case/Resources/scripts/simple-function-case/simple-function-case.twig'),

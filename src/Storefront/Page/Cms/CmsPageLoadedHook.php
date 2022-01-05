@@ -11,8 +11,6 @@ use Shopware\Storefront\Page\PageLoadedHook;
  * Triggered when a CmsPage is loaded
  *
  * @hook-use-case data_loading
- *
- * @internal (flag:FEATURE_NEXT_17441)
  */
 class CmsPageLoadedHook extends PageLoadedHook
 {

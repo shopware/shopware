@@ -7,7 +7,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -30,8 +29,6 @@ class LandingPageControllerTest extends TestCase
 
     public function testLandingPageLoadedHookScriptsAreExecuted(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $response = $this->request('GET', '/landingPage/' . $this->ids->get('landing-page'), []);
         static::assertEquals(200, $response->getStatusCode());
 

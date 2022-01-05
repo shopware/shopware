@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Script\Execution\Hook;
 
 /**
- * @internal (flag:FEATURE_NEXT_17441)
+ * @internal
  */
 class TestHook extends Hook
 {

@@ -11,7 +11,6 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -300,8 +299,6 @@ class ProductControllerTest extends TestCase
 
     public function testProductPageLoadedScriptsAreExecuted(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $productId = $this->createProduct();
 
         $response = $this->request(
@@ -319,8 +316,6 @@ class ProductControllerTest extends TestCase
 
     public function testMProductQuickViewWidgetLoadedHookScriptsAreExecuted(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $productId = $this->createProduct();
 
         $response = $this->request(
@@ -338,8 +333,6 @@ class ProductControllerTest extends TestCase
 
     public function testProductReviewsLoadedScriptsAreExecuted(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $productId = $this->createProduct();
 
         $response = $this->request(

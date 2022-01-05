@@ -1,0 +1,19 @@
+.sw-settings-tax-detail {
+    position: relative;
+
+    .sw-field {
+        margin-bottom: 0;
+    }
+
+    .sw-field--switch {
+        margin-bottom: 0;
+    }
+
+    .sw-settings-tax-detail__switches {
+        display: flex;
+
+        .sw-field {
+            margin-right: 20px;
+        }
+    }
+}

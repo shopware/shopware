@@ -43,7 +43,13 @@ function createWrapper(privileges = []) {
                     return privileges.includes(identifier);
                 }
             },
-            searchRankingService: {}
+            searchRankingService: {},
+            systemConfigApiService: {
+                getConfig: () => Promise.resolve({
+                    'core.tax.defaultTaxRate': ''
+                }),
+                getValues: () => Promise.resolve('defaultTaxId')
+            }
         },
         stubs: {
             'sw-page': {

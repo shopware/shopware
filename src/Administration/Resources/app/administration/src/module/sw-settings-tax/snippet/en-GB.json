@@ -9,7 +9,8 @@
       "textHeadline": "Tax",
       "textDeleteConfirm": "Are you sure you want to delete the tax \"{name}\"?",
       "columnName": "Name",
-      "columnDefaultTaxRate": "Default tax rate",
+      "columnDefaultTaxRate": "Tax rate",
+      "columnDefault": "Default",
       "buttonAddTax": "Add tax",
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",
@@ -21,13 +22,15 @@
       "textHeadline": "New tax rate",
       "titleCard": "Settings",
       "labelName": "Name",
-      "labelDefaultTaxRate": "Default tax rate",
+      "labelDefaultTaxRate": "Tax rate",
       "placeholderName": "Enter name...",
       "placeholderDefaultTaxRate": "Enter default rate...",
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
       "messageSaveError": "An error occurred while saving the tax rate.",
-      "messageSaveSuccess": "Tax rate has been saved."
+      "messageSaveSuccess": "Tax rate has been saved.",
+      "defaultTaxLabel": "Use as default",
+      "defaultTaxHelpText": "This tax rate will be preselected when creating new products. This can only be set for one single tax rate."
     },
     "taxRuleCard": {
       "tooltipCountries": "If not all available countries are shown, type in a name to access undisplayed countries. Countries may be created or edited in Settings/Countries.",

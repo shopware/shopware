@@ -37,6 +37,11 @@ function createWrapper(privileges = [], isShopwareDefaultTax = true) {
             },
             customFieldDataProviderService: {
                 getCustomFieldSets: () => Promise.resolve([])
+            },
+            systemConfigApiService: {
+                getConfig: () => Promise.resolve({
+                    'core.tax.defaultTaxRate': ''
+                })
             }
         },
         stubs: {
@@ -60,6 +65,7 @@ function createWrapper(privileges = [], isShopwareDefaultTax = true) {
             'sw-container': true,
             'sw-button': true,
             'sw-button-process': true,
+            'sw-switch-field': true,
             'sw-text-field': true,
             'sw-number-field': true
         }

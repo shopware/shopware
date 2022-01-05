@@ -1,4 +1,5 @@
 import template from './sw-settings-tax-detail.html.twig';
+import './sw-settings-tax-detail.scss';
 
 const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
@@ -6,7 +7,7 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-settings-tax-detail', {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
+    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService', 'systemConfigApiService', 'feature'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -36,6 +37,11 @@ Component.register('sw-settings-tax-detail', {
             isLoading: false,
             isSaveSuccessful: false,
             customFieldSets: null,
+            defaultTaxRateId: null,
+            changeDefaultTaxRate: false,
+            formerDefaultTaxName: '',
+            config: {},
+            isDefault: false,
         };
     },
 
@@ -96,6 +102,13 @@ Component.register('sw-settings-tax-detail', {
         showCustomFields() {
             return this.customFieldSets && this.customFieldSets.length > 0;
         },
+
+        isDefaultTaxRate() {
+            if (!this.defaultTaxRateId) {
+                return false;
+            }
+            return this.taxId === this.defaultTaxRateId;
+        },
     },
 
     watch: {
@@ -103,6 +116,9 @@ Component.register('sw-settings-tax-detail', {
             if (!this.taxId) {
                 this.createdComponent();
             }
+        },
+        isDefaultTaxRate() {
+            this.isDefault = this.isDefaultTaxRate;
         },
     },
 
@@ -120,6 +136,10 @@ Component.register('sw-settings-tax-detail', {
                     this.isLoading = false;
                 });
                 this.loadCustomFieldSets();
+
+                if (this.feature.isActive('FEATURE_NEXT_17546')) {
+                    this.reloadDefaultTaxRate();
+                }
                 return;
             }
 
@@ -133,6 +153,9 @@ Component.register('sw-settings-tax-detail', {
             });
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed
+         */
         saveAndReload() {
             this.$emit('loading-change', true);
             return this.taxRepository.save(this.tax, this.apiContext).then(() => {
@@ -157,7 +180,15 @@ Component.register('sw-settings-tax-detail', {
 
                 this.taxRepository.get(this.tax.id).then((updatedTax) => {
                     this.tax = updatedTax;
-                    this.isLoading = false;
+                }).then(() => {
+                    if (this.feature.isActive('FEATURE_NEXT_17546')) {
+                        return this.systemConfigApiService.saveValues(this.config).then(() => {
+                            this.defaultTaxRateId = this.tax.id;
+                            this.reloadDefaultTaxRate();
+                            this.isLoading = false;
+                        });
+                    }
+                    return null;
                 });
             }).catch(() => {
                 this.createNotificationError({
@@ -173,6 +204,31 @@ Component.register('sw-settings-tax-detail', {
 
         changeName(name) {
             this.tax.name = name;
+        },
+
+        reloadDefaultTaxRate() {
+            this.systemConfigApiService
+                .getValues('core.tax')
+                .then(response => {
+                    this.defaultTaxRateId = response['core.tax.defaultTaxRate'] ?? null;
+                })
+                .then(() => {
+                    if (this.defaultTaxRateId) {
+                        this.taxRepository.get(this.defaultTaxRateId).then((tax) => {
+                            this.formerDefaultTaxName = tax.name;
+                        });
+                    }
+                })
+                .catch(() => {
+                    this.defaultTaxRateId = null;
+                });
+        },
+
+        onChangeDefaultTaxRate() {
+            const newDefaultTax = !this.isDefaultTaxRate ? this.taxId : '';
+
+            this.$set(this.config, 'core.tax.defaultTaxRate', newDefaultTax);
+            this.changeDefaultTaxRate = false;
         },
     },
 });

@@ -1,7 +1,6 @@
 ---
 title: Webhook Retry Handling
 issue: NEXT-14683
-flag: FEATURE_NEXT_14363
 ---
 # Core
 * Added `src/Core/Framework/Webhook/Event/RetryWebhookMessageFailedEventEvent` class

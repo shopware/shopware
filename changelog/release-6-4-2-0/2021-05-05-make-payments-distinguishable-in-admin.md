@@ -1,7 +1,6 @@
 ---
 title: Make payments distinguishable in certain areas in the Administration
 issue: NEXT-15170
-flag: FEATURE_NEXT_15170
 ---
 # Core
 * Added new translated field `distinguishableName` in `\Shopware\Core\Checkout\Payment\PaymentMethodDefinition::defineFields()`

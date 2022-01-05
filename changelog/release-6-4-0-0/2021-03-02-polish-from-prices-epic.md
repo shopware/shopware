@@ -1,7 +1,6 @@
 ---
 title: Polish from prices epic
 issue: NEXT-13880
-flag: FEATURE_NEXT_10553
 ---
 # Storefront
 *  Added twig variable `afterListPriceSnippetExists` to `src/Storefront/Resources/views/storefront/component/buy-widget/buy-widget-price.html.twig`

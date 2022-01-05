@@ -1,7 +1,6 @@
 ---
 title: Consistently generate distinguishable names
 issue: NEXT-15331
-flag: NEXT-15170
 ---
 # Core
 * Added `Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentDistinguishableNameGenerator` to generate distinguishable names

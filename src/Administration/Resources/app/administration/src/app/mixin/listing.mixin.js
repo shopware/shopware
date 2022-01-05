@@ -260,6 +260,22 @@ Mixin.register('listing', {
             this.page = 1;
         },
 
+        onSort({ sortBy, sortDirection }) {
+            if (this.disableRouteParams) {
+                this.updateData({
+                    sortBy,
+                    sortDirection,
+                });
+            } else {
+                this.updateRoute({
+                    sortBy,
+                    sortDirection,
+                });
+            }
+
+            this.getList();
+        },
+
         onSortColumn(column) {
             if (this.disableRouteParams) {
                 if (this.sortBy === column.dataIndex) {

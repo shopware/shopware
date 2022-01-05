@@ -27,15 +27,24 @@ Component.register('sw-cms-layout-modal', {
                 return [];
             },
         },
+
+        preSelection: {
+            type: Object,
+            required: false,
+            default: () => {},
+        },
     },
 
     data() {
         return {
+            listMode: 'grid',
+            disableRouteParams: true,
+            sortBy: 'createdAt',
+            sortDirection: 'DESC',
+            limit: 25,
             selected: null,
             selectedPageObject: null,
             isLoading: false,
-            sortBy: 'createdAt',
-            sortDirection: 'DESC',
             term: null,
             total: null,
             pages: [],
@@ -64,6 +73,52 @@ Component.register('sw-cms-layout-modal', {
 
             return criteria;
         },
+
+        columnConfig() {
+            return [{
+                property: 'name',
+                label: this.$tc('sw-cms.list.gridHeaderName'),
+                inlineEdit: 'string',
+                primary: true,
+            }, {
+                property: 'type',
+                label: this.$tc('sw-cms.list.gridHeaderType'),
+                sortable: false,
+            }, {
+                property: 'createdAt',
+                label: this.$tc('sw-cms.list.gridHeaderCreated'),
+            }, {
+                property: 'updatedAt',
+                label: this.$tc('sw-cms.list.gridHeaderUpdated'),
+            }];
+        },
+
+        pageTypes() {
+            return {
+                page: this.$tc('sw-cms.sorting.labelSortByShopPages'),
+                landingpage: this.$tc('sw-cms.sorting.labelSortByLandingPages'),
+                product_list: this.$tc('sw-cms.sorting.labelSortByCategoryPages'),
+                product_detail: this.$tc('sw-cms.sorting.labelSortByProductPages'),
+            };
+        },
+
+        gridPreSelection() {
+            if (!this.selectedPageObject?.id) {
+                return {};
+            }
+
+            return { [this.selectedPageObject.id]: this.selectedPageObject };
+        },
+    },
+
+    watch: {
+        preSelection: {
+            handler: function handler(newSelection) {
+                this.selectedPageObject = newSelection;
+                this.selected = newSelection?.id;
+            },
+            immediate: true,
+        },
     },
 
     methods: {
@@ -85,6 +140,17 @@ Component.register('sw-cms-layout-modal', {
             this.closeModal();
         },
 
+        selectInGrid(collum) {
+            const columnEntries = Object.entries(collum);
+            if (columnEntries.length === 0) {
+                [this.selected, this.selectedPageObject] = [null, null];
+                return;
+            }
+
+            // replace with page.id
+            [this.selected, this.selectedPageObject] = columnEntries[0];
+        },
+
         /* @deprecated tag:v6.5.0 layoutId is redundant and should be removed as an argument */
         selectItem(layoutId, page) {
             this.selected = layoutId; // replace with page.id
@@ -104,6 +170,20 @@ Component.register('sw-cms-layout-modal', {
 
             this.page = 1;
             this.getList();
+        },
+
+        toggleListMode() {
+            this.listMode = this.listMode === 'grid' ? 'list' : 'grid';
+        },
+
+        gridItemClasses(pageId, index) {
+            return [
+                {
+                    'is--selected': pageId === this.selectedPageObject?.id,
+                },
+                'sw-cms-layout-modal__content-item',
+                `sw-cms-layout-modal__content-item--${index}`,
+            ];
         },
 
         /* @deprecated tag:v6.5.0 layoutId is redundant and should be removed as an argument */

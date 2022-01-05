@@ -230,6 +230,11 @@ shopware:
         major: false
         description: "Allow interactions with different entities as actions in Flow Builder"
         # issue: NEXT-17973
+      - name: FEATURE_NEXT_6758
+        default: false
+        major: true
+        description: "Layout assignment for category as list"
+        # issue: NEXT-6758
       - name: FEATURE_NEXT_18592
         default: false
         major: true

@@ -1,0 +1,22 @@
+{% block sw_sorting_select %}
+<div class="sw-cms-list__actions-sorting">
+    <sw-select-field
+        name="sortType"
+        :label="$tc('sw-cms.sorting.labelSort')"
+        :value="sortingConditionConcatenation"
+        :aside="true"
+        @change="onSortingChanged"
+    >
+
+        {% block sw_sorting_select_options %}
+        <option
+            v-for="sortOption in sortOptions"
+            :key="sortOption.value"
+            :value="sortOption.value"
+        >
+            {{ sortOption.name }}
+        </option>
+        {% endblock %}
+    </sw-select-field>
+</div>
+{% endblock %}

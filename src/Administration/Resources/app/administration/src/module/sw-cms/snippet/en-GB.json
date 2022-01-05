@@ -13,6 +13,8 @@
     },
     "sorting": {
       "labelSort": "Sort by:",
+      "labelSortByNameAsc": "Name, ascending",
+      "labelSortByNameDesc": "Name, descending",
       "labelSortByCreatedAsc": "Creation date, ascending",
       "labelSortByCreatedDsc": "Creation date, descending",
       "labelSortByUpdatedAsc": "Modification date, ascending",
@@ -29,7 +31,7 @@
       "gridHeaderAssignment": "Assigned categories",
       "gridHeaderAssignments": "Assignments",
       "gridHeaderCreated": "Created",
-      "gridHeaderUpdated": "Updated"
+      "gridHeaderUpdated": "Updated date"
     },
     "section": {
       "fallBackSectionName": "Section",

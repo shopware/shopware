@@ -65,6 +65,7 @@
             {% block sw_category_entry_point_modal_layout_modal %}
             <sw-cms-layout-modal
                 v-if="showLayoutSelectionModal"
+                :pre-selection="selectedSalesChannel.homeCmsPage"
                 :cms-page-types="pageTypes"
                 @modal-layout-select="onLayoutSelect"
                 @modal-close="closeLayoutModal"

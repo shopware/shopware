@@ -52,7 +52,8 @@ function createWrapper() {
             'router-link': true,
             'sw-data-grid-skeleton': true,
             'sw-loader': true,
-            'sw-empty-state': true
+            'sw-empty-state': true,
+            'sw-sorting-select': true,
         },
         mocks: {
             $route: { query: '' },

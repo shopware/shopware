@@ -676,6 +676,7 @@
         "lineItemDimensionWeightRule": "Line items with weight",
         "lineItemDimensionVolumeRule": "Line items volume",
         "lineItemListPriceRule": "Line items with list price",
+        "lineItemListPriceRatioRule": "Line items with price/list price percentage ratio",
         "lineItemStockRule": "Line items in stock",
         "paymentMethodRule": "Applied payment method",
         "shippingMethodRule": "Applied shipping method",

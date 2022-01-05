@@ -1,7 +1,6 @@
 ---
 title: Preview of available variables in e-mail templates
 issue: NEXT-12654
-flag: FEATURE_NEXT_12654
 author: b.neumann
 author_email: b.neumann@shopware.com 
 ---

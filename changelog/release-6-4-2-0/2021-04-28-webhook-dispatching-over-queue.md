@@ -1,7 +1,6 @@
 ---
 title: Webhook dispatching over queue
 issue: NEXT-14363
-flag: FEATURE_NEXT_14363
 ---
 # Core
 * Added `src\Core\Framework\Webhook\Message\WebhookEventMessage` class

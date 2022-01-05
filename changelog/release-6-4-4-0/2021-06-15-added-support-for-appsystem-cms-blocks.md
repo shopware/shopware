@@ -1,8 +1,6 @@
 ---
 title: Added support for custom CMS blocks from apps
 issue: NEXT-14409
-flag: FEATURE_NEXT_14408
-
 ---
 # Administration
 * Added method `buildAndCreateComponent` to `src/app/adapter/view/vue.adapter.js`

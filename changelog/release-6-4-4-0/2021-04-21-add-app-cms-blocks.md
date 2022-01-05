@@ -1,7 +1,6 @@
 ---
 title: Allow app developers to extend the CMS by adding custom blocks  
-issue: NEXT-14408  
-flag: FEATURE_NEXT_14408  
+issue: NEXT-14408
 ---
 # Core
 * Added new entity `app_cms_block` in `Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockEntity`

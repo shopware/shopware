@@ -2,6 +2,7 @@ import ImportExportService from 'src/module/sw-import-export/service/importExpor
 import { shallowMount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
+import flushPromises from 'flush-promises';
 import 'src/app/component/entity/sw-entity-listing';
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/context-menu/sw-context-menu';
@@ -104,7 +105,8 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
                 'sw-data-grid-settings': true,
                 'sw-data-grid-skeleton': true,
                 'sw-pagination': true,
-                'sw-help-text': true
+                'sw-help-text': true,
+                'sw-loader': true
             },
             mocks: {
                 $tc: (key) => {
@@ -172,12 +174,12 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
     };
 
     it('should be a Vue.js component', async () => {
-        const { wrapper } = createWrapper({ logData: getLogData() });
+        const { wrapper } = await createWrapper({ logData: getLogData() });
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should open the activity detail modal', async () => {
-        const { wrapper } = createWrapper({ logData: getLogData() });
+        const { wrapper } = await createWrapper({ logData: getLogData() });
         const logEntity = {
             id: 'id',
             file: {
@@ -231,7 +233,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
     });
 
     it('should open the activity result modal', async () => {
-        const { wrapper } = createWrapper({ logData: getLogData() });
+        const { wrapper } = await createWrapper({ logData: getLogData() });
 
         const logEntity = {
             id: 'id',
@@ -313,7 +315,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
     });
 
     it('should show the correct label', async () => {
-        const { wrapper } = createWrapper({ logData: getLogData() });
+        const { wrapper } = await createWrapper({ logData: getLogData() });
 
         expect(wrapper.vm.getStateLabel('progress')).toEqual('Progress');
         expect(wrapper.vm.getStateLabel('merging_files')).toEqual('Merging files');
@@ -323,13 +325,14 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
     });
 
     it('should show the technical name when no translation exists', async () => {
-        const { wrapper } = createWrapper({ logData: getLogData() });
+        const { wrapper } = await createWrapper({ logData: getLogData() });
 
         expect(wrapper.vm.getStateLabel('waiting')).toEqual('waiting');
     });
 
-    it('should have the status field as the third position in grid', () => {
-        const { wrapper } = createWrapper({ logData: getLogData() });
+    it('should have the status field as the third position in grid', async () => {
+        const { wrapper } = await createWrapper({ logData: getLogData() });
+        await flushPromises();
 
         const gridHeaders = wrapper.findAll('.sw-data-grid__cell--header');
         const stateHeader = gridHeaders.at(2);

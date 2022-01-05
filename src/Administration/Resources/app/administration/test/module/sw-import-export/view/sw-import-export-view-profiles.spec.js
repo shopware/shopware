@@ -10,7 +10,7 @@ function createWrapper() {
             'sw-simple-search-field': true,
             'sw-button': true,
             'sw-entity-listing': true,
-            'sw-import-export-edit-profile-modal': true
+            'sw-import-export-edit-profile-modal': true,
         },
         provide: {
             importExport: new ImportExportService()

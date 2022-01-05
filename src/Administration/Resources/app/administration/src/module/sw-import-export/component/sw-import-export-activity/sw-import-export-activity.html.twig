@@ -2,9 +2,9 @@
 <div class="sw-import-export-activity">
     {% block sw_import_export_activity_listing %}
     <sw-entity-listing
+        v-if="showGrid"
         :repository="logRepository"
         :items="logs"
-        :is-loading="isLoading"
         :columns="exportActivityColumns"
         sort-by="createdAt"
         sort-direction="DESC"
@@ -141,6 +141,19 @@
         </template>
         {% endblock %}
     </sw-entity-listing>
+    {% endblock %}
+
+    {% block sw_import_export_activity_spinner %}
+    <sw-loader v-else-if="showSpinner" />
+    {% endblock %}
+
+    {% block sw_import_export_activity_empty_state %}
+    <sw-empty-state
+        v-if="showEmptyState"
+        :title="emptyStateTitle"
+        :subline="emptyStateSubLine"
+        :absolute="false"
+    />
     {% endblock %}
 
     {# @deprecated tag:v6.5.0 - block will removed #}

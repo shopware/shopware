@@ -19,7 +19,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Storefront\Page\Page;
 
 class SystemConfigFacadeTest extends TestCase
 {
@@ -158,7 +157,7 @@ class SystemConfigFacadeTest extends TestCase
 
         $this->installApp(__DIR__ . '/_fixtures/apps/systemConfigExample');
 
-        $page = new Page();
+        $page = new ArrayStruct();
         $hook = new TestHook(
             'test-config',
             Context::createDefaultContext(),

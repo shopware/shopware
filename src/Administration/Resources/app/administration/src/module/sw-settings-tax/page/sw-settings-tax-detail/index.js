@@ -7,7 +7,12 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-settings-tax-detail', {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService', 'systemConfigApiService', 'feature'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+        'customFieldDataProviderService',
+        'systemConfigApiService',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -136,10 +141,8 @@ Component.register('sw-settings-tax-detail', {
                     this.isLoading = false;
                 });
                 this.loadCustomFieldSets();
+                this.reloadDefaultTaxRate();
 
-                if (this.feature.isActive('FEATURE_NEXT_17546')) {
-                    this.reloadDefaultTaxRate();
-                }
                 return;
             }
 
@@ -181,14 +184,11 @@ Component.register('sw-settings-tax-detail', {
                 this.taxRepository.get(this.tax.id).then((updatedTax) => {
                     this.tax = updatedTax;
                 }).then(() => {
-                    if (this.feature.isActive('FEATURE_NEXT_17546')) {
-                        return this.systemConfigApiService.saveValues(this.config).then(() => {
-                            this.defaultTaxRateId = this.tax.id;
-                            this.reloadDefaultTaxRate();
-                            this.isLoading = false;
-                        });
-                    }
-                    return null;
+                    return this.systemConfigApiService.saveValues(this.config).then(() => {
+                        this.defaultTaxRateId = this.tax.id;
+                        this.reloadDefaultTaxRate();
+                        this.isLoading = false;
+                    });
                 });
             }).catch(() => {
                 this.createNotificationError({

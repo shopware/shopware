@@ -1,7 +1,6 @@
 ---
 title: Prefill product stock
 issue: NEXT-18180
-flag: FEATURE_NEXT_17546
 author_github: @Dominik28111
 ---
 # Administration

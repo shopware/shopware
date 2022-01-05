@@ -19,8 +19,6 @@ describe('Product: Edit manufacturer', () => {
     });
 
     it('@catalogue: should create new manufacturer by using select field', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_17546');
-
         const page = new ProductPageObject();
 
         // Request we want to wait for later

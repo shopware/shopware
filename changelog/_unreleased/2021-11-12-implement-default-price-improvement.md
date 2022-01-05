@@ -2,7 +2,6 @@
 title: Implement default price improvement
 issue: NEXT-18177
 author: Ramona Schwering
-flag: FEATURE_NEXT_17546
 author_github: @leichteckig
 ---
 # Administration

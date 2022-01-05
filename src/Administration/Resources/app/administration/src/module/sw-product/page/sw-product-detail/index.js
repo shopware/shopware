@@ -19,7 +19,6 @@ Component.register('sw-product-detail', {
         'seoUrlService',
         'acl',
         'systemConfigApiService',
-        'feature',
     ],
 
     mixins: [
@@ -548,9 +547,9 @@ Component.register('sw-product-detail', {
                 this.product.purchasePrices = this.getDefaultPurchasePrices();
 
                 // Set default tax rate on creation
-                if (this.product.isNew && this.feature.isActive('FEATURE_NEXT_17546')) {
-                    this.getDefaultTaxRate().then((res) => {
-                        this.product.taxId = res;
+                if (this.product.isNew) {
+                    this.getDefaultTaxRate().then((result) => {
+                        this.product.taxId = result;
                     });
                 }
 

@@ -598,9 +598,7 @@ describe('components/sw-entity-single-select', () => {
         expect(firstListEntry.find('.sw-select-result__result-item-description').text()).toBe('example');
     });
 
-    it('should recognize non-existing entity and offer entity creation (with FEATURE_NEXT_17546)', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_17546'];
-
+    it('should recognize non-existing entity and offer entity creation', async () => {
         const nonExistingEntityMock = [];
         nonExistingEntityMock.total = 0;
 

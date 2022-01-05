@@ -95,7 +95,7 @@
               }
             },
             "status": {
-                "progress": "Importiere ...",
+                "progress": "Verarbeite",
                 "merging_files": "Dateien zusammenführen",
                 "succeeded": "Erfolgreich",
                 "failed": "Fehlgeschlagen",

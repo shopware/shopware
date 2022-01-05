@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -361,10 +362,27 @@ class InfoController extends AbstractController
             $assets[$app->getName()] = [
                 'type' => 'app',
                 'baseUrl' => $app->getBaseAppUrl(),
+                'permissions' => $this->fetchAppPermissions($app),
             ];
         }
 
         return $assets;
+    }
+
+    private function fetchAppPermissions(AppEntity $app): array
+    {
+        $privileges = [];
+        $aclRole = $app->getAclRole();
+        if ($aclRole === null) {
+            return $privileges;
+        }
+
+        foreach ($aclRole->getPrivileges() as $privilege) {
+            [ $entity, $key ] = \explode(':', $privilege);
+            $privileges[$key][] = $entity;
+        }
+
+        return $privileges;
     }
 
     private function getAdministrationStyles(Bundle $bundle): array
@@ -416,6 +434,7 @@ class InfoController extends AbstractController
     private function getActiveApps(Context $context): AppCollection
     {
         $criteria = new Criteria();
+        $criteria->addAssociation('aclRole');
         $criteria->addFilter(
             new MultiFilter(
                 MultiFilter::CONNECTION_AND,

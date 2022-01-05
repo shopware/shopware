@@ -41,6 +41,7 @@ import AppContextFactory from 'src/core/factory/app-context.factory';
 import RouterFactory from 'src/core/factory/router.factory';
 import ApiServices from 'src/core/service/api';
 import ModuleFilterFactory from 'src/core/data/filter-factory.data';
+import ExtensionApi from './extension-api';
 
 // strict mode was set to false because it was defined wrong previously
 Bottle.config = { strict: false };
@@ -201,6 +202,8 @@ class ShopwareClass {
         getAssociationFields: EntityDefinitionFactory.getAssociationFields,
         getRequiredFields: EntityDefinitionFactory.getRequiredFields,
     };
+
+    public ExtensionAPI = ExtensionApi;
 
     public WorkerNotification = {
         register: WorkerNotificationFactory.register,

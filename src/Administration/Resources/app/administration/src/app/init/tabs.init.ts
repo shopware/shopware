@@ -1,10 +1,9 @@
-import { handle } from '@shopware-ag/admin-extension-sdk/es/channel';
 // eslint-disable-next-line import/no-named-default
 import type { Route, RouteConfig, default as Router } from 'vue-router';
 import type { TabItemEntry } from 'src/app/state/tabs.store';
 
 export default function initializeTabs(): void {
-    handle('uiTabsAddTabItem', (componentConfig) => {
+    Shopware.ExtensionAPI.handle('uiTabsAddTabItem', (componentConfig) => {
         Shopware.State.commit('tabs/addTabItem', componentConfig);
 
         // if current route does not exist check if they exists after adding the route

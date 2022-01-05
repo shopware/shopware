@@ -1,4 +1,4 @@
-import { handle } from '@shopware-ag/admin-extension-sdk/es/channel';
+import type { extension } from '@shopware-ag/admin-extension-sdk/es/privileges/privilege-resolver';
 import template from './sw-iframe-renderer.html.twig';
 
 /**
@@ -35,7 +35,7 @@ Shopware.Component.register('sw-iframe-renderer', {
     },
 
     created() {
-        this.heightHandler = handle('locationUpdateHeight', ({ height, locationId }) => {
+        this.heightHandler = Shopware.ExtensionAPI.handle('locationUpdateHeight', ({ height, locationId }) => {
             if (locationId === this.locationId) {
                 this.locationHeight = height ?? null;
             }
@@ -49,10 +49,21 @@ Shopware.Component.register('sw-iframe-renderer', {
     },
 
     computed: {
+        extension(): extension | undefined {
+            const extensions = Shopware.State.get('extensions');
+
+            return Object.values(extensions).find((ext) => {
+                return ext.baseUrl === this.src;
+            });
+        },
+
         iFrameSrc(): string {
             const urlObject = new URL(this.src, window.location.origin);
 
             urlObject.searchParams.append('location-id', this.locationId);
+            if (this.extension) {
+                urlObject.searchParams.append('privileges', JSON.stringify(this.extension.permissions));
+            }
 
             return urlObject.toString();
         },

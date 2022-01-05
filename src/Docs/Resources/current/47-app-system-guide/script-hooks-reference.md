@@ -371,3 +371,28 @@ All available Hooks that can be used to manipulate the cart.
 | **Available Services** | [cart](./cart-manipulation-script-services-reference.md#CartFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>                                                                            |
 
 
+## Api endpoint
+
+All available hooks within the Store API and API
+
+#### api-{hook}
+
+| <!-- -->               | <!-- -->                                                                                                                                                             |
+|:-----------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Name**               | api-{hook}                                                                                                                                                      |
+| **Class**              | `Shopware\Core\Framework\Script\Api\ApiHook`                                                                                                                                                   |
+| **Description**        | Triggered when the api endpoint /api/script/{hook} is called<br>                                                                                                                                               |
+| **Available Data**     | request: `array` <br>response: [`Shopware\Core\Framework\Script\Api\ScriptResponse`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Script/Api/ScriptResponse.php) <br>name: `string` <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br> |
+| **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>                                                                            |
+
+#### store-api-{hook}
+
+| <!-- -->               | <!-- -->                                                                                                                                                             |
+|:-----------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Name**               | store-api-{hook}                                                                                                                                                      |
+| **Class**              | `Shopware\Core\Framework\Script\Api\StoreApiHook`                                                                                                                                                   |
+| **Description**        | <br>                                                                                                                                               |
+| **Available Data**     | request: `array` <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br>response: [`Shopware\Core\Framework\Script\Api\ScriptResponse`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Script/Api/ScriptResponse.php) <br>script: `string` <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br> |
+| **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
+
+

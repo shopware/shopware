@@ -106,6 +106,14 @@ Examples:
 * **Returns** `int`
 
     Returns the count of elements.
+### all()
+
+* `all()` function returns all elements of this array.
+
+    
+* **Returns** `array`
+
+    Returns all elements of this array.
 _________
 ## [services.config (`Shopware\Core\System\SystemConfig\Facade\SystemConfigFacade`)](https://github.com/shopware/platform/blob/trunk/src/Core/System/SystemConfig/Facade/SystemConfigFacade.php) {#systemconfigfacade}
 

@@ -67,6 +67,11 @@ class OpenApiLoader
 
                 if ($operation instanceof Operation && \count($operation->tags) > 1) {
                     if ($api === 'store-api') {
+                        if (\strpos($operation->path, '/store-api') === 0) {
+                            $operation->path = \substr($operation->path, \strlen('/store-api'));
+                            $pathItem->path = \substr($pathItem->path, \strlen('/store-api'));
+                        }
+
                         if ($operation->security === UNDEFINED) {
                             $operation->security = [['ApiKey' => []]];
                         }

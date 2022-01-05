@@ -55,7 +55,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
 
         $facade = $this->factory->factory(
             new SalesChannelTestHook('test', $this->context),
-            new Script('test', '', new \DateTimeImmutable(), null)
+            new Script('test', '', new \DateTimeImmutable(), null, '')
         );
 
         $result = $facade->$method('product', $criteria);
@@ -326,7 +326,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
 
         $facade = $this->factory->factory(
             new SalesChannelTestHook('test', $this->context),
-            new Script('test', '', new \DateTimeImmutable(), null)
+            new Script('test', '', new \DateTimeImmutable(), null, '')
         );
 
         $criteria = [

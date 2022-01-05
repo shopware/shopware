@@ -89,6 +89,7 @@ class ScriptLoader implements EventSubscriberInterface
             SELECT LOWER(HEX(`script`.`app_id`)) as `app_id`,
                    `script`.`name` AS name,
                    `script`.`script` AS script,
+                   `app`.`name` AS appName,
                    IFNULL(`script`.`updated_at`, `script`.`created_at`) AS lastModified
             FROM `script`
             LEFT JOIN `app` ON `script`.`app_id` = `app`.`id`
@@ -118,7 +119,8 @@ class ScriptLoader implements EventSubscriberInterface
                     $script['name'],
                     $script['script'],
                     new \DateTimeImmutable($script['lastModified']),
-                    $appId
+                    $appId,
+                    $script['appName']
                 );
             }, $includes);
 
@@ -134,6 +136,7 @@ class ScriptLoader implements EventSubscriberInterface
                 $script['script'],
                 $lastModified,
                 $appId,
+                $script['appName'],
                 $options,
                 $includes
             );

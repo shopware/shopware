@@ -21,7 +21,9 @@ class Script extends Struct
 
     private ?string $appId;
 
-    public function __construct(string $name, string $script, \DateTimeInterface $lastModified, ?string $appId, array $twigOptions = [], array $includes = [])
+    private ?string $appName;
+
+    public function __construct(string $name, string $script, \DateTimeInterface $lastModified, ?string $appId, ?string $appName, array $twigOptions = [], array $includes = [])
     {
         $this->name = $name;
         $this->script = $script;
@@ -29,6 +31,7 @@ class Script extends Struct
         $this->lastModified = $lastModified;
         $this->includes = $includes;
         $this->appId = $appId;
+        $this->appName = $appName;
     }
 
     public function getName(): string
@@ -62,5 +65,10 @@ class Script extends Struct
     public function getAppId(): ?string
     {
         return $this->appId;
+    }
+
+    public function getAppName(): ?string
+    {
+        return $this->appName;
     }
 }

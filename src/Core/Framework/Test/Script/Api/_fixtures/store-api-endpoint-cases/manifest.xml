@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Manifest/Schema/manifest-1.0.xsd">
+    <meta>
+        <name>store-api-endpoint-cases</name>
+        <label>Swag App Test</label>
+        <label lang="de-DE">Swag App Test</label>
+        <description>Test for App System</description>
+        <description lang="de-DE">Test für das App System</description>
+        <author>shopware AG</author>
+        <copyright>(c) by shopware AG</copyright>
+        <version>1.0.0</version>
+        <icon>icon.png</icon>
+        <license>MIT</license>
+        <privacy>https://test.com/privacy</privacy>
+    </meta>
+    <permissions>
+        <read>tax</read>
+        <read>product</read>
+    </permissions>
+</manifest>

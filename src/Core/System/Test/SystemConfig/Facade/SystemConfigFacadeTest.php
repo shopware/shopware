@@ -45,7 +45,7 @@ class SystemConfigFacadeTest extends TestCase
 
         $facade = $this->factory->factory(
             $hook,
-            new Script('test', '', new \DateTimeImmutable(), null)
+            new Script('test', '', new \DateTimeImmutable(), null, '')
         );
 
         static::assertEquals($result, $facade->get('test.value', $salesChannelId));
@@ -88,7 +88,7 @@ class SystemConfigFacadeTest extends TestCase
 
         $facade = $this->factory->factory(
             new TestHook('test', Context::createDefaultContext()),
-            new Script('test', '', new \DateTimeImmutable(), $appId)
+            new Script('test', '', new \DateTimeImmutable(), $appId, '')
         );
 
         static::expectException(MissingPrivilegeException::class);
@@ -103,7 +103,7 @@ class SystemConfigFacadeTest extends TestCase
 
         $facade = $this->factory->factory(
             new TestHook('test', Context::createDefaultContext()),
-            new Script('test', '', new \DateTimeImmutable(), $appId)
+            new Script('test', '', new \DateTimeImmutable(), $appId, '')
         );
 
         static::assertEquals('generic', $facade->get('test.value'));
@@ -117,7 +117,7 @@ class SystemConfigFacadeTest extends TestCase
 
         $facade = $this->factory->factory(
             new TestHook('test', Context::createDefaultContext()),
-            new Script('test', '', new \DateTimeImmutable(), $appId)
+            new Script('test', '', new \DateTimeImmutable(), $appId, '')
         );
 
         static::assertEquals('test', $facade->app('testValue'));
@@ -131,7 +131,7 @@ class SystemConfigFacadeTest extends TestCase
 
         $facade = $this->factory->factory(
             new TestHook('test', Context::createDefaultContext()),
-            new Script('test', '', new \DateTimeImmutable(), $appId)
+            new Script('test', '', new \DateTimeImmutable(), $appId, '')
         );
 
         static::assertEquals('test', $facade->app('testValue'));
@@ -143,7 +143,7 @@ class SystemConfigFacadeTest extends TestCase
 
         $facade = $this->factory->factory(
             new TestHook('test', Context::createDefaultContext()),
-            new Script('test', '', new \DateTimeImmutable(), null)
+            new Script('test', '', new \DateTimeImmutable(), null, '')
         );
 
         static::expectException(\BadMethodCallException::class);

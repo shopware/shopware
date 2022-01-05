@@ -1,0 +1,4 @@
+{# @var services \Shopware\Core\Framework\Script\ServiceStubs #}
+{% set products = services.repository.search('product', hook.request) %}
+
+{% do hook.response.body.set('products', products) %}

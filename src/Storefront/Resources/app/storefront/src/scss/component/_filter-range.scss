@@ -44,7 +44,11 @@ This filter item should only be used inside a filter panel.
     }
 }
 
-.filter-range-currency-symbol {
+/* ----------------------------------------------------------------------------------------------------------
+   * @deprecated tag:v6.5.0 - `filter-range-currency-symbol` will be removed, use `filter-range-unit` instead
+* --------------------------------------------------------------------------------------------------------- */
+.filter-range-currency-symbol,
+.filter-range-unit {
     position: absolute;
     bottom: 1px;
     right: 1px;

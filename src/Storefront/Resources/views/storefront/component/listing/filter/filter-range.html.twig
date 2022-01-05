@@ -1,19 +1,41 @@
 {% set filterItemId = 'filter-' ~ name ~ '-' ~ random() %}
 
-{% if currencySymbol is not defined %}
-    {% set currencySymbol = page.header.activeCurrency.symbol %}
-{% endif %}
-
 {% if filterRangeActiveMinLabel is not defined %}
-    {% set filterRangeActiveMinLabel = 'listing.filterRangeActiveMinLabel'|trans|sw_sanitize %}
+    {% set filterRangeActiveMinLabel = 'listing.filterRangeActiveMinLabel'|trans({'%displayName%': displayName})|sw_sanitize %}
 {% endif %}
 
 {% if filterRangeActiveMaxLabel is not defined %}
-    {% set filterRangeActiveMaxLabel = 'listing.filterRangeActiveMaxLabel'|trans|sw_sanitize %}
+    {% set filterRangeActiveMaxLabel = 'listing.filterRangeActiveMaxLabel'|trans({'%displayName%': displayName})|sw_sanitize %}
 {% endif %}
 
 {% if filterRangeErrorMessage is not defined %}
     {% set filterRangeErrorMessage = 'listing.filterRangeErrorMessage'|trans|sw_sanitize %}
+{% endif %}
+
+{% if minKey is not defined %}
+    {% set minKey = 'min-price' %}
+{% endif %}
+
+{% if maxKey is not defined %}
+    {% set minKey = 'max-price' %}
+{% endif %}
+
+{% if unit is not defined %}
+    {% set unit = page.header.activeCurrency.symbol %}
+{% endif %}
+
+{# @deprecated tag:v6.5.0 - `currencySymbol` will be removed use `unit` instead #}
+{% if currencySymbol is defined %}
+    {% set unit = currencySymbol %}
+{% endif %}
+
+{% if minInputValue is not defined %}
+    {% set minInputValue = 0 %}
+{% endif %}
+
+{% if maxInputValue is not defined %}
+    {# @deprecated tag:v6.5.0 - use maxInputValue instead of price #}
+    {% set maxInputValue = price.max %}
 {% endif %}
 
 {% if filterRangeLowerBoundErrorMessage is not defined %}
@@ -25,6 +47,7 @@
     minKey,
     maxKey,
     lowerBound,
+    unit,
     currencySymbol,
     snippets: {
         filterRangeActiveMinLabel,
@@ -79,15 +102,19 @@
                                 {% block component_filter_range_min_input %}
                                     <input class="form-control min-input"
                                            type="number"
-                                           name="min-price"
-                                           min="0"
-                                           max="{{ price.max }}">
+                                           name="{{ minKey }}"
+                                           min="{{ minInputValue }}"
+                                           max="{{ maxInputValue }}">
                                 {% endblock %}
 
-                                {% block component_filter_range_min_currency_symbol %}
-                                    <span class="filter-range-currency-symbol">
-                                        {{ currencySymbol }}
-                                    </span>
+                                {% block component_filter_range_min_unit %}
+                                    {% block component_filter_range_min_currency_symbol %}
+                                        {% deprecated '@deprecated tag:v6.5.0 - Use `component_filter_range_min_unit` instead' %}
+                                        {% deprecated '@deprecated tag:v6.5.0 - `filter-range-currency-symbol` will be removed, use `filter-range-unit` instead' %}
+                                        <span class="filter-range-unit filter-range-currency-symbol">
+                                            {{ unit }}
+                                        </span>
+                                    {% endblock %}
                                 {% endblock %}
                             </label>
                         {% endblock %}
@@ -108,15 +135,19 @@
                                 {% block component_filter_range_max_input %}
                                     <input class="form-control max-input"
                                            type="number"
-                                           name="max-price"
-                                           min="0"
-                                           max="{{ price.max }}">
+                                           name="{{ maxKey }}"
+                                           min="{{ minInputValue }}"
+                                           max="{{ maxInputValue }}">
                                 {% endblock %}
 
-                                {% block component_filter_range_max_currency_symbol %}
-                                    <span class="filter-range-currency-symbol">
-                                        {{ currencySymbol }}
-                                    </span>
+                                {% block component_filter_range_max_unit %}
+                                    {% block component_filter_range_max_currency_symbol %}
+                                        {% deprecated '@deprecated tag:v6.5.0 - Use `component_filter_range_max_unit` instead' %}
+                                        {% deprecated '@deprecated tag:v6.5.0 - `filter-range-currency-symbol` will be removed, use `filter-range-unit` instead' %}
+                                        <span class="filter-range-unit filter-range-currency-symbol">
+                                            {{ unit }}
+                                        </span>
+                                    {% endblock %}
                                 {% endblock %}
                             </label>
                         {% endblock %}

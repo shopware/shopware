@@ -14,5 +14,6 @@
     </meta>
     <permissions>
         <read>product</read>
+        <read>product_manufacturer</read>
     </permissions>
 </manifest>

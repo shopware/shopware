@@ -1,0 +1,14 @@
+{% set page = hook.page %}
+{# @var page \Shopware\Storefront\Page\Page #}
+
+{% set criteria = {
+    'filter': [
+        { 'field': 'productNumber', 'type': 'equals', 'value': 'p1' }
+    ]
+} %}
+
+{% set productIds = services.store.ids('product', criteria).ids %}
+
+{% do page.addArrayExtension('myProductIds', {
+    'ids': productIds
+}) %}

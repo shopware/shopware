@@ -156,14 +156,14 @@ class SystemConfigFacadeTest extends TestCase
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
 
-        $this->systemConfigService->set('general.system_config', 'system_config');
+        $this->systemConfigService->set('core.listing.productsPerPage', 'system_config');
         $this->systemConfigService->set('systemConfigExample.config.app_config', 'app_config');
 
         $this->installApp(__DIR__ . '/_fixtures/apps/systemConfigExample');
 
         $page = new Page();
         $hook = new TestHook(
-            'test-page-loaded',
+            'test-config',
             Context::createDefaultContext(),
             [
                 'page' => $page,

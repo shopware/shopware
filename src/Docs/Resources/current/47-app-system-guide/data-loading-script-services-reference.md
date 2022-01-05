@@ -29,6 +29,53 @@ The criteria used for your search.
 
 A `EntitySearchResult` including all entities that matched your criteria.
 
+#### Examples
+
+Load a single product.
+```twig
+{% set page = hook.page %}
+{# @var page \Shopware\Storefront\Page\Page #}
+
+{% set criteria = {
+    'ids': [ hook.productId ]
+} %}
+
+{% set product = services.repository.search('product', criteria).first %}
+
+{% do page.addExtension('myProduct', product) %}
+```
+Filter the search result.
+```twig
+{% set page = hook.page %}
+{# @var page \Shopware\Storefront\Page\Page #}
+
+{% set criteria = {
+    'filter': [
+        { 'field': 'productNumber', 'type': 'equals', 'value': 'p1' }
+    ]
+} %}
+
+{% set product = services.repository.search('product', criteria).first %}
+
+{% do page.addExtension('myProduct', product) %}
+```
+Add associations that should be included in the result.
+```twig
+{% set page = hook.page %}
+{# @var page \Shopware\Storefront\Page\Page #}
+
+{% set criteria = {
+    'ids': [ hook.productId ],
+    'associations': {
+        'manufacturer': {}
+    }
+} %}
+
+{% set product = services.repository.search('product', criteria).first %}
+
+{% do page.addExtension('myProduct', product) %}
+{% do page.addExtension('myManufacturer', product.manufacturer) %}
+```
 ### ids()
 
 The `ids()` method allows you to search for the Ids of Entities that match a given criteria.
@@ -53,6 +100,25 @@ The criteria used for your search.
 
 A `IdSearchResult` including all entity-ids that matched your criteria.
 
+#### Examples
+
+Get the Ids of products with the given ProductNumber.
+```twig
+{% set page = hook.page %}
+{# @var page \Shopware\Storefront\Page\Page #}
+
+{% set criteria = {
+    'filter': [
+        { 'field': 'productNumber', 'type': 'equals', 'value': 'p1' }
+    ]
+} %}
+
+{% set productIds = services.repository.ids('product', criteria).ids %}
+
+{% do page.addArrayExtension('myProductIds', {
+    'ids': productIds
+}) %}
+```
 ### aggregate()
 
 The `aggregate()` method allows you to execute aggregations specified in the given criteria.
@@ -77,6 +143,25 @@ The criteria that define your aggregations.
 
 A `AggregationResultCollection` including the results of the aggregations you specified in the criteria.
 
+#### Examples
+
+Aggregate data for multiple entities, e.g. the sum of the gross price of all products.
+```twig
+{% set page = hook.page %}
+{# @var page \Shopware\Storefront\Page\Page #}
+
+{% set criteria = {
+    'aggregations': [
+        { 'name': 'sumOfPrices', 'type': 'sum', 'field': 'price.gross' }
+    ]
+} %}
+
+{% set sumResult = services.repository.aggregate('product', criteria).get('sumOfPrices') %}
+
+{% do page.addArrayExtension('myProductAggregations', {
+    'sum': sumResult.getSum
+}) %}
+```
 
 
 ## services.store (`Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacade`)
@@ -112,6 +197,53 @@ The criteria used for your search.
 
 A `EntitySearchResult` including all entities that matched your criteria.
 
+#### Examples
+
+Load a single storefront product.
+```twig
+{% set page = hook.page %}
+{# @var page \Shopware\Storefront\Page\Page #}
+
+{% set criteria = {
+    'ids': [ hook.productId ]
+} %}
+
+{% set product = services.store.search('product', criteria).first %}
+
+{% do page.addExtension('myProduct', product) %}
+```
+Filter the search result.
+```twig
+{% set page = hook.page %}
+{# @var page \Shopware\Storefront\Page\Page #}
+
+{% set criteria = {
+    'filter': [
+        { 'field': 'productNumber', 'type': 'equals', 'value': 'p1' }
+    ]
+} %}
+
+{% set product = services.store.search('product', criteria).first %}
+
+{% do page.addExtension('myProduct', product) %}
+```
+Add associations that should be included in the result.
+```twig
+{% set page = hook.page %}
+{# @var page \Shopware\Storefront\Page\Page #}
+
+{% set criteria = {
+    'ids': [ hook.productId ],
+    'associations': {
+        'manufacturer': {}
+    }
+} %}
+
+{% set product = services.store.search('product', criteria).first %}
+
+{% do page.addExtension('myProduct', product) %}
+{% do page.addExtension('myManufacturer', product.manufacturer) %}
+```
 ### ids()
 
 The `ids()` method allows you to search for the Ids of Entities that match a given criteria.
@@ -136,6 +268,25 @@ The criteria used for your search.
 
 A `IdSearchResult` including all entity-ids that matched your criteria.
 
+#### Examples
+
+Get the Ids of products with the given ProductNumber.
+```twig
+{% set page = hook.page %}
+{# @var page \Shopware\Storefront\Page\Page #}
+
+{% set criteria = {
+    'filter': [
+        { 'field': 'productNumber', 'type': 'equals', 'value': 'p1' }
+    ]
+} %}
+
+{% set productIds = services.store.ids('product', criteria).ids %}
+
+{% do page.addArrayExtension('myProductIds', {
+    'ids': productIds
+}) %}
+```
 ### aggregate()
 
 The `aggregate()` method allows you to execute aggregations specified in the given criteria.
@@ -160,5 +311,24 @@ The criteria that define your aggregations.
 
 A `AggregationResultCollection` including the results of the aggregations you specified in the criteria.
 
+#### Examples
+
+Aggregate data for multiple entities, e.g. the sum of the children of all products.
+```twig
+{% set page = hook.page %}
+{# @var page \Shopware\Storefront\Page\Page #}
+
+{% set criteria = {
+    'aggregations': [
+        { 'name': 'sumOfChildren', 'type': 'sum', 'field': 'childCount' }
+    ]
+} %}
+
+{% set sumResult = services.store.aggregate('product', criteria).get('sumOfChildren') %}
+
+{% do page.addArrayExtension('myProductAggregations', {
+    'sum': sumResult.getSum
+}) %}
+```
 
 

@@ -4,6 +4,7 @@ namespace Shopware\Docs\Command\Script;
 
 use League\ConstructFinder\ConstructFinder;
 use phpDocumentor\Reflection\DocBlock;
+use phpDocumentor\Reflection\DocBlock\Tags\Example;
 use phpDocumentor\Reflection\DocBlock\Tags\Generic;
 use phpDocumentor\Reflection\DocBlock\Tags\Method;
 use phpDocumentor\Reflection\DocBlock\Tags\Param;
@@ -11,6 +12,8 @@ use phpDocumentor\Reflection\DocBlock\Tags\Return_;
 use phpDocumentor\Reflection\DocBlockFactory;
 use Shopware\Core\Framework\Script\ServiceStubs;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 
@@ -47,6 +50,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
 
         $this->docFactory = DocBlockFactory::createInstance([
             'script-service' => Generic::class,
+            'example' => Example::class,
         ]);
 
         /** @var Method[] $methodDocs */
@@ -214,6 +218,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
                 'description' => $docBlock->getDescription()->render(),
                 'arguments' => $this->parseArguments($method, $docBlock),
                 'return' => $this->parseReturn($method, $docBlock),
+                'examples' => $this->parseExamples($method, $docBlock),
             ];
         }
 
@@ -298,5 +303,77 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
             'type' => $typeName,
             'description' => $tag->getDescription() ? $tag->getDescription()->render() : '',
         ];
+    }
+
+    private function parseExamples(\ReflectionMethod $method, DocBlock $docBlock): array
+    {
+        $examples = [];
+
+        $start = microtime(true);
+        /** @var Example $example */
+        foreach ($docBlock->getTagsByName('example') as $example) {
+            $finder = new Finder();
+            $finder->files()
+                ->in(__DIR__ . '/../../../')
+                // exclude js files including node_modules for performance reasons, filtering with `notPath`, etc. has no performance impact
+                // note that excluded paths need to be relative to platform/src and that no wildcards are supported
+                ->exclude([
+                    'Administration/Resources/app',
+                    'Storefront/Resources/app',
+                ])
+                ->path($example->getFilePath())
+                ->ignoreUnreadableDirs();
+
+            $files = iterator_to_array($finder);
+
+            if (\count($files) === 0) {
+                throw new \RuntimeException(sprintf(
+                    'Cannot find configured example file in `@example` annotation for method "%s()" in class "%s". File with pattern "%s" can not be found.',
+                    $method->getName(),
+                    $method->getDeclaringClass()->getName(),
+                    $example->getFilePath()
+                ));
+            }
+
+            if (\count($files) > 1) {
+                throw new \RuntimeException(sprintf(
+                    'Configured file pattern in `@example` annotation for method "%s()" in class "%s" is not unique. File pattern "%s" matched "%s".',
+                    $method->getName(),
+                    $method->getDeclaringClass()->getName(),
+                    $example->getFilePath(),
+                    implode('", "', array_keys($files))
+                ));
+            }
+
+            /** @var SplFileInfo $file */
+            $file = array_values($files)[0];
+
+            $examples[] = [
+                'description' => $example->getDescription(),
+                'src' => $this->getExampleSource($file, $example),
+                'extension' => $file->getExtension(),
+            ];
+        }
+
+        return $examples;
+    }
+
+    private function getExampleSource(SplFileInfo $file, Example $example): string
+    {
+        $file = new \SplFileObject($file->getPathname());
+
+        // SplFileObject expects zero-based line-numbers
+        $startingLine = $example->getStartingLine() - 1;
+        $file->seek($startingLine);
+
+        $content = '';
+        $lineCount = $example->getLineCount() === 0 ? \PHP_INT_MAX : $example->getLineCount();
+
+        while (($file->key() - $startingLine) < $lineCount && !$file->eof()) {
+            $content .= $file->current();
+            $file->next();
+        }
+
+        return trim($content);
     }
 }

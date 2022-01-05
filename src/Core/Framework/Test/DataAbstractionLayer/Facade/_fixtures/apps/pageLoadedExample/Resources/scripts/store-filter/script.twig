@@ -1,0 +1,12 @@
+{% set page = hook.page %}
+{# @var page \Shopware\Storefront\Page\Page #}
+
+{% set criteria = {
+    'filter': [
+        { 'field': 'productNumber', 'type': 'equals', 'value': 'p1' }
+    ]
+} %}
+
+{% set product = services.store.search('product', criteria).first %}
+
+{% do page.addExtension('myProduct', product) %}

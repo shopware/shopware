@@ -33,7 +33,17 @@
 **Type**: `{{ method.return.type }}`
 
 {{ method.return.description }}
+{% endif %}
 
+{% if method.examples is not empty %}
+#### Examples
+
+{% for example in method.examples %}
+{{ example.description }}
+```{{ example.extension }}
+{{ example.src|raw }}
+```
+{% endfor %}
 {% endif %}
 {% endfor %}
 

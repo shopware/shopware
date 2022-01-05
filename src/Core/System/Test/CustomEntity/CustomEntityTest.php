@@ -63,15 +63,11 @@ class CustomEntityTest extends TestCase
 
         $container = $this->initBlogEntity();
 
-        $this->transactional(function() {
-            $this->testPersist();
+        $this->testPersist();
 
-            $this->testCreateFromXml();
+        $this->testCreateFromXml();
 
-            $this->testApiCalls();
-
-            $this->testStoreApi();
-        });
+        $this->testEntityApi();
 
         $this->testRepository($container);
 
@@ -318,10 +314,9 @@ class CustomEntityTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $blog->get('topSeller'));
         static::assertCount(2, $blog->get('comments'));
         static::assertCount(2, $blog->get('links'));
-
     }
 
-    private function testApiCalls(): void
+    private function testEntityApi(): void
     {
         $ids = new IdsCollection();
 
@@ -364,19 +359,6 @@ class CustomEntityTest extends TestCase
         static::assertArrayHasKey('rating', $response['data'][0]);
     }
 
-    private function testStoreApi(): void
-    {
-        $browser = $this->getSalesChannelBrowser();
-
-        $browser->request('POST', '/store-api/custom-entity-blog');
-
-        $response = \json_decode($browser->getResponse()->getContent(), true);
-
-        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
-        static::assertArrayHasKey('apiAlias', $response);
-        static::assertSame('store_api_custom_entity_blog_response', $response['apiAlias']);
-    }
-
     private function transactional(\Closure $closure): void
     {
         $this->getContainer()->get(Connection::class)->transactional($closure);
@@ -417,62 +399,5 @@ class CustomEntityTest extends TestCase
         $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM app WHERE name = :name', ['name' => 'custom-entity-test']);
 
         $this->getContainer()->get(CustomEntitySchemaUpdater::class)->update();
-
-        return;
-
-        //############
-        try {
-            $this->getContainer()->get(Connection::class)
-                ->executeStatement('ALTER TABLE product DROP CONSTRAINT fk_ce_product_custom_entity_blog_comment_id');
-        } catch (Exception $e) {
-        }
-
-        try {
-            $this->getContainer()->get(Connection::class)
-                ->executeStatement('ALTER TABLE product DROP COLUMN `custom_entity_blog_comment_id`');
-        } catch (Exception $e) {
-        }
-
-        try {
-            $this->getContainer()->get(Connection::class)
-                ->executeStatement('DELETE FROM custom_entity_blog');
-        } catch (Exception $e) {
-        }
-
-        try {
-            $this->getContainer()->get(Connection::class)
-                ->executeStatement('ALTER TABLE category DROP CONSTRAINT fk_ce_category_custom_entity_blog_id');
-        } catch (Exception $e) {
-        }
-
-        try {
-            $this->getContainer()->get(Connection::class)
-                ->executeStatement('ALTER TABLE category DROP COLUMN `custom_entity_blog_id`');
-        } catch (Exception $e) {
-        }
-
-        $this->getContainer()->get(Connection::class)
-            ->executeStatement('DELETE FROM product WHERE product_number = :number', ['number' => 'p1']);
-
-        $this->getContainer()->get(Connection::class)
-            ->executeStatement('DELETE FROM tax WHERE name = :name', ['name' => 't1']);
-
-        $this->getContainer()->get(Connection::class)
-            ->executeStatement('DROP TABLE IF EXISTS custom_entity_blog_translation');
-
-        $this->getContainer()->get(Connection::class)
-            ->executeStatement('DROP TABLE IF EXISTS custom_entity_blog_comment_translation');
-
-        $this->getContainer()->get(Connection::class)
-            ->executeStatement('DROP TABLE IF EXISTS custom_entity_blog_product');
-
-        $this->getContainer()->get(Connection::class)
-            ->executeStatement('DROP TABLE IF EXISTS custom_entity_blog_comment');
-
-        $this->getContainer()->get(Connection::class)
-            ->executeStatement('DROP TABLE IF EXISTS custom_entity_blog');
-
-        $this->getContainer()->get(Connection::class)
-            ->executeStatement('DELETE FROM custom_entity');
     }
 }

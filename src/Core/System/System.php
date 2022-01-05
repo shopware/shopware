@@ -62,6 +62,10 @@ class System extends Bundle
 
     private function registerCustomEntities(ContainerInterface $container, Connection $connection, DefinitionInstanceRegistry $registry): void
     {
+        if (!$connection->isConnected()) {
+            return;
+        }
+
         if (!$connection->getSchemaManager()->tablesExist('custom_entity')) {
             return;
         }

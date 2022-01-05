@@ -34,9 +34,6 @@
             <tag name="routing.loader"/>
         </service>
 
-        <service id="Shopware\Core\System\CustomEntity\Api\CustomEntityStoreApiRoute" public="true">
-            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-        </service>
+
     </services>
 </container>

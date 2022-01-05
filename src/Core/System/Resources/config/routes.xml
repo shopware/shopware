@@ -16,5 +16,4 @@
     <import resource="../../Language/SalesChannel/**/*Route.php" type="annotation" />
     <import resource="../../Salutation/SalesChannel/**/*Route.php" type="annotation" />
     <import resource="../../Country/SalesChannel/**/*Route.php" type="annotation" />
-    <import resource="../../CustomEntity/Api/*Route.php" type="annotation" />
 </routes>

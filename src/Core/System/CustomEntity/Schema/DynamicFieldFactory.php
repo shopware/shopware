@@ -107,6 +107,9 @@ class DynamicFieldFactory
 
     private static function defineField(array $field, FieldCollection $collection, string $entityName, ContainerInterface $container): void
     {
+        // todo@dr consider api aware flag for fields
+        // todo@dr add cascade/set-null/restrict flags
+
         $registry = $container->get(DefinitionInstanceRegistry::class);
         if (!$registry instanceof DefinitionInstanceRegistry) {
             throw new ServiceNotFoundException(DefinitionInstanceRegistry::class);

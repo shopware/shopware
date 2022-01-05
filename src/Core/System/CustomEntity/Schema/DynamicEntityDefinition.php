@@ -28,6 +28,8 @@ class DynamicEntityDefinition extends EntityDefinition
         $self->fieldDefinitions = $fields;
         $self->container = $container;
 
+        //todo@dr consider store_api_aware flag and set protection for whole entity class
+
         return $self;
     }
 

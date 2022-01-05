@@ -51,7 +51,7 @@ Component.extend('sw-condition-promotion-code-of-type', 'sw-condition-base', {
         ...mapPropertyErrors('condition', ['value.operator', 'value.promotionCodeType']),
 
         currentError() {
-            return this.conditionValueOperatorError || this.conditionValueLineItemTypeError;
+            return this.conditionValueOperatorError || this.conditionValuePromotionCodeTypeError;
         },
     },
 });

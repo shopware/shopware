@@ -73,37 +73,33 @@ class NavigationLoader implements NavigationLoaderInterface
 
     private function getTree(?string $parentId, CategoryCollection $categories, ?CategoryEntity $active): Tree
     {
-        $tree = $this->buildTree($parentId, $categories->getElements());
+        $orderedCategories = [];
+        $categories->sortByPosition();
+
+        foreach ($categories->getElements() as $category) {
+            if (!$category->getActive() || !$category->getVisible()) {
+                continue;
+            }
+
+            $orderedCategories[$category->getParentId()][$category->getId()] = $category;
+        }
+
+        $tree = $this->buildTree($parentId, $orderedCategories);
 
         return new Tree($active, $tree);
     }
 
     /**
-     * @param CategoryEntity[] $categories
+     * @param array<string, CategoryEntity[]> $categories
      *
      * @return TreeItem[]
      */
     private function buildTree(?string $parentId, array $categories): array
     {
-        $children = new CategoryCollection();
-        foreach ($categories as $key => $category) {
-            if ($category->getParentId() !== $parentId) {
-                continue;
-            }
-
-            unset($categories[$key]);
-
-            $children->add($category);
-        }
-
-        $children->sortByPosition();
+        $children = new CategoryCollection($categories[$parentId] ?? []);
 
         $items = [];
         foreach ($children as $child) {
-            if (!$child->getActive() || !$child->getVisible()) {
-                continue;
-            }
-
             $item = clone $this->treeItem;
             $item->setCategory($child);
 

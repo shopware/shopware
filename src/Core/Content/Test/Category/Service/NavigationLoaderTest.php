@@ -227,15 +227,25 @@ class NavigationLoaderTest extends TestCase
     private function createSimpleTree(): array
     {
         return [
-            new TestTreeAware('1.1', '1'),
-            new TestTreeAware('1.1.1', '1.1'),
-            new TestTreeAware('1.1.2', '1.1'),
-            new TestTreeAware('1.2', '1'),
-            new TestTreeAware('1.2.1', '1.2'),
-            new TestTreeAware('1.2.1.1', '1.2.1'),
-            new TestTreeAware('1.2.2', '1.2'),
-            new TestTreeAware('1.2.2.1', '1.2.2'),
-            new TestTreeAware('1.3', '1'),
+            '1' => [
+                '1.1' => new TestTreeAware('1.1', '1'),
+                '1.2' => new TestTreeAware('1.2', '1'),
+                '1.3' => new TestTreeAware('1.3', '1'),
+            ],
+            '1.1' => [
+                '1.1.1' => new TestTreeAware('1.1.1', '1.1'),
+                '1.1.2' => new TestTreeAware('1.1.2', '1.1'),
+            ],
+            '1.2' => [
+                '1.2.1' => new TestTreeAware('1.2.1', '1.2'),
+                '1.2.2' => new TestTreeAware('1.2.2', '1.2'),
+            ],
+            '1.2.1' => [
+                '1.2.1.1' => new TestTreeAware('1.2.1.1', '1.2.1'),
+            ],
+            '1.2.2' => [
+                '1.2.2.1' => new TestTreeAware('1.2.2.1', '1.2.2'),
+            ],
         ];
     }
 

@@ -31,7 +31,7 @@
     {% block sw_settings_snippet_set_list_card %}
     <sw-card-view slot="content">
         {% block sw_settings_snippet_set_list_card_title %}
-        <sw-card>
+        <sw-card position-identifier="sw-settings-snippet-set-list-title">
             <h3>{{ $tc('sw-settings-snippet.setList.title') }}</h3>
             <p>{{ $tc('sw-settings-snippet.setList.description') }}</p>
         </sw-card>
@@ -39,6 +39,7 @@
 
         {% block sw_settings_snippet_set_list_card_list %}
         <sw-card
+            position-identifier="sw-settings-snippet-set-list-card-list"
             :is-loading="isLoading"
             :title="$tc('sw-settings-snippet.setList.cardTitle')"
         >

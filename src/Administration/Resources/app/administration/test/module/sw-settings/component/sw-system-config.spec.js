@@ -103,7 +103,8 @@ function createWrapper(defaultValues = {}) {
             'sw-simple-search-field': true,
             'sw-loader': true,
             'sw-datepicker': Shopware.Component.build('sw-text-field'),
-            'sw-text-editor': Shopware.Component.build('sw-text-field')
+            'sw-text-editor': Shopware.Component.build('sw-text-field'),
+            'sw-extension-component-section': true,
         },
         provide: {
             systemConfigApiService: {

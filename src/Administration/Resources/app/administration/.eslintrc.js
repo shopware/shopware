@@ -15,6 +15,13 @@ const baseRules = {
     'no-console': ['error', { allow: ['warn', 'error'] }],
     'inclusive-language/use-inclusive-words': 'error',
     'comma-dangle': ['error', 'always-multiline'],
+    'sw-core-rules/require-position-identifier': ['error', {
+        components: [
+            'sw-card',
+            'sw-tabs',
+            'sw-extension-component-section',
+        ],
+    }],
 };
 
 module.exports = {
@@ -41,6 +48,7 @@ module.exports = {
         'inclusive-language',
         'vuejs-accessibility',
         'file-progress',
+        'sw-core-rules',
     ],
 
     settings: {

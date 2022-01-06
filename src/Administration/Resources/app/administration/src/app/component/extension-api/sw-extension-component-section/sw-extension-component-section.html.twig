@@ -1,8 +1,10 @@
 <div>
     <template v-for="componentSection in componentSections">
+        {# These components should not contain a position identifier because it is generally rendered #}
         <sw-card
             v-if="componentSection.component === 'card'"
             :key="componentSection.props.locationId"
+            position-identifier=""
             :title="componentSection.props.title"
             :subtitle="componentSection.props.subtitle"
         >

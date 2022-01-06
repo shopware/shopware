@@ -6,6 +6,7 @@
         v-for="entity in associationEntities"
         :key="entity.id"
         class="sw-settings-rule-detail-assignments__card"
+        position-identifier="sw-settings-rule-detail-assignments-entity"
         :class="`sw-settings-rule-detail-assignments__card-${entity.id}`"
         :title="$tc(entity.label)"
     >
@@ -143,6 +144,7 @@
     <sw-card
         v-if="isLoading"
         class="sw-settings-rule-detail-assignments__card-loader"
+        position-identifier="sw-settings-rule-detail-assignments-loader"
     >
         <sw-loader />
     </sw-card>

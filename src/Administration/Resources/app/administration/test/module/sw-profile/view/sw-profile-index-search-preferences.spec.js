@@ -35,7 +35,8 @@ function createWrapper() {
             'sw-container': Shopware.Component.build('sw-container'),
             'sw-button': Shopware.Component.build('sw-button'),
             'sw-checkbox-field': true,
-            'sw-loader': true
+            'sw-loader': true,
+            'sw-extension-component-section': true,
         },
         provide: {
             repositoryFactory: {

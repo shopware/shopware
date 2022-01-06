@@ -2,7 +2,10 @@
 <div class="sw-promotion-v2-conditions">
 
     {% block sw_promotion_v2_conditions_pre_conditions_card %}
-    <sw-card :title="$tc('sw-promotion-v2.detail.conditions.preConditions.cardTitlePreConditions')">
+    <sw-card
+        :title="$tc('sw-promotion-v2.detail.conditions.preConditions.cardTitlePreConditions')"
+        position-identifier="sw-promotion-conditions-pre-conditions"
+    >
 
         {% block sw_promotion_v2_conditions_pre_conditions_sales_channel_selection %}
         <sw-promotion-v2-sales-channel-select
@@ -40,7 +43,10 @@
     {% endblock %}
 
     {% block sw_promotion_v2_rule_conditions_card %}
-    <sw-card :title="$tc('sw-promotion-v2.detail.conditions.preConditions.cardTitleRuleConditions')">
+    <sw-card
+        :title="$tc('sw-promotion-v2.detail.conditions.preConditions.cardTitleRuleConditions')"
+        position-identifier="sw-promotion-conditions-rules"
+    >
 
         {% block sw_promotion_v2_rule_conditions_rule_select_customer %}
         <sw-promotion-v2-rule-select

@@ -52,7 +52,10 @@
         {% endblock %}
 
         {% block sw_settings_number_range_detail_content_card %}
-        <sw-card :title="$tc('sw-settings-number-range.detail.configCard')">
+        <sw-card
+            :title="$tc('sw-settings-number-range.detail.configCard')"
+            position-identifier="sw-settings-number-range-detail-content"
+        >
             {% block sw_settings_number_range_detail_content_global_warning %}
             <sw-alert
                 v-if="numberRange && numberRange.type && numberRange.type.global"
@@ -192,6 +195,7 @@
         {% block sw_settings_number_range_detail_assignment_card %}
         <sw-card
             :title="$tc('sw-settings-number-range.detail.assignmentCard')"
+            position-identifier="sw-settings-number-range-detail-assignment"
             class="sw-settings-number-range-detail-assignment"
         >
             {% block sw_settings_number_range_detail_assignment_card_global_warning %}
@@ -257,6 +261,7 @@
         {% block sw_settings_number_range_detail_custom_field_sets %}
         <sw-card
             v-if="showCustomFields"
+            position-identifier="sw-settings-number-range-detail-custom-field-sets"
             :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
             :is-loading="isLoading"
         >

@@ -47,6 +47,7 @@
             {% block sw_bulk_edit_product_content_gereral_information_card %}
             <sw-card
                 class="sw-bulk-edit-product-base__info"
+                position-identifier="sw-bulk-edit-product-info"
                 :title="$tc('sw-bulk-edit.product.generalInformation.cardTitle')"
             >
                 {% block sw_bulk_edit_product_content_gereral_information %}
@@ -63,6 +64,7 @@
             <sw-card
                 v-if="feature.isActive('FEATURE_NEXT_19244')"
                 class="sw-bulk-edit-product-base__prices"
+                position-identifier="sw-bulk-edit-product-prices"
                 :title="$tc('sw-bulk-edit.product.prices.cardTitle')"
             >
                 {% block sw_bulk_edit_product_content_prices %}
@@ -80,6 +82,7 @@
             <sw-card
                 v-if="feature.isActive('FEATURE_NEXT_19244')"
                 class="sw-bulk-edit-product-base__advanced-prices"
+                position-identifier="sw-bulk-edit-product-advanced-prices"
                 :title="$tc('sw-bulk-edit.product.advancedPrices.cardTitle')"
             >
                 {% block sw_bulk_edit_product_content_advanced_prices %}
@@ -170,6 +173,7 @@
             {% block sw_bulk_edit_product_content_property_card %}
             <sw-card
                 class="sw-bulk-edit-product-base__property"
+                position-identifier="sw-bulk-edit-product-property"
                 :title="$tc('sw-bulk-edit.product.property.cardTitle')"
                 :is-loading="isLoading"
             >
@@ -186,6 +190,7 @@
             {% block sw_bulk_edit_product_content_deliverability_card %}
             <sw-card
                 class="sw-bulk-edit-product-base__deliverability"
+                position-identifier="sw-bulk-edit-product-deliverability"
                 :title="$tc('sw-bulk-edit.product.deliverability.cardTitle')"
                 :is-loading="isLoading"
             >
@@ -202,6 +207,7 @@
             {% block sw_bulk_edit_product_content_assignments_card %}
             <sw-card
                 class="sw-bulk-edit-product-base__assignment"
+                position-identifier="sw-bulk-edit-product-assignment"
                 :title="$tc('sw-bulk-edit.product.assignment.cardTitle')"
                 :is-loading="isLoading"
             >
@@ -218,6 +224,7 @@
             {% block sw_bulk_edit_product_content_media_card %}
             <sw-card
                 class="sw-bulk-edit-product-base__media"
+                position-identifier="sw-bulk-edit-product-media"
                 :title="$tc('sw-bulk-edit.product.media.cardTitle')"
                 :is-loading="isLoading"
             >
@@ -234,6 +241,7 @@
             {% block sw_bulk_edit_product_content_labelling_card %}
             <sw-card
                 class="sw-bulk-edit-product-base__labelling"
+                position-identifier="sw-bulk-edit-product-labelling"
                 :title="$tc('sw-bulk-edit.product.labelling.cardTitle')"
                 :is-loading="isLoading"
             >
@@ -250,6 +258,7 @@
             {% block sw_bulk_edit_product_content_seo_card %}
             <sw-card
                 class="sw-bulk-edit-product-base__seo"
+                position-identifier="sw-bulk-edit-product-seo"
                 :title="$tc('sw-bulk-edit.product.seo.cardTitle')"
                 :is-loading="isLoading"
             >
@@ -266,6 +275,7 @@
             {% block sw_bulk_edit_product_content_meansures_packaging_card %}
             <sw-card
                 class="sw-bulk-edit-product-base__measures"
+                position-identifier="sw-bulk-edit-product-measures"
                 :title="$tc('sw-bulk-edit.product.measuresAndPackaging.cardTitle')"
                 :is-loading="isLoading"
             >
@@ -280,6 +290,7 @@
             {% block sw_bulk_edit_product_content_essential_card %}
             <sw-card
                 class="sw-bulk-edit-product-base___essential"
+                position-identifier="sw-bulk-edit-product-essential"
                 :title="$tc('sw-bulk-edit.product.featureSets.cardTitle')"
                 :is-loading="isLoading"
             >
@@ -295,6 +306,7 @@
             <sw-card
                 v-if="customFieldSets.length > 0"
                 class="sw-bulk-edit-product-base__custom_fields"
+                position-identifier="sw-bulk-edit-product-custom-fields"
                 :title="$tc('sw-bulk-edit.product.customFields.cardTitle')"
                 :is-loading="isLoading"
             >

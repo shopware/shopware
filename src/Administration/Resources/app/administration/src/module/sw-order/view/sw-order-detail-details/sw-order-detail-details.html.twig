@@ -210,6 +210,7 @@
     {% block sw_order_detail_details_custom_fields %}
     <sw-card
         v-if="customFieldSets.length > 0"
+        position-identifier="sw-order-detail-details-custom-fields"
         :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
         :is-loading="isLoading"
     >

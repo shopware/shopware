@@ -1,6 +1,9 @@
 {% block sw_promotion_persona_form %}
 <div class="sw-promotion-persona-form">
-    <sw-card :title="$tc('sw-promotion.detail.main.preconditions.persona.card')">
+    <sw-card
+        :title="$tc('sw-promotion.detail.main.preconditions.persona.card')"
+        position-identifier="sw-promotion-persona-form"
+    >
         {% block sw_promotion_persona_form_rules %}
         <div class="sw-promotion-persona-form-rules">
             <h4>{{ $tc('sw-promotion.detail.main.preconditions.persona.title') }}</h4>
@@ -34,7 +37,10 @@
         {% endblock %}
     </sw-card>
 
-    <sw-card v-if="promotion && promotion.customerRestriction">
+    <sw-card
+        v-if="promotion && promotion.customerRestriction"
+        position-identifier="sw-promotion-persona-form-customers"
+    >
         {% block sw_promotion_persona_form_customers %}
         <div class="sw-promotion-persona-form-customers">
             {% block sw_promotion_persona_form_customer_search_field %}

@@ -55,6 +55,7 @@ const detailPage = (additionalOptions = {}, privileges = []) => {
             'sw-base-field': Shopware.Component.build('sw-base-field'),
             'sw-field-error': true,
             'sw-settings-product-feature-sets-values-card': true,
+            'sw-extension-component-section': true,
             i18n: true
         },
         propsData: {

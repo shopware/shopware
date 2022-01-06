@@ -1,5 +1,8 @@
 {% block sw_mail_header_footer_list_grid %}
-<sw-card :title="$tc('sw-mail-header-footer.list.textMailHeaderFooterOverview')">
+<sw-card
+    :title="$tc('sw-mail-header-footer.list.textMailHeaderFooterOverview')"
+    position-identifier="sw-mail-header-footer-list"
+>
 
     <template>
         {% block sw_mail_header_footer_list_grid_empty_state %}

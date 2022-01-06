@@ -56,6 +56,7 @@
             {% block sw_settings_listing_content_card_view_default_sales_channel %}
             <sw-card
                 class="sw-settings-listing__sales-channel-card"
+                position-identifier="sw-settings-listing-sales-channel"
                 :title="$tc('sw-settings-listing.index.defaultSalesChannel.title')"
             >
                 <sw-settings-listing-default-sales-channel
@@ -116,6 +117,7 @@
             {% block sw_settings_listing_content_card_view_options_card %}
             <sw-card
                 class="sw-settings-listing-index__sorting-options-card"
+                position-identifier="sw-settings-listing-sorting-options"
                 :title="$tc('sw-settings-listing.index.productSorting.title')"
                 :is-loading="isProductSortingOptionsCardLoading"
             >

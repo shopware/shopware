@@ -13,6 +13,7 @@
     <sw-card
         v-for="card, index in config"
         :key="index"
+        position-identifier="sw-system-config-content"
         :class="`sw-system-config__card--${index}`"
         :is-loading="isLoading"
         :title="getInlineSnippet(card.title)"

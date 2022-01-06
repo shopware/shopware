@@ -4,7 +4,7 @@
     <sw-card-view slot="content">
 
         {% block sw_import_export_tabs %}
-        <sw-tabs>
+        <sw-tabs position-identifier="sw-import-export">
             {% block sw_import_export_tabs_import %}
             <sw-tabs-item :route="{ name: 'sw.import.export.index.import' }">
                 {{ $tc('sw-import-export.page.importTab') }}

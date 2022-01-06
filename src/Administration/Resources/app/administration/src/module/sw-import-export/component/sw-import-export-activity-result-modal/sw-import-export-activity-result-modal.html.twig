@@ -10,6 +10,7 @@
         {% block sw_import_export_activity_result_modal_info_mainEntity %}
         <sw-card
             class="sw-import-export-activity-result-modal__main-activity"
+            position-identifier="sw-import-export-activity-result-modal-main-activity"
             :title="$tc('sw-import-export.activity.result.mainEntity.title', 0, { entity: mainEntity })"
         >
             {% block sw_import_export_activity_result_modal_info_mainEntity_list %}
@@ -64,6 +65,7 @@
         {% block sw_import_export_activity_result_modal_info_log %}
         <sw-card
             class="sw-import-export-activity-result-modal__log-info"
+            position-identifier="sw-import-export-activity-result-modal-log-info"
             :title="$tc('sw-import-export.activity.result.logInfo.title')"
         >
             {% block sw_import_export_activity_result_modal_info_log_list %}

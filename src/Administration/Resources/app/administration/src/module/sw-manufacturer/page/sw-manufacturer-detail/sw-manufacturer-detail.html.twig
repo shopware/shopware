@@ -59,6 +59,7 @@
 
         {% block sw_manufacturer_detail_base_basic_info_card %}
         <sw-card
+            position-identifier="sw-manufacturer-detail-basic-info"
             :title="$tc('sw-manufacturer.detail.cardTitleManufacturerInfo')"
             :is-loading="manufacturerIsLoading"
         >
@@ -137,6 +138,7 @@
         {% block sw_manufacturer_detail_custom_field_sets %}
         <sw-card
             v-if="customFieldSets.length > 0"
+            position-identifier="sw-manufacturer-detail-custom-field-sets"
             :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
             :is-loading="manufacturerIsLoading"
         >

@@ -37,6 +37,7 @@
             {% block sw_cms_page_form_section_empty_state_block %}
             <sw-card
                 v-if="section.blocks.length === 0"
+                position-identifier="sw-cms-page-form-empty"
                 class="sw-cms-page-form__block-card is--empty"
             >
 
@@ -94,6 +95,7 @@
                 {% block sw_cms_page_form_card %}
                 <sw-card
                     :key="block.id"
+                    position-identifier="sw-cms-page-form-block"
                     class="sw-cms-page-form__block-card"
                     :title="$tc(getBlockTitle(block))"
                 >

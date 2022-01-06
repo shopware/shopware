@@ -51,6 +51,7 @@
     {% block sw_settings_units_content %}
     <sw-card-view slot="content">
         <sw-card
+            position-identifier="sw-settings-units-content"
             :is-loading="isLoading"
             :class="{ 'sw-settings-units-card-empty': isEmpty }"
         >

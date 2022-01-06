@@ -43,6 +43,7 @@
             {% block sw_review_detail_basic_info_card %}
             <sw-card
                 v-if="review"
+                position-identifier="sw-review-detail-basic-info"
                 :title="$tc('sw-review.detail.cardTitleReviewInfo')"
                 :is-loading="isLoading"
             >
@@ -219,6 +220,7 @@
 
             <sw-card
                 v-if="review"
+                position-identifier="sw-review-detail-properties"
                 class="sw-review-properties"
                 :title="$tc('sw-review.detail.cardTitleReviewProperties')"
                 :is-loading="isLoading"
@@ -259,6 +261,7 @@
 
             <sw-card
                 v-if="review"
+                position-identifier="sw-review-detail-comment"
                 :title="$tc('sw-review.detail.labelComment')"
                 :is-loading="isLoading"
             >
@@ -277,6 +280,7 @@
             {% block sw_review_detail_custom_field_sets %}
             <sw-card
                 v-if="showCustomFields"
+                position-identifier="sw-review-detail-custom-field-sets"
                 :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
                 :is-loading="isLoading"
             >

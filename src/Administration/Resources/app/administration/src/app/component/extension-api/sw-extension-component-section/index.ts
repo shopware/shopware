@@ -16,11 +16,11 @@ Shopware.Component.register('sw-extension-component-section', {
         property: 'ui.componentSection',
         method: 'add',
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        positionId: (currentComponent) => currentComponent.positionId as string,
+        positionId: (currentComponent) => currentComponent.positionIdentifier as string,
     },
 
     props: {
-        positionId: {
+        positionIdentifier: {
             type: String,
             required: true,
         },
@@ -28,7 +28,7 @@ Shopware.Component.register('sw-extension-component-section', {
 
     computed: {
         componentSections(): ComponentSectionEntry[] {
-            return Shopware.State.get('extensionComponentSections').identifier[this.positionId] ?? [];
+            return Shopware.State.get('extensionComponentSections').identifier[this.positionIdentifier] ?? [];
         },
     },
 });

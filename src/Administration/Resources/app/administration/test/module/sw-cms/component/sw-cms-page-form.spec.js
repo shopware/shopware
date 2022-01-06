@@ -20,6 +20,7 @@ function createWrapper() {
             'sw-cms-el-config-text': {
                 template: '<div class="config-element">Config element</div>'
             },
+            'sw-extension-component-section': true,
             'sw-ignore-class': Shopware.Component.build('sw-ignore-class'),
         },
         provide: {

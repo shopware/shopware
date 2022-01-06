@@ -4,6 +4,7 @@
     {% block sw_sales_channel_detail_base_general %}
     <sw-card
         v-if="salesChannel"
+        position-identifier="sw-sales-channel-detail-base-general"
         :is-loading="isLoading"
         :title="$tc('sw-sales-channel.detail.titleGeneralSettings')"
     >
@@ -193,6 +194,7 @@
     {% block sw_sales_channel_shipping_payment %}
     <sw-card
         v-if="salesChannel"
+        position-identifier="sw-sales-channel-detail-base-shipping-payment"
         :is-loading="isLoading"
         :title="$tc('sw-sales-channel.detail.titleShippingPayment')"
     >
@@ -290,6 +292,7 @@
     {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront %}
     <sw-card
         v-if="salesChannel && isProductComparison"
+        position-identifier="sw-sales-channel-detail-base-general-input-product-comparison-storefront"
         :is-loading="isLoading"
         :title="$tc('sw-sales-channel.detail.productComparison.storefront')"
     >
@@ -393,6 +396,7 @@
     {% block sw_sales_channel_detail_base_general_input_product_comparison_settings %}
     <sw-card
         v-if="salesChannel && isProductComparison"
+        position-identifier="sw-sales-channel-detail-base-general-input-product-comparison-settings"
         :is-loading="isLoading"
         :title="$tc('sw-sales-channel.detail.productComparison.settings')"
     >
@@ -501,6 +505,7 @@
     {% block sw_sales_channel_detail_base_options_api %}
     <sw-card
         v-if="salesChannel"
+        position-identifier="sw-sales-channel-detail-base-options-api"
         :is-loading="isLoading"
         :title="$tc('sw-sales-channel.detail.titleOptionsApiKey')"
     >
@@ -586,6 +591,7 @@
     {% block sw_sales_channel_detail_base_options_status %}
     <sw-card
         v-if="salesChannel"
+        position-identifier="sw-sales-channel-detail-base-options-status"
         :title="$tc('sw-sales-channel.detail.titleStatus')"
         :is-loading="isLoading"
     >
@@ -657,6 +663,7 @@
     {% block sw_sales_channel_detail_base_options_delete %}
     <sw-card
         v-if="salesChannel && acl.can('sales_channel.deleter')"
+        position-identifier="sw-sales-channel-detail-base-options-delete"
         :title="$tc('sw-sales-channel.detail.deleteModalTitle')"
         :is-loading="isLoading"
     >
@@ -733,6 +740,7 @@
     {% block sw_sales_channel_detail_custom_field_sets %}
     <sw-card
         v-if="salesChannel && customFieldSets.length > 0"
+        position-identifier="sw-sales-channel-detail-base-custom-field-sets"
         :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
         :is-loading="isLoading"
     >

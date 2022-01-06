@@ -2,6 +2,7 @@
 <div class="sw-profile-index-general">
     {% block sw_profile_index_general_information %}
     <sw-card
+        position-identifier="sw-profile-index-general"
         :title="$tc('sw-profile.index.titleInfoCard')"
         :is-loading="isUserLoading || !languageId"
     >
@@ -67,6 +68,7 @@
     {% block sw_profile_index_general_image %}
     <sw-card
         v-if="acl.can('media.creator')"
+        position-identifier="sw-profile-index-general-image"
         :title="$tc('sw-profile.index.titleImageCard')"
         :is-loading="isUserLoading || !languageId"
     >
@@ -94,6 +96,7 @@
 
     {% block sw_profile_index_general_password %}
     <sw-card
+        position-identifier="sw-profile-index-general-password"
         :title="$tc('sw-profile.index.titlePasswordCard')"
         :is-loading="isUserLoading || !languageId"
     >

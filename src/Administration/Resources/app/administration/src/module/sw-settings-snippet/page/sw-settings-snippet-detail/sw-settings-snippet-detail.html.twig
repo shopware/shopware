@@ -66,6 +66,7 @@
         <div class="sw-settings-snippet-set-detail-card">
             {% block sw_settings_snippet_set_detail_card_information %}
             <sw-card
+                position-identifier="sw-settings-snippet-detail-information"
                 :title="$tc('sw-settings-snippet.detail.cardGeneralTitle')"
                 :is-loading="isLoading"
             >
@@ -88,6 +89,7 @@
 
             {% block sw_settings_snippet_set_detail_card_snippets %}
             <sw-card
+                position-identifier="sw-settings-snippet-detail-snippets"
                 :title="$tc('sw-settings-snippet.detail.cardSnippetSetsTitle')"
                 :is-loading="isLoading"
             >

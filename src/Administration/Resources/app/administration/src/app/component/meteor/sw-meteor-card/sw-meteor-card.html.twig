@@ -55,6 +55,7 @@
         {% block sw_meteor_card_tabs %}
         <sw-tabs
             v-if="!!$slots.tabs || !!$scopedSlots.tabs"
+            position-identifier="sw-meteor-card"
             :small="false"
             :default-item="defaultTab"
             @new-item-active="setActiveTab($event.name)"

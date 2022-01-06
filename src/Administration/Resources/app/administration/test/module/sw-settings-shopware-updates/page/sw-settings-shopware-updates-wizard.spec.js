@@ -202,7 +202,8 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                 },
                 'sw-button': Shopware.Component.build('sw-button'),
                 'sw-color-badge': Shopware.Component.build('sw-color-badge'),
-                'sw-app-actions': true
+                'sw-app-actions': true,
+                'sw-extension-component-section': true,
             }
         });
     });

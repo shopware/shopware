@@ -4,6 +4,7 @@
     <sw-card
         v-show="showProductCard('measures_packaging')"
         class="sw-product-detail-specification__measures-packaging"
+        position-identifier="sw-product-detail-specifications-measures-packaging"
         :title="$tc('sw-product.specifications.cardTitleMeasuresPackaging')"
         :is-loading="isLoading"
     >
@@ -31,6 +32,7 @@
     <sw-card
         v-show="showProductCard('essential_characteristics')"
         class="sw-product-detail-specification__essential-characteristics"
+        position-identifier="sw-product-detail-specifications-essential-characteristics"
         :title="$tc('sw-product.specifications.cardTitleEssentialCharacteristics')"
         :is-loading="isLoading"
     >
@@ -50,6 +52,7 @@
     <sw-card
         v-show="showCustomFieldsCard"
         class="sw-product-detail-specification__custom-fields"
+        position-identifier="sw-product-detail-specifications-custom-fields"
         :title="$tc('sw-product.specifications.cardTitleCustomFields')"
         :is-loading="isLoading"
     >

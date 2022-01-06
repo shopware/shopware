@@ -10,6 +10,7 @@
             {% block sw_settings_content_tabs %}
             <sw-tabs
                 class="sw-settings__tabs"
+                position-identifier="sw-settings-index"
                 :is-vertical="true"
                 :small="false"
             >
@@ -62,7 +63,10 @@
                     </h1>
                     {% endblock %}
 
-                    <sw-card class="sw-settings__card">
+                    <sw-card
+                        class="sw-settings__card"
+                        position-identifier="sw-settings-index-content"
+                    >
                         {% block sw_settings_content_card_content %}
                         <slot
                             v-for="(settingsItems, settingsGroup) in settingsGroups"

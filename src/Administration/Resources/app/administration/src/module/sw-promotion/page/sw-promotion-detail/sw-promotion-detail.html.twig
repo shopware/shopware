@@ -56,7 +56,10 @@
             {% endblock %}
 
             {% block sw_promotion_detail_content_tabs %}
-            <sw-tabs class="sw-promotion-detail-page__tabs">
+            <sw-tabs
+                class="sw-promotion-detail-page__tabs"
+                position-identifier="sw-promotion-detail-page"
+            >
                 {% block sw_promotion_detail_content_tabs_general %}
                 <sw-tabs-item
                     :route="{ name: 'sw.promotion.detail.base', params: { id: $route.params.id } }"

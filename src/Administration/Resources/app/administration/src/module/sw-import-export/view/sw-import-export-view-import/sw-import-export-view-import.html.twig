@@ -1,7 +1,10 @@
 {% block sw_import_export_view_import %}
 <div class="sw-import-export-view-import">
     {% block sw_import_export_view_import_importer %}
-    <sw-card :title="$tc('sw-import-export.importer.importLabel')">
+    <sw-card
+        :title="$tc('sw-import-export.importer.importLabel')"
+        position-identifier="sw-import-export-view-import"
+    >
         <sw-import-export-importer
             @import-started="reloadContent"
         />
@@ -9,7 +12,10 @@
     {% endblock %}
 
     {% block sw_import_export_view_import_activity %}
-    <sw-card class="sw-import-export-view-import__activity">
+    <sw-card
+        class="sw-import-export-view-import__activity"
+        position-identifier="sw-import-export-view-import-log-activity"
+    >
         {% block sw_import_export_view_import_activity_title %}
         <template slot="title">
             <div class="sw-card__title">

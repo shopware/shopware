@@ -9,7 +9,10 @@
     {% block sw_product_modal_delivery_sidebar %}
     <div class="sw-product-modal-delivery__sidebar">
         {% block sw_product_modal_delivery_sidebar_tabs %}
-        <sw-tabs is-vertical>
+        <sw-tabs
+            is-vertical
+            position-identifier="sw-product-modal-delivery"
+        >
             {% block sw_product_modal_delivery_sidebar_tabs_items %}
             <sw-tabs-item
                 :active="activeTab == 'order'"

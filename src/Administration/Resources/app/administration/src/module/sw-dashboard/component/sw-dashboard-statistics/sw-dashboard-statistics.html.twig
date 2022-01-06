@@ -18,7 +18,7 @@
         </div>
         {% endblock %}
 
-        <sw-card>
+        <sw-card position-identifier="sw-dashboard-statistics-stats-today">
             {% block sw_dashboard_statistics_intro_stats_today %}
             <div class="sw-dashboard-statistics__intro-stats-today">
                 {% block sw_dashboard_statistics_intro_stats_today_stats %}
@@ -170,7 +170,10 @@
         {% endblock %}
 
         {% block sw_dashboard_statistics_count %}
-        <sw-card class="sw-dashboard-statistics__statistics-count">
+        <sw-card
+            class="sw-dashboard-statistics__statistics-count"
+            position-identifier="sw-dashboard-statistics-count"
+        >
             {% block sw_dashboard_statistics_count_chart %}
             <sw-chart
                 type="line"
@@ -184,7 +187,10 @@
         {% endblock %}
 
         {% block sw_dashboard_statistics_sum %}
-        <sw-card class="sw-dashboard-statistics__statistics-sum">
+        <sw-card
+            class="sw-dashboard-statistics__statistics-sum"
+            position-identifier="sw-dashboard-statistics-sum"
+        >
             {% block sw_dashboard_statistics_sum_chart %}
             <sw-chart
                 type="line"

@@ -106,7 +106,8 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
                 'sw-data-grid-skeleton': true,
                 'sw-pagination': true,
                 'sw-help-text': true,
-                'sw-loader': true
+                'sw-loader': true,
+                'sw-extension-component-section': true,
             },
             mocks: {
                 $tc: (key) => {

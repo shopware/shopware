@@ -8,7 +8,10 @@
     {% block sw_product_modal_variant_generation_sidebar %}
     <div class="sw-product-modal-variant-generation__sidebar">
         {% block sw_product_modal_variant_generation_sidebar_tabs %}
-        <sw-tabs is-vertical>
+        <sw-tabs
+            is-vertical
+            position-identifier="sw-product-modal-variant-generation"
+        >
             {% block sw_product_modal_variant_generation_sidebar_tabs_items %}
 
             {% block sw_product_modal_variant_generation_sidebar_tabs_item_options %}

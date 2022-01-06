@@ -68,7 +68,10 @@
     <template slot="content">
         <sw-card-view>
             {% block sw_settings_customer_group_list_card_content %}
-            <sw-card :is-loading="isLoading">
+            <sw-card
+                :is-loading="isLoading"
+                position-identifier="sw-settings-customer-group-list"
+            >
 
                 {% block sw_settings_customer_group_list_grid %}
                 <template slot="grid">

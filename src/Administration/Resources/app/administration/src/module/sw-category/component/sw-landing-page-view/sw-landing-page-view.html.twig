@@ -1,5 +1,8 @@
 {% block sw_landing_page_view %}
-<sw-card-view class="sw-landing_page-view">
+<sw-card-view
+    class="sw-landing_page-view"
+    position-identifier="sw-landing-page-view"
+>
 
     {% block sw_landing_page_view_language_info %}
     <sw-language-info
@@ -11,6 +14,7 @@
     <sw-tabs
         v-if="!isLoading"
         class="sw-customer-detail-page__tabs"
+        position-identifier="sw-landing-page-view"
     >
 
         {% block sw_landing_page_view_tabs_general %}

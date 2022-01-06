@@ -50,6 +50,7 @@
                 <sw-tabs
                     is-vertical
                     small
+                    position-identifier="sw-cms-list-sidebar"
                     class="sw-cms-list__type-nav"
                 >
                     <sw-tabs-item
@@ -228,6 +229,7 @@
                     {% block sw_cms_list_listing_list_card %}
                     <sw-card
                         v-else-if="listMode === 'list'"
+                        position-identifier="sw-cms-list-list-mode"
                         class="sw-cms-list__list-card"
                     >
                         <template slot="grid">

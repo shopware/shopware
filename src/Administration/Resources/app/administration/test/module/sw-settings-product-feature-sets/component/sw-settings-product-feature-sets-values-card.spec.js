@@ -56,6 +56,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                 'sw-checkbox-field': true,
                 'sw-data-grid-column-position': swDataGridColumnPosition,
                 'sw-button-group': true,
+                'sw-extension-component-section': true,
                 i18n: true
             },
             propsData: {

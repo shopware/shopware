@@ -69,7 +69,7 @@ export default class ProductPageObject {
         }
 
         cy.get(`.sw-grid ${optionsIndicator}`)
-            .contains(new RegExp(`${optionPosition.length} (values? |)(selected|geselecteerde waarden)`));
+            .contains(new RegExp(`${optionPosition.length} (values? |)(selected|geselecteerde waarden|geselecteerde waarde)`));
         cy.get('.sw-product-variant-generation__generate-action').click();
         cy.get('.sw-product-modal-variant-generation__notification-modal').should('be.visible');
 

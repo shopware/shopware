@@ -24,6 +24,7 @@ class ScriptApiRouteTest extends TestCase
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');
 
+        $this->kernelBrowser = null;
         $browser = $this->getBrowser();
         $browser->request('POST', '/api/script/simple-script');
 
@@ -58,6 +59,29 @@ class ScriptApiRouteTest extends TestCase
         static::assertEquals('bar', $response['foo']);
     }
 
+    public function testAppNotAllowed(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures');
+
+        $browser = $this->getBrowser(true, [], ['app.shop-owner']);
+        $browser->request('POST', '/api/script/simple-script');
+        $response = \json_decode($browser->getResponse()->getContent(), true);
+
+        static::assertEquals(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode());
+        static::assertArrayHasKey('errors', $response);
+        static::assertEquals('FRAMEWORK__PERMISSION_DENIED', $response['errors'][0]['code']);
+
+        $this->kernelBrowser = null;
+        $browser = $this->getBrowser(true, [], ['app.all']);
+        $browser->request('POST', '/api/script/simple-script');
+        static::assertEquals(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
+
+        $this->kernelBrowser = null;
+        $browser = $this->getBrowser(true, [], ['app.api-endpoint-cases']);
+        $browser->request('POST', '/api/script/simple-script');
+        static::assertEquals(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
+    }
+
     public function testRepositoryCall(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');
@@ -82,6 +106,7 @@ class ScriptApiRouteTest extends TestCase
             'limit' => 1,
         ];
 
+        $this->kernelBrowser = null;
         $browser = $this->getBrowser();
         $browser->request('POST', '/api/script/repository-test', [], [], [], \json_encode($criteria));
         $response = \json_decode($browser->getResponse()->getContent(), true);
@@ -105,6 +130,7 @@ class ScriptApiRouteTest extends TestCase
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');
 
+        $this->kernelBrowser = null;
         $browser = $this->getBrowser();
         $browser->request('POST', '/api/script/insufficient-permissions');
 

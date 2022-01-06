@@ -76,7 +76,8 @@ trait AdminApiTestBehaviour
         ?KernelInterface $kernel = null,
         bool $enableReboot = false,
         bool $authorized = true,
-        array $scopes = []
+        array $scopes = [],
+        ?array $permissions = null
     ): KernelBrowser {
         if (!$kernel) {
             $kernel = $this->getKernel();
@@ -91,7 +92,7 @@ trait AdminApiTestBehaviour
         ]);
 
         if ($authorized) {
-            $this->authorizeBrowser($apiBrowser, $scopes);
+            $this->authorizeBrowser($apiBrowser, $scopes, $permissions);
         }
 
         return $this->kernelBrowser = $apiBrowser;
@@ -265,7 +266,7 @@ trait AdminApiTestBehaviour
 
     abstract protected function getKernel(): KernelInterface;
 
-    protected function getBrowser(bool $authorized = true, array $scopes = []): KernelBrowser
+    protected function getBrowser(bool $authorized = true, array $scopes = [], ?array $permissions = null): KernelBrowser
     {
         if ($this->kernelBrowser) {
             return $this->kernelBrowser;
@@ -275,7 +276,8 @@ trait AdminApiTestBehaviour
             null,
             false,
             $authorized,
-            $scopes
+            $scopes,
+            $permissions
         );
     }
 

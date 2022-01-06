@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -45,8 +44,6 @@ class AccountProfileControllerTest extends TestCase
 
     public function testAccountOverviewPageLoadedScriptsAreExecuted(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $context = Context::createDefaultContext();
         $customer = $this->createCustomer($context);
 
@@ -64,8 +61,6 @@ class AccountProfileControllerTest extends TestCase
 
     public function testAccountProfilePageLoadedScriptsAreExecuted(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $context = Context::createDefaultContext();
         $customer = $this->createCustomer($context);
 

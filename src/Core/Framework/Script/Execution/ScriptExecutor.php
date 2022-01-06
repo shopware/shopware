@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Script\Execution;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\Debug;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Exception\NoHookServiceFactoryException;
@@ -39,10 +38,6 @@ class ScriptExecutor
 
     public function execute(Hook $hook): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_17441')) {
-            return;
-        }
-
         $scripts = $this->loader->get($hook->getName());
 
         $this->traces->init($hook->getName());

@@ -1,7 +1,6 @@
 ---
 title: Added app scripts
 issue: NEXT-18248
-flag: FEATURE_NEXT_17441
 ---
 # Core
 * Added `Framework/Script` domain, to introduce scripting feature

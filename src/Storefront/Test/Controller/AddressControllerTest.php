@@ -218,8 +218,6 @@ class AddressControllerTest extends TestCase
 
     public function testAddressListingPageLoadedScriptsAreExecuted(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $browser = $this->login();
 
         $browser->request('GET', '/account/address');
@@ -234,8 +232,6 @@ class AddressControllerTest extends TestCase
 
     public function testAddressDetailPageLoadedScriptsAreExecutedOnAddressCreate(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $browser = $this->login();
 
         $browser->request('GET', '/account/address/create');
@@ -250,8 +246,6 @@ class AddressControllerTest extends TestCase
 
     public function testAddressDetailPageLoadedScriptsAreExecutedOnAddressEdit(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $browser = $this->login();
 
         $browser->request('GET', '/account/address/' . $this->addressId);

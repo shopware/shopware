@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -234,8 +233,6 @@ class AccountOrderControllerTest extends TestCase
 
     public function testAccountOrderPageLoadedScriptsAreExecuted(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $context = Context::createDefaultContext();
         $customer = $this->createCustomer($context);
         $browser = $this->login($customer->getEmail());
@@ -256,8 +253,6 @@ class AccountOrderControllerTest extends TestCase
 
     public function testAccountOrderPageLoadedScriptsAreExecutedForDeeplinkedPage(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $context = Context::createDefaultContext();
         $customer = $this->createCustomer($context);
 
@@ -287,8 +282,6 @@ class AccountOrderControllerTest extends TestCase
 
     public function testAccountOrderDetailPageLoadedScriptsAreExecuted(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $context = Context::createDefaultContext();
         $customer = $this->createCustomer($context);
 
@@ -329,8 +322,6 @@ class AccountOrderControllerTest extends TestCase
 
     public function testAccountOrderEditPageLoadedScriptsAreExecuted(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $context = Context::createDefaultContext();
         $customer = $this->createCustomer($context);
 

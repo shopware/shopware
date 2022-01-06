@@ -297,8 +297,6 @@ class RegisterControllerTest extends TestCase
 
     public function testAccountRegisterPageLoadedHookScriptsAreExecuted(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $response = $this->request('GET', '/account/register', []);
         static::assertEquals(200, $response->getStatusCode());
 
@@ -309,8 +307,6 @@ class RegisterControllerTest extends TestCase
 
     public function testCustomerGroupRegistrationPageLoadedHookScriptsAreExecuted(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $ids = new TestDataCollection();
         $this->createCustomerGroup($ids);
 
@@ -324,8 +320,6 @@ class RegisterControllerTest extends TestCase
 
     public function testCheckoutRegisterPageLoadedHookScriptsAreExecuted(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $productNumber = ' p1';
 
         $this->createProduct(Uuid::randomHex(), $productNumber);

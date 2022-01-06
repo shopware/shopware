@@ -11,8 +11,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * Triggered during the cart calculation process.
  *
  * @hook-use-case cart_manipulation
- *
- * @internal (flag:FEATURE_NEXT_17441)
  */
 class CartHook extends Hook implements CartAware
 {

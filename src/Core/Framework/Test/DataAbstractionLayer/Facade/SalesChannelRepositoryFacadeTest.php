@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -28,7 +27,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Storefront\Page\Page;
 
 class SalesChannelRepositoryFacadeTest extends TestCase
 {
@@ -181,14 +179,12 @@ class SalesChannelRepositoryFacadeTest extends TestCase
 
     public function testIntegrationCase(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $this->ids = new IdsCollection();
         $this->createProducts();
 
         $this->installApp(__DIR__ . '/_fixtures/apps/pageLoadedExample');
 
-        $page = new Page();
+        $page = new ArrayStruct();
         $hook = new SalesChannelTestHook(
             'store-search-by-id',
             $this->context,
@@ -211,14 +207,12 @@ class SalesChannelRepositoryFacadeTest extends TestCase
 
     public function testSearchWithFilterIntegration(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $this->ids = new IdsCollection();
         $this->createProducts();
 
         $this->installApp(__DIR__ . '/_fixtures/apps/pageLoadedExample');
 
-        $page = new Page();
+        $page = new ArrayStruct();
         $hook = new SalesChannelTestHook(
             'store-filter',
             $this->context,
@@ -240,14 +234,12 @@ class SalesChannelRepositoryFacadeTest extends TestCase
 
     public function testSearchWithAssociationIntegration(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $this->ids = new IdsCollection();
         $this->createProducts();
 
         $this->installApp(__DIR__ . '/_fixtures/apps/pageLoadedExample');
 
-        $page = new Page();
+        $page = new ArrayStruct();
         $hook = new SalesChannelTestHook(
             'store-association',
             $this->context,
@@ -275,14 +267,12 @@ class SalesChannelRepositoryFacadeTest extends TestCase
 
     public function testSearchIdsIntegration(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $this->ids = new IdsCollection();
         $this->createProducts();
 
         $this->installApp(__DIR__ . '/_fixtures/apps/pageLoadedExample');
 
-        $page = new Page();
+        $page = new ArrayStruct();
         $hook = new SalesChannelTestHook(
             'store-search-ids',
             $this->context,
@@ -304,14 +294,12 @@ class SalesChannelRepositoryFacadeTest extends TestCase
 
     public function testAggregateIntegration(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $this->ids = new IdsCollection();
         $this->createProducts();
 
         $this->installApp(__DIR__ . '/_fixtures/apps/pageLoadedExample');
 
-        $page = new Page();
+        $page = new ArrayStruct();
         $hook = new SalesChannelTestHook(
             'store-aggregate',
             $this->context,

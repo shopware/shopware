@@ -14,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -22,7 +21,6 @@ use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\Script\Execution\TestHook;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Storefront\Page\Page;
 
 class RepositoryFacadeTest extends TestCase
 {
@@ -229,14 +227,12 @@ class RepositoryFacadeTest extends TestCase
 
     public function testSearchByIdIntegration(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $this->ids = new IdsCollection();
         $this->createProducts();
 
         $this->installApp(__DIR__ . '/_fixtures/apps/pageLoadedExample');
 
-        $page = new Page();
+        $page = new ArrayStruct();
         $hook = new TestHook(
             'repository-search-by-id',
             Context::createDefaultContext(),
@@ -259,14 +255,12 @@ class RepositoryFacadeTest extends TestCase
 
     public function testSearchWithFilterIntegration(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $this->ids = new IdsCollection();
         $this->createProducts();
 
         $this->installApp(__DIR__ . '/_fixtures/apps/pageLoadedExample');
 
-        $page = new Page();
+        $page = new ArrayStruct();
         $hook = new TestHook(
             'repository-filter',
             Context::createDefaultContext(),
@@ -288,14 +282,12 @@ class RepositoryFacadeTest extends TestCase
 
     public function testSearchWithAssociationIntegration(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $this->ids = new IdsCollection();
         $this->createProducts();
 
         $this->installApp(__DIR__ . '/_fixtures/apps/pageLoadedExample');
 
-        $page = new Page();
+        $page = new ArrayStruct();
         $hook = new TestHook(
             'repository-association',
             Context::createDefaultContext(),
@@ -323,14 +315,12 @@ class RepositoryFacadeTest extends TestCase
 
     public function testSearchIdsIntegration(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $this->ids = new IdsCollection();
         $this->createProducts();
 
         $this->installApp(__DIR__ . '/_fixtures/apps/pageLoadedExample');
 
-        $page = new Page();
+        $page = new ArrayStruct();
         $hook = new TestHook(
             'repository-search-ids',
             Context::createDefaultContext(),
@@ -352,14 +342,12 @@ class RepositoryFacadeTest extends TestCase
 
     public function testAggregateIntegration(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $this->ids = new IdsCollection();
         $this->createProducts();
 
         $this->installApp(__DIR__ . '/_fixtures/apps/pageLoadedExample');
 
-        $page = new Page();
+        $page = new ArrayStruct();
         $hook = new TestHook(
             'repository-aggregate',
             Context::createDefaultContext(),

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @internal (flag:FEATURE_NEXT_17441)
+ * @internal
  */
 class CartTestHook extends Hook implements CartAware
 {

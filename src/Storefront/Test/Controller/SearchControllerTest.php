@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Test\Controller;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -46,8 +45,6 @@ class SearchControllerTest extends TestCase
 
     public function testSearchPageLoadedHookScriptsAreExecuted(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $response = $this->request('GET', '/search', ['search' => 'test']);
         static::assertEquals(200, $response->getStatusCode());
 
@@ -58,8 +55,6 @@ class SearchControllerTest extends TestCase
 
     public function testSuggestPageLoadedHookScriptsAreExecuted(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $response = $this->request('GET', '/suggest', ['search' => 'test']);
         static::assertEquals(200, $response->getStatusCode());
 
@@ -70,8 +65,6 @@ class SearchControllerTest extends TestCase
 
     public function testSearchWidgetLoadedHookScriptsAreExecuted(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $response = $this->request('GET', '/widgets/search', ['search' => 'test']);
         static::assertEquals(200, $response->getStatusCode());
 

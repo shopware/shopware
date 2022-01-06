@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
@@ -20,7 +19,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Storefront\Page\Page;
 
 class SystemConfigFacadeTest extends TestCase
 {
@@ -154,14 +152,12 @@ class SystemConfigFacadeTest extends TestCase
 
     public function testSystemConfigIntegrationTest(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-
         $this->systemConfigService->set('core.listing.productsPerPage', 'system_config');
         $this->systemConfigService->set('systemConfigExample.config.app_config', 'app_config');
 
         $this->installApp(__DIR__ . '/_fixtures/apps/systemConfigExample');
 
-        $page = new Page();
+        $page = new ArrayStruct();
         $hook = new TestHook(
             'test-config',
             Context::createDefaultContext(),

@@ -27,6 +27,7 @@
     <sw-card-view slot="content">
         <sw-card
             v-if="newsletterRecipient"
+            position-identifier="sw-newsletter-recipient-detail"
             :title="$tc('sw-newsletter-recipient.general.information')"
         >
             {% block sw_newsletter_recipient_detail_form %}

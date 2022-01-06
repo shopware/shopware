@@ -27,7 +27,8 @@ function createWrapper() {
             'sw-card': Shopware.Component.build('sw-card'),
             'sw-ignore-class': true,
             'sw-loader': true,
-            'sw-app-actions': true
+            'sw-app-actions': true,
+            'sw-extension-component-section': true,
         },
         mocks: {
             $route: {

@@ -146,6 +146,7 @@
     {% block sw_order_detail_base_line_items_card %}
     <sw-card
         class="sw-order-detail-base__line-item-grid-card"
+        position-identifier="sw-order-detail-base-line-items"
         :title="$tc('sw-order.detailBase.cardTitleLineItems')"
         :is-loading="isLoading"
     >
@@ -339,6 +340,7 @@
     {% block sw_order_detail_base_custom_fields %}
     <sw-card
         v-if="customFieldSets.length > 0"
+        position-identifier="sw-order-detail-base-custom-fields"
         :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
         :is-loading="isLoading"
     >

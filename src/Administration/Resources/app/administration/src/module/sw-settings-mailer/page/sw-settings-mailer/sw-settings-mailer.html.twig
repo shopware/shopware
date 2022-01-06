@@ -39,6 +39,7 @@
         <sw-card-view>
 
             <sw-card
+                position-identifier="sw-settings-mailer-configuration"
                 :is-loading="isLoading"
                 :title="$tc('sw-settings-mailer.mailer-configuration.card-title')"
             >
@@ -105,6 +106,7 @@
             {% block sw_settings_mailer_smtp %}
             <sw-card
                 v-if="isSmtpMode"
+                position-identifier="sw-settings-mailer-smtp-settings"
                 :is-loading="isLoading"
                 title="SMTP server"
                 class="sw-settings-mailer__input-fields"

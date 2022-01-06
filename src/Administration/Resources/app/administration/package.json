@@ -131,6 +131,7 @@
     "eslint-plugin-jest": "22.14.0",
     "eslint-plugin-plugin-rules": "file:eslint-rules/plugin-rules",
     "eslint-plugin-promise": "4.2.1",
+    "eslint-plugin-sw-core-rules": "file:eslint-rules/core-rules",
     "eslint-plugin-twig-vue": "file:twigVuePlugin",
     "eslint-plugin-vue": "7.9.0",
     "eslint-plugin-vuejs-accessibility": "0.7.1",

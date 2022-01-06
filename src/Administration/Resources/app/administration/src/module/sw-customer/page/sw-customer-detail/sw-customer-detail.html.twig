@@ -95,7 +95,10 @@
             {% endblock %}
 
             {% block sw_customer_detail_content_tabs %}
-            <sw-tabs class="sw-customer-detail-page__tabs">
+            <sw-tabs
+                class="sw-customer-detail-page__tabs"
+                position-identifier="sw-customer-detail-tabs"
+            >
                 {% block sw_customer_detail_content_tab_general %}
                 <sw-tabs-item
                     class="sw-customer-detail__tab-general"

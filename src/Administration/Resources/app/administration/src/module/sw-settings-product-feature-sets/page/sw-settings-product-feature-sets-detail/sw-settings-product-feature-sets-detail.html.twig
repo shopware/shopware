@@ -44,7 +44,10 @@
         {% endblock %}
 
         {% block sw_settings_product_feature_set_detail_content_card %}
-        <sw-card :title="$tc('sw-settings-product-feature-sets.detail.titleCard')">
+        <sw-card
+            :title="$tc('sw-settings-product-feature-sets.detail.titleCard')"
+            position-identifier="sw-settings-product-feature-sets-detail"
+        >
 
             {% block sw_settings_product_feature_set_detail_content_field_name %}
             <sw-field

@@ -50,6 +50,7 @@
                 <sw-tabs
                     v-if="rule && !rule.isNew()"
                     class="sw-settings-rule-detail__tabs"
+                    position-identifier="sw-settings-rule-detail"
                 >
                     {% block sw_settings_rule_detail_tab_items %}
                     <sw-tabs-item

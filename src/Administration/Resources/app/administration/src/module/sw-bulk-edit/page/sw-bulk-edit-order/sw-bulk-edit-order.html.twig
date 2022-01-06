@@ -48,6 +48,7 @@
             {% block sw_bulk_edit_order_content_order_status_card %}
             <sw-card
                 class="sw-bulk-edit-order-base__status"
+                position-identifier="sw-bulk-edit-order-status"
                 :title="$tc('sw-bulk-edit.order.status.cardTitle')"
                 :is-loading="isLoading"
             >
@@ -64,6 +65,7 @@
             {% block sw_bulk_edit_order_tags_card %}
             <sw-card
                 class="sw-bulk-edit-order-base__tags"
+                position-identifier="sw-bulk-edit-order-tags"
                 :title="$tc('sw-bulk-edit.order.tags.cardTitle')"
                 :is-loading="isLoading"
             >
@@ -80,6 +82,7 @@
             {% block sw_bulk_edit_order_custom_field_card %}
             <sw-card
                 class="sw-bulk-edit-order-base__custom_fields"
+                position-identifier="sw-bulk-edit-order-custom-fields"
                 :title="$tc('sw-bulk-edit.order.customFields.cardTitle')"
                 :is-loading="isLoading"
             >

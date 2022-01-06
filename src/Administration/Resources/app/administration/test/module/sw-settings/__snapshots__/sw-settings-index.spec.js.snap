@@ -60,6 +60,7 @@ exports[`module/sw-settings/page/sw-settings-index should render correctly 1`] =
          
         <div
           class="sw-card sw-settings__card"
+          position-identifier="sw-settings-index-content"
         >
           <div
             class="sw-settings__content-grid"

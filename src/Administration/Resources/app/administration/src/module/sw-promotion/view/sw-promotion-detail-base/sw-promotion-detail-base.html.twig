@@ -2,6 +2,7 @@
 <div class="sw-promotion-detail-base">
     {% block sw_promotion_detail_base_basic_info_card %}
     <sw-card
+        position-identifier="sw-promotion-detail-base-basic-info"
         :title="$tc('sw-promotion.detail.main.general.cardTitlePromotionInfo')"
         :is-loading="!$attrs.promotion"
     >
@@ -14,6 +15,7 @@
     {% block sw_promotion_detail_base_code_card %}
     <sw-card
         v-if="$attrs.promotion"
+        position-identifier="sw-promotion-detail-base-code"
         :title="$tc('sw-promotion.detail.main.general.codes.card')"
     >
         {% block sw_promotion_detail_base_code_form %}

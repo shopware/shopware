@@ -5,6 +5,7 @@
     <sw-card
         v-show="showProductCard('general_information')"
         class="sw-product-detail-base__info"
+        position-identifier="sw-product-detail-base-info"
         :title="$tc('sw-product.detailBase.cardTitleProductInfo')"
         :is-loading="isLoading"
     >
@@ -24,6 +25,7 @@
     <sw-card
         v-show="showProductCard('prices')"
         class="sw-product-detail-base__prices"
+        position-identifier="sw-product-detail-base-prices"
         :title="$tc('sw-product.detailBase.cardTitlePrices')"
         :is-loading="loading.product"
     >
@@ -58,6 +60,7 @@
     <sw-card
         v-show="showProductCard('deliverability')"
         class="sw-product-detail-base__deliverability"
+        position-identifier="sw-product-detail-base-deliverability"
         :title="$tc('sw-product.detailBase.cardTitleDeliverabilityInfo')"
         :is-loading="isLoading"
     >
@@ -75,6 +78,7 @@
     <sw-card
         v-show="showProductCard('visibility_structure')"
         class="sw-product-detail-base__visibility-structure"
+        position-identifier="sw-product-detail-base-visibility-structure"
         :title="$tc('sw-product.detailBase.cardTitleAssignment')"
         :is-loading="loading.product"
     >
@@ -103,6 +107,7 @@
             <sw-card
                 :is-loading="loading.product || loading.customFieldSets || loading.media"
                 :class="{ 'sw-card__inherited': isInherited }"
+                position-identifier="sw-product-detail-base-media"
             >
                 <template #title>
 
@@ -156,6 +161,7 @@
     <sw-card
         v-show="showProductCard('labelling')"
         class="sw-product-detail-base__labelling-card"
+        position-identifier="sw-product-detail-base-labelling"
         :title="$tc('sw-product.detailBase.cardTitleSettings')"
         :is-loading="loading.product"
     >
@@ -171,7 +177,9 @@
     {% block sw_product_detail_seo %}
     <div>
         {% block sw_product_detail_seo_general %}
-        <sw-card>...</sw-card>
+        <sw-card position-identifier="">
+            ...
+        </sw-card>
         {% endblock %}
 
         {% block sw_product_detail_seo_urls %}
@@ -189,6 +197,7 @@
         ...
         {% block sw_product_detail_specifications_measures_packaging %}
         <sw-card
+            position-identifier=""
             :title="$tc('sw-product.specifications.cardTitleMeasuresPackaging')"
             :is-loading="isLoading"
         >
@@ -213,6 +222,7 @@
         ...
         {% block sw_product_detail_specifications_essential_characteristics %}
         <sw-card
+            position-identifier=""
             :title="$tc('sw-product.specifications.cardTitleEssentialCharacteristics')"
             :is-loading="isLoading"
         >
@@ -236,6 +246,7 @@
         ...
         {% block sw_product_detail_specifications_custom_fields %}
         <sw-card
+            position-identifier=""
             :title="$tc('sw-product.specifications.cardTitleCustomFields')"
             :is-loading="isLoading"
         >
@@ -256,7 +267,7 @@
     {# @deprecated tag:v6.5.0 - The block content will be moved to "sw-product-detail-reviews" component, like following:
     {% block sw_product_detail_reviews %}
     <sw-card
-
+        position-identifier=""
         class="sw-product-detail-reviews"
         :title="$tc('sw-product.reviews.cardTitleReviews')"
         :is-loading="isLoading"

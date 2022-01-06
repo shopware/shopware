@@ -3,6 +3,7 @@
 
     {% block sw_landing_page_detail_base_information %}
     <sw-card
+        position-identifier="sw-landing-page-detail-base"
         :title="$tc('sw-landing-page.base.general.headlineInformationCard')"
         :is-loading="isLoading"
     >
@@ -64,6 +65,7 @@
 
     {% block sw_landing_page_detail_base_seo %}
     <sw-card
+        position-identifier="sw-landing-page-detail-seo"
         :title="$tc('sw-landing-page.base.seo.title')"
         :is-loading="isLoading"
     >
@@ -122,6 +124,7 @@
     {% block sw_landing_page_detail_base_attribute_sets %}
     <sw-card
         v-if="customFieldSetsArray.length > 0"
+        position-identifier="sw-landing-page-detail-attribute-sets"
         :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
         :is-loading="isLoading"
     >

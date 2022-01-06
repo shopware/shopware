@@ -42,6 +42,7 @@
             {% block sw_settings_user_detail_content_inner %}
             {%  block sw_setting_user_detail_card_basic_information %}
             <sw-card
+                position-identifier="sw-users-permissions-user-detail"
                 :title="$tc('sw-users-permissions.users.user-detail.labelCard')"
                 :is-loading="isLoading"
             >
@@ -210,7 +211,10 @@
             {% endblock %}
 
             {%  block sw_setting_user_detail_card_integrations %}
-            <sw-card :title="$tc('sw-users-permissions.users.user-detail.labelIntegrationsCard')">
+            <sw-card
+                :title="$tc('sw-users-permissions.users.user-detail.labelIntegrationsCard')"
+                position-identifier="sw-users-permissions-user-detail"
+            >
                 {% block sw_settings_user_detail_grid_toolbar %}
                 <template #toolbar>
                     {% block sw_settings_user_detail_grid_add_key %}

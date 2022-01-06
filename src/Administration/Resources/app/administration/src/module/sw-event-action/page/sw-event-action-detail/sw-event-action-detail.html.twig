@@ -46,6 +46,7 @@
             {% block sw_event_action_detail_content_base %}
             <sw-card
                 class="sw-event-action-detail__base"
+                position-identifier="sw-event-action-detail-base"
                 :is-loading="isLoading"
             >
 
@@ -197,6 +198,7 @@
             {% block sw_event_action_detail_custom_field_sets %}
             <sw-card
                 v-if="showCustomFields"
+                position-identifier="sw-event-action-detail-custom-field-sets"
                 :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
                 :is-loading="isLoading"
             >

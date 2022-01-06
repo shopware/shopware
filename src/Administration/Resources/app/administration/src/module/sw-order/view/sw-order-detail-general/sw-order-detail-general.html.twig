@@ -3,6 +3,7 @@
     {% block sw_order_detail_general_info_card %}
     <sw-card
         class="sw-order-detail-base__general-info"
+        position-identifier="sw-order-detail-general-info"
         :title="$tc('sw-order.detailBase.cardTitleGeneralInfo')"
         :is-loading="isLoading"
     >
@@ -19,6 +20,7 @@
     {% block sw_order_detail_general_line_items_card %}
     <sw-card
         class="sw-order-detail-general__line-item-grid-card"
+        position-identifier="sw-order-detail-general-line-items"
         :title="$tc('sw-order.detailBase.cardTitleLineItems')"
         :is-loading="isLoading"
     >

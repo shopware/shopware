@@ -4,6 +4,7 @@
     {% block sw_promotion_v2_detail_base_general_card %}
     <sw-card
         v-if="promotion"
+        position-identifier="sw-promotion-detail-base-general"
         class="sw-promotion-v2-detail-base__card-general"
         :is-loading="isLoading"
         :title="$tc('sw-promotion-v2.detail.base.general.cardTitle')"
@@ -112,6 +113,7 @@
     <sw-card
         v-if="promotion && !isCreateMode"
         class="sw-promotion-v2-detail-base__card-codes"
+        position-identifier="sw-promotion-detail-base-codes"
         :is-loading="isLoading"
         :title="$tc('sw-promotion-v2.detail.base.codes.cardTitle')"
     >
@@ -189,6 +191,7 @@
     {% block sw_promotion_detail_custom_field_sets %}
     <sw-card
         v-if="showCustomFields"
+        position-identifier="sw-promotion-detail-base-custom-field-sets"
         :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
         :is-loading="isLoading"
     >

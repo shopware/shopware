@@ -2,6 +2,7 @@
 <div class="sw-category-detail-base">
     {% block sw_category_detail_information %}
     <sw-card
+        position-identifier="sw-category-detail-base"
         :title="$tc('sw-category.base.general.headlineInformationCard')"
         :is-loading="isLoading"
     >
@@ -130,6 +131,7 @@
     {% block sw_category_detail_attribute_sets %}
     <sw-card
         v-if="customFieldSetsArray.length > 0 && category.type !=='folder'"
+        position-identifier="sw-category-detail-attribute-sets"
         :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
         :is-loading="isLoading"
     >

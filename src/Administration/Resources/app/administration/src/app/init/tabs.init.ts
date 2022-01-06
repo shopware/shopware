@@ -1,5 +1,4 @@
 import { handle } from '@shopware-ag/admin-extension-sdk/es/channel';
-import VueRouter from 'vue-router';
 // eslint-disable-next-line import/no-named-default
 import type { Route, RouteConfig, default as Router } from 'vue-router';
 import type { TabItemEntry } from 'src/app/state/tabs.store';

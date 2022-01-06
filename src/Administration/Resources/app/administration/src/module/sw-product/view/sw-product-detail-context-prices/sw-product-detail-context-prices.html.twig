@@ -9,6 +9,7 @@
     <sw-card
         v-if="isLoading"
         class="context-prices__empty-state"
+        position-identifier="sw-product-detail-context-prices-empty-state"
         :large="true"
     >
         <sw-loader />
@@ -24,6 +25,7 @@
             v-for="(priceGroup, key, index) in priceRuleGroups"
             :key="priceGroup.ruleId"
             class="context-price"
+            position-identifier="sw-product-detail-context-prices-context-price"
             :class="getPriceRuleGroupClass(index)"
             :title="priceGroup.rule ? priceGroup.rule.name : $tc('sw-product.prices.cardTitlePriceRule')"
             :is-loading="isLoading"
@@ -336,6 +338,7 @@
     <sw-card
         v-else
         class="sw-product-detail-context-prices__empty-state-card"
+        position-identifier="sw-product-detail-context-prices-empty-state-card"
     >
         {% block sw_product_detail_prices_price_empty_state %}
         <div class="sw-product-detail-context-prices__empty-state">

@@ -95,7 +95,8 @@ function createWrapper(privileges = [
             },
             'sw-icon': {
                 template: '<span></span>'
-            }
+            },
+            'sw-extension-component-section': true,
         },
         provide: {
             acl: {

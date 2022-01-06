@@ -139,7 +139,8 @@ function createWrapper() {
             },
             'sw-contextual-field': {
                 template: '<div></div>'
-            }
+            },
+            'sw-extension-component-section': true,
         }
     });
 }

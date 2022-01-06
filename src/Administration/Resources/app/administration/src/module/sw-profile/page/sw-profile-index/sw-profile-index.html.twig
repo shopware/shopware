@@ -31,7 +31,10 @@
     <template #content>
         <sw-card-view>
             {% block sw_profile_index_tabs %}
-            <sw-tabs v-if="feature.isActive('FEATURE_NEXT_6040')">
+            <sw-tabs
+                v-if="feature.isActive('FEATURE_NEXT_6040')"
+                position-identifier="sw-profile-index"
+            >
                 {% block sw_profile_index_tabs_item_general %}
                 <sw-tabs-item
                     :route="{ name: 'sw.profile.index.general' }"
@@ -79,6 +82,7 @@
             {% block sw_profile_index_info_card %}
             <sw-card
                 v-if="!feature.isActive('FEATURE_NEXT_6040')"
+                position-identifier="sw-profile-index-info"
                 class="sw-profile__card"
                 :title="$tc('sw-profile.index.titleInfoCard')"
                 :is-loading="isUserLoading || !languageId"
@@ -167,6 +171,7 @@
             <sw-card
                 v-if="!feature.isActive('FEATURE_NEXT_6040') && acl.can('media.creator')"
                 class="sw-profile__card"
+                position-identifier="sw-profile-index-image"
                 :title="$tc('sw-profile.index.titleImageCard')"
                 :is-loading="isUserLoading || !languageId"
             >
@@ -197,6 +202,7 @@
             {% block sw_profile_index_password_card %}
             <sw-card
                 v-if="!feature.isActive('FEATURE_NEXT_6040')"
+                position-identifier="sw-profile-index-password"
                 class="sw-profile__card"
                 :title="$tc('sw-profile.index.titlePasswordCard')"
                 :is-loading="isUserLoading || !languageId"

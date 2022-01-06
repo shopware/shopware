@@ -64,7 +64,10 @@
     <template slot="content">
         <sw-card-view>
             {% block sw_settings_salutation_list_card_content %}
-            <sw-card :is-loading="isLoading">
+            <sw-card
+                :is-loading="isLoading"
+                position-identifier="sw-settings-salutation-list-content"
+            >
 
                 {% block sw_settings_salutation_list_grid %}
                 <template slot="grid">

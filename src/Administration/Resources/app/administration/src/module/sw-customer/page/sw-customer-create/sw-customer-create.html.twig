@@ -37,7 +37,10 @@
     <template #content>
         <sw-card-view>
             {% block sw_customer_create_base_form %}
-            <sw-card :title="$tc('sw-customer.detailBase.labelAccountCard')">
+            <sw-card
+                :title="$tc('sw-customer.detailBase.labelAccountCard')"
+                position-identifier="sw-customer-create-base-form"
+            >
                 <sw-customer-base-form
                     :is-loading="isLoading"
                     :customer="customer"
@@ -47,7 +50,10 @@
             {% endblock %}
 
             {% block sw_customer_create_adress_form %}
-            <sw-card :title="$tc('sw-customer.detailBase.labelAddressesCard')">
+            <sw-card
+                :title="$tc('sw-customer.detailBase.labelAddressesCard')"
+                position-identifier="sw-customer-create-address-form"
+            >
                 <sw-customer-address-form
                     v-bind="{ customer, address }"
                 />

@@ -80,6 +80,7 @@ function createWrapper(privileges = []) {
             'sw-icon': true,
             'sw-simple-search-field': true,
             'sw-context-menu-item': true,
+            'sw-extension-component-section': true,
             'sw-one-to-many-grid': {
                 props: ['columns', 'allowDelete'],
                 template: `

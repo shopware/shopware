@@ -2,7 +2,7 @@
 <sw-ignore-class ref="swIgnoreClass">
     <sw-extension-component-section
         v-if="positionIdentifier"
-        :position-id="positionIdentifier + '__before'"
+        :position-identifier="positionIdentifier + '__before'"
     />
 
     <div
@@ -80,7 +80,7 @@
 
     <sw-extension-component-section
         v-if="positionIdentifier"
-        :position-id="positionIdentifier + '__after'"
+        :position-identifier="positionIdentifier + '__after'"
     />
 </sw-ignore-class>
 {% endblock %}

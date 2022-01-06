@@ -75,7 +75,8 @@ function createWrapper(privileges = [], customPropsData = {}) {
             'sw-icon': true,
             'sw-number-field': true,
             'sw-settings-country-currency-dependent-modal': true,
-            'sw-entity-single-select': true
+            'sw-entity-single-select': true,
+            'sw-extension-component-section': true,
         }
     });
 }

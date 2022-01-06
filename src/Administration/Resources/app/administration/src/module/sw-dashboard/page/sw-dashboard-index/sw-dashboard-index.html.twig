@@ -154,7 +154,7 @@
                 </div>
                 {% endblock %}
 
-                <sw-card>
+                <sw-card position-identifier="sw-dashboard-index-statistics-today">
                     {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_intro_stats_today` instead #}
                     {% block sw_dashboard_index_content_intro_stats_today %}
                     <div class="sw-dashboard-index__intro-stats-today">
@@ -323,7 +323,10 @@
 
                 {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_count` instead #}
                 {% block sw_dashboard_index_content_statistics_count %}
-                <sw-card class="sw-dashboard-index__statistics-count">
+                <sw-card
+                    class="sw-dashboard-index__statistics-count"
+                    position-identifier="sw-dashboard-index-statistics-count"
+                >
                     {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_count_chart` instead #}
                     {% block sw_dashboard_index_content_statistics_count_chart_count %}
                     <sw-chart
@@ -339,7 +342,10 @@
 
                 {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_sum` instead #}
                 {% block sw_dashboard_index_content_statistics_sum %}
-                <sw-card class="sw-dashboard-index__statistics-sum">
+                <sw-card
+                    class="sw-dashboard-index__statistics-sum"
+                    position-identifier="sw-dashboard-statistics-sum"
+                >
                     {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_sum_chart` instead #}
                     {% block sw_dashboard_index_content_statistics_count_chart_sum %}
                     <sw-chart

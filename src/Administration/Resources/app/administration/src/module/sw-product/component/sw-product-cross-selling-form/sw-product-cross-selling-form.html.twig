@@ -1,7 +1,10 @@
 {% block sw_product_cross_selling_form %}
 <div class="product-detail-cross-selling-form">
     {% block sw_prduct_cross_selling_form_card %}
-    <sw-card :title="crossSelling.name">
+    <sw-card
+        :title="crossSelling.name"
+        position-identifier="sw-product-cross-selling-form"
+    >
         <div
             v-if="!isLoading && crossSelling"
             class="product-detail-cross-selling-form__card-container"

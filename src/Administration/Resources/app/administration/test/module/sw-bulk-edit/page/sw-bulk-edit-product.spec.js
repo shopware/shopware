@@ -203,7 +203,8 @@ function createWrapper(productEntityOverride) {
             'sw-bulk-edit-product-media': true,
             'sw-tabs': true,
             'sw-alert': true,
-            'sw-label': true
+            'sw-label': true,
+            'sw-extension-component-section': true,
         },
         props: {
             title: 'Foo bar'

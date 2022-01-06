@@ -46,7 +46,10 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_content_tabs %}
-        <sw-tabs class="sw-sales-channel-detail-__tabs">
+        <sw-tabs
+            class="sw-sales-channel-detail-__tabs"
+            position-identifier="sw-sales-channel-detail"
+        >
             {%  block sw_sales_channel_detail_content_tab_general %}
             <sw-tabs-item
                 :route="{ name: 'sw.sales.channel.detail.base', params: { id: $route.params.id } }"

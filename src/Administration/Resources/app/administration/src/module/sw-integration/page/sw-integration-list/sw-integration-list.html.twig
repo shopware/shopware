@@ -42,7 +42,10 @@
     >
 
         {% block sw_integration_list_introduction %}
-        <sw-card :hero="true">
+        <sw-card
+            :hero="true"
+            position-identifier="sw-integration-list-introduction"
+        >
             <h3 class="sw-integration-list__welcome-headline">
                 {{ $tc('sw-integration.general.heroHeadlineIntegrations') }}
             </h3>
@@ -54,6 +57,7 @@
         <sw-card
             :is-loading="isLoading"
             class="sw-integration-list__overview"
+            position-identifier="sw-integration-list-overview"
         >
             {% block sw_integration_list_overview_inner %}
             {% block sw_integration_list_detail_modal %}

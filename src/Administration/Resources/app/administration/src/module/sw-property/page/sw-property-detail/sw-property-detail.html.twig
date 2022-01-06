@@ -82,6 +82,7 @@
         {% block sw_property_detail_custom_field_sets %}
         <sw-card
             v-if="showCustomFields"
+            position-identifier="sw-property-detail"
             :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
             :is-loading="isLoading"
         >

@@ -61,7 +61,10 @@
             {% endblock %}
 
             {% block sw_mail_header_footer_detail_basic_info %}
-            <sw-card :title="$tc('sw-mail-header-footer.detail.basic.titleCard')">
+            <sw-card
+                :title="$tc('sw-mail-header-footer.detail.basic.titleCard')"
+                position-identifier="sw-mail-header-footer-detail-basic-info"
+            >
                 {% block sw_mail_header_footer_basic_form_name_field %}
                 <sw-field
                     v-model="mailHeaderFooter.name"
@@ -99,7 +102,10 @@
             {% endblock %}
 
             {% block sw_mail_header_footer_detail_content_header %}
-            <sw-card :title="$tc('sw-mail-header-footer.detail.header.titleCard')">
+            <sw-card
+                :title="$tc('sw-mail-header-footer.detail.header.titleCard')"
+                position-identifier="sw-mail-header-footer-detail-content-header"
+            >
                 {% block sw_mail_header_footer_detail_content_header_plain_field %}
                 <sw-code-editor
                     v-model="mailHeaderFooter.headerPlain"
@@ -131,7 +137,10 @@
             {% endblock %}
 
             {% block sw_mail_header_footer_detail_content_footer %}
-            <sw-card :title="$tc('sw-mail-header-footer.detail.footer.titleCard')">
+            <sw-card
+                :title="$tc('sw-mail-header-footer.detail.footer.titleCard')"
+                position-identifier="sw-mail-header-footer-detail-content-footer"
+            >
                 {% block sw_mail_header_footer_detail_content_footer_plain_field %}
                 <sw-code-editor
                     v-model="mailHeaderFooter.footerPlain"

@@ -7,7 +7,10 @@
     @modal-close="onClose"
 >
     {% block sw_flow_rule_modal_tabs %}
-    <sw-tabs default-item="rule">
+    <sw-tabs
+        default-item="rule"
+        position-identifier="sw-flow-rule-modal"
+    >
         {% block sw_flow_rule_headers %}
         <template #default="{ active }">
             {% block sw_flow_rule_modal_tab_rule %}

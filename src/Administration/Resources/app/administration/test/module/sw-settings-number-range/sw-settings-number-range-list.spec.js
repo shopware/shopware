@@ -62,7 +62,8 @@ function createWrapper(privileges = []) {
             'sw-icon': true,
             'sw-button': true,
             'sw-loader': true,
-            'sw-empty-state': true
+            'sw-empty-state': true,
+            'sw-extension-component-section': true,
         }
     });
 }

@@ -361,18 +361,24 @@ class Kernel extends HttpKernel
             $plugins[$plugin['name']] = $plugin['version'];
         }
 
-        $pluginHash = md5((string) json_encode($plugins));
+        $pluginHash = md5((string)json_encode($plugins, \JSON_THROW_ON_ERROR));
 
-        return md5((string) json_encode([
+        return md5((string) \json_encode([
             $this->cacheId,
-            mb_substr((string) $this->shopwareVersionRevision, 0, 8),
-            mb_substr($pluginHash, 0, 8),
+            substr((string)$this->shopwareVersionRevision, 0, 8),
+            substr($pluginHash, 0, 8),
             EnvironmentHelper::getVariable('DATABASE_URL', ''),
-        ]));
+        ], \JSON_THROW_ON_ERROR));
     }
 
     protected function initializeDatabaseConnectionVariables(): void
     {
+        $shopwareSkipConnectionVariables = EnvironmentHelper::getVariable('SHOPWARE_SKIP_CONNECTION_VARIABLES', false);
+
+        if ($shopwareSkipConnectionVariables) {
+            return;
+        }
+
         $connection = self::getConnection();
 
         try {

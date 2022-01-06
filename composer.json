@@ -290,6 +290,8 @@
         "paratest": [
             "paratest --configuration phpunit.xml.dist --testsuite=paratest --exclude-group=skip-paratest,needsWebserver --processes $(nproc)"
         ],
+        "prepare-locust": "php src/Core/DevOps/Locust/setup.php",
+        "locust": "cd src/Core/DevOps/Locust && locust",
         "init:e2e": "@npm:e2e clean-install",
         "init:e2e:admin": "@npm:e2e:admin clean-install",
         "init:e2e:storefront": "@npm:e2e:storefront clean-install",

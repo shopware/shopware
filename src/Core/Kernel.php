@@ -361,11 +361,11 @@ class Kernel extends HttpKernel
             $plugins[$plugin['name']] = $plugin['version'];
         }
 
-        $pluginHash = md5((string)json_encode($plugins, \JSON_THROW_ON_ERROR));
+        $pluginHash = md5((string) json_encode($plugins, \JSON_THROW_ON_ERROR));
 
         return md5((string) \json_encode([
             $this->cacheId,
-            substr((string)$this->shopwareVersionRevision, 0, 8),
+            substr((string) $this->shopwareVersionRevision, 0, 8),
             substr($pluginHash, 0, 8),
             EnvironmentHelper::getVariable('DATABASE_URL', ''),
         ], \JSON_THROW_ON_ERROR));

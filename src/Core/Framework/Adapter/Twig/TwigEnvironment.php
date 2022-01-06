@@ -35,8 +35,14 @@ function sw_get_attribute(Environment $env, Source $source, $object, $item, arra
     try {
         if ($object instanceof Entity) {
             FieldVisibility::$isInTwigRenderingContext = true;
+
+            $getter = 'get' . ucfirst($item);
+
+            return $object->$getter();
         }
 
+        return twig_get_attribute($env, $source, $object, $item, $arguments, $type, $isDefinedTest, $ignoreStrictCheck, $sandboxed, $lineno);
+    } catch (\Throwable $e) {
         return twig_get_attribute($env, $source, $object, $item, $arguments, $type, $isDefinedTest, $ignoreStrictCheck, $sandboxed, $lineno);
     } finally {
         FieldVisibility::$isInTwigRenderingContext = false;

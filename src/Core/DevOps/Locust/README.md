@@ -1,14 +1,16 @@
 # Quick start
 
 ## Installation
+
 Install locust on the machine which executes the benchmark. https://docs.locust.io/en/stable/installation.html
 
 ## Setup
+
 To keep the test simple and flexible, the script needs some data from the database.
 The corresponding data can also be determined automatically from the `setup.php` file and written into the corresponding *.csv files.
 If the benchmark should not take place locally or directly within the Shopware installation, the data must be transferred accordingly into the *.csv files.
 ```shell
-php dev-ops/locust/setup.php
+composer run locust:init
 ```
 
 ## Enabled cache

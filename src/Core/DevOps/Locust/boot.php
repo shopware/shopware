@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use Shopware\Core\Kernel;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -21,7 +21,7 @@ if (!class_exists(Dotenv::class)) {
 
 $input = new ArgvInput();
 $env = 'dev';
-$debug = (bool) ($_SERVER['APP_DEBUG'] ?? ('prod' !== $env)) && !$input->hasParameterOption('--no-debug', true);
+$debug = (bool) ($_SERVER['APP_DEBUG'] ?? ($env !== 'prod')) && !$input->hasParameterOption('--no-debug', true);
 
 umask(0000);
 

@@ -43,7 +43,9 @@ class Entity extends Struct
 
     public function __get($name)
     {
-        $this->checkIfPropertyAccessIsAllowed($name);
+        if (FieldVisibility::$isInTwigRenderingContext) {
+            $this->checkIfPropertyAccessIsAllowed($name);
+        }
 
         return $this->$name;
     }
@@ -55,8 +57,10 @@ class Entity extends Struct
 
     public function __isset($name)
     {
-        if (!$this->isPropertyVisible($name)) {
-            return false;
+        if (FieldVisibility::$isInTwigRenderingContext) {
+            if (!$this->isPropertyVisible($name)) {
+                return false;
+            }
         }
 
         return isset($this->$name);
@@ -87,7 +91,9 @@ class Entity extends Struct
      */
     public function get(string $property)
     {
-        $this->checkIfPropertyAccessIsAllowed($property);
+        if (FieldVisibility::$isInTwigRenderingContext) {
+            $this->checkIfPropertyAccessIsAllowed($property);
+        }
 
         if ($this->has($property)) {
             return $this->$property;
@@ -110,8 +116,10 @@ class Entity extends Struct
 
     public function has(string $property): bool
     {
-        if (!$this->isPropertyVisible($property)) {
-            return false;
+        if (FieldVisibility::$isInTwigRenderingContext) {
+            if (!$this->isPropertyVisible($property)) {
+                return false;
+            }
         }
 
         return property_exists($this, $property);

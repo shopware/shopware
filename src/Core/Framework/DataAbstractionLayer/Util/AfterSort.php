@@ -37,7 +37,7 @@ class AfterSort
 
         while (\count($elements) > 0) {
             foreach ($elements as $index => $element) {
-                if ($element->$propertyName !== $lastId) {
+                if ($lastId !== $element->$propertyName) {
                     continue;
                 }
 

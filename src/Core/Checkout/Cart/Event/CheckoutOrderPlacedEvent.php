@@ -4,7 +4,9 @@ namespace Shopware\Core\Checkout\Cart\Event;
 
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Flow\Exception\CustomerDeletedException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
@@ -14,7 +16,7 @@ use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class CheckoutOrderPlacedEvent extends Event implements MailActionInterface, SalesChannelAware, OrderAware, MailAware
+class CheckoutOrderPlacedEvent extends Event implements MailActionInterface, SalesChannelAware, OrderAware, MailAware, CustomerAware
 {
     public const EVENT_NAME = 'checkout.order.placed';
 
@@ -74,5 +76,16 @@ class CheckoutOrderPlacedEvent extends Event implements MailActionInterface, Sal
     public function getSalesChannelId(): string
     {
         return $this->salesChannelId;
+    }
+
+    public function getCustomerId(): string
+    {
+        $customer = $this->getOrder()->getOrderCustomer();
+
+        if ($customer === null || $customer->getCustomerId() === null) {
+            throw new CustomerDeletedException($this->getOrderId());
+        }
+
+        return $customer->getCustomerId();
     }
 }

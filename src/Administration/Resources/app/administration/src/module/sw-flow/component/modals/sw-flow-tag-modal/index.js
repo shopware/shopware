@@ -1,10 +1,10 @@
 import template from './sw-flow-tag-modal.html.twig';
 
-const { Component, Mixin, Context, EntityDefinition } = Shopware;
+const { Component, Mixin, Context } = Shopware;
 const { ShopwareError } = Shopware.Classes;
 const { EntityCollection, Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
-const { capitalizeString, snakeCase } = Shopware.Utils.string;
+const { capitalizeString } = Shopware.Utils.string;
 
 Component.register('sw-flow-tag-modal', {
     template,
@@ -24,6 +24,11 @@ Component.register('sw-flow-tag-modal', {
         sequence: {
             type: Object,
             required: true,
+        },
+        action: {
+            type: String,
+            required: false,
+            default: null,
         },
     },
 
@@ -58,7 +63,7 @@ Component.register('sw-flow-tag-modal', {
             return this.repositoryFactory.create('tag');
         },
 
-        ...mapState('swFlowState', ['triggerEvent']),
+        ...mapState('swFlowState', ['triggerEvent', 'triggerActions']),
     },
 
     watch: {
@@ -85,6 +90,11 @@ Component.register('sw-flow-tag-modal', {
             this.tagCollection = this.createTagCollection();
 
             const { config, id } = this.sequence;
+
+            if (config?.entity) {
+                this.entity = config?.entity;
+            }
+
             if (id && config?.tagIds) {
                 this.getTagCollection();
             }
@@ -117,27 +127,14 @@ Component.register('sw-flow-tag-modal', {
         },
 
         getEntityOptions() {
-            const options = [];
             if (!this.triggerEvent) {
                 this.entityOptions = [];
                 return;
             }
 
-            Object.entries(this.triggerEvent.data).forEach(([key, value]) => {
-                if (value.type !== 'entity') {
-                    return;
-                }
-
-                const hasTagsAssociation = EntityDefinition.get(snakeCase(key)).properties?.tags;
-                if (!hasTagsAssociation) {
-                    return;
-                }
-
-                options.push({
-                    label: this.flowBuilderService.convertEntityName(key),
-                    value: key,
-                });
-            });
+            const allowedAware = this.triggerEvent.aware ?? [];
+            // eslint-disable-next-line max-len
+            const options = this.flowBuilderService.getAvailableEntities(this.action, this.triggerActions, allowedAware, ['tags']);
 
             if (options.length) {
                 this.entity = options[0].value;

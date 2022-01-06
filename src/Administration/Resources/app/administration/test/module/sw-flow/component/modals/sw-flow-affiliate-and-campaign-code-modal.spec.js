@@ -94,7 +94,20 @@ function createWrapper() {
 describe('module/sw-flow/component/sw-flow-affiliate-and-campaign-code-modal', () => {
     Shopware.Service().register('flowBuilderService', () => {
         return {
-            convertEntityName: () => {}
+            mapActionType: () => {},
+
+            getAvailableEntities: () => {
+                return [
+                    {
+                        label: 'Order',
+                        value: 'order'
+                    },
+                    {
+                        label: 'Customer',
+                        value: 'customer'
+                    }
+                ];
+            }
         };
     });
 
@@ -168,7 +181,7 @@ describe('module/sw-flow/component/sw-flow-affiliate-and-campaign-code-modal', (
 
         expect(wrapper.emitted()['process-finish'][0]).toEqual([{
             config: {
-                entity: 'customer',
+                entity: 'order',
                 affiliateCode: {
                     value: 'abc',
                     upsert: true
@@ -179,5 +192,14 @@ describe('module/sw-flow/component/sw-flow-affiliate-and-campaign-code-modal', (
                 },
             }
         }]);
+    });
+
+    it('should show correctly the entity options', async () => {
+        const wrapper = createWrapper();
+
+        expect(wrapper.vm.entityOptions).toHaveLength(2);
+        wrapper.vm.entityOptions.forEach((option) => {
+            expect(['Order', 'Customer']).toContain(option.label);
+        });
     });
 });

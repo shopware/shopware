@@ -1,5 +1,7 @@
-const { Application } = Shopware;
-const { capitalizeString } = Shopware.Utils.string;
+import { ACTION, ACTION_TYPE } from '../constant/flow.constant';
+
+const { Application, EntityDefinition } = Shopware;
+const { capitalizeString, snakeCase, camelCase } = Shopware.Utils.string;
 
 Application.addServiceProvider('flowBuilderService', () => {
     return flowBuilderService();
@@ -7,35 +9,49 @@ Application.addServiceProvider('flowBuilderService', () => {
 
 export default function flowBuilderService() {
     const $icon = {
-        addTag: 'default-action-tags',
-        removeTag: 'default-action-tags',
+        addEntityTag: 'default-action-tags',
+        removeEntityTag: 'default-action-tags',
         mailSend: 'default-communication-envelope',
         setOrderState: 'default-shopping-plastic-bag',
         generateDocument: 'default-documentation-file',
         changeCustomerGroup: 'default-avatar-multiple',
         changeCustomerStatus: 'default-avatar-single',
         stopFlow: 'default-basic-x-circle',
-        setCustomField: 'default-documentation-paper-pencil-signed',
-        addAffiliateAndCampaignCode: 'default-documentation-paper-pencil-signed',
+        setEntityCustomField: 'default-documentation-paper-pencil-signed',
+        addEntityAffiliateAndCampaignCode: 'default-documentation-paper-pencil-signed',
     };
 
     const $labelSnippet = {
-        addTag: 'sw-flow.actions.addTag',
-        removeTag: 'sw-flow.actions.removeTag',
+        addEntityTag: 'sw-flow.actions.addTag',
+        removeEntityTag: 'sw-flow.actions.removeTag',
         mailSend: 'sw-flow.actions.mailSend',
         setOrderState: 'sw-flow.actions.setOrderState',
         generateDocument: 'sw-flow.actions.generateDocument',
         changeCustomerGroup: 'sw-flow.actions.changeCustomerGroup',
         changeCustomerStatus: 'sw-flow.actions.changeCustomerStatus',
         stopFlow: 'sw-flow.actions.stopFlow',
-        setCustomField: 'sw-flow.actions.changeCustomFieldContent',
-        addAffiliateAndCampaignCode: 'sw-flow.actions.addAffiliateAndCampaignCode',
+        setEntityCustomField: 'sw-flow.actions.changeCustomFieldContent',
+        addEntityAffiliateAndCampaignCode: 'sw-flow.actions.addAffiliateAndCampaignCode',
+    };
+
+    const $entityAction = {
+        [ACTION.ADD_ORDER_TAG]: 'order',
+        [ACTION.ADD_CUSTOMER_TAG]: 'customer',
+        [ACTION.REMOVE_ORDER_TAG]: 'order',
+        [ACTION.REMOVE_CUSTOMER_TAG]: 'customer',
+        [ACTION.SET_ORDER_CUSTOM_FIELD]: 'order',
+        [ACTION.SET_CUSTOMER_CUSTOM_FIELD]: 'customer',
+        [ACTION.SET_CUSTOMER_GROUP_CUSTOM_FIELD]: 'customer_group',
+        [ACTION.ADD_CUSTOMER_AFFILIATE_AND_CAMPAIGN_CODE]: 'customer',
+        [ACTION.ADD_ORDER_AFFILIATE_AND_CAMPAIGN_CODE]: 'order',
     };
 
     return {
         getActionTitle,
         getActionModalName,
         convertEntityName,
+        mapActionType,
+        getAvailableEntities,
     };
 
     function getActionTitle(actionName) {
@@ -43,44 +59,10 @@ export default function flowBuilderService() {
             return null;
         }
 
-        if (actionName.includes('tag')) {
-            if (actionName.includes('add')) {
-                return {
-                    value: actionName,
-                    icon: $icon.addTag,
-                    label: $labelSnippet.addTag,
-                };
-            }
-
-            if (actionName.includes('remove')) {
-                return {
-                    value: actionName,
-                    icon: $icon.removeTag,
-                    label: $labelSnippet.removeTag,
-                };
-            }
-        }
-
-        if (Shopware.Feature.isActive('FEATURE_NEXT_17973')) {
-            if (actionName.includes('custom') && actionName.includes('field')) {
-                return {
-                    value: actionName,
-                    icon: $icon.setCustomField,
-                    label: $labelSnippet.setCustomField,
-                };
-            }
-
-            if (actionName.includes('affiliate')) {
-                return {
-                    value: actionName,
-                    icon: $icon.addAffiliateAndCampaignCode,
-                    label: $labelSnippet.addAffiliateAndCampaignCode,
-                };
-            }
-        }
-
         let keyName = '';
-        actionName.split('.').forEach((key, index) => {
+        const name = mapActionType(actionName) ?? actionName;
+
+        name.split('.').forEach((key, index) => {
             if (!index) {
                 return;
             }
@@ -105,17 +87,17 @@ export default function flowBuilderService() {
             return '';
         }
 
-        if (actionName.includes('tag') &&
-           (actionName.includes('add') || actionName.includes('remove'))) {
+        if (mapActionType(actionName) === ACTION_TYPE.ADD_TAG
+            || mapActionType(actionName) === ACTION_TYPE.REMOVE_TAG) {
             return 'sw-flow-tag-modal';
         }
 
         if (Shopware.Feature.isActive('FEATURE_NEXT_17973')) {
-            if (actionName.includes('custom') && actionName.includes('field')) {
+            if (mapActionType(actionName) === ACTION_TYPE.SET_CUSTOM_FIELD) {
                 return 'sw-flow-set-entity-custom-field-modal';
             }
 
-            if (actionName.includes('affiliate') && actionName.includes('campaign')) {
+            if (mapActionType(actionName) === ACTION_TYPE.ADD_AFFILIATE_AND_CAMPAIGN_CODE) {
                 return 'sw-flow-affiliate-and-campaign-code-modal';
             }
         }
@@ -123,10 +105,67 @@ export default function flowBuilderService() {
         return `${actionName.replace(/\./g, '-').replace('action', 'sw-flow')}-modal`;
     }
 
+    function mapActionType(actionName) {
+        let entity = $entityAction[actionName];
+
+        if (entity === undefined) {
+            return null;
+        }
+
+        entity = entity.replace('_', '.');
+
+        return actionName.replace(entity, 'entity');
+    }
+
+    function getAvailableEntities(selectedAction, actions, allowedAware, entityProperties = []) {
+        const availableEntities = [];
+        const entities = getEntities(selectedAction, actions, allowedAware);
+
+        entities.forEach((entityName) => {
+            if (!EntityDefinition.has(snakeCase(entityName))) {
+                return;
+            }
+
+            const properties = EntityDefinition.get(snakeCase(entityName)).properties;
+
+            // Check if the entity has the needed properties
+            const hasProperties = entityProperties.every(entityProperty => properties.hasOwnProperty(entityProperty));
+
+            if (!hasProperties) {
+                return;
+            }
+
+            availableEntities.push({
+                label: convertEntityName(camelCase(entityName)),
+                value: entityName,
+            });
+        });
+
+        return availableEntities;
+    }
+
     function convertEntityName(camelCaseText) {
         if (!camelCaseText) return '';
 
         const normalText = camelCaseText.replace(/([A-Z])/g, ' $1');
+
         return capitalizeString(normalText);
+    }
+
+    function getEntities(selectedAction, actions, allowedAware) {
+        const entities = [];
+        actions.forEach((action) => {
+            // Excluding actions which do have different action type with selected action
+            if (mapActionType(action.name) === null || mapActionType(action.name) !== mapActionType(selectedAction)) {
+                return;
+            }
+
+            const isValid = action.requirements.some(aware => allowedAware.includes(aware));
+            if (isValid) {
+                entities.push($entityAction[action.name]);
+            }
+        });
+
+        return entities;
     }
 }

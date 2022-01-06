@@ -6,8 +6,10 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefi
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Flow\Exception\CustomerDeletedException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException;
+use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
@@ -16,7 +18,7 @@ use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class OrderPaymentMethodChangedEvent extends Event implements MailActionInterface, SalesChannelAware, OrderAware
+class OrderPaymentMethodChangedEvent extends Event implements MailActionInterface, SalesChannelAware, OrderAware, CustomerAware
 {
     public const EVENT_NAME = 'checkout.order.payment_method.changed';
 
@@ -90,5 +92,16 @@ class OrderPaymentMethodChangedEvent extends Event implements MailActionInterfac
         return (new EventDataCollection())
             ->add('order', new EntityType(OrderDefinition::class))
             ->add('orderTransaction', new EntityType(OrderTransactionDefinition::class));
+    }
+
+    public function getCustomerId(): string
+    {
+        $customer = $this->getOrder()->getOrderCustomer();
+
+        if ($customer === null || $customer->getCustomerId() === null) {
+            throw new CustomerDeletedException($this->getOrderId());
+        }
+
+        return $customer->getCustomerId();
     }
 }

@@ -23,6 +23,11 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
             type: Object,
             required: true,
         },
+        action: {
+            type: String,
+            required: false,
+            default: null,
+        },
     },
 
     data() {
@@ -109,7 +114,7 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
             ];
         },
 
-        ...mapState('swFlowState', ['triggerEvent', 'customFieldSets', 'customFields']),
+        ...mapState('swFlowState', ['triggerEvent', 'customFieldSets', 'customFields', 'triggerActions']),
     },
 
     watch: {
@@ -268,22 +273,14 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
         },
 
         getEntityOptions() {
-            const options = [];
             if (!this.triggerEvent) {
                 this.entityOptions = [];
                 return;
             }
 
-            Object.entries(this.triggerEvent.data).forEach(([key, value]) => {
-                if (value.type !== 'entity') {
-                    return;
-                }
-
-                options.push({
-                    label: Service('flowBuilderService').convertEntityName(key),
-                    value: key,
-                });
-            });
+            const allowedAware = this.triggerEvent.aware ?? [];
+            // eslint-disable-next-line max-len
+            const options = Service('flowBuilderService').getAvailableEntities(this.action, this.triggerActions, allowedAware, ['customFields']);
 
             if (options.length) {
                 this.entity = options[0].value;

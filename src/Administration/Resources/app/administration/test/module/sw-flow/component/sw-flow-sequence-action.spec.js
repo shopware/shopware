@@ -136,7 +136,9 @@ function createWrapper(propsData = {}) {
 
                 getActionModalName() {
                     return 'sw-flow-modal-name';
-                }
+                },
+
+                mapActionType: () => {}
             }
         }
     });
@@ -146,6 +148,12 @@ enableAutoDestroy(afterEach);
 
 describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
     beforeAll(() => {
+        Shopware.Service().register('flowBuilderService', () => {
+            return {
+                mapActionType: () => {}
+            };
+        });
+
         Shopware.State.registerModule('swFlowState', {
             ...flowState,
             state: {

@@ -1,5 +1,6 @@
 import { ACTION } from '../constant/flow.constant';
 
+const { Service } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
 export default {
@@ -159,9 +160,22 @@ export default {
                 // check if the current active action contains any required keys from an action option.
                 const isActive = action.requirements.some(item => state.triggerEvent?.aware?.includes(item));
 
-                if (isActive) {
-                    availableAction.push(action.name);
+                if (!isActive) {
+                    return;
                 }
+
+                const actionType = Service('flowBuilderService').mapActionType(action.name);
+
+                if (actionType) {
+                    const duplicateAction = availableAction
+                        .find(option => Service('flowBuilderService').mapActionType(option) === actionType);
+
+                    if (duplicateAction !== undefined) {
+                        return;
+                    }
+                }
+
+                availableAction.push(action.name);
             });
 
             return availableAction;

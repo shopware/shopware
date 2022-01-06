@@ -33,7 +33,7 @@ class FlowExecutor
             try {
                 $this->executeSequence($sequence, $state);
             } catch (\Exception $e) {
-                throw new ExecuteSequenceException($sequence->flowId, $sequence->sequenceId);
+                throw new ExecuteSequenceException($sequence->flowId, $sequence->sequenceId, $e->getMessage(), $e->getCode(), $e);
             }
 
             if ($state->stop) {

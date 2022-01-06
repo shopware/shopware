@@ -40,7 +40,18 @@ function createWrapper() {
             flowBuilderService: {
                 getActionModalName: () => {},
 
-                convertEntityName: () => {}
+                getAvailableEntities: () => {
+                    return [
+                        {
+                            label: 'Order',
+                            value: 'order'
+                        },
+                        {
+                            label: 'Customer',
+                            value: 'customer'
+                        }
+                    ];
+                }
             },
             repositoryFactory: {
                 create: () => {
@@ -172,6 +183,15 @@ describe('module/sw-flow/component/sw-flow-tag-modal', () => {
 
         fieldClasses.forEach(elementClass => {
             expect(wrapper.find(elementClass).classes()).not.toContain('has--error');
+        });
+    });
+
+    it('should show correctly the entity options', async () => {
+        const wrapper = createWrapper();
+
+        expect(wrapper.vm.entityOptions).toHaveLength(2);
+        wrapper.vm.entityOptions.forEach((option) => {
+            expect(['Order', 'Customer']).toContain(option.label);
         });
     });
 });

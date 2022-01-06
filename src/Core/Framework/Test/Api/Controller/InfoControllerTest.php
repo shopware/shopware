@@ -140,6 +140,7 @@ class InfoControllerTest extends TestCase
                     ],
                 ],
                 'aware' => [
+                    CustomerAware::class,
                     MailAware::class,
                     SalesChannelAware::class,
                     OrderAware::class,
@@ -162,6 +163,7 @@ class InfoControllerTest extends TestCase
                     MailAware::class,
                     SalesChannelAware::class,
                     OrderAware::class,
+                    CustomerAware::class,
                 ],
             ],
         ];

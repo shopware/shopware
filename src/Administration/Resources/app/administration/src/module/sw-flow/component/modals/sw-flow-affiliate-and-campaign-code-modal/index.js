@@ -17,6 +17,11 @@ Component.register('sw-flow-affiliate-and-campaign-code-modal', {
             type: Object,
             required: true,
         },
+        action: {
+            type: String,
+            required: false,
+            default: null,
+        },
     },
 
     data() {
@@ -36,26 +41,17 @@ Component.register('sw-flow-affiliate-and-campaign-code-modal', {
 
     computed: {
         entityOptions() {
-            const options = [];
             if (!this.triggerEvent) {
                 return [];
             }
 
-            Object.entries(this.triggerEvent.data).forEach(([key, value]) => {
-                if (value.type !== 'entity') {
-                    return;
-                }
-
-                options.push({
-                    label: Service('flowBuilderService').convertEntityName(key),
-                    value: key,
-                });
-            });
-
-            return options;
+            const allowedAware = this.triggerEvent.aware ?? [];
+            const properties = [];
+            // eslint-disable-next-line max-len
+            return Service('flowBuilderService').getAvailableEntities(this.action, this.triggerActions, allowedAware, properties);
         },
 
-        ...mapState('swFlowState', ['triggerEvent']),
+        ...mapState('swFlowState', ['triggerEvent', 'triggerActions']),
     },
 
     watch: {

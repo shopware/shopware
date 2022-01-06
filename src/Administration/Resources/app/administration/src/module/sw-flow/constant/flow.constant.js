@@ -18,6 +18,13 @@ export const ACTION = Object.freeze({
     ADD_ORDER_AFFILIATE_AND_CAMPAIGN_CODE: 'action.add.order.affiliate.and.campaign.code',
 });
 
+export const ACTION_TYPE = Object.freeze({
+    ADD_TAG: 'action.add.entity.tag',
+    REMOVE_TAG: 'action.remove.entity.tag',
+    SET_CUSTOM_FIELD: 'action.set.entity.custom.field',
+    ADD_AFFILIATE_AND_CAMPAIGN_CODE: 'action.add.entity.affiliate.and.campaign.code',
+});
+
 export default {
-    ACTION,
+    ACTION, ACTION_TYPE,
 };

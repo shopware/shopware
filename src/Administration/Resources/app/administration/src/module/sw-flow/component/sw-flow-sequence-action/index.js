@@ -7,6 +7,7 @@ const utils = Shopware.Utils;
 const { cloneDeep } = utils.object;
 const { ShopwareError } = Shopware.Classes;
 const { mapState, mapGetters } = Component.getComponentHelper();
+const { snakeCase } = utils.string;
 
 Component.register('sw-flow-sequence-action', {
     template,
@@ -155,20 +156,13 @@ Component.register('sw-flow-sequence-action', {
 
         onSaveActionSuccess(sequence) {
             const { config, id } = sequence;
-            const entity = config?.entity;
+            let entity = config?.entity;
             let actionName = this.selectedAction;
 
-            if (this.selectedAction === ACTION.ADD_TAG && entity) {
-                actionName = `action.add.${entity}.tag`;
-            }
-
-            if (this.selectedAction === ACTION.REMOVE_TAG && entity) {
-                actionName = `action.remove.${entity}.tag`;
-            }
-
-            if ([ACTION.SET_CUSTOMER_GROUP_CUSTOM_FIELD,
-                ACTION.SET_CUSTOMER_CUSTOM_FIELD].includes(this.selectedAction) && entity === 'customerGroup') {
-                actionName = ACTION.SET_CUSTOMER_GROUP_CUSTOM_FIELD;
+            const actionType = this.flowBuilderService.mapActionType(this.selectedAction);
+            if (actionType && entity) {
+                entity = snakeCase(entity).replace('_', '.');
+                actionName = actionType.replace('entity', entity);
             }
 
             if (!id) {

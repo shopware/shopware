@@ -236,6 +236,7 @@
     {% block sw_flow_sequence_action_modal %}
     <sw-flow-sequence-modal
         :sequence="currentSequence"
+        :action="selectedAction"
         :modal-name="modalName"
         @process-finish="onSaveActionSuccess"
         @modal-close="onCloseModal"

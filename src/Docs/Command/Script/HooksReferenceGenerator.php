@@ -31,15 +31,19 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
 
     private DocBlockFactory $docFactory;
 
+    private ServiceReferenceGenerator $serviceReferenceGenerator;
+
     /**
      * @psalm-suppress ContainerDependency
      */
-    public function __construct(ContainerInterface $container)
+    public function __construct(ContainerInterface $container, ServiceReferenceGenerator $serviceReferenceGenerator)
     {
         $this->container = $container;
         $this->docFactory = DocBlockFactory::createInstance([
             'hook-use-case' => Generic::class,
+            'script-service' => Generic::class,
         ]);
+        $this->serviceReferenceGenerator = $serviceReferenceGenerator;
     }
 
     public function generate(): array
@@ -144,9 +148,9 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
     /**
      * @param \ReflectionClass<Hook> $reflection
      */
-    private function getAvailableData(\ReflectionClass $reflection): string
+    private function getAvailableData(\ReflectionClass $reflection): array
     {
-        $availableData = '';
+        $availableData = [];
 
         foreach ($reflection->getProperties() as $property) {
             $propertyType = $property->getType();
@@ -158,7 +162,14 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
                 ));
             }
 
-            $availableData .= $property->getName() . ': `' . $propertyType->getName() . '`<br>';
+            /** @var class-string<object> $type */
+            $type = $propertyType->getName();
+
+            $availableData[] = [
+                'name' => $property->getName(),
+                'type' => $type,
+                'link' => $this->serviceReferenceGenerator->getLinkForClass($type),
+            ];
         }
 
         return $availableData;
@@ -167,10 +178,10 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
     /**
      * @param \ReflectionClass<Hook> $reflection
      */
-    private function getAvailableServices(\ReflectionClass $reflection): string
+    private function getAvailableServices(\ReflectionClass $reflection): array
     {
         $serviceIds = $reflection->getMethod('getServiceIds')->invoke(null);
-        $services = '';
+        $services = [];
 
         foreach ($serviceIds as $serviceId) {
             $reflection = new \ReflectionClass($serviceId);
@@ -188,9 +199,33 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
             $service = $this->container->get($serviceId);
             $name = $service->getName();
 
-            $services .= $name . ': `' . $returnType->getName() . '`<br>';
+            /** @var class-string<object> $type */
+            $type = $returnType->getName();
+
+            $services[] = [
+                'name' => $name,
+                'returnType' => $type,
+                'link' => $this->getServiceLink($type),
+            ];
         }
 
         return $services;
+    }
+
+    /**
+     * @param class-string<object> $serviceClassName
+     */
+    private function getServiceLink(string $serviceClassName): string
+    {
+        $reflection = new \ReflectionClass($serviceClassName);
+
+        try {
+            $group = $this->serviceReferenceGenerator->getGroupForService($reflection);
+        } catch (\Throwable $e) {
+            // ToDo: NEXT-1923 - Remove try catch when all cart services have correct doc annotations
+            return '';
+        }
+
+        return sprintf('./%s#%s', ServiceReferenceGenerator::GROUPS[$group], $reflection->getShortName());
     }
 }

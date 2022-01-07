@@ -14,15 +14,17 @@ class AfterSort
 
         // pre-sort elements to pull elements without an after id parent to the front
         uasort($elements, function (Entity $a, Entity $b) use ($propertyName) {
-            if ($a->get($propertyName) === $b->get($propertyName) && $a->get($propertyName) === null) {
+            $aValue = $a->$propertyName;
+            $bValue = $b->$propertyName;
+            if ($aValue === $bValue && $aValue === null) {
                 return 0;
             }
 
-            if ($a->get($propertyName) === null) {
+            if ($aValue === null) {
                 return -1;
             }
 
-            if ($b->get($propertyName) === null) {
+            if ($bValue === null) {
                 return 1;
             }
 
@@ -35,7 +37,7 @@ class AfterSort
 
         while (\count($elements) > 0) {
             foreach ($elements as $index => $element) {
-                if ($element->get($propertyName) !== $lastId) {
+                if ($lastId !== $element->$propertyName) {
                     continue;
                 }
 
@@ -56,7 +58,7 @@ class AfterSort
                 break;
             }
 
-            $lastId = $nextItem->get($propertyName);
+            $lastId = $nextItem->$propertyName;
         }
 
         return $sorted;

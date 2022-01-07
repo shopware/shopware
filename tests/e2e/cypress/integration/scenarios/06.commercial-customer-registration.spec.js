@@ -7,7 +7,7 @@ describe('@package: Admin & Storefront - commercial customer registration by usi
         cy.loginViaApi().then(() => cy.createProductFixture());
     });
 
-    it('Add initial settings', ()=>{
+    it.skip('Add initial settings', ()=>{
         cy.visit(`${Cypress.env('admin')}#/sw/settings/shipping/index`);
         cy.url().should('include', 'settings/shipping/index');
         cy.setShippingMethod('Express', '10', '8');

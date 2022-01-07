@@ -35,7 +35,7 @@
         "cocur/slugify": "4.0.0",
         "doctrine/dbal": "2.13.3",
         "padaliyajay/php-autoprefixer": "1.3",
-        "scssphp/scssphp": "1.9.0",
+        "scssphp/scssphp": "1.10.0",
         "shopware/core": "*",
         "symfony/cache": "~5.4.0",
         "symfony/cache-contracts": "2.2.0",

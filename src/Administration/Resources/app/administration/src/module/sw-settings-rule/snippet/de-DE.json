@@ -62,6 +62,12 @@
         "payment": "Zahlungsart",
         "price": "Preis",
         "flowBuilder": "Flow Builder"
+      },
+      "groups": {
+        "general": "Allgemein",
+        "cart": "Warenkorb",
+        "items": "Positionen",
+        "customers": "Kunden"
       }
     },
     "conditionFilter": {

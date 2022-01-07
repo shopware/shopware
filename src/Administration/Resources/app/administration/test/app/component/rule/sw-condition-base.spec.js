@@ -16,6 +16,7 @@ function createWrapper(customProps = {}) {
                 getComponentByCondition: () => {}
             },
             availableTypes: {},
+            availableGroups: [],
             childAssociationField: {}
         },
         propsData: {

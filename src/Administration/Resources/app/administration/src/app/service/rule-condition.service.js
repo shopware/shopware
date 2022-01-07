@@ -160,6 +160,8 @@ export default function createConditionService() {
         addModuleType,
         getModuleTypes,
         getGroups,
+        upsertGroup,
+        removeGroup,
         getOperatorSet,
         getOperatorSetByComponent,
         getAndContainerData,
@@ -185,19 +187,6 @@ export default function createConditionService() {
         }
 
         return $store[type];
-    }
-
-    function getByGroup(group) {
-        const values = Object.values($store);
-        const conditions = [];
-
-        values.forEach(condition => {
-            if (condition.group === group) {
-                conditions.push(condition);
-            }
-        });
-
-        return conditions;
     }
 
     function addCondition(type, condition) {
@@ -244,8 +233,29 @@ export default function createConditionService() {
         return Object.values(moduleTypes);
     }
 
+    function getByGroup(group) {
+        const values = Object.values($store);
+        const conditions = [];
+
+        values.forEach(condition => {
+            if (condition.group === group) {
+                conditions.push(condition);
+            }
+        });
+
+        return conditions;
+    }
+
     function getGroups() {
-        return Object.values(groups);
+        return groups;
+    }
+
+    function upsertGroup(groupName, groupData) {
+        groups[groupName] = { ...groups[groupName], ...groupData };
+    }
+
+    function removeGroup(groupName) {
+        delete groups[groupName];
     }
 
     function getConditions(allowedScopes = null) {

@@ -62,6 +62,12 @@
         "payment": "Payment",
         "price": "Price",
         "flowBuilder": "Flow Builder"
+      },
+      "groups": {
+        "general": "General",
+        "cart": "Shopping cart",
+        "items": "Line items",
+        "customers": "Customers"
       }
     },
     "conditionFilter": {

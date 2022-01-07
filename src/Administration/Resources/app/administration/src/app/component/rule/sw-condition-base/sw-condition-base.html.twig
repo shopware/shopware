@@ -7,7 +7,7 @@
     >
         {% block sw_condition_base_field_condition %}
         <sw-condition-type-select
-            v-bind="{ condition, availableTypes, hasError }"
+            v-bind="{ condition, availableTypes, hasError, availableGroups }"
             :disabled="disabled"
         />
         {% endblock %}

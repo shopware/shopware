@@ -121,6 +121,7 @@ function createWrapperForComponent(componentName, props = {}) {
         provide: {
             conditionDataProviderService: new ConditionDataProviderService(),
             availableTypes: [],
+            availableGroups: [],
             childAssociationField: {},
             repositoryFactory: {
                 create: () => ({})

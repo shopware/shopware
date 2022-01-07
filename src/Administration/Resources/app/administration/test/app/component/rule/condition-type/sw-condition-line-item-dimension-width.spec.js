@@ -32,6 +32,7 @@ describe('components/rule/condition-type/sw-condition-line-item-dimension-width'
             provide: {
                 conditionDataProviderService: new ConditionDataProviderService(),
                 availableTypes: {},
+                availableGroups: [],
                 childAssociationField: {},
                 validationService: {},
                 insertNodeIntoTree: () => ({}),

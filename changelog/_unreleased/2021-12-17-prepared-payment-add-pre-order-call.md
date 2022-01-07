@@ -1,6 +1,7 @@
 ---
 title: Prepared payment add pre-order call
 issue: NEXT-17162
+flag: FEATURE_NEXT_16769
 author: Lennart Tinkloh
 author_email: l.tinkloh@shopware.com
 author_github: @lernhart

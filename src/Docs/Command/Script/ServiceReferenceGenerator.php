@@ -9,6 +9,7 @@ use phpDocumentor\Reflection\DocBlock\Tags\Generic;
 use phpDocumentor\Reflection\DocBlock\Tags\Method;
 use phpDocumentor\Reflection\DocBlock\Tags\Param;
 use phpDocumentor\Reflection\DocBlock\Tags\Return_;
+use phpDocumentor\Reflection\DocBlock\Tags\TagWithType;
 use phpDocumentor\Reflection\DocBlockFactory;
 use Shopware\Core\Framework\Script\ServiceStubs;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -27,10 +28,12 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
     public const GROUP_MISCELLANEOUS = 'miscellaneous';
 
     public const GROUPS = [
-        self::GROUP_DATA_LOADING,
-        self::GROUP_CART_MANIPULATION,
-        self::GROUP_MISCELLANEOUS,
+        self::GROUP_DATA_LOADING => 'data-loading-script-services-reference.md',
+        self::GROUP_CART_MANIPULATION => 'cart-manipulation-script-services-reference.md',
+        self::GROUP_MISCELLANEOUS => 'miscellaneous-script-services-reference.md',
     ];
+
+    public const GITHUB_BASE_LINK = 'https://github.com/shopware/platform/blob/trunk';
 
     private const TEMPLATE_FILE = __DIR__ . '/../../Resources/templates/Scripts/service-reference.md.twig';
     private const GENERATED_DOC_FILE = __DIR__ . '/../../Resources/current/47-app-system-guide/';
@@ -39,14 +42,17 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
 
     private DocBlockFactory $docFactory;
 
+    private string $projectDir;
+
     private array $injectedServices = [];
 
     /**
      * @psalm-suppress ContainerDependency
      */
-    public function __construct(ContainerInterface $container)
+    public function __construct(ContainerInterface $container, string $projectDir)
     {
         $this->container = $container;
+        $this->projectDir = $projectDir;
 
         $this->docFactory = DocBlockFactory::createInstance([
             'script-service' => Generic::class,
@@ -91,6 +97,52 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
         return $result;
     }
 
+    /**
+     * @param \ReflectionClass<object> $reflection
+     */
+    public function getGroupForService(\ReflectionClass $reflection): string
+    {
+        $docBlock = $this->docFactory->create($reflection);
+
+        /** @var Generic[] $tags */
+        $tags = $docBlock->getTagsByName('script-service');
+
+        $description = $tags[0]->getDescription();
+
+        if (!$description || !\in_array($description->render(), array_keys(self::GROUPS), true)) {
+            throw new \RuntimeException(sprintf(
+                'Script Services "%s" is not correctly tagged to the group. Available groups are: "%s".',
+                $reflection->getName(),
+                implode('", "', array_keys(self::GROUPS)),
+            ));
+        }
+
+        return $description->render();
+    }
+
+    /**
+     * @param class-string<object> $className
+     */
+    public function getLinkForClass(string $className, array $scriptServices = []): ?string
+    {
+        if (!str_starts_with($className, 'Shopware\\')) {
+            return null;
+        }
+
+        $reflection = new \ReflectionClass($className);
+
+        if (\in_array($className, $scriptServices, true)) {
+            return \sprintf('./%s#%s', self::GROUPS[$this->getGroupForService($reflection)], $reflection->getShortName());
+        }
+
+        /** @var string $filename */
+        $filename = $reflection->getFileName();
+
+        $relativePath = str_replace($this->projectDir, '', $filename);
+
+        return self::GITHUB_BASE_LINK . $relativePath;
+    }
+
     private function findScriptServices(): array
     {
         $scriptServices = [];
@@ -133,19 +185,19 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
         $data = [
             self::GROUP_DATA_LOADING => [
                 'title' => 'Data Loading',
-                'fileName' => 'data-loading-script-services-reference.md',
+                'fileName' => self::GROUPS[self::GROUP_DATA_LOADING],
                 'description' => 'Here you find a complete reference of all scripting services that can be used to load additional data.',
                 'services' => [],
             ],
             self::GROUP_CART_MANIPULATION => [
                 'title' => 'Cart Manipulation',
-                'fileName' => 'cart-manipulation-script-services-reference.md',
+                'fileName' => self::GROUPS[self::GROUP_CART_MANIPULATION],
                 'description' => 'Here you find a complete reference of all scripting services that can be used to manipulate the cart.',
                 'services' => [],
             ],
             self::GROUP_MISCELLANEOUS => [
                 'title' => 'Miscellaneous',
-                'fileName' => 'miscellaneous-script-services-reference.md',
+                'fileName' => self::GROUPS[self::GROUP_MISCELLANEOUS],
                 'description' => 'Here you find a complete reference of all general scripting services that can be used in any script.',
                 'services' => [],
             ],
@@ -154,26 +206,19 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
         foreach ($scriptServices as $service) {
             $reflection = new \ReflectionClass($service);
 
+            $group = $this->getGroupForService($reflection);
+
             $docBlock = $this->docFactory->create($reflection);
 
-            /** @var Generic[] $tags */
-            $tags = $docBlock->getTagsByName('script-service');
-
-            $description = $tags[0]->getDescription();
-
-            if (!$description || !\in_array($description->render(), self::GROUPS, true)) {
-                throw new \RuntimeException(sprintf(
-                    'Script Services "%s" is not correctly tagged to the group. Available groups are: "%s".',
-                    $service,
-                    implode('", "', self::GROUPS),
-                ));
-            }
-
-            $data[$description->render()]['services'][] = [
+            $data[$group]['services'][] = [
                 'name' => $this->getName($service),
+                'link' => $this->getLinkForClass($service),
+                // add fragment-marker to easily link to specific classes, see https://stackoverflow.com/a/54335742/10064036
+                // as `{#` indicates a twig comment, we can't add it inside the template
+                'marker' => '{#' . $reflection->getShortName() . '}',
                 'summary' => $docBlock->getSummary(),
                 'description' => $docBlock->getDescription()->render(),
-                'methods' => $this->getMethods($reflection),
+                'methods' => $this->getMethods($reflection, $scriptServices),
             ];
         }
 
@@ -192,7 +237,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
     /**
      * @param \ReflectionClass<object> $reflection
      */
-    private function getMethods(\ReflectionClass $reflection): array
+    private function getMethods(\ReflectionClass $reflection, array $scriptServices): array
     {
         $methods = [];
 
@@ -216,8 +261,8 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
                 'title' => $method->getName() . '()',
                 'summary' => $docBlock->getSummary(),
                 'description' => $docBlock->getDescription()->render(),
-                'arguments' => $this->parseArguments($method, $docBlock),
-                'return' => $this->parseReturn($method, $docBlock),
+                'arguments' => $this->parseArguments($method, $docBlock, $scriptServices),
+                'return' => $this->parseReturn($method, $docBlock, $scriptServices),
                 'examples' => $this->parseExamples($method, $docBlock),
             ];
         }
@@ -225,7 +270,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
         return $methods;
     }
 
-    private function parseArguments(\ReflectionMethod $method, DocBlock $docBlock): array
+    private function parseArguments(\ReflectionMethod $method, DocBlock $docBlock, array $scriptServices): array
     {
         $arguments = [];
         /** @var Param[] $paramDocs */
@@ -234,22 +279,15 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
         foreach ($method->getParameters() as $parameter) {
             $paramDoc = $this->findDocForParam($paramDocs, $parameter->getName(), $method);
 
-            $type = $paramDoc->getType() ? (string) $paramDoc->getType() : ($parameter->getType() instanceof \ReflectionNamedType ? $parameter->getType()->getName() : null);
-            if ($type === null) {
-                throw new \RuntimeException(sprintf(
-                    'Missing type for param "$%s" on method "%s()" in class "%s",',
-                    $parameter->getName(),
-                    $method->getName(),
-                    $method->getDeclaringClass()->getName()
-                ));
-            }
+            $typeInformation = $this->getTypeInformation($parameter->getType(), $paramDoc, $scriptServices);
 
-            $arguments[] = [
-                'name' => $parameter->getName(),
-                'type' => $type,
-                'default' => $parameter->isDefaultValueAvailable() ? mb_strtolower(var_export($parameter->getDefaultValue(), true)) : null,
-                'description' => $paramDoc->getDescription() ? $paramDoc->getDescription()->render() : '',
-            ];
+            $arguments[] = array_merge(
+                [
+                    'name' => $parameter->getName(),
+                    'default' => $parameter->isDefaultValueAvailable() ? mb_strtolower(var_export($parameter->getDefaultValue(), true)) : null,
+                ],
+                $typeInformation
+            );
         }
 
         return $arguments;
@@ -274,7 +312,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
         ));
     }
 
-    private function parseReturn(\ReflectionMethod $method, DocBlock $docBlock): array
+    private function parseReturn(\ReflectionMethod $method, DocBlock $docBlock, array $scriptServices): array
     {
         $type = $method->getReturnType();
 
@@ -289,9 +327,16 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
         }
         $tag = $tags[0];
 
+        return $this->getTypeInformation($type, $tag, $scriptServices);
+    }
+
+    private function getTypeInformation(?\ReflectionType $type, TagWithType $tag, array $scriptServices): array
+    {
+        /** @var class-string<object> $typeName */
         $typeName = (string) $tag->getType();
         if ($type instanceof \ReflectionNamedType) {
             //The docBlock probably don't use the FQCN, therefore we use the native return type if we have one
+            /** @var class-string<object> $typeName */
             $typeName = $type->getName();
         }
 
@@ -302,6 +347,8 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
         return [
             'type' => $typeName,
             'description' => $tag->getDescription() ? $tag->getDescription()->render() : '',
+            'link' => $this->getLinkForClass($typeName, $scriptServices),
+            'nullable' => $type instanceof \ReflectionType && $type->allowsNull(),
         ];
     }
 
@@ -309,7 +356,6 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
     {
         $examples = [];
 
-        $start = microtime(true);
         /** @var Example $example */
         foreach ($docBlock->getTagsByName('example') as $example) {
             $finder = new Finder();
@@ -345,7 +391,6 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
                 ));
             }
 
-            /** @var SplFileInfo $file */
             $file = array_values($files)[0];
 
             $examples[] = [

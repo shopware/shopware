@@ -18,6 +18,8 @@ class User implements UserEntityInterface
 
     /**
      * Return the user's identifier.
+     *
+     * @return string
      */
     public function getIdentifier()
     {

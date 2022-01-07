@@ -22,7 +22,7 @@ class LastModifiedVersionStrategy implements VersionStrategyInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return string
      */
     public function getVersion(string $path)
     {

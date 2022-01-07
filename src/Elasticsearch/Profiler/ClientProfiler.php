@@ -17,6 +17,9 @@ class ClientProfiler extends Client
         parent::__construct($client->transport, $client->endpoints, $namespaces);
     }
 
+    /**
+     * @return array
+     */
     public function search(array $request = [])
     {
         $time = microtime(true);

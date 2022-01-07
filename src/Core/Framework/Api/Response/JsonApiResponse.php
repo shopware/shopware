@@ -6,6 +6,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class JsonApiResponse extends JsonResponse
 {
+    /**
+     * @return $this
+     */
     public function update()
     {
         parent::update();

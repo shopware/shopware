@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\Test\CustomEntity;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Types\FloatType;
 use Doctrine\DBAL\Types\StringType;
@@ -13,7 +12,6 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -47,11 +45,6 @@ class CustomEntityTest extends TestCase
     use SalesChannelApiTestBehaviour;
     use AppSystemTestBehaviour;
 
-    public function setUp(): void
-    {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
-    }
-
     /**
      * Cleanup, schema update and container initialisation costs much time, so we
      * only call this functions once and then execute all none schema updating tests
@@ -63,13 +56,19 @@ class CustomEntityTest extends TestCase
 
         $container = $this->initBlogEntity();
 
-        $this->testPersist();
+        $this->transactional(function() use ($container) {
+            $ids = new IdsCollection();
 
-        $this->testCreateFromXml();
+            $this->testPersist();
 
-        $this->testEntityApi();
+            $this->testCreateFromXml();
 
-        $this->testRepository($container);
+            $this->testEntityApi($ids);
+
+            $this->testRepository($ids, $container);
+
+            $this->testStoreApiAware($ids, $container);
+        });
 
         $this->cleanUp();
     }
@@ -269,29 +268,9 @@ class CustomEntityTest extends TestCase
         static::assertNotNull($storage[1]['updated_at']);
     }
 
-    private function testRepository(ContainerInterface $container): void
+    private function testRepository(IdsCollection $ids, ContainerInterface $container): void
     {
-        $ids = new IdsCollection();
-
-        $blogs = [
-            'id' => $ids->get('blog'),
-            'position' => 1,
-            'rating' => 2.2,
-            'title' => 'Test',
-            'content' => 'Test <123>',
-            'display' => true,
-            'payload' => ['foo' => 'Bar'],
-            'email' => 'test@test.com',
-            'links' => [
-                ['id' => $ids->get('category-1'), 'name' => 'test'],
-                ['id' => $ids->get('category-2'), 'name' => 'test'],
-            ],
-            'topSeller' => (new ProductBuilder($ids, 'p2'))->price(100)->build(),
-            'comments' => [
-                ['title' => 'test', 'content' => 'test', 'email' => 'test@test.com'],
-                ['title' => 'test', 'content' => 'test', 'email' => 'test@test.com'],
-            ],
-        ];
+        $blogs = self::blog('blog-2', $ids);
 
         /** @var EntityRepository|null $repository */
         $repository = $container->get('custom_entity_blog.repository');
@@ -299,7 +278,7 @@ class CustomEntityTest extends TestCase
 
         $repository->create([$blogs], Context::createDefaultContext());
 
-        $criteria = new Criteria($ids->getList(['blog']));
+        $criteria = new Criteria($ids->getList(['blog-2']));
         $criteria->addAssociation('comments');
         $criteria->addAssociation('topSeller');
         $criteria->addAssociation('links');
@@ -310,42 +289,19 @@ class CustomEntityTest extends TestCase
         $blog = $blogs->first();
 
         static::assertInstanceOf(ArrayEntity::class, $blog);
-        static::assertEquals($ids->get('blog'), $blog->getId());
+        static::assertEquals($ids->get('blog-2'), $blog->getId());
         static::assertInstanceOf(ProductEntity::class, $blog->get('topSeller'));
         static::assertCount(2, $blog->get('comments'));
         static::assertCount(2, $blog->get('links'));
     }
 
-    private function testEntityApi(): void
+    private function testEntityApi(IdsCollection $ids): void
     {
-        $ids = new IdsCollection();
-
-        $blog = [
-            'id' => $ids->get('blog'),
-            'position' => 1,
-            'rating' => 2.2,
-            'title' => 'Test',
-            'content' => 'Test <123>',
-            'display' => true,
-            'payload' => ['foo' => 'Bar'],
-            'email' => 'test@test.com',
-            'links' => [
-                ['id' => $ids->get('category-1'), 'name' => 'test'],
-                ['id' => $ids->get('category-2'), 'name' => 'test'],
-            ],
-            'topSeller' => (new ProductBuilder($ids, 'p3'))
-                ->price(100)
-                ->build(),
-            'comments' => [
-                ['title' => 'test', 'content' => 'test', 'email' => 'test@test.com'],
-                ['title' => 'test', 'content' => 'test', 'email' => 'test@test.com'],
-            ],
-        ];
-
         $client = $this->getBrowser();
 
-        $client->request('POST', '/api/custom-entity-blog', [], [], [], json_encode($blog));
-        static::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
+        $client->request('POST', '/api/custom-entity-blog', [], [], [], json_encode(self::blog('blog-1', $ids)));
+        $response = json_decode($client->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), print_r($response, true));
 
         $client->request('POST', '/api/search/custom-entity-blog', [], [], [
             'HTTP_ACCEPT' => 'application/json',
@@ -359,9 +315,100 @@ class CustomEntityTest extends TestCase
         static::assertArrayHasKey('rating', $response['data'][0]);
     }
 
+    private function testStoreApiAware(IdsCollection $ids, ContainerInterface $container): void
+    {
+        $container->get('custom_entity_blog.repository')
+            ->create([self::blog('blog-3', $ids)], Context::createDefaultContext());
+
+        $criteria = [
+            'ids' => [$ids->get('blog-3')],
+            'includes' => [
+                'custom_entity_blog' => ['id', 'title', 'rating', 'content', 'email', 'comments', 'linkProduct', 'topSeller', 'translated'],
+                'custom_entity_blog_comment' => ['title', 'content', 'email'],
+                'product' => ['name', 'productNumber'],
+                'dal_entity_search_result' => ['elements']
+            ],
+            'associations' => [
+                'topSeller' => [],
+                'linkProduct' => [],
+                'comments' => []
+            ],
+        ];
+
+        $browser = $this->getSalesChannelBrowser();
+        $browser->request('POST', '/store-api/script/repository-test', $criteria);
+
+        $response = \json_decode($browser->getResponse()->getContent(), true);
+
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), print_r($response, true));
+
+        $traces = $this->getScriptTraces();
+        static::assertArrayHasKey('store-api-repository-test', $traces);
+        static::assertCount(1, $traces['store-api-repository-test']);
+        static::assertSame('some debug information', $traces['store-api-repository-test'][0]['output'][0]);
+
+        $expected = [
+            'apiAlias' => 'store_api_repository-test_response',
+            'blogs' => [
+                'apiAlias' => 'dal_entity_search_result',
+                'elements' => [
+                    [
+                        'id' => $ids->get('blog-3'),
+                        'rating' => 2.2,
+                        'title' => 'blog-3',
+                        'content' => 'Test &lt;123&gt;',
+                        'translated' => [
+                            'title' => 'blog-3',
+                            'content' => 'Test &lt;123&gt;',
+                        ],
+                        'topSeller' => [
+                            "productNumber" => "blog-3",
+                            "name" => "blog-3",
+                            "apiAlias" => "product",
+                        ],
+                        'comments' => [
+                            ['title' => 'test', 'content' => 'test', 'apiAlias' => 'custom_entity_blog_comment'],
+                            ['title' => 'test', 'content' => 'test', 'apiAlias' => 'custom_entity_blog_comment'],
+                        ],
+                        "apiAlias" => "custom_entity_blog"
+                    ]
+                ]
+            ]
+        ];
+        static::assertEquals($expected, $response);
+    }
+
+    private static function blog(string $key, IdsCollection $ids): array
+    {
+        return  [
+            'id' => $ids->get($key),
+            'position' => 1,
+            'rating' => 2.2,
+            'title' => $key,
+            'content' => 'Test <123>',
+            'display' => true,
+            'payload' => ['foo' => 'Bar'],
+            'email' => 'test@test.com',
+            'links' => [
+                ['id' => $ids->get('category-1'), 'name' => 'test'],
+                ['id' => $ids->get('category-2'), 'name' => 'test'],
+            ],
+            'topSeller' => (new ProductBuilder($ids, $key))->price(100)->build(),
+            'comments' => [
+                ['title' => 'test', 'content' => 'test', 'email' => 'test@test.com'],
+                ['title' => 'test', 'content' => 'test', 'email' => 'test@test.com'],
+            ],
+            'linkProduct' => (new ProductBuilder($ids, $key . '-link'))->price(100)->build(),
+        ];
+    }
+
     private function transactional(\Closure $closure): void
     {
-        $this->getContainer()->get(Connection::class)->transactional($closure);
+        $this->getContainer()->get(Connection::class)->beginTransaction();
+
+        $closure();
+
+        $this->getContainer()->get(Connection::class)->rollBack();
     }
 
     private function initBlogEntity(): ContainerInterface
@@ -385,18 +432,13 @@ class CustomEntityTest extends TestCase
 
     private function cleanUp(): void
     {
-        try {
-            $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM custom_entity_blog');
-        } catch (Exception $e) {
-        }
-
-        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM product WHERE product_number IN (:number)', ['number' => ['p1', 'p2', 'p3']], ['number' => Connection::PARAM_STR_ARRAY]);
-
-        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM tax WHERE name = :name', ['name' => 't1']);
-
         $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM custom_entity');
 
-        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM app WHERE name = :name', ['name' => 'custom-entity-test']);
+        $this->getContainer()->get(Connection::class)->executeStatement(
+            'DELETE FROM app WHERE name IN (:name)',
+            ['name' => ['custom-entity-test', 'store-api-custom-entity-test']],
+            ['name' => Connection::PARAM_STR_ARRAY]
+        );
 
         $this->getContainer()->get(CustomEntitySchemaUpdater::class)->update();
     }

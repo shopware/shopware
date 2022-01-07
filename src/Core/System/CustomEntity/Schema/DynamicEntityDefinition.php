@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\CustomEntity\Schema;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -28,8 +29,6 @@ class DynamicEntityDefinition extends EntityDefinition
         $self->fieldDefinitions = $fields;
         $self->container = $container;
 
-        //todo@dr consider store_api_aware flag and set protection for whole entity class
-
         return $self;
     }
 
@@ -43,7 +42,7 @@ class DynamicEntityDefinition extends EntityDefinition
         $collection = DynamicFieldFactory::create($this->container, $this->getEntityName(), $this->fieldDefinitions);
 
         $collection->add(
-            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new Required(), new PrimaryKey()),
         );
 
         return $collection;

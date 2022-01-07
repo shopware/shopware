@@ -48,7 +48,7 @@ class RepositoryFacadeTest extends TestCase
 
         $facade = $this->factory->factory(
             new TestHook('test', Context::createDefaultContext()),
-            new Script('test', '', new \DateTimeImmutable(), null)
+            new Script('test', '', new \DateTimeImmutable(), null, null)
         );
 
         $result = $facade->$method('product', $criteria);
@@ -180,7 +180,7 @@ class RepositoryFacadeTest extends TestCase
 
         $facade = $this->factory->factory(
             new TestHook('test', Context::createDefaultContext()),
-            new Script('test', '', new \DateTimeImmutable(), $apInfo)
+            new Script('test', '', new \DateTimeImmutable(), $apInfo, null)
         );
 
         $result = $facade->search('product', []);
@@ -211,7 +211,7 @@ class RepositoryFacadeTest extends TestCase
 
         $facade = $this->factory->factory(
             new TestHook('test', Context::createDefaultContext()),
-            new Script('test', '', new \DateTimeImmutable(), $appInfo)
+            new Script('test', '', new \DateTimeImmutable(), $appInfo, null)
         );
 
         static::expectException(MissingPrivilegeException::class);

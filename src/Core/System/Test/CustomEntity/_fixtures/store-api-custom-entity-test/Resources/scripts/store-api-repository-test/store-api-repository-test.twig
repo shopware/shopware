@@ -1,0 +1,6 @@
+{# @var services \Shopware\Core\Framework\Script\ServiceStubs #}
+{% set blogs = services.repository.search('custom_entity_blog', hook.request) %}
+
+{% do hook.response.body.set('blogs', blogs) %}
+
+{% do debug.dump('some debug information') %}

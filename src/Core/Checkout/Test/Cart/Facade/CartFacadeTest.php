@@ -48,7 +48,7 @@ class CartFacadeTest extends TestCase
         parent::setUp();
 
         $this->init();
-        $this->script = new Script('test', '', new \DateTimeImmutable(), null);
+        $this->script = new Script('test', '', new \DateTimeImmutable(), null, null);
     }
 
     /**

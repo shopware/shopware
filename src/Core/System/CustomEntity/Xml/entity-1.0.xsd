@@ -15,7 +15,6 @@
         </xs:choice>
 
         <xs:attribute name="name" type="xs:string" use="required"/>
-        <xs:attribute name="store-api-aware" type="xs:boolean" use="required" />
     </xs:complexType>
 
     <xs:complexType name="field-list">

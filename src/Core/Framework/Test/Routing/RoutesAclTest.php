@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\Route\ApiRouteLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\System\CustomEntity\Api\CustomEntityRouteLoader;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\LoaderResolver;
 use Symfony\Component\HttpFoundation\Request;
@@ -55,6 +56,7 @@ class RoutesAclTest extends TestCase
             $this->getContainer()->get('routing.loader.php'),
             $this->getContainer()->get('routing.loader.xml'),
             $this->getContainer()->get('routing.loader.api.test'),
+            $this->getContainer()->get(CustomEntityRouteLoader::class),
             $testRouteLoader,
         ]);
 

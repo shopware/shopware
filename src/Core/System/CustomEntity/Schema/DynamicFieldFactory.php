@@ -64,21 +64,23 @@ class DynamicFieldFactory
 
         foreach ($translated as &$field) {
             $required = $field['required'] ?? false;
-            $apiAware = $field['storeApiAware'] ? new ApiAware() : null;
+            $apiAware = $field['storeApiAware'] ?? false;
 
             $property = self::kebabCaseToCamelCase($field['name']);
             unset($field['translatable']);
 
+            $translatedField = new TranslatedField($property);
             if ($required) {
                 $translations->addFlags(new Required());
             }
-            $translations->addFlags($apiAware);
-
-            $collection->add(
-                (new TranslatedField($property))
-                    ->addFlags($apiAware)
-            );
+            if ($apiAware) {
+                $translations->addFlags(new ApiAware());
+                $translatedField->addFlags(new ApiAware());
+            }
+            $collection->add($translatedField);
         }
+
+        unset($field);
 
         $registry = $container->get(DefinitionInstanceRegistry::class);
         if (!$registry instanceof DefinitionInstanceRegistry) {
@@ -124,46 +126,43 @@ class DynamicFieldFactory
         $required = $required ? new Required() : null;
         $apiAware = $field['storeApiAware'] ? new ApiAware() : null;
 
+        $flags = \array_filter([$required, $apiAware]);
+
         $property = self::kebabCaseToCamelCase($name);
 
         switch ($field['type']) {
             case 'int':
                 $collection->add(
                     (new IntField($name, $property))
-                        ->addFlags($required)
-                        ->addFlags($apiAware)
+                        ->addFlags(...$flags)
                 );
 
                 break;
             case 'bool':
                 $collection->add(
                     (new BoolField($name, $property))
-                        ->addFlags($required)
-                        ->addFlags($apiAware)
+                        ->addFlags(...$flags)
                 );
 
                 break;
             case 'float':
                 $collection->add(
                     (new FloatField($name, $property))
-                        ->addFlags($required)
-                        ->addFlags($apiAware)
+                        ->addFlags(...$flags)
                 );
 
                 break;
             case 'email':
                 $collection->add(
                     (new EmailField($name, $property))
-                        ->addFlags($required)
-                        ->addFlags($apiAware)
+                        ->addFlags(...$flags)
                 );
 
                 break;
             case 'text':
                 $collection->add(
                     (new LongTextField($name, $property))
-                        ->addFlags($required)
-                        ->addFlags($apiAware)
+                        ->addFlags(...$flags)
                         ->addFlags(new AllowHtml(true))
                 );
 
@@ -171,8 +170,7 @@ class DynamicFieldFactory
             case 'json':
                 $collection->add(
                     (new JsonField($name, $property))
-                        ->addFlags($required)
-                        ->addFlags($apiAware)
+                        ->addFlags(...$flags)
                 );
 
                 break;
@@ -180,10 +178,12 @@ class DynamicFieldFactory
                 $mapping = [$entityName, $field['reference']];
                 sort($mapping);
 
-                $collection->add(
-                    (new ManyToManyAssociationField($property, DynamicEntityDefinition::class, DynamicMappingEntityDefinition::class, $entityName . '_id', $field['reference'] . '_id', 'id', 'id', implode('_', $mapping), $field['reference']))
-                        ->addFlags($apiAware)
-                );
+                $association = new ManyToManyAssociationField($property, DynamicEntityDefinition::class, DynamicMappingEntityDefinition::class, $entityName . '_id', $field['reference'] . '_id', 'id', 'id', implode('_', $mapping), $field['reference']);
+                if ($apiAware) {
+                    $association->addFlags($apiAware);
+                }
+
+                $collection->add($association);
 
                 $mapping = DynamicMappingEntityDefinition::create($entityName, $field['reference']);
                 $container->set($mapping->getEntityName(), $mapping);
@@ -194,34 +194,38 @@ class DynamicFieldFactory
             case 'many-to-one':
                 $collection->add(
                     (new FkField($name . '_id', $property . 'Id', DynamicEntityDefinition::class, 'id', $field['reference']))
-                        ->addFlags($apiAware)
-                        ->addFlags($required)
+                        ->addFlags(...$flags)
                 );
 
-                $collection->add(
-                    (new ManyToOneAssociationField($property, $name . '_id', DynamicEntityDefinition::class, 'id', false, $field['reference']))
-                        ->addFlags($apiAware)
-                );
+                $association = new ManyToOneAssociationField($property, $name . '_id', DynamicEntityDefinition::class, 'id', false, $field['reference']);
+                if ($apiAware) {
+                    $association->addFlags($apiAware);
+                }
+
+                $collection->add($association);
 
                 break;
             case 'one-to-one':
                 $collection->add(
                     (new FkField($name . '_id', $property, DynamicEntityDefinition::class, 'id', $field['reference']))
-                        ->addFlags($apiAware)
-                        ->addFlags($required)
+                        ->addFlags(...$flags)
                 );
 
-                $collection->add(
-                    (new OneToOneAssociationField($property, $name . '_id', 'id', DynamicEntityDefinition::class, true, $field['reference']))
-                        ->addFlags($apiAware)
-                );
+                $association = new OneToOneAssociationField($property, $name . '_id', 'id', DynamicEntityDefinition::class, true, $field['reference']);
+                if ($apiAware) {
+                    $association->addFlags($apiAware);
+                }
+
+                $collection->add($association);
 
                 break;
             case 'one-to-many':
-                $collection->add(
-                    (new OneToManyAssociationField($property, DynamicEntityDefinition::class, $entityName . '_id', 'id', $field['reference']))
-                        ->addFlags($apiAware)
-                );
+                $association = new OneToManyAssociationField($property, DynamicEntityDefinition::class, $entityName . '_id', 'id', $field['reference']);
+                if ($apiAware) {
+                    $association->addFlags($apiAware);
+                }
+
+                $collection->add($association);
 
                 self::addReverseForeignKey($registry, $field['reference'], $entityName, $apiAware);
 
@@ -229,8 +233,7 @@ class DynamicFieldFactory
             default:
                 $collection->add(
                     (new StringField($name, $property))
-                        ->addFlags($apiAware)
-                        ->addFlags($required)
+                        ->addFlags(...$flags)
                 );
 
                 break;
@@ -242,7 +245,9 @@ class DynamicFieldFactory
         $reference = $registry->getByEntityName($referenceEntity);
 
         $fk = new FkField($entityName . '_id', self::kebabCaseToCamelCase($entityName) . 'Id', DynamicEntityDefinition::class, 'id', $entityName);
-        $fk->addFlags($apiAware);
+        if ($apiAware) {
+            $fk->addFlags($apiAware);
+        }
 
         $isCustomEntity = strpos($reference->getEntityName(), 'custom_entity_') === 0;
 

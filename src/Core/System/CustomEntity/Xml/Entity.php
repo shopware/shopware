@@ -14,8 +14,6 @@ class Entity extends XmlElement
 {
     protected string $name;
 
-    protected bool $storeApiAware;
-
     public function __construct(array $data)
     {
         foreach ($data as $property => $value) {

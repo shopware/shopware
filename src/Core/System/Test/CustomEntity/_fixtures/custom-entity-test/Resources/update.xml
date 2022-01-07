@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Entities/Schema/entity-1.0.xsd">
-    <entity name="custom_entity_blog" store-api-aware="true">
+    <entity name="custom_entity_blog">
         <fields>
             <string name="rating" store-api-aware="true" />
             <float name="title" required="true" translatable="true" store-api-aware="true" />
@@ -11,7 +11,7 @@
         </fields>
     </entity>
 
-    <entity name="custom_entity_blog_comment" store-api-aware="true">
+    <entity name="custom_entity_blog_comment">
         <fields>
             <string name="title" required="true" translatable="true" store-api-aware="true" />
             <text name="content" allow-html="true" translatable="true" store-api-aware="true" />

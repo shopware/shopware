@@ -208,10 +208,14 @@ class OpenApiLoader
         $flagPattern = "#@internal \(flag:([a-zA-Z_0-9]+)\)#";
         preg_match_all($flagPattern, $docBlock, $matches, \PREG_PATTERN_ORDER);
 
-        if (\count($matches[1]) > 0 && strpos($matches[1][0], 'FEATURE_') === 0 && Feature::isActive($matches[1][0])) {
+        if (\count($matches[1]) <= 0) {
             return true;
         }
 
-        return false;
+        if (strpos($matches[1][0], 'FEATURE_') === false) {
+            return true;
+        }
+
+        return Feature::isActive($matches[1][0]);
     }
 }

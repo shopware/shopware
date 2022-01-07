@@ -12,6 +12,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -46,6 +47,23 @@ class CustomEntityTest extends TestCase
     use AppSystemTestBehaviour;
 
     /**
+     * @afterClass
+     */
+    public function afterTest(): void
+    {
+        KernelLifecycleManager::bootKernel()->getContainer();
+
+        $criteria = new Criteria();
+        $criteria->setLimit(1);
+
+        $result = $this->getContainer()->get('category.repository')
+            ->search($criteria, Context::createDefaultContext());
+
+        // ensure that the dal extensions are removed before continue with next test
+        static::assertInstanceOf(EntitySearchResult::class, $result);
+    }
+
+    /**
      * Cleanup, schema update and container initialisation costs much time, so we
      * only call this functions once and then execute all none schema updating tests
      * directly
@@ -56,7 +74,7 @@ class CustomEntityTest extends TestCase
 
         $container = $this->initBlogEntity();
 
-        $this->transactional(function() use ($container) {
+        $this->transactional(function () use ($container): void {
             $ids = new IdsCollection();
 
             $this->testPersist();
@@ -185,7 +203,6 @@ class CustomEntityTest extends TestCase
             new Entities([
                 new Entity([
                     'name' => 'custom_entity_blog',
-                    'storeApiAware' => true,
                     'fields' => [
                         new IntField(['name' => 'position', 'storeApiAware' => true]),
                         new FloatField(['name' => 'rating', 'storeApiAware' => true]),
@@ -203,7 +220,6 @@ class CustomEntityTest extends TestCase
                 ]),
                 new Entity([
                     'name' => 'custom_entity_blog_comment',
-                    'storeApiAware' => true,
                     'fields' => [
                         new StringField(['name' => 'title', 'storeApiAware' => true, 'required' => true, 'translatable' => true]),
                         new TextField(['name' => 'content', 'storeApiAware' => true, 'allowHtml' => true, 'translatable' => true]),
@@ -326,12 +342,12 @@ class CustomEntityTest extends TestCase
                 'custom_entity_blog' => ['id', 'title', 'rating', 'content', 'email', 'comments', 'linkProduct', 'topSeller', 'translated'],
                 'custom_entity_blog_comment' => ['title', 'content', 'email'],
                 'product' => ['name', 'productNumber'],
-                'dal_entity_search_result' => ['elements']
+                'dal_entity_search_result' => ['elements'],
             ],
             'associations' => [
                 'topSeller' => [],
                 'linkProduct' => [],
-                'comments' => []
+                'comments' => [],
             ],
         ];
 
@@ -362,25 +378,25 @@ class CustomEntityTest extends TestCase
                             'content' => 'Test &lt;123&gt;',
                         ],
                         'topSeller' => [
-                            "productNumber" => "blog-3",
-                            "name" => "blog-3",
-                            "apiAlias" => "product",
+                            'productNumber' => 'blog-3',
+                            'name' => 'blog-3',
+                            'apiAlias' => 'product',
                         ],
                         'comments' => [
                             ['title' => 'test', 'content' => 'test', 'apiAlias' => 'custom_entity_blog_comment'],
                             ['title' => 'test', 'content' => 'test', 'apiAlias' => 'custom_entity_blog_comment'],
                         ],
-                        "apiAlias" => "custom_entity_blog"
-                    ]
-                ]
-            ]
+                        'apiAlias' => 'custom_entity_blog',
+                    ],
+                ],
+            ],
         ];
         static::assertEquals($expected, $response);
     }
 
     private static function blog(string $key, IdsCollection $ids): array
     {
-        return  [
+        return [
             'id' => $ids->get($key),
             'position' => 1,
             'rating' => 2.2,

@@ -577,3 +577,28 @@ All available hooks that can be used to execute scripts during your app's lifecy
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[writer](./custom-endpoint-script-services-reference.md#RepositoryWriterFacade)<br> |
 | **Stoppable**          | `false`                  |
 
+## Api endpoint
+
+All available hooks within the Store API and API
+
+#### api-{hook}
+
+| <!-- -->               | <!-- -->                |
+|:-----------------------|:------------------------|
+| **Name**               | api-{hook}         |
+| **Class**              | `Shopware\Core\Framework\Script\Api\ApiHook`      |
+| **Description**        | Triggered when the api endpoint /api/script/{hook} is called<br>  |
+| **Available Data**     | request: `array`<br>response: `Shopware\Core\Framework\Script\Api\ScriptResponse`<br>name: `string`<br>context: `Shopware\Core\Framework\Context`<br>     |
+| **Available Services** | repository: `Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacade`<br>config: `Shopware\Core\System\SystemConfig\Facade\SystemConfigFacade`<br> |
+
+#### store-api-{hook}
+
+| <!-- -->               | <!-- -->                |
+|:-----------------------|:------------------------|
+| **Name**               | store-api-{hook}         |
+| **Class**              | `Shopware\Core\Framework\Script\Api\StoreApiHook`      |
+| **Description**        | Triggered when the api endpoint /store-api/script/{hook} is called<br>  |
+| **Available Data**     | request: `array`<br>salesChannelContext: `Shopware\Core\System\SalesChannel\SalesChannelContext`<br>response: `Shopware\Core\Framework\Script\Api\ScriptResponse`<br>script: `string`<br>context: `Shopware\Core\Framework\Context`<br>     |
+| **Available Services** | repository: `Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacade`<br>config: `Shopware\Core\System\SystemConfig\Facade\SystemConfigFacade`<br>store: `Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacade`<br> |
+
+

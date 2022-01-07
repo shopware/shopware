@@ -53,13 +53,7 @@ class CustomEntitySchema
         if ($this->entities === null) {
             return [];
         }
-        $data = json_decode(json_encode($this->entities->getEntities(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
-        foreach ($data as &$entity) {
-            $entity['store_api_aware'] = $entity['storeApiAware'];
-            unset($entity['storeApiAware']);
-        }
-
-        return $data;
+        return json_decode(json_encode($this->entities->getEntities(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
     }
 }

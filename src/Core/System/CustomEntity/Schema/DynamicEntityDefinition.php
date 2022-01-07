@@ -22,8 +22,11 @@ class DynamicEntityDefinition extends EntityDefinition
 
     protected ContainerInterface $container;
 
-    public static function create(string $name, array $fields, ContainerInterface $container): DynamicEntityDefinition
-    {
+    public static function create(
+        string $name,
+        array $fields,
+        ContainerInterface $container
+    ): DynamicEntityDefinition {
         $self = new self();
         $self->name = $name;
         $self->fieldDefinitions = $fields;

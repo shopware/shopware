@@ -18,7 +18,6 @@ class Migration1639122665AddCustomEntities extends MigrationStep
             CREATE TABLE IF NOT EXISTS `custom_entity` (
               `id` binary(16) NOT NULL,
               `name` varchar(255) NOT NULL,
-              `store_api_aware` tinyint(1) NOT NULL,
               `fields` json NOT NULL,
               `app_id` binary(16) DEFAULT NULL,
               `created_at` DATETIME(3) NOT NULL,
@@ -27,7 +26,7 @@ class Migration1639122665AddCustomEntities extends MigrationStep
               KEY `app_id` (`app_id`),
               UNIQUE `name` (`name`),
               CONSTRAINT `fk.custom_entity.app_id` FOREIGN KEY (`app_id`) REFERENCES `app` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }
 

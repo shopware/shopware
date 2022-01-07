@@ -366,7 +366,10 @@ abstract class EntityDefinition
         return $this->getFields()->getExtensionFields();
     }
 
-    protected function getParentDefinitionClass(): ?string
+    /**
+     * @return string|null
+     */
+    protected function getParentDefinitionClass()
     {
         return null;
     }

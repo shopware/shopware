@@ -1,7 +1,6 @@
 ---
 title: Add configuration option to set a default tax rate
 issue: NEXT-18176
-flag: FEATURE_NEXT_17546
 author: Ramona Schwering
 author_email: r.schwering@shopware.com
 author_github: leichteckig

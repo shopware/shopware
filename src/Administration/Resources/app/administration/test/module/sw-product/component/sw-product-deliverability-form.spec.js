@@ -129,8 +129,6 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
     });
 
     it('should pre-fill stock value', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_17546'];
-
         wrapper = createWrapper();
 
         expect(wrapper.find('.sw-field[name="sw-field--product-stock"]').element.value).toBe('0');

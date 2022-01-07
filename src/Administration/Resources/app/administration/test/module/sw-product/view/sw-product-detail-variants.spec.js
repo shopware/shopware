@@ -176,8 +176,6 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
     });
 
     it('should display a customized empty state if there are neither variants nor properties', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_17546'];
-
         const wrapper = createWrapper();
 
         await wrapper.vm.$nextTick();

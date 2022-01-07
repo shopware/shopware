@@ -122,10 +122,7 @@
                     {% endblock %}
 
                     {% block sw_settings_tax_list_grid_column_default %}
-                    <template
-                        v-if="feature.isActive('FEATURE_NEXT_17546')"
-                        #column-default="{ item, isInlineEdit }"
-                    >
+                    <template #column-default="{ item, isInlineEdit }">
                         <template v-if="isInlineEdit">
                             {% block sw_settings_tax_list_grid_column_default_editor %}
                             <sw-checkbox-field

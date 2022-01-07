@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-product-add-properties-modal', {
     template,
 
-    inject: ['repositoryFactory', 'feature'],
+    inject: ['repositoryFactory'],
 
     props: {
         newProperties: {
@@ -75,10 +75,7 @@ Component.register('sw-product-add-properties-modal', {
         },
 
         showSaveButton() {
-            if (this.feature.isActive('FEATURE_NEXT_17546')) {
-                return this.properties.length > 0;
-            }
-            return true;
+            return this.properties.length > 0;
         },
     },
 

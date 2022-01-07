@@ -42,16 +42,14 @@ describe('Product: Test variants', () => {
             .scrollIntoView()
             .should('be.visible');
 
-        cy.onlyOnFeature('FEATURE_NEXT_17546', () => {
-            // Check inherited price fields
-            cy.get('.sw-product-detail-base__prices').scrollIntoView().should('be.visible');
-            cy.get('.sw-list-price-field__price .sw-price-field__gross.is--disabled input')
-                .should('have.value', 64);
-            cy.get('.sw-list-price-field__purchase-price .sw-price-field__gross.is--disabled input')
-                .should('have.value', 10);
-            cy.get('.sw-list-price-field__list-price .sw-price-field__gross.is--disabled input')
-                .should('have.value', 100);
-        });
+        // Check inherited price fields
+        cy.get('.sw-product-detail-base__prices').scrollIntoView().should('be.visible');
+        cy.get('.sw-list-price-field__price .sw-price-field__gross.is--disabled input')
+            .should('have.value', 64);
+        cy.get('.sw-list-price-field__purchase-price .sw-price-field__gross.is--disabled input')
+            .should('have.value', 10);
+        cy.get('.sw-list-price-field__list-price .sw-price-field__gross.is--disabled input')
+            .should('have.value', 100);
 
         // remove inheritance
         cy.get('.sw-product-basic-form__inheritance-wrapper-description')
@@ -65,22 +63,20 @@ describe('Product: Test variants', () => {
             .scrollIntoView()
             .should('be.visible');
 
-        cy.onlyOnFeature('FEATURE_NEXT_17546', () => {
-            // Check price fields without being inherited
-            cy.get('.sw-product-price-form__price-list > .sw-inherit-wrapper__toggle-wrapper')
-                .find('.sw-inheritance-switch--is-inherited')
-                .click();
-            cy.get('.sw-product-detail-base__prices').scrollIntoView().should('be.visible');
-            cy.get('.sw-list-price-field__price .sw-price-field__gross input')
-                .should('be.enabled')
-                .and('have.value', 64);
-            cy.get('.sw-list-price-field__purchase-price .sw-price-field__gross input')
-                .should('be.enabled')
-                .and('have.value', 10);
-            cy.get('.sw-list-price-field__list-price .sw-price-field__gross input')
-                .should('be.enabled')
-                .and('have.value', 100);
-        });
+        // Check price fields without being inherited
+        cy.get('.sw-product-price-form__price-list > .sw-inherit-wrapper__toggle-wrapper')
+            .find('.sw-inheritance-switch--is-inherited')
+            .click();
+        cy.get('.sw-product-detail-base__prices').scrollIntoView().should('be.visible');
+        cy.get('.sw-list-price-field__price .sw-price-field__gross input')
+            .should('be.enabled')
+            .and('have.value', 64);
+        cy.get('.sw-list-price-field__purchase-price .sw-price-field__gross input')
+            .should('be.enabled')
+            .and('have.value', 10);
+        cy.get('.sw-list-price-field__list-price .sw-price-field__gross input')
+            .should('be.enabled')
+            .and('have.value', 100);
 
         // Check other values
         cy.get('#sw-field--product-name').scrollIntoView().should('be.visible');

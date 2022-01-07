@@ -8,7 +8,7 @@ const { mapState, mapGetters } = Component.getComponentHelper();
 Component.register('sw-product-detail-reviews', {
     template,
 
-    inject: ['repositoryFactory', 'feature', 'acl'],
+    inject: ['repositoryFactory', 'acl'],
 
     data() {
         return {

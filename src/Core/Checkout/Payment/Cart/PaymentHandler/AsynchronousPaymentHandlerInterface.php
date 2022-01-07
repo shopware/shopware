@@ -11,7 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-interface AsynchronousPaymentHandlerInterface
+interface AsynchronousPaymentHandlerInterface extends PaymentHandlerInterface
 {
     /**
      * The pay function will be called after the customer completed the order.

@@ -10,19 +10,27 @@ use Symfony\Contracts\Service\ServiceProviderInterface;
 class PaymentHandlerRegistry
 {
     /**
-     * @var array<string, SynchronousPaymentHandlerInterface|AsynchronousPaymentHandlerInterface>
+     * @var array<string, PaymentHandlerInterface>
      */
     private array $handlers = [];
 
-    public function __construct(ServiceProviderInterface $syncHandlers, ServiceProviderInterface $asyncHandlers)
-    {
-        foreach (array_keys($syncHandlers->getProvidedServices()) as $serviceId) {
+    public function __construct(
+        ServiceProviderInterface $syncHandlers,
+        ServiceProviderInterface $asyncHandlers,
+        ServiceProviderInterface $preparedHandlers
+    ) {
+        foreach (\array_keys($syncHandlers->getProvidedServices()) as $serviceId) {
             $handler = $syncHandlers->get($serviceId);
             $this->handlers[(string) $serviceId] = $handler;
         }
 
-        foreach (array_keys($asyncHandlers->getProvidedServices()) as $serviceId) {
+        foreach (\array_keys($asyncHandlers->getProvidedServices()) as $serviceId) {
             $handler = $asyncHandlers->get($serviceId);
+            $this->handlers[(string) $serviceId] = $handler;
+        }
+
+        foreach (\array_keys($preparedHandlers->getProvidedServices()) as $serviceId) {
+            $handler = $preparedHandlers->get($serviceId);
             $this->handlers[(string) $serviceId] = $handler;
         }
     }
@@ -30,7 +38,7 @@ class PaymentHandlerRegistry
     /**
      * @deprecated tag:v6.5.0 Will be removed. Use getHandlerForPaymentMethod instead.
      *
-     * @return AsynchronousPaymentHandlerInterface|SynchronousPaymentHandlerInterface|null
+     * @return PaymentHandlerInterface|null
      */
     public function getHandler(string $handlerId)
     {
@@ -42,7 +50,9 @@ class PaymentHandlerRegistry
     }
 
     /**
-     * @return AsynchronousPaymentHandlerInterface|SynchronousPaymentHandlerInterface|null
+     * @deprecated tag:v6.5.0 the return type will be native
+     *
+     * @return PaymentHandlerInterface|null
      */
     public function getHandlerForPaymentMethod(PaymentMethodEntity $paymentMethod)
     {
@@ -75,7 +85,7 @@ class PaymentHandlerRegistry
     public function getSyncHandlerForPaymentMethod(PaymentMethodEntity $paymentMethod): ?SynchronousPaymentHandlerInterface
     {
         $handler = $this->getHandlerForPaymentMethod($paymentMethod);
-        if (!$handler || !$handler instanceof SynchronousPaymentHandlerInterface) {
+        if (!$handler instanceof SynchronousPaymentHandlerInterface) {
             return null;
         }
 
@@ -98,17 +108,24 @@ class PaymentHandlerRegistry
     public function getAsyncHandlerForPaymentMethod(PaymentMethodEntity $paymentMethod): ?AsynchronousPaymentHandlerInterface
     {
         $handler = $this->getHandlerForPaymentMethod($paymentMethod);
-        if (!$handler || !$handler instanceof AsynchronousPaymentHandlerInterface) {
+        if (!$handler instanceof AsynchronousPaymentHandlerInterface) {
             return null;
         }
 
         return $handler;
     }
 
-    /**
-     * @return AsynchronousPaymentHandlerInterface|SynchronousPaymentHandlerInterface|null
-     */
-    private function resolveAppHandler(PaymentMethodEntity $paymentMethod)
+    public function getPreparedHandlerForPaymentMethod(PaymentMethodEntity $paymentMethod): ?PreparedPaymentHandlerInterface
+    {
+        $handler = $this->getHandlerForPaymentMethod($paymentMethod);
+        if (!$handler instanceof PreparedPaymentHandlerInterface) {
+            return null;
+        }
+
+        return $handler;
+    }
+
+    private function resolveAppHandler(PaymentMethodEntity $paymentMethod): ?PaymentHandlerInterface
     {
         $appPaymentMethod = $paymentMethod->getAppPaymentMethod();
         if ($appPaymentMethod === null) {

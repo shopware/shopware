@@ -4,17 +4,19 @@ namespace Shopware\Core\Checkout\Payment\Cart;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PreparedPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
-use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
-use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
+use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
@@ -54,9 +56,8 @@ class PaymentTransactionChainProcessor
     }
 
     /**
-     * @throws AsyncPaymentProcessException
      * @throws InvalidOrderException
-     * @throws SyncPaymentProcessException
+     * @throws PaymentProcessException
      * @throws UnknownPaymentMethodException
      */
     public function process(
@@ -114,6 +115,15 @@ class PaymentTransactionChainProcessor
             throw new UnknownPaymentMethodException($paymentMethod->getHandlerIdentifier());
         }
 
+        if (Feature::isActive('FEATURE_NEXT_16769')) {
+            if ($paymentHandler instanceof PreparedPaymentHandlerInterface) {
+                $preparedTransactionStruct = new PreparedPaymentTransactionStruct($transaction, $order);
+
+                $preOrderStruct = $paymentHandler->validate($preparedTransactionStruct, $dataBag, $salesChannelContext);
+                $paymentHandler->capture($preparedTransactionStruct, $dataBag, $salesChannelContext, $preOrderStruct);
+            }
+        }
+
         if ($paymentHandler instanceof SynchronousPaymentHandlerInterface) {
             $paymentTransaction = new SyncPaymentTransactionStruct($transaction, $order);
             $paymentHandler->pay($paymentTransaction, $dataBag, $salesChannelContext);
@@ -121,32 +131,36 @@ class PaymentTransactionChainProcessor
             return null;
         }
 
-        $paymentFinalizeTransactionTime = $this->systemConfigService->get('core.cart.paymentFinalizeTransactionTime', $salesChannelContext->getSalesChannelId());
+        if ($paymentHandler instanceof AsynchronousPaymentHandlerInterface) {
+            $paymentFinalizeTransactionTime = $this->systemConfigService->get('core.cart.paymentFinalizeTransactionTime', $salesChannelContext->getSalesChannelId());
 
-        if (\is_numeric($paymentFinalizeTransactionTime)) {
-            $paymentFinalizeTransactionTime = (int) $paymentFinalizeTransactionTime;
-            // setting is in minutes, token holds in seconds
-            $paymentFinalizeTransactionTime *= 60;
-        } else {
-            $paymentFinalizeTransactionTime = null;
+            if (\is_numeric($paymentFinalizeTransactionTime)) {
+                $paymentFinalizeTransactionTime = (int) $paymentFinalizeTransactionTime;
+                // setting is in minutes, token holds in seconds
+                $paymentFinalizeTransactionTime *= 60;
+            } else {
+                $paymentFinalizeTransactionTime = null;
+            }
+
+            $tokenStruct = new TokenStruct(
+                null,
+                null,
+                $transaction->getPaymentMethodId(),
+                $transaction->getId(),
+                $finishUrl,
+                $paymentFinalizeTransactionTime,
+                $errorUrl
+            );
+
+            $token = $this->tokenFactory->generateToken($tokenStruct);
+
+            $returnUrl = $this->assembleReturnUrl($token);
+            $paymentTransaction = new AsyncPaymentTransactionStruct($transaction, $order, $returnUrl);
+
+            return $paymentHandler->pay($paymentTransaction, $dataBag, $salesChannelContext);
         }
 
-        $tokenStruct = new TokenStruct(
-            null,
-            null,
-            $transaction->getPaymentMethodId(),
-            $transaction->getId(),
-            $finishUrl,
-            $paymentFinalizeTransactionTime,
-            $errorUrl
-        );
-
-        $token = $this->tokenFactory->generateToken($tokenStruct);
-
-        $returnUrl = $this->assembleReturnUrl($token);
-        $paymentTransaction = new AsyncPaymentTransactionStruct($transaction, $order, $returnUrl);
-
-        return $paymentHandler->pay($paymentTransaction, $dataBag, $salesChannelContext);
+        return null;
     }
 
     private function assembleReturnUrl(string $token): string

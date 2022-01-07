@@ -5,10 +5,14 @@ namespace Shopware\Core\Checkout\Test\Payment\Handler;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\InvoicePayment;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PreparedPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler;
+use Shopware\Core\Checkout\Test\Payment\Handler\V630\MultipleTestPaymentHandler;
+use Shopware\Core\Checkout\Test\Payment\Handler\V630\PreparedTestPaymentHandler;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Payment\Handler\AppAsyncPaymentHandler;
@@ -40,7 +44,7 @@ class PaymentHandlerRegistryTest extends TestCase
     /**
      * @dataProvider paymentMethodDataProvider
      *
-     * @param class-string<AsynchronousPaymentHandlerInterface>|class-string<SynchronousPaymentHandlerInterface> $handlerClass
+     * @param class-string<PaymentHandlerInterface> $handlerClass
      */
     public function testGetHandler(string $handlerName, string $handlerClass): void
     {
@@ -52,11 +56,12 @@ class PaymentHandlerRegistryTest extends TestCase
     /**
      * @dataProvider paymentMethodDataProvider
      */
-    public function testGetAsyncHandler(string $handlerName, string $handlerClass, bool $isAsync): void
+    public function testGetAsyncHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
     {
         $paymentMethod = $this->getPaymentMethod($handlerName);
         $handler = $this->paymentHandlerRegistry->getAsyncHandlerForPaymentMethod($paymentMethod);
-        if ($isAsync) {
+
+        if (\in_array(AsynchronousPaymentHandlerInterface::class, $handlerInstances, true)) {
             static::assertInstanceOf(AsynchronousPaymentHandlerInterface::class, $handler);
         } else {
             static::assertNull($handler);
@@ -66,12 +71,28 @@ class PaymentHandlerRegistryTest extends TestCase
     /**
      * @dataProvider paymentMethodDataProvider
      */
-    public function testGetSyncHandler(string $handlerName, string $handlerClass, bool $isAsync): void
+    public function testGetSyncHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
     {
         $paymentMethod = $this->getPaymentMethod($handlerName);
         $handler = $this->paymentHandlerRegistry->getSyncHandlerForPaymentMethod($paymentMethod);
-        if ($isAsync === false) {
+
+        if (\in_array(SynchronousPaymentHandlerInterface::class, $handlerInstances, true)) {
             static::assertInstanceOf(SynchronousPaymentHandlerInterface::class, $handler);
+        } else {
+            static::assertNull($handler);
+        }
+    }
+
+    /**
+     * @dataProvider paymentMethodDataProvider
+     */
+    public function testGetPreparedHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
+    {
+        $paymentMethod = $this->getPaymentMethod($handlerName);
+        $handler = $this->paymentHandlerRegistry->getPreparedHandlerForPaymentMethod($paymentMethod);
+
+        if (\in_array(PreparedPaymentHandlerInterface::class, $handlerInstances, true)) {
+            static::assertInstanceOf(PreparedPaymentHandlerInterface::class, $handler);
         } else {
             static::assertNull($handler);
         }
@@ -80,11 +101,41 @@ class PaymentHandlerRegistryTest extends TestCase
     public function paymentMethodDataProvider(): array
     {
         return [
-            'app async' => ['app\\testPayments_async', AppAsyncPaymentHandler::class, true],
-            'app sync with payurl' => ['app\\testPayments_syncTracked', AppSyncPaymentHandler::class, false],
-            'app sync' => ['app\\testPayments_sync', AppSyncPaymentHandler::class, false],
-            'normal async' => [AsyncTestPaymentHandler::class, AsyncTestPaymentHandler::class, true],
-            'normal sync' => [InvoicePayment::class, InvoicePayment::class, false],
+            'app async' => [
+                'app\\testPayments_async',
+                AppAsyncPaymentHandler::class,
+                [AsynchronousPaymentHandlerInterface::class],
+            ],
+            'app sync with payurl' => [
+                'app\\testPayments_syncTracked',
+                AppSyncPaymentHandler::class,
+                [SynchronousPaymentHandlerInterface::class],
+            ],
+            'app sync' => [
+                'app\\testPayments_sync',
+                AppSyncPaymentHandler::class,
+                [SynchronousPaymentHandlerInterface::class],
+            ],
+            'normal async' => [
+                AsyncTestPaymentHandler::class,
+                AsyncTestPaymentHandler::class,
+                [AsynchronousPaymentHandlerInterface::class],
+            ],
+            'normal sync' => [
+                InvoicePayment::class,
+                InvoicePayment::class,
+                [SynchronousPaymentHandlerInterface::class],
+            ],
+            'prepared' => [
+                PreparedTestPaymentHandler::class,
+                PreparedTestPaymentHandler::class,
+                [PreparedPaymentHandlerInterface::class],
+            ],
+            'sync and prepared' => [
+                MultipleTestPaymentHandler::class,
+                MultipleTestPaymentHandler::class,
+                [PreparedPaymentHandlerInterface::class, SynchronousPaymentHandlerInterface::class],
+            ],
         ];
     }
 

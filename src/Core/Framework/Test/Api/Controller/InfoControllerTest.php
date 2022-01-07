@@ -62,6 +62,82 @@ class InfoControllerTest extends TestCase
         static::assertStringStartsWith(mb_substr(json_encode($expected), 0, -3), $client->getResponse()->getContent());
     }
 
+    public function testGetConfigWithPermissions(): void
+    {
+        if (!Feature::isActive('FEATURE_NEXT_17950')) {
+            static::markTestSkipped('Only available with flag FEATURE_NEXT_17950');
+        }
+        $appRepository = $this->getContainer()->get('app.repository');
+        $appRepository->create([
+            [
+                'name' => 'PHPUnit',
+                'path' => '/foo/bar',
+                'active' => true,
+                'configurable' => false,
+                'version' => '1.0.0',
+                'label' => 'PHPUnit',
+                'integration' => [
+                    'label' => 'foo',
+                    'accessKey' => '123',
+                    'secretAccessKey' => '456',
+                ],
+                'aclRole' => [
+                    'name' => 'PHPUnitRole',
+                    'privileges' => [
+                        'user:create',
+                        'user:read',
+                        'user:update',
+                        'user:delete',
+                    ],
+                ],
+                'baseAppUrl' => 'https://example.com',
+            ],
+        ], Context::createDefaultContext());
+
+        $appUrl = EnvironmentHelper::getVariable('APP_URL');
+        static::assertIsString($appUrl);
+
+        $bundle = [
+            'type' => 'app',
+            'baseUrl' => 'https://example.com',
+            'permissions' => [
+                'create' => ['user'],
+                'read' => ['user'],
+                'update' => ['user'],
+                'delete' => ['user'],
+            ],
+        ];
+
+        $expected = [
+            'version' => Kernel::SHOPWARE_FALLBACK_VERSION,
+            'versionRevision' => str_repeat('0', 32),
+            'adminWorker' => [
+                'enableAdminWorker' => $this->getContainer()->getParameter('shopware.admin_worker.enable_admin_worker'),
+                'transports' => $this->getContainer()->getParameter('shopware.admin_worker.transports'),
+            ],
+            'bundles' => $bundle,
+            'settings' => [
+                'enableUrlFeature' => true,
+            ],
+        ];
+
+        $url = '/api/_info/config';
+        $client = $this->getBrowser();
+        $client->request('GET', $url);
+
+        static::assertJson($client->getResponse()->getContent());
+
+        $decodedResponse = json_decode($client->getResponse()->getContent(), true);
+        static::assertSame(200, $client->getResponse()->getStatusCode());
+        static::assertSame(array_keys($expected), array_keys($decodedResponse));
+
+        $bundles = $decodedResponse['bundles'];
+        static::assertIsArray($bundles);
+        static::assertArrayHasKey('PHPUnit', $bundles);
+        static::assertIsArray($bundles['PHPUnit']);
+        static::assertSame($bundle, $bundles['PHPUnit']);
+    }
+
     public function testGetShopwareVersion(): void
     {
         $expected = [

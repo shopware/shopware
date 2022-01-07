@@ -1,3 +1,4 @@
+import type { privileges } from '@shopware-ag/admin-extension-sdk/es/privileges/privilege-resolver';
 import type { Module } from 'vuex';
 
 type ApiAuthToken = {
@@ -17,6 +18,7 @@ interface ContextState {
                 [BundleName: string]: {
                     css: string | string[],
                     js: string | string[],
+                    permissions: privileges,
                 }
             },
             version: null | string,
@@ -161,6 +163,7 @@ const ContextStore: Module<ContextState, VuexRootState> = {
             [BundleName: string]: {
                 css: string | string[],
                 js: string | string[],
+                permissions: privileges,
             }
         }) {
             state.app.config.bundles = value;

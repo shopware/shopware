@@ -30,6 +30,9 @@ class ThemeAssetPackage extends FallbackUrlPackage
         $this->themePathBuilder = $themePathBuilder;
     }
 
+    /**
+     * @return string
+     */
     public function getUrl(string $path)
     {
         if ($this->isAbsoluteUrl($path)) {

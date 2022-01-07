@@ -45,6 +45,9 @@ class ScriptTwigLoader implements LoaderInterface
         return $script->getLastModified()->getTimestamp() < $time;
     }
 
+    /**
+     * @return bool
+     */
     public function exists(string $name)
     {
         return $this->get($name) !== null;

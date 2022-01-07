@@ -7,7 +7,6 @@ return [
         '**/src/Core/TestBootstrapper.php', // Testing
         '**/src/Core/Framework/Demodata/Faker/Commerce.php', // dev dependency
         '**/src/Core/DevOps/StaticAnalyze/**', // dev dependency
-
         '**/src/Core/Migration/Traits/MigrationUntouchedDbTestTrait.php', // Test code in prod
         '**/src/Elasticsearch/Framework/Command/ElasticsearchTestAnalyzerCommand.php', // Why?
         '**/src/Core/Checkout/Payment/Cart/PaymentHandler/PreparedPaymentHandlerInterface.php', // remove with FEATURE_NEXT_16769
@@ -35,6 +34,9 @@ return [
         // OpenAPI library update
         'The return type of Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi\\\\DeactivateValidationAnalysis#validate',
         'OpenApi\\\\Analysis',
+
+        'Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\Traits\\\\ContainerFactoryTrait#container\(\) was removed', // NEXT-19501
+        'Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\Traits\\\\ContainerFactoryTrait#container\(\) was marked "@internal',  // NEXT-19501
 
         // BC changes between last release and trunk
         'Shopware\\\\Storefront\\\\Page\\\\Product\\\\Configurator\\\\AvailableCombinationLoader was marked "@internal"',

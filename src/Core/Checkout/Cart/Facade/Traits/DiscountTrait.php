@@ -36,6 +36,7 @@ trait DiscountTrait
 
         $item = new LineItem($key, LineItem::DISCOUNT_LINE_ITEM, null, 1);
         $item->setGood(false);
+        $item->setRemovable(true);
         $item->setPriceDefinition($definition);
         $item->setLabel($label);
         $this->getItems()->add($item);

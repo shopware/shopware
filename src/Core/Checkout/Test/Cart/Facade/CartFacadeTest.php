@@ -22,6 +22,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Exception\HookInjectionException;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
@@ -81,6 +82,8 @@ class CartFacadeTest extends TestCase
 
     public function testContainer(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_19501', $this);
+
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
 
@@ -271,43 +274,45 @@ class CartFacadeTest extends TestCase
             ],
         ];
 
-        yield 'Test add container' => [
-            'add-container',
-            [
-                'p1' => new ExpectedPrice(100, 300),
-                'my-container' => [
-                    'price' => new ExpectedPrice(180),
-                    'children' => [
-                        'first' => new ExpectedPrice(100),
-                        'second' => new ExpectedPrice(100),
-                        'discount' => new ExpectedPrice(-20),
+        if (Feature::isActive('FEATURE_NEXT_19501')) {
+            yield 'Test add container' => [
+                'add-container',
+                [
+                    'p1' => new ExpectedPrice(100, 300),
+                    'my-container' => [
+                        'price' => new ExpectedPrice(180),
+                        'children' => [
+                            'first' => new ExpectedPrice(100),
+                            'second' => new ExpectedPrice(100),
+                            'discount' => new ExpectedPrice(-20),
+                        ],
                     ],
                 ],
-            ],
-        ];
+            ];
 
-        yield 'Test nested containers' => [
-            'add-nested-container',
-            [
-                'p1' => new ExpectedPrice(100),
-                'my-container' => [
-                    'price' => new ExpectedPrice(315),
-                    'children' => [
-                        'first' => new ExpectedPrice(100),
-                        'second' => new ExpectedPrice(100),
-                        'discount' => new ExpectedPrice(-35),
-                        'nested' => [
-                            'price' => new ExpectedPrice(150),
-                            'children' => [
-                                'third' => new ExpectedPrice(100),
-                                'fourth' => new ExpectedPrice(100),
-                                'absolute' => new ExpectedPrice(-50),
+            yield 'Test nested containers' => [
+                'add-nested-container',
+                [
+                    'p1' => new ExpectedPrice(100),
+                    'my-container' => [
+                        'price' => new ExpectedPrice(315),
+                        'children' => [
+                            'first' => new ExpectedPrice(100),
+                            'second' => new ExpectedPrice(100),
+                            'discount' => new ExpectedPrice(-35),
+                            'nested' => [
+                                'price' => new ExpectedPrice(150),
+                                'children' => [
+                                    'third' => new ExpectedPrice(100),
+                                    'fourth' => new ExpectedPrice(100),
+                                    'absolute' => new ExpectedPrice(-50),
+                                ],
                             ],
                         ],
                     ],
                 ],
-            ],
-        ];
+            ];
+        }
 
         yield 'Test payload' => [
             'payload-cases',

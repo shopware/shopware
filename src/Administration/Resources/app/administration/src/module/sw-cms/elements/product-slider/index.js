@@ -73,11 +73,7 @@ Shopware.Service('cmsService').registerCmsElement({
         const criteriaList = {};
 
         Object.keys(elem.config).forEach((configKey) => {
-            if (elem.config[configKey].source === 'mapped') {
-                return;
-            }
-
-            if (elem.config[configKey].source === 'product_stream') {
+            if (['mapped', 'default', 'product_stream'].includes(elem.config[configKey].source)) {
                 return;
             }
 

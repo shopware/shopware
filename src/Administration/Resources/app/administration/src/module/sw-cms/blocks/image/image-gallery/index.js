@@ -1,3 +1,5 @@
+import CMS from '../../../constant/sw-cms.constant';
+
 import './component';
 import './preview';
 
@@ -15,6 +17,39 @@ Shopware.Service('cmsService').registerCmsBlock({
         sizingMode: 'boxed',
     },
     slots: {
-        imageGallery: 'image-gallery',
+        imageGallery: {
+            type: 'image-gallery',
+            default: {
+                config: {},
+                data: {
+                    sliderItems: {
+                        source: 'default',
+                        value: [
+                            {
+                                url: null,
+                                newTab: false,
+                                mediaId: null,
+                                fileName: CMS.MEDIA.previewMountain,
+                                mediaUrl: null,
+                            },
+                            {
+                                url: null,
+                                newTab: false,
+                                mediaId: null,
+                                fileName: CMS.MEDIA.previewGlasses,
+                                mediaUrl: null,
+                            },
+                            {
+                                url: null,
+                                newTab: false,
+                                mediaId: null,
+                                fileName: CMS.MEDIA.previewPlant,
+                                mediaUrl: null,
+                            },
+                        ],
+                    },
+                },
+            },
+        },
     },
 });

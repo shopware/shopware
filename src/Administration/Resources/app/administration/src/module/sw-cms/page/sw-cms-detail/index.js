@@ -1111,7 +1111,7 @@ Component.register('sw-cms-detail', {
                 sections.blocks.forEach((block) => {
                     block.slots.forEach((slot) => {
                         Object.keys(slot.config).forEach((key) => {
-                            if (slot.config[key].source && slot.config[key].source === 'mapped') {
+                            if (slot.config[key]?.source === 'mapped') {
                                 const mappingPath = slot.config[key].value.split('.');
 
                                 if (mappingPath[0] !== this.demoEntity) {

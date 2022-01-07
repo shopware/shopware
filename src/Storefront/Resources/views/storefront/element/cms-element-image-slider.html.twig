@@ -45,9 +45,7 @@
                                             {% set attributes = attributes|merge({ 'data-object-fit': element.config.displayMode.value }) %}
                                         {% endif %}
 
-                                        {% sw_thumbnails 'cms-image-slider-thumbnails' with {
-                                            media: media
-                                        } %}
+                                        {% sw_thumbnails 'cms-image-slider-thumbnails' with { media } %}
                                     </div>
                                 {% endset %}
 

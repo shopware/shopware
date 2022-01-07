@@ -1,3 +1,4 @@
+import CMS from '../../../constant/sw-cms.constant';
 import './component';
 import './preview';
 
@@ -23,7 +24,8 @@ Shopware.Service('cmsService').registerCmsBlock({
                 },
                 data: {
                     media: {
-                        url: '/administration/static/img/cms/preview_mountain_large.jpg',
+                        value: CMS.MEDIA.previewMountain,
+                        source: 'default',
                     },
                 },
             },

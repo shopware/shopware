@@ -52,8 +52,7 @@ Component.register('sw-cms-el-config-image-slider', {
     methods: {
         async createdComponent() {
             this.initElementConfig('image-slider');
-
-            if (this.element.config.sliderItems.value.length > 0) {
+            if (this.element.config.sliderItems.source !== 'default' && this.element.config.sliderItems.value.length > 0) {
                 const mediaIds = this.element.config.sliderItems.value.map((configElement) => {
                     return configElement.mediaId;
                 });
@@ -69,7 +68,13 @@ Component.register('sw-cms-el-config-image-slider', {
         },
 
         onImageUpload(mediaItem) {
-            this.element.config.sliderItems.value.push({
+            const sliderItems = this.element.config.sliderItems;
+            if (sliderItems.source === 'default') {
+                sliderItems.value = [];
+                sliderItems.source = 'static';
+            }
+
+            sliderItems.value.push({
                 mediaUrl: mediaItem.url,
                 mediaId: mediaItem.id,
                 url: null,
@@ -107,6 +112,12 @@ Component.register('sw-cms-el-config-image-slider', {
         },
 
         onMediaSelectionChange(mediaItems) {
+            const sliderItems = this.element.config.sliderItems;
+            if (sliderItems.source === 'default') {
+                sliderItems.value = [];
+                sliderItems.source = 'static';
+            }
+
             mediaItems.forEach((item) => {
                 this.element.config.sliderItems.value.push({
                     mediaUrl: item.url,
@@ -134,7 +145,11 @@ Component.register('sw-cms-el-config-image-slider', {
                     });
                 });
 
-                this.$set(this.element.data, 'sliderItems', sliderItems);
+                if (!this.element.data) {
+                    this.$set(this.element, 'data', { sliderItems });
+                } else {
+                    this.$set(this.element.data, 'sliderItems', sliderItems);
+                }
             }
         },
 

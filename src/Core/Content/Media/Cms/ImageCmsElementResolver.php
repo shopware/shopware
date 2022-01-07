@@ -16,16 +16,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 class ImageCmsElementResolver extends AbstractCmsElementResolver
 {
-    public const CMS_DEFAULT_ASSETS_PATH = '/app/public/bundles/storefront/assets/default/cms/';
+    public const CMS_DEFAULT_ASSETS_PATH = '/bundles/storefront/assets/default/cms/';
 
-    /**
-     * @var string
-     */
-    private $cmsDefaultAssetPath = self::CMS_DEFAULT_ASSETS_PATH;
+    private string $cmsAssetPath;
 
-    public function setCmsDefaultAssetPath(string $path): void
+    private string $projectDir;
+
+    public function __construct(string $projectDir, string $cmsAssetPath = self::CMS_DEFAULT_ASSETS_PATH)
     {
-        $this->cmsDefaultAssetPath = $path;
+        $this->projectDir = $projectDir;
+        $this->cmsAssetPath = $cmsAssetPath;
     }
 
     public function getType(): string
@@ -124,7 +124,7 @@ class ImageCmsElementResolver extends AbstractCmsElementResolver
 
     private function getDefaultMediaEntity(string $fileName): ?MediaEntity
     {
-        $filePath = $this->cmsDefaultAssetPath . $fileName;
+        $filePath = $this->projectDir . $this->cmsAssetPath . $fileName;
 
         if (!file_exists($filePath)) {
             return null;

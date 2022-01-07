@@ -1,3 +1,4 @@
+import CONSTANTS from '../../../constant/sw-cms.constant';
 import './component';
 import './preview';
 
@@ -23,7 +24,8 @@ Shopware.Service('cmsService').registerCmsBlock({
                 },
                 data: {
                     media: {
-                        url: '/administration/static/img/cms/preview_camera_large.jpg',
+                        value: CONSTANTS.CMS.MEDIA.previewCamera,
+                        source: 'default',
                     },
                 },
             },
@@ -52,7 +54,8 @@ Shopware.Service('cmsService').registerCmsBlock({
                 },
                 data: {
                     media: {
-                        url: '/administration/static/img/cms/preview_plant_large.jpg',
+                        value: CONSTANTS.CMS.MEDIA.previewPlant,
+                        source: 'default',
                     },
                 },
             },
@@ -81,7 +84,8 @@ Shopware.Service('cmsService').registerCmsBlock({
                 },
                 data: {
                     media: {
-                        url: '/administration/static/img/cms/preview_glasses_large.jpg',
+                        value: CONSTANTS.CMS.MEDIA.previewGlasses,
+                        source: 'default',
                     },
                 },
             },

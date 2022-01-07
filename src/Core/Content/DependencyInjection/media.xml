@@ -277,14 +277,17 @@
 
         <service id="Shopware\Core\Content\Media\Cms\ImageCmsElementResolver">
             <tag name="shopware.cms.data_resolver" />
+            <argument>%kernel.project_dir%/public</argument>
         </service>
 
         <service id="Shopware\Core\Content\Media\Cms\Type\ImageSliderTypeDataResolver">
             <tag name="shopware.cms.data_resolver" />
+            <argument>%kernel.project_dir%/public</argument>
         </service>
 
         <service id="Shopware\Core\Content\Media\Cms\Type\ImageGalleryTypeDataResolver">
             <tag name="shopware.cms.data_resolver" />
+            <argument>%kernel.project_dir%/public</argument>
         </service>
 
         <service id="Shopware\Core\Content\Media\Cms\YoutubeVideoCmsElementResolver">

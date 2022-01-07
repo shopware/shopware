@@ -30,6 +30,8 @@ class ImageSliderTypeDataResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    private const FIXTURES_DIRECTORY = '/../../fixtures/';
+
     /**
      * @var ImageSliderTypeDataResolver
      */
@@ -37,7 +39,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->imageSliderResolver = new ImageSliderTypeDataResolver();
+        $this->imageSliderResolver = new ImageSliderTypeDataResolver(__DIR__, self::FIXTURES_DIRECTORY);
     }
 
     public function testType(): void
@@ -232,8 +234,6 @@ class ImageSliderTypeDataResolverTest extends TestCase
     {
         $productMediaCollection = $this->getProductMediaCollection();
         $resolverContext = $this->getResolverContext($productMediaCollection);
-
-        $this->imageSliderResolver->setCmsDefaultAssetPath(__DIR__ . '/../../fixtures/');
 
         $medias = [
             ['fileName' => 'animated.gif'],

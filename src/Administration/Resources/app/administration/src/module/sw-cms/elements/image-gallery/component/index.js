@@ -1,3 +1,4 @@
+import CMS from '../../../constant/sw-cms.constant';
 import template from './sw-cms-el-image-gallery.html.twig';
 import './sw-cms-el-image-gallery.scss';
 
@@ -43,8 +44,14 @@ Component.register('sw-cms-el-image-gallery', {
         },
 
         mediaUrls() {
-            if (this.element?.config?.sliderItems?.source === 'mapped') {
-                return this.getDemoValue(this.element.config.sliderItems.value) || [];
+            const config = this.element?.config;
+
+            if (!config || config.source === 'default') {
+                return [];
+            }
+
+            if (config.source === 'mapped') {
+                return this.getDemoValue(config.sliderItems.value) || [];
             }
 
             return this.element?.data?.sliderItems || [];
@@ -127,11 +134,17 @@ Component.register('sw-cms-el-image-gallery', {
         },
 
         getPlaceholderItems() {
-            return [
-                { url: this.assetFilter('administration/static/img/cms/preview_mountain_large.jpg') },
-                { url: this.assetFilter('administration/static/img/cms/preview_glasses_large.jpg') },
-                { url: this.assetFilter('administration/static/img/cms/preview_plant_large.jpg') },
-            ];
+            if (this.element?.config?.source !== 'default') {
+                return [
+                    { url: this.assetFilter(`administration/static/img/cms/${CMS.MEDIA.previewMountain}`) },
+                    { url: this.assetFilter(`administration/static/img/cms/${CMS.MEDIA.previewGlasses}`) },
+                    { url: this.assetFilter(`administration/static/img/cms/${CMS.MEDIA.previewPlant}`) },
+                ];
+            }
+
+            return this.element.config.sliderItems.value.map(media => {
+                return { url: this.assetFilter(`/administration/static/img/cms/${media.fileName}`) };
+            });
         },
 
         onChangeGalleryImage(mediaItem, index = 0) {

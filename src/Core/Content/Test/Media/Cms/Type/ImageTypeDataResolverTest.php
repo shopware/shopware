@@ -26,6 +26,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ImageTypeDataResolverTest extends TestCase
 {
+    private const FIXTURES_DIRECTORY = '/../../fixtures/';
+
     /**
      * @var ImageCmsElementResolver
      */
@@ -33,7 +35,7 @@ class ImageTypeDataResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->imageResolver = new ImageCmsElementResolver();
+        $this->imageResolver = new ImageCmsElementResolver(__DIR__, self::FIXTURES_DIRECTORY);
     }
 
     public function testType(): void
@@ -278,7 +280,6 @@ class ImageTypeDataResolverTest extends TestCase
         $slot = new CmsSlotEntity();
         $slot->setFieldConfig($fieldConfig);
 
-        $this->imageResolver->setCmsDefaultAssetPath(__DIR__ . '/../../fixtures/');
         $this->imageResolver->enrich($slot, $resolverContext, $result);
 
         /** @var ImageStruct|null $imageStruct */

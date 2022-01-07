@@ -166,7 +166,15 @@ Component.register('sw-cms-el-config-image-gallery', {
         },
 
         onImageUpload(mediaItem) {
-            this.element.config.sliderItems.value.push({
+            const sliderItems = this.element.config.sliderItems;
+            if (sliderItems.source === 'default') {
+                sliderItems.value = [];
+                sliderItems.source = 'static';
+
+                this.mediaItems = [];
+            }
+
+            sliderItems.value.push({
                 mediaUrl: mediaItem.url,
                 mediaId: mediaItem.id,
                 url: null,
@@ -194,6 +202,14 @@ Component.register('sw-cms-el-config-image-gallery', {
         },
 
         onMediaSelectionChange(mediaItems) {
+            const sliderItems = this.element.config.sliderItems;
+            if (sliderItems.source === 'default') {
+                sliderItems.value = [];
+                sliderItems.source = 'static';
+
+                this.mediaItems = [];
+            }
+
             mediaItems.forEach((item) => {
                 this.element.config.sliderItems.value.push({
                     mediaUrl: item.url,

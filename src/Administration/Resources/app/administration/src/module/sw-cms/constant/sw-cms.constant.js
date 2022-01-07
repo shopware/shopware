@@ -40,4 +40,10 @@ export default Object.freeze({
         imageGalery: 3400,
         default: 5000,
     },
+    MEDIA: {
+        previewCamera: 'preview_camera_large.jpg',
+        previewMountain: 'preview_mountain_large.jpg',
+        previewPlant: 'preview_plant_large.jpg',
+        previewGlasses: 'preview_glasses_large.jpg',
+    },
 });

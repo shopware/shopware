@@ -14,6 +14,7 @@ use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
@@ -70,6 +71,19 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
                 return;
             }
             $this->sortItemsByPosition($sliderItems);
+
+            if ($sliderItemsConfig->getStringValue() === 'product.media') {
+                /** @var ProductEntity $productEntity */
+                $productEntity = $resolverContext->getEntity();
+
+                if ($productEntity->getCoverId()) {
+                    /** @var ProductMediaCollection $sliderItems */
+                    $sliderItems = new ProductMediaCollection(array_merge(
+                        [$productEntity->getCoverId() => $productEntity->getCover()],
+                        $sliderItems->getElements()
+                    ));
+                }
+            }
 
             foreach ($sliderItems->getMedia() as $media) {
                 $imageSliderItem = new ImageSliderItemStruct();

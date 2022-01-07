@@ -263,8 +263,8 @@ describe('Product: Test variants', () => {
             .and('match', /sw-test-image/);
         cy.get('.product-name').click();
         cy.get('.gallery-slider-item').should('be.visible');
-        cy.get('#tns2-item1.tns-nav-active').should('be.visible');
-        cy.get('#tns1-item1 img')
+        cy.get('#tns2-item0.tns-nav-active').should('be.visible');
+        cy.get('#tns1-item0 img')
             .should('have.attr', 'src')
             .and('match', /sw-test-image/);
 

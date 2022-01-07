@@ -184,6 +184,32 @@ class ImageSliderTypeDataResolverTest extends TestCase
         static::assertSame($media->getId(), $firstSliderItem->getMedia()->getId());
     }
 
+    public function testEnrichWithMappedConfigAndHasProductCoverAtFirstPosition(): void
+    {
+        $productMediaCollection = $this->getProductMediaCollection();
+        $resolverContext = $this->getResolverContext($productMediaCollection, 'media2');
+        $result = $this->getEntitySearchResult($productMediaCollection, $resolverContext);
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('sliderItems', FieldConfig::SOURCE_MAPPED, 'product.media'));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('image-slider');
+        $slot->setFieldConfig($fieldConfig);
+
+        $this->imageSliderResolver->enrich($slot, $resolverContext, $result);
+        /** @var ImageSliderStruct $imageSliderStruct */
+        $imageSliderStruct = $slot->getData();
+
+        // Cover image appears at first position
+        static::assertEquals($imageSliderStruct->getSliderItems()[0]->getMedia()->getId(), 'media2');
+        static::assertEquals($imageSliderStruct->getSliderItems()[1]->getMedia()->getId(), 'media0');
+        static::assertEquals($imageSliderStruct->getSliderItems()[2]->getMedia()->getId(), 'media1');
+        static::assertEquals($imageSliderStruct->getSliderItems()[3]->getMedia()->getId(), 'media3');
+        static::assertEquals($imageSliderStruct->getSliderItems()[4]->getMedia()->getId(), 'media4');
+    }
+
     protected function getProductMediaCollection(): ProductMediaCollection
     {
         $productMedia = [];
@@ -204,7 +230,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
         return new ProductMediaCollection($productMedia);
     }
 
-    protected function getResolverContext(ProductMediaCollection $productMediaCollection): EntityResolverContext
+    protected function getResolverContext(ProductMediaCollection $productMediaCollection, ?string $coverId = null): EntityResolverContext
     {
         $manufacturer = new ProductManufacturerEntity();
         $manufacturer->setId('manufacturer_01');
@@ -213,6 +239,14 @@ class ImageSliderTypeDataResolverTest extends TestCase
         $product->setId('product_01');
         $product->setManufacturer($manufacturer);
         $product->setMedia($productMediaCollection);
+
+        $cover = new ProductMediaEntity();
+
+        if ($coverId !== null) {
+            $cover->setId($coverId);
+            $product->setCover($cover);
+            $product->setCoverId($coverId);
+        }
 
         return new EntityResolverContext(
             $this->createMock(SalesChannelContext::class),

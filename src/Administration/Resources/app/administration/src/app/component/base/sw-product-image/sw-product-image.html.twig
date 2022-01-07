@@ -26,6 +26,7 @@
             {% block sw_product_image_context_cover_action %}
             <sw-context-menu-item
                 v-if="showCoverLabel && !isCover"
+                class="sw-product-image__button-cover"
                 @click="$emit('sw-product-image-cover')"
             >
                 {{ $tc('global.sw-product-image.context.buttonAsCover') }}
@@ -35,6 +36,7 @@
             {% block sw_product_image_context_delete_action %}
             <sw-context-menu-item
                 variant="danger"
+                class="sw-product-image__button-delete"
                 @click="$emit('sw-product-image-delete')"
             >
                 {{ $tc('global.sw-product-image.context.buttonRemove') }}

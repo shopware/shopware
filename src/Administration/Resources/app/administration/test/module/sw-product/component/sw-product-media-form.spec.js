@@ -7,11 +7,14 @@ import 'src/app/component/context-menu/sw-context-menu';
 import 'src/app/component/context-menu/sw-context-button';
 import 'src/app/component/utils/sw-popover';
 
+import EntityCollection from 'src/core/data/entity-collection.data';
+
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
     localVue.directive('draggable', {});
     localVue.directive('droppable', {});
+    localVue.directive('popover', {});
 
     return shallowMount(Shopware.Component.build('sw-product-media-form'), {
         localVue,
@@ -48,41 +51,55 @@ function createWrapper(privileges = []) {
             'sw-label': true,
             'sw-context-menu': Shopware.Component.build('sw-context-menu'),
             'sw-context-menu-item': Shopware.Component.build('sw-context-menu-item'),
-            'sw-context-button': Shopware.Component.build('sw-context-button')
+            'sw-context-button': Shopware.Component.build('sw-context-button'),
         }
     });
+}
+
+const media = [
+    {
+        mediaId: 'media1',
+        position: 0,
+        id: 'productMedia1',
+        media: {
+            id: 'media1'
+        }
+    },
+    {
+        mediaId: 'media2',
+        position: 1,
+        id: 'productMedia2',
+        media: {
+            id: 'media2'
+        }
+    }
+];
+
+function getMediaCollection(collection = []) {
+    return new EntityCollection(
+        '/media',
+        'media',
+        null,
+        { isShopwareContext: true },
+        collection,
+        collection.length,
+        null
+    );
 }
 
 describe('module/sw-product/component/sw-product-media-form', () => {
     beforeAll(() => {
         const product = {
             cover: {
-                mediaId: 'c621b5f556424911964e848fa1b7e8a5',
+                mediaId: 'media1',
                 position: 1,
-                id: '520a8b95abc2446db77b173fcd718567',
+                id: 'productMedia1',
                 media: {
-                    id: 'c621b5f556424911964e848fa1b7e8a5'
+                    id: 'media1'
                 }
             },
-            coverId: '520a8b95abc2446db77b173fcd718567',
-            media: [
-                {
-                    mediaId: 'c621b5f556424911964e848fa1b7e8a5',
-                    position: 1,
-                    id: '520a8b95abc2446db77b173fcd718567',
-                    media: {
-                        id: 'c621b5f556424911964e848fa1b7e8a5'
-                    }
-                },
-                {
-                    mediaId: 'c621b5f556424911964e848fa1b7e8a5',
-                    position: 1,
-                    id: '5a73a7f88b544a9ab52b2e795c95c7a7',
-                    media: {
-                        id: 'c621b5f556424911964e848fa1b7e8a5'
-                    }
-                }
-            ]
+            coverId: 'productMedia1',
+            media: getMediaCollection(media)
         };
         product.getEntityName = () => 'T-Shirt';
 
@@ -161,5 +178,36 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         const buttons = wrapper.find('.sw-context-menu').findAll('.sw-context-menu-item__text');
         expect(buttons.length).toBe(1);
         expect(buttons.at(0).text()).toContain('Remove');
+    });
+
+    it('should move media to first position when it is marked as cover', async () => {
+        const wrapper = createWrapper();
+
+        let productMediaItems = wrapper.findAll('.sw-product-image');
+
+        expect(productMediaItems.wrappers[0].classes()).toContain('is--cover');
+        expect(productMediaItems.wrappers[0].find('sw-media-preview-v2-stub')
+            .attributes('source')).toEqual(media[0].mediaId);
+        expect(productMediaItems.wrappers[1].classes()).not.toContain('is--cover');
+        expect(productMediaItems.wrappers[1].find('sw-media-preview-v2-stub')
+            .attributes('source')).toEqual(media[1].mediaId);
+
+        const contextButton = productMediaItems.wrappers[1].find('.sw-product-image__context-button');
+        await contextButton.trigger('click');
+
+        const buttonCover = contextButton.find('.sw-product-image__button-cover');
+        expect(buttonCover.exists()).toBeTruthy();
+
+        // Media will be move to first position after clicking on Use as cover button
+        await buttonCover.trigger('click');
+
+        productMediaItems = wrapper.findAll('.sw-product-image');
+        expect(productMediaItems.wrappers[0].classes()).toContain('is--cover');
+        expect(productMediaItems.wrappers[0].find('sw-media-preview-v2-stub')
+            .attributes('source')).toEqual(media[1].mediaId);
+
+        expect(productMediaItems.wrappers[1].classes()).not.toContain('is--cover');
+        expect(productMediaItems.wrappers[1].find('sw-media-preview-v2-stub')
+            .attributes('source')).toEqual(media[0].mediaId);
     });
 });

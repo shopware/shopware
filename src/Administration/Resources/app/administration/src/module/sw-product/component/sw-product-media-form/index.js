@@ -249,6 +249,9 @@ Component.register('sw-product-media-form', {
         markMediaAsCover(productMedia) {
             this.product.cover = productMedia;
             this.product.coverId = productMedia.id;
+
+            this.product.media.moveItem(productMedia.position, 0);
+            this.updateMediaItemPositions();
         },
 
         onDropMedia(dragData) {
@@ -268,9 +271,12 @@ Component.register('sw-product-media-form', {
         },
 
         onMediaItemDragSort(dragData, dropData, validDrop) {
-            if (validDrop !== true) {
+            if (validDrop !== true
+                || (dragData.id === this.product.coverId && dragData.position === 0)
+                || (dropData.id === this.product.coverId && dropData.position === 0)) {
                 return;
             }
+
             this.product.media.moveItem(dragData.position, dropData.position);
 
             this.updateMediaItemPositions();

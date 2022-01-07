@@ -48,9 +48,31 @@ describe('Product: Edit product media', () => {
             .and('match', /sw-test-image/);
         cy.awaitAndCheckNotification('File has been saved.');
 
-        cy.get('.sw-product-image:nth-of-type(2)').dragTo('.sw-product-image:nth-of-type(1)');
+        // Add third image to product
+        cy.get('#files')
+            .attachFile('img/plugin-manager--login.png');
+        cy.get('.sw-product-image:nth-of-type(3) img')
+            .first()
+            .should('have.attr', 'src')
+            .and('match', /plugin-manager--login/);
+        cy.awaitAndCheckNotification('File has been saved.');
+
+        cy.get('.sw-product-image').eq(1).dragTo('.sw-product-image:nth-of-type(1)');
+
         cy.get('.sw-product-image img')
             .first()
+            .should('have.attr', 'src')
+            .and('match', /sw-login-background/);
+
+        cy.get('.sw-product-image').eq(2).dragTo('.sw-product-image:nth-of-type(2)');
+
+        cy.get('.sw-product-image img')
+            .eq(1)
+            .should('have.attr', 'src')
+            .and('match', /plugin-manager--login/);
+
+        cy.get('.sw-product-image img')
+            .eq(2)
             .should('have.attr', 'src')
             .and('match', /sw-test-image/);
 
@@ -62,6 +84,14 @@ describe('Product: Edit product media', () => {
         cy.visit('/Product-name/RS-333');
         cy.get('.gallery-slider-item').should('be.visible');
         cy.get('#tns2-item0 img')
+            .should('have.attr', 'src')
+            .and('match', /sw-login-background/);
+
+        cy.get('#tns2-item1 img')
+            .should('have.attr', 'src')
+            .and('match', /plugin-manager--login/);
+
+        cy.get('#tns2-item2 img')
             .should('have.attr', 'src')
             .and('match', /sw-test-image/);
     });
@@ -119,7 +149,7 @@ describe('Product: Edit product media', () => {
         cy.contains('Use as cover').click();
 
         cy.get('.sw-product-media-form__previews').scrollIntoView();
-        cy.get('.sw-product-image:nth-of-type(3) .sw-label--primary').should('be.visible');
+        cy.get('.sw-product-image:nth-of-type(1) .sw-label--primary').should('be.visible');
         cy.get('.sw-product-media-form__cover-image img')
             .first()
             .should('have.attr', 'src')
@@ -137,7 +167,7 @@ describe('Product: Edit product media', () => {
         cy.get('.product-name').click();
         cy.get('.gallery-slider-item').should('be.visible');
         cy.get('.tns-nav-active').should('be.visible');
-        cy.get('#tns1-item2 img')
+        cy.get('#tns1-item0 img')
             .should('have.attr', 'src')
             .and('match', /plugin-manager--login/);
     });

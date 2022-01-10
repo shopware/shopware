@@ -73,7 +73,7 @@
                 v-else
                 rounded
             />
-            {{ getStateLabel(item.state) }}
+            <span :class="getStateClass(item.state)">{{ getStateLabel(item.state) }}</span>
         </template>
         {% endblock %}
 

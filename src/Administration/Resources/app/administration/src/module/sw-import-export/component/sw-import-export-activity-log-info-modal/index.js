@@ -1,13 +1,13 @@
 import template from './sw-import-export-activity-log-info-modal.html.twig';
 import './sw-import-export-activity-log-info-modal.scss';
 
-const { Mixin } = Shopware;
+const { Mixin, Component } = Shopware;
 const { format } = Shopware.Utils;
 
 /**
  * @private
  */
-Shopware.Component.register('sw-import-export-activity-log-info-modal', {
+Component.register('sw-import-export-activity-log-info-modal', {
     template,
 
     inject: ['importExport'],
@@ -29,6 +29,12 @@ Shopware.Component.register('sw-import-export-activity-log-info-modal', {
     computed: {
         typeText() {
             return this.$tc(`sw-import-export.activity.logInfo.${this.logEntity.activity}Label`);
+        },
+
+        stateClass() {
+            return {
+                'sw-import-export-activity-log-info-modal__item-state--processing': this.logEntity.state === 'progress',
+            };
         },
     },
 

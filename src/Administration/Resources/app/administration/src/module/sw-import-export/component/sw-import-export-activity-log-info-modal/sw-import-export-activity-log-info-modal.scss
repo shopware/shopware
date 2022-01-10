@@ -1,4 +1,5 @@
 @import "~scss/variables";
+@import "~scss/mixins";
 
 .sw-import-export-activity-log-info-modal {
     .sw-import-export-activity-log-info-modal &__color-badge {
@@ -25,5 +26,9 @@
         color: $color-darkgray-200;
         text-decoration: none;
         font-size: 14px;
+    }
+
+    &__item-state--processing dd {
+        @include animated-truncate();
     }
 }

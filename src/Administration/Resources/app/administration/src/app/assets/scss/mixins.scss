@@ -49,6 +49,29 @@
     overflow: visible;
 }
 
+@mixin animated-truncate() {
+    position: relative;
+    margin-right: 18px;
+
+    &::after {
+        position: absolute;
+        content: "\2026";
+        display: inline-block;
+        overflow: hidden;
+        width: 0;
+        margin-left: 3px;
+        animation: ellipsis steps(4, end) 1.5s infinite;
+        vertical-align: bottom;
+        top: 0;
+    }
+}
+
+@keyframes ellipsis {
+    to {
+        width: 1.25rem;
+    }
+}
+
 /// @type Other
 @mixin transition($what: all, $time: 0.3s, $how: ease) {
     transition: $what $time $how;

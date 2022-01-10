@@ -46,7 +46,10 @@
         </div>
         {% endblock %}
         {% block sw_import_export_activity_log_info_modal_description_state %}
-        <div class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-state">
+        <div
+            class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-state"
+            :class="stateClass"
+        >
             <dt>{{ $tc('sw-import-export.activity.logInfo.labelState') }}</dt>
             <dd>
                 <sw-color-badge

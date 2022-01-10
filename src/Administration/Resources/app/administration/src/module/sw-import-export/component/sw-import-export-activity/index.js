@@ -371,5 +371,11 @@ Shopware.Component.register('sw-import-export-activity', {
 
             return this.$te(translationKey) ? this.$tc(translationKey) : state;
         },
+
+        getStateClass(state) {
+            return {
+                'sw-import-export-activity__progress-indicator': state === 'progress',
+            };
+        },
     },
 });

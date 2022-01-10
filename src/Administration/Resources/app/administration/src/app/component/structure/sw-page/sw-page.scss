@@ -8,6 +8,7 @@ $sw-page-smart-bar-headline-color: $color-darkgray-200;
 $sw-page-side-content-default-width: 440px;
 $sw-page-smart-bar-headline-font-size: 18px;
 $sw-page-smart-bar-headline-font-weight: 600;
+$sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
 
 .sw-page {
     width: 100%;
@@ -33,7 +34,7 @@ $sw-page-smart-bar-headline-font-weight: 600;
     .sw-page__search-bar {
         grid-row: 1;
         grid-column: header-content-start / header-content-end;
-        z-index: 800;
+        z-index: $sw-page-search-bar-z-index;
 
         @media screen and (max-width: 500px) {
             grid-column: head-start / smart-bar-end;

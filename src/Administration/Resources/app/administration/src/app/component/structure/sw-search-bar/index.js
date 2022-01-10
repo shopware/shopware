@@ -279,6 +279,18 @@ Component.register('sw-search-bar', {
             }
 
             if (this.resultsSearchTrends?.length) {
+                this.showModuleFiltersContainer = false;
+                this.showResultsSearchTrends = true;
+                return;
+            }
+
+            this.loadSearchTrends().then(response => {
+                this.resultsSearchTrends = response;
+
+                this.showResultsSearchTrends = true;
+            });
+
+            if (this.resultsSearchTrends?.length) {
                 this.showResultsSearchTrends = true;
                 return;
             }

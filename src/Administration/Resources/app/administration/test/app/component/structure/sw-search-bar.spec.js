@@ -334,7 +334,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         searchResults = wrapper.find('.sw-search-bar__results');
         typesContainer = wrapper.find('.sw-search-bar__types_container--v2');
 
-        expect(searchResults.exists()).toBe(false);
+        expect(searchResults.exists()).toBe(true);
         expect(typesContainer.exists()).toBe(false);
     });
 

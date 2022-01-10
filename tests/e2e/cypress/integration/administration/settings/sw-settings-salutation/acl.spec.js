@@ -147,6 +147,9 @@ describe('Salutation: Test acl privileges', () => {
 
         // click on first element in grid
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('mr');
+        cy.get('body').click(0, 0);
+        cy.get('.sw-search-bar__results--v2').should('not.exist');
+        cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,

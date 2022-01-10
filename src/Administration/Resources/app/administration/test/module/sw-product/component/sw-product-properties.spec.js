@@ -386,36 +386,24 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         expect(wrapper.vm.newProperties).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({
-                    property: expect.objectContaining({
-                        id: '01',
-                        groupId: 'sizeId',
-                        name: '30'
-                    }),
-                    selected: true
+                    id: '01',
+                    groupId: 'sizeId',
+                    name: '30'
                 }),
                 expect.objectContaining({
-                    property: expect.objectContaining({
-                        id: '02',
-                        groupId: 'sizeId',
-                        name: '32'
-                    }),
-                    selected: true
+                    id: '02',
+                    groupId: 'sizeId',
+                    name: '32'
                 }),
                 expect.objectContaining({
-                    property: expect.objectContaining({
-                        id: '03',
-                        groupId: 'colorId',
-                        name: 'white'
-                    }),
-                    selected: true
+                    id: '03',
+                    groupId: 'colorId',
+                    name: 'white'
                 }),
                 expect.objectContaining({
-                    property: expect.objectContaining({
-                        id: '04',
-                        groupId: 'colorId',
-                        name: 'black'
-                    }),
-                    selected: true
+                    id: '04',
+                    groupId: 'colorId',
+                    name: 'black'
                 })
             ])
         );
@@ -488,68 +476,6 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
 
         expect(wrapper.vm.turnOffAddPropertiesModal).toHaveBeenCalledTimes(1);
         wrapper.vm.turnOffAddPropertiesModal.mockRestore();
-    });
-
-    it('should call an adding function when saving properties modal', async () => {
-        const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
-        wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
-            return Promise.resolve(propertiesMock);
-        });
-        wrapper.vm.productProperties.add = jest.fn();
-
-        await State.commit('swProductDetail/setProduct', productMock);
-        await wrapper.vm.getGroupIds();
-        await wrapper.vm.getProperties();
-
-        wrapper.vm.updateNewProperties();
-        wrapper.vm.onSaveAddPropertiesModal([
-            {
-                property: {
-                    id: '05',
-                    groupId: 'colorId',
-                    name: 'blue'
-                },
-                selected: true
-            }
-        ]);
-
-        expect(wrapper.vm.productProperties.add).toHaveBeenCalledWith({
-            id: '05',
-            groupId: 'colorId',
-            name: 'blue'
-        });
-        wrapper.vm.propertyGroupRepository.search.mockRestore();
-        wrapper.vm.productProperties.add.mockRestore();
-    });
-
-    it('should call a removing function when saving properties modal', async () => {
-        const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
-        wrapper.vm.propertyGroupRepository.search = jest.fn(() => {
-            return Promise.resolve(propertiesMock);
-        });
-        wrapper.vm.productProperties.remove = jest.fn();
-
-        await State.commit('swProductDetail/setProduct', productMock);
-        await wrapper.vm.getGroupIds();
-        await wrapper.vm.getProperties();
-
-        wrapper.vm.updateNewProperties();
-        wrapper.vm.onSaveAddPropertiesModal([
-            {
-                property: {
-                    id: '01',
-                    groupId: 'sizeId',
-                    name: '30'
-                },
-                selected: false
-            }
-        ]);
-
-        expect(wrapper.vm.productProperties.remove).toHaveBeenCalledWith('01');
-        wrapper.vm.propertyGroupRepository.search.mockRestore();
-        wrapper.vm.productProperties.remove.mockRestore();
     });
 
     it('should save add properties modal failed', async () => {

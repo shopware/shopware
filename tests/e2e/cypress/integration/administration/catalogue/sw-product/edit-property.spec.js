@@ -186,18 +186,20 @@ describe('Product: Edit property assignment', () => {
         cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
     });
 
-    it('@base @catalogue: add properties', () => {
+    it.only('@base @catalogue: add properties', () => {
+        // Request we want to wait for later
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/property-group`,
+            method: 'POST'
+        }).as('getProperties');
         const page = new ProductPageObject();
-
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-
         cy.get('.sw-loader').should('not.exist');
         cy.contains('.sw-product-detail-page__tabs .sw-tabs-item', 'Specifications').click();
-
         cy.get('.sw-product-properties').should('be.visible');
 
         // delete all property values
@@ -211,15 +213,19 @@ describe('Product: Edit property assignment', () => {
         // start adding new ones
         cy.get('.sw-product-properties .sw-empty-state .sw-button--ghost').click();
         cy.get('.sw-product-add-properties-modal').should('be.visible');
-        cy.contains('.sw-product-add-properties-modal__properties .sw-grid__row--0 .sw-grid__cell-content', 'Color').click();
-        cy.contains('.sw-product-add-properties-modal__property-values .sw-grid__row--0', 'red').should('be.visible');
-        cy.get('.sw-product-add-properties-modal__property-values .sw-grid__row--0 input').click();
+        cy.get('.sw-loader').should('not.exist');
+        cy.wait('@getProperties').its('response.statusCode').should('equal', 200);
+        cy.contains('.sw-property-search__tree-selection__group_grid .sw-grid__row--0 .sw-grid__cell-content', 'Color')
+            .should('be.visible')
+            .click();
+        cy.contains('.sw-property-search__tree-selection__option_grid .sw-grid__row--2', 'red').should('be.visible');
+        cy.get('.sw-property-search__tree-selection__option_grid .sw-grid__row--2 input').click();
         cy.get('.sw-product-add-properties-modal__button-save').click();
 
         // assert new properties have added successful
         cy.get('.sw-product-add-properties-modal').should('not.exist');
-        cy.contains('.sw-data-grid__cell--values', 'red').should('be.visible');
         cy.get(page.elements.productSaveAction).click();
+        cy.contains('.sw-data-grid__cell--values', 'red').should('be.visible');
         cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
     });
 });

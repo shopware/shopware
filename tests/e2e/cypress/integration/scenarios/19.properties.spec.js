@@ -49,7 +49,7 @@ describe('Create a new property and select value display type', () => {
         }).as('searchCategoryDetail');
 
         const page = new PropertyPageObject();
-        const propertyValue = '.sw-product-add-properties-modal__property-values';
+        const propertyValue = '.sw-property-search__tree-selection__option_grid';
 
         cy.get('h2').should('include.text', 'Attributen');
 
@@ -109,7 +109,7 @@ describe('Create a new property and select value display type', () => {
         cy.get('.sw-grid-row.sw-grid__row--0').should('include.text', '3');
 
         cy.contains('Size').click();
-        cy.get('.sw-product-add-properties-modal__property-values .sw-grid__cell-content').should('be.visible');
+        cy.wait('@searchPropertyGroup').its('response.statusCode').should('equal', 200);
         cy.get(`${propertyValue} .sw-grid__row--0 input`).click();
         cy.get(`${propertyValue} .sw-grid__row--1 input`).click();
         cy.get(`${propertyValue} .sw-grid__row--2 input`).click();

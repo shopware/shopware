@@ -63,6 +63,8 @@ class ContainerFacade extends ItemFacade
      * @param ItemFacade $item The item that should be added.
      *
      * @return ItemFacade The item that was added to the container.
+     *
+     * @example add-container/add-container.twig 12 1 Add a product to the container and reduce the quantity of the original line-item.
      */
     public function add(ItemFacade $item): ItemFacade
     {

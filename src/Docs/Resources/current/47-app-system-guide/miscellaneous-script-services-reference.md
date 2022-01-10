@@ -35,6 +35,14 @@ The value that should be added.
 
 
 
+#### Examples
+
+Add a new element with key `test` and value 1.
+```twig
+{% set product = services.cart.products.get(hook.ids.get('p1')) %}
+
+{% do product.payload.set('test', 1) %}
+```
 ### push()
 
 `push()` adds a new value to the end of the array.
@@ -93,6 +101,14 @@ The array that should be merged with this array. Either a plain `array` or anoth
 
 
 
+#### Examples
+
+Merge two arrays.
+```twig
+{% set my_array = array({'bar': 'foo', 'baz': true}) %}
+
+{% do product.payload.merge(my_array) %}
+```
 ### replace()
 
 `replace()` recursively replaces elements from the given array into this array.
@@ -106,6 +122,14 @@ The array from which the elements should be replaced into this array. Either a p
 
 
 
+#### Examples
+
+Replace elements in the product payload array.
+```twig
+{% set second = array({'bar': 'baz'}) %}
+
+{% do product.payload.replace(second) %}
+```
 ### count()
 
 `count()` returns the count of elements inside this array.

@@ -6,9 +6,9 @@
 
 {% set product = services.cart.products.get(p1) %}
 
+{# @var container \Shopware\Core\Checkout\Cart\Facade\ContainerFacade #}
 {% set container = services.cart.container('my-container') %}
 
-{# @var container \Shopware\Core\Checkout\Cart\Facade\ContainerFacade #}
 {% do container.add(product.take(1, 'first')) %}
 
 {% do container.add(product.take(1, 'second')) %}

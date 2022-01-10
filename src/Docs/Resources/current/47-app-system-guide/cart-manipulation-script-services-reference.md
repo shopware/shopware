@@ -91,6 +91,27 @@ The label of the discount line-item.
 
 Returns the newly created discount line-item.
 
+#### Examples
+
+Add an absolute discount to the cart.
+```twig
+{# @var services \Shopware\Core\Framework\Script\Services #}
+{% do services.cart.products.add(hook.ids.get('p1')) %}
+
+{% set price = services.cart.price.create({
+    'default': { 'gross': -19.99, 'net': -19.99}
+}) %}
+
+{% do services.cart.discount('discount', 'absolute', price, 'Fanzy discount') %}
+```
+Add a relative discount to the cart.
+```twig
+{# @var services \Shopware\Core\Framework\Script\Services #}
+
+{% do services.cart.products.add(hook.ids.get('p1')) %}
+
+{% do services.cart.discount('discount', 'percentage', -10, 'Fanzy discount') %}
+```
 ### surcharge()
 
 The `surcharge()` methods creates a new surcharge line-item with the given type and value.
@@ -121,6 +142,27 @@ The label of the surcharge line-item.
 
 Returns the newly created surcharge line-item.
 
+#### Examples
+
+Add an absolute surcharge to the cart.#
+```twig
+{# @var services \Shopware\Core\Framework\Script\Services #}
+{% do services.cart.products.add(hook.ids.get('p1')) %}
+
+{% set price = services.cart.price.create({
+    'default': { 'gross': 19.99, 'net': 19.99}
+}) %}
+
+{% do services.cart.surcharge('surcharge', 'absolute', price, 'Fanzy surcharge') %}
+```
+Add a relative surcharge to the cart.
+```twig
+{# @var services \Shopware\Core\Framework\Script\Services #}
+
+{% do services.cart.products.add(hook.ids.get('p1')) %}
+
+{% do services.cart.surcharge('surcharge', 'percentage', -10, 'Fanzy discount') %}
+```
 ### get()
 
 `get()` returns the line-item with the given id from this collection.
@@ -152,6 +194,14 @@ The id of the line-item or the line-item that should be removed.
 
 
 
+#### Examples
+
+Add and then remove a product line-item from the cart.
+```twig
+{% do services.cart.products.add(hook.ids.get('p1')) %}
+
+{% do services.cart.products.remove(hook.ids.get('p1')) %}
+```
 ### has()
 
 `has()` checks if a line-item with the given id exists in this collection.
@@ -204,6 +254,23 @@ The optional label of the container line-item.
 
 Returns the newly created, empty container line-item.
 
+#### Examples
+
+Create a new container line-item, add products to it and apply a relative discount on the container.
+```twig
+{% set product = services.cart.products.get(p1) %}
+
+{# @var container \Shopware\Core\Checkout\Cart\Facade\ContainerFacade #}
+{% set container = services.cart.container('my-container') %}
+
+{% do container.add(product.take(1, 'first')) %}
+
+{% do container.add(product.take(1, 'second')) %}
+
+{% do container.discount('discount', 'percentage', -10, 'Fanzy discount') %}
+
+{% do services.cart.items.add(container) %}
+```
 
 
 ## [`Shopware\Core\Checkout\Cart\Facade\CartPriceFacade`](https://github.com/shopware/platform/blob/trunk/src/Core/Checkout/Cart/Facade/CartPriceFacade.php) {#CartPriceFacade}
@@ -286,6 +353,14 @@ The prices for the new collection, indexed by the currency-id or iso-code of the
 
 Returns the newly created `PriceCollection`.
 
+#### Examples
+
+Create a new Price in the default currency.
+```twig
+{% set price = services.cart.price.create({
+    'default': { 'gross': 19.99, 'net': 19.99}
+}) %}
+```
 
 
 ## [`Shopware\Core\Checkout\Cart\Facade\ContainerFacade`](https://github.com/shopware/platform/blob/trunk/src/Core/Checkout/Cart/Facade/ContainerFacade.php) {#ContainerFacade}
@@ -322,6 +397,12 @@ The item that should be added.
 
 The item that was added to the container.
 
+#### Examples
+
+Add a product to the container and reduce the quantity of the original line-item.
+```twig
+{% do container.add(product.take(1, 'first')) %}
+```
 ### getPrice()
 
 `getPrice()` returns the calculated price of the line-item.
@@ -356,6 +437,20 @@ Optional: The id of the new line-item. A random UUID will be used if none is pro
 
 Returns the new line-item as an `ItemFacade` or null if taking is not possible because the line-item has no sufficient quantity.
 
+#### Examples
+
+Take a quantity of 2 from an existing product line-item and add it to the cart again.
+```twig
+{# @var services \Shopware\Core\Framework\Script\Services #}
+
+{% do services.cart.products.add(hook.ids.get('p1'), 5) %}
+
+{% set product = services.cart.products.get(hook.ids.get('p1')) %}
+
+{% set split = product.take(2, 'new-key') %}
+
+{% do services.cart.products.add(split) %}
+```
 ### getId()
 
 `getId()` returns the id of the line-item.
@@ -463,6 +558,27 @@ The label of the discount line-item.
 
 Returns the newly created discount line-item.
 
+#### Examples
+
+Add an absolute discount to the cart.
+```twig
+{# @var services \Shopware\Core\Framework\Script\Services #}
+{% do services.cart.products.add(hook.ids.get('p1')) %}
+
+{% set price = services.cart.price.create({
+    'default': { 'gross': -19.99, 'net': -19.99}
+}) %}
+
+{% do services.cart.discount('discount', 'absolute', price, 'Fanzy discount') %}
+```
+Add a relative discount to the cart.
+```twig
+{# @var services \Shopware\Core\Framework\Script\Services #}
+
+{% do services.cart.products.add(hook.ids.get('p1')) %}
+
+{% do services.cart.discount('discount', 'percentage', -10, 'Fanzy discount') %}
+```
 ### surcharge()
 
 The `surcharge()` methods creates a new surcharge line-item with the given type and value.
@@ -493,6 +609,27 @@ The label of the surcharge line-item.
 
 Returns the newly created surcharge line-item.
 
+#### Examples
+
+Add an absolute surcharge to the cart.#
+```twig
+{# @var services \Shopware\Core\Framework\Script\Services #}
+{% do services.cart.products.add(hook.ids.get('p1')) %}
+
+{% set price = services.cart.price.create({
+    'default': { 'gross': 19.99, 'net': 19.99}
+}) %}
+
+{% do services.cart.surcharge('surcharge', 'absolute', price, 'Fanzy surcharge') %}
+```
+Add a relative surcharge to the cart.
+```twig
+{# @var services \Shopware\Core\Framework\Script\Services #}
+
+{% do services.cart.products.add(hook.ids.get('p1')) %}
+
+{% do services.cart.surcharge('surcharge', 'percentage', -10, 'Fanzy discount') %}
+```
 ### get()
 
 `get()` returns the line-item with the given id from this collection.
@@ -524,6 +661,14 @@ The id of the line-item or the line-item that should be removed.
 
 
 
+#### Examples
+
+Add and then remove a product line-item from the cart.
+```twig
+{% do services.cart.products.add(hook.ids.get('p1')) %}
+
+{% do services.cart.products.remove(hook.ids.get('p1')) %}
+```
 ### has()
 
 `has()` checks if a line-item with the given id exists in this collection.
@@ -613,6 +758,12 @@ Optional: Any parameters that the snippet for the error message may need.
 
 
 
+#### Examples
+
+Add a error to the cart.
+```twig
+{% do services.cart.errors.error('NO_PRODUCTS_IN_CART') %}
+```
 ### warning()
 
 The `warning()` method adds a new error of type `warning` to the cart.
@@ -637,6 +788,12 @@ Optional: Any parameters that the snippet for the error message may need.
 
 
 
+#### Examples
+
+Add a warning to the cart.
+```twig
+{% do services.cart.errors.notice('YOU_SHOULD_REALLY_ADD_PRODUCTS') %}
+```
 ### notice()
 
 The `notice()` method adds a new error of type `notice` to the cart.
@@ -661,6 +818,20 @@ Optional: Any parameters that the snippet for the error message may need.
 
 
 
+#### Examples
+
+Add a notice to the cart.
+```twig
+{% do services.cart.errors.warning('ADD_PRODUCTS_OR_GO_AWAY') %}
+```
+Add a notice to the cart with a custom id.
+```twig
+{% do services.cart.errors.notice('YOU_SHOULD_REALLY_ADD_PRODUCTS', 'add-same-message') %}
+```
+Add a notice to the cart with parameters.
+```twig
+{% do services.cart.errors.notice('MESSAGE_WITH_PARAMETERS', null, {'foo': 'bar'}) %}
+```
 ### has()
 
 The `has()` method, checks if an error with a given id exists.
@@ -751,6 +922,20 @@ Optional: The id of the new line-item. A random UUID will be used if none is pro
 
 Returns the new line-item as an `ItemFacade` or null if taking is not possible because the line-item has no sufficient quantity.
 
+#### Examples
+
+Take a quantity of 2 from an existing product line-item and add it to the cart again.
+```twig
+{# @var services \Shopware\Core\Framework\Script\Services #}
+
+{% do services.cart.products.add(hook.ids.get('p1'), 5) %}
+
+{% set product = services.cart.products.get(hook.ids.get('p1')) %}
+
+{% set split = product.take(2, 'new-key') %}
+
+{% do services.cart.products.add(split) %}
+```
 ### getId()
 
 `getId()` returns the id of the line-item.
@@ -853,6 +1038,19 @@ The line-item that should be added.
 
 Returns the added line-item.
 
+#### Examples
+
+Add an absolute discount to the cart.
+```twig
+{# @var services \Shopware\Core\Framework\Script\Services #}
+{% do services.cart.products.add(hook.ids.get('p1')) %}
+
+{% set price = services.cart.price.create({
+    'default': { 'gross': -19.99, 'net': -19.99}
+}) %}
+
+{% do services.cart.discount('discount', 'absolute', price, 'Fanzy discount') %}
+```
 ### get()
 
 `get()` returns the line-item with the given id from this collection.
@@ -902,6 +1100,14 @@ The id of the line-item or the line-item that should be removed.
 
 
 
+#### Examples
+
+Add and then remove a product line-item from the cart.
+```twig
+{% do services.cart.products.add(hook.ids.get('p1')) %}
+
+{% do services.cart.products.remove(hook.ids.get('p1')) %}
+```
 ### count()
 
 `count()` returns the count of line-items in this collection.
@@ -971,6 +1177,14 @@ The prices for the new collection, indexed by the currency-id or iso-code of the
 
 Returns the newly created `PriceCollection`.
 
+#### Examples
+
+Create a new Price in the default currency.
+```twig
+{% set price = services.cart.price.create({
+    'default': { 'gross': 19.99, 'net': 19.99}
+}) %}
+```
 
 
 ## [`Shopware\Core\Checkout\Cart\Facade\ProductsFacade`](https://github.com/shopware/platform/blob/trunk/src/Core/Checkout/Cart/Facade/ProductsFacade.php) {#ProductsFacade}
@@ -996,6 +1210,12 @@ The id of the product, of which the line-item should be returned.
 
 The line-item associated with the given product id, or null if it does not exist.
 
+#### Examples
+
+Get a product line-item by id.
+```twig
+{% set product = services.cart.products.get(hook.ids.get('p1')) %}
+```
 ### add()
 
 `add()` adds a new product  line-item to this collection.
@@ -1019,6 +1239,12 @@ Optionally provide the quantity with which the product line-item should be creat
 
 The newly added product line-item.
 
+#### Examples
+
+Add a product to the cart by id.
+```twig
+{% do services.cart.products.add(hook.ids.get('p1')) %}
+```
 ### create()
 
 `create()` creates a new product line-item for the product with the given id in the given quantity.
@@ -1055,6 +1281,14 @@ The id of the line-item or the line-item that should be removed.
 
 
 
+#### Examples
+
+Add and then remove a product line-item from the cart.
+```twig
+{% do services.cart.products.add(hook.ids.get('p1')) %}
+
+{% do services.cart.products.remove(hook.ids.get('p1')) %}
+```
 ### has()
 
 `has()` checks if a line-item with the given id exists in this collection.

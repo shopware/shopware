@@ -45,6 +45,8 @@ class ProductsFacade implements \IteratorAggregate
      * @param string $productId The id of the product, of which the line-item should be returned.
      *
      * @return ItemFacade|null The line-item associated with the given product id, or null if it does not exist.
+     *
+     * @example payload-cases/payload-cases.twig 5 1 Get a product line-item by id.
      */
     public function get(string $productId): ?ItemFacade
     {
@@ -69,6 +71,8 @@ class ProductsFacade implements \IteratorAggregate
      * @param int $quantity Optionally provide the quantity with which the product line-item should be created, defaults to 1.
      *
      * @return ItemFacade The newly added product line-item.
+     *
+     * @example add-product-cases/add-product-cases.twig 2 1 Add a product to the cart by id.
      */
     public function add($product, int $quantity = 1): ItemFacade
     {

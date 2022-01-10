@@ -40,6 +40,8 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
      *
      * @param string|int                              $key The array key.
      * @param string|int|float|array|object|bool|null $value The value that should be added.
+     *
+     * @example payload-cases/payload-cases.twig 5 3 Add a new element with key `test` and value 1.
      */
     public function set($key, $value): void
     {
@@ -99,6 +101,8 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
      * `merge()` recursively merges the array with the given array.
      *
      * @param array|ArrayFacade $array The array that should be merged with this array. Either a plain `array` or another `ArrayFacade`.
+     *
+     * @example payload-cases/payload-cases.twig 13 3 Merge two arrays.
      */
     public function merge($array): void
     {
@@ -113,6 +117,8 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
      * `replace()` recursively replaces elements from the given array into this array.
      *
      * @param array|ArrayFacade $array The array from which the elements should be replaced into this array. Either a plain `array` or another `ArrayFacade`.
+     *
+     * @example payload-cases/payload-cases.twig 17 3 Replace elements in the product payload array.
      */
     public function replace($array): void
     {

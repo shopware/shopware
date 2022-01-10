@@ -52,6 +52,8 @@ class ItemFacade
      * @param string|null $key Optional: The id of the new line-item. A random UUID will be used if none is provided.
      *
      * @return ItemFacade|null Returns the new line-item as an `ItemFacade` or null if taking is not possible because the line-item has no sufficient quantity.
+     *
+     * @example split-product/split-product.twig Take a quantity of 2 from an existing product line-item and add it to the cart again.
      */
     public function take(int $quantity, ?string $key = null): ?ItemFacade
     {

@@ -26,6 +26,9 @@ trait DiscountTrait
      * @param string $label The label of the discount line-item.
      *
      * @return DiscountFacade Returns the newly created discount line-item.
+     *
+     * @example add-absolute-discount/add-absolute-discount.twig Add an absolute discount to the cart.
+     * @example add-simple-discount/add-simple-discount.twig Add a relative discount to the cart.
      */
     public function discount(string $key, string $type, $value, string $label): DiscountFacade
     {

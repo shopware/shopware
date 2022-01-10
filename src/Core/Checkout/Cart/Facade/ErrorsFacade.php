@@ -30,6 +30,8 @@ class ErrorsFacade implements \IteratorAggregate
      * @param string $key The snippet-key of the message that should be displayed to the user.
      * @param string|null $id An optional id that can be used to reference the error, if none is provided the $key will be used as id.
      * @param array $parameters Optional: Any parameters that the snippet for the error message may need.
+     *
+     * @example add-errors/add-errors.twig 2 1 Add a error to the cart.
      */
     public function error(string $key, ?string $id = null, array $parameters = []): void
     {
@@ -43,6 +45,8 @@ class ErrorsFacade implements \IteratorAggregate
      * @param string $key The snippet-key of the message that should be displayed to the user.
      * @param string|null $id An optional id that can be used to reference the error, if none is provided the $key will be used as id.
      * @param array $parameters Optional: Any parameters that the snippet for the error message may need.
+     *
+     * @example add-errors/add-errors.twig 3 1 Add a warning to the cart.
      */
     public function warning(string $key, ?string $id = null, array $parameters = []): void
     {
@@ -56,6 +60,10 @@ class ErrorsFacade implements \IteratorAggregate
      * @param string $key The snippet-key of the message that should be displayed to the user.
      * @param string|null $id An optional id that can be used to reference the error, if none is provided the $key will be used as id.
      * @param array $parameters Optional: Any parameters that the snippet for the error message may need.
+     *
+     * @example add-errors/add-errors.twig 4 1 Add a notice to the cart.
+     * @example add-errors/add-errors.twig 5 1 Add a notice to the cart with a custom id.
+     * @example add-errors/add-errors.twig 6 1 Add a notice to the cart with parameters.
      */
     public function notice(string $key, ?string $id = null, array $parameters = []): void
     {

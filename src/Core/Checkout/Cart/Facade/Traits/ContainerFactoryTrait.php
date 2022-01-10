@@ -23,6 +23,8 @@ trait ContainerFactoryTrait
      * @param string|null $label The optional label of the container line-item.
      *
      * @return ContainerFacade Returns the newly created, empty container line-item.
+     *
+     * @example add-container/add-container.twig 7 Create a new container line-item, add products to it and apply a relative discount on the container.
      */
     public function container(string $id, ?string $label = null): ContainerFacade
     {

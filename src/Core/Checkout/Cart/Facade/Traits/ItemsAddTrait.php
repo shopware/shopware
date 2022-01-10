@@ -15,6 +15,8 @@ trait ItemsAddTrait
      * @param ItemFacade $item The line-item that should be added.
      *
      * @return ItemFacade Returns the added line-item.
+     *
+     * @example add-absolute-discount/add-absolute-discount.twig Add an absolute discount to the cart.
      */
     public function add(ItemFacade $item): ItemFacade
     {

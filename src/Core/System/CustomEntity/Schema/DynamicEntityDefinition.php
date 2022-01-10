@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
- * @internal Used for custom entities
+ * @internal The use of this class is reserved for the custom_entity feature
  */
 class DynamicEntityDefinition extends EntityDefinition
 {
@@ -38,6 +38,11 @@ class DynamicEntityDefinition extends EntityDefinition
     public function getEntityName(): string
     {
         return $this->name;
+    }
+
+    public function since(): ?string
+    {
+        return '6.4.9.0';
     }
 
     protected function defineFields(): FieldCollection

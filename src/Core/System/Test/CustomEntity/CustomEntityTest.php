@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntitySchema;
@@ -51,7 +52,9 @@ class CustomEntityTest extends TestCase
      */
     public function afterTest(): void
     {
-        KernelLifecycleManager::bootKernel()->getContainer();
+        $this->cleanUp();
+
+        KernelLifecycleManager::bootKernel();
 
         $criteria = new Criteria();
         $criteria->setLimit(1);

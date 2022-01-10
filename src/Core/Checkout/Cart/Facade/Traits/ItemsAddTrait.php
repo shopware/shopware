@@ -9,11 +9,21 @@ trait ItemsAddTrait
 {
     use ItemsGetTrait;
 
-    public function add(ItemFacade $item): ?ItemFacade
+    /**
+     * `add()` adds a line-item to this collection.
+     *
+     * @param ItemFacade $item The line-item that should be added.
+     *
+     * @return ItemFacade Returns the added line-item.
+     */
+    public function add(ItemFacade $item): ItemFacade
     {
         $this->items->add($item->getItem());
 
-        return $this->get($item->getId());
+        /** @var ItemFacade $item */
+        $item = $this->get($item->getId());
+
+        return $item;
     }
 
     private function getItems(): LineItemCollection

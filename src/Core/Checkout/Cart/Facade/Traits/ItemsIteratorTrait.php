@@ -18,6 +18,9 @@ trait ItemsIteratorTrait
 
     private SalesChannelContext $context;
 
+    /**
+     * @internal should not be used directly, loop over an ItemsFacade directly inside twig instead
+     */
     public function getIterator(): \ArrayIterator
     {
         $items = [];

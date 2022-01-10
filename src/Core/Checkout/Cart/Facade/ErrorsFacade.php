@@ -7,6 +7,11 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Error\GenericCartError;
 
 /**
+ * The ErrorsFacade is a wrapper around the errors of a cart.
+ * You can use it to add new errors to the cart or remove existing ones.
+ *
+ * @script-service cart_manipulation
+ *
  * @implements \IteratorAggregate<array-key, \Shopware\Core\Checkout\Cart\Error\Error>
  */
 class ErrorsFacade implements \IteratorAggregate
@@ -18,36 +23,82 @@ class ErrorsFacade implements \IteratorAggregate
         $this->collection = $collection;
     }
 
+    /**
+     * The `error()` method adds a new error of type `error` to the cart.
+     * The error will be displayed to the user and the checkout will be blocked if at least one error was added.
+     *
+     * @param string $key The snippet-key of the message that should be displayed to the user.
+     * @param string|null $id An optional id that can be used to reference the error, if none is provided the $key will be used as id.
+     * @param array $parameters Optional: Any parameters that the snippet for the error message may need.
+     */
     public function error(string $key, ?string $id = null, array $parameters = []): void
     {
         $this->createError($key, true, $parameters, Error::LEVEL_ERROR, $id);
     }
 
+    /**
+     * The `warning()` method adds a new error of type `warning` to the cart.
+     * The warning will be displayed to the user, but the checkout won't be blocked.
+     *
+     * @param string $key The snippet-key of the message that should be displayed to the user.
+     * @param string|null $id An optional id that can be used to reference the error, if none is provided the $key will be used as id.
+     * @param array $parameters Optional: Any parameters that the snippet for the error message may need.
+     */
     public function warning(string $key, ?string $id = null, array $parameters = []): void
     {
         $this->createError($key, false, $parameters, Error::LEVEL_WARNING, $id);
     }
 
+    /**
+     * The `notice()` method adds a new error of type `notice` to the cart.
+     * The notice will be displayed to the user, but the checkout won't be blocked.
+     *
+     * @param string $key The snippet-key of the message that should be displayed to the user.
+     * @param string|null $id An optional id that can be used to reference the error, if none is provided the $key will be used as id.
+     * @param array $parameters Optional: Any parameters that the snippet for the error message may need.
+     */
     public function notice(string $key, ?string $id = null, array $parameters = []): void
     {
         $this->createError($key, false, $parameters, Error::LEVEL_NOTICE, $id);
     }
 
-    public function has(string $key): bool
+    /**
+     * The `has()` method, checks if an error with a given id exists.
+     *
+     * @param string $id The id of the error that should be checked.
+     *
+     * @return bool Returns true if an error with that key exists, false otherwise.
+     */
+    public function has(string $id): bool
     {
-        return $this->collection->has($key);
+        return $this->collection->has($id);
     }
 
-    public function remove(string $key): void
+    /**
+     * The `remove()` method removes the error with the given id.
+     *
+     * @param string $id The id of the error that should be removed.
+     */
+    public function remove(string $id): void
     {
-        $this->collection->remove($key);
+        $this->collection->remove($id);
     }
 
-    public function get(string $key): ?Error
+    /**
+     * The `get()` method returns the error with the given id.
+     *
+     * @param string $id The id of the error that should be returned.
+     *
+     * @return Error|null The Error with the given id, null if an error with that id does not exist.
+     */
+    public function get(string $id): ?Error
     {
-        return $this->collection->get($key);
+        return $this->collection->get($id);
     }
 
+    /**
+     * @internal should not be used directly, loop over an ErrorsFacade directly inside twig instead
+     */
     public function getIterator(): \Traversable
     {
         yield from $this->collection;

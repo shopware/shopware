@@ -10,7 +10,11 @@ trait ItemsHasTrait
     private LineItemCollection $items;
 
     /**
-     * @param string|ItemFacade $id
+     * `has()` checks if a line-item with the given id exists in this collection.
+     *
+     * @param string|ItemFacade $id The id or a line-item that should be checked if it already exists in the collection.
+     *
+     * @return bool Returns true if the given line-item or a line-item with the given id already exists in the collection, false otherwise.
      */
     public function has($id): bool
     {

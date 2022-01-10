@@ -9,14 +9,14 @@
 
 {% endif %}
 
-{{ service.summary }}
-{{ service.description }}
+{{ service.summary|raw }}
+{{ service.description|raw }}
 
 {% for method in service.methods %}
 ### {{ method.title }}
 
-{{ method.summary }}
-{{ method.description }}
+{{ method.summary|raw }}
+{{ method.description|raw }}
 
 {% if method.arguments is not empty %}
 #### Arguments
@@ -36,8 +36,8 @@
 {{ argument.description }}
 
 {% endfor %}
-{% endif %}
 
+{% endif %}
 {% if method.return is not empty %}
 #### Return value
 

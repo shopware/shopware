@@ -16,6 +16,14 @@ trait ContainerFactoryTrait
 
     private SalesChannelContext $context;
 
+    /**
+     * The `container()` methods creates an empty container line-item with the given id and label.
+     *
+     * @param string $id The id for the new container line-item.
+     * @param string|null $label The optional label of the container line-item.
+     *
+     * @return ContainerFacade Returns the newly created, empty container line-item.
+     */
     public function container(string $id, ?string $label = null): ContainerFacade
     {
         $item = new LineItem($id, LineItem::CONTAINER_LINE_ITEM, $id);

@@ -206,9 +206,13 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
         foreach ($scriptServices as $service) {
             $reflection = new \ReflectionClass($service);
 
-            $group = $this->getGroupForService($reflection);
-
             $docBlock = $this->docFactory->create($reflection);
+            if ($docBlock->hasTag('internal')) {
+                // skip @internal classes
+                continue;
+            }
+
+            $group = $this->getGroupForService($reflection);
 
             $data[$group]['services'][] = [
                 'name' => $this->getName($service),
@@ -256,6 +260,10 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
             }
 
             $docBlock = $this->docFactory->create($method);
+            if ($docBlock->hasTag('internal')) {
+                // skip @internal methods
+                continue;
+            }
 
             $methods[] = [
                 'title' => $method->getName() . '()',
@@ -316,6 +324,10 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
     {
         $type = $method->getReturnType();
 
+        if ($type instanceof \ReflectionNamedType && $type->getName() === 'void') {
+            return [];
+        }
+
         /** @var Return_[] $tags */
         $tags = $docBlock->getTagsWithTypeByName('return');
         if (\count($tags) < 1) {
@@ -338,10 +350,6 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
             //The docBlock probably don't use the FQCN, therefore we use the native return type if we have one
             /** @var class-string<object> $typeName */
             $typeName = $type->getName();
-        }
-
-        if ($typeName === 'void') {
-            return [];
         }
 
         return [

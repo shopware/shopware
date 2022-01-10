@@ -10,7 +10,9 @@ trait ItemsRemoveTrait
     private LineItemCollection $items;
 
     /**
-     * @param string|ItemFacade $id
+     * `remove()` removes the given line-item or the line-item with the given id from this collection.
+     *
+     * @param string|ItemFacade $id The id of the line-item or the line-item that should be removed.
      */
     public function remove($id): void
     {

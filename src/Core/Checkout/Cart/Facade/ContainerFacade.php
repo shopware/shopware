@@ -13,6 +13,11 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * The ContainerFacade allows you to wrap multiple line-items inside a container line-item.
+ *
+ * @script-service cart_manipulation
+ */
 class ContainerFacade extends ItemFacade
 {
     use DiscountTrait;
@@ -41,16 +46,32 @@ class ContainerFacade extends ItemFacade
         $this->context = $context;
     }
 
+    /**
+     * The `product()` method returns all products inside the current container for further manipulation.
+     * Similar to the `children()` method, but the line-items are filtered, to only contain product line items.
+     *
+     * @return ProductsFacade A `ProductsFacade` containing all product line-items inside the current container as a collection.
+     */
     public function products(): ProductsFacade
     {
         return new ProductsFacade($this->item->getChildren(), $this->helper, $this->context);
     }
 
-    public function add(ItemFacade $item): ?ItemFacade
+    /**
+     * Use the `add()` method to add an item to this container.
+     *
+     * @param ItemFacade $item The item that should be added.
+     *
+     * @return ItemFacade The item that was added to the container.
+     */
+    public function add(ItemFacade $item): ItemFacade
     {
         $this->item->getChildren()->add($item->getItem());
 
-        return $this->get($item->getId());
+        /** @var ItemFacade $item */
+        $item = $this->get($item->getId());
+
+        return $item;
     }
 
     protected function getItems(): LineItemCollection

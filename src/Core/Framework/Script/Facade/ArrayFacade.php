@@ -3,10 +3,10 @@
 namespace Shopware\Core\Framework\Script\Facade;
 
 /**
- * Used for scripting:
- *
- * {% set array = array() %}
- *
+ * The ArrayFacade acts as a wrapper around an array and allows easier manipulation of arrays inside scripts.
+ * An array facade can also be accessed like a "normal" array inside twig.
+ * Examples:
+ * ```twig
  * {% do array.push('test') %}
  *
  * {% do array.foo = 'bar' }
@@ -16,6 +16,9 @@ namespace Shopware\Core\Framework\Script\Facade;
  * {% if array.foo === 'bar' %}
  *
  * {% foreach array as key => value %}
+ * ```
+ *
+ * @script-service miscellaneous
  *
  * @implements \ArrayAccess<array-key, string|int|float|array|object|bool|null>
  * @implements \IteratorAggregate<array-key, string|int|float|array|object|bool|null>
@@ -33,8 +36,10 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
     }
 
     /**
-     * @param string|int                              $key
-     * @param string|int|float|array|object|bool|null $value
+     * `set()` adds a new element to the array using the given key.
+     *
+     * @param string|int                              $key The array key.
+     * @param string|int|float|array|object|bool|null $value The value that should be added.
      */
     public function set($key, $value): void
     {
@@ -43,7 +48,9 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
     }
 
     /**
-     * @param string|int|float|array|object|bool|null $value
+     * `push()` adds a new value to the end of the array.
+     *
+     * @param string|int|float|array|object|bool|null $value The value that should be added.
      */
     public function push($value): void
     {
@@ -52,7 +59,9 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
     }
 
     /**
-     * @param string|int $index
+     * `removeBy()` removes the value at the given index from the array.
+     *
+     * @param string|int $index The index that should be removed.
      */
     public function removeBy($index): void
     {
@@ -61,7 +70,9 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
     }
 
     /**
-     * @param string|int|float|array|object|bool|null $value
+     * `remove()` removes the given value from the array. It does nothing if the provided value does not exist in the array.
+     *
+     * @param string|int|float|array|object|bool|null $value The value that should be removed.
      */
     public function remove($value): void
     {
@@ -73,6 +84,9 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
         }
     }
 
+    /**
+     * `reset()` removes all entries from the array.
+     */
     public function reset(): void
     {
         foreach (\array_keys($this->items) as $key) {
@@ -82,7 +96,9 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
     }
 
     /**
-     * @param array|ArrayFacade $array
+     * `merge()` recursively merges the array with the given array.
+     *
+     * @param array|ArrayFacade $array The array that should be merged with this array. Either a plain `array` or another `ArrayFacade`.
      */
     public function merge($array): void
     {
@@ -94,7 +110,9 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
     }
 
     /**
-     * @param array|ArrayFacade $array
+     * `replace()` recursively replaces elements from the given array into this array.
+     *
+     * @param array|ArrayFacade $array The array from which the elements should be replaced into this array. Either a plain `array` or another `ArrayFacade`.
      */
     public function replace($array): void
     {
@@ -106,6 +124,8 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
     }
 
     /**
+     * @internal should not be used directly, use the default twig array syntax instead
+     *
      * @param string|int $offset
      *
      * @return bool
@@ -117,6 +137,8 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
     }
 
     /**
+     * @internal should not be used directly, use the default twig array syntax instead
+     *
      * @param string|int $offset
      *
      * @return string|int|float|array|object|bool|null
@@ -128,6 +150,8 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
     }
 
     /**
+     * @internal should not be used directly, use the default twig array syntax instead
+     *
      * @param string|int                              $offset
      * @param string|int|float|array|object|bool|null $value
      */
@@ -143,18 +167,28 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
     }
 
     /**
+     * @internal should not be used directly, use the default twig array syntax instead
+     *
      * @param string|int $offset
      */
     public function offsetUnset($offset): void
     {
-        unset($this->items[$offset]);
+        $this->removeBy($offset);
     }
 
+    /**
+     * @internal should not be used directly, loop over an array facade directly inside twig instead
+     */
     public function getIterator(): \Generator
     {
         yield from $this->items;
     }
 
+    /**
+     * `count()` returns the count of elements inside this array.
+     *
+     * @return int Returns the count of elements.
+     */
     public function count(): int
     {
         return \count($this->items);

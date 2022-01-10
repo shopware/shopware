@@ -12,6 +12,10 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * The ProductsFacade is a wrapper around a collection of product line-items.
+ *
+ * @script-service cart_manipulation
+ *
  * @implements \IteratorAggregate<array-key, \Shopware\Core\Checkout\Cart\LineItem\LineItem>
  */
 class ProductsFacade implements \IteratorAggregate
@@ -35,6 +39,13 @@ class ProductsFacade implements \IteratorAggregate
         $this->context = $context;
     }
 
+    /**
+     * `get()` returns the product line-item with the given product id.
+     *
+     * @param string $productId The id of the product, of which the line-item should be returned.
+     *
+     * @return ItemFacade|null The line-item associated with the given product id, or null if it does not exist.
+     */
     public function get(string $productId): ?ItemFacade
     {
         $item = $this->_get($productId);
@@ -51,30 +62,54 @@ class ProductsFacade implements \IteratorAggregate
     }
 
     /**
-     * @param string|LineItem|ItemFacade $product
+     * `add()` adds a new product  line-item to this collection.
+     * In the case only a product id is provided it will create a new line-item from type product for the given product id.
+     *
+     * @param string|LineItem|ItemFacade $product The product that should be added. Either an existing `ItemFacade` or `LineItem` or alternatively the id of a product.
+     * @param int $quantity Optionally provide the quantity with which the product line-item should be created, defaults to 1.
+     *
+     * @return ItemFacade The newly added product line-item.
      */
-    public function add($product, int $quantity = 1): ?ItemFacade
+    public function add($product, int $quantity = 1): ItemFacade
     {
         if ($product instanceof ItemFacade) {
             $this->items->add($product->getItem());
 
-            return $this->get($product->getId());
+            /** @var ItemFacade $product */
+            $product = $this->get($product->getId());
+
+            return $product;
         }
 
         if ($product instanceof LineItem) {
             $this->items->add($product);
 
-            return $this->get($product->getId());
+            /** @var ItemFacade $product */
+            $product = $this->get($product->getId());
+
+            return $product;
         }
 
         $product = $this->helper->product($product, $quantity, $this->context);
 
         $this->items->add($product);
 
-        return $this->get($product->getId());
+        /** @var ItemFacade $product */
+        $product = $this->get($product->getId());
+
+        return $product;
     }
 
-    public function create(string $productId, int $quantity = 1): ?ItemFacade
+    /**
+     * `create()` creates a new product line-item for the product with the given id in the given quantity.
+     * Note that the created line-item will not be added automatically to this collection, use `add()` for that.
+     *
+     * @param string $productId The product id for which a line-item should be created.
+     * @param int $quantity Optionally provide the quantity with which the product line-item should be created, defaults to 1.
+     *
+     * @return ItemFacade The newly created product line-item.
+     */
+    public function create(string $productId, int $quantity = 1): ItemFacade
     {
         $product = $this->helper->product($productId, $quantity, $this->context);
 

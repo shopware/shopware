@@ -16,6 +16,14 @@ Component.register('sw-sidebar-navigation-item', {
         },
     },
 
+    computed: {
+        badgeTypeClasses() {
+            return [
+                `is--${this.sidebarItem.badgeType}`,
+            ];
+        },
+    },
+
     methods: {
         emitButtonClicked() {
             this.$emit('item-click', this.sidebarItem);

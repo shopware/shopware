@@ -8,7 +8,11 @@ const { Component } = Shopware;
  * @status ready
  * @example-type code-only
  * @component-example
- * <sw-sidebar-item title="Product" icon="default-symbol-products">
+ * <sw-sidebar-item
+ *     title="Product"
+ *     icon="default-symbol-products"
+ *     hasSimpleBadge
+ *     badgeType='error'>
  *     Product in sidebar
  * </sw-sidebar-item>
  */
@@ -41,11 +45,30 @@ Component.register('sw-sidebar-item', {
             },
         },
 
-        // FIXME: add default value for property
-        // eslint-disable-next-line vue/require-default-prop
         badge: {
             type: Number,
             required: false,
+            default: 0,
+        },
+
+        hasSimpleBadge: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        badgeType: {
+            type: String,
+            required: false,
+            default: 'info',
+            validator(value) {
+                return [
+                    'info',
+                    'warning',
+                    'error',
+                    'success',
+                ].includes(value);
+            },
         },
     },
 

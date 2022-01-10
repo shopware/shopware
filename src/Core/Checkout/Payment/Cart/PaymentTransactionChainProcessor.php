@@ -121,6 +121,8 @@ class PaymentTransactionChainProcessor
 
                 $preOrderStruct = $paymentHandler->validate($preparedTransactionStruct, $dataBag, $salesChannelContext);
                 $paymentHandler->capture($preparedTransactionStruct, $dataBag, $salesChannelContext, $preOrderStruct);
+
+                return null;
             }
         }
 

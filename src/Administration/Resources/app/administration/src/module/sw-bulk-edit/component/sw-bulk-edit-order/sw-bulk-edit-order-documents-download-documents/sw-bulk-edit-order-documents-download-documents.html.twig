@@ -1,0 +1,16 @@
+{% block sw_bulk_edit_order_documents_download_documents %}
+<div
+    v-if="documentTypes && documentTypes.total > 0"
+    class="sw-bulk-edit-order-documents-download-documents"
+>
+    {% block sw_bulk_edit_order_documents_download_documents_content %}
+    <sw-checkbox-field
+        v-for="documentType in documentTypes"
+        :key="documentType.id"
+        v-model="documentType.selected"
+        :label="documentType.translated.name"
+        class="sw-bulk-edit-order-documents-download-documents__checkbox"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

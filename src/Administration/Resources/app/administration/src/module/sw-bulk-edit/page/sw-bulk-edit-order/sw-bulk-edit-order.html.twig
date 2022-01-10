@@ -28,11 +28,7 @@
             :disabled="isLoading || !hasChanges"
             @click="openModal"
         >
-            {{
-                feature.isActive('FEATURE_NEXT_17261')
-                    ? $tc('sw-bulk-edit.applyChanges')
-                    : $tc('sw-settings-basic-information.general.buttonSave')
-            }}
+            {{ $tc('sw-bulk-edit.applyChanges') }}
         </sw-button-process>
         {% endblock %}
 
@@ -64,7 +60,6 @@
 
             {% block sw_bulk_edit_order_content_documents %}
             <sw-card
-                v-if="feature.isActive('FEATURE_NEXT_17261')"
                 class="sw-bulk-edit-order-base__documents"
                 position-identifier="sw-bulk-edit-order-documents"
                 :title="$tc('sw-bulk-edit.order.documents.cardTitle')"
@@ -75,6 +70,7 @@
                     :form-fields="documentsFormFields"
                     :bulk-edit-data="bulkEditData"
                     :entity="order"
+                    @change-value="onChangeDocument"
                 />
                 {% endblock %}
             </sw-card>

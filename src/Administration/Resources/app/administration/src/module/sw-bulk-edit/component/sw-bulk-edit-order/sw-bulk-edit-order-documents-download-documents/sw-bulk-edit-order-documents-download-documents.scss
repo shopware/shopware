@@ -1,0 +1,13 @@
+.sw-bulk-edit-order-documents-download-documents {
+    &__checkbox.sw-field--checkbox .sw-field--checkbox__content {
+        padding: 10px 0;
+    }
+
+    &__checkbox.sw-field--checkbox:first-child .sw-field--checkbox__content {
+        padding: 15px 0 10px;
+    }
+
+    &__checkbox.sw-field--checkbox:last-child .sw-field--checkbox__content {
+        padding: 10px 0 0;
+    }
+}

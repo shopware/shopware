@@ -289,6 +289,14 @@ function createWrapper(productEntityOverride) {
                     return { search: () => Promise.resolve([{ id: 'Id' }]) };
                 }
             },
+            orderDocumentApiService: {
+                create: () => {
+                    return Promise.resolve();
+                },
+                download: () => {
+                    return Promise.resolve();
+                },
+            },
             repository: {
                 get: () => Promise.resolve({})
             },

@@ -4,12 +4,12 @@ Component.extend('sw-bulk-edit-order-documents-generate-credit-note', 'sw-bulk-e
     computed: {
         generateData: {
             get() {
-                return State.get('swBulkEdit').orderDocuments.credit_note;
+                return State.get('swBulkEdit')?.orderDocuments?.credit_note?.value;
             },
             set(generateData) {
-                State.commit('swBulkEdit/setOrderDocuments', {
+                State.commit('swBulkEdit/setOrderDocumentsValue', {
                     type: 'credit_note',
-                    payload: generateData,
+                    value: generateData,
                 });
             },
         },

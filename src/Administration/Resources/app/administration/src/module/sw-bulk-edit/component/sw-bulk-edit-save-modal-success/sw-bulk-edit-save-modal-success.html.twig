@@ -1,3 +1,4 @@
+<!-- eslint-disable vuejs-accessibility/click-events-have-key-events -->
 {% block sw_bulk_edit_save_modal_success %}
 <div class="sw-bulk-edit-save-modal-success">
     {% block sw_bulk_edit_save_modal_success_icon %}
@@ -16,6 +17,19 @@
     {% block sw_bulk_edit_save_modal_error_content %}
     <p class="sw-bulk-edit-save-modal__help-text">
         {{ $tc('sw-bulk-edit.modal.success.description') }}
+    </p>
+    {% endblock %}
+
+    {% block sw_bulk_edit_save_modal_success_download_order_documents %}
+    <p
+        v-if="canDownloadOrderDocuments"
+        :class="{
+            'sw-bulk-edit-save-modal-success__download-order-documents': true,
+            'is--disabled': isDownloadingOrderDocument === true
+        }"
+        @click="onDownloadOrderDocuments"
+    >
+        {{ $tc('sw-bulk-edit.modal.success.downloadDocuments') }}
     </p>
     {% endblock %}
 </div>

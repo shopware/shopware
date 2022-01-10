@@ -247,7 +247,9 @@
       },
       "success": {
         "title": "Bulk edit - Success",
-        "description": "Bulk edit finished."
+        "description": "Bulk edit finished.",
+        "downloadDocuments": "Download your documents here",
+        "messageNoDocumentAvailable": "No documents found"
       },
       "error": {
         "title": "Bulk edit - Error",
@@ -304,7 +306,7 @@
           "helpText": "This action increases the value of the corresponding number range.",
           "labelDatePicker": "Date",
           "labelTextarea": "Comment",
-          "placeholderTextarea": "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim."
+          "placeholderTextarea": ""
         },
         "generateCancellationInvoice": {
           "label": "Generate: Cancellation invoice",
@@ -320,6 +322,10 @@
           "label": "Generate: Credit note",
           "helpText": "Credit notes generally employ the latest corresponding invoice number for reference.",
           "changeSubLabel": "This document is generated only if a credit position exists in the order."
+        },
+        "downloadDocuments": {
+          "label": "Download: Documents",
+          "helpText": "All selected documents will be merged into one file and can be downloaded after the bulk edit has finished."
         }
       },
       "customFields": {

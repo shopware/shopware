@@ -3,6 +3,7 @@
     class="sw-bulk-edit-save-modal"
     variant="small"
     :title="title"
+    :is-loading="isDownloadingOrderDocument"
     @modal-close="onModalClose"
 >
 
@@ -11,6 +12,8 @@
         <router-view
             :item-total="itemTotal"
             :bulk-edit-data="bulkEditData"
+            :is-downloading-order-document="isDownloadingOrderDocument"
+            @order-document-download="setIsDownloadingOrderDocument"
             @changes-apply="applyChanges"
             @buttons-update="updateButtons"
             @redirect="redirect"

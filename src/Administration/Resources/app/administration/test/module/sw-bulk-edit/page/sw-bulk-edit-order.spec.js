@@ -236,7 +236,12 @@ function createWrapper(isResponseError = false) {
                 }
             },
             orderDocumentApiService: {
-                create: () => Promise.resolve(),
+                create: () => {
+                    return Promise.resolve();
+                },
+                download: () => {
+                    return Promise.resolve();
+                },
             },
             shortcutService: {
                 startEventListener: () => {},
@@ -288,7 +293,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     });
 
     it('should disable status mails and documents by default', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_17261'];
         wrapper = await createWrapper();
 
         await flushPromises();
@@ -298,8 +302,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     });
 
     it('should enable status mails when one of the status fields has changed', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_17261'];
-
         wrapper = createWrapper();
 
         await flushPromises();
@@ -320,8 +322,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     });
 
     it('should enable documents when status mails is enabled', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_17261'];
-
         wrapper = createWrapper();
 
         await flushPromises();
@@ -479,11 +479,13 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     });
 
     it('should be able to create document', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_17261'];
-
         wrapper = createWrapper();
         wrapper.vm.orderDocumentApiService.create = jest.fn(() => Promise.resolve());
 
+        Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
+            type: 'invoice',
+            isChanged: true,
+        });
         await wrapper.find('.sw-bulk-edit-order__save-action').trigger('click');
         await wrapper.vm.$nextTick();
 
@@ -496,11 +498,13 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     });
 
     it('should not be able to create document', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_17261'];
-
         wrapper = createWrapper();
         wrapper.vm.orderDocumentApiService.create = jest.fn(() => Promise.reject());
 
+        Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
+            type: 'invoice',
+            isChanged: true,
+        });
         await wrapper.find('.sw-bulk-edit-order__save-action').trigger('click');
         await wrapper.vm.$nextTick();
 

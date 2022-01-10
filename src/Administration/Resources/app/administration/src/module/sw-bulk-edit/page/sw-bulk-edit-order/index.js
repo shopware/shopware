@@ -67,8 +67,25 @@ Component.register('sw-bulk-edit-order', {
             return criteria;
         },
 
-        orderDocuments() {
-            return Shopware.State.get('swBulkEdit').orderDocuments;
+        documentTypeConfigs() {
+            return Shopware.State.getters['swBulkEdit/documentTypeConfigs'];
+        },
+
+        createDocumentPayload() {
+            const payload = [];
+
+            this.selectedIds.forEach((selectedId) => {
+                this.documentTypeConfigs.forEach((documentTypeConfig) => {
+                    if (documentTypeConfig) {
+                        payload.push({
+                            ...documentTypeConfig,
+                            orderId: selectedId,
+                        });
+                    }
+                });
+            });
+
+            return payload;
         },
 
         hasChanges() {
@@ -76,7 +93,7 @@ Component.register('sw-bulk-edit-order', {
         },
 
         statusFormFields() {
-            let fields = [
+            const fields = [
                 {
                     name: 'orderTransactions',
                     config: {
@@ -107,29 +124,23 @@ Component.register('sw-bulk-edit-order', {
                         options: this.orderStatus,
                     },
                 },
+                {
+                    name: 'statusMails',
+                    labelHelpText: this.$tc('sw-bulk-edit.order.status.statusMails.helpText'),
+                    config: {
+                        hidden: true,
+                        changeLabel: this.$tc('sw-bulk-edit.order.status.statusMails.label'),
+                    },
+                },
+                {
+                    name: 'documents',
+                    labelHelpText: this.$tc('sw-bulk-edit.order.status.documents.helpText'),
+                    config: {
+                        componentName: 'sw-bulk-edit-order-documents',
+                        changeLabel: this.$tc('sw-bulk-edit.order.status.documents.label'),
+                    },
+                },
             ];
-
-            if (this.feature.isActive('FEATURE_NEXT_17261')) {
-                fields = [
-                    ...fields,
-                    {
-                        name: 'statusMails',
-                        labelHelpText: this.$tc('sw-bulk-edit.order.status.statusMails.helpText'),
-                        config: {
-                            hidden: true,
-                            changeLabel: this.$tc('sw-bulk-edit.order.status.statusMails.label'),
-                        },
-                    },
-                    {
-                        name: 'documents',
-                        labelHelpText: this.$tc('sw-bulk-edit.order.status.documents.helpText'),
-                        config: {
-                            componentName: 'sw-bulk-edit-order-documents',
-                            changeLabel: this.$tc('sw-bulk-edit.order.status.documents.label'),
-                        },
-                    },
-                ];
-            }
 
             return fields;
         },
@@ -137,7 +148,7 @@ Component.register('sw-bulk-edit-order', {
         documentsFormFields() {
             return [
                 {
-                    name: 'generateInvoice',
+                    name: 'invoice',
                     labelHelpText: this.$tc('sw-bulk-edit.order.documents.generateInvoice.helpText'),
                     config: {
                         componentName: 'sw-bulk-edit-order-documents-generate-invoice',
@@ -145,7 +156,7 @@ Component.register('sw-bulk-edit-order', {
                     },
                 },
                 {
-                    name: 'generateCancellationInvoice',
+                    name: 'storno',
                     labelHelpText: this.$tc('sw-bulk-edit.order.documents.generateCancellationInvoice.helpText'),
                     config: {
                         componentName: 'sw-bulk-edit-order-documents-generate-cancellation-invoice',
@@ -154,7 +165,7 @@ Component.register('sw-bulk-edit-order', {
                     },
                 },
                 {
-                    name: 'generateDeliveryNote',
+                    name: 'delivery_note',
                     labelHelpText: this.$tc('sw-bulk-edit.order.documents.generateDeliveryNote.helpText'),
                     config: {
                         componentName: 'sw-bulk-edit-order-documents-generate-delivery-note',
@@ -162,12 +173,20 @@ Component.register('sw-bulk-edit-order', {
                     },
                 },
                 {
-                    name: 'generateCreditNote',
+                    name: 'credit_note',
                     labelHelpText: this.$tc('sw-bulk-edit.order.documents.generateCreditNote.helpText'),
                     config: {
                         componentName: 'sw-bulk-edit-order-documents-generate-credit-note',
                         changeLabel: this.$tc('sw-bulk-edit.order.documents.generateCreditNote.label'),
                         changeSubLabel: this.$tc('sw-bulk-edit.order.documents.generateCreditNote.changeSubLabel'),
+                    },
+                },
+                {
+                    name: 'download',
+                    labelHelpText: this.$tc('sw-bulk-edit.order.documents.downloadDocuments.helpText'),
+                    config: {
+                        componentName: 'sw-bulk-edit-order-documents-download-documents',
+                        changeLabel: this.$tc('sw-bulk-edit.order.documents.downloadDocuments.label'),
                     },
                 },
             ];
@@ -481,15 +500,24 @@ Component.register('sw-bulk-edit-order', {
         },
 
         createDocument() {
-            if (!this.feature.isActive('FEATURE_NEXT_17261')) {
+            if (!this.createDocumentPayload.length) {
                 return Promise.resolve();
             }
 
-            return this.orderDocumentApiService.create({
-                fileType: 'pdf',
-                orderIds: this.selectedIds,
-                documentTypeConfigs: this.orderDocuments,
-            });
+            const invoiceDocument = this.createDocumentPayload.filter((item) => item.type === 'invoice');
+            const otherDocuments = this.createDocumentPayload.filter((item) => item.type !== 'invoice');
+
+            if (!invoiceDocument.length) {
+                return this.orderDocumentApiService.create(otherDocuments);
+            }
+
+            return this.orderDocumentApiService.create(invoiceDocument)
+                .then(() => {
+                    return this.orderDocumentApiService.create(otherDocuments);
+                })
+                .catch((error) => {
+                    return Promise.reject(error);
+                });
         },
 
         loadCustomFieldSets() {
@@ -501,6 +529,12 @@ Component.register('sw-bulk-edit-order', {
         onCustomFieldsChange(value) {
             this.bulkEditData.customFields.value = value;
         },
+
+        onChangeDocument(type, isChanged) {
+            Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
+                type,
+                isChanged,
+            });
+        },
     },
 });
-

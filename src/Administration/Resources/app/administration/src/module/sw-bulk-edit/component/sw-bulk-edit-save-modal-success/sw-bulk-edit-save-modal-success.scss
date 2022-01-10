@@ -1,0 +1,17 @@
+@import "~scss/variables.scss";
+
+.sw-bulk-edit-save-modal-success {
+    &__download-order-documents {
+        cursor: pointer;
+        color: $color-shopware-brand-500;
+        font-size: $font-size-small;
+        font-weight: $font-weight-semi-bold;
+        text-decoration: underline;
+    }
+
+    &__download-order-documents.is--disabled {
+        cursor: default;
+        pointer-events: none;
+        opacity: 0.5;
+    }
+}

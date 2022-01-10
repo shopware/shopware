@@ -247,7 +247,9 @@
       },
       "success": {
         "title": "Mehrfachänderung - Erfolg",
-        "description": "Mehrfachänderung abgeschlossen."
+        "description": "Mehrfachänderung abgeschlossen.",
+        "downloadDocuments": "Dokumente hier herunterladen",
+        "messageNoDocumentAvailable": "Keine Dokumente vorhanden"
       },
       "error": {
         "title": "Mehrfachänderung - Fehler",
@@ -304,7 +306,7 @@
           "helpText": "Diese Aktion erhöht den Wert des zugehörigen Nummernkreises.",
           "labelDatePicker": "Datum",
           "labelTextarea": "Kommentar",
-          "placeholderTextarea": "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim."
+          "placeholderTextarea": ""
         },
         "generateCancellationInvoice": {
           "label": "Erstellen: Stornorechnung",
@@ -320,6 +322,10 @@
           "label": "Erstellen: Gutschrift",
           "helpText": "Gutschriften verwenden im Allgemeinen die letzte zugehörige Rechnungsnummer als Referenz.",
           "changeSubLabel": "Dieses Dokument wird nur erstellt, wenn sich eine Gutschriftposition in der Bestellung befindet."
+        },
+        "downloadDocuments": {
+          "label": "Herunterladen: Dokumente",
+          "helpText": "Alle ausgewählten Dokumente werden in einer Datei zusammegefügt, die heruntergeladen werden kann, nachdem die Mehrfachbearbeitung abgeschlossen ist."
         }
       },
       "customFields": {

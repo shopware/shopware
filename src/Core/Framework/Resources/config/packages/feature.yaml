@@ -280,7 +280,6 @@ shopware:
         major: true
         description: "Move admin dashboard statistics into separate component"
         # issue: NEXT-18187
-
       - name: FEATURE_NEXT_17978
         default: false
         major: true
@@ -291,3 +290,8 @@ shopware:
         major: true
         description: "Delayed flow actions"
         # issue: NEXT_17869
+      - name: FEATURE_NEXT_11634
+        default: false
+        major: true
+        description: "Webpack alias refactor"
+        # issue: NEXT_11634

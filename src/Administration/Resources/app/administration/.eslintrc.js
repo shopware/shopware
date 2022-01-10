@@ -67,6 +67,7 @@ module.exports = {
                             assets: path.join(__dirname, 'static'),
                             // Alias for externals
                             Shopware: path.join(__dirname, 'src/core/shopware'),
+                            '@administration': path.join(__dirname, 'src'),
                         },
                     },
                 },

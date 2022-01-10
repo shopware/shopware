@@ -16,6 +16,19 @@ const chalk = require('chalk');
 
 /* eslint-disable */
 
+const flagsPath = path.join(process.env.PROJECT_ROOT, 'var', 'config_js_features.json');
+let featureFlags = {};
+if (fs.existsSync(flagsPath)) {
+    featureFlags = JSON.parse(fs.readFileSync(flagsPath, 'utf-8'));
+    // Make featureFlags available globally
+    global.featureFlags = featureFlags;
+}
+
+let refactorAlias = false;
+if (featureFlags.hasOwnProperty('FEATURE_NEXT_11634')) {
+    refactorAlias = featureFlags.FEATURE_NEXT_11634;
+}
+
 console.log(chalk.yellow('# Compiling with Webpack configuration'));
 
 const isDev = process.env.mode === 'development';
@@ -178,16 +191,30 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
         Shopware: 'Shopware',
     },
 
-    // Sync with .eslintrc.js
-    resolve: {
-        extensions: ['.js', '.ts', '.vue', '.json', '.less', '.twig'],
-        alias: {
-            vue$: 'vue/dist/vue.esm.js',
-            src: path.join(__dirname, 'src'),
-            scss: path.join(__dirname, 'src/app/assets/scss'),
-            assets: path.join(__dirname, 'static'),
-        },
-    },
+    ...(() => {
+        if (refactorAlias) {
+            return {
+                resolve: {
+                    extensions: ['.js', '.ts', '.vue', '.json', '.less', '.twig'],
+                    alias: {
+                        scss: path.join(__dirname, 'src/app/assets/scss'),
+                    },
+                },
+            };
+        }
+
+        return {
+            resolve: {
+                extensions: ['.js', '.ts', '.vue', '.json', '.less', '.twig'],
+                alias: {
+                    vue$: 'vue/dist/vue.esm.js',
+                    src: path.join(__dirname, 'src'),
+                    scss: path.join(__dirname, 'src/app/assets/scss'),
+                    assets: path.join(__dirname, 'static'),
+                },
+            },
+        };
+    })(),
 
     module: {
         rules: [
@@ -460,6 +487,22 @@ const coreConfig = {
         app: `${path.resolve('src')}/app/main.ts`,
     },
 
+    ...(() => {
+        if (refactorAlias) {
+            return {
+                resolve: {
+                    alias: {
+                        vue$: 'vue/dist/vue.esm.js',
+                        src: path.join(__dirname, 'src'),
+                        assets: path.join(__dirname, 'static'),
+                    },
+                },
+            };
+        }
+
+        return {};
+    })(),
+
     output: {
         path: isDev
             // put all files in virtual dist folder when using watcher
@@ -538,17 +581,7 @@ const coreConfig = {
                         filename: 'index.html',
                         template: 'index.html.tpl',
                         templateParameters: {
-                            featureFlags: (() => {
-                                const getFeatureFlagNames = (flagsPath) => {
-                                    if (!fs.existsSync(flagsPath)) {
-                                        return '{}';
-                                    }
-
-                                    return fs.readFileSync(flagsPath);
-                                };
-
-                                return getFeatureFlagNames(path.join(process.env.PROJECT_ROOT, 'var', 'config_js_features.json'));
-                            })(),
+                            featureFlags: JSON.stringify(featureFlags),
                         },
                         inject: false,
                     }),
@@ -599,6 +632,20 @@ const configsForPlugins = pluginEntries.map((plugin) => {
             entry: {
                 [plugin.technicalName]: plugin.filePath,
             },
+
+            ...(() => {
+                if (refactorAlias) {
+                    return {
+                        resolve: {
+                            alias: {
+                                '@administration': path.join(__dirname, 'src'),
+                            },
+                        },
+                    };
+                }
+
+                return {};
+            })(),
 
             output: {
                 path: isDev

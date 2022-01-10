@@ -1,0 +1,106 @@
+{% block sw_order_customer_grid %}
+<sw-card
+    class="sw-order-customer-grid"
+    position-identifier="sw-order-customer-grid"
+    :is-loading="isSwitchingCustomer"
+>
+    <template #toolbar>
+        {% block sw_order_customer_grid_toolbar %}
+        <div class="sw-order-customer-grid__toolbar">
+            {% block sw_order_customer_grid_search_input %}
+            <sw-card-filter
+                @sw-card-filter-term-change="onSearch"
+            />
+            {% endblock %}
+
+            {% block sw_order_customer_grid_add_new_customer %}
+            <sw-button
+                class="sw-order-customer-grid__add-customer"
+                variant="ghost"
+                size="small"
+                @click="onShowNewCustomerModal"
+            >
+                {{ $tc('sw-order.initialModal.customerGrid.buttonAddNewCustomer') }}
+            </sw-button>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </template>
+
+    <template #grid>
+        <div class="sw-order-customer-grid__container">
+            {% block sw_order_customer_grid_content %}
+            <sw-entity-listing
+                class="sw-order-customer-grid__content"
+                :show-selection="false"
+                :show-settings="false"
+                :items="customers"
+                :columns="customerColumns"
+                :repository="customerRepository"
+                :is-loading="isLoading"
+            >
+                {% block sw_order_customer_grid_content_column_select %}
+                <template #column-select="{ item }">
+                    <div class="sw-field__radio-input">
+                        <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
+                        <input
+                            type="radio"
+                            :checked="isChecked(item)"
+                            @change="onCheckCustomer(item)"
+                        >
+                        <div class="sw-field__radio-state"></div>
+                    </div>
+                </template>
+                {% endblock %}
+
+                {% block sw_order_customer_grid_content_grid_column_name %}
+                <template #column-firstName="{ item }">
+                    <router-link :to="{ name: 'sw.customer.detail', params: { id: item.id } }">
+                        {{ item.firstName }} {{ item.lastName }}
+                    </router-link>
+                </template>
+                {% endblock %}
+
+                {% block sw_settings_product_feature_set_list_grid_columns_actions %}
+                <template #actions="{ item }">
+                    <sw-context-menu-item
+                        target="_blank"
+                        rel="noopener"
+                        :router-link="{ name: 'sw.customer.detail', params: { id: item.id } }"
+                    >
+                        {{ $tc('sw-order.initialModal.customerGrid.contextOpenButton') }}
+                    </sw-context-menu-item>
+                </template>
+                {% endblock %}
+            </sw-entity-listing>
+            {% endblock %}
+
+            {% block sw_order_customer_grid_empty_state %}
+            <sw-empty-state
+                v-if="showEmptyState"
+                class="sw-order-customer-grid__empty-state"
+                :show-description="false"
+                :title="emptyTitle"
+            >
+                {% block sw_order_customer_grid_empty_state_icon %}
+                <template #icon>
+                    <img
+                        :src="'/administration/static/img/empty-states/customer-empty-state.svg' | asset"
+                        :alt="$tc('sw-customer.list.messageEmpty')"
+                    >
+                </template>
+                {% endblock %}
+            </sw-empty-state>
+            {% endblock %}
+        </div>
+
+        {% block sw_order_customer_grid_new_customer_modal %}
+        <sw-order-new-customer-modal
+            v-if="showNewCustomerModal"
+            @on-select-existing-customer="onSelectExistingCustomer"
+            @close="showNewCustomerModal = false"
+        />
+        {% endblock %}
+    </template>
+</sw-card>
+{% endblock %}

@@ -9,8 +9,6 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-customer-base-form', {
     template,
 
-    inject: ['feature'],
-
     props: {
         customer: {
             type: Object,

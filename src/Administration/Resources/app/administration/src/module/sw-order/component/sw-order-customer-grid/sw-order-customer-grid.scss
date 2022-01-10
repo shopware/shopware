@@ -1,0 +1,103 @@
+@import '~scss/variables';
+@import '~scss/mixins';
+
+$sw-field--radio-color-border: $color-gray-300;
+
+.sw-order-customer-grid {
+    &.sw-card {
+        margin: 0;
+    }
+
+    &__empty-state {
+        .sw-empty-state__element {
+            padding: 60px 0;
+        }
+    }
+
+    &__toolbar {
+        display: flex;
+
+        .sw-card-filter {
+            flex-grow: 1;
+
+            .sw-card-filter-container .sw-simple-search-field__input input {
+                padding: 0 20px;
+            }
+        }
+    }
+
+    &__search-field {
+        width: 100%;
+    }
+
+    &__add-customer.sw-button {
+        margin-left: 22px;
+    }
+
+    &__container {
+        height: 500px;
+    }
+
+    &__content {
+        .sw-data-grid__header .sw-data-grid__row th:first-child {
+            pointer-events: none;
+
+            .sw-data-grid__cell-content {
+                display: none;
+            }
+        }
+
+        .sw-data-grid__action-edit-column {
+            display: none;
+        }
+    }
+}
+
+.sw-field__radio-input {
+    @include square(16px);
+
+    margin: 0 auto;
+    position: relative;
+
+    input[type="radio"] {
+        @include square(100%);
+
+        opacity: 0;
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        border: 0 none;
+        background: none;
+        -webkit-appearance: none;
+        cursor: pointer;
+        z-index: 2;
+
+        &:disabled ~ .sw-field__radio-state {
+            background: $color-gray-100;
+            border-color: $color-gray-300;
+            color: lighten($color-darkgray-200, 40%);
+        }
+
+        &:checked ~ .sw-field__radio-state {
+            border: 5px solid $color-shopware-brand-500;
+        }
+
+        &:checked:disabled ~ .sw-field__radio-state {
+            background: $color-gray-300;
+            border: 1px solid $color-gray-300;
+            box-shadow: inset 0 0 0 4px $color-gray-100;
+            color: lighten($color-darkgray-200, 40%);
+        }
+    }
+
+    .sw-field__radio-state {
+        @include square(100%);
+
+        z-index: 1;
+        background: $color-white;
+        color: $color-darkgray-200;
+        border: 1px solid $color-gray-300;
+        border-radius: 8px;
+    }
+}

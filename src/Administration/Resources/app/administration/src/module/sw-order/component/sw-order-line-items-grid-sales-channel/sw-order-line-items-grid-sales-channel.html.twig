@@ -25,7 +25,7 @@
 
         {% block sw_order_line_items_grid_sales_channel_create_actions_button_group %}
         <div align="right">
-            <sw-button-group>
+            <sw-button-group v-if="!feature.isActive('FEATURE_NEXT_7530')">
 
                 {% block sw_order_line_items_grid_sales_channel_add_existing_product %}
                 <sw-button
@@ -65,6 +65,18 @@
                 </sw-context-button>
                 {% endblock %}
             </sw-button-group>
+
+            {% block sw_order_line_items_grid_sales_channel_add_items %}
+            <sw-button
+                v-if="feature.isActive('FEATURE_NEXT_7530')"
+                variant="ghost"
+                size="small"
+                :disabled="isAddNewItemButtonDisabled"
+                @click="openItemsModal"
+            >
+                {{ $tc('sw-order.createBase.buttonAddItems') }}
+            </sw-button>
+            {% endblock %}
         </div>
         {% endblock %}
 
@@ -199,7 +211,9 @@
 
             {% block sw_order_line_items_grid_sales_channel_grid_columns_quantity_content %}
             <template v-else>
-                {{ item.quantity }}
+                <span class="sw-order-line-items-grid-sales-channel__quantity">
+                    {{ item.quantity }}
+                </span>
             </template>
             {% endblock %}
         </template>

@@ -22,7 +22,6 @@ function createWrapper() {
             'sw-order-user-card': true,
             'sw-container': true,
             'sw-order-state-select': true,
-            'sw-order-line-items-grid': true,
             'sw-card-section': true,
             'sw-description-list': true,
             'sw-order-saveable-field': true,

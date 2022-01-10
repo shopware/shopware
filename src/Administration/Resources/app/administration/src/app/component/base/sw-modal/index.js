@@ -124,6 +124,8 @@ Component.register('sw-modal', {
             if (this.$parent?.$el !== this.$el) {
                 // move DOM element back to vDOM parent so that Vue can remove the DOM entry on changes
                 this.$parent.$el.appendChild(this.$el);
+            } else {
+                this.$el.remove();
             }
         },
 
@@ -136,6 +138,10 @@ Component.register('sw-modal', {
         },
 
         closeModalOnClickOutside(domEvent) {
+            if (!this.closable) {
+                return;
+            }
+
             if (!this.$refs.dialog || !this.$refs.dialog.contains(domEvent.target)) {
                 this.closeModal();
             }

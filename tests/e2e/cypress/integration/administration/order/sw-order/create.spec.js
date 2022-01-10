@@ -16,6 +16,8 @@ describe('Order: Create order', () => {
     });
 
     it('@base @order: create order with an existing customer', () => {
+        cy.skipOnFeature('FEATURE_NEXT_7530');
+
         const page = new OrderPageObject();
 
         // network requests
@@ -93,10 +95,8 @@ describe('Order: Create order', () => {
         cy.get('.sw-order-detail')
             .should('be.visible');
 
-        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get(`.sw-order-detail-base ${page.elements.userMetadata}`)
-                .contains('Pep Eroni');
-        });
+        cy.get(`.sw-order-detail-base ${page.elements.userMetadata}`)
+            .contains('Pep Eroni');
 
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--label`)
             .contains('Product name');
@@ -105,6 +105,8 @@ describe('Order: Create order', () => {
     });
 
     it('@base @order: create order with a new customer, update line item and shipping cost manually', () => {
+        cy.skipOnFeature('FEATURE_NEXT_7530');
+
         const page = new OrderPageObject();
 
         // network requests
@@ -379,10 +381,8 @@ describe('Order: Create order', () => {
         cy.get('.sw-order-detail')
             .should('be.visible');
 
-        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get(`.sw-order-detail-base ${page.elements.userMetadata}`)
-                .contains('Golden Stars');
-        });
+        cy.get(`.sw-order-detail-base ${page.elements.userMetadata}`)
+            .contains('Golden Stars');
 
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--label`)
             .contains('Product name');
@@ -391,6 +391,8 @@ describe('Order: Create order', () => {
     });
 
     it('@base @order: add promotion code', () => {
+        cy.skipOnFeature('FEATURE_NEXT_7530');
+
         const page = new OrderPageObject();
 
         cy.visit(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
@@ -541,15 +543,15 @@ describe('Order: Create order', () => {
         cy.get('.sw-order-detail')
             .should('be.visible');
 
-        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get(`.sw-order-detail-base ${page.elements.userMetadata}`)
-                .contains('Pep Eroni');
-        });
+        cy.get(`.sw-order-detail-base ${page.elements.userMetadata}`)
+            .contains('Pep Eroni');
 
         cy.get('tbody .sw-data-grid__row').should('have.length', 2);
     });
 
     it('@order: add invalid promotion code', () => {
+        cy.skipOnFeature('FEATURE_NEXT_7530');
+
         const page = new OrderPageObject();
 
         // network requests
@@ -652,14 +654,83 @@ describe('Order: Create order', () => {
         cy.get('.sw-order-detail')
             .should('be.visible');
 
-        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get('.sw-order-detail-base .sw-order-user-card__metadata')
+        cy.get('.sw-order-detail-base .sw-order-user-card__metadata')
                 .contains('Pep Eroni');
-        });
 
         cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--label > .sw-data-grid__cell-content')
             .contains('Product name');
         cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--quantity > .sw-data-grid__cell-content')
+            .contains('10');
+    });
+
+    it('@base @order create new order', () => {
+        cy.onlyOnFeature('FEATURE_NEXT_7530');
+
+        const page = new OrderPageObject();
+
+        // network requests
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/cart/line-item`,
+            method: 'POST'
+        }).as('addLineItem');
+
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/cart`,
+            method: 'GET'
+        }).as('getCart');
+
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_proxy-order/**`,
+            method: 'POST'
+        }).as('saveOrder');
+
+        // navigate to order create page
+        cy.contains('Add order').click();
+
+        cy.get('.sw-order-create-initial-modal').should('be.visible');
+        cy.get('.sw-data-grid__body .sw-data-grid__row--0 input').check();
+
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.get('.sw-order-create-initial-modal__tab-product').should('not.be.disabled');
+        cy.get('.sw-order-create-initial-modal__tab-product').click();
+
+        cy.get('.sw-data-grid__body .sw-data-grid__row--0 input[type="text"]').type(10);
+        cy.get('.sw-data-grid__body .sw-data-grid__row--0 input[type="checkbox"]').check();
+
+        cy.get('.sw-button--primary').click();
+
+        cy.wait('@addLineItem').its('response.statusCode').should('equal', 200);
+
+        cy.get('.sw-order-create-initial-modal').should('not.be.exist');
+
+        cy.wait('@getCart').its('response.statusCode').should('equal', 200);
+
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--label`)
+            .contains('Product name');
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--quantity`)
+            .contains('10');
+
+        //TODO: NEXT-16672 - Check customer info and calculation summary in newly draft page
+
+        // save order
+        cy.contains('Save order')
+            .click();
+
+        // deny payment reminder
+        cy.get('.sw-order-create__remind-payment-modal-decline')
+            .click();
+
+        cy.wait('@saveOrder').its('response.statusCode').should('equal', 200);
+
+        // assert saving successful
+        cy.get('.sw-order-detail').should('be.visible');
+
+        //TODO: NEXT-16672 - Check customer info and calculation summary in order detail
+
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--label`)
+            .contains('Product name');
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--quantity`)
             .contains('10');
     });
 });

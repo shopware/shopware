@@ -52,7 +52,7 @@ export default class SettingsPageObject {
                 importExportProfileListing: '.sw-import-export-view-profiles__listing',
                 importExportCreateNewProfileButton: '.sw-import-export-view-profiles__create-action',
 
-                importExportProfileWizard: '.sw-import-export-new-profile-wizard',
+                importExportProfileWizard: '.sw-modal .sw-import-export-new-profile-wizard',
                 importExportWizardGeneralPage: '.sw-import-export-edit-profile-general',
                 importExportWizardCsvPage: '.sw-import-export-new-profile-wizard-csv-page',
                 importExportWizardMappingPage: '.sw-import-export-new-profile-wizard-mapping-page',

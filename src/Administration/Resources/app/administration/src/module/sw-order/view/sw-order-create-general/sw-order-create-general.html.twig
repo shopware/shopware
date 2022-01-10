@@ -1,0 +1,41 @@
+{% block sw_order_create_general %}
+<div class="sw-order-create-general">
+    {% block sw_order_create_general_info_card %}
+    <sw-card
+        class="sw-order-create-general__general-info"
+        position-identifier="sw-order-create-general-info"
+        :title="$tc('sw-order.createBase.generalTab.labelGeneralInfoCard')"
+    >
+        TODO: NEXT-16672 - Display newly created admin order as a draft
+        <br>Add customer info view
+    </sw-card>
+    {% endblock %}
+
+    {% block sw_order_create_general_line_items %}
+    <sw-card
+        class="sw-order-create-general__line-items"
+        position-identifier="sw-order-create-line-items"
+        :is-loading="isLoading"
+        :title="$tc('sw-order.createBase.generalTab.labelLineItemsCard')"
+    >
+        <template #grid>
+            {% block sw_order_create_general_line_items_grid %}
+            <sw-order-line-items-grid-sales-channel
+                editable
+                :cart="cart"
+                :currency="currency"
+                :sales-channel-id="salesChannelId"
+                :is-loading="isLoading"
+                :is-customer-active="isCustomerActive"
+                @on-save-item="onSaveItem"
+                @on-remove-items="onRemoveItems"
+            />
+            {% endblock %}
+
+            TODO: NEXT-16672 - Display newly created admin order as a draft
+            <br>Add summary view
+        </template>
+    </sw-card>
+    {% endblock %}
+</div>
+{% endblock %}

@@ -10,6 +10,11 @@ describe('create role with different permissions', () => {
             method: 'POST'
         }).as('aclRoleSearch');
 
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/acl-role`,
+            method: 'POST'
+        }).as('aclRoleSave');
+
         const permission = '.sw-users-permissions-permissions-grid';
         const detailedPermission = '.sw-users-permissions-detailed-permissions-grid';
         const additionalPermission = '.sw_users_permissions_additional_permissions_system';
@@ -40,12 +45,12 @@ describe('create role with different permissions', () => {
         cy.get('.sw-button-process').click();
         cy.get('#sw-field--confirm-password').clearTypeAndCheck('shopware');
         cy.get('.sw-modal__footer > .sw-button--primary > .sw-button__content').click();
-        cy.wait('@aclRoleSearch').its('response.statusCode').should('equal', 200);
-        cy.get('.sw-loader').should('not.exist');
+        cy.wait('@aclRoleSave').its('response.statusCode').should('equal', 204);
+        cy.get('.sw-modal__dialog').should('not.exist');
+        cy.get('.sw-button__loader').should('not.exist');
 
         //go to User Permissions Page and verify if it is save
         cy.get('.icon--default-arrow-head-left > svg').click();
-        cy.visit(`${Cypress.env('admin')}#/sw/users/permissions/index`);
         cy.wait('@aclRoleSearch').its('response.statusCode').should('equal', 200);
         cy.get('.sw-users-permissions-role-listing__toolbar > .sw-container > .sw-button').should('be.visible');
         cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--name > .sw-data-grid__cell-content')

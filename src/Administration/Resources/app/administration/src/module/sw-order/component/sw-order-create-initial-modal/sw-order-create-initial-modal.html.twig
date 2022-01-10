@@ -1,0 +1,153 @@
+{% block sw_order_create_modal %}
+<sw-modal
+    class="sw-order-create-initial-modal"
+    :closable="false"
+    :title="$tc('sw-order.initialModal.titleNewOrder')"
+    @modal-close="onCloseModal"
+>
+    <template #default>
+        {% block sw_order_create_modal_tabs %}
+        <sw-tabs
+            class="sw-order-create-initial-modal__tabs"
+            default-item="customer"
+            position-identifier="sw-order-create-initial-modal"
+        >
+            <template #default="{ active }">
+                {% block sw_order_create_modal_tabs_customer %}
+                <sw-tabs-item
+                    class="sw-order-create-initial-modal__tab-customer"
+                    name="customer"
+                    :active-tab="active"
+                >
+                    {{ $tc('sw-order.initialModal.tabCustomer') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_order_create_modal_tabs_products %}
+                <sw-tabs-item
+                    class="sw-order-create-initial-modal__tab-product"
+                    name="products"
+                    :active-tab="active"
+                    :disabled="!customer"
+                >
+                    {{ $tc('sw-order.initialModal.tabProducts') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_order_create_modal_tabs_custom_item %}
+                <sw-tabs-item
+                    class="sw-order-create-initial-modal__tab-custom-item"
+                    name="custom-item"
+                    :active-tab="active"
+                    :disabled="!customer"
+                >
+                    {{ $tc('sw-order.initialModal.tabCustomItem') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_order_create_modal_tabs_options %}
+                <sw-tabs-item
+                    class="sw-order-create-initial-modal__tab-options"
+                    name="options"
+                    :active-tab="active"
+                    :disabled="!customer"
+                >
+                    {{ $tc('sw-order.initialModal.tabOptions') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_order_create_modal_tabs_credit %}
+                <sw-tabs-item
+                    class="sw-order-create-initial-modal__tab-credit"
+                    name="credit"
+                    :active-tab="active"
+                    :disabled="!customer"
+                >
+                    {{ $tc('sw-order.initialModal.tabCredit') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_order_create_modal_tabs_extension %}{% endblock %}
+            </template>
+
+            <template #content="{ active }">
+                {% block sw_order_create_modal_tabs_content %}
+                <div class="sw-order-create-initial-modal__content">
+                    {% block sw_order_create_modal_tabs_content_customer %}
+                    <sw-order-customer-grid
+                        v-show="active === 'customer'"
+                    />
+                    {% endblock %}
+
+                    {% block sw_order_create_modal_tabs_content_products %}
+                    <sw-order-product-grid
+                        v-show="active === 'products'"
+                        :sales-channel-id="salesChannelId"
+                        :tax-status="taxStatus"
+                        :currency="currency"
+                        @selection-change="onProductChange"
+                    />
+                    {% endblock %}
+
+                    {% block sw_order_create_modal_tabs_content_custom_item %}
+                    <sw-order-custom-item
+                        v-if="active === 'custom-item'"
+                        :disabled="!customer"
+                        :tax-status="taxStatus"
+                        :currency="currency"
+                        :custom-item="customItem"
+                    />
+                    {% endblock %}
+
+                    {% block sw_order_create_modal_tabs_content_options %}
+                    <sw-order-create-options
+                        v-if="active === 'options'"
+                        :disabled="!customer"
+                        :promotion-codes="promotionCodes"
+                        :disabled-auto-promotions="disabledAutoPromotions"
+                        @promotions-change="updatePromotion"
+                        @auto-promotions-toggle="updateAutoPromotionsToggle"
+                    />
+                    {% endblock %}
+
+                    {% block sw_order_create_modal_tabs_content_credit %}
+                    <sw-order-credit-item
+                        v-if="active === 'credit'"
+                        :disabled="!customer"
+                        :tax-status="taxStatus"
+                        :currency="currency"
+                        :credit="creditItem"
+                    />
+                    {% endblock %}
+                </div>
+                {% endblock %}
+            </template>
+        </sw-tabs>
+        {% endblock %}
+    </template>
+
+    <template #modal-footer>
+        {% block sw_order_create_modal_footer_modal_footer_cancel %}
+        <sw-button
+            size="small"
+            @click="onCloseModal"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+        {% endblock %}
+
+        {% block sw_order_create_modal_footer_modal_footer_preview_order %}
+        <sw-button
+            size="small"
+            variant="primary"
+            :disabled="!customer"
+            :is-loading="isLoading"
+            @click="onPreviewOrder"
+        >
+            {{ $tc('sw-order.initialModal.buttonPreviewOrder') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+
+</sw-modal>
+{% endblock %}

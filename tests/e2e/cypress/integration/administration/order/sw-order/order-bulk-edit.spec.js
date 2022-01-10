@@ -23,6 +23,8 @@ describe('Order: Bulk edit orders', () => {
     });
 
     it('@package @order: should modify orders with the bulk edit functionality', () => {
+        cy.skipOnFeature('FEATURE_NEXT_7530');
+        
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/cart/line-item`,
             method: 'POST'

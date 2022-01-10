@@ -94,11 +94,11 @@ abstract class ZipCodeRule extends Rule
 
     private function getMatches(string $zipCode): array
     {
-        $zipCode = str_replace('\*', '(.*?)', preg_quote($zipCode, '/'));
-        $regex = sprintf('/^%s$/i', $zipCode);
+        return array_filter((array) $this->zipCodes, function (string $zipCodeMatch) use ($zipCode) {
+            $zipCodeMatch = str_replace('\*', '(.*?)', preg_quote($zipCodeMatch, '/'));
+            $regex = sprintf('/^%s$/i', $zipCodeMatch);
 
-        return array_filter((array) $this->zipCodes, function (string $zipCodeMatch) use ($regex) {
-            return preg_match($regex, $zipCodeMatch) === 1;
+            return preg_match($regex, $zipCode) === 1;
         });
     }
 

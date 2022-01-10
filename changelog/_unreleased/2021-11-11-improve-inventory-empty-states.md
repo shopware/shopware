@@ -2,7 +2,6 @@
 title: Improve inventory-related empty states
 issue: NEXT-18464
 author: Ramona Schwering
-flag: FEATURE_NEXT_17546
 author_github: @leichteckig
 ---
 # Administration

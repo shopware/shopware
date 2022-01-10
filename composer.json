@@ -89,7 +89,7 @@
         "psr/http-factory": "1.0.1",
         "psr/http-message": "1.0.1",
         "psr/log": "1.1.2",
-        "scssphp/scssphp": "1.9.0",
+        "scssphp/scssphp": "1.10.0",
         "sensio/framework-extra-bundle": "~6.2.1",
         "shopware/conflicts": "*",
         "sroze/messenger-enqueue-transport": "0.4.0",
@@ -290,6 +290,8 @@
         "paratest": [
             "paratest --configuration phpunit.xml.dist --testsuite=paratest --exclude-group=skip-paratest,needsWebserver --processes $(nproc)"
         ],
+        "locust:init": "php src/Core/DevOps/Locust/setup.php",
+        "locust:run": "cd src/Core/DevOps/Locust && locust",
         "init:e2e": "@npm:e2e clean-install",
         "init:e2e:admin": "@npm:e2e:admin clean-install",
         "init:e2e:storefront": "@npm:e2e:storefront clean-install",

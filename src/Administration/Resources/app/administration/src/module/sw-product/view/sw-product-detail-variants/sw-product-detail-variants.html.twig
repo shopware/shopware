@@ -25,10 +25,7 @@
 
         {% block sw_product_detail_variants_sw_card_empty_state %}
         <template v-if="!variantListHasContent && !isLoading">
-            <div
-                v-if="feature.isActive('FEATURE_NEXT_17546')"
-                class="sw-product-detail-variants__generated-variants-empty-state"
-            >
+            <div class="sw-product-detail-variants__generated-variants-empty-state">
 
                 {% block sw_product_detail_variants_sw_card_empty_state_variant %}
                 <sw-empty-state
@@ -104,32 +101,6 @@
                 </sw-empty-state>
                 {% endblock %}
             </div>
-            <div
-                v-else
-                class="sw-product-detail-variants__generated-variants-empty-state"
-            >
-                <img
-                    :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
-                    alt=""
-                >
-
-                <div class="sw-product-detail-variants__generated-variants-empty-state--label">
-                    <p>{{ $tc('sw-product.variations.emptyStateDescription') }}</p>
-                </div>
-
-                <sw-button
-                    v-tooltip="{
-                        message: $tc('sw-privileges.tooltip.warning'),
-                        disabled: acl.can('product.creator'),
-                        showOnDisabledElements: true
-                    }"
-                    variant="ghost"
-                    :disabled="!acl.can('product.creator')"
-                    @click="openModal('variantGeneration')"
-                >
-                    {{ $tc('sw-product.variations.emptyStateButton') }}
-                </sw-button>
-            </div>
         </template>
         {% endblock %}
 
@@ -163,7 +134,7 @@
 
     {% block sw_product_properties_add_properties_modal %}
     <sw-product-add-properties-modal
-        v-if="showAddPropertiesModal && feature.isActive('FEATURE_NEXT_17546')"
+        v-if="showAddPropertiesModal"
         :new-properties="newProperties"
         @update-new-properties-item="updateNewPropertiesItem"
         @add-new-properties-item="addNewPropertiesItem"

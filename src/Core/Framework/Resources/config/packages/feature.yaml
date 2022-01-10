@@ -250,11 +250,6 @@ shopware:
         major: true
         description: "Fix media resolution in theme"
         # issue: NEXT-19048
-      - name: FEATURE_NEXT_17546
-        default: false
-        major: false
-        description: "Easy Products Creation"
-        # issue: NEXT-17546
       - name: FEATURE_NEXT_17421
         default: false
         major: false

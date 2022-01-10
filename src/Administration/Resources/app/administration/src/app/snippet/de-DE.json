@@ -676,6 +676,7 @@
         "lineItemDimensionWeightRule": "Positionen mit Gewicht",
         "lineItemDimensionVolumeRule": "Positionen mit Volumen",
         "lineItemListPriceRule": "Positionen mit Streichpreis",
+        "lineItemListPriceRatioRule": "Positionen mit prozentualen Preis/Streichpreis Verhältnis",
         "lineItemStockRule": "Positionen mit Lagerbestand",
         "paymentMethodRule": "Verwendete Zahlungsart",
         "shippingMethodRule": "Verwendete Versandart",

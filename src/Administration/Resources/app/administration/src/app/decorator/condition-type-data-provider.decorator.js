@@ -446,6 +446,12 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         scopes: ['lineItem'],
         group: 'item',
     });
+    ruleConditionService.addCondition('cartLineItemListPriceRatio', {
+        component: 'sw-condition-line-item-list-price-ratio',
+        label: 'global.sw-condition.condition.lineItemListPriceRatioRule',
+        scopes: ['lineItem'],
+        group: 'item',
+    });
     ruleConditionService.addCondition('cartLineItemCustomField', {
         component: 'sw-condition-line-item-custom-field',
         label: 'global.sw-condition.condition.lineItemCustomFieldRule',

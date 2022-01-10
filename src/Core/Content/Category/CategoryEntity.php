@@ -23,6 +23,11 @@ class CategoryEntity extends Entity
     /**
      * @var string|null
      */
+    public $afterCategoryId;
+
+    /**
+     * @var string|null
+     */
     protected $parentId;
 
     /**
@@ -104,11 +109,6 @@ class CategoryEntity extends Entity
      * @var ProductCollection|null
      */
     protected $nestedProducts;
-
-    /**
-     * @var string|null
-     */
-    protected $afterCategoryId;
 
     /**
      * @var TagCollection|null

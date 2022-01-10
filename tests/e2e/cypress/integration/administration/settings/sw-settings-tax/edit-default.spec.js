@@ -3,10 +3,6 @@
 import SettingsPageObject from '../../../../support/pages/module/sw-settings.page-object';
 
 describe('Tax: Test default tax rates', () => {
-    before(() => {
-        cy.onlyOnFeature('FEATURE_NEXT_17546');
-    });
-
     beforeEach(() => {
         cy.loginViaApi()
             .then(() => {

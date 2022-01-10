@@ -36,7 +36,7 @@
   "dependencies": {
     "@babel/preset-typescript": "7.15.0",
     "@babel/runtime": "7.13.17",
-    "@shopware-ag/admin-extension-sdk": "0.0.30",
+    "@shopware-ag/admin-extension-sdk": "0.0.33",
     "@shopware-ag/eslint-config-base": "1.0.0",
     "@shopware-ag/webpack-copy-after-build": "1.0.1",
     "@shopware-ag/webpack-kill-process-on-failed-build": "1.0.0",
@@ -101,7 +101,7 @@
     "@babel/plugin-transform-runtime": "7.13.15",
     "@babel/preset-env": "7.13.15",
     "@babel/register": "7.13.16",
-    "@shopware-ag/jest-preset-sw6-admin": "2.0.0-beta.1",
+    "@shopware-ag/jest-preset-sw6-admin": "2.0.0-beta.3",
     "@testing-library/jest-dom": "5.13.0",
     "@types/lodash": "4.14.172",
     "@vue/test-utils": "1.1.0",

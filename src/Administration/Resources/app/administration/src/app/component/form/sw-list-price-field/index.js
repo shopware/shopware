@@ -8,8 +8,6 @@ Component.register('sw-list-price-field', {
 
     inheritAttrs: false,
 
-    inject: ['feature'],
-
     props: {
         price: {
             type: Array,
@@ -196,13 +194,6 @@ Component.register('sw-list-price-field', {
             }
 
             return this.$tc('global.sw-list-price-field.helpTextListPriceGross');
-        },
-
-        displayError() {
-            if (this.feature.isActive('FEATURE_NEXT_17546')) {
-                return null;
-            }
-            return this.error;
         },
     },
 

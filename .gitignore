@@ -77,6 +77,7 @@ src/Docs/Command/wiki.secret
 /dev-ops/check_requirements.php
 /performance/_fixtures.php
 /src/Docs/**/dist
+/src/Core/DevOps/Locust/fixtures/*
 
 # tests / ci
 /build/

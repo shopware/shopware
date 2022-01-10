@@ -8,7 +8,7 @@ const { debounce, get } = Shopware.Utils;
 Component.register('sw-entity-single-select', {
     template,
 
-    inject: { repositoryFactory: 'repositoryFactory', feature: 'feature' },
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('remove-api-error'),
@@ -249,7 +249,7 @@ Component.register('sw-entity-single-select', {
         loadData() {
             this.isLoading = true;
 
-            if (this.allowEntityCreation && this.feature.isActive('FEATURE_NEXT_17546')) {
+            if (this.allowEntityCreation) {
                 return this.checkEntityExists(this.searchTerm).then(() => {
                     if (!this.entityExists) {
                         const newEntity = this.repository.create(this.context, -1);
@@ -406,7 +406,7 @@ Component.register('sw-entity-single-select', {
             }
 
             // Add new entity if not exists yet
-            if (this.allowEntityCreation && !this.entityExists && this.feature.isActive('FEATURE_NEXT_17546')) {
+            if (this.allowEntityCreation && !this.entityExists) {
                 this.addItem(item);
                 return item;
             }

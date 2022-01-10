@@ -210,10 +210,7 @@
             {% endblock %}
         </template>
 
-        <template
-            v-if="feature.isActive('FEATURE_NEXT_17546')"
-            #actions
-        >
+        <template #actions>
             {% block sw_product_properties_empty_state_button_property %}
             <sw-button
                 variant="ghost"

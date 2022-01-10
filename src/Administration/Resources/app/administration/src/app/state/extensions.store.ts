@@ -1,24 +1,20 @@
 import Vue from 'vue';
 import type { Module } from 'vuex';
+import type { extensions, privileges } from '@shopware-ag/admin-extension-sdk/es/privileges/privilege-resolver';
 
-interface ExtensionsState {
-    [extensionName: string]: {
-        baseUrl: string
-    }
-}
-
-const ExtensionsStore: Module<ExtensionsState, VuexRootState> = {
+const ExtensionsStore: Module<extensions, VuexRootState> = {
     namespaced: true,
 
-    state: (): ExtensionsState => ({}),
+    state: (): extensions => ({}),
 
     mutations: {
-        addExtension(state, { name, baseUrl }: { name: string, baseUrl: string }) {
+        addExtension(state, { name, baseUrl, permissions }: { name: string, baseUrl: string, permissions: privileges }) {
             if (!state[name]) {
                 Vue.set(state, name, {});
             }
 
             Vue.set(state[name], 'baseUrl', baseUrl);
+            Vue.set(state[name], 'permissions', permissions);
         },
     },
 
@@ -32,4 +28,3 @@ const ExtensionsStore: Module<ExtensionsState, VuexRootState> = {
 };
 
 export default ExtensionsStore;
-export type { ExtensionsState };

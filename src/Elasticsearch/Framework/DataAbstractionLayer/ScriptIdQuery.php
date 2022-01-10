@@ -18,7 +18,7 @@ class ScriptIdQuery implements BuilderInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return string
      */
     public function getType()
     {

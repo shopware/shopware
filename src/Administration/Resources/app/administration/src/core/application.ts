@@ -1,4 +1,5 @@
 import type Bottle from 'bottlejs';
+import Vue from 'vue';
 import type ViewAdapter from './adapter/view.adapter';
 import { ContextState } from '../app/state/context.store';
 /**
@@ -659,13 +660,25 @@ class ApplicationBootstrapper {
     }
 
     /**
-     * Inject hiden iframes
+     * Inject hidden iframes
      */
     private injectIframe(bundleName: string, iframeSrc: string): void {
-        Shopware.State.commit('extensions/addExtension', {
+        const bundles = Shopware.Context.app.config.bundles;
+        let permissions = null;
+
+        if (bundles && bundles.hasOwnProperty(bundleName)) {
+            permissions = bundles[bundleName].permissions;
+        }
+
+        const extension = {
             name: bundleName,
             baseUrl: iframeSrc,
-        });
+        };
+
+        // To keep permissions reactive no matter if empty or not
+        Vue.set(extension, 'permissions', permissions ?? Vue.observable({}));
+
+        Shopware.State.commit('extensions/addExtension', extension);
     }
 }
 

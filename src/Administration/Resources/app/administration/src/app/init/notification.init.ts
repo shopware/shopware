@@ -1,8 +1,6 @@
-import { handle } from '@shopware-ag/admin-extension-sdk/es/channel';
-
 export default function initializeNotifications(): void {
     // Handle incoming notifications from the ExtensionAPI
-    handle('notificationDispatch', async (notificationOptions) => {
+    Shopware.ExtensionAPI.handle('notificationDispatch', async (notificationOptions) => {
         // @ts-expect-error
         const viewRoot = Shopware.Application.view.root;
         // @ts-expect-error

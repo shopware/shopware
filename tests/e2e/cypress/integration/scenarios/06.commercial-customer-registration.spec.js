@@ -6,6 +6,7 @@ describe('@package: Admin & Storefront - commercial customer registration by usi
     beforeEach(() => {
         cy.loginViaApi().then(() => cy.createProductFixture());
     });
+       
     // TODO Unskip with NEXT-19511, after flakiness is fixed
     it.skip('Add initial settings', ()=>{
         cy.visit(`${Cypress.env('admin')}#/sw/settings/shipping/index`);

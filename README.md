@@ -26,7 +26,7 @@ Shopware 6 is an open headless commerce platform powered by [Symfony 5.4](https:
 
 If you like Shopware 6, give us a&nbsp;⭐️ &nbsp;on Github
 
-* 🙋‍♂️ &nbsp;[Be part of shopware!](https://jobs.shopware.com) ‍&nbsp;We are hiring!  🙋
+* 🙋‍♂️ &nbsp;[Be part of shopware!](https://www.shopware.com/en/jobs/) ‍&nbsp;We are hiring!  🙋
 * 🌎 &nbsp;Discover our [website](https://en.shopware.com)
 * 🧩 &nbsp;Browse more then [1.500 apps](https://store.shopware.com) that are already available
 * 📖 &nbsp;Learn how to [develop apps](https://developer.shopware.com/docs/) and everything else about the tech behind shopware

@@ -6,7 +6,8 @@ describe('@package: Admin & Storefront - commercial customer registration by usi
     beforeEach(() => {
         cy.loginViaApi().then(() => cy.createProductFixture());
     });
-
+       
+    // TODO Unskip with NEXT-19511, after flakiness is fixed
     it.skip('Add initial settings', ()=>{
         cy.visit(`${Cypress.env('admin')}#/sw/settings/shipping/index`);
         cy.url().should('include', 'settings/shipping/index');
@@ -21,8 +22,8 @@ describe('@package: Admin & Storefront - commercial customer registration by usi
             .selectPaymentMethodForSalesChannel('Invoice')
             .selectShippingMethodForSalesChannel('Express');
     });
-
-    it('Add product via API', ()=>{
+    // TODO Unskip with NEXT-19511, after flakiness is fixed
+    it.skip('Add product via API', ()=>{
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/sync`,
             method: 'post'

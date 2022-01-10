@@ -341,6 +341,36 @@ To add your cookie to the group of technical required cookies the entry in the m
 </cookies>
 ```
 For a detailed explanation refer to this [HowTo](./../50-how-to/730-add-plugin-cookies.md). Keep in mind that you won't need to provide a custom CookieProvider, but can add your cookies to the cookie consent manager via entries in your manifest file. 
+
+### App Notification
+Starting from Shopware version 6.4.7.0, If you want to send notifications to the admin, to inform the user about some actions that happened on the app side, the app should send a POST request to the `api/notification` endpoint with a valid body and the header `Authorization` token.
+Your app can request 10 times before being delayed by the system.
+
+After 10 attempts you need to wait 10 seconds before trying to make requests again.
+After 15 attempts it's 30 seconds.
+After 20 attempts it's 60 seconds.
+After 24 hours without a failed request the limit is reset.
+
+Examples request body:
+You need to pass the `status` property, the content of the notification as `message` property and you can restrict users who can read the notification by passing `requiredPrivileges` property and `adminOnly` property inside the payload.
+When `adminOnly` is true, only admins can read this notification. If you don't send the `adminOnly`, you can pass the `requiredPrivileges` property so that users with specific permissions can read the notification. Otherwise, it will be showed to all users.
+```
+POST /api/notification
+{
+    "status": "success",
+    "message": "This is a successful message",
+    "adminOnly": "true",
+    "requiredPrivileges": []
+}
+
+```
+* `status`: Notification status, including `success`, `error`, `info`, `warning`
+* `message`: The content of the notification
+* `adminOnly`: Only admins can read this notification if this value is true
+* `requiredPrivileges`: The required privileges that users need to have to read the notification
+
+Keep in mind that your app needs the `notification:create` permission to access this api.
+
 ## Examples
 
 ### One full example of a manifest file

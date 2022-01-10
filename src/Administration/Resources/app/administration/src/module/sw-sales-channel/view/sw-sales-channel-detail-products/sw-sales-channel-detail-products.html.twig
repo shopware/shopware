@@ -66,12 +66,26 @@
                     :allow-edit="acl.can('product.editor')"
                     :allow-delete="acl.can('sales_channel.deleter')"
                 >
+                    <template #column-name="{ item }">
+                        <slot v-bind="{ item }">
+                            {% block sw_sales_channel_detail_products_listing_column_name %}
+                            <sw-product-variant-info
+                                :variations="item.variation"
+                            >
+                                <router-link :to="{ name: 'sw.product.detail', params: { id: item.id } }">
+                                    {{ item.translated.name || item.name }}
+                                </router-link>
+                            </sw-product-variant-info>
+                            {% endblock %}
+                        </slot>
+                    </template>
+
                     <template #column-active="{ item }">
                         {% block sw_sales_channel_detail_products_listing_column_active %}
                         <sw-icon
                             small
-                            :name="item.active ? 'small-default-checkmark-line-medium' : 'small-default-x-line-medium'"
-                            :color="item.active ? '#37d046' : '#de294c'"
+                            :name="item.active === false ? 'small-default-x-line-medium' : 'small-default-checkmark-line-medium'"
+                            :color="item.active === false ? '#de294c' : '#37d046'"
                         />
                         {% endblock %}
                     </template>

@@ -250,33 +250,34 @@ Component.register('sw-entity-single-select', {
             this.isLoading = true;
 
             if (this.allowEntityCreation) {
-                return this.checkEntityExists(this.searchTerm).then(() => {
+                this.checkEntityExists(this.searchTerm).then(() => {
                     if (!this.entityExists) {
-                        const newEntity = this.repository.create(this.context, -1);
-                        newEntity.name = this.$tc('global.sw-single-select.labelEntityAdd',
-                            0,
-                            {
-                                term: this.searchTerm,
-                                entity: this.entityCreationLabel,
-                            });
+                        const criteria = new Criteria();
+                        criteria.addFilter(
+                            Criteria.contains('name', this.searchTerm),
+                        );
 
-                        this.newEntityName = this.searchTerm;
-                        this.displaySearch([newEntity]);
-                        this.isLoading = false;
+                        return this.repository.search(criteria, {
+                            ...this.context,
+                            inheritance: true,
+                        }).then((result) => {
+                            this.resultCollection = result;
 
-                        return null;
+                            const newEntity = this.repository.create(this.context, -1);
+                            newEntity.name = this.$tc('global.sw-single-select.labelEntityAdd',
+                                0,
+                                {
+                                    term: this.searchTerm,
+                                    entity: this.entityCreationLabel,
+                                });
+                            this.resultCollection.unshift(newEntity);
+                        });
                     }
 
-                    return this.repository.search(this.criteria, {
-                        ...this.context,
-                        inheritance: true,
-                    }).then((result) => {
-                        this.displaySearch(result);
-
-                        this.isLoading = false;
-
-                        return result;
-                    });
+                    this.newEntityName = this.searchTerm;
+                    this.displaySearch(this.resultCollection);
+                    this.isLoading = false;
+                    return null;
                 });
             }
 
@@ -406,12 +407,11 @@ Component.register('sw-entity-single-select', {
             }
 
             // Add new entity if not exists yet
-            if (this.allowEntityCreation && !this.entityExists) {
-                this.addItem(item);
-                return item;
+            if (this.allowEntityCreation && !this.entityExists && item.id === -1) {
+                return this.addItem(item);
             }
 
-            // This is a little against v-model. But so we dont need to load the selected item on every selection
+            // This is a little against v-model. But so we don't need to load the selected item on every selection
             // from the server
             this.lastSelection = item;
             this.$emit('change', item.id, item);
@@ -424,13 +424,8 @@ Component.register('sw-entity-single-select', {
             if (!this.allowEntityCreation) {
                 return null;
             }
-
-            if (item.id === -1) {
-                this.createNewEntity();
-            } else {
-                this.$super('addItem', item);
-            }
-            return null;
+            this.createNewEntity();
+            return item;
         },
 
         clearSelection() {

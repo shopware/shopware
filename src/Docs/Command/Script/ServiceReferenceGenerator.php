@@ -352,11 +352,20 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
             $typeName = $type->getName();
         }
 
+        $link = $this->getLinkForClass($typeName, $scriptServices);
+        if ($link) {
+            $typeName = \sprintf('[`%s`](%s)', $typeName, $link);
+        } else {
+            $typeName = '`' . $typeName . '`';
+        }
+
+        if ($type instanceof \ReflectionType && $type->allowsNull()) {
+            $typeName .= ' | `null`';
+        }
+
         return [
             'type' => $typeName,
             'description' => $tag->getDescription() ? $tag->getDescription()->render() : '',
-            'link' => $this->getLinkForClass($typeName, $scriptServices),
-            'nullable' => $type instanceof \ReflectionType && $type->allowsNull(),
         ];
     }
 

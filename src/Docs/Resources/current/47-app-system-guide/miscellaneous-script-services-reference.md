@@ -20,129 +20,85 @@ Examples:
 
 ### set()
 
-`set()` adds a new element to the array using the given key.
+* `set()` adds a new element to the array using the given key.
 
+    
+* **Arguments:**
+    * *`string|int`* **key**: The array key.
+    * *`string|int|float|array|object|bool|null`* **value**: The value that should be added.
+* **Examples:**
+    * Add a new element with key `test` and value 1.
 
-#### Arguments
-
-##### `key`: string|int
-
-The array key.
-
-##### `value`: string|int|float|array|object|bool|null
-
-The value that should be added.
-
-
-
-#### Examples
-
-Add a new element with key `test` and value 1.
-```twig
-{% set product = services.cart.products.get(hook.ids.get('p1')) %}
-
-{% do product.payload.set('test', 1) %}
-```
+        ```twig
+        {% set product = services.cart.products.get(hook.ids.get('p1')) %}
+		
+		{% do product.payload.set('test', 1) %}
+        ```
 ### push()
 
-`push()` adds a new value to the end of the array.
+* `push()` adds a new value to the end of the array.
 
-
-#### Arguments
-
-##### `value`: string|int|float|array|object|bool|null
-
-The value that should be added.
-
-
-
+    
+* **Arguments:**
+    * *`string|int|float|array|object|bool|null`* **value**: The value that should be added.
 ### removeBy()
 
-`removeBy()` removes the value at the given index from the array.
+* `removeBy()` removes the value at the given index from the array.
 
-
-#### Arguments
-
-##### `index`: string|int
-
-The index that should be removed.
-
-
-
+    
+* **Arguments:**
+    * *`string|int`* **index**: The index that should be removed.
 ### remove()
 
-`remove()` removes the given value from the array. It does nothing if the provided value does not exist in the array.
+* `remove()` removes the given value from the array. It does nothing if the provided value does not exist in the array.
 
-
-#### Arguments
-
-##### `value`: string|int|float|array|object|bool|null
-
-The value that should be removed.
-
-
-
+    
+* **Arguments:**
+    * *`string|int|float|array|object|bool|null`* **value**: The value that should be removed.
 ### reset()
 
-`reset()` removes all entries from the array.
+* `reset()` removes all entries from the array.
 
-
-
+    
 ### merge()
 
-`merge()` recursively merges the array with the given array.
+* `merge()` recursively merges the array with the given array.
 
+    
+* **Arguments:**
+    * *`array|\ArrayFacade`* **array**: The array that should be merged with this array. Either a plain `array` or another `ArrayFacade`.
+* **Examples:**
+    * Merge two arrays.
 
-#### Arguments
-
-##### `array`: array|\ArrayFacade
-
-The array that should be merged with this array. Either a plain `array` or another `ArrayFacade`.
-
-
-
-#### Examples
-
-Merge two arrays.
-```twig
-{% set my_array = array({'bar': 'foo', 'baz': true}) %}
-
-{% do product.payload.merge(my_array) %}
-```
+        ```twig
+        {% set my_array = array({'bar': 'foo', 'baz': true}) %}
+		
+		{% do product.payload.merge(my_array) %}
+        ```
 ### replace()
 
-`replace()` recursively replaces elements from the given array into this array.
+* `replace()` recursively replaces elements from the given array into this array.
 
+    
+* **Arguments:**
+    * *`array|\ArrayFacade`* **array**: The array from which the elements should be replaced into this array. Either a plain `array` or another `ArrayFacade`.
+* **Examples:**
+    * Replace elements in the product payload array.
 
-#### Arguments
-
-##### `array`: array|\ArrayFacade
-
-The array from which the elements should be replaced into this array. Either a plain `array` or another `ArrayFacade`.
-
-
-
-#### Examples
-
-Replace elements in the product payload array.
-```twig
-{% set second = array({'bar': 'baz'}) %}
-
-{% do product.payload.replace(second) %}
-```
+        ```twig
+        {% set second = array({'bar': 'baz'}) %}
+		
+		{% do product.payload.replace(second) %}
+        ```
 ### count()
 
-`count()` returns the count of elements inside this array.
+* `count()` returns the count of elements inside this array.
 
+    
+* **Returns** `int`
 
-#### Return value
-
-**Type**: `int`
-
-Returns the count of elements.
-
-
-
+    Returns the count of elements.
+_________
 ## [services.config (`Shopware\Core\System\SystemConfig\Facade\SystemConfigFacade`)](https://github.com/shopware/platform/blob/trunk/src/Core/System/SystemConfig/Facade/SystemConfigFacade.php) {#SystemConfigFacade}
 
 The `config` service allows you to access the shop's and your app's configuration values.
@@ -150,61 +106,40 @@ The `config` service allows you to access the shop's and your app's configuratio
 
 ### get()
 
-The `get()` method allows you to access all config values of the store.
-Notice that your app needs the `system_config:read` privilege to use this method.
+* The `get()` method allows you to access all config values of the store.
 
-#### Arguments
+    Notice that your app needs the `system_config:read` privilege to use this method.
+* **Returns** `array|bool|float|int|string|null`
 
-##### `key`: string
+    
+* **Arguments:**
+    * *`string`* **key**: The key of the configuration value e.g. `core.listing.defaultSorting`.
+    * *`string` | `null`* **salesChannelId**: The SalesChannelId if you need the config value for a specific SalesChannel, if you don&#039;t provide a SalesChannelId, the one of the current Context is used as default.
 
-The key of the configuration value e.g. `core.listing.defaultSorting`.
+        Default: `null`
+* **Examples:**
+    * Read an arbitrary system_config value.
 
-##### `salesChannelId`: string | null
-**Default**: null
-
-The SalesChannelId if you need the config value for a specific SalesChannel, if you don&#039;t provide a SalesChannelId, the one of the current Context is used as default.
-
-
-#### Return value
-
-**Type**: `array|bool|float|int|string|null`
-
-
-
-#### Examples
-
-Read an arbitrary system_config value.
-```twig
-{% set systemConfig = services.config.get('core.listing.productsPerPage') %}
-```
+        ```twig
+        {% set systemConfig = services.config.get('core.listing.productsPerPage') %}
+        ```
 ### app()
 
-The `app()` method allows you to access the config values your app's configuration.
-Notice that your app does not need any additional privileges to use this method, as you can only access your own app's configuration.
+* The `app()` method allows you to access the config values your app's configuration.
 
-#### Arguments
+    Notice that your app does not need any additional privileges to use this method, as you can only access your own app's configuration.
+* **Returns** `array|bool|float|int|string|null`
 
-##### `key`: string
+    
+* **Arguments:**
+    * *`string`* **key**: The name of the configuration value specified in the config.xml e.g. `exampleTextField`.
+    * *`string` | `null`* **salesChannelId**: The SalesChannelId if you need the config value for a specific SalesChannel, if you don&#039;t provide a SalesChannelId, the one of the current Context is used as default.
 
-The name of the configuration value specified in the config.xml e.g. `exampleTextField`.
+        Default: `null`
+* **Examples:**
+    * Read your app's config value.
 
-##### `salesChannelId`: string | null
-**Default**: null
-
-The SalesChannelId if you need the config value for a specific SalesChannel, if you don&#039;t provide a SalesChannelId, the one of the current Context is used as default.
-
-
-#### Return value
-
-**Type**: `array|bool|float|int|string|null`
-
-
-
-#### Examples
-
-Read your app&#039;s config value.
-```twig
-{% set appConfig = services.config.app('app_config') %}
-```
-
-
+        ```twig
+        {% set appConfig = services.config.app('app_config') %}
+        ```
+_________

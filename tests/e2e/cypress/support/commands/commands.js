@@ -505,7 +505,6 @@ Cypress.Commands.add('selectCurrencyForSalesChannel', (currency) => {
             cy.get('.sw-sales-channel-detail__assign-currencies').type(currency).should('be.visible');
             cy.wait('@currency').its('response.statusCode').should('equal', 200);
             cy.contains('.sw-select-result', currency).should('be.visible').click();
-            cy.wait('@currency').its('response.statusCode').should('equal', 200);
         }
     });
     cy.get('.sw-sales-channel-detail__save-action').click();

@@ -189,6 +189,12 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         scopes: ['checkout'],
         group: 'customer',
     });
+    ruleConditionService.addCondition('customerIsGuest', {
+        component: 'sw-condition-is-guest',
+        label: 'global.sw-condition.condition.isGuestRule',
+        scopes: ['checkout'],
+        group: 'customer',
+    });
     ruleConditionService.addCondition('customerIsNewsletterRecipient', {
         component: 'sw-condition-is-newsletter-recipient',
         label: 'global.sw-condition.condition.isNewsletterRecipient',

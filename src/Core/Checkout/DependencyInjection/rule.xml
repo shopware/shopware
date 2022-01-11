@@ -116,6 +116,10 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Rule\IsGuestCustomerRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Rule\IsNewsletterRecipientRule">
             <tag name="shopware.rule.definition"/>
         </service>

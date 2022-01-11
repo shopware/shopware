@@ -12,6 +12,10 @@
     {% set filterRangeErrorMessage = 'listing.filterRangeErrorMessage'|trans|sw_sanitize %}
 {% endif %}
 
+{% if filterRangeLowerBoundErrorMessage is not defined %}
+    {% set filterRangeLowerBoundErrorMessage = 'listing.filterRangeLowerBoundErrorMessage'|trans({'%lowerBound%': lowerBound})|sw_sanitize %}
+{% endif %}
+
 {% if minKey is not defined %}
     {% set minKey = 'min-price' %}
 {% endif %}
@@ -36,10 +40,6 @@
 {% if maxInputValue is not defined %}
     {# @deprecated tag:v6.5.0 - use maxInputValue instead of price #}
     {% set maxInputValue = price.max %}
-{% endif %}
-
-{% if filterRangeLowerBoundErrorMessage is not defined %}
-    {% set filterRangeLowerBoundErrorMessage = 'listing.filterRangeLowerBoundErrorMessage'|trans({'%lowerBound%': lowerBound})|sw_sanitize %}
 {% endif %}
 
 {% set filterRangeOptions = {
@@ -109,8 +109,8 @@
 
                                 {% block component_filter_range_min_unit %}
                                     {% block component_filter_range_min_currency_symbol %}
-                                        {% deprecated '@deprecated tag:v6.5.0 - Use `component_filter_range_min_unit` instead' %}
-                                        {% deprecated '@deprecated tag:v6.5.0 - `filter-range-currency-symbol` will be removed, use `filter-range-unit` instead' %}
+                                        {% deprecated '@deprecated tag:v6.5.0 - The block `component_filter_range_min_currency_symbol` will be renamed, use block `component_filter_range_min_unit` instead' %}
+                                        {# @deprecated tag:v6.5.0 - `filter-range-currency-symbol` will be removed, use `filter-range-unit` instead #}
                                         <span class="filter-range-unit filter-range-currency-symbol">
                                             {{ unit }}
                                         </span>
@@ -142,8 +142,8 @@
 
                                 {% block component_filter_range_max_unit %}
                                     {% block component_filter_range_max_currency_symbol %}
-                                        {% deprecated '@deprecated tag:v6.5.0 - Use `component_filter_range_max_unit` instead' %}
-                                        {% deprecated '@deprecated tag:v6.5.0 - `filter-range-currency-symbol` will be removed, use `filter-range-unit` instead' %}
+                                        {% deprecated '@deprecated tag:v6.5.0 - The block `component_filter_range_min_currency_symbol` will be renamed, use block `component_filter_range_min_unit` instead' %}
+                                        {# @deprecated tag:v6.5.0 - `filter-range-currency-symbol` will be removed, use `filter-range-unit` instead #}
                                         <span class="filter-range-unit filter-range-currency-symbol">
                                             {{ unit }}
                                         </span>

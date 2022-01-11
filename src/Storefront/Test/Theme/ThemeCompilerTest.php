@@ -499,6 +499,63 @@ PHP_EOL;
         }
     }
 
+    public function testOutputsOnlyExpectedCssWhenUsingFeatureFlagFunction(): void
+    {
+        if ($_SERVER['FEATURE_ALL']) {
+            static::markTestSkipped('Skipped because fixture feature `FEATURE_NEXT_2` should be false.');
+        }
+
+        $themeCompilerReflection = new \ReflectionClass(ThemeCompiler::class);
+        $compileStyles = $themeCompilerReflection->getMethod('compileStyles');
+        $compileStyles->setAccessible(true);
+
+        Feature::registerFeatures([
+            'FEATURE_NEXT_1' => ['default' => true],
+            'FEATURE_NEXT_2' => ['default' => false],
+        ]);
+
+        // Ensure feature flag mixin SCSS file is given
+        $featureMixin = file_get_contents(
+            __DIR__ . '/../../Resources/app/storefront/src/scss/abstract/functions/feature.scss'
+        );
+
+        $testScss = <<<PHP_EOL
+.test-selector {
+    @if feature('FEATURE_NEXT_1') {
+        background: yellow;
+    } @else {
+        background: blue;
+    }
+    color: red;
+}
+
+@if feature('FEATURE_NEXT_2') {
+    .not-here {
+        display: none;
+        // Should not throw when undefined var is behind inactive flag
+        color: \$undefined-variable;
+    }
+}
+PHP_EOL;
+
+        $expectedCssOutput = <<<PHP_EOL
+.test-selector {
+\tbackground: yellow;
+\tcolor: red;
+}
+PHP_EOL;
+
+        $actual = $compileStyles->invoke(
+            $this->themeCompiler,
+            $featureMixin . $testScss,
+            new StorefrontPluginConfiguration('test'),
+            [],
+            '1337'
+        );
+
+        static::assertSame(trim($expectedCssOutput), trim($actual));
+    }
+
     public function copyToLiveData(): array
     {
         return [

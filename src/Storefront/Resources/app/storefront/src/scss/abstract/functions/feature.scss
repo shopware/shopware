@@ -1,0 +1,15 @@
+/*
+Helper function to check for active feature flags.
+==================================================
+The `$sw-features` variable contains a SCSS map of the current feature config.
+The variable is injected automatically via ThemeCompiler.php and webpack.config.js.
+
+Example:
+@if feature('FEATURE_NEXT_1234') {
+    // ...
+}
+*/
+
+@function feature($feature-flag) {
+    @return map-get($sw-features, $feature-flag);
+}

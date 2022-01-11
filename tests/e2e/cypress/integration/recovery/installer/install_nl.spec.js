@@ -156,9 +156,13 @@ describe('Minimal install', () => {
         cy.get('.sw-button span').contains('Skip').click();
 
         // @frw: Shopware Markets
+        cy.intercept('PUT', '**/api/_action/extension/activate/plugin/SwagMarkets').as('activateSwagMarkets');
+
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
         cy.get('.sw-step-display').should('be.visible');
         cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('Shopware Markets');
+
+        cy.wait('@activateSwagMarkets').its('response.statusCode').should('equal', 204);
         cy.get('.sw-button span').contains('Next').click();
 
         // @frw: plugins

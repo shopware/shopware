@@ -312,9 +312,11 @@ Cypress.Commands.add('setShippingMethod', (shippingMethod, gross, net) => {
 
     cy.contains(shippingMethod).should('be.visible').click();
     cy.get('.sw-settings-shipping-detail__condition_container').scrollIntoView();
-    cy.get('.sw-settings-shipping-detail__condition_container .sw-entity-single-select__selection').should('be.visible')
-        .type('Always valid (Default)');
-    cy.get('.sw-select-result-list__content').contains('Always valid (Default)').should('be.visible').click();
+    cy.get('.sw-settings-shipping-detail__top-rule').typeSingleSelectAndCheck(
+        'Always valid (Default)',
+        '.sw-settings-shipping-detail__top-rule'
+    );
+
     cy.get('.sw-settings-shipping-price-matrix').scrollIntoView();
     cy.get('.sw-data-grid__cell--price-EUR .sw-field--small:nth-of-type(1) [type]').clear().type(gross);
     cy.get('.sw-data-grid__cell--price-EUR .sw-field--small:nth-of-type(2) [type]').clear().type(net);
@@ -337,9 +339,11 @@ Cypress.Commands.add('setPaymentMethod', (paymentMethod) => {
 
     cy.contains(paymentMethod).should('be.visible').click();
     cy.get('.sw-settings-payment-detail__condition_container').scrollIntoView();
-    cy.get('.sw-settings-payment-detail__condition_container .sw-entity-single-select__selection').should('be.visible')
-        .type('Always valid (Default)');
-    cy.get('.sw-select-result-list__content').contains('Always valid (Default)').should('be.visible').click();
+    cy.get('.sw-settings-payment-detail__field-availability-rule').typeSingleSelectAndCheck(
+        'Always valid (Default)',
+        '.sw-settings-payment-detail__field-availability-rule'
+    );
+
     cy.get('.sw-payment-detail__save-action').should('be.visible').click();
     cy.wait('@set-payment').its('response.statusCode').should('equal', 200);
 });
@@ -408,17 +412,21 @@ Cypress.Commands.add('selectPaymentMethodForSalesChannel', (paymentMethod) => {
         url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
         method: 'post'
     }).as('sales-channel');
-    cy.intercept({
-        url: `**/${Cypress.env('apiPath')}/search/payment-method`,
-        method: 'post'
-    }).as('payment-method');
+    cy.intercept('POST', `**/${Cypress.env('apiPath')}/search/payment-method`, (req) => {
+        const { body } = req
+        if (body.hasOwnProperty('term') && body.term === paymentMethod) {
+            req.alias = 'payment-method-search-for';
+        } else {
+            req.alias = 'payment-method'
+        }
+    });
 
     cy.get('.sw-sales-channel-detail__select-payment-methods').scrollIntoView();
     cy.get('.sw-sales-channel-detail__select-payment-methods').then(($body) => {
         if (!$body.text().includes(paymentMethod)) {
             cy.get('.sw-sales-channel-detail__select-payment-methods .sw-select-selection-list__input').should('be.visible')
                 .type(paymentMethod);
-            cy.wait('@payment-method').its('response.statusCode').should('equal', 200);
+            cy.wait('@payment-method-search-for').its('response.statusCode').should('equal', 200);
             cy.get('.sw-select-result-list__content').contains(paymentMethod).should('be.visible').click();
             cy.wait('@payment-method').its('response.statusCode').should('equal', 200);
         }
@@ -446,17 +454,22 @@ Cypress.Commands.add('selectShippingMethodForSalesChannel', (shippingMethod) => 
         url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
         method: 'post'
     }).as('sales-channel');
-    cy.intercept({
-        url: `**/${Cypress.env('apiPath')}/search/shipping-method`,
-        method: 'post'
-    }).as('shipping-method');
+
+    cy.intercept('POST', `**/${Cypress.env('apiPath')}/search/shipping-method`, (req) => {
+        const { body } = req
+        if (body.hasOwnProperty('term') && body.term === shippingMethod) {
+            req.alias = 'shipping-method-search-for';
+        } else {
+            req.alias = 'shipping-method'
+        }
+    });
 
     cy.get('.sw-sales-channel-detail__select-shipping-methods').scrollIntoView();
     cy.get('.sw-sales-channel-detail__select-shipping-methods').then(($body) => {
         if (!$body.text().includes(shippingMethod)) {
             cy.get('.sw-sales-channel-detail__select-shipping-methods .sw-select-selection-list__input').should('be.visible')
                 .type(shippingMethod);
-            cy.wait('@shipping-method').its('response.statusCode').should('equal', 200);
+            cy.wait('@shipping-method-search-for').its('response.statusCode').should('equal', 200);
             cy.get('.sw-select-result-list__content').contains(shippingMethod).should('be.visible').click();
             cy.wait('@shipping-method').its('response.statusCode').should('equal', 200);
         }
@@ -464,7 +477,7 @@ Cypress.Commands.add('selectShippingMethodForSalesChannel', (shippingMethod) => 
     cy.get('.sw-sales-channel-detail__assign-shipping-methods').then(($body) => {
         if (!$body.text().includes(shippingMethod)) {
             cy.get('.sw-sales-channel-detail__assign-shipping-methods').type(shippingMethod).should('be.visible');
-            cy.wait('@shipping-method').its('response.statusCode').should('equal', 200);
+            cy.wait('@shipping-method-search-for').its('response.statusCode').should('equal', 200);
             cy.contains('.sw-select-result', shippingMethod).should('be.visible').click();
         }
     });

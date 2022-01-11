@@ -1,6 +1,5 @@
 <?php declare(strict_types=1);
 
-/** @var \Doctrine\DBAL\Connection $connection */
 $connection = require __DIR__ . '/boot.php';
 
 $listings = $connection->fetchFirstColumn("SELECT CONCAT('/', seo_path_info) FROM seo_url WHERE route_name = 'frontend.navigation.page' AND is_deleted = 0");

@@ -79,6 +79,10 @@ class StructEncoder
 
         $alias = $struct->getApiAlias();
 
+        if (str_starts_with($alias, 'partial.')) {
+            $alias = substr($alias, 8);
+        }
+
         foreach ($data as $property => &$value) {
             if ($property === 'customFields' && $value === []) {
                 $value = new \stdClass();
@@ -199,6 +203,7 @@ class StructEncoder
 
         /** @var ApiAware|null $flag */
         $flag = $field->getFlag(ApiAware::class);
+
         if ($flag === null) {
             return $this->protections[$key] = true;
         }

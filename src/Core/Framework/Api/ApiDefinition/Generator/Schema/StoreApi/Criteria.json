@@ -114,6 +114,14 @@
         "type": "string",
         "description": "Name of a field"
       }
+    },
+    "fields": {
+      "type": "array",
+      "description": "Fields which should be returned in the search result.",
+      "items": {
+        "type": "string",
+        "description": "Name of a field"
+      }
     }
   }
 }

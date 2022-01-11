@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -31,6 +32,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class EntityHydrator
 {
+    protected static array $partial = [];
+
     private static array $hydrated = [];
 
     private static array $instances = [];
@@ -52,12 +55,18 @@ class EntityHydrator
         $this->container = $container;
     }
 
-    public function hydrate(EntityCollection $collection, string $entityClass, EntityDefinition $definition, array $rows, string $root, Context $context): EntityCollection
+    public function hydrate(EntityCollection $collection, string $entityClass, EntityDefinition $definition, array $rows, string $root, Context $context, array $partial = []): EntityCollection
     {
         self::$hydrated = [];
 
+        self::$partial = $partial;
+
+        if (!empty(self::$partial)) {
+            $collection = new EntityCollection();
+        }
+
         foreach ($rows as $row) {
-            $collection->add($this->hydrateEntity($definition, $entityClass, $row, $root, $context));
+            $collection->add($this->hydrateEntity($definition, $entityClass, $row, $root, $context, $partial));
         }
 
         return $collection;
@@ -281,7 +290,7 @@ class EntityHydrator
             return null;
         }
 
-        return $this->hydrateEntity($field->getReferenceDefinition(), $field->getReferenceDefinition()->getEntityClass(), $row, $association, $context);
+        return $this->hydrateEntity($field->getReferenceDefinition(), $field->getReferenceDefinition()->getEntityClass(), $row, $association, $context, self::$partial[$field->getPropertyName()] ?? []);
     }
 
     protected function customFields(EntityDefinition $definition, array $row, string $root, Entity $entity, ?Field $field, Context $context): void
@@ -415,9 +424,17 @@ class EntityHydrator
         return json_encode($merged, \JSON_PRESERVE_ZERO_FRACTION);
     }
 
-    private function hydrateEntity(EntityDefinition $definition, string $entityClass, array $row, string $root, Context $context): Entity
+    private function hydrateEntity(EntityDefinition $definition, string $entityClass, array $row, string $root, Context $context, array $partial = []): Entity
     {
-        $hydrator = $this->container->get($definition->getHydratorClass());
+        $isPartial = $partial !== [];
+        $hydratorClass = $definition->getHydratorClass();
+        $entityClass = $isPartial ? PartialEntity::class : $entityClass;
+
+        if ($isPartial) {
+            $hydratorClass = EntityHydrator::class;
+        }
+
+        $hydrator = $this->container->get($hydratorClass);
 
         if (!$hydrator instanceof self) {
             throw new \RuntimeException(sprintf('Hydrator for entity %s not registered', $definition->getEntityName()));

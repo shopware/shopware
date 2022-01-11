@@ -254,6 +254,13 @@ class ProductBuilder
         return $this;
     }
 
+    public function categories(array $keys): self
+    {
+        array_map([$this, 'category'], $keys);
+
+        return $this;
+    }
+
     /**
      * @param array|object|string|float|int|bool|null $value
      */

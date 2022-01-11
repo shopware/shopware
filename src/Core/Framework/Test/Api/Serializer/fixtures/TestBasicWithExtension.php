@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Api\Serializer\fixtures;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use function sprintf;
 
 class TestBasicWithExtension extends SerializationFixture
 {
@@ -73,9 +74,9 @@ class TestBasicWithExtension extends SerializationFixture
                     'type' => 'extended',
                     'attributes' => [
                         'name' => 'toMany#1',
+                        'extendableId' => null,
                         'createdAt' => null,
                         'updatedAt' => null,
-                        'extendableId' => null,
                     ],
                     'links' => [
                         'self' => sprintf('%s/extended/548faa1f7846436c85944f4aea792d96', $baseUrl),
@@ -101,9 +102,9 @@ class TestBasicWithExtension extends SerializationFixture
                     'type' => 'extended',
                     'attributes' => [
                         'name' => 'toMany#2',
+                        'extendableId' => null,
                         'createdAt' => null,
                         'updatedAt' => null,
-                        'extendableId' => null,
                     ],
                     'links' => [
                         'self' => sprintf('%s/extended/3e352be2d85846dd97529c0f6b544870', $baseUrl),
@@ -129,9 +130,9 @@ class TestBasicWithExtension extends SerializationFixture
                     'type' => 'extended',
                     'attributes' => [
                         'name' => 'toOne',
+                        'extendableId' => null,
                         'createdAt' => null,
                         'updatedAt' => null,
-                        'extendableId' => null,
                     ],
                     'links' => [
                         'self' => sprintf('%s/extended/6f51622eb3814c75ae0263cece27ce72', $baseUrl),
@@ -157,26 +158,14 @@ class TestBasicWithExtension extends SerializationFixture
                     'type' => 'extension',
                     'attributes' => [
                         'test' => [
-                            '_uniqueIdentifier' => null,
-                            'versionId' => null,
-                            'translated' => [],
-                            'createdAt' => null,
-                            'updatedAt' => null,
                             'extensions' => [],
+                            '_uniqueIdentifier' => null,
+                            'translated' => [],
                             'test' => 'testValue',
                         ],
                     ],
                     'links' => [],
                     'relationships' => [
-                        'toOne' => [
-                            'data' => [
-                                'type' => 'extended',
-                                'id' => '6f51622eb3814c75ae0263cece27ce72',
-                            ],
-                            'links' => [
-                                'related' => sprintf('%s/extendable/1d23c1b015bf43fb97e89008cf42d6fe/extensions/toOne', $baseUrl),
-                            ],
-                        ],
                         'toMany' => [
                             'data' => [
                                 [
@@ -192,6 +181,15 @@ class TestBasicWithExtension extends SerializationFixture
                                 'related' => sprintf('%s/extendable/1d23c1b015bf43fb97e89008cf42d6fe/extensions/toMany', $baseUrl),
                             ],
                         ],
+                        'toOne' => [
+                            'data' => [
+                                'type' => 'extended',
+                                'id' => '6f51622eb3814c75ae0263cece27ce72',
+                            ],
+                            'links' => [
+                                'related' => sprintf('%s/extendable/1d23c1b015bf43fb97e89008cf42d6fe/extensions/toOne', $baseUrl),
+                            ],
+                        ],
                     ],
                     'meta' => null,
                 ],
@@ -205,16 +203,11 @@ class TestBasicWithExtension extends SerializationFixture
             'id' => '1d23c1b015bf43fb97e89008cf42d6fe',
             'createdAt' => '2018-01-15T08:01:16.000+00:00',
             '_uniqueIdentifier' => null,
-            'versionId' => null,
             'translated' => [],
-            'updatedAt' => null,
             'extensions' => [
                 'toOne' => [
                     '_uniqueIdentifier' => null,
-                    'versionId' => null,
                     'translated' => [],
-                    'createdAt' => null,
-                    'updatedAt' => null,
                     'extensions' => [],
                     'id' => '6f51622eb3814c75ae0263cece27ce72',
                     'name' => 'toOne',
@@ -222,20 +215,14 @@ class TestBasicWithExtension extends SerializationFixture
                 'toMany' => [
                     [
                         '_uniqueIdentifier' => null,
-                        'versionId' => null,
                         'translated' => [],
-                        'createdAt' => null,
-                        'updatedAt' => null,
                         'extensions' => [],
                         'id' => '548faa1f7846436c85944f4aea792d96',
                         'name' => 'toMany#1',
                     ],
                     [
                         '_uniqueIdentifier' => null,
-                        'versionId' => null,
                         'translated' => [],
-                        'createdAt' => null,
-                        'updatedAt' => null,
                         'extensions' => [],
                         'id' => '3e352be2d85846dd97529c0f6b544870',
                         'name' => 'toMany#2',
@@ -243,10 +230,7 @@ class TestBasicWithExtension extends SerializationFixture
                 ],
                 'test' => [
                     '_uniqueIdentifier' => null,
-                    'versionId' => null,
                     'translated' => [],
-                    'createdAt' => null,
-                    'updatedAt' => null,
                     'extensions' => [],
                     'test' => 'testValue',
                 ],

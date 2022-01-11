@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Connection;
+use Ramsey\Uuid\Guid\Fields;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
@@ -360,7 +362,7 @@ class EntityDefinitionQueryHelper
      * Considers the parent-child inheritance and provided context language inheritance.
      * The raw parameter allows to skip the parent-child inheritance.
      */
-    public function addTranslationSelect(string $root, EntityDefinition $definition, QueryBuilder $query, Context $context): void
+    public function addTranslationSelect(string $root, EntityDefinition $definition, QueryBuilder $query, Context $context, array $partial = []): void
     {
         $translationDefinition = $definition->getTranslationDefinition();
 
@@ -369,6 +371,13 @@ class EntityDefinitionQueryHelper
         }
 
         $fields = $translationDefinition->getFields();
+        if (!empty($partial)) {
+            $fields = $translationDefinition->getFields()->filter(function (Field $field) use ($partial) {
+                return $field->is(PrimaryKey::class)
+                    || isset($partial[$field->getPropertyName()])
+                    || $field instanceof FkField;
+            });
+        }
 
         $inherited = $context->considerInheritance() && $definition->isInheritanceAware();
 

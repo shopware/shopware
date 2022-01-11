@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -92,6 +93,153 @@ class EntityReaderTest extends TestCase
         parent::tearDown();
     }
 
+    public function testPartialLoadingManyToOne(): void
+    {
+        $ids = new IdsCollection();
+
+        $product = (new ProductBuilder($ids, 'p1'))
+            ->price(100)
+            ->categories(['c1', 'c2'])
+            ->visibility()
+            ->manufacturer('m1');
+
+        $this->getContainer()->get('product.repository')
+            ->create([$product->build()], Context::createDefaultContext());
+
+        $criteria = new Criteria();
+        $criteria->addFields(['id', 'productNumber', 'name', 'manufacturer.id', 'manufacturer.name']);
+
+        $values = $this->getContainer()
+            ->get('product.repository')
+            ->search($criteria, Context::createDefaultContext());
+
+        $entity = $values->first();
+
+        static::assertInstanceOf(PartialEntity::class, $entity);
+        static::assertSame('p1', $entity->get('productNumber'));
+        static::assertSame('p1', $entity->get('name'));
+        static::assertNull($entity->get('active'));
+
+        static::assertInstanceOf(PartialEntity::class, $entity->get('manufacturer'));
+        static::assertSame($ids->get('m1'), $entity->get('manufacturer')->get('id'));
+        static::assertSame('m1', $entity->get('manufacturer')->get('name'));
+    }
+
+    public function testPartialLoadingOneToMany(): void
+    {
+        $ids = new IdsCollection();
+
+        $this->categoryRepository->upsert([
+            [
+                'id' => $ids->get('c1'),
+                'name' => 'test',
+                'seoUrls' => [
+                    [
+                        'id' => $ids->get('c1-url'),
+                        'routeName' => 'frontend.category.page',
+                        'seoPathInfo' => '/test',
+                        'pathInfo' => '/test',
+                        'languageId' => $this->deLanguageId,
+                    ],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $criteria = new Criteria([$ids->get('c1')]);
+        $criteria->addAssociation('seoUrls');
+        $criteria->addFields(['name', 'seoUrls.routeName']);
+
+        $values = $this->getContainer()
+            ->get('category.repository')
+            ->search($criteria, Context::createDefaultContext());
+
+        $entity = $values->first();
+
+        static::assertInstanceOf(PartialEntity::class, $entity);
+        static::assertSame('test', $entity->get('name'));
+        static::assertNull($entity->get('type'));
+        static::assertInstanceOf(EntityCollection::class, $entity->get('seoUrls'));
+        static::assertInstanceOf(PartialEntity::class, $entity->get('seoUrls')->first());
+        static::assertSame('frontend.category.page', $entity->get('seoUrls')->first()->get('routeName'));
+        static::assertNull($entity->get('seoUrls')->first()->get('pathInfo'));
+
+        // Test same with pagination
+
+        $criteria->setLimit(50);
+        $criteria->getAssociation('seoUrls')->setLimit(50);
+        $values = $this->getContainer()
+            ->get('category.repository')
+            ->search($criteria, Context::createDefaultContext());
+
+        $entity = $values->first();
+
+        static::assertInstanceOf(PartialEntity::class, $entity);
+        static::assertSame('test', $entity->get('name'));
+        static::assertNull($entity->get('type'));
+        static::assertInstanceOf(EntityCollection::class, $entity->get('seoUrls'));
+        static::assertInstanceOf(PartialEntity::class, $entity->get('seoUrls')->first());
+        static::assertSame('frontend.category.page', $entity->get('seoUrls')->first()->get('routeName'));
+        static::assertNull($entity->get('seoUrls')->first()->get('pathInfo'));
+    }
+
+    public function testPartialLoadingManyToMany(): void
+    {
+        $ids = new IdsCollection();
+
+        $products = [
+            (new ProductBuilder($ids, 'p1'))
+                ->price(100)
+                ->categories(['c1', 'c2'])
+                ->visibility()
+                ->manufacturer('m1')
+            ->build(),
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create($products, Context::createDefaultContext());
+
+        $criteria = new Criteria([$ids->get('p1')]);
+        $criteria->addAssociation('categories');
+        $criteria->addAssociation('manufacturer');
+        $criteria->getAssociation('categories')->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
+        $criteria->addFields(['name', 'categories.name', 'manufacturer.name']);
+
+        $values = $this->getContainer()
+            ->get('product.repository')
+            ->search($criteria, Context::createDefaultContext());
+
+        $entity = $values->first();
+
+        static::assertInstanceOf(PartialEntity::class, $entity);
+        static::assertSame('p1', $entity->get('name'));
+        static::assertNull($entity->get('type'));
+        static::assertInstanceOf(EntityCollection::class, $entity->get('categories'));
+        static::assertInstanceOf(PartialEntity::class, $entity->get('categories')->first());
+        static::assertSame('c1', $entity->get('categories')->first()->get('name'));
+        static::assertInstanceOf(PartialEntity::class, $entity->get('manufacturer'));
+        static::assertSame('m1', $entity->get('manufacturer')->get('name'));
+
+        // With pagination
+        $criteria->setLimit(50);
+        $criteria->getAssociation('categories')->setLimit(50);
+        $criteria->getAssociation('manufacturer')->setLimit(50);
+
+        $values = $this->getContainer()
+            ->get('product.repository')
+            ->search($criteria, Context::createDefaultContext());
+
+        $entity = $values->first();
+
+        static::assertInstanceOf(PartialEntity::class, $entity);
+        static::assertSame('p1', $entity->get('name'));
+        static::assertNull($entity->get('type'));
+        static::assertInstanceOf(EntityCollection::class, $entity->get('categories'));
+        static::assertInstanceOf(PartialEntity::class, $entity->get('categories')->first());
+        static::assertSame('c1', $entity->get('categories')->first()->get('name'));
+        static::assertInstanceOf(PartialEntity::class, $entity->get('manufacturer'));
+        static::assertSame('m1', $entity->get('manufacturer')->get('name'));
+    }
+
     public function testTranslated(): void
     {
         $id = Uuid::randomHex();
@@ -113,6 +261,7 @@ class EntityReaderTest extends TestCase
         );
 
         $categories = $this->categoryRepository->search(new Criteria([$id]), $context);
+
         /** @var CategoryEntity $category */
         $category = $categories->first();
 

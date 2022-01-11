@@ -230,6 +230,10 @@ class RequestCriteriaBuilder
             }
         }
 
+        if (isset($payload['fields'])) {
+            $criteria->addFields($payload['fields']);
+        }
+
         $searchException->tryToThrow();
 
         $this->validator->validate($definition->getEntityName(), $criteria, $context);

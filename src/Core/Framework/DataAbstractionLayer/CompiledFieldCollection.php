@@ -121,6 +121,7 @@ class CompiledFieldCollection extends FieldCollection
 
     public function getBasicFields(): self
     {
+        //todo@dr maybe pre filter this in compiling step??
         return $this->filter(
             function (Field $field) {
                 if ($field instanceof AssociationField) {

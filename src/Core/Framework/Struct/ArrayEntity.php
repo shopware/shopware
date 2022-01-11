@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Struct;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 
 class ArrayEntity extends Entity implements \ArrayAccess
 {
@@ -19,6 +20,43 @@ class ArrayEntity extends Entity implements \ArrayAccess
     public function __construct(array $data = [])
     {
         $this->data = $data;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return string|int|float|bool|array|object|null
+     */
+    public function __get($name)
+    {
+        if (FieldVisibility::$isInTwigRenderingContext) {
+            $this->checkIfPropertyAccessIsAllowed($name);
+        }
+
+        return $this->data[$name];
+    }
+
+    /**
+     * @param string $name
+     * @param string|int|float|bool|array|object|null $value
+     */
+    public function __set($name, $value): void
+    {
+        $this->data[$name] = $value;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function __isset($name)
+    {
+        if (FieldVisibility::$isInTwigRenderingContext && !$this->isPropertyVisible($name)) {
+            return false;
+        }
+
+        return isset($this->data[$name]);
     }
 
     public function has(string $property): bool
@@ -46,6 +84,10 @@ class ArrayEntity extends Entity implements \ArrayAccess
     #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
+        if (FieldVisibility::$isInTwigRenderingContext && !$this->isPropertyVisible($offset)) {
+            return false;
+        }
+
         return \array_key_exists($offset, $this->data);
     }
 
@@ -55,6 +97,10 @@ class ArrayEntity extends Entity implements \ArrayAccess
     #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
+        if (FieldVisibility::$isInTwigRenderingContext) {
+            $this->checkIfPropertyAccessIsAllowed($offset);
+        }
+
         return $this->data[$offset] ?? null;
     }
 
@@ -105,7 +151,7 @@ class ArrayEntity extends Entity implements \ArrayAccess
         // The key-values pairs from the property $data are now serialized in the JSON property "data". But the
         // key-value pairs from data should appear in the serialization as they were properties of the ArrayEntity
         // itself. Therefore the key-values moved one level up.
-        unset($jsonArray['data']);
+        unset($jsonArray['data'], $jsonArray['createdAt'], $jsonArray['updatedAt'], $jsonArray['versionId']);
         $data = $this->data;
         $this->convertDateTimePropertiesToJsonStringRepresentation($data);
 

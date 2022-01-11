@@ -62,6 +62,20 @@ class FlowBuilder
     private function createNestedAction(array $currentSequence, array $siblingSequences): Sequence
     {
         $config = $currentSequence['config'] ? json_decode($currentSequence['config'], true) : [];
+
+        $children = $currentSequence['children'];
+        if (!empty($children)) {
+            $firstChildren = array_shift($children);
+
+            return Sequence::createAction(
+                $currentSequence['action_name'],
+                $this->createNestedSequence($firstChildren, $children),
+                $currentSequence['flow_id'],
+                $currentSequence['sequence_id'],
+                $config
+            );
+        }
+
         if (empty($siblingSequences)) {
             return Sequence::createAction(
                 $currentSequence['action_name'],

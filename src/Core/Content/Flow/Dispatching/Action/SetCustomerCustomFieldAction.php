@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\CustomerAware;
+use Shopware\Core\Framework\Event\DelayAware;
 use Shopware\Core\Framework\Event\FlowEvent;
 
 class SetCustomerCustomFieldAction extends FlowAction
@@ -39,7 +40,7 @@ class SetCustomerCustomFieldAction extends FlowAction
 
     public function requirements(): array
     {
-        return [CustomerAware::class];
+        return [CustomerAware::class, DelayAware::class];
     }
 
     public function handle(FlowEvent $event): void

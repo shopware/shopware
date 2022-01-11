@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Event\DelayAware;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
@@ -108,7 +109,7 @@ class SendMailAction extends FlowAction
 
     public function requirements(): array
     {
-        return [MailAware::class];
+        return [MailAware::class, DelayAware::class];
     }
 
     /**
@@ -238,7 +239,7 @@ class SendMailAction extends FlowAction
             $this->logger->error(
                 "Could not update mail template type, because translation for this language does not exits:\n"
                 . 'Flow id: ' . $event->getFlowState()->flowId . "\n"
-                . 'Sequence id: ' . $event->getFlowState()->sequenceId
+                . 'Sequence id: ' . $event->getFlowState()->getSequenceId()
             );
 
             return;

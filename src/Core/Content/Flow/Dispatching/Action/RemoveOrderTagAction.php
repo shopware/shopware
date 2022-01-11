@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Event\DelayAware;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\OrderAware;
 
@@ -29,7 +30,7 @@ class RemoveOrderTagAction extends FlowAction
 
     public function requirements(): array
     {
-        return [OrderAware::class];
+        return [OrderAware::class, DelayAware::class];
     }
 
     public function handle(FlowEvent $event): void

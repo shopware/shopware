@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Content\Flow\Exception\GenerateDocumentActionException;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Event\DelayAware;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
@@ -50,7 +51,7 @@ class GenerateDocumentAction extends FlowAction
 
     public function requirements(): array
     {
-        return [OrderAware::class];
+        return [OrderAware::class, DelayAware::class];
     }
 
     public function handle(FlowEvent $event): void

@@ -400,6 +400,7 @@ class InfoControllerTest extends TestCase
                 'name' => 'action.add.order.tag',
                 'requirements' => [
                     'orderAware',
+                    'delayAware',
                 ],
                 'extensions' => [],
             ],
@@ -409,6 +410,8 @@ class InfoControllerTest extends TestCase
             $expected[0]['requirements'] = [
                 "Shopware\Core\Framework\Event\OrderAware",
                 'orderAware',
+                "Shopware\Core\Framework\Event\DelayAware",
+                'delayAware',
             ];
         }
 

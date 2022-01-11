@@ -69,6 +69,7 @@ export const dom = {
 export const string = {
     capitalizeString: stringUtils.capitalizeString,
     camelCase: stringUtils.camelCase,
+    upperFirst: stringUtils.upperFirst,
     kebabCase: stringUtils.kebabCase,
     snakeCase: stringUtils.snakeCase,
     md5: md5,

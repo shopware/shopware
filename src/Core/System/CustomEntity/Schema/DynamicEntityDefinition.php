@@ -40,11 +40,6 @@ class DynamicEntityDefinition extends EntityDefinition
         return $this->name;
     }
 
-    public function since(): ?string
-    {
-        return '6.4.9.0';
-    }
-
     protected function defineFields(): FieldCollection
     {
         $collection = DynamicFieldFactory::create($this->container, $this->getEntityName(), $this->fieldDefinitions);

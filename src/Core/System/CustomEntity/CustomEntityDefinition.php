@@ -34,6 +34,11 @@ class CustomEntityDefinition extends EntityDefinition
         return self::ENTITY_NAME;
     }
 
+    public function since(): ?string
+    {
+        return '6.4.9.0';
+    }
+
     protected function defineProtections(): EntityProtectionCollection
     {
         return new EntityProtectionCollection([

@@ -7,6 +7,7 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Types\FloatType;
 use Doctrine\DBAL\Types\StringType;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
@@ -20,7 +21,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\CustomEntity\Xml\CustomEntitySchema;
@@ -54,16 +54,17 @@ class CustomEntityTest extends TestCase
     {
         $this->cleanUp();
 
-        KernelLifecycleManager::bootKernel();
+        $container = KernelLifecycleManager::bootKernel()->getContainer();
 
         $criteria = new Criteria();
         $criteria->setLimit(1);
 
-        $result = $this->getContainer()->get('category.repository')
-            ->search($criteria, Context::createDefaultContext());
+        $result = $container->get('category.repository')->search($criteria, Context::createDefaultContext());
 
         // ensure that the dal extensions are removed before continue with next test
         static::assertInstanceOf(EntitySearchResult::class, $result);
+
+        $container->get(CategoryDefinition::class)->getFields()->remove('custom_entity_blog_id');
     }
 
     /**

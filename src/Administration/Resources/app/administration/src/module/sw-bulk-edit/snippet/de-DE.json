@@ -280,6 +280,31 @@
           "skipSentDocuments": "Bereits verschickte Dokumente überspringen"
         }
       },
+      "documents": {
+        "cardTitle": "Dokumente",
+        "generateInvoice": {
+          "label": "Erstellen: Rechnung",
+          "helpText": "Diese Aktion erhöht den Wert des zugehörigen Nummernkreises.",
+          "labelDatePicker": "Datum",
+          "labelTextarea": "Kommentar",
+          "placeholderTextarea": "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim."
+        },
+        "generateCancellationInvoice": {
+          "label": "Erstellen: Stornorechnung",
+          "helpText": "Diese Aktion erhöht den Wert des zugehörigen Nummernkreises.",
+          "changeSubLabel": "Die aktuell letzte Referenzrechnungsnummer wird verwendet."
+        },
+        "generateDeliveryNote": {
+          "label": "Erstellen: Versandbestätigung",
+          "helpText": "Diese Aktion erhöht den Wert des zugehörigen Nummernkreises.",
+          "labelDeliveryDatePicker": "Lieferdatum"
+        },
+        "generateCreditNote": {
+          "label": "Erstellen: Gutschrift",
+          "helpText": "Gutschriften verwenden im Allgemeinen die letzte zugehörige Rechnungsnummer als Referenz.",
+          "changeSubLabel": "Dieses Dokument wird nur erstellt, wenn sich eine Gutschriftposition in der Bestellung befindet."
+        }
+      },
       "customFields": {
         "cardTitle": "Zusatzfelder",
         "changeLabel": "Ändern: {name}"

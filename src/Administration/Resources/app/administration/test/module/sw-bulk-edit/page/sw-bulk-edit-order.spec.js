@@ -215,6 +215,9 @@ function createWrapper(isResponseError = false) {
                     };
                 }
             },
+            orderDocumentApiService: {
+                create: () => Promise.resolve(),
+            },
             shortcutService: {
                 startEventListener: () => {},
                 stopEventListener: () => {}
@@ -264,7 +267,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         expect(wrapper.find('.sw-bulk-edit-change-field-renderer').exists()).toBeTruthy();
     });
 
-    // TODO: NEXT-6061 - unskip when we allow to send status mails and documents
+    // TODO: NEXT-6061 - Enable the test once sending status mails and documents are ready
     it.skip('should disable status mails and documents by default', async () => {
         wrapper = await createWrapper();
 
@@ -274,7 +277,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         expect(wrapper.find('.sw-bulk-edit-change-field-documents .sw-field__checkbox input').attributes().disabled).toBeTruthy();
     });
 
-    // TODO: NEXT-6061 - unskip when we allow to send status mails and documents
+    // TODO: NEXT-6061 - Enable the test once sending status mails and documents are ready
     it.skip('should enable status mails when one of the status fields has changed', async () => {
         wrapper = createWrapper();
 
@@ -295,7 +298,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         expect(wrapper.find('.sw-bulk-edit-change-field-statusMails .sw-field__checkbox input').attributes().disabled).toBeFalsy();
     });
 
-    // TODO: NEXT-6061 - unskip when we allow to send status mails and documents
+    // TODO: NEXT-6061 - Enable the test once sending status mails and documents are ready
     it.skip('should enable documents when status mails is enabled', async () => {
         wrapper = createWrapper();
 
@@ -320,7 +323,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         expect(wrapper.find('.sw-bulk-edit-change-field-documents .sw-field__checkbox input').attributes().disabled).toBeFalsy();
     });
 
-    it('should be show empty state', async () => {
+    it('should show empty state', async () => {
         wrapper = createWrapper();
 
         Shopware.State.commit('shopwareApps/setSelectedIds', []);
@@ -451,5 +454,39 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         const changeCustomField = syncData[1];
         expect(changeCustomField.field).toBe('customFields');
         expect(changeCustomField.value).toBe(wrapper.vm.bulkEditData.customFields.value);
+    });
+
+    it('should be able to create document', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_17261'];
+
+        wrapper = createWrapper();
+        wrapper.vm.orderDocumentApiService.create = jest.fn(() => Promise.resolve());
+
+        await wrapper.find('.sw-bulk-edit-order__save-action').trigger('click');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
+        wrapper.find('.footer-right').find('button').trigger('click');
+        await flushPromises();
+        expect(wrapper.vm.$route.path).toEqual('/success');
+
+        wrapper.vm.orderDocumentApiService.create.mockRestore();
+    });
+
+    it('should not be able to create document', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_17261'];
+
+        wrapper = createWrapper();
+        wrapper.vm.orderDocumentApiService.create = jest.fn(() => Promise.reject());
+
+        await wrapper.find('.sw-bulk-edit-order__save-action').trigger('click');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
+        wrapper.find('.footer-right').find('button').trigger('click');
+        await flushPromises();
+        expect(wrapper.vm.$route.path).toEqual('/error');
+
+        wrapper.vm.orderDocumentApiService.create.mockRestore();
     });
 });

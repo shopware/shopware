@@ -1,0 +1,22 @@
+{% block sw_bulk_edit_order_documents_generate_invoice %}
+<div class="sw-bulk-edit-order-documents-generate-invoice">
+    {% block sw_bulk_edit_order_documents_generate_invoice_datepicker %}
+    <sw-datepicker
+        v-model="generateData.documentDate"
+        class="sw-bulk-edit-order-documents-generate-invoice__item"
+        :label="$tc('sw-bulk-edit.order.documents.generateInvoice.labelDatePicker')"
+    />
+    {% endblock %}
+
+    {% block sw_bulk_edit_order_documents_generate_invoice_textarea %}
+    <sw-textarea-field
+        v-model="generateData.documentComment"
+        :label="$tc('sw-bulk-edit.order.documents.generateInvoice.labelTextarea')"
+        :placeholder="$tc('sw-bulk-edit.order.documents.generateInvoice.placeholderTextarea')"
+    />
+    {% endblock %}
+
+    {% block sw_bulk_edit_order_documents_generate_invoice_placeholder %}
+    {% endblock %}
+</div>
+{% endblock %}

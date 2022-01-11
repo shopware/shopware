@@ -12,6 +12,10 @@ $sw-select-result-list-transition: all ease-in-out 0.2s;
     overflow: hidden;
 }
 
+.sw-select-result-list {
+    pointer-events: none;
+}
+
 .sw-select-result-list-popover .sw-popover__wrapper {
     width: 100%;
 }

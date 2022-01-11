@@ -6,6 +6,7 @@
   "requestTimeout": 60000,
   "responseTimeout": 80000,
   "defaultCommandTimeout": 30000,
+  "nodeVersion": "bundled",
   "salesChannelName": "Storefront",
   "useDarkTheme": false,
   "video": false,

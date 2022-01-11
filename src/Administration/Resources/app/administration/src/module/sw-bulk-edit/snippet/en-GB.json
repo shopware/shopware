@@ -210,6 +210,10 @@
           "orders": {
             "key": "orders",
             "label": "Order state changes"
+          },
+          "requestedCustomerGroupId": {
+            "key": "requestedCustomerGroupId",
+            "label": "Customer group registration request"
           }
         },
         "buttons": {
@@ -309,7 +313,7 @@
         },
         "customerGroupRequest": {
           "label": "Reply to: Customer group request",
-          "helpText": "Please note that e-mails will only be sent to the specifically selected customers. Customers without requests will be skipped.",
+          "helpText": "Please note that emails will be sent to the selected customers. Customers without requests will be skipped.",
           "placeholder": "Select customer group request reply...",
           "options": {
             "accept": "Accept",

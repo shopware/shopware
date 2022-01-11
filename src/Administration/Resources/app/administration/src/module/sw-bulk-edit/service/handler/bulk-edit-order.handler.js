@@ -21,6 +21,7 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
         this.entityIds = entityIds;
 
         let promises = [];
+        const shouldTriggerFlows = Shopware.State.get('swBulkEdit').isFlowTriggered;
 
         try {
             const orders = await this.orderRepository.search(this.getCriteria());
@@ -46,7 +47,7 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
                                 optionsMail,
                                 {},
                                 {
-                                    'sw-skip-trigger-flow': !Shopware.State.get('swBulkEdit').isFlowTriggered,
+                                    'sw-skip-trigger-flow': !shouldTriggerFlows,
                                 },
                             );
                         case 'orderDeliveries':
@@ -56,7 +57,7 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
                                 optionsMail,
                                 {},
                                 {
-                                    'sw-skip-trigger-flow': !Shopware.State.get('swBulkEdit').isFlowTriggered,
+                                    'sw-skip-trigger-flow': !shouldTriggerFlows,
                                 },
                             );
                         default:
@@ -66,7 +67,7 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
                                 optionsMail,
                                 {},
                                 {
-                                    'sw-skip-trigger-flow': !Shopware.State.get('swBulkEdit').isFlowTriggered,
+                                    'sw-skip-trigger-flow': !shouldTriggerFlows,
                                 },
                             );
                     }

@@ -89,8 +89,7 @@ Component.register('sw-maintain-currencies-modal', {
     methods: {
         createdComponent() {
             if (this.currencies.length > 0) {
-                this.currencyCollection = this.currencies;
-                this.sortCurrencies();
+                this.updateCurrencyCollectionFromCurrencies();
             } else {
                 this.loadCurrencies();
             }
@@ -103,6 +102,20 @@ Component.register('sw-maintain-currencies-modal', {
                 this.currencyCollection = response;
                 this.sortCurrencies();
             });
+        },
+
+        updateCurrencyCollectionFromCurrencies() {
+            if (this.currencyCollection.length > 0) {
+                const isSame = this.currencies.every(c => this.currencyCollection.some(_c => c.id === _c.id));
+
+                if (!isSame) {
+                    this.currencyCollection = this.currencies;
+                    this.sortCurrencies();
+                }
+            } else {
+                this.currencyCollection = this.currencies;
+                this.sortCurrencies();
+            }
         },
 
         sortCurrencies() {

@@ -181,6 +181,7 @@ class StoreController extends AbstractController
     }
 
     /**
+     * @deprecated tag:v6.5.0 - Will be removed, use ExtensionStoreActionsController::downloadExtension() instead
      * @Since("6.0.0.0")
      * @Route("/api/_action/store/download", name="api.custom.store.download", methods={"GET"})
      */

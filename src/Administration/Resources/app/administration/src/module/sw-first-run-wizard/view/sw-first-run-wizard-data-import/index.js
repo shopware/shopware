@@ -8,7 +8,6 @@ Component.register('sw-first-run-wizard-data-import', {
     template,
 
     inject: [
-        'storeService',
         'extensionStoreActionService',
         'repositoryFactory',
     ],
@@ -92,7 +91,7 @@ Component.register('sw-first-run-wizard-data-import', {
             this.isInstallingPlugin = true;
             this.installationError = false;
 
-            return this.storeService.downloadPlugin(plugin.name, true, true)
+            return this.extensionStoreActionService.downloadExtension(plugin.name)
                 .then(() => {
                     return this.extensionStoreActionService.installExtension(plugin.name, 'plugin');
                 })

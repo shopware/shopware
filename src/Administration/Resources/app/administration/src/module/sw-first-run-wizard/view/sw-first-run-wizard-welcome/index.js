@@ -14,7 +14,7 @@ Component.register('sw-first-run-wizard-welcome', {
         'userService',
         'loginService',
         'repositoryFactory',
-        'storeService',
+        'extensionStoreActionService',
     ],
 
     mixins: [
@@ -228,7 +228,7 @@ Component.register('sw-first-run-wizard-welcome', {
             let errMessage = null;
 
             try {
-                await this.storeService.downloadPlugin(pluginName, true, true);
+                await this.extensionStoreActionService.downloadExtension(pluginName);
             } catch (e) {
                 errCode = 'downloadFailed';
                 catchedError = e;

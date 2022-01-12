@@ -206,9 +206,13 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
         foreach ($scriptServices as $service) {
             $reflection = new \ReflectionClass($service);
 
-            $group = $this->getGroupForService($reflection);
-
             $docBlock = $this->docFactory->create($reflection);
+            if ($docBlock->hasTag('internal')) {
+                // skip @internal classes
+                continue;
+            }
+
+            $group = $this->getGroupForService($reflection);
 
             $data[$group]['services'][] = [
                 'name' => $this->getName($service),
@@ -256,6 +260,10 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
             }
 
             $docBlock = $this->docFactory->create($method);
+            if ($docBlock->hasTag('internal')) {
+                // skip @internal methods
+                continue;
+            }
 
             $methods[] = [
                 'title' => $method->getName() . '()',
@@ -316,6 +324,10 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
     {
         $type = $method->getReturnType();
 
+        if ($type instanceof \ReflectionNamedType && $type->getName() === 'void') {
+            return [];
+        }
+
         /** @var Return_[] $tags */
         $tags = $docBlock->getTagsWithTypeByName('return');
         if (\count($tags) < 1) {
@@ -340,15 +352,20 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
             $typeName = $type->getName();
         }
 
-        if ($typeName === 'void') {
-            return [];
+        $link = $this->getLinkForClass($typeName, $scriptServices);
+        if ($link) {
+            $typeName = \sprintf('[`%s`](%s)', $typeName, $link);
+        } else {
+            $typeName = '`' . $typeName . '`';
+        }
+
+        if ($type instanceof \ReflectionType && $type->allowsNull()) {
+            $typeName .= ' | `null`';
         }
 
         return [
             'type' => $typeName,
             'description' => $tag->getDescription() ? $tag->getDescription()->render() : '',
-            'link' => $this->getLinkForClass($typeName, $scriptServices),
-            'nullable' => $type instanceof \ReflectionType && $type->allowsNull(),
         ];
     }
 

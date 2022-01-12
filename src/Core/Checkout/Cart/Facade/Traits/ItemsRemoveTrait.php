@@ -10,7 +10,11 @@ trait ItemsRemoveTrait
     private LineItemCollection $items;
 
     /**
-     * @param string|ItemFacade $id
+     * `remove()` removes the given line-item or the line-item with the given id from this collection.
+     *
+     * @param string|ItemFacade $id The id of the line-item or the line-item that should be removed.
+     *
+     * @example remove-product-cases/remove-product-cases.twig 2 3 Add and then remove a product line-item from the cart.
      */
     public function remove($id): void
     {

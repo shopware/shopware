@@ -8,157 +8,125 @@ Keep in mind that your app needs to have the correct permissions for the data it
 
 ### search()
 
-The `search()` method allows you to search for Entities that match a given criteria.
+* The `search()` method allows you to search for Entities that match a given criteria.
 
+    
+* **Returns** [`Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/DataAbstractionLayer/Search/EntitySearchResult.php)
 
-#### Arguments
+    A `EntitySearchResult` including all entities that matched your criteria.
+* **Arguments:**
+    * *`string`* **entityName**: The name of the Entity you want to search for, e.g. `product` or `media`.
+    * *`array`* **criteria**: The criteria used for your search.
+* **Examples:**
+    * Load a single product.
 
-##### `entityName`: string
+        ```twig
+        {% set page = hook.page %}
+		{# @var page \Shopware\Storefront\Page\Page #}
+		
+		{% set criteria = {
+		    'ids': [ hook.productId ]
+		} %}
+		
+		{% set product = services.repository.search('product', criteria).first %}
+		
+		{% do page.addExtension('myProduct', product) %}
+        ```
+    * Filter the search result.
 
-The name of the Entity you want to search for, e.g. `product` or `media`.
+        ```twig
+        {% set page = hook.page %}
+		{# @var page \Shopware\Storefront\Page\Page #}
+		
+		{% set criteria = {
+		    'filter': [
+		        { 'field': 'productNumber', 'type': 'equals', 'value': 'p1' }
+		    ]
+		} %}
+		
+		{% set product = services.repository.search('product', criteria).first %}
+		
+		{% do page.addExtension('myProduct', product) %}
+        ```
+    * Add associations that should be included in the result.
 
-##### `criteria`: array
-
-The criteria used for your search.
-
-
-#### Return value
-
-**Type**: [`Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/DataAbstractionLayer/Search/EntitySearchResult.php)
-
-A `EntitySearchResult` including all entities that matched your criteria.
-
-#### Examples
-
-Load a single product.
-```twig
-{% set page = hook.page %}
-{# @var page \Shopware\Storefront\Page\Page #}
-
-{% set criteria = {
-    'ids': [ hook.productId ]
-} %}
-
-{% set product = services.repository.search('product', criteria).first %}
-
-{% do page.addExtension('myProduct', product) %}
-```
-Filter the search result.
-```twig
-{% set page = hook.page %}
-{# @var page \Shopware\Storefront\Page\Page #}
-
-{% set criteria = {
-    'filter': [
-        { 'field': 'productNumber', 'type': 'equals', 'value': 'p1' }
-    ]
-} %}
-
-{% set product = services.repository.search('product', criteria).first %}
-
-{% do page.addExtension('myProduct', product) %}
-```
-Add associations that should be included in the result.
-```twig
-{% set page = hook.page %}
-{# @var page \Shopware\Storefront\Page\Page #}
-
-{% set criteria = {
-    'ids': [ hook.productId ],
-    'associations': {
-        'manufacturer': {}
-    }
-} %}
-
-{% set product = services.repository.search('product', criteria).first %}
-
-{% do page.addExtension('myProduct', product) %}
-{% do page.addExtension('myManufacturer', product.manufacturer) %}
-```
+        ```twig
+        {% set page = hook.page %}
+		{# @var page \Shopware\Storefront\Page\Page #}
+		
+		{% set criteria = {
+		    'ids': [ hook.productId ],
+		    'associations': {
+		        'manufacturer': {}
+		    }
+		} %}
+		
+		{% set product = services.repository.search('product', criteria).first %}
+		
+		{% do page.addExtension('myProduct', product) %}
+		{% do page.addExtension('myManufacturer', product.manufacturer) %}
+        ```
 ### ids()
 
-The `ids()` method allows you to search for the Ids of Entities that match a given criteria.
+* The `ids()` method allows you to search for the Ids of Entities that match a given criteria.
 
+    
+* **Returns** [`Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/DataAbstractionLayer/Search/IdSearchResult.php)
 
-#### Arguments
+    A `IdSearchResult` including all entity-ids that matched your criteria.
+* **Arguments:**
+    * *`string`* **entityName**: The name of the Entity you want to search for, e.g. `product` or `media`.
+    * *`array`* **criteria**: The criteria used for your search.
+* **Examples:**
+    * Get the Ids of products with the given ProductNumber.
 
-##### `entityName`: string
-
-The name of the Entity you want to search for, e.g. `product` or `media`.
-
-##### `criteria`: array
-
-The criteria used for your search.
-
-
-#### Return value
-
-**Type**: [`Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/DataAbstractionLayer/Search/IdSearchResult.php)
-
-A `IdSearchResult` including all entity-ids that matched your criteria.
-
-#### Examples
-
-Get the Ids of products with the given ProductNumber.
-```twig
-{% set page = hook.page %}
-{# @var page \Shopware\Storefront\Page\Page #}
-
-{% set criteria = {
-    'filter': [
-        { 'field': 'productNumber', 'type': 'equals', 'value': 'p1' }
-    ]
-} %}
-
-{% set productIds = services.repository.ids('product', criteria).ids %}
-
-{% do page.addArrayExtension('myProductIds', {
-    'ids': productIds
-}) %}
-```
+        ```twig
+        {% set page = hook.page %}
+		{# @var page \Shopware\Storefront\Page\Page #}
+		
+		{% set criteria = {
+		    'filter': [
+		        { 'field': 'productNumber', 'type': 'equals', 'value': 'p1' }
+		    ]
+		} %}
+		
+		{% set productIds = services.repository.ids('product', criteria).ids %}
+		
+		{% do page.addArrayExtension('myProductIds', {
+		    'ids': productIds
+		}) %}
+        ```
 ### aggregate()
 
-The `aggregate()` method allows you to execute aggregations specified in the given criteria.
+* The `aggregate()` method allows you to execute aggregations specified in the given criteria.
 
+    
+* **Returns** [`Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/DataAbstractionLayer/Search/AggregationResult/AggregationResultCollection.php)
 
-#### Arguments
+    A `AggregationResultCollection` including the results of the aggregations you specified in the criteria.
+* **Arguments:**
+    * *`string`* **entityName**: The name of the Entity you want to aggregate data on, e.g. `product` or `media`.
+    * *`array`* **criteria**: The criteria that define your aggregations.
+* **Examples:**
+    * Aggregate data for multiple entities, e.g. the sum of the gross price of all products.
 
-##### `entityName`: string
-
-The name of the Entity you want to aggregate data on, e.g. `product` or `media`.
-
-##### `criteria`: array
-
-The criteria that define your aggregations.
-
-
-#### Return value
-
-**Type**: [`Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/DataAbstractionLayer/Search/AggregationResult/AggregationResultCollection.php)
-
-A `AggregationResultCollection` including the results of the aggregations you specified in the criteria.
-
-#### Examples
-
-Aggregate data for multiple entities, e.g. the sum of the gross price of all products.
-```twig
-{% set page = hook.page %}
-{# @var page \Shopware\Storefront\Page\Page #}
-
-{% set criteria = {
-    'aggregations': [
-        { 'name': 'sumOfPrices', 'type': 'sum', 'field': 'price.gross' }
-    ]
-} %}
-
-{% set sumResult = services.repository.aggregate('product', criteria).get('sumOfPrices') %}
-
-{% do page.addArrayExtension('myProductAggregations', {
-    'sum': sumResult.getSum
-}) %}
-```
-
-
+        ```twig
+        {% set page = hook.page %}
+		{# @var page \Shopware\Storefront\Page\Page #}
+		
+		{% set criteria = {
+		    'aggregations': [
+		        { 'name': 'sumOfPrices', 'type': 'sum', 'field': 'price.gross' }
+		    ]
+		} %}
+		
+		{% set sumResult = services.repository.aggregate('product', criteria).get('sumOfPrices') %}
+		
+		{% do page.addArrayExtension('myProductAggregations', {
+		    'sum': sumResult.getSum
+		}) %}
+        ```
+_________
 ## [services.store (`Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacade`)](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/DataAbstractionLayer/Facade/SalesChannelRepositoryFacade.php) {#SalesChannelRepositoryFacade}
 
 The `store` service can be used to access publicly available `store-api` data.
@@ -170,154 +138,122 @@ this means that e.g. product prices are already calculated based on the current 
 
 ### search()
 
-The `search()` method allows you to search for Entities that match a given criteria.
+* The `search()` method allows you to search for Entities that match a given criteria.
 
+    
+* **Returns** [`Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/DataAbstractionLayer/Search/EntitySearchResult.php)
 
-#### Arguments
+    A `EntitySearchResult` including all entities that matched your criteria.
+* **Arguments:**
+    * *`string`* **entityName**: The name of the Entity you want to search for, e.g. `product` or `media`.
+    * *`array`* **criteria**: The criteria used for your search.
+* **Examples:**
+    * Load a single storefront product.
 
-##### `entityName`: string
+        ```twig
+        {% set page = hook.page %}
+		{# @var page \Shopware\Storefront\Page\Page #}
+		
+		{% set criteria = {
+		    'ids': [ hook.productId ]
+		} %}
+		
+		{% set product = services.store.search('product', criteria).first %}
+		
+		{% do page.addExtension('myProduct', product) %}
+        ```
+    * Filter the search result.
 
-The name of the Entity you want to search for, e.g. `product` or `media`.
+        ```twig
+        {% set page = hook.page %}
+		{# @var page \Shopware\Storefront\Page\Page #}
+		
+		{% set criteria = {
+		    'filter': [
+		        { 'field': 'productNumber', 'type': 'equals', 'value': 'p1' }
+		    ]
+		} %}
+		
+		{% set product = services.store.search('product', criteria).first %}
+		
+		{% do page.addExtension('myProduct', product) %}
+        ```
+    * Add associations that should be included in the result.
 
-##### `criteria`: array
-
-The criteria used for your search.
-
-
-#### Return value
-
-**Type**: [`Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/DataAbstractionLayer/Search/EntitySearchResult.php)
-
-A `EntitySearchResult` including all entities that matched your criteria.
-
-#### Examples
-
-Load a single storefront product.
-```twig
-{% set page = hook.page %}
-{# @var page \Shopware\Storefront\Page\Page #}
-
-{% set criteria = {
-    'ids': [ hook.productId ]
-} %}
-
-{% set product = services.store.search('product', criteria).first %}
-
-{% do page.addExtension('myProduct', product) %}
-```
-Filter the search result.
-```twig
-{% set page = hook.page %}
-{# @var page \Shopware\Storefront\Page\Page #}
-
-{% set criteria = {
-    'filter': [
-        { 'field': 'productNumber', 'type': 'equals', 'value': 'p1' }
-    ]
-} %}
-
-{% set product = services.store.search('product', criteria).first %}
-
-{% do page.addExtension('myProduct', product) %}
-```
-Add associations that should be included in the result.
-```twig
-{% set page = hook.page %}
-{# @var page \Shopware\Storefront\Page\Page #}
-
-{% set criteria = {
-    'ids': [ hook.productId ],
-    'associations': {
-        'manufacturer': {}
-    }
-} %}
-
-{% set product = services.store.search('product', criteria).first %}
-
-{% do page.addExtension('myProduct', product) %}
-{% do page.addExtension('myManufacturer', product.manufacturer) %}
-```
+        ```twig
+        {% set page = hook.page %}
+		{# @var page \Shopware\Storefront\Page\Page #}
+		
+		{% set criteria = {
+		    'ids': [ hook.productId ],
+		    'associations': {
+		        'manufacturer': {}
+		    }
+		} %}
+		
+		{% set product = services.store.search('product', criteria).first %}
+		
+		{% do page.addExtension('myProduct', product) %}
+		{% do page.addExtension('myManufacturer', product.manufacturer) %}
+        ```
 ### ids()
 
-The `ids()` method allows you to search for the Ids of Entities that match a given criteria.
+* The `ids()` method allows you to search for the Ids of Entities that match a given criteria.
 
+    
+* **Returns** [`Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/DataAbstractionLayer/Search/IdSearchResult.php)
 
-#### Arguments
+    A `IdSearchResult` including all entity-ids that matched your criteria.
+* **Arguments:**
+    * *`string`* **entityName**: The name of the Entity you want to search for, e.g. `product` or `media`.
+    * *`array`* **criteria**: The criteria used for your search.
+* **Examples:**
+    * Get the Ids of products with the given ProductNumber.
 
-##### `entityName`: string
-
-The name of the Entity you want to search for, e.g. `product` or `media`.
-
-##### `criteria`: array
-
-The criteria used for your search.
-
-
-#### Return value
-
-**Type**: [`Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/DataAbstractionLayer/Search/IdSearchResult.php)
-
-A `IdSearchResult` including all entity-ids that matched your criteria.
-
-#### Examples
-
-Get the Ids of products with the given ProductNumber.
-```twig
-{% set page = hook.page %}
-{# @var page \Shopware\Storefront\Page\Page #}
-
-{% set criteria = {
-    'filter': [
-        { 'field': 'productNumber', 'type': 'equals', 'value': 'p1' }
-    ]
-} %}
-
-{% set productIds = services.store.ids('product', criteria).ids %}
-
-{% do page.addArrayExtension('myProductIds', {
-    'ids': productIds
-}) %}
-```
+        ```twig
+        {% set page = hook.page %}
+		{# @var page \Shopware\Storefront\Page\Page #}
+		
+		{% set criteria = {
+		    'filter': [
+		        { 'field': 'productNumber', 'type': 'equals', 'value': 'p1' }
+		    ]
+		} %}
+		
+		{% set productIds = services.store.ids('product', criteria).ids %}
+		
+		{% do page.addArrayExtension('myProductIds', {
+		    'ids': productIds
+		}) %}
+        ```
 ### aggregate()
 
-The `aggregate()` method allows you to execute aggregations specified in the given criteria.
+* The `aggregate()` method allows you to execute aggregations specified in the given criteria.
 
+    
+* **Returns** [`Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/DataAbstractionLayer/Search/AggregationResult/AggregationResultCollection.php)
 
-#### Arguments
+    A `AggregationResultCollection` including the results of the aggregations you specified in the criteria.
+* **Arguments:**
+    * *`string`* **entityName**: The name of the Entity you want to aggregate data on, e.g. `product` or `media`.
+    * *`array`* **criteria**: The criteria that define your aggregations.
+* **Examples:**
+    * Aggregate data for multiple entities, e.g. the sum of the children of all products.
 
-##### `entityName`: string
-
-The name of the Entity you want to aggregate data on, e.g. `product` or `media`.
-
-##### `criteria`: array
-
-The criteria that define your aggregations.
-
-
-#### Return value
-
-**Type**: [`Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/DataAbstractionLayer/Search/AggregationResult/AggregationResultCollection.php)
-
-A `AggregationResultCollection` including the results of the aggregations you specified in the criteria.
-
-#### Examples
-
-Aggregate data for multiple entities, e.g. the sum of the children of all products.
-```twig
-{% set page = hook.page %}
-{# @var page \Shopware\Storefront\Page\Page #}
-
-{% set criteria = {
-    'aggregations': [
-        { 'name': 'sumOfChildren', 'type': 'sum', 'field': 'childCount' }
-    ]
-} %}
-
-{% set sumResult = services.store.aggregate('product', criteria).get('sumOfChildren') %}
-
-{% do page.addArrayExtension('myProductAggregations', {
-    'sum': sumResult.getSum
-}) %}
-```
-
-
+        ```twig
+        {% set page = hook.page %}
+		{# @var page \Shopware\Storefront\Page\Page #}
+		
+		{% set criteria = {
+		    'aggregations': [
+		        { 'name': 'sumOfChildren', 'type': 'sum', 'field': 'childCount' }
+		    ]
+		} %}
+		
+		{% set sumResult = services.store.aggregate('product', criteria).get('sumOfChildren') %}
+		
+		{% do page.addArrayExtension('myProductAggregations', {
+		    'sum': sumResult.getSum
+		}) %}
+        ```
+_________

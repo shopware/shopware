@@ -9,64 +9,41 @@
 
 {% endif %}
 
-{{ service.summary }}
-{{ service.description }}
+{{ service.summary|raw }}
+{{ service.description|raw }}
 
 {% for method in service.methods %}
 ### {{ method.title }}
 
-{{ method.summary }}
-{{ method.description }}
+* {{ method.summary|raw }}
 
-{% if method.arguments is not empty %}
-#### Arguments
-
-{% for argument in method.arguments %}
-##### `{{ argument.name }}`: {% if argument.link is not null %}[{{ argument.type }}]({{ argument.link }}){%- else -%}{{ argument.type }}{%- endif -%}
-{% if argument.nullable %}
- | null
-{% else %}
-{# needed for a correct line break #}
-
-{% endif %}
-{% if argument.default is not null %}
-**Default**: {{ argument.default }}
-{% endif %}
-
-{{ argument.description }}
-
-{% endfor %}
-{% endif %}
-
+    {{ method.description|replace({"\n": "\n\t"})|raw }}
 {% if method.return is not empty %}
-#### Return value
+* **Returns** {{ method.return.type }}
 
-{% if method.return.link is not null %}
-**Type**: [`{{ method.return.type }}`]({{ method.return.link }})
-{%- else -%}
-**Type**: `{{ method.return.type }}`
-{%- endif -%}
-{% if method.return.nullable %}
- | `null`
-{% else %}
-{# needed for a correct line break #}
-
+    {{ method.return.description }}
 {% endif %}
+{% if method.arguments is not empty %}
+* **Arguments:**
+{% for argument in method.arguments %}
+    * *{{ argument.type }}* **{{ argument.name }}**: {{ argument.description }}
+{% if argument.default is not null %}
 
-{{ method.return.description }}
+        Default: `{{ argument.default }}`
 {% endif %}
-
+{% endfor %}
+{% endif %}
 {% if method.examples is not empty %}
-#### Examples
-
+* **Examples:**
 {% for example in method.examples %}
-{{ example.description }}
-```{{ example.extension }}
-{{ example.src|raw }}
-```
+    * {{ example.description|raw }}
+
+        ```{{ example.extension }}
+{# somehow the rendering breaks if we use two tabs in the replace #}
+        {{ example.src|replace({"\n": "\n\t\t"})|raw }}
+        ```
 {% endfor %}
 {% endif %}
 {% endfor %}
-
-
+_________
 {% endfor %}

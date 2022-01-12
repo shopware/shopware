@@ -18,7 +18,17 @@ trait DiscountTrait
     private LineItemCollection $items;
 
     /**
-     * @param float|PriceCollection $value
+     * The `discount()` methods creates a new discount line-item with the given type and value.
+     *
+     * @param string $key The id for the new discount.
+     * @param string $type The type of the discount, e.g. `percentage`, `absolute`
+     * @param float|PriceCollection $value The value of the discount, a float for percentage discounts or a `PriceCollection` for absolute discounts.
+     * @param string $label The label of the discount line-item.
+     *
+     * @return DiscountFacade Returns the newly created discount line-item.
+     *
+     * @example add-absolute-discount/add-absolute-discount.twig Add an absolute discount to the cart.
+     * @example add-simple-discount/add-simple-discount.twig Add a relative discount to the cart.
      */
     public function discount(string $key, string $type, $value, string $label): DiscountFacade
     {

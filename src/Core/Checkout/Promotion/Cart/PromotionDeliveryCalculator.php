@@ -69,7 +69,7 @@ class PromotionDeliveryCalculator
         // reduce discount lineItems if fixed price discounts are in collection
         $checkedDiscountLineItems = $this->reduceDiscountLineItemsIfFixedPresent($discountLineItems);
 
-        $exclusions = $this->buildExclusions($checkedDiscountLineItems);
+        $exclusions = $this->buildExclusions($checkedDiscountLineItems, $toCalculate, $context);
 
         foreach ($checkedDiscountLineItems as $discountItem) {
             if ($notDiscountedDeliveriesValue <= 0.0) {
@@ -123,7 +123,7 @@ class PromotionDeliveryCalculator
      * that are excluded somehow.
      * The validation which one to take will be done later.
      */
-    private function buildExclusions(LineItemCollection $discountLineItems): array
+    private function buildExclusions(LineItemCollection $discountLineItems, Cart $calculated, SalesChannelContext $context): array
     {
         // array that holds all excluded promotion ids.
         // if a promotion has exclusions they are added on the stack
@@ -149,7 +149,9 @@ class PromotionDeliveryCalculator
 
             // add all exclusions to the stack
             foreach ($discountItem->getPayloadValue('exclusions') as $id) {
-                $exclusions[$id] = true;
+                if ($this->isRequirementValid($discountItem, $calculated, $context)) {
+                    $exclusions[$id] = true;
+                }
             }
         }
 

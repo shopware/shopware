@@ -199,6 +199,7 @@
             <argument type="service" id="Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister"/>
             <argument type="service" id="Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator">
@@ -475,6 +476,11 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Cms\BlockTemplateLoader">
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="app_flow_action.repository"/>
         </service>
     </services>
 </container>

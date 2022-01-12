@@ -20,6 +20,7 @@ use Shopware\Core\Framework\App\Exception\InvalidAppConfigurationException;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
@@ -100,6 +101,8 @@ class AppLifecycle extends AbstractAppLifecycle
 
     private Connection $connection;
 
+    private FlowActionPersister $flowBuilderActionPersister;
+
     public function __construct(
         EntityRepositoryInterface $appRepository,
         PermissionPersister $permissionPersister,
@@ -124,7 +127,8 @@ class AppLifecycle extends AbstractAppLifecycle
         string $projectDir,
         CustomEntityPersister $customEntityPersister,
         CustomEntitySchemaUpdater $customEntitySchemaUpdater,
-        Connection $connection
+        Connection $connection,
+        FlowActionPersister $flowBuilderActionPersister
     ) {
         $this->appRepository = $appRepository;
         $this->permissionPersister = $permissionPersister;
@@ -150,6 +154,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->scriptExecutor = $scriptExecutor;
         $this->customEntitySchemaUpdater = $customEntitySchemaUpdater;
         $this->connection = $connection;
+        $this->flowBuilderActionPersister = $flowBuilderActionPersister;
     }
 
     public function getDecorated(): AbstractAppLifecycle
@@ -270,6 +275,11 @@ class AppLifecycle extends AbstractAppLifecycle
         $cmsExtensions = $this->appLoader->getCmsExtensions($app);
         if ($cmsExtensions) {
             $this->cmsBlockPersister->updateCmsBlocks($cmsExtensions, $id, $defaultLocale, $context);
+        }
+
+        $flowActions = $this->appLoader->getFlowActions($app);
+        if ($flowActions) {
+            $this->flowBuilderActionPersister->updateActions($flowActions, $id, $context);
         }
 
         $this->updateConfigurable($app, $manifest, $install, $context);

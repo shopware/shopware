@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Aggregate\FlowAction;
 
+use Shopware\Core\Content\Flow\Aggregate\FlowSequence\FlowSequenceCollection;
 use Shopware\Core\Framework\App\Aggregate\FlowActionTranslation\AppFlowActionTranslationCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -41,6 +42,8 @@ class AppFlowActionEntity extends Entity
     protected ?string $swIcon;
 
     protected ?AppFlowActionTranslationCollection $translations;
+
+    protected ?FlowSequenceCollection $flowSequences;
 
     public function getAppId(): string
     {
@@ -170,6 +173,16 @@ class AppFlowActionEntity extends Entity
     public function setTranslations(AppFlowActionTranslationCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getFlowSequences(): ?FlowSequenceCollection
+    {
+        return $this->flowSequences;
+    }
+
+    public function setFlowSequences(FlowSequenceCollection $flowSequences): void
+    {
+        $this->flowSequences = $flowSequences;
     }
 
     public function jsonSerialize(): array

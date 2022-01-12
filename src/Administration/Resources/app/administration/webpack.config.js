@@ -95,6 +95,8 @@ const pluginEntries = (() => {
             console.log(chalk.green(`# Plugin "${name}": Injected successfully`));
 
             const technicalName = definition.technicalName || name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+            const htmlFilePath = path.resolve(process.env.PROJECT_ROOT, definition.basePath, definition.administration.path, '..', 'index.html');
+            const hasHtmlFile = fs.existsSync(htmlFilePath);
 
             return {
                 name,
@@ -103,6 +105,7 @@ const pluginEntries = (() => {
                 basePath: path.resolve(process.env.PROJECT_ROOT, definition.basePath),
                 path: path.resolve(process.env.PROJECT_ROOT, definition.basePath, definition.administration.path),
                 filePath: path.resolve(process.env.PROJECT_ROOT, definition.basePath, definition.administration.entryFilePath),
+                hasHtmlFile,
                 webpackConfig: definition.administration.webpack ? path.resolve(process.env.PROJECT_ROOT, definition.basePath, definition.administration.webpack) : null,
             };
         });
@@ -131,6 +134,14 @@ const assetsPluginInstance = new AssetsPlugin({
         ['', 'app', 'commons', 'runtime', 'vendors-node'].forEach((key) => {
             delete filteredOutput[key];
         });
+
+        Object.entries(filteredOutput).forEach(([outputTechnicalName, bundles]) => {
+            const matchingPluginEntry = pluginEntries.find(e => e.technicalName === outputTechnicalName);
+
+            if (matchingPluginEntry && matchingPluginEntry.hasHtmlFile) {
+                bundles.html = `/bundles/${matchingPluginEntry.technicalFolderName}/administration/index.html`;
+            }
+        })
 
         return JSON.stringify(filteredOutput);
     },

@@ -1,6 +1,5 @@
 export default class ExtensionHelperService {
-    constructor({ storeService, extensionStoreActionService }) {
-        this.storeService = storeService;
+    constructor({ extensionStoreActionService }) {
         this.extensionStoreActionService = extensionStoreActionService;
     }
 

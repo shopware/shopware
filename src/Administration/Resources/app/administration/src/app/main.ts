@@ -118,8 +118,6 @@ Application
     .addServiceProvider('extensionHelperService', () => {
         return new ExtensionHelperService({
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            storeService: Shopware.Service('storeService'),
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             extensionStoreActionService: Shopware.Service('extensionStoreActionService'),
         });
     })

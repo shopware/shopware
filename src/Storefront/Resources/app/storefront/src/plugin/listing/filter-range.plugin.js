@@ -11,12 +11,14 @@ export default class FilterRangePlugin extends FilterBasePlugin {
         inputTimeout: 500,
         minKey: 'min-price',
         maxKey: 'max-price',
+        lowerBound: 0,
         errorContainerClass: 'filter-range-error',
         containerSelector: '.filter-range-container',
         snippets: {
             filterRangeActiveMinLabel: '',
             filterRangeActiveMaxLabel: '',
             filterRangeErrorMessage: '',
+            filterRangeLowerBoundErrorMessage: '',
         },
     });
 
@@ -46,7 +48,9 @@ export default class FilterRangePlugin extends FilterBasePlugin {
 
         this._timeout = setTimeout(() => {
             if (this._isInputInvalid()) {
-                this._setError();
+                this._setError(this._getErrorMessageTemplate('filterRangeErrorMessage') );
+            } else if (this._isInputLowerBoundInvalid()) {
+                this._setError(this._getErrorMessageTemplate('filterRangeLowerBoundErrorMessage'));
             } else {
                 this._removeError();
             }
@@ -72,21 +76,32 @@ export default class FilterRangePlugin extends FilterBasePlugin {
      * @private
      */
     _isInputInvalid() {
-        return parseInt(this._inputMin.value) > parseInt(this._inputMax.value);
+        return parseFloat(this._inputMin.value) > parseFloat(this._inputMax.value);
     }
 
     /**
+     * @return {boolean}
+     * @private
+     */
+    _isInputLowerBoundInvalid() {
+        return (parseFloat(this._inputMin.value) < this.options.lowerBound) || (parseFloat(this._inputMax.value) < this.options.lowerBound);
+    }
+
+
+    /**
+     * @param error
      * @return {string}
      * @private
      */
-    _getErrorMessageTemplate() {
-        return `<div class="${this.options.errorContainerClass}">${this.options.snippets.filterRangeErrorMessage}</div>`;
+    _getErrorMessageTemplate(error) {
+        return `<div class="${this.options.errorContainerClass}">${this.options.snippets[error]}</div>`;
     }
 
     /**
+     * @param error
      * @private
      */
-    _setError() {
+    _setError(error) {
         if (this._hasError) {
             return;
         }
@@ -94,7 +109,7 @@ export default class FilterRangePlugin extends FilterBasePlugin {
         this._inputMin.classList.add(this.options.inputInvalidCLass);
         this._inputMax.classList.add(this.options.inputInvalidCLass);
 
-        this._container.insertAdjacentHTML('afterend', this._getErrorMessageTemplate());
+        this._container.insertAdjacentHTML('afterend', error);
 
         this._hasError = true;
     }

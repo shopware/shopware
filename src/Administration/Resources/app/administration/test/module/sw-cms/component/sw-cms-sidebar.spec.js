@@ -98,7 +98,7 @@ function createWrapper() {
             'sw-sidebar': true,
             'sw-sidebar-item': true,
             'sw-sidebar-collapse': true,
-            'sw-field': true,
+            'sw-text-field': true,
             'sw-select-field': true,
             'sw-cms-block-config': true,
             'sw-cms-block-layout-config': true,

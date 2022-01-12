@@ -6,6 +6,8 @@
         ref="pageConfigSidebar"
         icon="default-action-settings"
         :title="$tc('sw-cms.detail.sidebar.titlePageSettings')"
+        :has-simple-badge="hasPageConfigErrors"
+        badge-type="error"
         :disabled="page.locked || disabled"
     >
 
@@ -22,11 +24,11 @@
                 class="sw-cms-sidebar__settings"
             >
                 {% block sw_cms_sidebar_page_settings_name_field %}
-                <sw-field
+                <sw-text-field
                     v-model="page.name"
-                    type="text"
                     :label="$tc('sw-cms.detail.label.pageName')"
                     :placeholder="placeholder(page, 'name')"
+                    :error="pageNameError"
                 />
                 {% endblock %}
 

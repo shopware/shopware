@@ -3,6 +3,7 @@ import CMS from '../../constant/sw-cms.constant';
 import './sw-cms-sidebar.scss';
 
 const { Component, Mixin } = Shopware;
+const { mapPropertyErrors } = Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
 const types = Shopware.Utils.types;
@@ -122,6 +123,16 @@ Component.register('sw-cms-sidebar', {
         blockTypes() {
             return Object.keys(this.cmsBlocks);
         },
+
+        pageConfigErrors() {
+            return [this.pageNameError].filter(error => !!error);
+        },
+
+        hasPageConfigErrors() {
+            return this.pageConfigErrors.length > 0;
+        },
+
+        ...mapPropertyErrors('page', ['name']),
     },
 
     methods: {

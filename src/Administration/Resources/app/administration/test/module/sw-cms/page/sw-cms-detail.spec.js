@@ -15,6 +15,7 @@ function createWrapper(privileges = []) {
         stubs: {
             'sw-page': true,
             'sw-cms-toolbar': true,
+            'sw-alert': true,
             'sw-language-switch': true,
             'sw-router-link': true,
             'sw-icon': true,
@@ -159,13 +160,12 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
             }
         });
 
-        const { foundProductPageElements } = wrapper.vm.getSlotValidations(wrapper.vm.page.sections);
-
-        const buyBoxElements = foundProductPageElements.buyBox;
-        const warningMessages = wrapper.vm.getRedundantElementsWarning(foundProductPageElements);
-
+        const { uniqueSlotCount } = wrapper.vm.getSlotValidations(wrapper.vm.page.sections);
+        const buyBoxElements = uniqueSlotCount.buyBox;
         expect(buyBoxElements).toBe(2);
-        expect(warningMessages.length).toBe(1);
+
+        expect(wrapper.vm.slotValidation()).toBe(false);
+        expect(wrapper.vm.validationWarnings.length).toBe(2);
     });
 
     it('should not show layout assignment when saving after create wizard', async () => {
@@ -266,7 +266,6 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         await wrapper.vm.$nextTick();
 
         await wrapper.setData({
-            isSaveable: false,
             page: {
                 type: 'product_detail',
                 name: 'Product page',
@@ -284,7 +283,9 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         wrapper.vm.onSave();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.missingElements).toEqual(['productDescriptionReviews', 'crossSelling']);
+        expect(wrapper.vm.validationWarnings).toEqual([
+            'productDescriptionReviews', 'crossSelling'
+        ].map(element => `sw-cms.elements.${element}.label`));
         expect(wrapper.vm.showMissingElementModal).toBe(true);
         expect(wrapper.find('sw-cms-missing-element-modal-stub').exists()).toBeTruthy();
     });
@@ -294,7 +295,6 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         await wrapper.vm.$nextTick();
 
         await wrapper.setData({
-            isSaveable: true,
             page: {
                 type: 'product_detail',
                 name: 'Product page',
@@ -314,7 +314,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         wrapper.vm.onSave();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.missingElements).toEqual([]);
+        expect(wrapper.vm.validationWarnings).toEqual([]);
         expect(wrapper.vm.showMissingElementModal).toBe(false);
         expect(wrapper.find('sw-cms-missing-element-modal-stub').exists()).toBeFalsy();
     });

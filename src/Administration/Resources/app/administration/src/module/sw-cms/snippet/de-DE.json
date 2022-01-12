@@ -129,13 +129,16 @@
         "claimEmptyState": "Stelle neue Layouts mithilfe von Sektionen zusammen. Wähle eine Sektion und füge einfach per Drag & Drop-Blöcke zu jeder Sektion hinzu und befülle die Blöcke dann mit deinem individuellen Inhalt."
       },
       "notification": {
-        "messageMissingFields": "Konfiguration erforderlich. Bitte fülle alle erforderlichen Felder aus.",
-        "messageMissingBlockFields": "Konfiguration erforderlich. Bitte fülle alle Elemente mit Daten.",
-        "messageMissingProductListing": "Speichern nicht möglich. Bitte füge mindestens einen Produktlisting-Block hinzu oder ändere den Typ dieses Layouts.",
-        "messageMissingSections": "Du kannst leere Seiten nicht speichern. Bitte füge zuerst eine Sektion hinzu.",
+        "pageInvalid": "Einige Fehler sind aufgetreten. Bitte überprüfe die Liste im Editor.",
+        "errorCollectionText": "Aufgrund folgender Fehler konnte nicht gespeichert werden:",
+        "warningCollectionText": "In diesem Layout fehlen folgende, empfohlene Elemente:",
+        "messageMissingFields": "Einige erforderliche Felder wurden nicht ausgefüllt.",
+        "messageMissingBlockFields": "Einige Blöcke wurden nicht ausreichend konfiguriert.",
+        "messageMissingProductListing": "Diese Kategorieseite enthält keinen Produktlisting-Block.",
+        "messageMissingSections": "Dieses Layout enthält keine Sektionen.",
+        "messageRedundantElements": "Es exitieren Blöcke, die nur einmal vorhanden sein dürfen. ({names})",
         "messageMissingBlocks": "Du kannst keine leere Seite speichern. Bitte füge zuerst einen Block hinzu.",
-        "messageMissingElements": "Konfiguration erforderlich. Bitte konfiguriere alle Elemente Deines Layouts.",
-        "messageRedundantElements": "Layouts dürfen nur ein {name}-Element enthalten."
+        "messageMissingElements": "Konfiguration erforderlich. Bitte konfiguriere alle Elemente Deines Layouts."
       },
       "placeholder": {
         "demoEntity": "Wähle einen Datensatz zur Vorschau ..."

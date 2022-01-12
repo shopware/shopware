@@ -16,11 +16,10 @@ Component.register('sw-admin-menu-item', {
             type: Object,
             required: true,
         },
-        // FIXME: add default property `() => []` ?
-        // eslint-disable-next-line vue/require-default-prop
         parentEntries: {
             type: Array,
             required: false,
+            default: () => [],
         },
         displayIcon: {
             type: Boolean,
@@ -70,6 +69,7 @@ Component.register('sw-admin-menu-item', {
             if (this.entry.path === 'sw.settings.index') {
                 return this.acl.hasActiveSettingModules();
             }
+
             if (this.children.length > 0) {
                 return true;
             }

@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Test\Theme;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Memory\MemoryAdapter;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch;
 use Shopware\Core\Framework\Context;
@@ -501,8 +502,8 @@ PHP_EOL;
 
     public function testOutputsOnlyExpectedCssWhenUsingFeatureFlagFunction(): void
     {
-        if ($_SERVER['FEATURE_ALL']) {
-            static::markTestSkipped('Skipped because fixture feature `FEATURE_NEXT_2` should be false.');
+        if (EnvironmentHelper::getVariable('FEATURE_ALL')) {
+            static::markTestSkipped('Skipped because fixture feature `FEATURE_ALL` should be false.');
         }
 
         $themeCompilerReflection = new \ReflectionClass(ThemeCompiler::class);

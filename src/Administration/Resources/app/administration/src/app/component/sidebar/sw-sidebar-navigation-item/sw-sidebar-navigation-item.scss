@@ -6,6 +6,11 @@ $sw-sidebar-navigation-item-hover-color-background: $color-shopware-brand-50;
 $sw-sidebar-navigation-item-active-color-background: $color-shopware-brand-50;
 $sw-sidebar-navigation-item-size: 64px;
 
+$sw-sidebar-navigation-item-badge-color-info: $color-shopware-brand-500;
+$sw-sidebar-navigation-item-badge-color-warning: $color-pumpkin-spice-500;
+$sw-sidebar-navigation-item-badge-color-error: $color-crimson-500;
+$sw-sidebar-navigation-item-badge-color-success: $color-emerald-500;
+
 .sw-sidebar-navigation-item {
     position: relative;
     width: $sw-sidebar-navigation-item-size;
@@ -30,16 +35,40 @@ $sw-sidebar-navigation-item-size: 64px;
         opacity: 0.3;
     }
 
-    .notification-badge {
+    .sidebar-item-badge {
         position: absolute;
-        top: 0;
-        right: 0;
         transform: translate(-30%, 70%);
-        background: $color-shopware-brand-500;
         border-radius: 18px;
-        padding: 2px 8px;
-        color: #fff;
+        color: $color-white;
         font-size: $font-size-extra-small;
         font-style: normal;
+
+        &.is--info {
+            background-color: $sw-sidebar-navigation-item-badge-color-info;
+        }
+
+        &.is--warning {
+            background-color: $sw-sidebar-navigation-item-badge-color-warning;
+        }
+
+        &.is--error {
+            background-color: $sw-sidebar-navigation-item-badge-color-error;
+        }
+
+        &.is--success {
+            background-color: $sw-sidebar-navigation-item-badge-color-success;
+        }
+    }
+
+    .notification--badge {
+        top: 0;
+        right: 0;
+        padding: 2px 8px;
+    }
+
+    .dot--badge {
+        top: 8px;
+        right: 10px;
+        padding: 4px;
     }
 }

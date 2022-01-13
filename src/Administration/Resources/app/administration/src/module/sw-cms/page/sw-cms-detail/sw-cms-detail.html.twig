@@ -121,6 +121,7 @@
         {% block sw_cms_detail_stage_container %}
         <div class="sw-cms-detail__stage-container">
             <sw-overlay v-if="page.locked" />
+
             {% block sw_cms_detail_stage_form_view %}
             <div
                 v-if="currentDeviceView === 'form'"
@@ -154,9 +155,50 @@
             >
 
                 {% block sw_cms_detail_toolbar_notification %}
+                {% block sw_cms_detail_toolbar_notification_errors %}
+                <div
+                    v-if="hasPageErrors"
+                    class="sw-cms-detail__page-notification"
+                >
+                    <sw-alert
+                        class="sw-cms-detail__page-notification-alert is--error"
+                        variant="error"
+                    >
+                        {{ $tc('sw-cms.detail.notification.errorCollectionText') }}
+                        <li
+                            v-for="(error, index) in pageErrors"
+                            :key="index"
+                        >
+                            {{ error.detail }}
+                        </li>
+                    </sw-alert>
+                </div>
+                {% endblock %}
+
+                {% block sw_cms_detail_toolbar_notification_warnings %}
+                <div
+                    v-if="validationWarnings.length > 0"
+                    class="sw-cms-detail__page-notification"
+                >
+                    <sw-alert
+                        class="sw-cms-detail__page-notification-alert is--warning"
+                        variant="warning"
+                    >
+                        {{ $tc('sw-cms.detail.notification.warningCollectionText') }}
+                        <li
+                            v-for="(warning, index) in validationWarnings"
+                            :key="index"
+                        >
+                            {{ warning }}
+                        </li>
+                    </sw-alert>
+                </div>
+                {% endblock %}
+
+                {% block sw_cms_detail_toolbar_notification_infos %}
                 <div
                     v-if="page.locked"
-                    class="sw-cms-detail__page-notification"
+                    class="sw-cms-detail__page-notification is--info"
                 >
                     <sw-alert
                         class="sw-cms-detail__page-notification-alert"
@@ -165,6 +207,7 @@
                         {{ $tc('sw-cms.detail.label.lockedNotification') }}
                     </sw-alert>
                 </div>
+                {% endblock %}
                 {% endblock %}
 
                 {% block sw_cms_detail_stage_empty_stage %}

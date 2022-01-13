@@ -13,9 +13,15 @@
         size="20px"
     />
     <i
-        v-if="sidebarItem.badge"
-        class="notification-badge"
+        v-if="!sidebarItem.hasSimpleBadge && sidebarItem.badge > 0"
+        class="sidebar-item-badge notification--badge"
+        :class="badgeTypeClasses"
     >{{ sidebarItem.badge }}</i>
+    <i
+        v-else-if="sidebarItem.hasSimpleBadge"
+        class="sidebar-item-badge dot--badge"
+        :class="badgeTypeClasses"
+    ></i>
     {% endblock %}
 </button>
 {% endblock %}

@@ -80,9 +80,7 @@ class StoreApiService extends ApiService {
     }
 
     /**
-     * @deprecated tag:v6.5.0 for updating and installing plugins use downloadAndUpdatePlugin
-     * TODO: remove param onlyDownload with removing deprecation and remove the source code after
-     * the if statement "onlyDownload". It should now only download the plugin and do not trigger a update.
+     * @deprecated tag:v6.5.0 - Use ExtensionStoreActionService.downloadExtension() instead
      */
     downloadPlugin(pluginName, unauthenticated = false, onlyDownload = false) {
         const headers = this.getBasicHeaders();
@@ -93,7 +91,6 @@ class StoreApiService extends ApiService {
             params.unauthenticated = true;
         }
 
-        // TODO: remove if condition but keep content of the block
         if (onlyDownload) {
             return this.httpClient
                 .get(`/_action/${this.getApiBasePath()}/download`, { params, headers })
@@ -102,7 +99,6 @@ class StoreApiService extends ApiService {
                 });
         }
 
-        // TODO: remove this when removing deprecation
         return this.httpClient
             .get(`/_action/${this.getApiBasePath()}/download`, { params, headers })
             .then(() => {
@@ -114,6 +110,10 @@ class StoreApiService extends ApiService {
             });
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Use ExtensionStoreActionService.downloadExtension() and
+     * ExtensionStoreActionService.updateExtension() instead
+     */
     downloadAndUpdatePlugin(pluginName, unauthenticated = false) {
         const headers = this.getBasicHeaders();
         const params = this.getBasicParams({

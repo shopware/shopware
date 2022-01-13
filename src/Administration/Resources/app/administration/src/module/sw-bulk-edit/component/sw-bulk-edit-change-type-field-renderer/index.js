@@ -6,6 +6,8 @@ const { Component } = Shopware;
 Component.register('sw-bulk-edit-change-type-field-renderer', {
     template,
 
+    inject: ['feature'],
+
     props: {
         bulkEditData: {
             type: Object,

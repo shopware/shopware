@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
 use Shopware\Core\System\User\UserEntity;
 
@@ -25,39 +24,14 @@ class StoreService
 
     private InstanceService $instanceService;
 
-    private AbstractStoreRequestOptionsProvider $requestOptionsProvider;
-
     final public function __construct(
         Client $client,
         EntityRepositoryInterface $userRepository,
-        InstanceService $instanceService,
-        AbstractStoreRequestOptionsProvider $requestOptionsProvider
+        InstanceService $instanceService
     ) {
         $this->client = $client;
         $this->userRepository = $userRepository;
         $this->instanceService = $instanceService;
-        $this->requestOptionsProvider = $requestOptionsProvider;
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 Will be removed. Use getDefaultQueryParametersFromContext instead
-     */
-    public function getDefaultQueryParameters(string $language, bool $checkLicenseDomain = true): array
-    {
-        return $this->requestOptionsProvider->getDefaultQueryParameters(null, $language);
-    }
-
-    public function getDefaultQueryParametersFromContext(Context $context): array
-    {
-        return $this->requestOptionsProvider->getDefaultQueryParameters($context);
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 Use InstanceService::getShopwareVersion instead
-     */
-    public function getShopwareVersion(): string
-    {
-        return $this->instanceService->getShopwareVersion();
     }
 
     public function fireTrackingEvent(string $eventName, array $additionalData = []): ?array
@@ -66,7 +40,7 @@ class StoreService
             return null;
         }
 
-        $additionalData['shopwareVersion'] = $this->getShopwareVersion();
+        $additionalData['shopwareVersion'] = $this->instanceService->getShopwareVersion();
         $payload = [
             'additionalData' => $additionalData,
             'instanceId' => $this->instanceService->getInstanceId(),

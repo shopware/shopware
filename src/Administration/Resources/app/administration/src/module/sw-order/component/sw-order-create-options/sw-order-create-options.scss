@@ -1,0 +1,22 @@
+@import "~scss/variables";
+
+.sw-order-create-options {
+    height: 594px;
+
+    &__test-order.sw-field--switch {
+        margin: 0;
+        width: fit-content;
+    }
+
+    &__disable-auto-promotion.sw-field--switch {
+        margin: 0 0 24px;
+    }
+}
+
+.sw-select-result-list-popover-wrapper {
+    .sw-select-result__item-list {
+        border-bottom: 1px solid $color-gray-300;
+        padding-bottom: 5px;
+        margin-bottom: 5px;
+    }
+}

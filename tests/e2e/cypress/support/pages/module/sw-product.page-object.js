@@ -78,13 +78,13 @@ export default class ProductPageObject {
                 .contains(new RegExp(`${totalCount} (variants will be added|varianten worden toegevoegd)`));
         }
 
-        cy.get('.sw-product-modal-variant-generation__notification-modal .sw-button--primary')
-            .click();
+        cy.get('.sw-product-modal-variant-generation__notification-modal .sw-button--primary').click()
+            .then(() => {
+                cy.get('.generate-variant-progress-bar__description').contains(new RegExp(`0 (of|van) ${totalCount} (variations generated|Varianten gegenereerd)`));
+                cy.get('.sw-product-modal-variant-generation__notification-modal').should('not.exist');
+            });
 
         cy.wait('@productCall').its('response.statusCode').should('equal', 200);
-
-        cy.get('.sw-product-modal-variant-generation__notification-modal').should('not.exist');
-        cy.get('.generate-variant-progress-bar__description').contains(new RegExp(`0 (of|van) ${totalCount} (variations generated|Varianten gegenereerd)`));
 
         cy.wait('@searchCall').its('response.statusCode').should('equal', 200);
         cy.get('.sw-product-modal-variant-generation').should('not.exist');

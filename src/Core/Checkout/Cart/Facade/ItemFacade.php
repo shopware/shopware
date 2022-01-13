@@ -7,6 +7,11 @@ use Shopware\Core\Framework\Script\Facade\ArrayFacade;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * The ItemFacade is a wrapper around one line-item.
+ *
+ * @script-service cart_manipulation
+ */
 class ItemFacade
 {
     private LineItem $item;
@@ -25,6 +30,11 @@ class ItemFacade
         $this->context = $context;
     }
 
+    /**
+     * `getPrice()` returns the calculated price of the line-item.
+     *
+     * @return PriceFacade|null Returns the price of the line-item as a `PriceFacade` or null if the line-item has no calculated price.
+     */
     public function getPrice(): ?PriceFacade
     {
         if ($this->item->getPrice()) {
@@ -34,6 +44,17 @@ class ItemFacade
         return null;
     }
 
+    /**
+     * `take()` splits an existing line-item by a given quantity.
+     * It removes the given quantity from the existing line-item and returns a new line-item with exactly that quantity.
+     *
+     * @param int $quantity The quantity that should be taken.
+     * @param string|null $key Optional: The id of the new line-item. A random UUID will be used if none is provided.
+     *
+     * @return ItemFacade|null Returns the new line-item as an `ItemFacade` or null if taking is not possible because the line-item has no sufficient quantity.
+     *
+     * @example split-product/split-product.twig Take a quantity of 2 from an existing product line-item and add it to the cart again.
+     */
     public function take(int $quantity, ?string $key = null): ?ItemFacade
     {
         if (!$this->item->isStackable()) {
@@ -55,26 +76,52 @@ class ItemFacade
         return new ItemFacade($new, $this->helper, $this->context);
     }
 
+    /**
+     * `getId()` returns the id of the line-item.
+     *
+     * @return string Returns the id.
+     */
     public function getId(): string
     {
         return $this->item->getId();
     }
 
+    /**
+     * `getReferenceId()` returns the id of the referenced entity of the line-item.
+     * E.g. for product line-items this will return the id of the referenced product.
+     *
+     * @return string|null Returns the id of the referenced entity, or null if no entity is referenced.
+     */
     public function getReferencedId(): ?string
     {
         return $this->item->getReferencedId();
     }
 
+    /**
+     * `getQuantity()` returns the quantity of the line-item.
+     *
+     * @return int Returns the quantity.
+     */
     public function getQuantity(): int
     {
         return $this->item->getQuantity();
     }
 
+    /**
+     * `getLabel()` returns the translated label of the line-item.
+     *
+     * @return string|null Returns the translated label, or null if none exists.
+     */
     public function getLabel(): ?string
     {
         return $this->item->getLabel();
     }
 
+    /**
+     * `getPayload()` returns the payload of this line-item.
+     *
+     * @return ArrayFacade Returns the payload as `ArrayFacade`.
+     */
     public function getPayload(): ArrayFacade
     {
         return new ArrayFacade(
@@ -85,11 +132,22 @@ class ItemFacade
         );
     }
 
+    /**
+     * `getChildren()` returns the child line-items of this line-item.
+     *
+     * @return ItemsFacade Returns the children as a `ItemsFacade`, that may be empty if no children exist.
+     */
     public function getChildren(): ItemsFacade
     {
         return new ItemsFacade($this->item->getChildren(), $this->helper, $this->context);
     }
 
+    /**
+     * `getType()` returns the type of this line-item.
+     * Possible types include `product`, `discount`, `container`, etc.
+     *
+     * @return string The type of the line-item.
+     */
     public function getType(): string
     {
         return $this->item->getType();

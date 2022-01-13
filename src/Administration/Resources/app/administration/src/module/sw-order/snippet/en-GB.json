@@ -62,6 +62,36 @@
       }
     },
     "createBase": {
+      "labelEmail": "Email address",
+      "labelPhoneNumber": "Phone number",
+      "placeholderEmail": "Enter email address...",
+      "placeholderPhoneNumber": "Enter phone number...",
+      "labelBillingAddress": "Billing address",
+      "labelShippingAddress": "Shipping address",
+      "placeholderBillingAddress": "Select billing address...",
+      "placeholderShippingAddress": "Select shipping address...",
+      "labelSalesChannel": "Sales Channel",
+      "labelPaymentMethod": "Payment method",
+      "labelShippingMethod": "Shipping method",
+      "labelOrderLanguage": "Order language",
+      "labelCurrency": "Currency",
+      "placeholderSalesChannel": "Select Sales Channels...",
+      "placeholderPaymentMethod": "Select payment method...",
+      "placeholderShippingMethod": "Select shipping method...",
+      "placeholderOrderLanguage": "Select order language...",
+      "placeholderCurrency": "Select currency...",
+      "helpTextPaymentMethod": "Only payments which are compatible with the after order payment process are available.",
+      "labelToggleAutomaticPromotions": "Disable automatically applied promotions",
+      "labelPromotions": "Promotions",
+      "generalTab": {
+        "labelLineItemsCard": "Items",
+        "labelGeneralInfoCard": "Info"
+      },
+      "detailsTab": {
+        "labelTransactionCard": "Payment",
+        "labelDeliveryCard": "Shipping",
+        "labelOrderCard": "Order"
+      },
       "labelDetailsCard": "Details",
       "detailsHeader": {
         "textCustomer": "Customer",
@@ -109,6 +139,7 @@
       "taxDetail": "{taxRate}%: {tax}",
       "contextMenuShowProduct": "Show product",
       "messageEmptyItem": "No items added yet",
+      "buttonAddItems": "Add items",
       "buttonAddProduct": "Add product",
       "buttonAddBlankProduct": "Add custom item",
       "buttonAddCredit": "Add credit",
@@ -404,6 +435,59 @@
       "message": "The following automatic promotions will be disabled:",
       "messageNoItems": "No automatic promotions active.",
       "buttonDisable": "Disable"
+    },
+    "initialModal": {
+      "titleNewOrder": "New order",
+      "tabCustomer": "Customer",
+      "tabProducts": "Products",
+      "tabCustomItem": "Custom item",
+      "tabOptions": "Options",
+      "tabCredit": "Credit",
+      "buttonPreviewOrder": "Preview order",
+      "customerGrid": {
+        "buttonAddNewCustomer": "Add new customer",
+        "placeholderSearchCustomer": "Enter the customer name...",
+        "textEmptySearch": "No data for {name}",
+        "contextOpenButton": "Open",
+        "columnCustomerName": "Name",
+        "columnCustomerNumber": "Customer number",
+        "columnEmailAddress": "Email address"
+      },
+      "options": {
+        "textHeadlineOrder": "Order",
+        "textHeadlinePayment": "Payment",
+        "textHeadlineShipment": "Shipment",
+        "labelTestOrder": "Test order",
+        "helpTextTestOrder": "This order will be in test mode",
+        "placeholderAddPromotion": "Add promotion",
+        "textSameAsBillingAddress": "Same as billing address",
+        "textSameAsShippingAddress": "Same as shipping address"
+      }
+    },
+    "itemModal": {
+      "productGrid": {
+        "columnAmount": "Total",
+        "columnProductName": "Name",
+        "columnProductNumber": "Product number",
+        "textEmptySearch": "No data for {name}"
+      },
+      "customItem": {
+        "labelName": "Name",
+        "placeholderName": "Enter item name...",
+        "placeholderPriceNet": "Enter price (net)",
+        "placeholderPriceGross": "Enter price (gross)",
+        "placeholderPriceTaxFree": "Enter price (tax free)",
+        "labelAmount": "Total",
+        "placeholderAmount": "Enter custom item total...",
+        "labelVat": "VAT",
+        "placeholderSelectVat": "Select VAT..."
+      },
+      "credit": {
+        "labelCreditName": "Name",
+        "placeholderCreditName": "Enter credit name...",
+        "labelCreditAmount": "Total",
+        "placeholderAmount": "Enter credit total..."
+      }
     },
     "filters": {
       "documentFilter": {

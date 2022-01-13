@@ -12,6 +12,10 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * The ItemsFacade is a wrapper around a collection of line-items.
+ *
+ * @script-service cart_manipulation
+ *
  * @implements \IteratorAggregate<array-key, \Shopware\Core\Checkout\Cart\LineItem\LineItem>
  */
 class ItemsFacade implements \IteratorAggregate

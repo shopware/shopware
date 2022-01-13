@@ -1,59 +1,38 @@
 import initState from './store';
-import extensionErrorMixin from './mixin/sw-extension-error.mixin';
+import './mixin/sw-extension-error.mixin';
+import './service';
+import './page/sw-extension-config';
+import './page/sw-extension-my-extensions-listing';
+import './page/sw-extension-my-extensions-index';
+import './page/sw-extension-my-extensions-account';
+import './page/sw-extension-store-landing-page';
+import './page/sw-extension-my-extensions-recommendation';
+import './component/sw-extension-file-upload';
+import './component/sw-extension-permissions-details-modal';
+import './component/sw-extension-card-base';
+import './component/sw-extension-card-bought';
+import './component/sw-self-maintained-extension-card';
+import './component/sw-extension-my-extensions-listing-controls';
+import './component/sw-extension-permissions-modal';
+import './component/sw-extension-domains-modal';
+import './component/sw-extension-privacy-policy-extensions-modal';
+import './component/sw-extension-deactivation-modal';
+import './component/sw-extension-removal-modal';
+import './component/sw-extension-uninstall-modal';
+import './component/sw-ratings/sw-extension-rating-stars';
+import './component/sw-ratings/sw-extension-ratings-card';
+import './component/sw-ratings/sw-extension-ratings-summary';
+import './component/sw-ratings/sw-extension-review';
+import './component/sw-ratings/sw-extension-review-creation';
+import './component/sw-ratings/sw-extension-review-creation-inputs';
+import './component/sw-ratings/sw-extension-review-reply';
+import './component/sw-ratings/sw-extension-select-rating';
+import './component/sw-ratings/sw-extension-rating-modal';
+import './component/sw-extension-adding-failed';
+import './component/sw-extension-adding-success';
+import './acl';
 
-async function initDependencies() {
-    await import(/* webpackMode: 'eager' */ './service');
-    await import(/* webpackMode: 'eager' */ './page/sw-extension-config');
-    await import(/* webpackMode: 'eager' */ './page/sw-extension-my-extensions-listing');
-    await import(/* webpackMode: 'eager' */ './page/sw-extension-my-extensions-index');
-    await import(/* webpackMode: 'eager' */ './page/sw-extension-my-extensions-account');
-    await import(/* webpackMode: 'eager' */ './page/sw-extension-store-landing-page');
-    await import(/* webpackMode: 'eager' */ './page/sw-extension-my-extensions-recommendation');
-    await import(/* webpackMode: 'eager' */ './component/sw-extension-file-upload');
-    await import(/* webpackMode: 'eager' */ './component/sw-extension-permissions-details-modal');
-    await import(/* webpackMode: 'eager' */ './component/sw-extension-card-base');
-    await import(/* webpackMode: 'eager' */ './component/sw-extension-card-bought');
-    await import(/* webpackMode: 'eager' */ './component/sw-self-maintained-extension-card');
-    await import(/* webpackMode: 'eager' */ './component/sw-extension-my-extensions-listing-controls');
-    await import(/* webpackMode: 'eager' */ './component/sw-extension-permissions-modal');
-    await import(/* webpackMode: 'eager' */ './component/sw-extension-domains-modal');
-    await import(/* webpackMode: 'eager' */ './component/sw-extension-privacy-policy-extensions-modal');
-    await import(/* webpackMode: 'eager' */ './component/sw-extension-deactivation-modal');
-    await import(/* webpackMode: 'eager' */ './component/sw-extension-removal-modal');
-    await import(/* webpackMode: 'eager' */ './component/sw-extension-uninstall-modal');
-    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-rating-stars');
-    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-ratings-card');
-    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-ratings-summary');
-    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-review');
-    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-review-creation');
-    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-review-creation-inputs');
-    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-review-reply');
-    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-select-rating');
-    await import(/* webpackMode: 'eager' */ './component/sw-ratings/sw-extension-rating-modal');
-    await import(/* webpackMode: 'eager' */ './component/sw-extension-adding-failed');
-    await import(/* webpackMode: 'eager' */ './component/sw-extension-adding-success');
-    await import(/* webpackMode: 'eager' */ './acl');
-}
-
-let errorMixin = extensionErrorMixin;
-if (!Shopware.Feature.isActive('FEATURE_NEXT_12608')) {
-    errorMixin = {
-        mixins: [Shopware.Mixin.getByName('notification')],
-
-        methods: {
-            showExtensionErrors(errorResponse) {
-                console.error(errorResponse);
-            },
-        },
-    };
-}
-Shopware.Mixin.register('sw-extension-error', errorMixin);
-
-
-if (Shopware.Feature.isActive('FEATURE_NEXT_12608')) {
-    initState(Shopware);
-    initDependencies();
-}
+initState(Shopware);
 
 Shopware.Module.register('sw-extension', {
     type: 'core',
@@ -63,7 +42,6 @@ Shopware.Module.register('sw-extension', {
     icon: 'default-object-plug',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    flag: 'FEATURE_NEXT_12608',
     entity: 'extension',
 
     searchMatcher: (regex, labelType, manifest) => {

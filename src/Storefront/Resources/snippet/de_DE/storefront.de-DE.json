@@ -445,6 +445,7 @@
     "filterRangeActiveMinLabel": "Preis ab",
     "filterRangeActiveMaxLabel": "Preis bis",
     "filterRangeErrorMessage": "Der Mindestpreis darf nicht höher sein als der Höchstpreis.",
+    "filterRangeLowerBoundErrorMessage": "Der Mindest- und Höchstpreis muss größer oder gleich %lowerBound% sein.",
     "filterSubmitText": "Filter",
     "defaultProductSortingLabel": "Name A-Z",
     "disabledFilterTooltip": "Dieser Filter zeigt in Kombination mit den ausgewählten Filtern keine weiteren Ergebnisse an.",

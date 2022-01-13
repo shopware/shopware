@@ -25,9 +25,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @internal (flag:FEATURE_NEXT_6040)
- */
 class UserConfigController extends AbstractController
 {
     private EntityRepositoryInterface $userConfigRepository;

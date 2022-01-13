@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 use Shopware\Core\Framework\Update\Struct\Version;
 
+/**
+ * @internal
+ */
 class PluginCompatibility
 {
     public const PLUGIN_COMPATIBILITY_COMPATIBLE = 'compatible';
@@ -31,12 +34,12 @@ class PluginCompatibility
 
     private StoreClient $storeClient;
 
-    private ?AbstractExtensionDataProvider $extensionDataProvider;
+    private AbstractExtensionDataProvider $extensionDataProvider;
 
     public function __construct(
         StoreClient $storeClient,
         EntityRepositoryInterface $pluginRepository,
-        ?AbstractExtensionDataProvider $extensionDataProvider
+        AbstractExtensionDataProvider $extensionDataProvider
     ) {
         $this->storeClient = $storeClient;
         $this->pluginRepository = $pluginRepository;
@@ -256,11 +259,7 @@ class PluginCompatibility
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('active', 1));
 
-        if ($this->extensionDataProvider) {
-            return $this->extensionDataProvider->getInstalledExtensions($context, false, $criteria);
-        }
-
-        throw new \RuntimeException(sprintf('Feature flag %s needs to be active to call %s:%s', 'FEATURE_NEXT_12608', __CLASS__, __METHOD__));
+        return $this->extensionDataProvider->getInstalledExtensions($context, false, $criteria);
     }
 
     private function fetchInactivePlugins(array $pluginIds, Context $context): PluginCollection
@@ -279,11 +278,7 @@ class PluginCompatibility
         $criteria = new Criteria($pluginIds);
         $criteria->addFilter(new EqualsFilter('active', 0));
 
-        if ($this->extensionDataProvider) {
-            return $this->extensionDataProvider->getInstalledExtensions($context, false, $criteria);
-        }
-
-        throw new \RuntimeException(sprintf('Feature flag %s needs to be active to call %s:%s', 'FEATURE_NEXT_12608', __CLASS__, __METHOD__));
+        return $this->extensionDataProvider->getInstalledExtensions($context, false, $criteria);
     }
 
     private function mapColorToStatusVariant(string $color): array

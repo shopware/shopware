@@ -5,9 +5,11 @@ import capitalizeString from 'lodash/capitalize';
 import camelCase from 'lodash/camelCase';
 import kebabCase from 'lodash/kebabCase';
 import snakeCase from 'lodash/snakeCase';
+import upperFirst from 'lodash/upperFirst';
 
 export default {
     capitalizeString,
+    upperFirst,
     camelCase,
     kebabCase,
     snakeCase,

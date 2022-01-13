@@ -36,7 +36,7 @@ describe('Dynamic product group: Test product visibilities filter', () => {
         page.fillFilterWithEntitySelect(
             '@productStreamFilterWithSingleSelect',
             {
-                field: 'Visibilities.product_visibility',
+                field: 'Visibilities',
                 operator: 'Is equal to',
                 value: 'Storefront'
             }
@@ -53,7 +53,7 @@ describe('Dynamic product group: Test product visibilities filter', () => {
         page.fillFilterWithEntityMultiSelect(
             '@productStreamFilterWithMultiSelect',
             {
-                field: 'Visibilities.product_visibility',
+                field: 'Visibilities',
                 operator: 'Is equal to any of',
                 value: ['Storefront']
             }

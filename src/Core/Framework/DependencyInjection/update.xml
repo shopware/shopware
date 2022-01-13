@@ -14,11 +14,10 @@
             <argument type="service" id="Shopware\Core\Framework\Update\Services\PluginCompatibility" />
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionLifecycleService"/>
             <argument type="service" id="user.repository"/>
             <argument>%kernel.shopware_version%</argument>
             <argument>%env(bool:SHOPWARE_UPDATE_TEST)%</argument>
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionLifecycleService" on-invalid="null"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

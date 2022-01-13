@@ -1,8 +1,6 @@
 import createHttpClient from 'src/core/factory/http.factory';
 import createLoginService from 'src/core/service/login.service';
 import 'src/module/sw-extension/service';
-import 'src/module/sw-extension/';
-import 'src/module/sw-extension/store';
 import appModulesFixtures from '../../../app/service/_mocks/testApps.json';
 
 const httpClient = createHttpClient(Shopware.Context.api);

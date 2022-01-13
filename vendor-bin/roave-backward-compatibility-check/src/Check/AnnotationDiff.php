@@ -83,6 +83,12 @@ class AnnotationDiff
         }
 
         $before = $docblock->create($before);
+
+        // Docblock Factory needs a filled string. If we removed the doc comment add a space
+        if ($after === '') {
+            $after = ' ';
+        }
+
         $after = $docblock->create($after);
 
         foreach ($mapping as $name => $cfg) {

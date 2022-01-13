@@ -4,7 +4,9 @@
     {% set price = lineItem.price %}
     {% set isDiscount = (not lineItem.good and price.totalPrice <= 0) %}
     {% set isNested = lineItem.children.count > 0 %}
-    {% set label = lineItem.label %}
+    {% set label = lineItem.label|trans|sw_sanitize %}
+    {% set label = label !== '' ? label : lineItem.label %}
+
     {% set referencedId = lineItem.referencedId %}
     {% set type = lineItem.type %}
     {% set quantity = lineItem.quantity %}

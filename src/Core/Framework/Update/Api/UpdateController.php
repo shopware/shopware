@@ -8,9 +8,7 @@ use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserExcept
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
-use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -24,7 +22,6 @@ use Shopware\Core\Framework\Update\Services\ApiClient;
 use Shopware\Core\Framework\Update\Services\PluginCompatibility;
 use Shopware\Core\Framework\Update\Services\RequirementsValidator;
 use Shopware\Core\Framework\Update\Steps\DeactivateExtensionsStep;
-use Shopware\Core\Framework\Update\Steps\DeactivatePluginsStep;
 use Shopware\Core\Framework\Update\Steps\DownloadStep;
 use Shopware\Core\Framework\Update\Steps\FinishResult;
 use Shopware\Core\Framework\Update\Steps\UnpackStep;
@@ -47,6 +44,8 @@ use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 /**
  * @RouteScope(scopes={"api"})
+ *
+ * @internal
  */
 class UpdateController extends AbstractController
 {
@@ -65,15 +64,13 @@ class UpdateController extends AbstractController
 
     private SystemConfigService $systemConfig;
 
-    private PluginLifecycleService $pluginLifecycleService;
-
     private string $shopwareVersion;
 
     private bool $isUpdateTest;
 
     private EntityRepositoryInterface $userRepository;
 
-    private ?AbstractExtensionLifecycle $extensionLifecycleService;
+    private AbstractExtensionLifecycle $extensionLifecycleService;
 
     public function __construct(
         string $rootDir,
@@ -82,11 +79,10 @@ class UpdateController extends AbstractController
         PluginCompatibility $pluginCompatibility,
         EventDispatcherInterface $eventDispatcher,
         SystemConfigService $systemConfig,
-        PluginLifecycleService $pluginLifecycleService,
+        AbstractExtensionLifecycle $extensionLifecycleService,
         EntityRepositoryInterface $userRepository,
         string $shopwareVersion,
-        bool $isUpdateTest = false,
-        ?AbstractExtensionLifecycle $extensionLifecycleService = null
+        bool $isUpdateTest = false
     ) {
         $this->rootDir = $rootDir;
         $this->apiClient = $apiClient;
@@ -94,7 +90,6 @@ class UpdateController extends AbstractController
         $this->pluginCompatibility = $pluginCompatibility;
         $this->eventDispatcher = $eventDispatcher;
         $this->systemConfig = $systemConfig;
-        $this->pluginLifecycleService = $pluginLifecycleService;
         $this->shopwareVersion = $shopwareVersion;
         $this->isUpdateTest = $isUpdateTest;
         $this->userRepository = $userRepository;
@@ -151,11 +146,7 @@ class UpdateController extends AbstractController
     {
         $update = $this->apiClient->checkForUpdates($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION);
 
-        if (Feature::isActive('FEATURE_NEXT_12608')) {
-            return new JsonResponse($this->pluginCompatibility->getExtensionCompatibilities($update, $context));
-        }
-
-        return new JsonResponse($this->pluginCompatibility->getPluginCompatibilities($update, $context));
+        return new JsonResponse($this->pluginCompatibility->getExtensionCompatibilities($update, $context));
     }
 
     /**
@@ -268,25 +259,14 @@ class UpdateController extends AbstractController
             PluginCompatibility::PLUGIN_DEACTIVATION_FILTER_NOT_COMPATIBLE
         );
 
-        if (Feature::isActive('FEATURE_NEXT_12608') && $this->extensionLifecycleService) {
-            $deactivatePluginStep = new DeactivateExtensionsStep(
-                $update,
-                $deactivationFilter,
-                $this->pluginCompatibility,
-                $this->extensionLifecycleService,
-                $this->systemConfig,
-                $context
-            );
-        } else {
-            $deactivatePluginStep = new DeactivatePluginsStep(
-                $update,
-                $deactivationFilter,
-                $this->pluginCompatibility,
-                $this->pluginLifecycleService,
-                $this->systemConfig,
-                $context
-            );
-        }
+        $deactivatePluginStep = new DeactivateExtensionsStep(
+            $update,
+            $deactivationFilter,
+            $this->pluginCompatibility,
+            $this->extensionLifecycleService,
+            $this->systemConfig,
+            $context
+        );
 
         $result = $deactivatePluginStep->run($offset);
 

@@ -114,9 +114,9 @@ class Feature
         }
     }
 
-    public static function throwException(string $flag, string $message): void
+    public static function throwException(string $flag, string $message, bool $state = true): void
     {
-        if (self::isActive($flag) || !self::has($flag)) {
+        if (self::isActive($flag) === $state || !self::has($flag)) {
             throw new \RuntimeException($message);
         }
     }

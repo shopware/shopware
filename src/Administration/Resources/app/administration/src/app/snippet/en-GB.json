@@ -606,6 +606,7 @@
         "isNewCustomerRule": "New customer",
         "lastNameRule": "Surname",
         "isCompanyRule": "Commercial customer",
+        "isGuestRule": "Guest account",
         "isNewsletterRecipient": "Customer is newsletter recipient",
         "daysSinceLastOrderRule": "Days since last order",
         "shippingCountryRule": "Shipping address: Country",

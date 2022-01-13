@@ -72,6 +72,18 @@ Component.register('sw-product-stream-field-select', {
         },
     },
 
+    watch: {
+        'definition.entity': {
+            immediate: true,
+            handler(value) {
+                // emit change when there is only one selectable option
+                if (!!value && this.options.length === 1 && !this.field) {
+                    this.changeField(this.options[0].value);
+                }
+            },
+        },
+    },
+
     methods: {
         changeField(value) {
             this.$emit('field-changed', { field: value, index: this.index });

@@ -259,6 +259,20 @@ Component.register('sw-order-detail-details', {
             State.commit('swOrderDetail/setLoading', ['order', loadingValue]);
         },
 
+        validateTrackingCode(searchTerm) {
+            if (searchTerm.length < 0) {
+                return false;
+            }
+
+            const isExist = this.delivery?.trackingCodes?.find(code => code === searchTerm);
+
+            if (isExist) {
+                return false;
+            }
+
+            return searchTerm;
+        },
+
         onChangeOrderAddress(value) {
             State.commit('swOrderDetail/setOrderAddressIds', value);
         },

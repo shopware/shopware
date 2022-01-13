@@ -219,12 +219,7 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
     {
         $reflection = new \ReflectionClass($serviceClassName);
 
-        try {
-            $group = $this->serviceReferenceGenerator->getGroupForService($reflection);
-        } catch (\Throwable $e) {
-            // ToDo: NEXT-1923 - Remove try catch when all cart services have correct doc annotations
-            return '';
-        }
+        $group = $this->serviceReferenceGenerator->getGroupForService($reflection);
 
         return sprintf('./%s#%s', ServiceReferenceGenerator::GROUPS[$group], $reflection->getShortName());
     }

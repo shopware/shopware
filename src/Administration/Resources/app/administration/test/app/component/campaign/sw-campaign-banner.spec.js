@@ -3,6 +3,7 @@ import VueI18n from 'vue-i18n';
 import 'src/app/component/campaign/sw-campaign-banner';
 import 'src/app/component/campaign/sw-campaign-property-mapping';
 import 'src/app/component/base/sw-button';
+import 'src/app/component/meteor/sw-meteor-card';
 import ShopwareDiscountCampaignService from 'src/app/service/discount-campaign.service';
 import extensionStore from 'src/module/sw-extension/store/extensions.store';
 
@@ -176,11 +177,6 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
     let wrapper;
 
     beforeAll(async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_12608'];
-
-        // import depedency async because the component is behind a feature flag
-        await import('src/app/component/meteor/sw-meteor-card');
-
         Shopware.Service().register('shopwareDiscountCampaignService', () => {
             return new ShopwareDiscountCampaignService();
         });

@@ -148,7 +148,7 @@
 
     {% if profiler_markup_version > 1 %}
         <h2>Query Metrics</h2>
-    
+
         <div class="metrics">
             <div class="metric">
                 <span class="value">{{ collector.querycount }}</span>
@@ -159,17 +159,17 @@
                 <span class="value">{{ collector.groupedQueryCount }}</span>
                 <span class="label">Different statements</span>
             </div>
-    
+
             <div class="metric">
                 <span class="value">{{ '%0.2f'|format(collector.time * 1000) }} ms</span>
                 <span class="label">Query time</span>
             </div>
-    
+
             <div class="metric">
                 <span class="value">{{ collector.invalidEntityCount }}</span>
                 <span class="label">Invalid entities</span>
             </div>
-    
+
             {% if collector.cacheEnabled %}
                 <div class="metric">
                     <span class="value">{{ collector.cacheHitsCount }}</span>
@@ -190,10 +190,10 @@
     {% set group_queries = request.query.getBoolean('group') %}
     {% if group_queries %}
         <h2>Grouped Statements</h2>
-        <p><a href="{{ path('_profiler', { panel: 'db', token: token }) }}">Show all queries</a></p>
+        <p><a href="{{ path('_profiler', { panel: 'app.connection_collector', token: token }) }}">Show all queries</a></p>
     {% else %}
         <h2>Queries</h2>
-        <p><a href="{{ path('_profiler', { panel: 'db', token: token, group: true }) }}">Group similar statements</a></p>
+        <p><a href="{{ path('_profiler', { panel: 'app.connection_collector', token: token, group: true }) }}">Group similar statements</a></p>
     {% endif %}
 
     {% if collector.queries is empty %}

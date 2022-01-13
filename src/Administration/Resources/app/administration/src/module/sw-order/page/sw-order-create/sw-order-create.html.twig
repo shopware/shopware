@@ -3,7 +3,7 @@
     {% block sw_order_create_smart_bar_header %}
     <template #smart-bar-header>
         {% block sw_order_create_smart_bar_header_title %}
-        <h2>
+        <h2 v-if="!showInitialModal">
             {% block sw_order_create_smart_bar_header_title_text %}
             {{ $tc('sw-order.create.textNewOrder') }}
             {% endblock %}
@@ -15,30 +15,73 @@
     {% block sw_order_create_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_order_create_smart_bar_actions_slot %}
-        {% block sw_order_create_smart_bar_actions_cancel %}
-        <sw-button @click="onCancelOrder">
-            {{ $tc('sw-order.create.buttonCancelOrder') }}
-        </sw-button>
-        {% endblock %}
-        {% block sw_order_create_smart_bar_actions_add %}
-        <sw-button-process
-            variant="primary"
-            :disabled="isLoading"
-            :is-loading="isLoading"
-            :process-success="isSaveSuccessful"
-            @process-finish="saveFinish"
-            @click.prevent="onSaveOrder"
-        >
-            {{ $tc('sw-order.create.buttonSaveOrder') }}
-        </sw-button-process>
-        {% endblock %}
+        <template v-if="!showInitialModal">
+            {% block sw_order_create_smart_bar_actions_cancel %}
+            <sw-button @click="onCancelOrder">
+                {{ $tc('sw-order.create.buttonCancelOrder') }}
+            </sw-button>
+            {% endblock %}
+            {% block sw_order_create_smart_bar_actions_add %}
+            <sw-button-process
+                variant="primary"
+                :disabled="isLoading"
+                :is-loading="isLoading"
+                :process-success="isSaveSuccessful"
+                @process-finish="saveFinish"
+                @click.prevent="onSaveOrder"
+            >
+                {{ $tc('sw-order.create.buttonSaveOrder') }}
+            </sw-button-process>
+            {% endblock %}
+        </template>
         {% endblock %}
     </template>
     {% endblock %}
 
     {% block sw_order_create_content %}
     <template #content>
-        <router-view @error="showError" />
+        {% block sw_order_create_content_view %}
+        <sw-card-view v-if="feature.isActive('FEATURE_NEXT_7530')">
+            {% block sw_order_create_content_tabs %}
+            <sw-tabs
+                v-if="!showInitialModal"
+                class="sw-order-create__tabs"
+                position-identifier="sw-order-create"
+            >
+                {% block sw_order_create_content_tabs_general %}
+                <sw-tabs-item
+                    class="sw-order-create__tab-general"
+                    :route="{ name: 'sw.order.create.general' }"
+                    :title="$tc('sw-order.detail.tabGeneral')"
+                >
+                    {{ $tc('sw-order.detail.tabGeneral') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_order_create_content_tabs_details %}
+                <sw-tabs-item
+                    class="sw-order-create__tab-details"
+                    :route="{ name: 'sw.order.create.details' }"
+                    :title="$tc('sw-order.detail.tabDetails')"
+                >
+                    {{ $tc('sw-order.detail.tabDetails') }}
+                </sw-tabs-item>
+                {% endblock %}
+            </sw-tabs>
+            {% endblock %}
+
+            {% block sw_order_create_content_view %}
+            <router-view
+                @error="showError"
+            />
+            {% endblock %}
+        </sw-card-view>
+        {% endblock %}
+
+        <router-view
+            v-if="!feature.isActive('FEATURE_NEXT_7530')"
+            @error="showError"
+        />
 
         {% block sw_order_create_invalid_promotion_modal %}
         <sw-order-create-invalid-promotion-modal

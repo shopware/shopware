@@ -305,10 +305,11 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         });
 
         const header = wrapper.find('.sw-data-grid__header');
-        const columnVat = header.find('.sw-data-grid__cell--4');
-        const columnPrice = header.find('.sw-data-grid__cell--1');
-        expect(columnVat.exists()).toBe(true);
-        expect(columnPrice.text()).not.toEqual('sw-order.createBase.columnPriceTaxFree');
+        const columnVat = header.find('.sw-data-grid__cell--3');
+        const columnPrice = header.find('.sw-data-grid__cell--2');
+
+        expect(columnVat.text()).toEqual('sw-order.createBase.columnTax');
+        expect(columnPrice.text()).toEqual('sw-order.createBase.columnPriceGross');
     });
 
     it('should not have vat column and price label is tax free when tax status is tax free', async () => {
@@ -323,9 +324,10 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         });
 
         const header = wrapper.find('.sw-data-grid__header');
-        const columnVat = header.find('.sw-data-grid__cell--4');
-        const columnPrice = header.find('.sw-data-grid__cell--1');
-        expect(columnVat.exists()).toBe(false);
+        const columnTotal = header.find('.sw-data-grid__cell--3');
+        const columnPrice = header.find('.sw-data-grid__cell--2');
+
+        expect(columnTotal.text()).toEqual('sw-order.createBase.columnTotalPriceNet');
         expect(columnPrice.text()).toEqual('sw-order.createBase.columnPriceTaxFree');
     });
 
@@ -346,6 +348,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
 
         header = wrapper.find('.sw-data-grid__header');
         columnTotal = header.find('.sw-data-grid__cell--3');
+
         expect(columnTotal.text()).toEqual('sw-order.createBase.columnTotalPriceNet');
 
         await wrapper.setProps({
@@ -358,7 +361,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         });
 
         header = wrapper.find('.sw-data-grid__header');
-        columnTotal = header.find('.sw-data-grid__cell--3');
+        columnTotal = header.find('.sw-data-grid__cell--4');
+
         expect(columnTotal.text()).toEqual('sw-order.createBase.columnTotalPriceGross');
 
         await wrapper.setProps({
@@ -371,7 +375,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         });
 
         header = wrapper.find('.sw-data-grid__header');
-        columnTotal = header.find('.sw-data-grid__cell--3');
+        columnTotal = header.find('.sw-data-grid__cell--4');
         expect(columnTotal.text()).toEqual('sw-order.createBase.columnTotalPriceNet');
     });
 });

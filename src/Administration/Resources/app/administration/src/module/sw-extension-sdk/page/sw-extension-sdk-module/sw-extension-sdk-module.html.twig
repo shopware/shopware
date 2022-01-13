@@ -1,0 +1,32 @@
+{% block sw_extension_sdk_module %}
+<sw-page :show-search-bar="showSearchBar">
+    <template #smart-bar-header>
+        {% block sw_extension_sdk_module_header %}
+        <template v-if="!isLoading">
+            <h2>{{ menuItem.label }}</h2>
+        </template>
+        {% endblock %}
+    </template>
+
+    <template #content>
+        {% block sw_extension_sdk_module_content %}
+        {% block sw_extension_sdk_module_content_iframe_renderer %}
+        <sw-iframe-renderer
+            v-if="!isLoading"
+            ref="iframeRenderer"
+            :src="menuItem.baseUrl"
+            :location-id="menuItem.locationId"
+        />
+        {% endblock %}
+
+        {% block sw_extension_sdk_module_content_loader %}
+        <sw-loader v-else-if="!timedOut" />
+        {% endblock %}
+
+        {% block sw_extension_sdk_module_content_error_state %}
+        <sw-my-apps-error-page v-if="timedOut" />
+        {% endblock %}
+        {% endblock %}
+    </template>
+</sw-page>
+{% endblock %}

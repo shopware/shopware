@@ -7,7 +7,6 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionStoreLicensesService;
 use Shopware\Core\Framework\Store\Services\ExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\ExtensionStoreLicensesService;
@@ -30,7 +29,6 @@ class ExtensionStoreLicensesServiceTest extends TestCase
 
     public function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
         $this->extensionLicensesService = $this->getContainer()->get(AbstractExtensionStoreLicensesService::class);
     }
 

@@ -104,7 +104,11 @@ Component.register('sw-admin-menu', {
         },
 
         navigationEntries() {
-            return [...this.adminModuleNavigation, ...this.appModuleNavigation];
+            return [
+                ...this.adminModuleNavigation,
+                ...this.appModuleNavigation,
+                ...this.extensionModuleNavigation,
+            ];
         },
 
         mainMenuEntries() {
@@ -160,6 +164,29 @@ Component.register('sw-admin-menu', {
 
         lastName() {
             return this.currentUser ? this.currentUser.lastName : '';
+        },
+
+        extensionMenuItems() {
+            return Shopware.State.get('menuItem').menuItems;
+        },
+
+        extensionModuleNavigation() {
+            return this.extensionMenuItems.map((extensionMenuItem) => {
+                return {
+                    id: extensionMenuItem.id,
+                    label: {
+                        translated: true,
+                        label: extensionMenuItem.label,
+                    },
+                    position: extensionMenuItem.position ?? 110,
+                    parent: extensionMenuItem.parent ?? 'sw-extension',
+                    moduleType: 'plugin',
+                    path: 'sw.extension.sdk.index',
+                    params: {
+                        id: extensionMenuItem.id,
+                    },
+                };
+            });
         },
     },
 

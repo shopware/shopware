@@ -4,7 +4,6 @@ issue:              NEXT-13261
 author:             Ramona Schwering
 author_email:       r.schwering@shopware.com
 author_github:      @leichteckig
-flag:                FEATURE_NEXT_12608
 ---
 # Administration
 * Added `openMyExtensions` method to `sw-shopware-updates-plugins.html.twig`

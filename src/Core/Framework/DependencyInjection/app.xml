@@ -197,7 +197,6 @@
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionDownloader"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractStoreAppLifecycleService"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\ScheduledTask\UpdateAppsTask">

@@ -8,7 +8,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-order-create', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'feature'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -49,6 +49,10 @@ Component.register('sw-order-create', {
 
         paymentMethodRepository() {
             return this.repositoryFactory.create('payment_method');
+        },
+
+        showInitialModal() {
+            return this.$route.name === 'sw.order.create.initial';
         },
     },
 

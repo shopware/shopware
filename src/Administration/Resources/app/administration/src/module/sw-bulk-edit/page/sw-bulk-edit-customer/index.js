@@ -1,5 +1,6 @@
 import template from './sw-bulk-edit-customer.html.twig';
 import './sw-bulk-edit-customer.scss';
+import swBulkEditState from '../../state/sw-bulk-edit.state';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -138,8 +139,16 @@ Component.register('sw-bulk-edit-customer', {
         },
     },
 
+    beforeCreate() {
+        Shopware.State.registerModule('swBulkEdit', swBulkEditState);
+    },
+
     created() {
         this.createdComponent();
+    },
+
+    beforeDestroy() {
+        Shopware.State.unregisterModule('swBulkEdit');
     },
 
     methods: {

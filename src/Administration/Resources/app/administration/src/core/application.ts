@@ -9,6 +9,7 @@ import { ContextState } from '../app/state/context.store';
 interface bundlesSinglePluginResponse {
     css?: string | string[],
     js?: string | string[],
+    html?: string,
     baseUrl?: null | string,
     type?: string,
 }
@@ -573,8 +574,34 @@ class ApplicationBootstrapper {
                 return;
             }
 
+            if (isDevelopmentMode === 'development') {
+                // replace the baseUrl with the webpack url of the html file
+                Object.entries(plugins).forEach(([pluginName, entryFiles]) => {
+                    const stringUtils = Shopware.Utils.string;
+                    const camelCasePluginName = stringUtils.upperFirst(stringUtils.camelCase(pluginName));
+
+                    if (bundleName === camelCasePluginName && !!entryFiles.html) {
+                        bundle.baseUrl = entryFiles.html;
+                    }
+                });
+            }
+
             this.injectIframe(bundleName, bundle.baseUrl);
         });
+
+        if (isDevelopmentMode === 'development') {
+            // inject iFrames of plugins which aren't detected yet from the config (no files in public folder)
+            Object.entries(plugins).forEach(([pluginName, entryFiles]) => {
+                const stringUtils = Shopware.Utils.string;
+                const camelCasePluginName = stringUtils.upperFirst(stringUtils.camelCase(pluginName));
+
+                if (Object.keys(bundles).includes(camelCasePluginName) || !entryFiles.html) {
+                    return;
+                }
+
+                this.injectIframe(camelCasePluginName, entryFiles.html);
+            });
+        }
 
         return Promise.all(injectAllPlugins);
     }

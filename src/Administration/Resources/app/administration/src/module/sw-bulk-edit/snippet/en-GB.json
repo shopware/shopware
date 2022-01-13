@@ -210,6 +210,10 @@
           "orders": {
             "key": "orders",
             "label": "Order state changes"
+          },
+          "requestedCustomerGroupId": {
+            "key": "requestedCustomerGroupId",
+            "label": "Customer group registration request"
           }
         },
         "buttons": {
@@ -276,6 +280,31 @@
           "skipSentDocuments": "Skip already sent documents"
         }
       },
+      "documents": {
+        "cardTitle": "Documents",
+        "generateInvoice": {
+          "label": "Generate: Invoice",
+          "helpText": "This action increases the value of the corresponding number range.",
+          "labelDatePicker": "Date",
+          "labelTextarea": "Comment",
+          "placeholderTextarea": "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim."
+        },
+        "generateCancellationInvoice": {
+          "label": "Generate: Cancellation invoice",
+          "helpText": "This action increases the value of the corresponding number range.",
+          "changeSubLabel": "The latest reference invoice number will  be used."
+        },
+        "generateDeliveryNote": {
+          "label": "Generate: Delivery note",
+          "helpText": "This action increases the value of the corresponding number range.",
+          "labelDeliveryDatePicker": "Delivery date"
+        },
+        "generateCreditNote": {
+          "label": "Generate: Credit note",
+          "helpText": "Credit notes generally employ the latest corresponding invoice number for reference.",
+          "changeSubLabel": "This document is generated only if a credit position exists in the order."
+        }
+      },
       "customFields": {
         "cardTitle": "Custom fields",
         "changeLabel": "Change: {name}"
@@ -309,7 +338,7 @@
         },
         "customerGroupRequest": {
           "label": "Reply to: Customer group request",
-          "helpText": "Please note that e-mails will only be sent to the specifically selected customers. Customers without requests will be skipped.",
+          "helpText": "Please note that emails will be sent to the selected customers. Customers without requests will be skipped.",
           "placeholder": "Select customer group request reply...",
           "options": {
             "accept": "Accept",

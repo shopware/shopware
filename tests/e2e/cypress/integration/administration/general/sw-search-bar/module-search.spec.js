@@ -143,9 +143,15 @@ describe('Search bar: Check search module with short keyword', () => {
             .contains('Add new order')
             .click();
 
-        cy.get('.smart-bar__header h2')
-            .should('be.visible')
-            .contains('New order');
+        cy.skipOnFeature('FEATURE_NEXT_7530',  () => {
+            cy.get('.smart-bar__header h2')
+                .should('be.visible')
+                .contains('New order');
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_7530',  () => {
+            cy.get('.sw-order-create-initial-modal').should('be.visible');
+        });
     });
 
     it('@searchBar @search: Search for a media using the keyword med', () => {

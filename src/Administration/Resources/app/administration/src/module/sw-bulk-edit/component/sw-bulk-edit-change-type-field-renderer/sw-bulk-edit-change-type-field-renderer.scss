@@ -1,5 +1,12 @@
 @import "~scss/variables";
 
+.sw-bulk-edit-change-field-renderer {
+    &__change-field > span {
+        color: $color-darkgray-200;
+        font-size: $font-size-extra-small;
+    }
+}
+
 .sw-bulk-edit-change-field__container {
     padding: 24px 32px;
 

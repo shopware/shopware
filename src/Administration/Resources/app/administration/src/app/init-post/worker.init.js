@@ -1,7 +1,9 @@
 import AdminWorker from 'src/core/worker/admin-worker.worker';
 import WorkerNotificationListener from 'src/core/worker/worker-notification-listener';
+import AdminNotificationWorker from 'src/core/worker/admin-notification-worker';
 
 let enabled = false;
+let enabledNotification = false;
 
 /**
  * Starts the worker
@@ -25,6 +27,11 @@ export default function initializeWorker() {
                 loginService,
                 Shopware.Context.api,
             );
+
+            // Enable worker notification listener regardless of the config
+            if (!enabledNotification) {
+                enableNotificationWorker(loginService);
+            }
 
             if (context.config.adminWorker.enableAdminWorker && !enabled) {
                 enableAdminWorker(loginService, Shopware.Context.api, context.config.adminWorker);
@@ -103,6 +110,27 @@ function enableWorkerNotificationListener(loginService, context) {
         workerNotificationListener.terminate();
         workerNotificationListener = new WorkerNotificationListener(context);
     });
+}
+
+function enableNotificationWorker(loginService) {
+    let notificationWorker = new AdminNotificationWorker();
+
+    if (loginService.isLoggedIn()) {
+        notificationWorker.start();
+    }
+
+    loginService.addOnTokenChangedListener(() => {
+        notificationWorker.terminate();
+        notificationWorker = new AdminNotificationWorker();
+        notificationWorker.start();
+    });
+
+    loginService.addOnLogoutListener(() => {
+        notificationWorker.terminate();
+        notificationWorker = new AdminNotificationWorker();
+    });
+
+    enabledNotification = true;
 }
 
 function registerThumbnailMiddleware(factory) {

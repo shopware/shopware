@@ -12,6 +12,7 @@ import marketing from './marketing.store';
 import extensionComponentSections from './extension-component-sections.store';
 import extensions from './extensions.store';
 import tabs from './tabs.store';
+import menuItem from './menu-item.store';
 
 export default {
     notification,
@@ -28,4 +29,5 @@ export default {
     extensionComponentSections,
     extensions,
     tabs,
+    menuItem,
 };

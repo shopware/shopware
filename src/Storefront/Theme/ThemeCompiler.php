@@ -251,9 +251,10 @@ class ThemeCompiler implements ThemeCompilerInterface
         });
 
         $variables = $this->dumpVariables($configuration->getThemeConfig(), $salesChannelId);
+        $features = $this->getFeatureConfigScssMap();
 
         try {
-            $cssOutput = $this->scssCompiler->compileString($variables . $concatenatedStyles)->getCss();
+            $cssOutput = $this->scssCompiler->compileString($features . $variables . $concatenatedStyles)->getCss();
         } catch (\Throwable $exception) {
             throw new ThemeCompileException(
                 $configuration->getTechnicalName(),
@@ -271,6 +272,26 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         return $compiled;
+    }
+
+    /**
+     * Converts the feature config array to a SCSS map syntax.
+     * This allows reading of the feature flag config inside SCSS via `map.get` function.
+     *
+     * Output example:
+     * $sw-features: ("FEATURE_NEXT_1234": false, "FEATURE_NEXT_1235": true);
+     *
+     * @see https://sass-lang.com/documentation/values/maps
+     */
+    private function getFeatureConfigScssMap(): string
+    {
+        $allFeatures = Feature::getAll();
+
+        $featuresScss = implode(',', array_map(function ($value, $key) {
+            return sprintf('"%s": %s', $key, json_encode($value));
+        }, $allFeatures, array_keys($allFeatures)));
+
+        return sprintf('$sw-features: (%s);', $featuresScss);
     }
 
     private function formatVariables(array $variables): array

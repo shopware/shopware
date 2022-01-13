@@ -16,15 +16,21 @@
     {% set filterRangeErrorMessage = 'listing.filterRangeErrorMessage'|trans|sw_sanitize %}
 {% endif %}
 
+{% if filterRangeLowerBoundErrorMessage is not defined %}
+    {% set filterRangeLowerBoundErrorMessage = 'listing.filterRangeLowerBoundErrorMessage'|trans({'%lowerBound%': lowerBound})|sw_sanitize %}
+{% endif %}
+
 {% set filterRangeOptions = {
-    name: name,
-    minKey: minKey,
-    maxKey: maxKey,
-    currencySymbol: currencySymbol,
+    name,
+    minKey,
+    maxKey,
+    lowerBound,
+    currencySymbol,
     snippets: {
-        filterRangeActiveMinLabel: filterRangeActiveMinLabel,
-        filterRangeActiveMaxLabel: filterRangeActiveMaxLabel,
-        filterRangeErrorMessage: filterRangeErrorMessage
+        filterRangeActiveMinLabel,
+        filterRangeActiveMaxLabel,
+        filterRangeErrorMessage,
+        filterRangeLowerBoundErrorMessage
     }
 } %}
 

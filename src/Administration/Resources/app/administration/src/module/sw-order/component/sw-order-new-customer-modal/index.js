@@ -102,6 +102,7 @@ Component.register('sw-order-new-customer-modal', {
             return this.customerRepository.save(this.customer).then(() => {
                 this.$emit('on-select-existing-customer', this.customer.id);
                 this.isLoading = false;
+
                 this.onClose();
             }).catch(() => {
                 this.createNotificationError({

@@ -7,6 +7,8 @@ const { get, format } = Utils;
 Component.register('sw-order-line-items-grid-sales-channel', {
     template,
 
+    inject: ['feature'],
+
     props: {
         salesChannelId: {
             type: String,
@@ -39,6 +41,7 @@ Component.register('sw-order-line-items-grid-sales-channel', {
         return {
             selectedItems: {},
             searchTerm: '',
+            showItemsModal: false,
         };
     },
 
@@ -93,6 +96,14 @@ Component.register('sw-order-line-items-grid-sales-channel', {
 
         getLineItemColumns() {
             const columnDefinitions = [{
+                property: 'quantity',
+                dataIndex: 'quantity',
+                label: this.$tc('sw-order.createBase.columnQuantity'),
+                allowResize: false,
+                align: 'right',
+                inlineEdit: true,
+                width: '80px',
+            }, {
                 property: 'label',
                 dataIndex: 'label',
                 label: this.$tc('sw-order.createBase.columnProductName'),
@@ -108,15 +119,20 @@ Component.register('sw-order-line-items-grid-sales-channel', {
                 align: 'right',
                 inlineEdit: true,
                 width: '120px',
-            }, {
-                property: 'quantity',
-                dataIndex: 'quantity',
-                label: this.$tc('sw-order.createBase.columnQuantity'),
-                allowResize: false,
-                align: 'right',
-                inlineEdit: true,
-                width: '80px',
-            }, {
+            }];
+
+            if (this.taxStatus !== 'tax-free') {
+                columnDefinitions.push({
+                    property: 'tax',
+                    label: this.$tc('sw-order.createBase.columnTax'),
+                    allowResize: false,
+                    align: 'right',
+                    inlineEdit: true,
+                    width: '100px',
+                });
+            }
+
+            return [...columnDefinitions, {
                 property: 'totalPrice',
                 dataIndex: 'totalPrice',
                 label: this.taxStatus === 'gross' ?
@@ -126,19 +142,6 @@ Component.register('sw-order-line-items-grid-sales-channel', {
                 align: 'right',
                 width: '80px',
             }];
-
-            if (this.taxStatus !== 'tax-free') {
-                return [...columnDefinitions, {
-                    property: 'tax',
-                    label: this.$tc('sw-order.createBase.columnTax'),
-                    allowResize: false,
-                    align: 'right',
-                    inlineEdit: true,
-                    width: '100px',
-                }];
-            }
-
-            return columnDefinitions;
         },
     },
 
@@ -299,6 +302,11 @@ Component.register('sw-order-line-items-grid-sales-channel', {
 
         hasMultipleTaxes(item) {
             return get(item, 'price.calculatedTaxes') && item.price.calculatedTaxes.length > 1;
+        },
+
+        openItemsModal() {
+            // TODO: This data will show add items modal handled by NEXT-16663
+            this.showItemsModal = true;
         },
     },
 });

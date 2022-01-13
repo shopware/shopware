@@ -6,7 +6,7 @@ const { Component } = Shopware;
 Component.register('sw-first-run-wizard-paypal-info', {
     template,
 
-    inject: ['storeService', 'extensionStoreActionService'],
+    inject: ['extensionStoreActionService'],
 
     data() {
         return {
@@ -65,7 +65,7 @@ Component.register('sw-first-run-wizard-paypal-info', {
         },
 
         installPayPal() {
-            return this.storeService.downloadPlugin(this.pluginName, true, true)
+            return this.extensionStoreActionService.downloadExtension(this.pluginName)
                 .then(() => {
                     return this.extensionStoreActionService.installExtension(this.pluginName, 'plugin');
                 });

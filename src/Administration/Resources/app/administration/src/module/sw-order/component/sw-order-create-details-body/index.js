@@ -42,11 +42,8 @@ Component.register('sw-order-create-details-body', {
         billingAddress: {
             get() {
                 if (this.customer) {
-                    if (this.customer.billingAddress) {
-                        return this.customer.billingAddress;
-                    }
-
-                    return this.customer.defaultBillingAddress;
+                    const { billingAddress, defaultBillingAddress } = this.customer;
+                    return billingAddress || defaultBillingAddress;
                 }
 
                 return null;
@@ -60,11 +57,8 @@ Component.register('sw-order-create-details-body', {
         shippingAddress: {
             get() {
                 if (this.customer) {
-                    if (this.customer.shippingAddress) {
-                        return this.customer.shippingAddress;
-                    }
-
-                    return this.customer.defaultShippingAddress;
+                    const { shippingAddress, defaultShippingAddress } = this.customer;
+                    return shippingAddress || defaultShippingAddress;
                 }
 
                 return null;

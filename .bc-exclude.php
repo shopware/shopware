@@ -7,10 +7,18 @@ return [
         '**/src/Core/TestBootstrapper.php', // Testing
         '**/src/Core/Framework/Demodata/Faker/Commerce.php', // dev dependency
         '**/src/Core/DevOps/StaticAnalyze/**', // dev dependency
-
         '**/src/Core/Migration/Traits/MigrationUntouchedDbTestTrait.php', // Test code in prod
         '**/src/Elasticsearch/Framework/Command/ElasticsearchTestAnalyzerCommand.php', // Why?
         '**/src/Core/Checkout/Payment/Cart/PaymentHandler/PreparedPaymentHandlerInterface.php', // remove with FEATURE_NEXT_16769
+
+        // ToDo: NEXT-19323 - Remove temporary added excludes
+        '**/ArrayFacade.php',
+        '**/ContainerFacade.php',
+        '**/ErrorsFacade.php',
+        '**/ProductsFacade.php',
+        '**/ItemsFacade.php',
+        '**/ItemsIteratorTrait.php',
+        '**/ItemsAddTrait.php',
     ],
     'errors' => [
         'Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Util\\\\ConfigReader#\\$xsdFile', // Can not be inspected through reflection (__DIR__ constant)
@@ -27,6 +35,9 @@ return [
         'The return type of Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi\\\\DeactivateValidationAnalysis#validate',
         'OpenApi\\\\Analysis',
 
+        'Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\Traits\\\\ContainerFactoryTrait#container\(\) was removed', // NEXT-19501
+        'Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\Traits\\\\ContainerFactoryTrait#container\(\) was marked "@internal',  // NEXT-19501
+
         // BC changes between last release and trunk
         'Shopware\\\\Storefront\\\\Page\\\\Product\\\\Configurator\\\\AvailableCombinationLoader was marked "@internal"',
         'The return type of Shopware\\\\Core\\\\System\\\\StateMachine\\\\StateMachineEntity#getName',
@@ -37,5 +48,7 @@ return [
         'Class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\InheritanceExtension has been deleted',
         'Class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\InstanceOfExtension has been deleted',
         'Class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\FeatureFlagExtension has been deleted',
+        'Shopware\\\\Core\\\\Framework\\\\Update\\\\Api\\\\UpdateController was marked "@internal"',
+        'Shopware\\\\Core\\\\Framework\\\\Update\\\\Services\\\\PluginCompatibility was marked "@internal"',
     ],
 ];

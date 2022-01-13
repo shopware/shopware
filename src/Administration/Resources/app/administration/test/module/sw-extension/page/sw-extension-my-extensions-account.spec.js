@@ -1,4 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
+import 'src/module/sw-extension/page/sw-extension-my-extensions-account';
+import 'src/app/component/meteor/sw-meteor-card';
+import 'src/app/component/base/sw-button';
 import extensionStore from 'src/module/sw-extension/store/extensions.store';
 import ShopwareExtensionService from 'src/module/sw-extension/service/shopware-extension.service';
 
@@ -76,12 +79,6 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
                 }
             };
         });
-
-        global.activeFeatureFlags = ['FEATURE_NEXT_12608'];
-
-        await import('src/module/sw-extension/page/sw-extension-my-extensions-account');
-        await import('src/app/component/meteor/sw-meteor-card');
-        await import('src/app/component/base/sw-button');
     });
 
     beforeEach(async () => {

@@ -98,7 +98,6 @@ Component.register('sw-order-create-details-footer', {
                 }
 
                 this.updateContext();
-
                 this.updateOrderContext();
             },
         },

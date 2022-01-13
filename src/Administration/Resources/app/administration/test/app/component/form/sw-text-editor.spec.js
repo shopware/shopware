@@ -718,4 +718,82 @@ describe('src/app/component/form/sw-text-editor', () => {
         // check that the link got removed
         expect(wrapper.vm.getContentValue()).toBe('<bold><u>Shop<strike id="anchor">ware</strike></u></bold>');
     });
+
+    it('should copy html from the wysiwyg mode and ignore p elements', async () => {
+        wrapper = createWrapper();
+
+        await addTextToEditor(wrapper, '<bold><p><u>Shop<strike id="anchor">ware</strike></u></p></bold>');
+
+        // select "ware"
+        const textNode = document.getElementById('anchor');
+        await addAndCheckSelection(wrapper, textNode, 0, 4, 'ware');
+        document.dispatchEvent(new Event('mouseup'));
+
+        // should have copied the text with and without styling
+        const setData = jest.fn();
+
+        await wrapper.get('.sw-text-editor__content-editor').trigger('copy', { clipboardData: { setData } });
+
+        expect(setData.mock.calls).toContainEqual(
+            ['text/html', '<strike><u><bold>ware</bold></u></strike>'],
+            ['text/plain', 'ware']
+        );
+    });
+
+
+    it('should paste html styled text into the wysiwyg editor', async () => {
+        wrapper = createWrapper();
+
+        await addTextToEditor(wrapper, '<span id="anchor">ware</span>');
+
+        // select "ware"
+        const textNode = document.getElementById('anchor');
+        await addAndCheckSelection(wrapper, textNode, 0, 4, 'ware');
+        document.dispatchEvent(new Event('mouseup'));
+
+        // prepare getData mock
+        const getData = jest.fn().mockImplementation((type) => {
+            switch (type) {
+                case 'text/plain':
+                    return 'test';
+                case 'text/html':
+                    return '<strike><u><bold>test</bold></u></strike>';
+                default:
+                    throw new Error(`The mime type ${type} is not supported`);
+            }
+        });
+
+        // paste styled 'test' over 'ware'
+        await wrapper.get('.sw-text-editor__content-editor').trigger('paste', { clipboardData: { getData } });
+        expect(getData.mock.calls).toEqual([['text/plain'], ['text/html']]);
+        expect(wrapper.vm.getContentValue()).toBe('<span id=\"anchor\"><strike><u><bold>test</bold></u></strike></span>');
+    });
+
+    it('should fall back to pasteing text into the wysiwyg editor if html isn\'t available', async () => {
+        wrapper = createWrapper();
+
+        await addTextToEditor(wrapper, '<span id="anchor">ware</span>');
+
+        // select "ware"
+        const textNode = document.getElementById('anchor');
+        await addAndCheckSelection(wrapper, textNode, 0, 4, 'ware');
+        document.dispatchEvent(new Event('mouseup'));
+
+        // prepare getData mock
+        const getData = jest.fn().mockImplementation((type) => {
+            switch (type) {
+                case 'text/plain':
+                    return 'test';
+                case 'text/html':
+                    return '';
+                default:
+                    throw new Error(`The mime type ${type} is not supported`);
+            }
+        });
+
+        // paste 'test' over 'ware'
+        await wrapper.get('.sw-text-editor__content-editor').trigger('paste', { clipboardData: { getData } });
+        expect(getData.mock.calls).toEqual([['text/plain'], ['text/html']]);
+        expect(wrapper.vm.getContentValue()).toBe('<span id=\"anchor\">test</span>');
+    });
 });

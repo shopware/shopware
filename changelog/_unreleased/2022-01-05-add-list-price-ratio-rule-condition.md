@@ -10,6 +10,6 @@ author_github: King-of-Babylon
 ___
 # Administration
 *  Added the new component `sw-condition-line-item-list-price-ratio`:
-*  `src/app/component/rule/condition-type/sw-condition-line-item-list-price-ratio/index.js`
-*  `src/app/component/rule/condition-type/sw-condition-line-item-list-price-ratio/sw-condition-line-item-list-price-ratio.html.twig`
+    * `src/app/component/rule/condition-type/sw-condition-line-item-list-price-ratio/index.js`
+    * `src/app/component/rule/condition-type/sw-condition-line-item-list-price-ratio/sw-condition-line-item-list-price-ratio.html.twig`
 * Added the new rule condition `cartLineItemListPriceRatio` to the `condition-type-data-provider.decorator`

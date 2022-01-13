@@ -40,21 +40,9 @@
             {% endblock %}
 
             {% block sw_shopware_updates_plugins_column_action %}
-            <template
-                slot="actions"
-                slot-scope="{ item }"
-            >
-                <sw-context-menu-item
-                    v-if="feature.isActive('FEATURE_NEXT_12608')"
-                    @click="openMyExtensions()"
-                >
+            <template #actions="{item}">
+                <sw-context-menu-item @click="openMyExtensions()">
                     {{ $t('sw-settings-shopware-updates.plugins.actions.openMyExtensions') }}
-                </sw-context-menu-item>
-                <sw-context-menu-item
-                    v-else
-                    @click="openPluginManager()"
-                >
-                    {{ $t('sw-settings-shopware-updates.plugins.actions.openPluginManager') }}
                 </sw-context-menu-item>
             </template>
             {% endblock %}

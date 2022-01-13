@@ -62,6 +62,36 @@
       }
     },
     "createBase": {
+      "labelEmail": "E-Mail-Adresse",
+      "labelPhoneNumber": "Telefonnummer",
+      "placeholderEmail": "Gib eine E-Mail-Adresse ein ...",
+      "placeholderPhoneNumber": "Gib eine Telefonnummer ein ...",
+      "labelBillingAddress": "Rechnungsadresse",
+      "labelShippingAddress": "Lieferadresse",
+      "placeholderBillingAddress": "Wähle Rechnungsadresse ...",
+      "placeholderShippingAddress": "Wähle Versandadresse ...",
+      "labelSalesChannel": "Verkaufskanäle",
+      "labelPaymentMethod": "Zahlungsart",
+      "labelShippingMethod": "Versandart",
+      "labelOrderLanguage": "Bestellsprache",
+      "labelCurrency": "Währung",
+      "placeholderSalesChannel": "Wähle Verkaufskanal ...",
+      "placeholderPaymentMethod": "Wähle Zahlart ...",
+      "placeholderShippingMethod": "Wähle Versandart ...",
+      "placeholderOrderLanguage": "Wähle Bestellsprache ...",
+      "placeholderCurrency": "Wähle Währung ...",
+      "helpTextPaymentMethod": "Es werden nur Zahlungsarten angezeigt, die nach dem Bestellabschluss gewechselt werden können.",
+      "labelToggleAutomaticPromotions": "Automatische hinzugefügte Rabattaktionen deaktivieren",
+      "labelPromotions": "Rabattaktionen",
+      "generalTab": {
+        "labelLineItemsCard": "Positionen",
+        "labelGeneralInfoCard": "Info"
+      },
+      "detailsTab": {
+        "labelTransactionCard": "Zahlung",
+        "labelDeliveryCard": "Versand",
+        "labelOrderCard": "Bestellung"
+      },
       "labelDetailsCard": "Details",
       "detailsHeader": {
         "textCustomer": "Kunde",
@@ -109,6 +139,7 @@
       "taxDetail": "{taxRate}%: {tax}",
       "contextMenuShowProduct": "Produkt anzeigen",
       "messageEmptyItem": "Noch keine Positionen vorhanden",
+      "buttonAddItems": "Positionen hinzufügen",
       "buttonAddProduct": "Produkt hinzufügen",
       "buttonAddBlankProduct": "Leere Position hinzufügen",
       "buttonAddCredit": "Gutschrift hinzufügen",
@@ -402,8 +433,61 @@
     "promotionModal": {
       "labelTitle": "Automatische Werbeaktionen deaktivieren",
       "message": "Die folgenden automatischen Werbeaktionen werden deaktiviert:",
-      "messageNoItems": "Keine automatischen Werbeaktionen aktiv.",
+      "messageNoItems": "Keine automatischen Rabattaktionen aktiv.",
       "buttonDisable": "Deaktivieren"
+    },
+    "initialModal": {
+      "titleNewOrder": "Neue Bestellung",
+      "tabCustomer": "Kunden",
+      "tabProducts": "Produkte",
+      "tabCustomItem": "Eigene Position",
+      "tabOptions": "Optionen",
+      "tabCredit": "Gutschrift",
+      "buttonPreviewOrder": "Vorschau",
+      "customerGrid": {
+        "buttonAddNewCustomer": "Kunden anlegen",
+        "placeholderSearchCustomer": "Kundennamen eingeben ...",
+        "textEmptySearch": "Keine Daten für {name} vorhanden",
+        "contextOpenButton": "Öffnen",
+        "columnCustomerName": "Name",
+        "columnCustomerNumber": "Kundennummer",
+        "columnEmailAddress": "E-Mail-Adresse"
+      },
+      "options": {
+        "textHeadlineOrder": "Bestellung",
+        "textHeadlinePayment": "Zahlungsart",
+        "textHeadlineShipment": "Versandart",
+        "labelTestOrder": "Testbestellung",
+        "helpTextTestOrder": "Diese Bestellung wird im Testmodus erstellt",
+        "placeholderAddPromotion": "Rabattaktion hinzufügen",
+        "textSameAsBillingAddress": "Wie Rechnungsadresse",
+        "textSameAsShippingAddress": "Wie Versandadresse"
+      }
+    },
+    "itemModal": {
+      "productGrid": {
+        "columnAmount": "Summe",
+        "columnProductName": "Name",
+        "columnProductNumber": "Produktnummer",
+        "textEmptySearch": "Keine Daten für {name} vorhanden"
+      },
+      "customItem": {
+        "labelName": "Name",
+        "placeholderName": "Positionsnamen eingeben ...",
+        "placeholderPriceNet": "Preis (netto) eingeben ...",
+        "placeholderPriceGross": "Preis (brutto) eingeben ...",
+        "placeholderPriceTaxFree": "Preis (steuerfrei) eingeben ...",
+        "labelAmount": "Summe",
+        "placeholderAmount": "Positionssumme eingeben ...",
+        "labelVat": "Mehrwertsteuer",
+        "placeholderSelectVat": "Mehrwertsteuersatz auswählen ..."
+      },
+      "credit": {
+        "labelCreditName": "Name",
+        "placeholderCreditName": "Gutschriftnamen eingeben ...",
+        "labelCreditAmount": "Summe",
+        "placeholderAmount": "Gutschriftsumme eingeben ..."
+      }
     },
     "filters": {
       "documentFilter": {

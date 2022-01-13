@@ -1,7 +1,6 @@
 ---
 title: Add Appstore
 issue: NEXT-12608
-flag: FEATURE_NEXT_12608
 ---
 
 # Core

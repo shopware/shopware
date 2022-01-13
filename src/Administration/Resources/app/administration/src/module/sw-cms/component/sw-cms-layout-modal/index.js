@@ -83,7 +83,6 @@ Component.register('sw-cms-layout-modal', {
             }, {
                 property: 'type',
                 label: this.$tc('sw-cms.list.gridHeaderType'),
-                sortable: false,
             }, {
                 property: 'createdAt',
                 label: this.$tc('sw-cms.list.gridHeaderCreated'),

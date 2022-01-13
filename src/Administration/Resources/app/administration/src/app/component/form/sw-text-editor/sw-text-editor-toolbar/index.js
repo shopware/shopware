@@ -1,7 +1,7 @@
 import template from './sw-text-editor-toolbar.html.twig';
 import './sw-text-editor-toolbar.scss';
 
-const { Component } = Shopware;
+const { Component, Utils } = Shopware;
 const domainPlaceholderId = '124c71d524604ccbad6042edce3ac799';
 
 /**
@@ -63,6 +63,7 @@ Component.register('sw-text-editor-toolbar', {
             middleButtons: [],
             rightButtons: [],
             tableEdit: false,
+            scrollEventHandler: undefined,
         };
     },
 
@@ -121,6 +122,16 @@ Component.register('sw-text-editor-toolbar', {
             if (this.isInlineEdit) {
                 const body = document.querySelector('body');
                 body.appendChild(this.$el);
+
+                this.scrollEventHandler = Utils.throttle(() => {
+                    this.setToolbarPosition();
+                }, 16);
+
+                document.querySelector('#app').addEventListener('scroll', this.scrollEventHandler, true);
+
+                this.$device.onResize({
+                    listener: this.setToolbarPosition,
+                });
             }
 
             document.addEventListener('mouseup', this.onMouseUp);
@@ -166,7 +177,10 @@ Component.register('sw-text-editor-toolbar', {
 
         destroyedComponent() {
             this.closeExpandedMenu();
+
+            document.removeEventListener('scroll', this.scrollEventListener, true);
             document.removeEventListener('mouseup', this.onMouseUp);
+
             this.$emit('destroyed-el');
         },
 
@@ -220,6 +234,7 @@ Component.register('sw-text-editor-toolbar', {
 
             let offsetTop = window.pageYOffset;
             const arrowHeight = 8;
+
             offsetTop += boundary.top - (this.$el.clientHeight + arrowHeight);
 
             const middleBoundary = (boundary.left + boundary.width / 2) + 4;
@@ -318,6 +333,10 @@ Component.register('sw-text-editor-toolbar', {
             }
 
             this.$emit('text-style-change', button.type, button.value);
+
+            if (this.isInlineEdit) {
+                this.setToolbarPosition();
+            }
 
             this.$nextTick(() => {
                 this.setActiveTags();

@@ -3,11 +3,13 @@
 .sw-cms-toolbar {
     padding: 0 20px;
     min-height: 70px;
-    border-bottom: 2px solid #d1d9e0;
+    border-bottom: 2px solid $color-gray-300;
     display: grid;
     grid-template-columns: 1fr 1fr 158px auto;
     align-items: center;
     align-content: center;
+    z-index: 251;
+    background-color: $color-gray-50;
 
     .sw-cms-toolbar__back-btn {
         padding: 10px 20px;

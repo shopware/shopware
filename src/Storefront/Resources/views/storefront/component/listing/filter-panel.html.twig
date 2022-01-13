@@ -54,6 +54,7 @@
                             {% set price = listing.aggregations.get('price') %}
 
                             {% if price.min >= 0 and price.max >= 0 %}
+                                {# '@deprecated tag:v6.5.0 - Variable `price` will no longer be required by filter-range.html.twig - Use `minInputValue` and `maxInputValue` instead.' #}
                                 {% sw_include '@Storefront/storefront/component/listing/filter/filter-range.html.twig' with {
                                     price: price,
                                     sidebar: sidebar,
@@ -62,6 +63,8 @@
                                     maxKey: 'max-price',
                                     lowerBound: 0,
                                     displayName: 'listing.filterPriceDisplayName'|trans|sw_sanitize,
+                                    minInputValue: 0,
+                                    maxInputValue: price.max,
                                 } %}
                             {% endif %}
                         {% endblock %}

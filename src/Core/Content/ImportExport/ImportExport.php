@@ -332,6 +332,20 @@ class ImportExport
         return $this->mergePartFiles($this->logEntity, $progress);
     }
 
+    public function abort(): void
+    {
+        $invalidLog = $this->logEntity->getInvalidRecordsLog();
+        if ($invalidLog !== null) {
+            $invalidRecordsProgress = $this->importExportService->getProgress($invalidLog->getId(), $invalidLog->getRecords());
+
+            // complete invalid records export
+            $this->mergePartFiles($invalidLog, $invalidRecordsProgress);
+
+            $invalidRecordsProgress->setState(Progress::STATE_SUCCEEDED);
+            $this->importExportService->saveProgress($invalidRecordsProgress);
+        }
+    }
+
     public function getLogEntity(): ImportExportLogEntity
     {
         return $this->logEntity;

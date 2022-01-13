@@ -57,8 +57,7 @@ github sync:
     needs: []
     rules:
       # only sync on protected branches
-      - if: '$CI_COMMIT_REF_PROTECTED != "true"'
-        when: 'never'
+      - if: '$CI_COMMIT_REF_PROTECTED == "true"'
     environment:
         name: Github
         url: https://github.com/shopware

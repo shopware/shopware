@@ -14,6 +14,7 @@ import type { default as VueType } from 'vue';
 import type { extensions } from '@shopware-ag/admin-extension-sdk/es/privileges/privilege-resolver';
 import type { ComponentConfig } from './core/factory/component.factory';
 import type { TabsState } from './app/state/tabs.store';
+import { MenuItemState } from './app/state/menu-item.store';
 
 // trick to make it an "external module" to support global type extension
 export {};
@@ -117,6 +118,7 @@ declare global {
             currentLocale: string,
             currentUser: $TSFixMe,
         },
+        menuItem: MenuItemState,
     }
 
     /**

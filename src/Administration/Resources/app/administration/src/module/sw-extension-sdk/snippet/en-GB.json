@@ -1,0 +1,8 @@
+{
+  "sw-extension-sdk": {
+    "general": {
+      "mainMenuItemGeneral": "My extensions",
+      "moduleDescription": "Module to show extension content"
+    }
+  }
+}

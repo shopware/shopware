@@ -38,6 +38,7 @@ trait SurchargeTrait
         $item->setGood(false);
         $item->setPriceDefinition($definition);
         $item->setLabel($label);
+        $item->setRemovable(true);
         $this->getItems()->add($item);
 
         return new DiscountFacade($item);
@@ -70,6 +71,18 @@ trait SurchargeTrait
         }
         if (!$value->has(Defaults::CURRENCY)) {
             throw new \RuntimeException(sprintf('Absolute discounts %s requires a defined currency price for the default currency. Use services.price(...) to create a compatible price object', $key));
+        }
+
+        /** @var PriceCollection $value */
+        foreach ($value as $price) {
+            $price->setGross(\abs($price->getGross()));
+            $price->setNet(\abs($price->getNet()));
+
+            if (!$price->getListPrice()) {
+                continue;
+            }
+            $price->getListPrice()->setGross(\abs($price->getListPrice()->getGross()));
+            $price->getListPrice()->setNet(\abs($price->getListPrice()->getNet()));
         }
 
         return new CurrencyPriceDefinition($value);

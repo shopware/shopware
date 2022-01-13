@@ -66,8 +66,8 @@ class CartFacadeHelper
      *
      * // storage value (custom fields, product.price, etc)
      * set price = {
-     *      {currency-id}: { gross: 100, net: 50 },
-     *      {currency-id}: { gross: 90, net: 40 },
+     *      { gross: 100, net: 50, currencyId: {currency-id} },
+     *      { gross: 90, net: 40, currencyId: {currency-id} },
      * }; => default is validate when persisting as storage
      */
     public function price(array $price): PriceCollection
@@ -78,7 +78,7 @@ class CartFacadeHelper
 
         foreach ($price as $id => $value) {
             $collection->add(
-                new Price($id, $value['net'], $value['gross'], false)
+                new Price($id, $value['net'], $value['gross'], $value['linked'] ?? false)
             );
         }
 
@@ -87,9 +87,7 @@ class CartFacadeHelper
 
     private function validatePrice(array $price): array
     {
-        if (\array_key_exists('default', $price)) {
-            $price = $this->resolveIsoCodes($price);
-        }
+        $price = $this->resolveIsoCodes($price);
 
         if (!\array_key_exists(Defaults::CURRENCY, $price)) {
             throw new MissingPriceDefinitionException('Price contains no definition for default currency id');
@@ -126,8 +124,14 @@ class CartFacadeHelper
                 continue;
             }
 
+            if (\array_key_exists('currencyId', $value)) {
+                $mapped[$value['currencyId']] = $value;
+
+                continue;
+            }
+
             if (\array_key_exists($iso, $this->currencies)) {
-                $mapped[$this->currencies[$iso]] = $value;
+                $mapped[Uuid::fromBytesToHex($this->currencies[$iso])] = $value;
             }
         }
 

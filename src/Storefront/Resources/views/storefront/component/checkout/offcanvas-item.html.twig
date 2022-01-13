@@ -1,8 +1,9 @@
 {% block component_offcanvas_cart_item_inner %}
     {% set PRODUCT_LINE_ITEM_TYPE = constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PRODUCT_LINE_ITEM_TYPE') %}
+    {% set DISCOUNT_LINE_ITEM_TYPE = constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::DISCOUNT_LINE_ITEM') %}
 
     {% set price = lineItem.price %}
-    {% set isDiscount = (not lineItem.good and price.totalPrice <= 0) %}
+    {% set isDiscount = (not lineItem.good and price.totalPrice <= 0) || lineItem.type == DISCOUNT_LINE_ITEM_TYPE %}
     {% set isNested = lineItem.children.count > 0 %}
     {% set label = lineItem.label %}
     {% set referencedId = lineItem.referencedId %}

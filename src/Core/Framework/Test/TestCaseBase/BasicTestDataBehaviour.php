@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -205,5 +207,12 @@ trait BasicTestDataBehaviour
             ->addFilter(new EqualsFilter('stateMachine.technicalName', $stateMachine));
 
         return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+    }
+
+    protected function getCurrencyIdByIso(string $iso = 'EUR'): string
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+
+        return Uuid::fromBytesToHex($connection->fetchOne('SELECT id FROM currency WHERE iso_code = :iso', ['iso' => $iso]));
     }
 }

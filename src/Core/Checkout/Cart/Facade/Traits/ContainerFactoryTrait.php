@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Facade\CartFacadeHelper;
 use Shopware\Core\Checkout\Cart\Facade\ContainerFacade;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 trait ContainerFactoryTrait
@@ -25,9 +26,13 @@ trait ContainerFactoryTrait
      * @return ContainerFacade Returns the newly created, empty container line-item.
      *
      * @example add-container/add-container.twig 7 Create a new container line-item, add products to it and apply a relative discount on the container.
+     *
+     * @internal
      */
     public function container(string $id, ?string $label = null): ContainerFacade
     {
+        Feature::throwException('FEATURE_NEXT_19501', 'cart.container is temporary disabled', false);
+
         $item = new LineItem($id, LineItem::CONTAINER_LINE_ITEM, $id);
         $item->setLabel($label);
         $item->setRemovable(true);

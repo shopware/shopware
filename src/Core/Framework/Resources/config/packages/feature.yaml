@@ -43,6 +43,11 @@ shopware:
         major: false
         description: "Search of FkField PrimaryKey"
         # issue: NEXT-14872
+      - name: FEATURE_NEXT_19501
+        default: false
+        major: false
+        description: "Disables the cart.container function"
+        # issue: NEXT-19501
       - name: FEATURE_NEXT_15053
         default: false
         major: false

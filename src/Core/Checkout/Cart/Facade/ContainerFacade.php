@@ -17,6 +17,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * The ContainerFacade allows you to wrap multiple line-items inside a container line-item.
  *
  * @script-service cart_manipulation
+ *
+ * @internal
  */
 class ContainerFacade extends ItemFacade
 {

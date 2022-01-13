@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -43,7 +42,7 @@ class StoreController extends AbstractController
 
     private PluginManagementService $pluginManagementService;
 
-    private ?AbstractExtensionDataProvider $extensionDataProvider;
+    private AbstractExtensionDataProvider $extensionDataProvider;
 
     private EntityRepositoryInterface $userRepository;
 
@@ -52,7 +51,7 @@ class StoreController extends AbstractController
         EntityRepositoryInterface $pluginRepo,
         PluginManagementService $pluginManagementService,
         EntityRepositoryInterface $userRepository,
-        ?AbstractExtensionDataProvider $extensionDataProvider
+        AbstractExtensionDataProvider $extensionDataProvider
     ) {
         $this->storeClient = $storeClient;
         $this->pluginRepo = $pluginRepo;
@@ -153,25 +152,14 @@ class StoreController extends AbstractController
      * @Since("6.0.0.0")
      * @Route("/api/_action/store/updates", name="api.custom.store.updates", methods={"GET"})
      */
-    public function getUpdateList(Request $request, Context $context): JsonResponse
+    public function getUpdateList(Context $context): JsonResponse
     {
-        if ($this->extensionDataProvider) {
-            $extensions = $this->extensionDataProvider->getInstalledExtensions($context, false);
+        $extensions = $this->extensionDataProvider->getInstalledExtensions($context, false);
 
-            try {
-                $updatesList = $this->storeClient->getExtensionUpdateList($extensions, $context);
-            } catch (ClientException $exception) {
-                throw new StoreApiException($exception);
-            }
-        } else {
-            /** @var PluginCollection $plugins */
-            $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
-
-            try {
-                $updatesList = $this->storeClient->getUpdatesList($plugins, $request->getHost(), $context);
-            } catch (ClientException $exception) {
-                throw new StoreApiException($exception);
-            }
+        try {
+            $updatesList = $this->storeClient->getExtensionUpdateList($extensions, $context);
+        } catch (ClientException $exception) {
+            throw new StoreApiException($exception);
         }
 
         return new JsonResponse([
@@ -215,12 +203,7 @@ class StoreController extends AbstractController
      */
     public function getLicenseViolations(Request $request, Context $context): JsonResponse
     {
-        if ($this->extensionDataProvider) {
-            $extensions = $this->extensionDataProvider->getInstalledExtensions($context, false);
-        } else {
-            /** @var PluginCollection $extensions */
-            $extensions = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
-        }
+        $extensions = $this->extensionDataProvider->getInstalledExtensions($context, false);
 
         $indexedExtensions = [];
 
@@ -251,12 +234,7 @@ class StoreController extends AbstractController
      */
     public function searchPlugins(Request $request, Context $context): Response
     {
-        if ($this->extensionDataProvider) {
-            $extensions = $this->extensionDataProvider->getInstalledExtensions($context, false);
-        } else {
-            /** @var PluginCollection $extensions */
-            $extensions = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
-        }
+        $extensions = $this->extensionDataProvider->getInstalledExtensions($context, false);
 
         try {
             $this->storeClient->checkForViolations($context, $extensions, $request->getHost());

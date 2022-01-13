@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Update\Services\PluginCompatibility;
 use Shopware\Core\Framework\Update\Struct\Version;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @deprecated tag:v6.5.0 - will be removed. Use Shopware\Core\Framework\Update\Steps\DeactivateExtensionsStep instead
+ */
 class DeactivatePluginsStep
 {
     public const UPDATE_DEACTIVATED_PLUGINS = 'core.update.deactivatedPlugins';

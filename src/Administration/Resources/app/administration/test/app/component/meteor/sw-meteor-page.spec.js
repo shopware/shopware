@@ -1,4 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
+import 'src/app/component/meteor/sw-meteor-page';
+import 'src/app/component/base/sw-tabs';
+import 'src/app/component/base/sw-tabs-item';
 
 function createWrapper(slotsData = {}) {
     return shallowMount(Shopware.Component.build('sw-meteor-page'), {
@@ -31,14 +34,6 @@ function createWrapper(slotsData = {}) {
 describe('src/app/component/meteor/sw-meteor-page', () => {
     /** @type Wrapper */
     let wrapper;
-
-    beforeAll(async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_12608'];
-
-        await import('src/app/component/meteor/sw-meteor-page');
-        await import('src/app/component/base/sw-tabs');
-        await import('src/app/component/base/sw-tabs-item');
-    });
 
     beforeEach(() => {
         wrapper = createWrapper();

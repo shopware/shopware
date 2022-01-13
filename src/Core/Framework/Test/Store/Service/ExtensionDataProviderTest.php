@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\StoreService;
@@ -27,19 +26,12 @@ class ExtensionDataProviderTest extends TestCase
     use StoreClientBehaviour;
     use ExtensionBehaviour;
 
-    /**
-     * @var AbstractExtensionDataProvider
-     */
-    private $extensionDataProvider;
+    private AbstractExtensionDataProvider $extensionDataProvider;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     public function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
         $this->extensionDataProvider = $this->getContainer()->get(AbstractExtensionDataProvider::class);
         $this->context = $this->createAdminStoreContext();
 

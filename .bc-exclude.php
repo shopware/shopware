@@ -37,5 +37,7 @@ return [
         'Class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\InheritanceExtension has been deleted',
         'Class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\InstanceOfExtension has been deleted',
         'Class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\FeatureFlagExtension has been deleted',
+        'Shopware\\\\Core\\\\Framework\\\\Update\\\\Api\\\\UpdateController was marked "@internal"',
+        'Shopware\\\\Core\\\\Framework\\\\Update\\\\Services\\\\PluginCompatibility was marked "@internal"',
     ],
 ];

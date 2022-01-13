@@ -1,6 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-extension/page/sw-extension-config';
 import 'src/app/component/base/sw-button';
+import 'src/app/component/meteor/sw-meteor-page';
 
 function createWrapper() {
     const localVue = createLocalVue();
@@ -50,12 +51,6 @@ function createWrapper() {
 describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () => {
     /** @type Wrapper */
     let wrapper;
-
-    beforeAll(async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_12608'];
-
-        await import('src/app/component/meteor/sw-meteor-page');
-    });
 
     beforeEach(async () => {
         wrapper = await createWrapper();

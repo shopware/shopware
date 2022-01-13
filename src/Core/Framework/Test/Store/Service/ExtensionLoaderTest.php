@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Store\Services\ExtensionLoader;
@@ -30,14 +29,10 @@ class ExtensionLoaderTest extends TestCase
     use IntegrationTestBehaviour;
     use ExtensionBehaviour;
 
-    /**
-     * @var ExtensionLoader
-     */
-    private $extensionLoader;
+    private ExtensionLoader $extensionLoader;
 
     public function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
         $this->extensionLoader = $this->getContainer()->get(ExtensionLoader::class);
 
         $this->registerPlugin(__DIR__ . '/../_fixtures/AppStoreTestPlugin');

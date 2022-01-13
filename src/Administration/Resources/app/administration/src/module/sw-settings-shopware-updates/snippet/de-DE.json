@@ -11,7 +11,6 @@
     "cards": {
       "info": "Was ist neu?",
       "requirements": "Systemvoraussetzungen",
-      "plugins": "Plugin-Kompatiblität",
       "extensions": "Erweiterungskompatiblität",
       "updating": "Aktualisierung"
     },
@@ -55,7 +54,6 @@
         "available": "Kompatiblität"
       },
       "actions": {
-        "openPluginManager": "Plugin-Manager öffnen.",
         "openMyExtensions": "Zu meinen Erweiterungen",
         "deactivateAll": "Alle Plugins deaktivieren.",
         "deactivateIncompatible": "Alle inkompatiblen Plugins deaktivieren.",

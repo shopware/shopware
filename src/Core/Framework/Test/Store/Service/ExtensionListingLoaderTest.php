@@ -6,7 +6,6 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Services\ExtensionListingLoader;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
@@ -18,15 +17,10 @@ class ExtensionListingLoaderTest extends TestCase
     use IntegrationTestBehaviour;
     use StoreClientBehaviour;
 
-    /**
-     * @var ExtensionListingLoader
-     */
-    private $extensionListingLoader;
+    private ExtensionListingLoader $extensionListingLoader;
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
-        parent::setUp();
         $this->extensionListingLoader = $this->getContainer()->get(ExtensionListingLoader::class);
     }
 

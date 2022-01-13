@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserException;
 use Shopware\Core\Framework\Api\Context\ShopApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Authentication\AbstractAuthenticationProvider;
 use Shopware\Core\Framework\Store\Authentication\AuthenticationProvider;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
@@ -21,8 +20,6 @@ class AuthenticationProviderTest extends TestCase
 
     public function testItReturnsTheCorrectHeader(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
-
         $userId = Uuid::randomHex();
         $storeToken = Uuid::randomHex();
 
@@ -52,8 +49,6 @@ class AuthenticationProviderTest extends TestCase
 
     public function testInvalidContext(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
-
         $authenticationHeaderProvider = $this->getAuthProvider();
 
         static::expectException(InvalidContextSourceException::class);
@@ -63,8 +58,6 @@ class AuthenticationProviderTest extends TestCase
 
     public function testUserIdIsNull(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
-
         $authenticationHeaderProvider = $this->getAuthProvider();
 
         static::expectException(InvalidContextSourceUserException::class);
@@ -74,8 +67,6 @@ class AuthenticationProviderTest extends TestCase
 
     public function testUserIsMissing(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
-
         $authenticationHeaderProvider = $this->getAuthProvider();
 
         static::assertNull($authenticationHeaderProvider->getUserStoreToken(new Context(new AdminApiSource(Uuid::randomHex()))));
@@ -83,8 +74,6 @@ class AuthenticationProviderTest extends TestCase
 
     public function testUserWithoutToken(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
-
         $userId = Uuid::randomHex();
 
         $data = [
@@ -110,8 +99,6 @@ class AuthenticationProviderTest extends TestCase
 
     public function testSystemContextUsesUserToken(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
-
         $userId = Uuid::randomHex();
 
         $data = [
@@ -135,8 +122,6 @@ class AuthenticationProviderTest extends TestCase
 
     public function testSystemContextWithoutToken(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
-
         $userId = Uuid::randomHex();
 
         $data = [

@@ -6,7 +6,6 @@ use GuzzleHttp\Psr7\Query;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
@@ -101,8 +100,6 @@ class StoreClientTest extends TestCase
 
     public function testItRequestsUpdatesForLoggedInUser(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
-
         $pluginList = new ExtensionCollection();
         $pluginList->add((new ExtensionStruct())->assign([
             'name' => 'TestExtension',
@@ -127,8 +124,6 @@ class StoreClientTest extends TestCase
 
     public function testItRequestsUpdateForNotLoggedInUser(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
-
         $this->getUserRepository()->update([
             [
                 'id' => $this->storeContext->getSource()->getUserId(),

@@ -10,10 +10,10 @@ Shopware.Component.register('sw-license-violation', {
     template,
 
     inject: [
-        'licenseViolationService',
         'cacheApiService',
+        'extensionStoreActionService',
+        'licenseViolationService',
         'loginService',
-
     ],
 
     mixins: [
@@ -45,6 +45,9 @@ Shopware.Component.register('sw-license-violation', {
             return this.violations.length > 0;
         },
 
+        /**
+         * @deprecated tag:v6.5.0 will be removed
+         */
         pluginRepository() {
             const repositoryFactory = Shopware.Service('repositoryFactory');
             return repositoryFactory.create('plugin');
@@ -125,24 +128,10 @@ Shopware.Component.register('sw-license-violation', {
 
             this.addLoading('fetchPlugins');
 
-            if (Shopware.Feature.isActive('FEATURE_NEXT_12608')) {
-                const extensionStoreActionService = Shopware.Service('extensionStoreActionService');
-
-                extensionStoreActionService.getMyExtensions()
-                    .then((response) => {
-                        this.plugins = response;
-                    })
-                    .finally(() => {
-                        this.finishLoading('fetchPlugins');
-                    });
-                return;
-            }
-
-            this.pluginRepository.search(this.pluginCriteria, Shopware.Context.api)
+            this.extensionStoreActionService.getMyExtensions()
                 .then((response) => {
                     this.plugins = response;
-                })
-                .finally(() => {
+                }).finally(() => {
                     this.finishLoading('fetchPlugins');
                 });
         },

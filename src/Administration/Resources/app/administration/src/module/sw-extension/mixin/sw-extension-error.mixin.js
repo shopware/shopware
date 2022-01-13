@@ -1,4 +1,4 @@
-export default {
+Shopware.Mixin.register('sw-extension-error', {
     mixins: [Shopware.Mixin.getByName('notification')],
 
     methods: {
@@ -10,4 +10,4 @@ export default {
                 });
         },
     },
-};
+});

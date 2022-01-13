@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Test\Store\Api;
 
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Api\ExtensionStoreDataController;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
@@ -23,7 +22,6 @@ class ExtensionStoreDataControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
         parent::setUp();
         $this->controller = $this->getContainer()->get(ExtensionStoreDataController::class);
     }

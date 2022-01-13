@@ -175,9 +175,7 @@ describe('app/service/license-violation.service.js', () => {
         expect(localStorage.getItem('testKey')).toBeNull();
     });
 
-    it('should force delete the plugin (deactivate & uninstall & remove) (with FEATURE_NEXT_12608)', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_12608'];
-
+    it('should force delete the plugin (deactivate & uninstall & remove)', async () => {
         const extensionMock = {
             active: true,
             installedAt: '123456'
@@ -190,9 +188,7 @@ describe('app/service/license-violation.service.js', () => {
         expect(extensionApiServiceMock.removeExtension).toHaveBeenCalled();
     });
 
-    it('should force delete the plugin (uninstall & remove) (with FEATURE_NEXT_12608)', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_12608'];
-
+    it('should force delete the plugin (uninstall & remove)', async () => {
         const extensionMock = {
             active: false,
             installedAt: '123456'
@@ -205,9 +201,7 @@ describe('app/service/license-violation.service.js', () => {
         expect(extensionApiServiceMock.removeExtension).toHaveBeenCalled();
     });
 
-    it('should force delete the plugin (remove) (with FEATURE_NEXT_12608)', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_12608'];
-
+    it('should force delete the plugin (remove)', async () => {
         const extensionMock = {
             active: false,
             installedAt: null

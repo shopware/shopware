@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Test\Store\Search;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Search\ExtensionCriteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -14,7 +13,6 @@ class ExtensionCriteriaTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
     }
 
     public function testFromParameterBagComputesOffset(): void

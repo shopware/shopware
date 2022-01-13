@@ -3,6 +3,7 @@ import 'src/module/sw-extension/component/sw-self-maintained-extension-card';
 import 'src/module/sw-extension/component/sw-extension-card-base';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
+import 'src/app/component/meteor/sw-meteor-card';
 import ShopwareService from 'src/module/sw-extension/service/shopware-extension.service';
 
 function createWrapper() {
@@ -50,11 +51,6 @@ describe('src/module/sw-extension/component/sw-extension-store-purchased/sw-exte
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    beforeAll(async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_12608'];
-        await import('src/app/component/meteor/sw-meteor-card');
     });
 
     it('should be a Vue.JS component', async () => {

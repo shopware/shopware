@@ -4,7 +4,6 @@ import './sw-meteor-navigation.scss';
 
 const { Component } = Shopware;
 
-if (Shopware.Feature.isActive('FEATURE_NEXT_12608')) {
 /**
  * @private
  */
@@ -28,4 +27,3 @@ Component.register('sw-meteor-navigation', {
         },
     },
 });
-}

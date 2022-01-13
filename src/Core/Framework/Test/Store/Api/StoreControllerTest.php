@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Store\Api\StoreController;
+use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -55,7 +56,7 @@ class StoreControllerTest extends TestCase
             $pluginRepo ?? $this->getPluginRepositoryMock(),
             $pluginManagementService ?? $this->getPluginManagementServiceMock(),
             $this->getContainer()->get('user.repository'),
-            null
+            $this->getContainer()->get(AbstractExtensionDataProvider::class)
         );
     }
 

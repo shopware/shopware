@@ -29,33 +29,6 @@ class StoreServiceTest extends TestCase
         $this->storeService = $this->getContainer()->get(StoreService::class);
     }
 
-    public function testGetDefaultQueryParametersIncludesLicenseDomainIfSet(): void
-    {
-        $this->setLicenseDomain('test-shop');
-
-        $queryParameters = $this->storeService->getDefaultQueryParameters('en_GB');
-
-        static::assertEquals([
-            'shopwareVersion' => $this->getShopwareVersion(),
-            'language' => 'en_GB',
-            'domain' => 'test-shop',
-        ], $queryParameters);
-    }
-
-    public function testGetDefaultQueryParametersRemovesEmptyQueries(): void
-    {
-        $queries = $this->storeService->getDefaultQueryParameters('en_GB', false);
-
-        static::assertArrayHasKey('language', $queries);
-        static::assertEquals('en_GB', $queries['language']);
-
-        static::assertArrayHasKey('domain', $queries);
-        static::assertEquals('', $queries['domain']);
-
-        static::assertArrayHasKey('shopwareVersion', $queries);
-        static::assertEquals($this->getShopwareVersion(), $queries['shopwareVersion']);
-    }
-
     public function testFireTrackingEventReturnsOnNonExistingInstanceId(): void
     {
         $instanceService = new InstanceService(Kernel::SHOPWARE_FALLBACK_VERSION, null);

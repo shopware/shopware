@@ -6,7 +6,6 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Exception\CanNotDownloadPluginManagedByComposerException;
 use Shopware\Core\Framework\Store\Exception\StoreNotAvailableException;
 use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
@@ -27,8 +26,6 @@ class ExtensionDownloaderTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
-        parent::setUp();
         $this->extensionDownloader = $this->getContainer()->get(ExtensionDownloader::class);
 
         @mkdir($this->getContainer()->getParameter('kernel.app_dir'), 0777, true);

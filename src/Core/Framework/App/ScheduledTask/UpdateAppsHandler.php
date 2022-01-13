@@ -9,9 +9,9 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 
 class UpdateAppsHandler extends ScheduledTaskHandler
 {
-    private ?AbstractAppUpdater $appUpdater;
+    private AbstractAppUpdater $appUpdater;
 
-    public function __construct(EntityRepositoryInterface $scheduledTaskRepository, ?AbstractAppUpdater $appUpdater)
+    public function __construct(EntityRepositoryInterface $scheduledTaskRepository, AbstractAppUpdater $appUpdater)
     {
         parent::__construct($scheduledTaskRepository);
         $this->appUpdater = $appUpdater;
@@ -19,9 +19,6 @@ class UpdateAppsHandler extends ScheduledTaskHandler
 
     public function run(): void
     {
-        if (!$this->appUpdater) {
-            return;
-        }
         $this->appUpdater->updateApps(Context::createDefaultContext());
     }
 

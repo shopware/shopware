@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
-use Shopware\Core\Framework\Plugin\PluginLifecycleService;
+use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
@@ -53,7 +53,7 @@ class UpdateControllerTest extends TestCase
             $this->getContainer()->get(PluginCompatibility::class),
             $eventDispatcher,
             $systemConfigService,
-            $this->getContainer()->get(PluginLifecycleService::class),
+            $this->getContainer()->get(ExtensionLifecycleService::class),
             $this->getContainer()->get('user.repository'),
             $this->getContainer()->getParameter('kernel.shopware_version')
         );
@@ -130,7 +130,7 @@ class UpdateControllerTest extends TestCase
             $this->getContainer()->get(PluginCompatibility::class),
             $eventDispatcherWithoutPlugins,
             $systemConfigService,
-            $this->getContainer()->get(PluginLifecycleService::class),
+            $this->getContainer()->get(ExtensionLifecycleService::class),
             $this->getContainer()->get('user.repository'),
             $version
         );
@@ -207,7 +207,7 @@ class UpdateControllerTest extends TestCase
             $this->getContainer()->get(PluginCompatibility::class),
             $eventDispatcher,
             $systemConfigService,
-            $this->getContainer()->get(PluginLifecycleService::class),
+            $this->getContainer()->get(ExtensionLifecycleService::class),
             $this->getContainer()->get('user.repository'),
             $this->getContainer()->getParameter('kernel.shopware_version')
         );

@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
-use Shopware\Core\Framework\Store\Authentication\AbstractAuthenticationProvider;
 use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
@@ -53,29 +52,21 @@ class StoreClient
 
     private StoreService $storeService;
 
-    /**
-     * @var AbstractAuthenticationProvider|AbstractStoreRequestOptionsProvider|null
-     */
     private $optionsProvider;
 
-    private ?ExtensionLoader $extensionLoader;
+    private ExtensionLoader $extensionLoader;
 
-    private ?InstanceService $instanceService;
+    private InstanceService $instanceService;
 
-    /**
-     * @param AbstractAuthenticationProvider|AbstractStoreRequestOptionsProvider|null $optionsProvider
-     *
-     * @deprecated tag:v6.5.0 - Parameter $optionsProvider will only accept a AbstractStoreRequestOptionsProvider object in future versions.
-     */
     public function __construct(
         array $endpoints,
         StoreService $storeService,
         EntityRepositoryInterface $pluginRepo,
         SystemConfigService $configService,
-        $optionsProvider,
-        ?ExtensionLoader $extensionLoader,
+        AbstractStoreRequestOptionsProvider $optionsProvider,
+        ExtensionLoader $extensionLoader,
         Client $client,
-        ?InstanceService $instanceService = null
+        InstanceService $instanceService
     ) {
         $this->endpoints = $endpoints;
         $this->storeService = $storeService;
@@ -188,10 +179,6 @@ class StoreClient
      */
     public function getExtensionUpdateList(ExtensionCollection $extensionCollection, Context $context): array
     {
-        if ($this->optionsProvider === null) {
-            throw new \RuntimeException('App Store is not active');
-        }
-
         $extensionList = [];
 
         foreach ($extensionCollection as $extension) {
@@ -202,23 +189,6 @@ class StoreClient
         }
 
         return $this->getUpdateListFromStore($extensionList, $context);
-    }
-
-    /**
-     * @return StoreUpdateStruct[]
-     */
-    public function getUpdatesList(PluginCollection $pluginCollection, string $hostName, Context $context): array
-    {
-        $pluginArray = [];
-
-        foreach ($pluginCollection as $plugin) {
-            $pluginArray[] = [
-                'name' => $plugin->getName(),
-                'version' => $plugin->getVersion(),
-            ];
-        }
-
-        return $this->getUpdateListFromStore($pluginArray, $context, $hostName);
     }
 
     public function checkForViolations(
@@ -374,10 +344,6 @@ class StoreClient
 
     public function listMyExtensions(ExtensionCollection $extensions, Context $context): ExtensionCollection
     {
-        if ($this->optionsProvider === null || $this->extensionLoader === null) {
-            throw new \RuntimeException('App Store is not active');
-        }
-
         try {
             $payload = ['plugins' => array_map(function (ExtensionStruct $e) {
                 return [
@@ -416,10 +382,6 @@ class StoreClient
 
     public function cancelSubscription(int $licenseId, Context $context): void
     {
-        if ($this->optionsProvider === null) {
-            throw new \RuntimeException('App Store is not active');
-        }
-
         try {
             $this->client->post(sprintf($this->endpoints['cancel_license'], $licenseId), [
                 'query' => $this->getQueries($context),
@@ -441,10 +403,6 @@ class StoreClient
 
     public function createRating(ReviewStruct $rating, Context $context): void
     {
-        if ($this->optionsProvider === null) {
-            throw new \RuntimeException('App Store is not active');
-        }
-
         try {
             $this->client->post(
                 sprintf($this->endpoints['create_rating'], $rating->getExtensionId()),
@@ -464,10 +422,6 @@ class StoreClient
      */
     public function getLicenses(Context $context): array
     {
-        if ($this->optionsProvider === null) {
-            throw new \RuntimeException('App Store is not active');
-        }
-
         try {
             $response = $this->client->get(
                 $this->endpoints['my_licenses'],
@@ -499,35 +453,17 @@ class StoreClient
 
     protected function getHeaders(Context $context): array
     {
-        if ($this->optionsProvider === null) {
-            throw new \RuntimeException('App Store is not active');
-        }
-
         return $this->optionsProvider->getAuthenticationHeader($context);
     }
 
-    /**
-     * @deprecated tag:v6.5.0 when AbstractStoreRequestDataProvider is required
-     */
     protected function getQueries(Context $context): array
     {
-        if ($this->optionsProvider instanceof AbstractStoreRequestOptionsProvider) {
-            return $this->optionsProvider->getDefaultQueryParameters($context);
-        }
-
-        return $this->storeService->getDefaultQueryParametersFromContext($context);
+        return $this->optionsProvider->getDefaultQueryParameters($context);
     }
 
-    /**
-     * @deprecated tag:v6.5.0 when AbstractStoreRequestDataProvider is required
-     */
     protected function getShopwareVersion(): string
     {
-        if ($this->instanceService !== null) {
-            return $this->instanceService->getShopwareVersion();
-        }
-
-        return $this->storeService->getShopwareVersion();
+        return $this->instanceService->getShopwareVersion();
     }
 
     /**

@@ -28,8 +28,7 @@
             <argument type="service" id="plugin.repository" />
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService" />
             <argument type="service" id="user.repository" />
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider"
-                      on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider" />
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -48,8 +47,8 @@
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreService" />
             <argument type="service" id="plugin.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider" on-invalid="null"/>
-            <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionLoader" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider" />
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionLoader" />
             <argument type="service" id="shopware.store_client"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
         </service>
@@ -70,7 +69,6 @@
             <argument type="service" id="shopware.store_client"/>
             <argument type="service" id="user.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
-            <argument type="service" id="Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\InstanceService">
@@ -118,11 +116,6 @@
 
         <service id="Shopware\Core\Framework\Store\Authentication\AbstractAuthenticationProvider" class="Shopware\Core\Framework\Store\Authentication\AuthenticationProvider">
             <argument type="service" id="Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Store\Helper\PermissionCategorization">
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\ExtensionLoader">
@@ -131,7 +124,6 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\Service\ConfigurationService"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreService"/>
             <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider" class="Shopware\Core\Framework\Store\Services\ExtensionDataProvider">
@@ -139,12 +131,10 @@
             <argument type="service" id="app.repository"/>
             <argument type="service" id="plugin.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionListingLoader"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\ExtensionListingLoader">
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Api\ExtensionStoreDataController" public="true">
@@ -154,7 +144,6 @@
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\AbstractStoreAppLifecycleService" class="Shopware\Core\Framework\Store\Services\StoreAppLifecycleService">
@@ -165,12 +154,10 @@
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="theme.repository" on-invalid="null"/>
             <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\AbstractExtensionStoreLicensesService" class="Shopware\Core\Framework\Store\Services\ExtensionStoreLicensesService">
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Api\ExtensionStoreLicensesController" public="true">
@@ -178,14 +165,12 @@
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\ExtensionDownloader">
             <argument type="service" id="plugin.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\ExtensionLifecycleService">
@@ -193,7 +178,6 @@
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Api\ExtensionStoreActionsController" public="true">
@@ -204,7 +188,6 @@
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\StoreClientFactory">

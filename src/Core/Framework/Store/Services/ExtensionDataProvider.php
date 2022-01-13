@@ -20,25 +20,13 @@ class ExtensionDataProvider extends AbstractExtensionDataProvider
 {
     public const HEADER_NAME_TOTAL_COUNT = 'SW-Meta-Total';
 
-    /**
-     * @var ExtensionLoader
-     */
-    private $extensionLoader;
+    private ExtensionLoader $extensionLoader;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $appRepository;
+    private EntityRepositoryInterface $appRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $pluginRepository;
+    private EntityRepositoryInterface $pluginRepository;
 
-    /**
-     * @var ExtensionListingLoader
-     */
-    private $extensionListingLoader;
+    private ExtensionListingLoader $extensionListingLoader;
 
     public function __construct(
         ExtensionLoader $extensionLoader,

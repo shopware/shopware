@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Test\Store\Api;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Api\ExtensionStoreLicensesController;
 use Shopware\Core\Framework\Store\Services\ExtensionStoreLicensesService;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -17,7 +16,6 @@ class ExtensionStoreLicensesControllerTest extends TestCase
 
     public function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
         parent::setUp();
     }
 

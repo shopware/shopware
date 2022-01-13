@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Test\Store\Search;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Search\EqualsFilterStruct;
 use Shopware\Core\Framework\Store\Search\FilterStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -15,7 +14,6 @@ class FilterStructClassTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
     }
 
     public function testCreateInvalidType(): void

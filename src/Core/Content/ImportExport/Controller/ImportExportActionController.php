@@ -198,6 +198,7 @@ class ImportExportActionController extends AbstractController
         }
 
         $this->importExportService->cancel($context, $logId);
+        $this->importExportFactory->create($logId)->abort();
 
         return new Response('', Response::HTTP_NO_CONTENT);
     }

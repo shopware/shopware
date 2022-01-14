@@ -7,12 +7,14 @@ use Shopware\Core\Framework\MessageQueue\Subscriber\CountHandledMessagesListener
 use Shopware\Core\Framework\MessageQueue\Subscriber\EarlyReturnMessagesListener;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Messenger\EventListener\DispatchPcntlSignalListener;
+use Symfony\Component\Messenger\EventListener\StopWorkerOnMemoryLimitListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnSigtermSignalListener;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -61,6 +63,8 @@ class ConsumeMessagesController extends AbstractController
 
     private string $defaultTransportName;
 
+    private string $memoryLimit;
+
     public function __construct(
         ServiceLocator $receiverLocator,
         MessageBusInterface $bus,
@@ -69,7 +73,8 @@ class ConsumeMessagesController extends AbstractController
         StopWorkerOnSigtermSignalListener $stopWorkerOnSigtermSignalListener,
         DispatchPcntlSignalListener $dispatchPcntlSignalListener,
         EarlyReturnMessagesListener $earlyReturnListener,
-        string $defaultTransportName
+        string $defaultTransportName,
+        string $memoryLimit
     ) {
         $this->receiverLocator = $receiverLocator;
         $this->bus = $bus;
@@ -79,6 +84,7 @@ class ConsumeMessagesController extends AbstractController
         $this->dispatchPcntlSignalListener = $dispatchPcntlSignalListener;
         $this->earlyReturnListener = $earlyReturnListener;
         $this->defaultTransportName = $defaultTransportName;
+        $this->memoryLimit = $memoryLimit;
     }
 
     /**
@@ -133,6 +139,12 @@ See the [Symfony Messenger documentation](https://symfony.com/doc/current/messen
         $workerDispatcher->addSubscriber($this->stopWorkerOnSigtermSignalListener);
         $workerDispatcher->addSubscriber($this->dispatchPcntlSignalListener);
         $workerDispatcher->addSubscriber($this->earlyReturnListener);
+
+        if ($this->memoryLimit !== '-1') {
+            $workerDispatcher->addSubscriber(new StopWorkerOnMemoryLimitListener(
+                MemorySizeCalculator::convertToBytes($this->memoryLimit)
+            ));
+        }
 
         $worker = new Worker([$this->defaultTransportName => $receiver], $this->bus, $workerDispatcher);
 

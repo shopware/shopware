@@ -103,6 +103,7 @@
             <argument type="service" id="messenger.listener.dispatch_pcntl_signal_listener"/>
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\Subscriber\EarlyReturnMessagesListener"/>
             <argument type="string">%messenger.default_transport_name%</argument>
+            <argument type="string">%shopware.admin_worker.memory_limit%</argument>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

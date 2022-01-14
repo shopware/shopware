@@ -48,6 +48,38 @@ You can use the cart service to add line-items, change prices, add discounts, et
 * **Returns** [`Shopware\Core\Checkout\Cart\Facade\ErrorsFacade`](./cart-manipulation-script-services-reference.md#ErrorsFacade)
 
     A `ErrorsFacade` containing all cart errors as a collection (may be an empty collection if there are no errors)
+### addState()
+
+* `addState()` allows you to add one or multiple states as string values to the cart.
+
+    This can be useful to check if your script did already run and did some manipulations to the cart.
+* **Arguments:**
+    * *`string`* **states**: One or more strings that will be stored on the cart.
+### removeState()
+
+* `removeState()` removes the given state from the cart, if it existed.
+
+    
+* **Arguments:**
+    * *`string`* **state**: The state that should be removed.
+### hasState()
+
+* `hasState()` allows you to check if one or more states are present on the cart.
+
+    
+* **Returns** `bool`
+
+    Returns true if at least one of the passed states is present on the cart, false otherwise.
+* **Arguments:**
+    * *`string`* **states**: One or more strings that should be checked.
+### getStates()
+
+* `getStates()` returns all states that are present on the cart.
+
+    
+* **Returns** `array`
+
+    An array containing all current states of the cart.
 ### discount()
 
 * The `discount()` methods creates a new discount line-item with the given type and value.

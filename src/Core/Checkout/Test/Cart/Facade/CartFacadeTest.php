@@ -341,12 +341,22 @@ class CartFacadeTest extends TestCase
                 static::assertTrue($cart->errors()->has('MESSAGE_WITH_PARAMETERS'));
             },
         ];
+
+        yield 'Test cart states' => [
+            'cart-state',
+            [],
+            function (CartFacade $cart): void {
+                static::assertTrue($cart->hasState('my-custom-state'));
+                static::assertFalse($cart->hasState('default-state'));
+            },
+        ];
     }
 
     private static function createCart(): Cart
     {
         $cart = new Cart('test', 'test');
         $cart->setBehavior(new CartBehavior());
+        $cart->addState('default-state');
 
         return $cart;
     }

@@ -60,6 +60,7 @@ class Processor
         $cart->setAffiliateCode($original->getAffiliateCode());
         $cart->setCampaignCode($original->getCampaignCode());
         $cart->setBehavior($behavior);
+        $cart->addState(...$original->getStates());
 
         // move data from previous calculation into new cart
         $cart->setData($original->getData());

@@ -181,6 +181,9 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('enable_admin_worker')
                     ->defaultValue(true)
                 ->end()
+                ->scalarNode('memory_limit')
+                    ->defaultValue('128M')
+                ->end()
             ->end();
 
         return $rootNode;

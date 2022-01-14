@@ -314,7 +314,7 @@ For more information on this check the [symfony docs](https://symfony.com/doc/cu
 
 The admin-worker can be configured/disabled in the general shopware.yml configuration.
 If you want to use the admin worker you have specify each transport, that previously was configured.
-The poll interval is the time in seconds that the admin-worker polls messages from the queue. After the poll-interval is over the request terminates and the administration initiates a new request.
+The poll interval is the time in seconds that the admin-worker polls messages from the queue. After the poll-interval is over or the memory limit is reached the request terminates and the administration initiates a new request.
 ```yaml
 # config/packages/shopware.yaml
 shopware:
@@ -322,4 +322,5 @@ shopware:
         enable_admin_worker: true
         poll_interval: 20
         transports: ["default"]
+        memory_limit: 128M
 ``` 

@@ -74,6 +74,8 @@ workflow:
 
 default:
     image: $DEV_IMAGE
+    tags:
+      - t3.medium
     services:
         - name: mysql:5.7
           alias: database

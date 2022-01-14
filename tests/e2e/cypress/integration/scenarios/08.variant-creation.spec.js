@@ -175,14 +175,14 @@ describe('Create a variant product using default customer and buy it via cash on
         cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
         cy.get('#confirmFormSubmit').scrollIntoView().click();
         cy.get('.finish-header').contains(`Thank you for your order with E2E install test!`);
-    });
 
-    // NEXT-19404: fix dependency
-    it.skip('@package: should verify the order from the order page', () => {
-        cy.loginViaApi();
-        cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
-        cy.url().should('include', 'order/index');
-        cy.get('.sw-data-grid__cell--amountTotal > .sw-data-grid__cell-content').should('be.visible')
-            .and('include.text', '8,00')
+        // Verify the order from the storefront
+        cy.visit('/account/login');
+        cy.get('.account-welcome h1').should((element) => {
+            expect(element).to.contain('Overview');
+        });
+        cy.get('.account-overview-profile > .card > .card-body').contains('wolf@kurt.com');
+        cy.get('.order-table-header-heading').should('be.visible')
+            .and('include.text', 'Order');
     });
 });

@@ -129,14 +129,14 @@ describe('@package: Currency: checkout with tax-free and price rounding', () => 
         cy.get('#confirmFormSubmit').scrollIntoView();
         cy.get('#confirmFormSubmit').click();
         cy.get('.finish-header').contains(`Thank you for your order with E2E install test!`);
-    });
 
-    // NEXT-19404: fix dependency
-    it.skip('Should check the order in admin', ()=>{
-        cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
-        cy.get('.sw-search-bar__input').typeAndCheckSearchField('Test Tester');
-        cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--orderCustomer-firstName').contains('Tester, Test');
-        cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--amountTotal').contains('34,116');
-        cy.get('.sw-data-grid__skeleton').should('not.exist');
+        // Verify the order from the storefront
+        cy.visit('/account/login');
+        cy.get('.account-welcome h1').should((element) => {
+            expect(element).to.contain('Overview');
+        });
+        cy.get('.account-overview-profile > .card > .card-body').contains('test@tester.com');
+        cy.get('.order-table-header-heading').should('be.visible')
+            .and('include.text', 'Order');
     });
 });

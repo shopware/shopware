@@ -95,6 +95,8 @@ default:
         - name: mysql:5.7
           alias: database
           entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
+    tags:
+      - t3.medium
     before_script:
         - *base_env_vars
         - zip -rq theme.zip .

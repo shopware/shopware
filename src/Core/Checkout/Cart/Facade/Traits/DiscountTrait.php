@@ -39,6 +39,7 @@ trait DiscountTrait
         $item->setRemovable(true);
         $item->setPriceDefinition($definition);
         $item->setLabel($label);
+        $item->setRemovable(true);
         $this->getItems()->add($item);
 
         return new DiscountFacade($item);
@@ -70,6 +71,18 @@ trait DiscountTrait
         }
         if (!$value->has(Defaults::CURRENCY)) {
             throw new \RuntimeException(sprintf('Absolute discounts %s requires a defined currency price for the default currency. Use services.price(...) to create a compatible price object', $key));
+        }
+
+        /** @var PriceCollection $value */
+        foreach ($value as $price) {
+            $price->setGross(\abs($price->getGross()) * -1);
+            $price->setNet(\abs($price->getNet()) * -1);
+
+            if (!$price->getListPrice()) {
+                continue;
+            }
+            $price->getListPrice()->setGross(\abs($price->getListPrice()->getGross()) * -1);
+            $price->getListPrice()->setNet(\abs($price->getListPrice()->getNet()) * -1);
         }
 
         return new CurrencyPriceDefinition($value);

@@ -6,7 +6,7 @@
          data-tax="{{ cart.price.calculatedTaxes.amount }}"
     >
         {% for lineItem in lineItems  %}
-            {% if lineItem.priceDefinition.price %}
+            {% if lineItem.priceDefinition.price and lineItem.priceDefinition.price is float %}
               {% set gaPrice = lineItem.priceDefinition.price %}
             {% else %}
               {% set gaPrice = lineItem.price.totalPrice %}

@@ -673,14 +673,16 @@ describe('components/sw-entity-single-select', () => {
 
         // Wait for rendering
         await createableWrapper.vm.$nextTick();
-        const resultItem = createableWrapper.find('.sw-select-result-list__item-list').find('.sw-highlight-text');
-
         // Ensure manufacturer does not exist
         expect(createableWrapper.vm.entityExists).toBe(false);
 
         // Ensure non-existing manufacturer is offered to be created by a new select result item
         expect(createableWrapper.vm.newEntityName).toBe('Cars');
         expect(displaySearchSpy).toHaveBeenCalled();
+
+        await createableWrapper.vm.$nextTick();
+        const resultItem = createableWrapper.find('.sw-select-result-list__item-list').find('.sw-highlight-text');
+
         expect(resultItem.text()).toBe('global.sw-single-select.labelEntityAdd');
         expect(resultItem.props().searchTerm).toBe('Cars');
     });

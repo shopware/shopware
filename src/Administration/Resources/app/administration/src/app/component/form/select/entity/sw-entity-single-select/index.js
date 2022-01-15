@@ -220,9 +220,52 @@ Component.register('sw-entity-single-select', {
 
         search() {
             if (this.criteria.term === this.searchTerm) {
+                if (this.allowEntityCreation) {
+                    this.filterSearchGeneratedTags();
+                }
                 return Promise.resolve();
             }
 
+            if (!this.allowEntityCreation) {
+                return this.handleSearchPromise();
+            }
+
+            this.isLoading = true;
+            return this.checkEntityExists(this.searchTerm).then(() => {
+                if (!this.entityExists && this.searchTerm) {
+                    const criteria = new Criteria();
+                    criteria.addFilter(
+                        Criteria.contains('name', this.searchTerm),
+                    );
+
+                    return this.repository.search(criteria, {
+                        ...this.context,
+                        inheritance: true,
+                    }).then((result) => {
+                        this.resultCollection = result;
+
+                        const newEntity = this.repository.create(this.context, -1);
+                        newEntity.name = this.$tc('global.sw-single-select.labelEntityAdd',
+                            0,
+                            {
+                                term: this.searchTerm,
+                                entity: this.entityCreationLabel,
+                            });
+
+                        this.resultCollection.unshift(newEntity);
+
+                        this.newEntityName = this.searchTerm;
+                        this.displaySearch(this.resultCollection);
+                        this.isLoading = false;
+
+                        return Promise.resolve();
+                    });
+                }
+                return this.handleSearchPromise();
+            });
+        },
+
+        handleSearchPromise() {
             this.criteria.setPage(1);
             this.criteria.setLimit(this.resultLimit);
             this.criteria.setTerm(this.searchTerm);
@@ -248,38 +291,6 @@ Component.register('sw-entity-single-select', {
 
         loadData() {
             this.isLoading = true;
-
-            if (this.allowEntityCreation) {
-                this.checkEntityExists(this.searchTerm).then(() => {
-                    if (!this.entityExists) {
-                        const criteria = new Criteria();
-                        criteria.addFilter(
-                            Criteria.contains('name', this.searchTerm),
-                        );
-
-                        return this.repository.search(criteria, {
-                            ...this.context,
-                            inheritance: true,
-                        }).then((result) => {
-                            this.resultCollection = result;
-
-                            const newEntity = this.repository.create(this.context, -1);
-                            newEntity.name = this.$tc('global.sw-single-select.labelEntityAdd',
-                                0,
-                                {
-                                    term: this.searchTerm,
-                                    entity: this.entityCreationLabel,
-                                });
-                            this.resultCollection.unshift(newEntity);
-                        });
-                    }
-
-                    this.newEntityName = this.searchTerm;
-                    this.displaySearch(this.resultCollection);
-                    this.isLoading = false;
-                    return null;
-                });
-            }
 
             return this.repository.search(this.criteria, { ...this.context, inheritance: true }).then((result) => {
                 this.displaySearch(result);
@@ -424,8 +435,13 @@ Component.register('sw-entity-single-select', {
             if (!this.allowEntityCreation) {
                 return null;
             }
-            this.createNewEntity();
-            return item;
+
+            if (item.id === -1) {
+                this.createNewEntity();
+            } else {
+                this.$super('addItem', item);
+            }
+            return null;
         },
 
         clearSelection() {
@@ -504,6 +520,12 @@ Component.register('sw-entity-single-select', {
                 });
                 Shopware.Utils.debug.error('Only Entities with "name" as the only required field are creatable.');
                 this.isLoading = false;
+            });
+        },
+
+        filterSearchGeneratedTags() {
+            this.resultCollection = this.resultCollection.filter(entity => {
+                return entity.id !== -1;
             });
         },
     },

@@ -164,5 +164,11 @@ abstract class Bundle extends SymfonyBundle
         foreach (glob($this->getPath() . '/Resources/config/services.*') as $path) {
             $delegatingLoader->load($path);
         }
+
+        if ($container->getParameter('kernel.environment') === 'test') {
+            foreach (glob($this->getPath() . '/Resources/config/services_test.*') as $path) {
+                $delegatingLoader->load($path);
+            }
+        }
     }
 }

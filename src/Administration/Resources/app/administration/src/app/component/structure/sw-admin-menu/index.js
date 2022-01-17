@@ -173,7 +173,7 @@ Component.register('sw-admin-menu', {
         extensionModuleNavigation() {
             return this.extensionMenuItems.map((extensionMenuItem) => {
                 return {
-                    id: extensionMenuItem.id,
+                    id: Shopware.Utils.createId(),
                     label: {
                         translated: true,
                         label: extensionMenuItem.label,
@@ -183,7 +183,7 @@ Component.register('sw-admin-menu', {
                     moduleType: 'plugin',
                     path: 'sw.extension.sdk.index',
                     params: {
-                        id: extensionMenuItem.id,
+                        id: extensionMenuItem.moduleId,
                     },
                 };
             });

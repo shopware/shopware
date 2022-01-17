@@ -1,11 +1,10 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-extension-sdk/page/sw-extension-sdk-module';
 
-const menuItem = {
-    label: 'jest',
+const module = {
+    heading: 'jest',
     locationId: 'jest',
     displaySearchBar: true,
-    parent: 'sw-extension',
     baseUrl: 'http://example.com',
 };
 
@@ -15,7 +14,7 @@ function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-extension-sdk-module'), {
         localVue,
         propsData: {
-            id: Shopware.Utils.format.md5(JSON.stringify(menuItem)),
+            id: Shopware.Utils.format.md5(JSON.stringify(module)),
         },
         stubs: {
             'sw-page': true,
@@ -50,7 +49,9 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
     });
 
     it('@slow should not time out with menu item', async () => {
-        Shopware.State.commit('menuItem/addMenuItem', menuItem);
+        const moduleId = await Shopware.State.dispatch('extensionSdkModules/addModule', module);
+        expect(typeof moduleId).toBe('string');
+        expect(moduleId).toBe(wrapper.vm.id);
 
         await new Promise((r) => setTimeout(r, 7100));
         expect(wrapper.vm.timedOut).toBe(false);

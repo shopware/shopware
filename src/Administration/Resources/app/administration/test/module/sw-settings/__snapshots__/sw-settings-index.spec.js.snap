@@ -35,7 +35,16 @@ exports[`module/sw-settings/page/sw-settings-index should render correctly 1`] =
           <!---->
         </a>
          
-        <!---->
+        <a
+          class="sw-tabs-item sw-settings__tab-plugins"
+          title="sw-settings.index.tabPlugins"
+          to="[object Object]"
+        >
+          
+                        sw-settings.index.tabPlugins
+                     
+          <!---->
+        </a>
           
         <span
           class="sw-tabs__slider"
@@ -196,6 +205,54 @@ exports[`module/sw-settings/page/sw-settings-index should render correctly 1`] =
               >
                 
             s
+        
+              </div>
+            </a>
+          </div>
+          <div
+            class="sw-settings__content-grid"
+            id="sw-settings__content-grid-plugins"
+            style="display: none;"
+          >
+            <a
+              class="sw-settings-item"
+              id="sw-extension-books"
+              to="[object Object]"
+            >
+              <div
+                class="sw-settings-item__icon background--enabled"
+              >
+                <span
+                  name="default-object-books"
+                />
+              </div>
+               
+              <div
+                class="sw-settings-item__label"
+              >
+                
+            extension-sdk
+        
+              </div>
+            </a>
+            <a
+              class="sw-settings-item"
+              id="sw-extension-briefcase"
+              to="[object Object]"
+            >
+              <div
+                class="sw-settings-item__icon background--enabled"
+              >
+                <span
+                  name="default-object-books"
+                />
+              </div>
+               
+              <div
+                class="sw-settings-item__label"
+              >
+                
+            general.no
         
               </div>
             </a>

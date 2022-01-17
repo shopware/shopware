@@ -20,7 +20,13 @@ Component.register('sw-settings-index', {
             const settingsGroups = Object.entries(Shopware.State.get('settingsItems').settingsGroups);
             return settingsGroups.reduce((acc, [groupName, groupSettings]) => {
                 const group = groupSettings
-                    .filter(setting => this.acl.can(setting.privilege))
+                    .filter((setting) => {
+                        if (!setting.privilege) {
+                            return true;
+                        }
+
+                        return this.acl.can(setting.privilege);
+                    })
                     .sort((a, b) => (this.$tc(a.label).localeCompare(this.$tc(b.label))));
 
                 if (group.length > 0) {
@@ -31,9 +37,54 @@ Component.register('sw-settings-index', {
             }, {});
         },
     },
+
     methods: {
         hasPluginConfig() {
             return (hasOwnProperty(this.settingsGroups, 'plugins') && this.settingsGroups.plugins.length > 0);
+        },
+
+        getRouteConfig(settingsItem) {
+            if (!hasOwnProperty(settingsItem, 'to')) {
+                return {};
+            }
+
+            if (typeof settingsItem.to === 'string') {
+                return { name: settingsItem.to };
+            }
+
+            if (typeof settingsItem.to === 'object') {
+                return settingsItem.to;
+            }
+
+            return {};
+        },
+
+        getLabel(settingsItem) {
+            if (!hasOwnProperty(settingsItem, 'label')) {
+                return '';
+            }
+
+            if (typeof settingsItem.label === 'string') {
+                return this.$tc(settingsItem.label);
+            }
+
+            if (typeof settingsItem.label !== 'object') {
+                return '';
+            }
+
+            if (!hasOwnProperty(settingsItem.label, 'translated')) {
+                return '';
+            }
+
+            if (!hasOwnProperty(settingsItem.label, 'label') || typeof settingsItem.label.label !== 'string') {
+                return '';
+            }
+
+            if (settingsItem.label.translated) {
+                return settingsItem.label.label;
+            }
+
+            return this.$tc(settingsItem.label.label);
         },
     },
 });

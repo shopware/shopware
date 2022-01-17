@@ -13,6 +13,7 @@ import extensionComponentSections from './extension-component-sections.store';
 import extensions from './extensions.store';
 import tabs from './tabs.store';
 import menuItem from './menu-item.store';
+import extensionSdkModules from './extension-sdk-module.store';
 
 export default {
     notification,
@@ -30,4 +31,5 @@ export default {
     extensions,
     tabs,
     menuItem,
+    extensionSdkModules,
 };

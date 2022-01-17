@@ -21,16 +21,16 @@ Shopware.Component.register('sw-extension-sdk-module', {
     },
 
     computed: {
-        menuItem() {
-            return Shopware.State.get('menuItem').menuItems.find(menuItem => menuItem.id === this.id);
+        module() {
+            return Shopware.State.get('extensionSdkModules').modules.find(module => module.id === this.id);
         },
 
         isLoading() {
-            return !this.menuItem;
+            return !this.module;
         },
 
         showSearchBar() {
-            return this.menuItem?.displaySearchBar ?? true;
+            return this.module?.displaySearchBar ?? true;
         },
     },
 

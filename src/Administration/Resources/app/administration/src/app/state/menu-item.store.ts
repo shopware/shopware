@@ -1,7 +1,7 @@
 import { Module } from 'vuex';
-import { menuItemAdd } from '@shopware-ag/admin-extension-sdk/es/ui/menuItem';
+import { menuItemAdd } from '@shopware-ag/admin-extension-sdk/es/ui/menu';
 
-export type MenuItemEntry = Omit<menuItemAdd, 'responseType' | 'positionId'> & { id: string, baseUrl: string }
+export type MenuItemEntry = Omit<menuItemAdd, 'responseType' | 'locationId' | 'displaySearchBar'> & { moduleId: string }
 
 interface MenuItemState {
     menuItems: MenuItemEntry[],
@@ -15,18 +15,12 @@ const MenuItemStore: Module<MenuItemState, VuexRootState> = {
     }),
 
     mutations: {
-        addMenuItem(state, { label, locationId, displaySearchBar, parent, baseUrl }: MenuItemEntry) {
-            const staticElements = {
-                label,
-                locationId,
-                displaySearchBar,
-                parent,
-                baseUrl,
-            };
-
+        addMenuItem(state, { label, parent, position, moduleId }: MenuItemEntry) {
             state.menuItems.push({
-                id: Shopware.Utils.format.md5(JSON.stringify(staticElements)),
-                ...staticElements,
+                label,
+                parent,
+                position,
+                moduleId,
             });
         },
     },

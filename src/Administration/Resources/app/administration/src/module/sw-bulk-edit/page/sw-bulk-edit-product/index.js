@@ -557,7 +557,6 @@ Component.register('sw-bulk-edit-product', {
         'bulkEditProduct.prices': {
             handler(value) {
                 if (
-                    !this.feature.isActive('FEATURE_NEXT_19244') ||
                     !this.product?.prices?.length ||
                     value?.type !== 'remove'
                 ) {
@@ -814,10 +813,6 @@ Component.register('sw-bulk-edit-product', {
         },
 
         loadRules() {
-            if (!this.feature.isActive('FEATURE_NEXT_19244')) {
-                return Promise.resolve();
-            }
-
             return this.ruleRepository.search(this.ruleCriteria).then((res) => {
                 this.rules = res;
             });

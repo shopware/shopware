@@ -12,28 +12,13 @@ class CustomerGroupRegistrationApiService extends ApiService {
     }
 
     accept(customerId, additionalParams = {}, additionalHeaders = {}, additionalRequest = {}) {
-        if (Shopware.Feature.isActive('FEATURE_NEXT_19244')) {
-            const route = `/_action/${this.getApiBasePath()}/accept`;
-            return this.httpClient.post(
-                route,
-                {
-                    customerIds: Array.isArray(customerId) ? customerId : [customerId],
-                    ...additionalRequest,
-                },
-                {
-                    params: additionalParams,
-                    headers: this.getBasicHeaders(additionalHeaders),
-                },
-            ).then((response) => {
-                return ApiService.handleResponse(response);
-            });
-        }
-
-        const apiRoute = `/_action/${this.getApiBasePath()}/accept/${customerId}`;
-
+        const route = `/_action/${this.getApiBasePath()}/accept`;
         return this.httpClient.post(
-            apiRoute,
-            {},
+            route,
+            {
+                customerIds: Array.isArray(customerId) ? customerId : [customerId],
+                ...additionalRequest,
+            },
             {
                 params: additionalParams,
                 headers: this.getBasicHeaders(additionalHeaders),
@@ -44,28 +29,13 @@ class CustomerGroupRegistrationApiService extends ApiService {
     }
 
     decline(customerId, additionalParams = {}, additionalHeaders = {}, additionalRequest = {}) {
-        if (Shopware.Feature.isActive('FEATURE_NEXT_19244')) {
-            const route = `/_action/${this.getApiBasePath()}/decline`;
-            return this.httpClient.post(
-                route,
-                {
-                    customerIds: Array.isArray(customerId) ? customerId : [customerId],
-                    ...additionalRequest,
-                },
-                {
-                    params: additionalParams,
-                    headers: this.getBasicHeaders(additionalHeaders),
-                },
-            ).then((response) => {
-                return ApiService.handleResponse(response);
-            });
-        }
-
-        const apiRoute = `/_action/${this.getApiBasePath()}/decline/${customerId}`;
-
+        const route = `/_action/${this.getApiBasePath()}/decline`;
         return this.httpClient.post(
-            apiRoute,
-            {},
+            route,
+            {
+                customerIds: Array.isArray(customerId) ? customerId : [customerId],
+                ...additionalRequest,
+            },
             {
                 params: additionalParams,
                 headers: this.getBasicHeaders(additionalHeaders),

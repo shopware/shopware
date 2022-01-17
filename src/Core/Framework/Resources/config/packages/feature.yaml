@@ -209,11 +209,6 @@ shopware:
         major: false
         description: "Bulk Edit for Order Documents and Status Mails"
         # issue: NEXT-17261
-      - name: FEATURE_NEXT_19244
-        default: false
-        major: false
-        description: "Bulk Edit for Customers and Product Prices"
-        # issue: NEXT-19244
       - name: FEATURE_NEXT_17858
         default: false
         major: true

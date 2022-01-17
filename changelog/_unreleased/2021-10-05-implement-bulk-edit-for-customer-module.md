@@ -1,7 +1,6 @@
 ---
 title: Implement bulk edit for customer module
 issue: NEXT-17315
-flag: FEATURE_NEXT_17261
 ---
 # Administration
 * Added `sw_customer_list_bulk_edit_modal` block and changed `sw_customer_list_grid` block in `src/module/sw-customer/page/sw-customer-list/sw-customer-list.html.twig`.

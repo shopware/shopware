@@ -69,7 +69,7 @@
                 detail-route="sw.customer.detail"
                 :show-selection="acl.can('customer.deleter')"
                 :allow-inline-edit="acl.can('customer.editor')"
-                :allow-bulk-edit="feature.isActive('FEATURE_NEXT_19244') && acl.can('customer.editor')"
+                :allow-bulk-edit="acl.can('customer.editor')"
                 :is-loading="isLoading"
                 :disable-data-fetching="true"
                 @selection-change="updateSelection"
@@ -257,7 +257,6 @@
 
                 {% block sw_customer_list_bulk_edit_modal %}
                 <template
-                    v-if="feature.isActive('FEATURE_NEXT_19244')"
                     #bulk-edit-modal="{ selection }"
                 >
                     <sw-bulk-edit-modal

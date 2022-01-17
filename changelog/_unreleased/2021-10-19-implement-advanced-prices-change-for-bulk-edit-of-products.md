@@ -1,7 +1,6 @@
 ---
 title: Implement advanced prices change for bulk edit of products
 issue: NEXT-17909
-flag: FEATURE_NEXT_17261
 ---
 # Administration
 * Changed `bulk-edit-base.handle.js` service in `src/module/sw-bulk-edit/service/handler/bulk-edit-base.handler.js` to fix can not remove advanced prices.

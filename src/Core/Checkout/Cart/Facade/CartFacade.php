@@ -106,46 +106,13 @@ class CartFacade
     }
 
     /**
-     * `addState()` allows you to add one or multiple states as string values to the cart.
-     * This can be useful to check if your script did already run and did some manipulations to the cart.
+     * `states()` allows you to access the state functions of the current cart.
      *
-     * @param string ...$states One or more strings that will be stored on the cart.
+     * @return StatesFacade A `StatesFacade` containing all cart states as a collection (maybe an empty collection if there are no states)
      */
-    public function addState(string ...$states): void
+    public function states(): StatesFacade
     {
-        $this->cart->addState(...$states);
-    }
-
-    /**
-     * `removeState()` removes the given state from the cart, if it existed.
-     *
-     * @param string $state The state that should be removed.
-     */
-    public function removeState(string $state): void
-    {
-        $this->cart->removeState($state);
-    }
-
-    /**
-     * `hasState()` allows you to check if one or more states are present on the cart.
-     *
-     * @param string ...$states One or more strings that should be checked.
-     *
-     * @return bool Returns true if at least one of the passed states is present on the cart, false otherwise.
-     */
-    public function hasState(string ...$states): bool
-    {
-        return $this->cart->hasState(...$states);
-    }
-
-    /**
-     * `getStates()` returns all states that are present on the cart.
-     *
-     * @return array An array containing all current states of the cart.
-     */
-    public function getStates(): array
-    {
-        return $this->cart->getStates();
+        return new StatesFacade($this->cart);
     }
 
     private function getItems(): LineItemCollection

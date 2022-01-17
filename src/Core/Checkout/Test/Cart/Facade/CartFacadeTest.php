@@ -204,7 +204,7 @@ class CartFacadeTest extends TestCase
             'add-simple-discount',
             [
                 'p1' => new ExpectedPrice(100),
-                'discount' => new ExpectedPrice(-10),
+                'my-discount' => new ExpectedPrice(-10),
             ],
         ];
 
@@ -212,7 +212,7 @@ class CartFacadeTest extends TestCase
             'add-simple-surcharge',
             [
                 'p1' => new ExpectedPrice(100),
-                'surcharge' => new ExpectedPrice(10),
+                'my-surcharge' => new ExpectedPrice(10),
             ],
         ];
 
@@ -220,7 +220,7 @@ class CartFacadeTest extends TestCase
             'add-discount-for-stacked-items',
             [
                 'p1' => new ExpectedPrice(100, 300),
-                'discount' => new ExpectedPrice(-30),
+                'my-discount' => new ExpectedPrice(-30),
             ],
         ];
 
@@ -228,7 +228,7 @@ class CartFacadeTest extends TestCase
             'add-surcharge-for-stacked-items',
             [
                 'p1' => new ExpectedPrice(100, 300),
-                'surcharge' => new ExpectedPrice(30),
+                'my-surcharge' => new ExpectedPrice(30),
             ],
         ];
 
@@ -237,7 +237,7 @@ class CartFacadeTest extends TestCase
             [
                 'p1' => new ExpectedPrice(100),
                 'v2.1' => new ExpectedPrice(100),
-                'discount' => new ExpectedPrice(-20),
+                'my-discount' => new ExpectedPrice(-20),
             ],
         ];
 
@@ -246,7 +246,7 @@ class CartFacadeTest extends TestCase
             [
                 'p1' => new ExpectedPrice(100),
                 'v2.1' => new ExpectedPrice(100),
-                'surcharge' => new ExpectedPrice(20),
+                'my-surcharge' => new ExpectedPrice(20),
             ],
         ];
 
@@ -254,7 +254,7 @@ class CartFacadeTest extends TestCase
             'add-absolute-discount',
             [
                 'p1' => new ExpectedPrice(100),
-                'discount' => new ExpectedPrice(-19.99),
+                'my-discount' => new ExpectedPrice(-19.99),
             ],
         ];
 
@@ -262,7 +262,7 @@ class CartFacadeTest extends TestCase
             'add-absolute-surcharge',
             [
                 'p1' => new ExpectedPrice(100),
-                'surcharge' => new ExpectedPrice(19.99),
+                'my-surcharge' => new ExpectedPrice(19.99),
             ],
         ];
 
@@ -346,8 +346,8 @@ class CartFacadeTest extends TestCase
             'cart-state',
             [],
             function (CartFacade $cart): void {
-                static::assertTrue($cart->hasState('my-custom-state'));
-                static::assertFalse($cart->hasState('default-state'));
+                static::assertTrue($cart->states()->has('my-custom-state'));
+                static::assertFalse($cart->states()->has('default-state'));
             },
         ];
     }

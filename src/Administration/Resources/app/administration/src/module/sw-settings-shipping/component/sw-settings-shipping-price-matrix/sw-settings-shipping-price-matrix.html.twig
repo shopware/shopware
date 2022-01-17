@@ -293,6 +293,26 @@
                 :placeholder="$tc('sw-settings-shipping.priceMatrix.chooseCustomRule')"
                 @save-rule="(ruleId) => { onSaveCustomShippingRule(ruleId) }"
             >
+                <template #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
+                    <li
+                        is="sw-select-result"
+                        v-tooltip="shippingPriceRuleTooltipConfig(item, isSelected(item))"
+                        :disabled="(usedRules.includes(item.id) && !isSelected(item)) || restrictedShippingMethodRules.includes(item.id)"
+                        :selected="isSelected(item)"
+                        v-bind="{ item, index }"
+                        @item-select="setValue"
+                    >
+                        <sw-highlight-text
+                            v-if="highlightSearchTerm"
+                            :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                            :search-term="searchTerm"
+                        />
+                        <template v-else>
+                            {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                        </template>
+                    </li>
+                </template>
+
                 <template #rule-modal="{ showRuleModal, onSaveRule, onCloseRuleModal }">
                     <sw-price-rule-modal
                         v-if="showRuleModal"

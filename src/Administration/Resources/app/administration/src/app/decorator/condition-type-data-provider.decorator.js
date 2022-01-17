@@ -81,6 +81,26 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         },
     );
 
+    ruleConditionService.addAwarenessConfiguration(
+        'shippingMethodPriceCalculations',
+        {
+            notEquals: [
+                'cartCartAmount',
+            ],
+            snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethodPriceCalculations',
+        },
+    );
+
+    ruleConditionService.addAwarenessConfiguration(
+        'shippingMethodPrices',
+        {
+            notEquals: [
+                'cartCartAmount',
+            ],
+            snippet: 'sw-restricted-rules.restrictedAssignment.shippingMethodPrices',
+        },
+    );
+
     ruleConditionService.addCondition('dateRange', {
         component: 'sw-condition-date-range',
         label: 'global.sw-condition.condition.dateRangeRule.label',

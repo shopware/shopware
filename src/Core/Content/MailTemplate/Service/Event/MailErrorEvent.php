@@ -1,22 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\ProductExport\Event;
+namespace Shopware\Core\Content\MailTemplate\Service\Event;
 
 use Monolog\Logger;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\LogAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class ProductExportLoggingEvent extends Event implements BusinessEventInterface, LogAware
+class MailErrorEvent extends Event implements LogAware, FlowEventAware
 {
-    public const NAME = 'product_export.log';
+    public const NAME = 'mail.sent.error';
 
-    /**
-     * @var Context
-     */
     private $context;
 
     /**
@@ -24,34 +21,33 @@ class ProductExportLoggingEvent extends Event implements BusinessEventInterface,
      */
     private $logLevel;
 
-    /**
-     * @var \Throwable
-     */
-    private $throwable;
+    private ?\Throwable $throwable = null;
 
-    /**
-     * @var string
-     */
-    private $name = self::NAME;
+    private ?string $message = null;
 
     /**
      * @param 100|200|250|300|400|500|550|600|null $logLevel
      */
     public function __construct(
         Context $context,
-        ?string $name,
         ?int $logLevel,
-        ?\Throwable $throwable = null
+        ?\Throwable $throwable = null,
+        ?string $message = null
     ) {
         $this->context = $context;
-        $this->name = $name;
         $this->logLevel = $logLevel ?? Logger::DEBUG;
         $this->throwable = $throwable;
+        $this->message = $message;
     }
 
     public function getThrowable(): ?\Throwable
     {
         return $this->throwable;
+    }
+
+    public function getMessage(): ?string
+    {
+        return $this->message;
     }
 
     public function getContext(): Context
@@ -67,11 +63,6 @@ class ProductExportLoggingEvent extends Event implements BusinessEventInterface,
         return $this->logLevel;
     }
 
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
     public function getLogData(): array
     {
         $logData = [];
@@ -81,7 +72,16 @@ class ProductExportLoggingEvent extends Event implements BusinessEventInterface,
             $logData['exception'] = (string) $throwable;
         }
 
+        if ($this->message) {
+            $logData['message'] = $this->message;
+        }
+
         return $logData;
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
     }
 
     public static function getAvailableData(): EventDataCollection

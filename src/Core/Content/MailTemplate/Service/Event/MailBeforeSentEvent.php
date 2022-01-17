@@ -9,11 +9,11 @@ use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
-use Shopware\Core\Framework\Log\LogAwareBusinessEventInterface;
+use Shopware\Core\Framework\Log\LogAware;
 use Symfony\Component\Mime\Email;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class MailBeforeSentEvent extends Event implements BusinessEventInterface, LogAwareBusinessEventInterface
+class MailBeforeSentEvent extends Event implements BusinessEventInterface, LogAware
 {
     public const EVENT_NAME = 'mail.after.create.message';
 
@@ -68,8 +68,11 @@ class MailBeforeSentEvent extends Event implements BusinessEventInterface, LogAw
 
     public function getLogData(): array
     {
+        $data = $this->data;
+        unset($data['binAttachments']);
+
         return [
-            'data' => $this->data,
+            'data' => $data,
             'message' => $this->message,
         ];
     }

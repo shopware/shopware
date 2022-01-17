@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\ScheduledTask\LogCleanupTask;
 use Shopware\Core\Framework\Log\ScheduledTask\LogCleanupTaskHandler;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
@@ -48,6 +49,11 @@ class LogCleanupTaskHandlerTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        if (Feature::isActive('v6.5.0.0')) {
+            $connection = $this->getContainer()->get(Connection::class);
+            $connection->executeStatement('DELETE FROM `log_entry`');
+        }
 
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $this->scheduledTaskRepository = $this->getContainer()->get('scheduled_task.repository');

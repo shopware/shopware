@@ -8,10 +8,10 @@ use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
-use Shopware\Core\Framework\Log\LogAwareBusinessEventInterface;
+use Shopware\Core\Framework\Log\LogAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class MailBeforeValidateEvent extends Event implements BusinessEventInterface, LogAwareBusinessEventInterface
+class MailBeforeValidateEvent extends Event implements BusinessEventInterface, LogAware
 {
     public const EVENT_NAME = 'mail.before.send';
 
@@ -92,8 +92,11 @@ class MailBeforeValidateEvent extends Event implements BusinessEventInterface, L
 
     public function getLogData(): array
     {
+        $data = $this->data;
+        unset($data['binAttachments']);
+
         return [
-            'data' => $this->data,
+            'data' => $data,
             'templateData' => $this->templateData,
         ];
     }

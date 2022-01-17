@@ -12,6 +12,7 @@ use Shopware\Core\Content\Flow\Dispatching\FlowDispatcher;
 use Shopware\Core\Content\Flow\Dispatching\FlowLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -65,9 +66,15 @@ class FlowDispatcherTest extends TestCase
         $event = new TestFlowBusinessEvent($context);
 
         $eventDispatcherMock = static::createMock(EventDispatcherInterface::class);
-        $eventDispatcherMock->expects(static::exactly(1))
-            ->method('dispatch')
-            ->willReturn($event);
+        if (Feature::isActive('v6.5.0.0')) {
+            $eventDispatcherMock->expects(static::exactly(2))
+                ->method('dispatch')
+                ->willReturn($event);
+        } else {
+            $eventDispatcherMock->expects(static::exactly(1))
+                ->method('dispatch')
+                ->willReturn($event);
+        }
 
         $dispatcher = new FlowDispatcher(
             $eventDispatcherMock,

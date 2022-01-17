@@ -231,6 +231,12 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         scopes: ['cart'],
         group: 'cart',
     });
+    ruleConditionService.addCondition('cartPositionPrice', {
+        component: 'sw-condition-cart-position-price',
+        label: 'global.sw-condition.condition.cartPositionPrice',
+        scopes: ['cart'],
+        group: 'cart',
+    });
     ruleConditionService.addCondition('cartGoodsCount', {
         component: 'sw-condition-goods-count',
         label: 'global.sw-condition.condition.goodsCountRule',

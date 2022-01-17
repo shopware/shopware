@@ -614,6 +614,7 @@
         "shippingZipCodeRule": "Shipping address: Postal code",
         "customerLoggedInRule": "Customer logged in",
         "cartAmountRule": "Total value",
+        "cartPositionPrice": "Total cart position price",
         "goodsCountRule": "Total quantity of distinct products",
         "goodsPriceRule": "Total price of all products",
         "lineItemOfTypeRule": {

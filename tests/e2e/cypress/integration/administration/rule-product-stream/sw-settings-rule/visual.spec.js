@@ -67,7 +67,7 @@ describe('Rule builder: Visual tests', () => {
 
             page.createBasicSelectCondition({
                 selector: '@condition-general',
-                type: 'Line items with free shipping',
+                type: 'Free shipping',
                 operator: null,
                 value: 'No'
             });
@@ -78,7 +78,7 @@ describe('Rule builder: Visual tests', () => {
             cy.get('.sw-condition').eq(1).as('second-condition');
             page.createBasicInputCondition({
                 selector: '@second-condition',
-                type: 'Total value',
+                type: 'Cart amount',
                 operator: 'Is greater than',
                 inputName: 'amount',
                 value: '100'
@@ -116,7 +116,7 @@ describe('Rule builder: Visual tests', () => {
             cy.get('.sw-condition').eq(2).as('third-condition');
             page.createBasicSelectConditionFromSearch({
                 selector: '@third-condition',
-                type: 'Billing address: Country',
+                type: 'Billing country',
                 operator: 'Is none of',
                 value: 'Australia'
             });

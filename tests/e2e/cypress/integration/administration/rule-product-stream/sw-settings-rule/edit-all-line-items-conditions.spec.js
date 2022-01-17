@@ -1,6 +1,6 @@
 // / <reference types="Cypress" />
 
-import RulePageObject from '../../../../support/pages/module/sw-rule.page-object';
+import RulePageObject from '../../../support/pages/module/sw-rule.page-object';
 
 describe('Rule builder: Test all line items container crud operations', () => {
     beforeEach(() => {
@@ -42,7 +42,7 @@ describe('Rule builder: Test all line items container crud operations', () => {
 
             page.createBasicInputCondition({
                 selector: '@first-condition',
-                type: 'Distinct line item price',
+                type: 'Line item price',
                 operator: 'Is less than',
                 inputName: 'amount',
                 value: '12'
@@ -59,7 +59,7 @@ describe('Rule builder: Test all line items container crud operations', () => {
             cy.get('.sw-condition').eq(1).as('second-condition');
             page.createBasicInputCondition({
                 selector: '@second-condition',
-                type: 'Line items with width',
+                type: 'Line item width',
                 operator: 'Is greater than',
                 inputName: 'amount',
                 value: '100'

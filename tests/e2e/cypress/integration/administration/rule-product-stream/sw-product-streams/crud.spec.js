@@ -93,4 +93,59 @@ describe('Dynamic product group: Test crud operations', () => {
         cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
         cy.get(`${page.elements.dataGridRow}--0`).should('not.exist');
     });
+
+    it('@base @catalogue: duplicate and read dynamic product group', () => {
+        const page = new ProductStreamObject();
+
+        // Requests we want to wait for later
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'POST'
+        }).as('saveData');
+
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/_action/clone/product-stream/*`,
+            method: 'POST'
+        }).as('cloneData');
+
+        // Edit product stream
+        cy.clickContextMenuItem(
+            '.sw-entity-listing__context-menu-edit-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+        cy.get(page.elements.loader).should('not.exist');
+
+        // Add filter
+        cy.get('.sw-product-stream-filter').as('currentProductStreamFilter');
+        page.fillFilterWithSelect(
+            '@currentProductStreamFilter',
+            {
+                field: 'Active',
+                operator: null,
+                value: 'Yes'
+            }
+        );
+
+        // Save product stream
+        cy.get(page.elements.streamSaveAction).click();
+        cy.wait('@saveData').its('response.statusCode').should('equal', 200);
+        cy.get(page.elements.smartBarBack).click();
+
+        // Duplicate product stream
+        cy.clickContextMenuItem(
+            '.sw-entity-listing__context-menu-edit-duplicate',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+        cy.wait('@cloneData').its('response.statusCode').should('equal', 200);
+        cy.get(page.elements.loader).should('not.exist');
+
+        // Verify product stream name has been appended
+        cy.get('input[name=sw-field--productStream-name]').should('have.value', '1st Productstream Copy');
+
+        // Verify that filters of original have been cloned as well
+        cy.get('.sw-product-stream-field-select .sw-single-select__selection-text').should('contain', 'Active');
+        cy.get('.sw-product-stream-value .sw-single-select__selection-text').should('contain', 'Yes');
+    });
 });

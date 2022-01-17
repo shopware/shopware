@@ -12,7 +12,7 @@
       "remove": "Remove"
     },
     "product": {
-      "textTitle": "Bulk edit: {productTotal} products",
+      "textTitle": "Bulk edit: {productTotal} product | Bulk edit: {productTotal} products",
       "messageEmptyTitle": "No products selected for bulk edit",
       "messageEmptySubline": "Please go back and select some products",
       "generalInformation": {
@@ -243,7 +243,7 @@
       "messageBeforeTabLeave": "Bulk edits are being made. If you close the tab, not all changes may be applied."
     },
     "order": {
-      "textTitle": "Bulk edit: {orderTotal} orders",
+      "textTitle": "Bulk edit: {orderTotal} order | Bulk edit: {orderTotal} orders",
       "messageEmptyTitle": "No orders selected",
       "messageEmptySubline": "Go back and select orders.",
       "status": {
@@ -316,7 +316,7 @@
       }
     },
     "customer": {
-      "textTitle": "Bulk edit: {customerTotal} customers",
+      "textTitle": "Bulk edit: {customerTotal} customer | Bulk edit: {customerTotal} customers",
       "messageEmptyTitle": "No customers selected",
       "messageEmptySubline": "Go back and select customers.",
       "account": {

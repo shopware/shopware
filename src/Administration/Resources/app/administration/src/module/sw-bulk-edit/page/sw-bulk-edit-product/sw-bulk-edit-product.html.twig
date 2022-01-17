@@ -9,7 +9,7 @@
     {% block sw_bulk_edit_product_smart_bar_header %}
     <template #smart-bar-header>
         {% block sw_bulk_edit_product_smart_bar_header_title %}
-        <h2>{{ $tc('sw-bulk-edit.product.textTitle', 0, { productTotal: selectedIds.length }) }}</h2>
+        <h2>{{ $tc('sw-bulk-edit.product.textTitle', selectedIds.length, { productTotal: selectedIds.length }) }}</h2>
         {% endblock %}
     </template>
     {% endblock %}

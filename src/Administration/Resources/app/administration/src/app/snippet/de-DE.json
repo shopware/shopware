@@ -880,7 +880,7 @@
     "sw-bulk-edit-modal": {
       "bulkEdit": "Mehrfachänderung",
       "startBulkEdit": "Mehrfachänderung starten",
-      "bulkEditModalTitle": "Mehrfachänderung - {count} Elemente ausgewählt | Mehrfachänderung - {count} Elemente ausgewählt"
+      "bulkEditModalTitle": "Mehrfachänderung - {count} Element ausgewählt | Mehrfachänderung - {count} Elemente ausgewählt"
     },
     "sw-search-preferences-modal": {
       "title": "Sucheinstellungen",

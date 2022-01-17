@@ -41,7 +41,7 @@
         </service>
 
         <service id="Shopware\Docs\Command\Script\ScriptReferenceGeneratorCommand">
-            <argument type="tagged" tag="shopware.scripting_reference.generator"/>
+            <argument type="tagged" tag="shopware.scripts_reference.generator"/>
 
             <tag name="console.command"/>
         </service>
@@ -50,14 +50,14 @@
             <argument type="service" id="service_container"/>
             <argument type="service" id="Shopware\Docs\Command\Script\ServiceReferenceGenerator"/>
 
-            <tag name="shopware.scripting_reference.generator"/>
+            <tag name="shopware.scripts_reference.generator"/>
         </service>
 
         <service id="Shopware\Docs\Command\Script\ServiceReferenceGenerator">
             <argument type="service" id="service_container"/>
             <argument>%kernel.project_dir%</argument>
 
-            <tag name="shopware.scripting_reference.generator"/>
+            <tag name="shopware.scripts_reference.generator"/>
         </service>
     </services>
 </container>

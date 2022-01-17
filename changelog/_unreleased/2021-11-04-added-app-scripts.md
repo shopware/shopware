@@ -34,7 +34,7 @@ ___
 * Changed the checkout templates to allow using storefront snippets as labels of line items inside the cart
 ___
 # Upgrade Information
-## AppScripting Feature
+## AppScripts Feature
 Apps can now include scripts to run synchronous business logic inside the shopware stack.
 Visit the [official documentation](https://developer.shopware.com/docs/guides/plugins/apps) for more information on that feature.
 ___

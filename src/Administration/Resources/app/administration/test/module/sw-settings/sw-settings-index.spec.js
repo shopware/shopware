@@ -69,7 +69,39 @@ function createWrapper(privileges = [
             name: 'settings-shipping',
             label: 'a',
             privilege: 'shipping.viewer'
-        }
+        },
+        {
+            group: 'plugins',
+            to: {
+                name: 'sw.extension.sdk.index',
+                params: {
+                    id: Shopware.Utils.createId(),
+                }
+            },
+            icon: 'default-object-books',
+            id: 'sw-extension-books',
+            name: 'settings-app-book',
+            label: {
+                translated: true,
+                label: 'extension-sdk',
+            },
+        },
+        {
+            group: 'plugins',
+            to: {
+                name: 'sw.extension.sdk.index',
+                params: {
+                    id: Shopware.Utils.createId(),
+                }
+            },
+            icon: 'default-object-books',
+            id: 'sw-extension-briefcase',
+            name: 'settings-app-briefcase',
+            label: {
+                translated: false,
+                label: 'general.no',
+            },
+        },
     ];
 
     settingsItemsMock.forEach((settingsItem) => {
@@ -77,6 +109,14 @@ function createWrapper(privileges = [
     });
 
     return shallowMount(Shopware.Component.build('sw-settings-index'), {
+        mocks: {
+            $tc: (path) => {
+                if (typeof path !== 'string') {
+                    return `${path}`;
+                }
+                return path;
+            }
+        },
         stubs: {
             'sw-page': {
                 template: '<div><slot name="content"></slot></div>'
@@ -106,7 +146,7 @@ function createWrapper(privileges = [
                     return privileges.includes(key);
                 }
             }
-        }
+        },
     });
 }
 
@@ -133,7 +173,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             settingsItems.forEach((settingsItem, index) => {
                 let elementsSorted = true;
 
-                if (index < settingsItems.length - 1) {
+                if (index < settingsItems.length - 1 && typeof settingsItems[index].label === 'string') {
                     elementsSorted = (
                         settingsItems[index].label.localeCompare(settingsItems[index + 1].label) === -1
                     );

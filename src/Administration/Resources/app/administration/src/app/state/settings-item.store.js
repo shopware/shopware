@@ -3,7 +3,11 @@ const { hasOwnProperty } = Shopware.Utils.object;
 export default {
     namespaced: true,
     state: {
-        settingsGroups: {},
+        settingsGroups: {
+            shop: [],
+            system: [],
+            plugins: [],
+        },
     },
 
     mutations: {

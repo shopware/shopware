@@ -82,8 +82,8 @@
                                     v-for="settingsItem in settingsItems"
                                     :id="settingsItem.id"
                                     :key="settingsItem.name"
-                                    :label="$tc(settingsItem.label)"
-                                    :to="{ name: settingsItem.to }"
+                                    :label="getLabel(settingsItem)"
+                                    :to="getRouteConfig(settingsItem)"
                                     :background-enabled="settingsItem.backgroundEnabled"
                                 >
                                     <template #icon>

@@ -88,6 +88,11 @@ export default function createCustomFieldService() {
                 type: 'colorpicker',
             },
         },
+        price: {
+            configRenderComponent: 'sw-custom-field-type-base',
+            type: 'price',
+            config: {},
+        },
     };
 
     const $entityNameStore = [

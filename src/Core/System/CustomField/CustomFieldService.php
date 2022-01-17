@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class CustomFieldService implements EventSubscriberInterface
@@ -57,6 +58,9 @@ class CustomFieldService implements EventSubscriberInterface
 
             case CustomFieldTypes::HTML:
                 return (new LongTextField($attributeName, $attributeName))->addFlags(new ApiAware(), new AllowHtml());
+
+            case CustomFieldTypes::PRICE:
+                return (new PriceField($attributeName, $attributeName))->addFlags(new ApiAware());
 
             case CustomFieldTypes::JSON:
             default:

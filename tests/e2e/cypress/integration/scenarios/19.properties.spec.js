@@ -101,15 +101,22 @@ describe('Create a new property and select value display type', () => {
 
         cy.get('.sw-button.sw-button--ghost').click();
         cy.get('#modalTitleEl').should('be.visible');
-
-        cy.contains('Color').click();
+        cy.get('.sw-loader').should('not.exist');
+        cy.wait('@searchPropertyGroup').its('response.statusCode').should('equal', 200);
+        cy.contains('.sw-property-search__tree-selection__group_grid .sw-grid__row--0 .sw-grid__cell-content', 'Color')
+            .should('be.visible')
+            .click();
+        cy.contains('.sw-property-search__tree-selection__option_grid .sw-grid__row--0', 'Green').should('be.visible');
         cy.get(`${propertyValue} .sw-grid__row--0 input`).click();
         cy.get(`${propertyValue} .sw-grid__row--1 input`).click();
         cy.get(`${propertyValue} .sw-grid__row--2 input`).click();
         cy.get('.sw-grid-row.sw-grid__row--0').should('include.text', '3');
 
-        cy.contains('Size').click();
+        cy.contains('.sw-property-search__tree-selection__group_grid .sw-grid__row--1 .sw-grid__cell-content', 'Size')
+            .should('be.visible')
+            .click();
         cy.wait('@searchPropertyGroup').its('response.statusCode').should('equal', 200);
+        cy.contains('.sw-property-search__tree-selection__option_grid .sw-grid__row--0', 'L').should('be.visible');
         cy.get(`${propertyValue} .sw-grid__row--0 input`).click();
         cy.get(`${propertyValue} .sw-grid__row--1 input`).click();
         cy.get(`${propertyValue} .sw-grid__row--2 input`).click();

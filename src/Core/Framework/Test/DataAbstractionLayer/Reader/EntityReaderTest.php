@@ -93,6 +93,42 @@ class EntityReaderTest extends TestCase
         parent::tearDown();
     }
 
+    public function testPartialLoadingAddsImplicitAssociationToRequestedFields(): void
+    {
+        $ids = new IdsCollection();
+
+        $product = (new ProductBuilder($ids, 'p1'))
+            ->price(100)
+            ->categories(['c1', 'c2'])
+            ->visibility()
+            ->manufacturer('m1');
+
+        $this->getContainer()->get('product.repository')
+            ->create([$product->build()], Context::createDefaultContext());
+
+        $criteria = new Criteria();
+        $criteria->addFields(['id', 'productNumber', 'name', 'categories.name']);
+
+        $values = $this->getContainer()
+            ->get('product.repository')
+            ->search($criteria, Context::createDefaultContext());
+
+        $entity = $values->first();
+
+        static::assertInstanceOf(PartialEntity::class, $entity);
+        static::assertSame('p1', $entity->get('productNumber'));
+        static::assertSame('p1', $entity->get('name'));
+        static::assertNull($entity->get('active'));
+
+        static::assertInstanceOf(PartialEntity::class, $entity->get('categories')->first());
+
+        /** @var EntityCollection $collection */
+        $collection = $entity->get('categories');
+        $collection->sortByIdArray([$ids->get('c1'), $ids->get('c2')]);
+
+        static::assertSame('c1', $entity->get('categories')->first()->get('name'));
+    }
+
     public function testPartialLoadingManyToOne(): void
     {
         $ids = new IdsCollection();

@@ -76,7 +76,7 @@ class EntityReader implements EntityReaderInterface
 
         $collectionClass = $definition->getCollectionClass();
 
-        $fields = $this->buildCriteriaFields($criteria);
+        $fields = $this->buildCriteriaFields($criteria, $definition);
 
         return $this->_read(
             $criteria,
@@ -110,7 +110,6 @@ class EntityReader implements EntityReaderInterface
             return $collection;
         }
 
-        // todo@dr would be nicer if the read gets not a fields collection
         if (!empty($partial)) {
             $fields = $definition->getFields()->filter(function (Field $field) use ($partial) {
                 if ($field->getFlag(PrimaryKey::class)) {
@@ -122,7 +121,6 @@ class EntityReader implements EntityReaderInterface
         }
 
         // always add the criteria fields to the collection, otherwise we have conflicts between criteria.fields and criteria.association logic
-        // todo@dr check which kind of field has big impacts (many to many, many to one, ...)
         $fields = $this->addAssociationFieldsToCriteria($criteria, $definition, $fields);
 
         if ($definition->isInheritanceAware() && $criteria->hasAssociation('parent')) {
@@ -433,11 +431,9 @@ class EntityReader implements EntityReaderInterface
         $isInheritanceAware = $definition->isInheritanceAware() && $context->considerInheritance();
 
         if ($isInheritanceAware) {
-            $parentIds = $collection->map(function (Entity $entity) {
+            $parentIds = array_values(array_filter($collection->map(function (Entity $entity) {
                 return $entity->get('parentId');
-            });
-
-            $parentIds = array_values(array_filter($parentIds));
+            })));
 
             $ids = array_unique(array_merge($ids, $parentIds));
         }
@@ -1065,6 +1061,10 @@ class EntityReader implements EntityReaderInterface
         $referenceDefinition = $association->getReferenceDefinition();
         $collectionClass = $referenceDefinition->getCollectionClass();
 
+        if ($partial !== []) {
+            $collectionClass = EntityCollection::class;
+        }
+
         $fields = $referenceDefinition->getFields()->getBasicFields();
         $fields = $this->addAssociationFieldsToCriteria($associationCriteria, $referenceDefinition, $fields);
 
@@ -1144,7 +1144,7 @@ class EntityReader implements EntityReaderInterface
         return $collection;
     }
 
-    private function buildCriteriaFields(Criteria $criteria): array
+    private function buildCriteriaFields(Criteria $criteria, EntityDefinition $definition): array
     {
         if (empty($criteria->getFields())) {
             return [];
@@ -1153,10 +1153,14 @@ class EntityReader implements EntityReaderInterface
         $fields = [];
 
         foreach ($criteria->getFields() as $field) {
-            $pointer = &$fields;
-            $parts = explode('.', $field);
+            $association = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $field, true);
 
-            foreach ($parts as $part) {
+            if ($association !== [] && $association[0] instanceof AssociationField) {
+                $criteria->addAssociation($field);
+            }
+
+            $pointer = &$fields;
+            foreach (explode('.', $field) as $part) {
                 if (!isset($pointer[$part])) {
                     $pointer[$part] = [];
                 }

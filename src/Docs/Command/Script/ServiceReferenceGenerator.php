@@ -186,19 +186,19 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
             self::GROUP_DATA_LOADING => [
                 'title' => 'Data Loading',
                 'fileName' => self::GROUPS[self::GROUP_DATA_LOADING],
-                'description' => 'Here you find a complete reference of all scripting services that can be used to load additional data.',
+                'description' => 'Here you find a complete reference of all script services that can be used to load additional data.',
                 'services' => [],
             ],
             self::GROUP_CART_MANIPULATION => [
                 'title' => 'Cart Manipulation',
                 'fileName' => self::GROUPS[self::GROUP_CART_MANIPULATION],
-                'description' => 'Here you find a complete reference of all scripting services that can be used to manipulate the cart.',
+                'description' => 'Here you find a complete reference of all script services that can be used to manipulate the cart.',
                 'services' => [],
             ],
             self::GROUP_MISCELLANEOUS => [
                 'title' => 'Miscellaneous',
                 'fileName' => self::GROUPS[self::GROUP_MISCELLANEOUS],
-                'description' => 'Here you find a complete reference of all general scripting services that can be used in any script.',
+                'description' => 'Here you find a complete reference of all general script services that can be used in any script.',
                 'services' => [],
             ],
         ];

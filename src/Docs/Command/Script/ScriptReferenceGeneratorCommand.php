@@ -12,7 +12,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class ScriptReferenceGeneratorCommand extends Command
 {
-    protected static $defaultName = 'docs:generate-scripting-reference';
+    protected static $defaultName = 'docs:generate-scripts-reference';
 
     /**
      * @var ScriptReferenceGenerator[]
@@ -30,7 +30,7 @@ class ScriptReferenceGeneratorCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $io->comment('Generating reference documentation for the app scripting feature.');
+        $io->comment('Generating reference documentation for the app scripts feature.');
 
         foreach ($this->generators as $generator) {
             foreach ($generator->generate() as $file => $content) {
@@ -45,6 +45,6 @@ class ScriptReferenceGeneratorCommand extends Command
 
     protected function configure(): void
     {
-        $this->setDescription('(Re-)Generate reference documentation for the app scripting feature.');
+        $this->setDescription('(Re-)Generate reference documentation for the app scripts feature.');
     }
 }

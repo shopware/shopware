@@ -1,4 +1,4 @@
-# 2021-10-21 - (App-) Scripting
+# 2021-10-21 - (App-) Scripts
 
 ## Context
 

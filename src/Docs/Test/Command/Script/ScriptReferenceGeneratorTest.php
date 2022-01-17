@@ -24,8 +24,8 @@ class ScriptReferenceGeneratorTest extends TestCase
                     $content,
                     file_get_contents($filename),
                     <<<MSG
-The app scripting reference documentation is not up to date.
-Please regenerate the documentation by running `bin/console docs:generate-scripting-reference`.
+The app scripts reference documentation is not up to date.
+Please regenerate the documentation by running `bin/console docs:generate-scripts-reference`.
 Also ensure that the copied files in the publicly accessible gitbook @ `https://github.com/shopware/docs` are also updated!'
 MSG
                 );

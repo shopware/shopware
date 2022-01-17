@@ -73,7 +73,6 @@ trait SurchargeTrait
             throw new \RuntimeException(sprintf('Absolute discounts %s requires a defined currency price for the default currency. Use services.price(...) to create a compatible price object', $key));
         }
 
-        /** @var PriceCollection $value */
         foreach ($value as $price) {
             $price->setGross(\abs($price->getGross()));
             $price->setNet(\abs($price->getNet()));

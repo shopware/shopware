@@ -16,6 +16,8 @@ const chalk = require('chalk');
 
 /* eslint-disable */
 
+const buildOnlyExtensions = process.env.SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS === '1';
+
 const flagsPath = path.join(process.env.PROJECT_ROOT, 'var', 'config_js_features.json');
 let featureFlags = {};
 if (fs.existsSync(flagsPath)) {
@@ -796,4 +798,6 @@ coreSvgInlineLoader.include.push(path.join(__dirname, 'src/app/assets/icons/svg'
  * Export all single configs in a array. Webpack uses then the webpack-multi-compiler for isolated
  * builds for each configuration (core + plugins).
  */
-module.exports = [mergedCoreConfig, ...configsForPlugins];
+module.exports = buildOnlyExtensions
+    ? [...configsForPlugins]
+    : [mergedCoreConfig, ...configsForPlugins];

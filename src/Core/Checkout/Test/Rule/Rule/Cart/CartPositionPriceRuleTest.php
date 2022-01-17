@@ -17,7 +17,7 @@ class CartPositionPriceRuleTest extends TestCase
 
         $cart = Generator::createCart();
         $context = $this->createMock(SalesChannelContext::class);
-        $cart->getPrice()->assign([ 'positionPrice' => 275 ]);
+        $cart->getPrice()->assign(['positionPrice' => 275]);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -30,7 +30,7 @@ class CartPositionPriceRuleTest extends TestCase
 
         $cart = Generator::createCart();
         $context = $this->createMock(SalesChannelContext::class);
-        $cart->getPrice()->assign([ 'positionPrice' => 275 ]);
+        $cart->getPrice()->assign(['positionPrice' => 275]);
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))
@@ -43,7 +43,7 @@ class CartPositionPriceRuleTest extends TestCase
 
         $cart = Generator::createCart();
         $context = $this->createMock(SalesChannelContext::class);
-        $cart->getPrice()->assign([ 'positionPrice' => 275 ]);
+        $cart->getPrice()->assign(['positionPrice' => 275]);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -56,7 +56,7 @@ class CartPositionPriceRuleTest extends TestCase
 
         $cart = Generator::createCart();
         $context = $this->createMock(SalesChannelContext::class);
-        $cart->getPrice()->assign([ 'positionPrice' => 275 ]);
+        $cart->getPrice()->assign(['positionPrice' => 275]);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -69,7 +69,7 @@ class CartPositionPriceRuleTest extends TestCase
 
         $cart = Generator::createCart();
         $context = $this->createMock(SalesChannelContext::class);
-        $cart->getPrice()->assign([ 'positionPrice' => 275 ]);
+        $cart->getPrice()->assign(['positionPrice' => 275]);
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))
@@ -82,7 +82,7 @@ class CartPositionPriceRuleTest extends TestCase
 
         $cart = Generator::createCart();
         $context = $this->createMock(SalesChannelContext::class);
-        $cart->getPrice()->assign([ 'positionPrice' => 275 ]);
+        $cart->getPrice()->assign(['positionPrice' => 275]);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -95,7 +95,7 @@ class CartPositionPriceRuleTest extends TestCase
 
         $cart = Generator::createCart();
         $context = $this->createMock(SalesChannelContext::class);
-        $cart->getPrice()->assign([ 'positionPrice' => 275 ]);
+        $cart->getPrice()->assign(['positionPrice' => 275]);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -108,7 +108,7 @@ class CartPositionPriceRuleTest extends TestCase
 
         $cart = Generator::createCart();
         $context = $this->createMock(SalesChannelContext::class);
-        $cart->getPrice()->assign([ 'positionPrice' => 275 ]);
+        $cart->getPrice()->assign(['positionPrice' => 275]);
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))
@@ -121,7 +121,7 @@ class CartPositionPriceRuleTest extends TestCase
 
         $cart = Generator::createCart();
         $context = $this->createMock(SalesChannelContext::class);
-        $cart->getPrice()->assign([ 'positionPrice' => 275 ]);
+        $cart->getPrice()->assign(['positionPrice' => 275]);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -134,7 +134,7 @@ class CartPositionPriceRuleTest extends TestCase
 
         $cart = Generator::createCart();
         $context = $this->createMock(SalesChannelContext::class);
-        $cart->getPrice()->assign([ 'positionPrice' => 275 ]);
+        $cart->getPrice()->assign(['positionPrice' => 275]);
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))
@@ -152,7 +152,7 @@ class CartPositionPriceRuleTest extends TestCase
 
         $cart = Generator::createCart();
         $context = $this->createMock(SalesChannelContext::class);
-        $cart->getPrice()->assign([ 'positionPrice' => 275 ]);
+        $cart->getPrice()->assign(['positionPrice' => 275]);
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))

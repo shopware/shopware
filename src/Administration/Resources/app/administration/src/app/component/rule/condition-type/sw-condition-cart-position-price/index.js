@@ -18,6 +18,7 @@ Component.extend('sw-condition-cart-position-price', 'sw-condition-base', {
         operators() {
             return this.conditionDataProviderService.getOperatorSet('number');
         },
+
         amount: {
             get() {
                 this.ensureValueExist();

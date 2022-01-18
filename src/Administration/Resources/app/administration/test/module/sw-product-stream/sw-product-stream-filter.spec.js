@@ -39,6 +39,7 @@ function createWrapper(privileges = []) {
                 }
             },
             availableTypes: {},
+            availableGroups: [],
             childAssociationField: {},
             createCondition: () => {},
             productCustomFields: {

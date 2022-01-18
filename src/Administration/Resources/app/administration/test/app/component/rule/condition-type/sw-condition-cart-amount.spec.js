@@ -30,7 +30,8 @@ describe('components/rule/condition-type/sw-condition-cart-amount', () => {
             },
             provide: {
                 conditionDataProviderService: new ConditionDataProviderService(),
-                availableTypes: {},
+                availableTypes: [],
+                availableGroups: [],
                 childAssociationField: {},
                 validationService: {}
             },

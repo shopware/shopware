@@ -20,6 +20,8 @@ Component.register('sw-condition-base', {
         'conditionDataProviderService',
         'availableTypes',
         'childAssociationField',
+        /* @internal (flag:FEATURE_NEXT_16148) */
+        'availableGroups',
     ],
 
     props: {

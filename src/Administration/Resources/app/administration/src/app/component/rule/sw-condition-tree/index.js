@@ -17,6 +17,8 @@ Component.register('sw-condition-tree', {
     provide() {
         return {
             availableTypes: this.availableTypes,
+            /* @internal (flag:FEATURE_NEXT_16148) */
+            availableGroups: this.availableGroups,
             createCondition: this.createCondition,
             insertNodeIntoTree: this.insertNodeIntoTree,
             removeNodeFromTree: this.removeNodeFromTree,
@@ -102,9 +104,15 @@ Component.register('sw-condition-tree', {
                 conditions = this.conditionDataProviderService.getConditions(this.scopes);
             }
 
-            if (this.feature.isActive('FEATURE_NEXT_16148') && this.conditionDataProviderService.getGroups) {
+            conditions.forEach(condition => {
+                condition.translatedLabel = this.$tc(condition.label);
+            });
+
+            if (this.feature.isActive('FEATURE_NEXT_16148') && this.availableGroups) {
+                conditions.sort((a, b) => a.translatedLabel.localeCompare(b.translatedLabel));
+
                 const groupedConditions = [];
-                this.conditionDataProviderService.getGroups().forEach((group) => {
+                this.availableGroups.forEach((group) => {
                     conditions.forEach((condition) => {
                         if (condition.group === group.id) {
                             groupedConditions.push(condition);
@@ -120,6 +128,22 @@ Component.register('sw-condition-tree', {
 
         rootId() {
             return this.rootCondition !== null ? this.rootCondition.id : null;
+        },
+
+        availableGroups() {
+            if (typeof this.conditionDataProviderService.getGroups !== 'function') {
+                return [];
+            }
+
+            const groups = Object.values(this.conditionDataProviderService.getGroups());
+
+            groups.forEach(group => {
+                group.label = this.$tc(group.name);
+            });
+
+            groups.sort((a, b) => a.label.localeCompare(b.label));
+
+            return groups;
         },
     },
 

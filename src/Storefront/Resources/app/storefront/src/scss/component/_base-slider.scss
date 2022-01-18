@@ -8,6 +8,7 @@ based on: https://github.com/ganlanyuan/tiny-slider
 
 .base-slider {
     position: relative;
+    overflow: hidden;
 
     // styling works both for auto generated markup by the tiny-slider and normal template markup
     .tns-nav,
@@ -53,6 +54,10 @@ based on: https://github.com/ganlanyuan/tiny-slider
         padding-left: 25px;
         padding-right: 25px;
     }
+
+    .tns-ovh {
+        overflow: visible;
+    }
 }
 
 .base-slider-controls {
@@ -88,7 +93,7 @@ based on: https://github.com/ganlanyuan/tiny-slider
         border: 0;
         background: none;
     }
-    
+
     &[disabled] {
         opacity: 0.2;
         cursor: default;

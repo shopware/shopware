@@ -24,6 +24,7 @@ import initializeExtensionComponentSections from 'src/app/init/extension-compone
 import tabs from 'src/app/init/tabs.init';
 import menu from './menu-item.init';
 import initSettingItems from './settings-item.init';
+import initMainModules from './main-module.init';
 
 export default {
     coreMixin: initMixin,
@@ -48,4 +49,5 @@ export default {
     tabs: tabs,
     menu: menu,
     settingItems: initSettingItems,
+    mainModules: initMainModules,
 };

@@ -14,6 +14,7 @@ import extensions from './extensions.store';
 import tabs from './tabs.store';
 import menuItem from './menu-item.store';
 import extensionSdkModules from './extension-sdk-module.store';
+import extensionMainModules from './main-module.store';
 
 export default {
     notification,
@@ -32,4 +33,5 @@ export default {
     tabs,
     menuItem,
     extensionSdkModules,
+    extensionMainModules,
 };

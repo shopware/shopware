@@ -111,7 +111,7 @@
         {# @deprecated tag:v6.5.0 - will be removed use `sw_extension_card_base_context_menu_theme_settings` as a replacement #}
         <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <span
-            v-else-if="extensionCanBeOpened"
+            v-else-if="openLinkExists"
             class="sw-extension-card-base__open-extension"
             style="display: none;"
             @click="openExtension"
@@ -139,9 +139,9 @@
 
         {% block sw_extension_card_base_context_menu_theme_settings %}
         <sw-context-menu-item
-            v-if="extensionCanBeOpened && extension.active"
+            v-if="openLinkExists && extension.active"
             :disabled="!openLinkExists"
-            :router-link="openLink"
+            :router-link="link"
         >
             {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.openExtension') }}
         </sw-context-menu-item>

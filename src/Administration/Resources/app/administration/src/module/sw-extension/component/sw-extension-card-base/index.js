@@ -32,6 +32,7 @@ Component.register('sw-extension-card-base', {
             showPrivacyModal: false,
             permissionModalActionLabel: null,
             openLink: null,
+            // @deprecated tag:v6.5.0 - will be removed use openLinkExists instead
             extensionCanBeOpened: false,
         };
     },
@@ -107,7 +108,7 @@ Component.register('sw-extension-card-base', {
 
         /* @deprecated tag:v6.5.0 - use data "openLink" */
         openLinkInformation() {
-            return this.openLink;
+            return this.link;
         },
 
         privacyPolicyLink() {
@@ -148,7 +149,29 @@ Component.register('sw-extension-card-base', {
         },
 
         openLinkExists() {
-            return !!this.openLink;
+            return !!this.link;
+        },
+
+        extensionMainModule() {
+            return Shopware.State.get('extensionMainModules').mainModules
+                .find(mainModule => mainModule.extensionName === this.extension.name);
+        },
+
+        link() {
+            if (this.openLink) {
+                return this.openLink;
+            }
+
+            if (this.extensionMainModule) {
+                return {
+                    name: 'sw.extension.sdk.index',
+                    params: {
+                        id: this.extensionMainModule.moduleId,
+                    },
+                };
+            }
+
+            return null;
         },
     },
 
@@ -159,7 +182,6 @@ Component.register('sw-extension-card-base', {
     methods: {
         async createdComponent() {
             this.openLink = await this.shopwareExtensionService.getOpenLink(this.extension);
-            this.extensionCanBeOpened = await this.shopwareExtensionService.canBeOpened(this.extension);
         },
 
         emitUpdateList() {
@@ -243,11 +265,9 @@ Component.register('sw-extension-card-base', {
             this.showRemovalModal = false;
         },
 
-        async openExtension() {
-            const openLink = await this.shopwareExtensionService.getOpenLink(this.extension);
-
-            if (openLink) {
-                this.$router.push(openLink);
+        openExtension() {
+            if (this.link) {
+                this.$router.push(this.link);
             }
         },
 

@@ -25,4 +25,6 @@ abstract class AbstractAppLoader
     abstract public function deleteApp(string $technicalName): void;
 
     abstract public function getCmsExtensions(AppEntity $app): ?CmsExtensions;
+
+    abstract public function getAssetPathForAppPath(string $appPath): string;
 }

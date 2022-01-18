@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Asset;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,21 +14,18 @@ class AssetInstallCommand extends Command
 {
     protected static $defaultName = 'assets:install';
 
-    /**
-     * @var KernelInterface
-     */
-    private $kernel;
+    private KernelInterface $kernel;
 
-    /**
-     * @var AssetService
-     */
-    private $assetService;
+    private AssetService $assetService;
 
-    public function __construct(KernelInterface $kernel, AssetService $assetService)
+    private ActiveAppsLoader $activeAppsLoader;
+
+    public function __construct(KernelInterface $kernel, AssetService $assetService, ActiveAppsLoader $activeAppsLoader)
     {
         parent::__construct();
         $this->kernel = $kernel;
         $this->assetService = $assetService;
+        $this->activeAppsLoader = $activeAppsLoader;
     }
 
     public function execute(InputInterface $input, OutputInterface $output): int
@@ -37,6 +35,11 @@ class AssetInstallCommand extends Command
         foreach ($this->kernel->getBundles() as $bundle) {
             $io->writeln(sprintf('Copying files for bundle: %s', $bundle->getName()));
             $this->assetService->copyAssetsFromBundle($bundle->getName());
+        }
+
+        foreach ($this->activeAppsLoader->getActiveApps() as $app) {
+            $io->writeln(sprintf('Copying files for app: %s', $app['name']));
+            $this->assetService->copyAssetsFromApp($app['name'], $app['path']);
         }
 
         $io->writeln('Copying files for bundle: Recovery');

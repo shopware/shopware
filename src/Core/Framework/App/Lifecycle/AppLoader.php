@@ -112,4 +112,9 @@ class AppLoader extends AbstractAppLoader
 
         return CmsManifest::createFromXmlFile($configPath);
     }
+
+    public function getAssetPathForAppPath(string $appPath): string
+    {
+        return sprintf('%s/%s/Resources/public', $this->projectDir, $appPath);
+    }
 }

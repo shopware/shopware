@@ -22,6 +22,7 @@ class CustomFieldTypeFactory
         'multi-entity-select' => MultiEntitySelectField::class,
         'color-picker' => ColorPickerField::class,
         'media-selection' => MediaSelectionField::class,
+        'price' => PriceField::class,
     ];
 
     public static function createFromXml(\DOMElement $element): CustomFieldType

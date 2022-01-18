@@ -16,7 +16,6 @@ function createWrapper(propsData = {}, provide = {}) {
         },
         provide: {
             shopwareExtensionService: {
-                canBeOpened: () => false,
                 getOpenLink: () => null
             },
             extensionStoreActionService: {},
@@ -169,8 +168,14 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         },
         {
             shopwareExtensionService: {
-                canBeOpened: () => true,
-                getOpenLink: () => null
+                getOpenLink: () => {
+                    return Promise.resolve({
+                        name: 'jest',
+                        params: {
+                            appName: 'JestApp',
+                        },
+                    });
+                }
             }
         });
         await wrapper.vm.$nextTick();

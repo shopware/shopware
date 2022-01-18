@@ -16,6 +16,7 @@ import type { ComponentConfig } from './core/factory/component.factory';
 import type { TabsState } from './app/state/tabs.store';
 import { MenuItemState } from './app/state/menu-item.store';
 import { ExtensionSdkModuleState } from './app/state/extension-sdk-module.store';
+import { MainModuleState } from './app/state/main-module.store';
 
 // trick to make it an "external module" to support global type extension
 export {};
@@ -121,6 +122,7 @@ declare global {
         },
         menuItem: MenuItemState,
         extensionSdkModules: ExtensionSdkModuleState,
+        extensionMainModules: MainModuleState,
     }
 
     /**

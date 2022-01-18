@@ -133,6 +133,9 @@ export default class ShopwareExtensionService {
         }
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - will be removed without replacement
+     */
     canBeOpened(extension) {
         return this.getOpenLink(extension).then(res => {
             return !!res;

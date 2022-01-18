@@ -16,10 +16,8 @@ stages:
 
 workflow:
     rules:
-        # do not run on push
-        -   if: '$CI_PIPELINE_SOURCE == "push"'
-            when: never
-        -   when: always
+        # do not run on push, except on protected branches
+        -   if: '$CI_PIPELINE_SOURCE != "push" || ($CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_REF_PROTECTED == "true")'
 
 include:
     # include library files

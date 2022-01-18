@@ -643,8 +643,8 @@
           "error-message": "Condition type {type} was not found. The condition includes the field: {fields} | The condition type {type} was not found. The conditions include the fields: {fields}"
         },
         "lineItemCondition": {
-          "any": "Any line item",
-          "all": "All line items"
+          "any": "At least one",
+          "all": "All"
         },
         "subCondition": "Subcondition",
         "deleteConditions": "Delete container",

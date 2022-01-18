@@ -13,7 +13,7 @@ describe('Rule builder: Test use greater/lower than on zipcode condition', () =>
             });
     });
 
-    it('@base @rule: edit rule with shipping zipcode condition', () => {
+    it('@base @rule @package: edit rule with shipping zipcode condition', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'rule',
@@ -72,7 +72,7 @@ describe('Rule builder: Test use greater/lower than on zipcode condition', () =>
             .its('response.statusCode').should('equal', 204);
     });
 
-    it('@base @rule: edit rule with billing zipcode condition', () => {
+    it('@base @rule @package: edit rule with billing zipcode condition', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'rule',

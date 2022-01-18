@@ -1,6 +1,6 @@
 ---
 title: Check selector for better dom-selector in plugin registration
-issue: 
+issue: NEXT-19653
 author: tinect
 author_email: s.koenig@tinect.de
 author_github: tinect

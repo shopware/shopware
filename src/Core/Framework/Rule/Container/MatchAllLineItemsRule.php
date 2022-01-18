@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Rule\Container;
 
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -33,7 +32,7 @@ class MatchAllLineItemsRule extends Container
 
         $lineItems = $scope->getCart()->getLineItems();
 
-        if ($this->type !== null && Feature::isActive('FEATURE_NEXT_18982')) {
+        if ($this->type !== null) {
             $lineItems = $lineItems->filterFlatByType($this->type);
         }
 

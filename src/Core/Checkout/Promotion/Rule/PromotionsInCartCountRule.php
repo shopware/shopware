@@ -11,9 +11,6 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-/**
- * @internal (flag:FEATURE_NEXT_18982)
- */
 class PromotionsInCartCountRule extends Rule
 {
     protected int $count;

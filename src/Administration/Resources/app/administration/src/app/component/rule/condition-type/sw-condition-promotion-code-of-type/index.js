@@ -6,7 +6,6 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 /**
  * @public
  * @description Condition for the PromotionOfTypeRule. This component must a be child of sw-condition-tree.
- * @internal (flag:FEATURE_NEXT_18982)
  * @status prototype
  * @example-type code-only
  * @component-example

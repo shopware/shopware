@@ -5,7 +5,6 @@ const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
- * @internal (flag:FEATURE_NEXT_18982)
  * @public
  * @description Condition for the PromotionValueRule. This component must a be child of sw-condition-tree.
  * @status prototype

@@ -6,7 +6,6 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
- * @internal (flag:FEATURE_NEXT_18982)
  * @public
  * @description Condition for the PromotionLineItemRule. This component must a be child of sw-condition-tree.
  * @status prototype

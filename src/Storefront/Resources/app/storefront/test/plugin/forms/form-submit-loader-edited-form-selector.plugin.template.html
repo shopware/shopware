@@ -1,0 +1,22 @@
+<div class="form-loader-container">
+    <button type="submit" id="outside-form-one" form="test-with-button">I should not be loaded</button>
+    <button type="submit" id="outside-form-two" form="test-without-button">I should not be loaded</button>
+
+    <div class="form-container-one">
+        <button type="submit" id="inside-form-one" form="test-with-button">I'm outside but still loaded</button>
+
+        <form
+            id="test-with-button"
+            data-form-submit-loader="true"
+            data-form-submit-loader-options="{ &quot;formWrapperSelector&quot;: &quot;.form-container-one&quot; }"
+        >
+        </form>
+    </div>
+
+
+    <div class="form-container-two">
+        <!-- this form does not have a submit button and will fail at the registration -->
+
+        <form id="test-without-button" data-form-submit-loader="true" data-form-wrapper-selector="form-container-two"></form>
+    </div>
+</div>

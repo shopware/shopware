@@ -74,7 +74,7 @@ function createRouteForTabItem(to: Route, router: Router, next: () => void): voi
             },
             isChildren: true,
             props: {
-                positionId: matchingTabItemConfig.componentSectionId,
+                'position-identifier': matchingTabItemConfig.componentSectionId,
             },
         });
     }

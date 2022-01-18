@@ -15,6 +15,7 @@ import type { extensions } from '@shopware-ag/admin-extension-sdk/es/privileges/
 import type { ComponentConfig } from './core/factory/component.factory';
 import type { TabsState } from './app/state/tabs.store';
 import { MenuItemState } from './app/state/menu-item.store';
+import { ModalsState } from './app/state/modals.store';
 import { ExtensionSdkModuleState } from './app/state/extension-sdk-module.store';
 import { MainModuleState } from './app/state/main-module.store';
 
@@ -123,6 +124,7 @@ declare global {
         menuItem: MenuItemState,
         extensionSdkModules: ExtensionSdkModuleState,
         extensionMainModules: MainModuleState,
+        modals: ModalsState,
     }
 
     /**

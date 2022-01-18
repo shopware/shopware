@@ -170,5 +170,28 @@ Component.register('sw-product-stream-list', {
                 this.onDeleteItemFailed({ id, errorResponse });
             });
         },
+
+        onDuplicate(item) {
+            const behavior = {
+                cloneChildren: true,
+                overwrites: {
+                    name: `${item.name || item.translated.name} ${this.$tc('global.default.copy')}`,
+                },
+            };
+
+            this.isLoading = true;
+
+            this.productStreamRepository.clone(item.id, Shopware.Context.api, behavior).then((clone) => {
+                const route = { name: 'sw.product.stream.detail', params: { id: clone.id } };
+
+                this.$router.push(route);
+            }).catch(() => {
+                this.isLoading = false;
+
+                this.createNotificationError({
+                    message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                });
+            });
+        },
     },
 });

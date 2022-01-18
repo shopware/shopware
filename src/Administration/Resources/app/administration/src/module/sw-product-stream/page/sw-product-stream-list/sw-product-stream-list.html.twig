@@ -116,6 +116,20 @@
                 </template>
                 {% endblock %}
 
+                {% block sw_product_stream_list_grid_more_actions %}
+                <template #more-actions="{item}">
+                    {% block sw_product_stream_list_grid_duplicate_action %}
+                    <sw-context-menu-item
+                        :disabled="!acl.can('product_stream.creator')"
+                        class="sw-entity-listing__context-menu-edit-duplicate"
+                        @click="onDuplicate(item)"
+                    >
+                        {{ $tc('global.default.duplicate') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+                </template>
+                {% endblock %}
+
                 {% block sw_product_stream_list_grid_delete_action %}
                 <template #delete-action="{item, showDelete, allowDelete}">
 

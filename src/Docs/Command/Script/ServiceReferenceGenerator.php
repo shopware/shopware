@@ -132,7 +132,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
         $reflection = new \ReflectionClass($className);
 
         if (\in_array($className, $scriptServices, true)) {
-            return \sprintf('./%s#%s', self::GROUPS[$this->getGroupForService($reflection)], $reflection->getShortName());
+            return \sprintf('./%s#%s', self::GROUPS[$this->getGroupForService($reflection)], strtolower($reflection->getShortName()));
         }
 
         /** @var string $filename */
@@ -219,7 +219,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
                 'link' => $this->getLinkForClass($service),
                 // add fragment-marker to easily link to specific classes, see https://stackoverflow.com/a/54335742/10064036
                 // as `{#` indicates a twig comment, we can't add it inside the template
-                'marker' => '{#' . $reflection->getShortName() . '}',
+                'marker' => '{#' . strtolower($reflection->getShortName()) . '}',
                 'summary' => $docBlock->getSummary(),
                 'description' => $docBlock->getDescription()->render(),
                 'methods' => $this->getMethods($reflection, $scriptServices),

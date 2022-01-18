@@ -70,7 +70,7 @@ abstract class XmlReader
             return $defaultValue;
         }
 
-        return (bool) XmlUtils::phpize($value);
+        return (bool) static::phpize($value);
     }
 
     public static function parseOptionsNodeList(\DOMNodeList $optionsList): ?array
@@ -90,7 +90,7 @@ abstract class XmlReader
         /** @var \DOMElement $option */
         foreach ($optionList as $option) {
             if ($option instanceof \DOMElement) {
-                $options[$option->nodeName] = XmlUtils::phpize($option->nodeValue);
+                $options[$option->nodeName] = static::phpize($option->nodeValue);
             }
         }
 
@@ -122,6 +122,28 @@ abstract class XmlReader
         }
 
         return $type;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return mixed
+     */
+    public static function phpize($value)
+    {
+        $value = XmlUtils::phpize($value);
+
+        if (!\is_string($value)) {
+            return $value;
+        }
+
+        try {
+            return json_decode($value, true, 512, \JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            // do nothing, return unparsed value
+        }
+
+        return $value;
     }
 
     /**

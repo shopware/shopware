@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Exception\NoHookServiceFactoryException;
 use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
+use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Twig\Environment;
@@ -25,15 +26,23 @@ class ScriptExecutor
 
     private ContainerInterface $container;
 
+    private TranslationExtension $translationExtension;
+
     /**
      * @psalm-suppress ContainerDependency
      */
-    public function __construct(ScriptLoader $loader, LoggerInterface $logger, ScriptTraces $traces, ContainerInterface $container)
-    {
+    public function __construct(
+        ScriptLoader $loader,
+        LoggerInterface $logger,
+        ScriptTraces $traces,
+        ContainerInterface $container,
+        TranslationExtension $translationExtension
+    ) {
         $this->logger = $logger;
         $this->loader = $loader;
         $this->traces = $traces;
         $this->container = $container;
+        $this->translationExtension = $translationExtension;
     }
 
     public function execute(Hook $hook): void
@@ -79,6 +88,7 @@ class ScriptExecutor
         );
 
         $twig->addExtension(new PhpSyntaxExtension());
+        $twig->addExtension($this->translationExtension);
 
         if ($script->getTwigOptions()['debug'] ?? false) {
             $twig->addExtension(new DebugExtension());

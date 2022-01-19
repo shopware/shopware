@@ -10,13 +10,16 @@ stages:
     - deploy
 
 variables:
+    GIT_STRATEGY: clone
     PROJECT_ROOT: ${CI_PROJECT_DIR}
     WEB_DOCUMENT_ROOT: $CI_PROJECT_DIR/public
     LOG_STDOUT: $CI_PROJECT_DIR/var/log/stdout.log
     MYSQL_ROOT_PASSWORD: root
-    GIT_STRATEGY: clone
+    DATABASE_URL: 'mysql://root:root@database:3306/root'
+    APP_SECRET: 'devsecret'
+    APP_URL: http://localhost:8000
     # cypress
-    CYPRESS_baseUrl: 'http://localhost:8000'
+    CYPRESS_baseUrl: http://localhost:8000
     CYPRESS_localUsage: 1
     CYPRESS_shopwareRoot: $CI_PROJECT_DIR
     SHOPWARE_HTTP_CACHE_ENABLED: 0
@@ -93,7 +96,6 @@ default:
         - mkdir -p config/jwt || true
         - bin/console system:generate-jwt || true
         - bin/console system:install --drop-database --basic-setup --force >/dev/null
-        - chown -R 1000:1000 .
         - bin/console plugin:refresh
         - bin/console plugin:install --activate $PLUGIN_NAME
         - >
@@ -103,7 +105,8 @@ default:
           fi
         - bin/console bundle:dump
         - bin/console assets:install
-        - /entrypoint supervisord > /dev/null 2>&1 &
+        # run php as root to prevent permission issues
+        - SERVICE_PHPFPM_OPTS=--allow-to-run-as-root CONTAINER_UID=root /entrypoint supervisord > /dev/null 2>&1 &
         - cd custom/plugins/$PLUGIN_NAME
 
 .build-js: &build-js
@@ -116,6 +119,9 @@ default:
     - >
         composer config repo.platform-packages --json '{"type": "path", "url": "../../../src/*", "canonical": true}';
     - composer require 'shopware/core:6.4.*@dev' 'shopware/storefront:6.4.*@dev' 'shopware/administration:6.4.*@dev' 'shopware/elasticsearch:6.4.*@dev'
+    - composer config --global allow-plugins.composer/package-versions-deprecated true
+    - composer config --global allow-plugins.bamarni/composer-bin-plugin true
+    - composer config --global allow-plugins.phpstan/extension-installer true
 
 build zip:
     stage: build
@@ -287,7 +293,7 @@ template filled:
     - $CI_PROJECT_DIR/bin/console theme:compile
     - $CI_PROJECT_DIR/bin/console theme:change --all Storefront
     - $CI_PROJECT_DIR/bin/console assets:install
-    - $CI_PROJECT_DIR/bin/console e2e:dump-db
+    - APP_ENV=e2e $CI_PROJECT_DIR/bin/console e2e:dump-db
     - cd ${PLUGIN_SOURCE_DIR}${E2E_PROJECT_PATH}
     - npm ci
 
@@ -299,10 +305,10 @@ template filled:
         - >
           if [[ -z "$CYPRESS_SPEC" ]]; then
               echo "Running non visual tests"
-              ./node_modules/.bin/cypress run --browser $BROWSER --headless --env grep=visual,invert=1
+              APP_ENV=e2e ./node_modules/.bin/cypress run --browser $BROWSER --headless --env grep=visual,invert=1
           else
               echo "Running specs: $CYPRESS_SPEC"
-              ./node_modules/.bin/cypress run --browser $BROWSER --headless --spec "$CYPRESS_SPEC"
+              APP_ENV=e2e ./node_modules/.bin/cypress run --browser $BROWSER --headless --spec "$CYPRESS_SPEC"
           fi
     after_script:
         - export PLUGIN_NAME="${PLUGIN_NAME:-${CI_PROJECT_TITLE}}"

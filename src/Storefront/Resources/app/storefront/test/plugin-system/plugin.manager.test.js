@@ -5,17 +5,17 @@ import PluginManager from 'src/plugin-system/plugin.manager';
 import Plugin from 'src/plugin-system/plugin.class';
 import Iterator from "../../src/helper/iterator.helper";
 
-class FooPlugin extends Plugin {
+class FooPluginClass extends Plugin {
     init() {}
 }
 
-beforeEach(() => {
-    document.body.innerHTML = '<div data-plugin="true" class="test-class"></div><div id="test-id"></div>';
-});
-
 describe('Plugin manager', () => {
+    beforeEach(() => {
+        document.body.innerHTML = '<div data-plugin="true" class="test-class"></div><div id="test-id"></div>';
+    });
+
     it('should initialize plugin with class selector', () => {
-        PluginManager.register('FooPlugin', FooPlugin, '.test-class');
+        PluginManager.register('FooPlugin', FooPluginClass, '.test-class');
 
         PluginManager.initializePlugins();
 
@@ -26,7 +26,7 @@ describe('Plugin manager', () => {
     });
 
     it('should initialize plugin with id selector', () => {
-        PluginManager.register('FooPluginID', FooPlugin, '#test-id');
+        PluginManager.register('FooPluginID', FooPluginClass, '#test-id');
 
         PluginManager.initializePlugins();
 
@@ -37,7 +37,7 @@ describe('Plugin manager', () => {
     });
 
     it('should initialize plugin with tag selector', () => {
-        PluginManager.register('FooPluginTag', FooPlugin, 'div');
+        PluginManager.register('FooPluginTag', FooPluginClass, 'div');
 
         PluginManager.initializePlugins();
 
@@ -51,7 +51,7 @@ describe('Plugin manager', () => {
     });
 
     it('should initialize plugin with data-attribute selector', () => {
-        PluginManager.register('FooPluginDataAttr', FooPlugin, '[data-plugin]');
+        PluginManager.register('FooPluginDataAttr', FooPluginClass, '[data-plugin]');
 
         PluginManager.initializePlugins();
 
@@ -64,7 +64,7 @@ describe('Plugin manager', () => {
 
     it('should initialize plugin with mixed selector (class and data-attribute)', () => {
         const selector = '.test-class[data-plugin]';
-        PluginManager.register('FooPluginClassDataAttr', FooPlugin, selector);
+        PluginManager.register('FooPluginClassDataAttr', FooPluginClass, selector);
 
         PluginManager.initializePlugins();
 

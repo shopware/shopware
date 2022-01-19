@@ -31,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
@@ -80,6 +81,8 @@ class AppLifecycle extends AbstractAppLifecycle
 
     private EntityRepositoryInterface $aclRoleRepository;
 
+    private AssetService $assetService;
+
     public function __construct(
         EntityRepositoryInterface $appRepository,
         PermissionPersister $permissionPersister,
@@ -99,6 +102,7 @@ class AppLifecycle extends AbstractAppLifecycle
         ConfigValidator $configValidator,
         EntityRepositoryInterface $integrationRepository,
         EntityRepositoryInterface $aclRoleRepository,
+        AssetService $assetService,
         string $projectDir
     ) {
         $this->appRepository = $appRepository;
@@ -120,6 +124,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->configValidator = $configValidator;
         $this->integrationRepository = $integrationRepository;
         $this->aclRoleRepository = $aclRoleRepository;
+        $this->assetService = $assetService;
     }
 
     public function getDecorated(): AbstractAppLifecycle
@@ -172,6 +177,7 @@ class AppLifecycle extends AbstractAppLifecycle
         }
 
         $this->removeAppAndRole($appEntity, $context, $keepUserData, true);
+        $this->assetService->removeAssetsOfBundle($appEntity->getName());
     }
 
     private function updateApp(
@@ -229,6 +235,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->templatePersister->updateTemplates($manifest, $id, $context);
         $this->scriptPersister->updateScripts($manifest->getPath(), $id, $context);
         $this->customFieldPersister->updateCustomFields($manifest, $id, $context);
+        $this->assetService->copyAssetsFromApp($app->getName(), $app->getPath());
 
         $cmsExtensions = $this->appLoader->getCmsExtensions($app);
         if ($cmsExtensions) {

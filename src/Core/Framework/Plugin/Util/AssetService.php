@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Plugin\Util;
 
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Symfony\Component\Finder\Finder;
@@ -20,6 +21,8 @@ class AssetService
 
     private CacheInvalidator $cacheInvalidator;
 
+    private AbstractAppLoader $appLoader;
+
     private string $coreDir;
 
     public function __construct(
@@ -27,6 +30,7 @@ class AssetService
         KernelInterface $kernel,
         KernelPluginCollection $pluginCollection,
         CacheInvalidator $cacheInvalidator,
+        AbstractAppLoader $appLoader,
         string $coreDir
     ) {
         $this->filesystem = $filesystem;
@@ -34,6 +38,7 @@ class AssetService
         $this->pluginCollection = $pluginCollection;
         $this->cacheInvalidator = $cacheInvalidator;
         $this->coreDir = $coreDir;
+        $this->appLoader = $appLoader;
     }
 
     /**
@@ -48,7 +53,7 @@ class AssetService
             return;
         }
 
-        $targetDirectory = $this->getTargetDirectory($bundle);
+        $targetDirectory = $this->getTargetDirectory($bundle->getName());
         $this->filesystem->deleteDir($targetDirectory);
 
         $this->copy($originDir, $targetDirectory);
@@ -56,14 +61,25 @@ class AssetService
         $this->cacheInvalidator->invalidate(['asset-metaData'], true);
     }
 
-    /**
-     * @throws PluginNotFoundException
-     */
+    public function copyAssetsFromApp(string $appName, string $appPath): void
+    {
+        $originDir = $this->appLoader->getAssetPathForAppPath($appPath);
+
+        if (!is_dir($originDir)) {
+            return;
+        }
+
+        $targetDirectory = $this->getTargetDirectory($appName);
+        $this->filesystem->deleteDir($targetDirectory);
+
+        $this->copy($originDir, $targetDirectory);
+
+        $this->cacheInvalidator->invalidate(['asset-metaData'], true);
+    }
+
     public function removeAssetsOfBundle(string $bundleName): void
     {
-        $bundle = $this->getBundle($bundleName);
-
-        $targetDirectory = $this->getTargetDirectory($bundle);
+        $targetDirectory = $this->getTargetDirectory($bundleName);
 
         $this->filesystem->deleteDir($targetDirectory);
     }
@@ -87,9 +103,9 @@ class AssetService
         $this->copy($originDir, $targetDirectory);
     }
 
-    private function getTargetDirectory(BundleInterface $bundle): string
+    private function getTargetDirectory(string $name): string
     {
-        $assetDir = preg_replace('/bundle$/', '', mb_strtolower($bundle->getName()));
+        $assetDir = preg_replace('/bundle$/', '', mb_strtolower($name));
 
         return 'bundles/' . $assetDir;
     }

@@ -184,6 +184,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\Validation\ConfigValidator"/>
             <argument type="service" id="integration.repository"/>
             <argument type="service" id="acl_role.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\Util\AssetService"/>
             <argument type="string">%kernel.project_dir%</argument>
         </service>
 

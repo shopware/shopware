@@ -127,6 +127,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultScript($apps->first()->getId());
         $this->assertDefaultPaymentMethods($apps->first()->getId());
         $this->assertDefaultCmsBlocks($apps->first()->getId());
+        $this->assertAssetExists($apps->first()->getName());
     }
 
     public function testInstallRollbacksRegistrationFailure(): void
@@ -390,6 +391,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultTemplate($apps->first()->getId(), false);
         $this->assertDefaultScript($apps->first()->getId(), false);
         $this->assertDefaultPaymentMethods($apps->first()->getId());
+        $this->assertAssetExists($apps->first()->getName());
     }
 
     public function testUpdateActiveApp(): void
@@ -544,6 +546,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultTemplate($apps->first()->getId());
         $this->assertDefaultScript($apps->first()->getId());
         $this->assertDefaultPaymentMethods($apps->first()->getId());
+        $this->assertAssetExists($apps->first()->getName());
     }
 
     public function testUpdateDoesRunRegistrationIfNecessary(): void
@@ -623,6 +626,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultTemplate($apps->first()->getId());
         $this->assertDefaultScript($apps->first()->getId());
         $this->assertDefaultPaymentMethods($apps->first()->getId());
+        $this->assertAssetExists($apps->first()->getName());
     }
 
     public function testUpdateSetsConfiguration(): void
@@ -892,6 +896,9 @@ class AppLifecycleTest extends TestCase
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
         static::assertCount(1, $apps);
 
+        $filesystem = $this->getContainer()->get('shopware.filesystem.asset');
+        static::assertTrue($filesystem->has('bundles/test/asset.txt'));
+
         $app = [
             'id' => $apps->first()->getId(),
             'roleId' => $apps->first()->getAclRoleId(),
@@ -901,6 +908,8 @@ class AppLifecycleTest extends TestCase
 
         $apps = $this->appRepository->searchIds(new Criteria(), $this->context)->getIds();
         static::assertCount(0, $apps);
+
+        static::assertFalse($filesystem->has('bundles/test/asset.txt'));
     }
 
     public function testDeleteAppDeletesConfigWhenUserDataShouldNotBeKept(): void
@@ -1348,5 +1357,12 @@ class AppLifecycleTest extends TestCase
             'acl_role_id' => Uuid::fromHexToBytes($aclRoleId),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
+    }
+
+    private function assertAssetExists(string $appName): void
+    {
+        $filesystem = $this->getContainer()->get('shopware.filesystem.asset');
+
+        static::assertTrue($filesystem->has('bundles/' . strtolower($appName) . '/asset.txt'));
     }
 }

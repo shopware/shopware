@@ -176,6 +176,7 @@
             <argument type="service" id="kernel"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginCollection"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
             <argument>%kernel.shopware_core_dir%</argument>
         </service>
 

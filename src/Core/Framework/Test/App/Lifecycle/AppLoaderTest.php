@@ -125,6 +125,16 @@ class AppLoaderTest extends TestCase
         static::assertCount(2, $appLoader->getCmsExtensions($app)->getBlocks()->getBlocks());
     }
 
+    public function testGetAssetPathForAppPath(): void
+    {
+        $appLoader = $this->getAppLoaderForFolder(__DIR__ . '/../Manifest/_fixtures');
+
+        static::assertEquals(
+            $this->getContainer()->getParameter('kernel.project_dir') . '/custom/apps/test/Resources/public',
+            $appLoader->getAssetPathForAppPath('custom/apps/test')
+        );
+    }
+
     private function getAppLoaderForFolder(string $folder): AppLoader
     {
         return new AppLoader(

@@ -29,4 +29,6 @@ jobs:
         composer run psalm -- --threads=$(nproc) --show-info=false --no-progress
         composer run lint:changelog
         composer run lint:snippets
+        git remote add bc-checker-upstream https://github.com/shopware/platform.git
+        git fetch bc-checker-upstream
         composer run bc-check

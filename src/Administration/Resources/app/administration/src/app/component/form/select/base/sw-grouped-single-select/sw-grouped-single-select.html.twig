@@ -7,7 +7,7 @@
     >
         <li
             v-if="shouldShowGroupTitle(item, index)"
-            class="sw-grouped-single-select__group-separator"
+            :class="getGroupClasses(item)"
             @click.stop
         >
             {{ getGroupLabel(item) }}

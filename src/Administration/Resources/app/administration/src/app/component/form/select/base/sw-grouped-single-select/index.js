@@ -52,6 +52,15 @@ Component.extend('sw-grouped-single-select', 'sw-single-select', {
     },
 
     methods: {
+        getGroupClasses(item) {
+            const classes = ['sw-grouped-single-select__group-separator'];
+            if (item.group === 'misc') {
+                classes.push('sw_grouped-single-select_group-misc-separator');
+            }
+
+            return classes;
+        },
+
         getGroupLabel(item) {
             const itemGroup = this.groups.find(group => group[this.groupIdProperty] === item.group);
 

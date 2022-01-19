@@ -154,6 +154,10 @@ export default function createConditionService() {
             id: 'promotion',
             name: 'sw-settings-rule.detail.groups.promotions',
         },
+        misc: {
+            id: 'misc',
+            name: 'sw-settings-rule.detail.groups.misc',
+        },
     };
 
     return {

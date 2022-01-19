@@ -67,7 +67,8 @@
         "general": "General",
         "cart": "Shopping cart",
         "items": "Line items",
-        "customers": "Customers"
+        "customers": "Customers",
+        "misc": "Miscellaneous"
       }
     },
     "conditionFilter": {

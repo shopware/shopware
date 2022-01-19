@@ -7,25 +7,17 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
+use function preg_replace_callback;
 
 class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
 {
     public const DOMAIN_PLACEHOLDER = '124c71d524604ccbad6042edce3ac799';
 
-    /**
-     * @var RouterInterface
-     */
-    private $router;
+    private RouterInterface $router;
 
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
+    private RequestStack $requestStack;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(
         RequestStack $requestStack,
@@ -62,7 +54,9 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
                 $seoMapping[$key] = $host . '/' . ltrim($value, '/');
             }
 
-            $content = str_replace(array_keys($seoMapping), array_values($seoMapping), $content);
+            return (string) preg_replace_callback('/' . self::DOMAIN_PLACEHOLDER . '[^#]*#/', static function (array $match) use ($seoMapping) {
+                return $seoMapping[$match[0]];
+            }, $content);
         }
 
         return $content;

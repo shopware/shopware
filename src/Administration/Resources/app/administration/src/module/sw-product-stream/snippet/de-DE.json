@@ -39,9 +39,9 @@
         "notEquals": "Ungleich",
         "notEqualsAny": "Keins von",
         "notContains": "Enthält nicht",
-        "range": "Spanne",
-        "since": "Zeit seit Datum",
-        "until": "Zeit bis Datum"
+        "range": "Zwischen",
+        "since": "Zeit nach",
+        "until": "Zeit bis"
       },
       "timeUnits": {
         "days": "Tage"

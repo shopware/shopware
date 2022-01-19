@@ -47,7 +47,7 @@ describe('Dynamic product group: Test relative time filters', () => {
             '@currentProductStreamFilter',
             {
                 field: 'Release date',
-                operator: 'Time until date',
+                operator: 'Time until',
                 value: 'Is greater than'
             }
         );
@@ -67,7 +67,7 @@ describe('Dynamic product group: Test relative time filters', () => {
             '@currentProductStreamFilter',
             {
                 field: 'Release date',
-                operator: 'Time since date',
+                operator: 'Time since',
                 value: 'Is greater than'
             }
         );

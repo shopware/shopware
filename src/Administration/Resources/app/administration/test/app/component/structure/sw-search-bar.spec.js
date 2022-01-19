@@ -68,23 +68,15 @@ function createWrapper(props, searchTypes = searchTypeServiceTypes, privileges =
         provide: {
             searchService: {
                 search: () => {
-                    if (global.activeFeatureFlags.includes('FEATURE_NEXT_6040')) {
-                        const result = {
-                            data: {
-                                foo: {
-                                    total: 1,
-                                    data: [
-                                        { name: 'Baz', id: '12345' }
-                                    ]
-                                }
-                            }
-                        };
-
-                        return Promise.resolve(result);
-                    }
-
                     const result = {
-                        data: [{ entity: 'foo', total: 1, entities: [{ name: 'Bar', id: '67891' }] }]
+                        data: {
+                            foo: {
+                                total: 1,
+                                data: [
+                                    { name: 'Baz', id: '12345' }
+                                ]
+                            }
+                        }
                     };
 
                     return Promise.resolve(result);
@@ -93,10 +85,12 @@ function createWrapper(props, searchTypes = searchTypeServiceTypes, privileges =
                 searchQuery: () => Promise.resolve({
                     data: {
                         product: {
-                            data: [{
-                                id: 'dfe80a0ec016413e8e03fa2d85db3dea',
-                                name: 'Lightweight Iron Tossed Cookie Salad'
-                            }]
+                            data: {
+                                dfe80a0ec016413e8e03fa2d85db3dea: {
+                                    id: 'dfe80a0ec016413e8e03fa2d85db3dea',
+                                    name: 'Lightweight Iron Tossed Cookie Salad'
+                                }
+                            }
                         },
 
                         foo: {
@@ -296,16 +290,17 @@ describe('src/app/component/structure/sw-search-bar', () => {
         // open search
         const searchInput = wrapper.find('.sw-search-bar__input');
         await searchInput.trigger('focus');
+        await searchInput.setValue('#');
 
         // check if search results are hidden and types container are visible
         const searchResults = wrapper.find('.sw-search-bar__results');
-        const typesContainer = wrapper.find('.sw-search-bar__types_container');
+        const typesContainer = wrapper.find('.sw-search-bar__types_container--v2');
 
         expect(searchResults.exists()).toBe(false);
         expect(typesContainer.exists()).toBe(true);
 
         // check if active type is default type
-        const activeType = wrapper.find('.sw-search-bar__field .sw-search-bar__type');
+        const activeType = wrapper.find('.sw-search-bar__field .sw-search-bar__type--v2');
         expect(activeType.text()).toBe('global.entities.product');
     });
 
@@ -317,10 +312,11 @@ describe('src/app/component/structure/sw-search-bar', () => {
         // open search
         const searchInput = wrapper.find('.sw-search-bar__input');
         await searchInput.trigger('focus');
+        await searchInput.setValue('#');
 
         // check if search results are hidden and types container are visible
         let searchResults = wrapper.find('.sw-search-bar__results');
-        let typesContainer = wrapper.find('.sw-search-bar__types_container');
+        let typesContainer = wrapper.find('.sw-search-bar__types_container--v2');
 
         expect(searchResults.exists()).toBe(false);
         expect(typesContainer.exists()).toBe(true);
@@ -336,7 +332,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
 
         // check if search results and types container are hidden
         searchResults = wrapper.find('.sw-search-bar__results');
-        typesContainer = wrapper.find('.sw-search-bar__types_container');
+        typesContainer = wrapper.find('.sw-search-bar__types_container--v2');
 
         expect(searchResults.exists()).toBe(false);
         expect(typesContainer.exists()).toBe(false);
@@ -351,24 +347,26 @@ describe('src/app/component/structure/sw-search-bar', () => {
 
         // open search
         await searchInput.trigger('focus');
+        await searchInput.setValue('#');
 
         // check if search results are hidden and types container are visible
         let searchResults = wrapper.find('.sw-search-bar__results');
-        let typesContainer = wrapper.find('.sw-search-bar__types_container');
+        let typesContainer = wrapper.find('.sw-search-bar__types_container--v2');
 
         expect(searchResults.exists()).toBe(false);
         expect(typesContainer.exists()).toBe(true);
 
         // set categories as active type
-        const typeItems = wrapper.findAll('.sw-search-bar__types_container .sw-search-bar__type-item');
+        const typeItems = wrapper.findAll('.sw-search-bar__types_container--v2 .sw-search-bar__type-item');
         const secondTypeItem = typeItems.at(1);
         await secondTypeItem.trigger('click');
 
         // open search again
         await searchInput.trigger('focus');
+        await searchInput.setValue('#');
 
         // check if new type is set
-        const activeType = wrapper.find('.sw-search-bar__field .sw-search-bar__type');
+        const activeType = wrapper.find('.sw-search-bar__field .sw-search-bar__type--v2');
         expect(activeType.text()).toBe('global.entities.category');
 
         // type search value
@@ -382,7 +380,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
 
         // check if search results are visible and types are hidden
         searchResults = wrapper.find('.sw-search-bar__results');
-        typesContainer = wrapper.find('.sw-search-bar__types_container');
+        typesContainer = wrapper.find('.sw-search-bar__types_container--v2');
 
         expect(searchResults.exists()).toBe(true);
         expect(typesContainer.exists()).toBe(false);
@@ -465,17 +463,19 @@ describe('src/app/component/structure/sw-search-bar', () => {
 
         // open search
         await searchInput.trigger('focus');
+        await searchInput.setValue('#');
 
         // set categories as active type
-        const typeItems = wrapper.findAll('.sw-search-bar__types_container .sw-search-bar__type-item');
+        const typeItems = wrapper.findAll('.sw-search-bar__types_container--v2 .sw-search-bar__type-item');
         const secondTypeItem = typeItems.at(1);
         await secondTypeItem.trigger('click');
 
         // open search again
         await searchInput.trigger('focus');
+        await searchInput.setValue('#');
 
         // check if new type is set
-        const activeType = wrapper.find('.sw-search-bar__field .sw-search-bar__type');
+        const activeType = wrapper.find('.sw-search-bar__field .sw-search-bar__type--v2');
         expect(activeType.text()).toBe('global.entities.category');
 
         // type search value
@@ -513,7 +513,6 @@ describe('src/app/component/structure/sw-search-bar', () => {
     });
 
     it('should show module filters container when clicking on type dropdown', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
         searchTypeServiceTypes.all = {
             entityName: '',
             placeholderSnippet: '',
@@ -533,7 +532,6 @@ describe('src/app/component/structure/sw-search-bar', () => {
     });
 
     it('should change search bar type when selecting module filters from type dropdown', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
         wrapper = await createWrapper({
             initialSearchType: ''
         }, {
@@ -555,7 +553,6 @@ describe('src/app/component/structure/sw-search-bar', () => {
     });
 
     it('should search with repository after selecting module filter', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
         wrapper = await createWrapper(
             {
                 initialSearchType: 'product'
@@ -643,8 +640,6 @@ describe('src/app/component/structure/sw-search-bar', () => {
     });
 
     it('should search for module and action with a default module', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
-
         register('sw-order', {
             title: 'Orders',
             color: '#A092F0',
@@ -703,8 +698,6 @@ describe('src/app/component/structure/sw-search-bar', () => {
     });
 
     it('should search for module and action with config module', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
-
         register('sw-category', {
             title: 'Categories',
             color: '#57D9A3',
@@ -788,8 +781,6 @@ describe('src/app/component/structure/sw-search-bar', () => {
     });
 
     it('should search for module and action with sales channel', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
-
         wrapper = await createWrapper(
             {
                 initialSearchType: '',
@@ -826,8 +817,6 @@ describe('src/app/component/structure/sw-search-bar', () => {
 
     ['order', 'product', 'customer'].forEach(term => {
         it(`should search for module and action with the term "${term}" when the ACL privilege is missing`, async () => {
-            global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
-
             register(`sw-${term}`, {
                 title: `${term}s`,
                 color: '#A092F0',
@@ -884,8 +873,6 @@ describe('src/app/component/structure/sw-search-bar', () => {
 
     ['order', 'product', 'customer'].forEach(term => {
         it(`should search for module and action with the term "${term}" when the ACL is can view`, async () => {
-            global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
-
             register(`sw-${term}`, {
                 title: `${term}s`,
                 color: '#A092F0',
@@ -949,7 +936,6 @@ describe('src/app/component/structure/sw-search-bar', () => {
     });
 
     it('should always show search result panel correctly', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
         wrapper = await createWrapper(
             {
                 initialSearchType: 'product'
@@ -1018,7 +1004,6 @@ describe('src/app/component/structure/sw-search-bar', () => {
     });
 
     it('should add the search query score to the criteria when search with repository', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
         wrapper = await createWrapper(
             {
                 initialSearchType: 'product'
@@ -1074,7 +1059,6 @@ describe('src/app/component/structure/sw-search-bar', () => {
     });
 
     it('should not build the search query score for the criteria when search with repository with search ranking field is null', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
         wrapper = await createWrapper(
             {
                 initialSearchType: 'product'
@@ -1129,7 +1113,6 @@ describe('src/app/component/structure/sw-search-bar', () => {
     });
 
     it('should send search query scores for all entity when do global search', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
         wrapper = await createWrapper({
             initialSearchType: '',
             typeSearchAlwaysInContainer: false
@@ -1201,8 +1184,6 @@ describe('src/app/component/structure/sw-search-bar', () => {
     });
 
     it('should always show frequently used searches correctly', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
-
         register('sw-dashboard', {
             title: 'sw-dashboard.general.mainMenuItemGeneral',
             color: '#6AD6F0',
@@ -1264,8 +1245,6 @@ describe('src/app/component/structure/sw-search-bar', () => {
     });
 
     it('should always show recently searches correctly', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
-
         wrapper = createWrapper(
             {},
             searchTypeServiceTypes,

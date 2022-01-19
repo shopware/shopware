@@ -190,17 +190,6 @@ parameters:
             message: '#Method Shopware\\Core\\Checkout\\Cart\\Facade\\.*::getIterator\(\) return type with generic class ArrayIterator does not specify its types: TKey, TValue#'
             path: src/Core/Checkout/Cart/Facade/Traits/ItemsIteratorTrait.php
 
-        # can be removed with feature flag FEATURE_NEXT_6040
-        -
-            message: "#^Service \"Shopware\\\\Administration\\\\Service\\\\AdminSearcher\" is not registered in the container\\.$#"
-            count: 1
-            path: src/Administration/Test/Service/AdminSearcherTest.php
-        # can be removed with feature flag FEATURE_NEXT_6040
-        -
-            message: "#^Property Shopware\\\\Administration\\\\Test\\\\Service\\\\AdminSearcherTest\\:\\:\\$searcher \\(Shopware\\\\Administration\\\\Service\\\\AdminSearcher\\) does not accept object\\|null\\.$#"
-            count: 1
-            path: src/Administration/Test/Service/AdminSearcherTest.php
-
         # Can be removed with Symfony 6.0 upgrade
         -
             message: '#Method Shopware\\Storefront\\Framework\\Twig\\TwigAppVariable::getFlashes\(\) has parameter \$types with no type specified.#'

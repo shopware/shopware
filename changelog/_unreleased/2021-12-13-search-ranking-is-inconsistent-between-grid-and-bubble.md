@@ -1,7 +1,6 @@
 ---
 title: Search ranking is inconsistent between product grid and bubble
 issue: NEXT-19080
-flag: FEATURE_NEXT_6040
 ---
 # Administration
 * Added a new data property `freshSearchTerm` to mark if the grid is using a new term

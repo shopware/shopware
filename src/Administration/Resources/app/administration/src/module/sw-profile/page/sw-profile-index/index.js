@@ -16,7 +16,6 @@ Component.register('sw-profile-index', {
         'mediaDefaultFolderService',
         'repositoryFactory',
         'acl',
-        'feature',
         'searchPreferencesService',
         'searchRankingService',
         'userConfigService',
@@ -164,7 +163,7 @@ Component.register('sw-profile-index', {
                 this.userPromise,
             ];
 
-            if (this.feature.isActive('FEATURE_NEXT_6040') && this.acl.can('media.creator')) {
+            if (this.acl.can('media.creator')) {
                 this.getMediaDefaultFolderId()
                     .then((id) => {
                         this.mediaDefaultFolderId = id;
@@ -253,10 +252,6 @@ Component.register('sw-profile-index', {
         },
 
         resetGeneralData() {
-            if (!this.feature.isActive('FEATURE_NEXT_6040')) {
-                return;
-            }
-
             this.avatarMediaItem = null;
             this.newPassword = null;
             this.newPasswordConfirm = null;
@@ -271,7 +266,7 @@ Component.register('sw-profile-index', {
         },
 
         onSave() {
-            if (this.$route.name === 'sw.profile.index.searchPreferences' && this.feature.isActive('FEATURE_NEXT_6040')) {
+            if (this.$route.name === 'sw.profile.index.searchPreferences') {
                 this.saveUserSearchPreferences();
 
                 return;
@@ -339,7 +334,7 @@ Component.register('sw-profile-index', {
             context.authToken.access = authToken;
 
             this.userRepository.save(this.user, context).then(async () => {
-                // @feature-deprecated (FEATURE_NEXT_6040) tag:v6.5.0 - can be removed
+                // @deprecated tag:v6.5.0 - Will be removed
                 if (this.$refs.mediaSidebarItem) {
                     this.$refs.mediaSidebarItem.getList();
                 }
@@ -421,7 +416,7 @@ Component.register('sw-profile-index', {
             this.confirmPasswordModal = false;
         },
 
-        /* @feature-deprecated (FEATURE_NEXT_6040) tag:v6.5.0 - Will be removed */
+        /* @deprecated tag:v6.5.0 - Will be removed */
         setMediaFromSidebar(mediaEntity) {
             this.avatarMediaItem = mediaEntity;
             this.user.avatarId = mediaEntity.id;
@@ -432,7 +427,7 @@ Component.register('sw-profile-index', {
             this.user.avatarId = null;
         },
 
-        /* @feature-deprecated (FEATURE_NEXT_6040) tag:v6.5.0 - Will be removed */
+        /* @deprecated tag:v6.5.0 - Will be removed */
         openMediaSidebar() {
             this.$refs.mediaSidebarItem.openContent();
         },

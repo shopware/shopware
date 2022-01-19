@@ -1,7 +1,6 @@
 ---
 title: Add search preferences to user profile module
 issue: NEXT-15903
-flag: FEATURE_NEXT_6040
 ---
 # Administration
 * Added `title` property to `sw-landing-page` module registration.

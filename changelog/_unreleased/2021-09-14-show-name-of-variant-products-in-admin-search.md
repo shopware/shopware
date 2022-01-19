@@ -1,7 +1,6 @@
 ---
 title: Show name of variant products in admin search
 issue: NEXT-17015
-flag: FEATURE_NEXT_6040
 ---
 # Administration
 * Added computed `productDisplayName` in `src/Administration/Resources/app/administration/src/app/component/structure/sw-search-bar-item/index.js` to get name of variant products.

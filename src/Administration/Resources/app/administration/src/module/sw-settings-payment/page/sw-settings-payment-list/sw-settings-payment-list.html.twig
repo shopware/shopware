@@ -209,7 +209,7 @@
 
             {% block sw_settings_payment_list_empty_state %}
             <sw-empty-state
-                v-if="feature.isActive('FEATURE_NEXT_6040') && !isLoading && !total && isValidTerm(term)"
+                v-if="!isLoading && !total && isValidTerm(term)"
                 :title="$tc('sw-empty-state.messageNoResultTitle')"
             >
                 <template #default>

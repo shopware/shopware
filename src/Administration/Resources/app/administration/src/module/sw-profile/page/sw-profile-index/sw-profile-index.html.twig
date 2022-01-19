@@ -32,7 +32,6 @@
         <sw-card-view>
             {% block sw_profile_index_tabs %}
             <sw-tabs
-                v-if="feature.isActive('FEATURE_NEXT_6040')"
                 position-identifier="sw-profile-index"
             >
                 {% block sw_profile_index_tabs_item_general %}
@@ -57,7 +56,6 @@
 
             {% block sw_profile_index_router_view %}
             <router-view
-                v-if="feature.isActive('FEATURE_NEXT_6040')"
                 v-bind="{
                     user,
                     languages,
@@ -80,155 +78,47 @@
             {# @deprecated tag:v6.5.0 - Will be removed and has been replaced by sw-profile-index-general #}
             {% block sw_profile_index_content %}
             {% block sw_profile_index_info_card %}
-            <sw-card
-                v-if="!feature.isActive('FEATURE_NEXT_6040')"
-                position-identifier="sw-profile-index-info"
-                class="sw-profile__card"
-                :title="$tc('sw-profile.index.titleInfoCard')"
-                :is-loading="isUserLoading || !languageId"
-            >
-                <sw-container
-                    columns="repeat(auto-fit, minmax(250px, 1fr))"
-                    gap="0 30px"
-                >
-                    {% block sw_profile_index_info_card_first_name_field %}
-                    <sw-text-field
-                        v-model="user.firstName"
-                        :label="$tc('sw-profile.index.labelFirstNameField')"
-                        :disabled="isDisabled || !acl.can('user.update_profile')"
-                    />
-                    {% endblock %}
 
-                    {% block sw_profile_index_info_card_last_name_field %}
-                    <sw-text-field
-                        v-model="user.lastName"
-                        :label="$tc('sw-profile.index.labelLastNameField')"
-                        :disabled="isDisabled || !acl.can('user.update_profile')"
-                    />
-                    {% endblock %}
-                </sw-container>
-
-                <sw-container
-                    columns="repeat(auto-fit, minmax(250px, 1fr))"
-                    gap="0 30px"
-                >
-                    {% block sw_profile_index_info_card_username_field %}
-                    <sw-text-field
-                        v-model="user.username"
-                        :label="$tc('sw-profile.index.labelUsernameField')"
-                        :disabled="isDisabled || !acl.can('user.update_profile')"
-                    />
-                    {% endblock %}
-
-                    {% block sw_profile_index_info_card_language %}
-                    <sw-select-field
-                        v-model="user.localeId"
-                        class="sw-profile__language"
-                        :label="$tc('sw-users-permissions.users.user-detail.labelLanguage')"
-                        :placeholder="$tc('sw-users-permissions.users.user-detail.labelLanguagePlaceholder')"
-                        :disabled="!acl.can('user.update_profile')"
-                    >
-                        <option
-                            v-for="language in languages"
-                            :key="language.locale.id"
-                            :value="language.locale.id"
-                            :selected="user.localeId === language.locale.id"
-                        >
-                            {{ language.customLabel }}
-                        </option>
-                    </sw-select-field>
-                    {% endblock %}
-
-                    {% block sw_profile_index_info_card_email_field %}
-                    <sw-text-field
-                        v-model="user.email"
-                        validation="email"
-                        required
-                        name="sw-field--email"
-                        :error="userEmailError"
-                        :label="$tc('sw-profile.index.labelEmailField')"
-                        :disabled="!acl.can('user.update_profile')"
-                    />
-                    {% endblock %}
-
-                    {% block sw_profile_index_info_card_timezone_field %}
-                    <sw-single-select
-                        v-model="user.timeZone"
-                        :options="timezoneOptions"
-                        required
-                        name="sw-field--timezone"
-                        :label="$tc('sw-profile.index.labelTimezoneField')"
-                        :is-loading="timezoneOptions.length <= 0"
-                        :error="userTimeZoneError"
-                        :disabled="!acl.can('user.update_profile')"
-                    />
-                    {% endblock %}
-                </sw-container>
-            </sw-card>
+            {# @deprecated tag:v6.5.0 - Will be removed #}
+            {% block sw_profile_index_info_card_first_name_field %}
             {% endblock %}
 
+            {# @deprecated tag:v6.5.0 - Will be removed #}
+            {% block sw_profile_index_info_card_last_name_field %}
+            {% endblock %}
+
+            {# @deprecated tag:v6.5.0 - Will be removed #}
+            {% block sw_profile_index_info_card_username_field %}
+            {% endblock %}
+
+            {# @deprecated tag:v6.5.0 - Will be removed #}
+            {% block sw_profile_index_info_card_language %}
+            {% endblock %}
+
+            {# @deprecated tag:v6.5.0 - Will be removed #}
+            {% block sw_profile_index_info_card_email_field %}
+            {% endblock %}
+
+            {# @deprecated tag:v6.5.0 - Will be removed #}
+            {% block sw_profile_index_info_card_timezone_field %}
+            {% endblock %}
+            {% endblock %}
+
+            {# @deprecated tag:v6.5.0 - Will be removed #}
             {% block sw_profile_index_image_card %}
-            <sw-card
-                v-if="!feature.isActive('FEATURE_NEXT_6040') && acl.can('media.creator')"
-                class="sw-profile__card"
-                position-identifier="sw-profile-index-image"
-                :title="$tc('sw-profile.index.titleImageCard')"
-                :is-loading="isUserLoading || !languageId"
-            >
-                {% block sw_profile_index_image_card_image %}
-                <sw-upload-listener
-                    :upload-tag="uploadTag"
-                    auto-upload
-                    @media-upload-finish="setMediaItem"
-                />
-                <sw-media-upload-v2
-                    variant="regular"
-                    class="sw-profile-index__user-image-upload"
-                    :upload-tag="uploadTag"
-                    :source="avatarMediaItem"
-                    :allow-multi-select="false"
-                    :label="$tc('sw-profile.index.labelUploadAvatar')"
-                    :default-folder="userRepository.schema.entity"
-                    :source-context="user"
-                    :disabled="!acl.can('user.update_profile')"
-                    @media-drop="onDropMedia"
-                    @media-upload-sidebar-open="openMediaSidebar"
-                    @media-upload-remove-image="onUnlinkAvatar"
-                />
-                {% endblock %}
-            </sw-card>
+            {# @deprecated tag:v6.5.0 - Will be removed #}
+            {% block sw_profile_index_image_card_image %}
+            {% endblock %}
             {% endblock %}
 
+            {# @deprecated tag:v6.5.0 - Will be removed #}
             {% block sw_profile_index_password_card %}
-            <sw-card
-                v-if="!feature.isActive('FEATURE_NEXT_6040')"
-                position-identifier="sw-profile-index-password"
-                class="sw-profile__card"
-                :title="$tc('sw-profile.index.titlePasswordCard')"
-                :is-loading="isUserLoading || !languageId"
-            >
-
-                {% block sw_profile_index_password_card_new_password_field %}
-                <sw-password-field
-                    v-model="newPassword"
-                    autocomplete="new-password"
-                    :label="$tc('sw-profile.index.labelNewPassword')"
-                    :placeholder="$tc('sw-profile.index.placeholderNewPassword')"
-                    :disabled="!acl.can('user.update_profile')"
-                />
-                {% endblock %}
-
-                {% block sw_profile_index_password_card_confirm_new_password_field %}
-                <sw-password-field
-                    v-model="newPasswordConfirm"
-                    autocomplete="new-password"
-                    :label="$tc('sw-profile.index.labelNewPasswordConfirm')"
-                    :placeholder="$tc('sw-profile.index.placeholderNewPasswordConfirm')"
-                    :validation="newPassword === newPasswordConfirm"
-                    :disabled="!acl.can('user.update_profile')"
-                />
-                {% endblock %}
-            </sw-card>
+            {# @deprecated tag:v6.5.0 - Will be removed #}
+            {% block sw_profile_index_password_card_new_password_field %}
+            {% endblock %}
+            {# @deprecated tag:v6.5.0 - Will be removed #}
+            {% block sw_profile_index_password_card_confirm_new_password_field %}
+            {% endblock %}
             {% endblock %}
             {% endblock %}
         </sw-card-view>
@@ -292,25 +182,8 @@
         {% endblock %}
     </template>
 
-    {# @feature-deprecated (FEATURE_NEXT_6040) tag:v6.5.0 - Will be removed, use `sw-media-modal-v2` instead #}
+    {# @deprecated tag:v6.5.0 - Will be removed, use `sw-media-modal-v2` instead #}
     {% block sw_profile_index_sidebar %}
-    <template #sidebar>
-        <sw-sidebar
-            v-if="acl.can('media.editor') && !feature.isActive('FEATURE_NEXT_6040')"
-            :propagate-width="true"
-        >
-            <sw-sidebar-media-item
-                ref="mediaSidebarItem"
-                :is-parent-loading="isUserLoading"
-            >
-                <template #context-menu-items="media">
-                    <sw-context-menu-item @click="setMediaFromSidebar(media.mediaItem)">
-                        {{ $tc('sw-profile.index.labelUseAsAvatar') }}
-                    </sw-context-menu-item>
-                </template>
-            </sw-sidebar-media-item>
-        </sw-sidebar>
-    </template>
     {% endblock %}
 </sw-page>
 {% endblock %}

@@ -87,7 +87,8 @@ describe('Search bar: Check main functionality', () => {
 
                     }
                 });
-            }).then(() => {
+            })
+            .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             });
 
@@ -99,9 +100,7 @@ describe('Search bar: Check main functionality', () => {
 
         cy.get('input.sw-search-bar__input').type('product-');
         cy.get('.sw-search-bar__results').should('be.visible');
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.get('.sw-search-more-results__link').contains('Show all 11 matching results in products...');
-        });
+        cy.get('.sw-search-more-results__link').contains('Show all 11 matching results in products...');
         cy.get('.sw-search-bar-item')
             .should('be.visible')
             .contains('product-')
@@ -200,19 +199,10 @@ describe('Search bar: Check main functionality', () => {
             .get('.sw-search-bar__types-header-entity')
             .contains('Order');
 
-        cy.skipOnFeature('FEATURE_NEXT_6040', () => {
-            cy.get('.sw-search-bar-item')
-                .should('be.visible')
-                .contains('10000 - Max Mustermann')
-                .click();
-        });
-
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.get('.sw-search-bar-item')
-                .should('be.visible')
-                .contains('Max Mustermann 10000')
-                .click();
-        });
+        cy.get('.sw-search-bar-item')
+            .should('be.visible')
+            .contains('Max Mustermann 10000')
+            .click();
 
         cy.get('.smart-bar__header h2')
             .should('be.visible')
@@ -227,9 +217,7 @@ describe('Search bar: Check main functionality', () => {
 
         const page = new MediaPageObject();
 
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.setEntitySearchable('media', ['fileName', 'title']);
-        });
+        cy.setEntitySearchable('media', ['fileName', 'title']);
 
         cy.get(page.elements.loader).should('not.exist');
         cy.clickContextMenuItem(
@@ -254,9 +242,7 @@ describe('Search bar: Check main functionality', () => {
         cy.get('.sw-loader__element')
             .should('not.exist');
 
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            setMediaEntitySearchable();
-        });
+        setMediaEntitySearchable();
 
         cy.get('input.sw-search-bar__input').type('sw-login-background');
         cy.get('.sw-search-bar__results').should('be.visible');
@@ -314,13 +300,7 @@ describe('Search bar: Check main functionality', () => {
         cy.get('.sw-loader__element')
             .should('not.exist');
 
-        cy.skipOnFeature('FEATURE_NEXT_6040', () => {
-            cy.get('input.sw-search-bar__input').type('e');
-        });
-
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.get('input.sw-search-bar__input').type('name');
-        });
+        cy.get('input.sw-search-bar__input').type('name');
 
         cy.get('.sw-search-bar__results').should('be.visible');
 

@@ -18,18 +18,10 @@ describe('Search bar: Check search functionality with tags', () => {
 
         cy.get('.sw-loader__element')
             .should('not.exist');
-        cy.skipOnFeature('FEATURE_NEXT_6040', () => {
-            cy.get('input.sw-search-bar__input').click();
-            cy.get('.sw-search-bar__types_container').should('be.visible');
-            cy.contains('.sw-search-bar__type', 'Products').click();
-            cy.contains('.sw-search-bar__field .sw-search-bar__type', 'Products').should('be.visible');
-        });
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.get('input.sw-search-bar__input').type('#')
-            cy.get('.sw-search-bar__types_container--v2').should('be.visible');
-            cy.contains('.sw-search-bar__type-item-name', 'Products').click();
-            cy.contains('.sw-search-bar__field .sw-search-bar__type--v2', 'Products').should('be.visible');
-        });
+        cy.get('input.sw-search-bar__input').type('#')
+        cy.get('.sw-search-bar__types_container--v2').should('be.visible');
+        cy.contains('.sw-search-bar__type-item-name', 'Products').click();
+        cy.contains('.sw-search-bar__field .sw-search-bar__type--v2', 'Products').should('be.visible');
 
         cy.get('input.sw-search-bar__input').type('Product');
         cy.get('.sw-search-bar__results').should('be.visible');
@@ -51,18 +43,10 @@ describe('Search bar: Check search functionality with tags', () => {
 
         cy.get('.sw-loader__element')
             .should('not.exist');
-        cy.skipOnFeature('FEATURE_NEXT_6040', () => {
-            cy.get('input.sw-search-bar__input').click();
-            cy.get('.sw-search-bar__types_container').should('be.visible');
-            cy.contains('.sw-search-bar__type', 'Categories').click();
-            cy.contains('.sw-search-bar__field .sw-search-bar__type', 'Categories').should('be.visible');
-        });
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.get('input.sw-search-bar__input').type('#')
-            cy.get('.sw-search-bar__types_container--v2').should('be.visible');
-            cy.contains('.sw-search-bar__type-item-name', 'Categories').click();
-            cy.contains('.sw-search-bar__field .sw-search-bar__type--v2', 'Categories').should('be.visible');
-        });
+        cy.get('input.sw-search-bar__input').type('#')
+        cy.get('.sw-search-bar__types_container--v2').should('be.visible');
+        cy.contains('.sw-search-bar__type-item-name', 'Categories').click();
+        cy.contains('.sw-search-bar__field .sw-search-bar__type--v2', 'Categories').should('be.visible');
 
         cy.get('input.sw-search-bar__input').type('Home');
         cy.get('.sw-search-bar__results').should('be.visible');
@@ -87,18 +71,10 @@ describe('Search bar: Check search functionality with tags', () => {
 
         cy.get('.sw-loader__element')
             .should('not.exist');
-        cy.skipOnFeature('FEATURE_NEXT_6040', () => {
-            cy.get('input.sw-search-bar__input').click();
-            cy.get('.sw-search-bar__types_container').should('be.visible');
-            cy.contains('.sw-search-bar__type', 'Customers').click();
-            cy.contains('.sw-search-bar__field .sw-search-bar__type', 'Customers').should('be.visible');
-        });
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.get('input.sw-search-bar__input').type('#');
-            cy.get('.sw-search-bar__types_container--v2').should('be.visible');
-            cy.contains('.sw-search-bar__type-item-name', 'Customers').click();
-            cy.contains('.sw-search-bar__field .sw-search-bar__type--v2', 'Customers').should('be.visible');
-        });
+        cy.get('input.sw-search-bar__input').type('#');
+        cy.get('.sw-search-bar__types_container--v2').should('be.visible');
+        cy.contains('.sw-search-bar__type-item-name', 'Customers').click();
+        cy.contains('.sw-search-bar__field .sw-search-bar__type--v2', 'Customers').should('be.visible');
 
         cy.get('input.sw-search-bar__input').type('Pep Eroni');
         cy.get('.sw-search-bar__results').should('be.visible');
@@ -148,35 +124,18 @@ describe('Search bar: Check search functionality with tags', () => {
 
         cy.get('.sw-loader__element')
             .should('not.exist');
-        cy.skipOnFeature('FEATURE_NEXT_6040', () => {
-            cy.get('input.sw-search-bar__input').click();
-            cy.get('.sw-search-bar__types_container').should('be.visible');
-            cy.contains('.sw-search-bar__type', 'Orders').click();
-            cy.contains('.sw-search-bar__field .sw-search-bar__type', 'Orders').should('be.visible');
-        });
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.get('input.sw-search-bar__input').type('#');
-            cy.get('.sw-search-bar__types_container--v2').should('be.visible');
-            cy.contains('.sw-search-bar__type-item-name', 'Orders').click();
-            cy.contains('.sw-search-bar__field .sw-search-bar__type--v2', 'Orders').should('be.visible');
-        });
+        cy.get('input.sw-search-bar__input').type('#');
+        cy.get('.sw-search-bar__types_container--v2').should('be.visible');
+        cy.contains('.sw-search-bar__type-item-name', 'Orders').click();
+        cy.contains('.sw-search-bar__field .sw-search-bar__type--v2', 'Orders').should('be.visible');
 
         cy.get('input.sw-search-bar__input').type('Max Mustermann');
         cy.get('.sw-search-bar__results').should('be.visible');
 
-        cy.skipOnFeature('FEATURE_NEXT_6040', () => {
-            cy.get('.sw-search-bar-item')
-                .should('be.visible')
-                .contains('10000 - Max Mustermann')
-                .click();
-        });
-
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.get('.sw-search-bar-item')
-                .should('be.visible')
-                .contains('Max Mustermann 10000')
-                .click();
-        });
+        cy.get('.sw-search-bar-item')
+            .should('be.visible')
+            .contains('Max Mustermann 10000')
+            .click();
 
         cy.get('.smart-bar__header h2')
             .should('be.visible')
@@ -191,9 +150,7 @@ describe('Search bar: Check search functionality with tags', () => {
 
         const page = new MediaPageObject();
 
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.setEntitySearchable('media', ['fileName', 'title']);
-        });
+        cy.setEntitySearchable('media', ['fileName', 'title']);
 
         cy.get(page.elements.loader).should('not.exist');
         cy.clickContextMenuItem(
@@ -217,18 +174,10 @@ describe('Search bar: Check search functionality with tags', () => {
 
         cy.get('.sw-loader__element')
             .should('not.exist');
-        cy.skipOnFeature('FEATURE_NEXT_6040', () => {
-            cy.get('input.sw-search-bar__input').click();
-            cy.get('.sw-search-bar__types_container').should('be.visible');
-            cy.contains('.sw-search-bar__type', 'Media').click();
-            cy.contains('.sw-search-bar__field .sw-search-bar__type', 'Media').should('be.visible');
-        });
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.get('input.sw-search-bar__input').type('#')
-            cy.get('.sw-search-bar__types_container--v2').should('be.visible');
-            cy.contains('.sw-search-bar__type-item-name', 'Media').click();
-            cy.contains('.sw-search-bar__field .sw-search-bar__type--v2', 'Media').should('be.visible');
-        });
+        cy.get('input.sw-search-bar__input').type('#')
+        cy.get('.sw-search-bar__types_container--v2').should('be.visible');
+        cy.contains('.sw-search-bar__type-item-name', 'Media').click();
+        cy.contains('.sw-search-bar__field .sw-search-bar__type--v2', 'Media').should('be.visible');
 
         cy.get('input.sw-search-bar__input').type('sw-login-background');
         cy.get('.sw-search-bar__results').should('be.visible');

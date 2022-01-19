@@ -1,7 +1,6 @@
 ---
 title: Deprecated composite search, use administration search instead
 issue: NEXT-16926
-flag: FEATURE_NEXT_6040
 ---
 # Core
 *  Deprecated the class `\Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher`

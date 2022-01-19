@@ -10,7 +10,6 @@ Component.register('sw-property-list', {
     inject: [
         'repositoryFactory',
         'acl',
-        'feature',
     ],
 
     mixins: [
@@ -79,7 +78,7 @@ Component.register('sw-property-list', {
             this.isLoading = true;
 
             const criteria = await this.addQueryScores(this.term, this.defaultCriteria);
-            if (this.feature.isActive('FEATURE_NEXT_6040') && !this.entitySearchable) {
+            if (!this.entitySearchable) {
                 this.isLoading = false;
                 this.total = 0;
 

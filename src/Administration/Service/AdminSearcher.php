@@ -2,14 +2,11 @@
 
 namespace Shopware\Administration\Service;
 
+use Shopware\Administration\Framework\Search\CriteriaCollection;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
-/**
- * @internal (flag:FEATURE_NEXT_6040)
- */
 class AdminSearcher
 {
     private DefinitionInstanceRegistry $definitionRegistry;
@@ -19,16 +16,12 @@ class AdminSearcher
         $this->definitionRegistry = $definitionRegistry;
     }
 
-    public function search(array $entities, Context $context): array
+    public function search(CriteriaCollection $entities, Context $context): array
     {
         $result = [];
 
         foreach ($entities as $entityName => $criteria) {
             if (!$this->definitionRegistry->has($entityName)) {
-                continue;
-            }
-
-            if (!$criteria instanceof Criteria) {
                 continue;
             }
 

@@ -23,9 +23,7 @@ describe('Product: Search Keyword product', () => {
     });
 
     it('@catalogue: edit a product\'s search keyword', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            setCustomSearchKeywordIsSearchable();
-        });
+        setCustomSearchKeywordIsSearchable();
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,

@@ -4,6 +4,7 @@ namespace Shopware\Administration\Test\Service;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Administration\Framework\Search\CriteriaCollection;
 use Shopware\Administration\Service\AdminSearcher;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -15,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -46,8 +46,6 @@ class AdminSearcherTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_6040', $this);
-
         $this->productRepository = $this->getContainer()->get('product.repository');
 
         $this->searcher = $this->getContainer()->get(AdminSearcher::class);
@@ -75,9 +73,9 @@ class AdminSearcherTest extends TestCase
         $criteria->addQuery(new ScoreQuery(new ContainsFilter('manufacturer.name', 'test'), 500));
         $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'test'), 2500));
 
-        $queries = [
+        $queries = new CriteriaCollection([
             'product' => $criteria,
-        ];
+        ]);
 
         $result = $this->searcher->search($queries, $this->context);
 
@@ -119,10 +117,10 @@ class AdminSearcherTest extends TestCase
         $criteria = new Criteria();
         $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'test'), 2500));
 
-        $queries = [
+        $queries = new CriteriaCollection([
             'product' => $criteria,
             'category' => $criteria,
-        ];
+        ]);
 
         $resultWithPermissions = $this->searcher->search($queries, $this->context);
 

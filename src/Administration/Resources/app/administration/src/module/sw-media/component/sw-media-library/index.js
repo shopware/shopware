@@ -245,7 +245,7 @@ Component.register('sw-media-library', {
                     .addSorting(Criteria.sort(this.sorting.sortBy, this.sorting.sortDirection))
                     .setTerm(this.term);
 
-                if (this.feature.isActive('FEATURE_NEXT_6040') && this.isValidTerm(this.term)) {
+                if (this.isValidTerm(this.term)) {
                     const searchRankingFields = await this.searchRankingService.getSearchFieldsByEntity('media');
 
                     if (!searchRankingFields || Object.keys(searchRankingFields).length < 1) {

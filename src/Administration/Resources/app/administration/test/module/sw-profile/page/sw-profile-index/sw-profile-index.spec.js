@@ -118,8 +118,6 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
     });
 
     it('should reset general data if route changes', () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
-
         const wrapper = createWrapper();
         wrapper.vm.createdComponent = jest.fn();
         wrapper.vm.beforeMountComponent = jest.fn();

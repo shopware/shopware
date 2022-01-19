@@ -75,8 +75,6 @@ describe('Profile module', () => {
     });
 
     it('@base @general: profile change avatar', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_6040');
-
         cy.get('.sw-media-upload-v2 .sw-media-upload-v2__button')
             .first()
             .click()

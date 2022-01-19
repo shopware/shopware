@@ -1,7 +1,6 @@
 ---
 title: Add query scores into criteria for search ranking purpose
 issue: NEXT-16170
-flag: FEATURE_NEXT_6040
 ---
 # Administration
 * Added methods (more detail [here](#injecting-service-for-search-ranking-purpose)) into `search-ranking.service.js` in `/src/app/service` to handle search ranking logic.

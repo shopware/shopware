@@ -1,7 +1,6 @@
 ---
 title: Prioritize user search preference in search query builder
 issue: NEXT-15926
-flag: FEATURE_NEXT_6040
 ---
 # Administration
 * Added new service `user-config.api.service` at `/src/core/service/api/user-config.api.service.js` to handle search and upsert the configuration for current user

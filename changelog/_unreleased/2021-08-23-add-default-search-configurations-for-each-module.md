@@ -1,7 +1,6 @@
 ---
 title: Add default search configurations for each module
 issue: NEXT-16170
-flag: FEATURE_NEXT_6040
 ---
 # Administration
 * Added new service `search-ranking.service.js` in `/src/app/service` to define search ranking scores constans.

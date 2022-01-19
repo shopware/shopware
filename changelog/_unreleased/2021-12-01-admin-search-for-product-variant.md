@@ -1,7 +1,6 @@
 ---
 title: Admin search for product variant
 issue: NEXT-19077
-flag: FEATURE_NEXT_6040
 ---
 # Administration
 * Changed `loadTypeSearchResults` method in `src/app/component/structure/sw-search-bar/index.js` to use context with inheritance

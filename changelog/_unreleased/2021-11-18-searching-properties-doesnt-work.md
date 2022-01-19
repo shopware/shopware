@@ -1,7 +1,6 @@
 ---
 title: Searching properties doesnt work
 issue: NEXT-18809
-flag: FEATURE_NEXT_6040
 ---
 # Administration
 * Changed `moduleFactory` data of component `sw-search-bar` to a computed property

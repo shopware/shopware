@@ -277,7 +277,6 @@ describe('app/service/search-ranking.service.js', () => {
     }
 
     beforeEach(() => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
         clearModules();
     });
 

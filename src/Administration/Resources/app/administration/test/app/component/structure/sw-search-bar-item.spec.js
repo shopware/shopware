@@ -94,8 +94,6 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
     });
 
     it('should add clicked search result into recently search stack', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
-
         wrapper = createWrapper({
             entityIconName: 'default-shopping-basket',
             entityIconColor: 'blue',
@@ -122,8 +120,6 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
     });
 
     it('should get correct name of variant products', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
-
         wrapper = createWrapper({
             item: {
                 name: null,

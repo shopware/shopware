@@ -1,7 +1,6 @@
 ---
 title: Show all x matching results senseless when still all results listed
 issue: NEXT-18798
-flag: FEATURE_NEXT_6040
 ---
 # Administration
 * Changed block `sw_search_bar_results_list_bar_item` in `src/app/component/structure/sw-search-bar/sw-search-bar.html.twig` to check if the `sw-search-more-results` is shown

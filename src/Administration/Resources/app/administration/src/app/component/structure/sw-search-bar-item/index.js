@@ -93,7 +93,6 @@ Component.register('sw-search-bar-item', {
             return [
                 {
                     'is--active': this.isActive,
-                    'sw-search-bar-item--v2': this.feature.isActive('FEATURE_NEXT_6040'),
                 },
             ];
         },
@@ -222,10 +221,6 @@ Component.register('sw-search-bar-item', {
         },
 
         onClickSearchResult(entity, id, payload = {}) {
-            if (!this.feature.isActive('FEATURE_NEXT_6040')) {
-                return;
-            }
-
             this.recentlySearchService.add(this.currentUser.id, entity, id, payload);
         },
     },

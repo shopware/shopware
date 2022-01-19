@@ -1,7 +1,6 @@
 ---
 title: Empty Search Results through user configuration
 issue: NEXT-17141
-flag: FEATURE_NEXT_6040
 ---
 # Administration
 * Added method `clearCacheUserSearchConfiguration` into login listener at `/src/app/service/search-ranking.service.js` to clear the cache after every login

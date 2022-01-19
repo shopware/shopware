@@ -1,7 +1,6 @@
 ---
 title: Create search preferences modal
 issue: NEXT-15986
-flag: FEATURE_NEXT_6040
 ---
 # Administration
 * Added `sw-search-preferences-modal` component in `src/app/component/modal`.

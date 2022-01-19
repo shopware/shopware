@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -23,9 +22,7 @@ class AdminSearchControllerTest extends TestCase
 
     protected function setup(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_6040', $this);
-
-        $roles = ['product:read', 'product_manufacturer:read'];
+        $roles = ['product:read', 'product_manufacturer:read', 'user:read'];
 
         $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], $roles);
 
@@ -72,6 +69,26 @@ class AdminSearchControllerTest extends TestCase
 
             static::assertEquals($expectedTotal, $actual['total']);
         }
+    }
+
+    public function testSearchResultWithoutApiAwareField(): void
+    {
+        $this->getBrowser()->request('POST', '/api/_admin/search', [], [], [], json_encode([
+            'user' => [
+                'query' => [],
+            ],
+        ]) ?: null);
+        $response = $this->getBrowser()->getResponse();
+        $content = json_decode($response->getContent() ?: '', true);
+
+        static::assertArrayHasKey('data', $content, print_r($content, true));
+
+        static::assertNotEmpty($content['data']['user']['data']);
+
+        $user = array_values($content['data']['user']['data'])[0];
+
+        static::assertEquals('user', $user['apiAlias']);
+        static::assertArrayNotHasKey('password', $user);
     }
 
     public function searchDataProvider(): iterable

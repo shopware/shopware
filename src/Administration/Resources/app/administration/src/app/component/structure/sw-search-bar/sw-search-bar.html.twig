@@ -1,11 +1,8 @@
 {% block sw_search_bar %}
-{# @feature-deprecated (FEATURE_NEXT_6040) tag:v6.5.0 - Will be removed 2 keyboard events @keydown.left.prevent and @keydown.right.prevent #}
 <div
     class="sw-search-bar"
     @keyup.esc="clearSearchTerm()"
     @keyup.enter.prevent="onKeyUpEnter"
-    @keydown.left="!feature.isActive('FEATURE_NEXT_6040') && navigateLeftResults($event)"
-    @keydown.right="!feature.isActive('FEATURE_NEXT_6040') && navigateRightResults($event)"
     @keydown.up.prevent="navigateUpResults"
     @keydown.down.prevent="navigateDownResults"
 >
@@ -58,17 +55,8 @@
         >
 
             {% block sw_search_bar_type %}
-            <span
-                v-if="currentSearchType && !feature.isActive('FEATURE_NEXT_6040')"
-                class="sw-search-bar__type"
-                :style="{ 'background-color': getEntityIconColor(currentSearchType) }"
-            >
-                {{ getLabelSearchType() }}
-            </span>
-
             <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <span
-                v-if="feature.isActive('FEATURE_NEXT_6040')"
                 class="sw-search-bar__type--v2"
                 :style="{ 'background-color': getEntityIconColor(currentSearchType) }"
                 @click="onOpenModuleFiltersDropDown"
@@ -123,8 +111,8 @@
         <div
             v-if="showResultsContainer"
             ref="resultsContainer"
-            class="sw-search-bar__results"
-            :class="{'sw-search-bar__results--v2': feature.isActive('FEATURE_NEXT_6040'), 'is-empty-state': isResultEmpty()}"
+            class="sw-search-bar__results sw-search-bar__results--v2"
+            :class="{'is-empty-state': isResultEmpty()}"
         >
             {% block sw_search_bar_results_content %}
             <div class="sw-search-bar__results-wrapper-content">
@@ -144,35 +132,16 @@
                         {% block sw_search_bar_results_list_column %}
                         {% block sw_search_bar_results_list_column_header %}
                         <div class="sw-search-bar__results-column-header">
-                            <template v-if="!currentSearchType && !feature.isActive('FEATURE_NEXT_6040')">
-                                <sw-icon
-                                    v-if="getEntityIconName(entity.entity)"
-                                    :name="getEntityIconName(entity.entity)"
-                                    size="20px"
-                                    :color="getEntityIconColor(entity.entity)"
-                                />
-
-                                <span class="sw-search-bar__types-header-entity">
-                                    {{ $tc(`global.entities.${entity.entity}`, entity.total) }}
-                                </span>
-                            </template>
-
                             {% block sw_search_bar_results_list_column_header_title %}
                             <span
-                                v-if="feature.isActive('FEATURE_NEXT_6040')"
                                 class="sw-search-bar__types-header-entity"
                             >
                                 {{ $tc(`global.entities.${entity.entity}`, entity.total) }}
                             </span>
                             {% endblock %}
 
-                            {# @feature-deprecated (FEATURE_NEXT_6040) tag:v6.5.0 - Will be removed #}
+                            {# @deprecated tag:v6.5.0 - Will be removed #}
                             {% block sw_search_bar_results_list_column_header_more_results %}
-                            <sw-search-more-results
-                                v-if="!feature.isActive('FEATURE_NEXT_6040')"
-                                :result="entity"
-                                :term="searchTerm"
-                            />
                             {% endblock %}
                         </div>
                         {% endblock %}
@@ -192,7 +161,7 @@
 
                             {% block sw_search_bar_results_list_bar_item %}
                             <li
-                                v-if="feature.isActive('FEATURE_NEXT_6040') && entity.entity !== 'module' && entity.total > searchLimit"
+                                v-if="entity.entity !== 'module' && entity.total > searchLimit"
                                 class="sw-search-bar-item sw-search-bar-item--v2"
                             >
                                 {% block sw_search_bar_results_list_bar_item_icon %}
@@ -219,36 +188,20 @@
                 {% block sw_search_bar_results_empty %}
                 <div
                     v-else
-                    class="sw-search-bar__results-empty-message"
-                    :class="{'sw-search-bar__results-empty-message--v2': feature.isActive('FEATURE_NEXT_6040')}"
+                    class="sw-search-bar__results-empty-message sw-search-bar__results-empty-message--v2"
                 >
-                    {% block sw_search_bar_results_empty_content_v2 %}
-                    <template v-if="feature.isActive('FEATURE_NEXT_6040')">
-                        {% block sw_search_bar_results_empty_text_v2 %}
+                    {% block sw_search_bar_results_empty_content %}
+                    <template>
+                        {% block sw_search_bar_results_empty_text %}
                         <div class="sw-search-bar__results-empty-text">
                             {{ $tc('global.sw-search-bar.messageNoResultsV2', 0, { term: searchTerm }) }}
                         </div>
                         {% endblock %}
 
-                        {% block sw_search_bar_results_empty_detail_v2 %}
+                        {% block sw_search_bar_results_empty_detail %}
                         <div class="sw-search-bar__results-empty-detail">
                             {{ $tc('global.sw-search-bar.messageNoResultsDetailV2') }}
                         </div>
-                        {% endblock %}
-                    </template>
-                    {% endblock %}
-
-                    {% block sw_search_bar_results_empty_content %}
-                    <template v-else>
-                        {% block sw_search_bar_results_empty_icon %}
-                        <sw-icon
-                            name="default-action-search"
-                            size="20px"
-                        />
-                        {% endblock %}
-
-                        {% block sw_search_bar_results_empty_text %}
-                        {{ $tc('global.sw-search-bar.messageNoResults', 0, { term: searchTerm }) }}
                         {% endblock %}
                     </template>
                     {% endblock %}
@@ -259,7 +212,6 @@
 
             {% block sw_search_bar_results_footer %}
             <div
-                v-if="feature.isActive('FEATURE_NEXT_6040')"
                 class="sw-search-bar__footer"
             >
                 <p
@@ -282,11 +234,10 @@
         {% block sw_search_bar_types_container %}
         <div
             v-if="showTypeSelectContainer"
-            :class="searchBarTypesContainerClasses"
+            class="sw-search-bar__types_container--v2"
         >
             {% block sw_search_bar_types_container_header %}
             <div
-                v-if="feature.isActive('FEATURE_NEXT_6040')"
                 class="sw-search-bar__header"
             >
                 <p class="sw-search-bar__header-title">
@@ -294,28 +245,7 @@
                 </p>
             </div>
             {% endblock %}
-
-            <template v-if="!feature.isActive('FEATURE_NEXT_6040')">
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events vuejs-accessibility/mouse-events-have-key-events -->
-                <div
-                    v-for="(type, index) in typeSelectResults"
-                    :key="index"
-                    class="sw-search-bar__type-item"
-                    :class="{ 'is--active': activeTypeListIndex === index }"
-                    :style="{ 'border-color': getEntityIconColor(type.entityName) }"
-                    @mouseenter="onMouseEnterSearchType(index)"
-                    @click="onClickType(type.entityName)"
-                >
-                    <span
-                        class="sw-search-bar__type"
-                        :style="{ 'background-color': getEntityIconColor(type.entityName) }"
-                    >
-                        {{ getLabelSearchType(type.entityName) }}
-                    </span>
-                </div>
-            </template>
-
-            <template v-if="feature.isActive('FEATURE_NEXT_6040')">
+            <template>
                 <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events vuejs-accessibility/mouse-events-have-key-events -->
                 <div
                     v-for="(type, index) in typeSelectResults"
@@ -356,18 +286,12 @@
             </div>
             {% endblock %}
 
+            {# @deprecated tag:v6.5.0 - Will be removed #}
             {% block sw_search_bar_types_container_tip %}
-            <p
-                v-if="!feature.isActive('FEATURE_NEXT_6040')"
-                class="sw-search-bar__shortcut-tip"
-            >
-                {{ $tc('global.sw-search-bar.placeholderShortcutInfo') }}
-            </p>
             {% endblock %}
 
             {% block sw_search_bar_types_container_footer %}
             <div
-                v-if="feature.isActive('FEATURE_NEXT_6040')"
                 class="sw-search-bar__footer"
             >
                 <p
@@ -389,7 +313,7 @@
 
         {% block sw_search_bar_types_module_filters_container %}
         <div
-            v-if="showModuleFiltersContainer && feature.isActive('FEATURE_NEXT_6040')"
+            v-if="showModuleFiltersContainer"
             class="sw-search-bar__types_module-filters-container sw-search-bar__types_container--v2"
         >
             <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events vuejs-accessibility/mouse-events-have-key-events -->
@@ -437,7 +361,7 @@
 
         {% block sw_search_bar_trends_results %}
         <div
-            v-if="showResultsSearchTrends && !currentSearchType && feature.isActive('FEATURE_NEXT_6040')"
+            v-if="showResultsSearchTrends && !currentSearchType"
             class="sw-search-bar__results sw-search-bar__results--v2"
         >
             {% block sw_search_bar_trends_results_content %}

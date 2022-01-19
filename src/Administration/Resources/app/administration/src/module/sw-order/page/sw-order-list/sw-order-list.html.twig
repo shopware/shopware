@@ -417,35 +417,25 @@
             {% block sw_order_list_empty_state %}
             <template v-if="!isLoading && !total">
                 <sw-empty-state
-                    v-if="filterCriteria.length || (feature.isActive('FEATURE_NEXT_6040') && isValidTerm(term))"
-                    :title="feature.isActive('FEATURE_NEXT_6040')
-                        ? $tc('sw-empty-state.messageNoResultTitle')
-                        : $tc('sw-order.filters.messageEmptyTitle')"
+                    v-if="filterCriteria.length || isValidTerm(term)"
+                    :title="$tc('sw-empty-state.messageNoResultTitle')"
                 >
                     <template #icon>
                         <img
                             :src="'/administration/static/img/empty-states/order-empty-state.svg' | asset"
-                            :alt="feature.isActive('FEATURE_NEXT_6040')
-                                ? $tc('sw-empty-state.messageNoResultTitle')
-                                : $tc('sw-order.filters.messageEmptyTitle')"
+                            :alt="$tc('sw-empty-state.messageNoResultTitle')"
                         >
                     </template>
 
                     <template #default>
-                        <template v-if="feature.isActive('FEATURE_NEXT_6040')">
-                            {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
-                            <router-link
-                                class="sw-empty-state__description-link"
-                                :to="{ name: 'sw.profile.index.searchPreferences' }"
-                            >
-                                {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
-                            </router-link>
-                            {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
-                        </template>
-
-                        <template v-else>
-                            {{ $tc('sw-order.filters.messageEmptySubline') }}
-                        </template>
+                        {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
+                        <router-link
+                            class="sw-empty-state__description-link"
+                            :to="{ name: 'sw.profile.index.searchPreferences' }"
+                        >
+                            {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
+                        </router-link>
+                        {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
                     </template>
                 </sw-empty-state>
                 <sw-empty-state

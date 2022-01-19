@@ -349,7 +349,7 @@
 
                 {% block sw_cms_list_listing_list_empty_state %}
                 <sw-empty-state
-                    v-if="feature.isActive('FEATURE_NEXT_6040') && isValidTerm(term) && !isLoading && !total"
+                    v-if="isValidTerm(term) && !isLoading && !total"
                     :title="$tc('sw-empty-state.messageNoResultTitle')"
                     :style="{ minHeight: '200px' }"
                 >

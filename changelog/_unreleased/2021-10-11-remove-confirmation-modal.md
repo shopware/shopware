@@ -1,7 +1,6 @@
 ---
 title: Remove confirmation modal
 issue: NEXT-17705
-flag: FEATURE_NEXT_6040
 ---
 # Administration
 * Added `$route` watcher in `sw-profile-index` component to reset general data if needed.

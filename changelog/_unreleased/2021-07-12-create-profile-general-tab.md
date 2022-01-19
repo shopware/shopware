@@ -1,7 +1,6 @@
 ---
 title: Create profile general tab
 issue: NEXT-15904
-flag: FEATURE_NEXT_6040
 ---
 # Administration
 * Added the following components in `sw-profile` module:

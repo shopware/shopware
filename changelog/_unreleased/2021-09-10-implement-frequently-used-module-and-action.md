@@ -1,7 +1,6 @@
 ---
 title: Implement frequently used module & action
 issue: NEXT-17082
-flag: FEATURE_NEXT_6040
 ---
 # Administration
 * Changed function `getModuleInfo` in `src/core/factory/router.factory.js` to fix load `$module` with `parentPath`.

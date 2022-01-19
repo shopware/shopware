@@ -1,7 +1,6 @@
 ---
 title: Implement recently search entities
 issue: NEXT-16574
-flag: FEATURE_NEXT_6040
 ---
 # Administration
 * Added a `RecentlySearchService` in `src/app/service/recently-search.service.js` to get and save clicked recently search entities into localStorage.

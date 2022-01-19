@@ -6,9 +6,10 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Feature;
 
 /**
- * @major-deprecated (flag:FEATURE_NEXT_6040) - will be removed, please also remove `shopware.composite_search.definition` service tag
+ * @deprecated tag:v6.5.0 - Will be removed, please also remove `shopware.composite_search.definition` service tag
  */
 class CompositeEntitySearcher
 {
@@ -32,6 +33,8 @@ class CompositeEntitySearcher
 
     public function search(string $term, int $limit, Context $context): array
     {
+        Feature::throwException('FEATURE_NEXT_18762', 'Will be removed in v6.5.0, use \Shopware\Administration\Service\AdminSearcher::search instead.');
+
         $entities = [];
 
         foreach ($this->definitions as $definition) {

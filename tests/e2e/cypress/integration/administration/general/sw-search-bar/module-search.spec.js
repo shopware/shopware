@@ -4,7 +4,6 @@ import MediaPageObject from '../../../../support/pages/module/sw-media.page-obje
 
 describe('Search bar: Check search module with short keyword', () => {
     beforeEach(() => {
-        cy.onlyOnFeature('FEATURE_NEXT_6040');
         cy.loginViaApi();
     });
 
@@ -162,9 +161,7 @@ describe('Search bar: Check search module with short keyword', () => {
 
         const page = new MediaPageObject();
 
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.setEntitySearchable('media', ['fileName', 'title']);
-        });
+        cy.setEntitySearchable('media', ['fileName', 'title']);
 
         cy.get(page.elements.loader).should('not.exist');
         cy.clickContextMenuItem(

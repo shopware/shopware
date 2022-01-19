@@ -38,7 +38,7 @@ Component.register('sw-desktop', {
 
         '$route.name': {
             handler(to, from) {
-                if (!this.feature.isActive('FEATURE_NEXT_6040') || from === undefined || to === from) {
+                if (from === undefined || to === from) {
                     return;
                 }
 

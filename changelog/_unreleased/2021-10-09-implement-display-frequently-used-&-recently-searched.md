@@ -1,7 +1,6 @@
 ---
 title: Display frequently used and recently searched
 issue: NEXT-17083
-flag: FEATURE_NEXT_6040
 ---
 # Administration
 * Added watcher `$route.name` in `src/app/component/structure/sw-search-bar/index.js` to listen route name.

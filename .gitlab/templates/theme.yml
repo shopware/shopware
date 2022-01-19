@@ -54,7 +54,12 @@ variables:
     BROWSER:
         value: chrome
         description: 'Browser to use for cypress and percy tests. Possible values: "chrome", "firefox", "electron"'
-
+    PLUGIN_DEPENDENCIES:
+        value: '[]'
+        description: 'Plugin dependencies. Defined in json. Example: [{ "name": "SwagPayPal", "url": "gitlab.shopware.com/shopware/6/services/paypal", "branch": "master" }]'
+    COMPOSER_DEPENDENCIES:
+        value: '[]'
+        description: 'Additional composer dependencies. Defined in json. Example: ["theiconic/name-parser", "amzn/amazon-pay-api-sdk-php:2.2.1"]'
 
 workflow:
     rules:
@@ -75,6 +80,7 @@ workflow:
     - bin/console system:generate-jwt || true
     - bin/console system:install --drop-database --basic-setup --force >/dev/null
     - bin/console bundle:dump
+    - 'bin/console feature:dump || true'
     - '(cd src/Administration/Resources/app/administration/ && npm ci && npm run build)'
     - '(cd src/Storefront/Resources/app/storefront/ && npm ci && npm run production && node copy-to-vendor.js)'
 
@@ -94,6 +100,32 @@ workflow:
     - bin/console theme:change --all $THEME_NAME
     - bin/console assets:install
 
+.install_dependencies: &install_dependencies
+  - apt-get update && apt-get install -y jq
+  - |
+    echo "${COMPOSER_DEPENDENCIES}"
+    for package in $(echo "${COMPOSER_DEPENDENCIES}" | jq -r '.[]'); do
+        composer require "${package}"
+    done
+  - |
+    echo "${PLUGIN_DEPENDENCIES}"
+    for plugin64 in $(echo "${PLUGIN_DEPENDENCIES}" | jq -r '.[] | @base64'); do
+        plugin="$(echo $plugin64 | base64 -d)"
+        plugin_name="$(echo "$plugin" | jq -r .name)"
+        plugin_url="$(echo "$plugin" | jq -r .url)"
+        plugin_branch="$(echo "$plugin" | jq -r .branch)"
+        git clone "https://gitlab-ci-token:${CI_JOB_TOKEN}@${plugin_url}" --branch "${plugin_branch}" "${PROJECT_ROOT}/custom/plugins/${plugin_name}"
+    done
+  - bin/console plugin:refresh
+  - |
+    for plugin64 in $(echo "${PLUGIN_DEPENDENCIES}" | jq -r '.[] | @base64'); do
+        plugin="$(echo $plugin64 | base64 -d)"
+        plugin_name="$(echo "$plugin" | jq -r .name)"
+        bin/console plugin:install --activate "${plugin_name}"
+    done
+  - bin/console cache:clear
+  - bin/console plugin:list
+
 default:
     image: $DEV_IMAGE
     services:
@@ -112,6 +144,7 @@ default:
         - unzip -q /tmp/theme.zip -d custom/apps/$THEME_NAME
         - *base_install
         - *theme_build_install
+        - *install_dependencies
         # run php as root to prevent permission issues
         - SERVICE_PHPFPM_OPTS=--allow-to-run-as-root CONTAINER_UID=root /entrypoint supervisord > /dev/null 2>&1 &
         - cd custom/apps/$THEME_NAME
@@ -231,15 +264,20 @@ cypress:
         - unzip -q /tmp/theme.zip -d custom/apps
         - *base_install
         - *theme_install
+        - *install_dependencies
         - SERVICE_PHPFPM_OPTS=--allow-to-run-as-root CONTAINER_UID=root /entrypoint supervisord > /dev/null 2>&1 &
         - bin/console e2e:dump-db
         - cd custom/apps/$THEME_NAME/${THEME_SOURCE_DIR}${E2E_PROJECT_PATH}
         - npm ci
     script:
-        - ./node_modules/.bin/cypress run
-            --browser $BROWSER
-            --headless
-            --env grep=visual,invert=1
+        - >
+          if [[ -z "$CYPRESS_SPEC" ]]; then
+              echo "Running non visual tests"
+              APP_ENV=e2e ./node_modules/.bin/cypress run --browser $BROWSER --headless --env grep=visual,invert=1
+          else
+              echo "Running specs: $CYPRESS_SPEC"
+              APP_ENV=e2e ./node_modules/.bin/cypress run --browser $BROWSER --headless --spec "$CYPRESS_SPEC"
+          fi
     after_script:
         - *base_env_vars
         - cd custom/apps/$THEME_NAME/${THEME_SOURCE_DIR}${E2E_PROJECT_PATH}
@@ -277,10 +315,14 @@ percy:
         APP_ENV: e2e
         CYPRESS_usePercy: 1
     script:
-        - ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run
-            --browser $BROWSER
-            --headless
-            --env grep=visual
+        - >
+          if [[ -z "$PERCY_SPEC" ]]; then
+              echo "Running visual tests"
+              ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run --browser $BROWSER --headless --env grep=visual
+          else
+              echo "Running specs: $PERCY_SPEC"
+              ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run --browser $BROWSER --headless --spec "$PERCY_SPEC"
+          fi
 
 upload zip to store:
     stage: deploy

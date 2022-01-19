@@ -113,7 +113,8 @@
       "checkbox": "Checkbox",
       "switch": "Active switch",
       "textEditor": "Text editor",
-      "colorpicker": "Colour picker"
+      "colorpicker": "Colour picker",
+      "price": "Price field"
     }
   },
   "sw-privileges": {

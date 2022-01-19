@@ -215,6 +215,7 @@
                         minOccurs="0"/>
             <xs:element name="color-picker" type="custom-field-color-picker-type" maxOccurs="unbounded" minOccurs="0"/>
             <xs:element name="media-selection" type="custom-field-media-type" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="price" type="custom-field-price-type" maxOccurs="unbounded" minOccurs="0"/>
         </xs:choice>
     </xs:complexType>
     <xs:group name="custom-field-type">
@@ -300,6 +301,12 @@
         </xs:complexContent>
     </xs:complexType>
     <xs:complexType name="custom-field-color-picker-type">
+        <xs:choice maxOccurs="unbounded">
+            <xs:group ref="custom-field-type"/>
+        </xs:choice>
+        <xs:attribute type="xs:string" name="name" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="custom-field-price-type">
         <xs:choice maxOccurs="unbounded">
             <xs:group ref="custom-field-type"/>
         </xs:choice>

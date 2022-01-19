@@ -11,6 +11,7 @@ final class CustomFieldTypes
     public const FLOAT = 'float';
     public const INT = 'int';
     public const JSON = 'json';
+    public const PRICE = 'price';
     public const HTML = 'html';
     public const MEDIA = 'media';
     public const SELECT = 'select';

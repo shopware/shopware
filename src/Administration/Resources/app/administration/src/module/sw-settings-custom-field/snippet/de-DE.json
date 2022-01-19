@@ -114,7 +114,8 @@
       "checkbox": "Checkbox",
       "switch": "Aktiv-Schalter",
       "textEditor": "Text-Editor",
-      "colorpicker": "Farbauswahlwerkzeug"
+      "colorpicker": "Farbauswahlwerkzeug",
+      "price": "Preisfeld"
     }
   },
   "sw-privileges": {

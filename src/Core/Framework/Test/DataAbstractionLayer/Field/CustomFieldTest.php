@@ -8,6 +8,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
@@ -18,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestTranslationDefinition;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -1001,6 +1004,33 @@ class CustomFieldTest extends TestCase
 
         static::assertNotEmpty($first);
         static::assertEquals(['assoc' => ['foo' => 'baz']], $first->get('custom'));
+    }
+
+    public function testCustomFieldPrice(): void
+    {
+        $this->addCustomFields(['price' => CustomFieldTypes::PRICE]);
+
+        $ids = new IdsCollection();
+        $entities = [
+            [
+                'id' => $ids->create('id-1'),
+                'custom' => [
+                    'price' => [
+                        ['currencyId' => Defaults::CURRENCY, 'net' => 30.00, 'gross' => 32.00, 'linked' => true],
+                    ],
+                ],
+            ],
+        ];
+
+        $repo = $this->getTestRepository();
+        $repo->create($entities, Context::createDefaultContext());
+        $first = $repo->search(new Criteria([$ids->get('id-1')]), Context::createDefaultContext())->first();
+
+        static::assertNotEmpty($first);
+
+        $fields = $first->get('custom');
+
+        static::assertEquals(new PriceCollection([new Price(Defaults::CURRENCY, 30, 32, true)]), $fields['price']);
     }
 
     public function testCustomFieldArray(): void

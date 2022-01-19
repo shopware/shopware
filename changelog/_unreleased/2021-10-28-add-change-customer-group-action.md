@@ -1,7 +1,6 @@
 ---
 title: Add change customer group action
 issue: NEXT-17975
-flag: FEATURE_NEXT_17973
 ---
 # Core
 * Added `Shopware/Core/Content/Flow/Dispatching/Action/ChangeCustomerGroupAction` class to handle change customer group flow action.

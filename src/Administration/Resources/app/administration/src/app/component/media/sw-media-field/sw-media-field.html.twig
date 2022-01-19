@@ -3,15 +3,7 @@
     {% block sw_media_field_label %}
     <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
     <label
-        v-if="label && !feature.isActive('FEATURE_NEXT_17973')"
-        class="sw-media-field__label"
-    >
-        {{ label }}
-    </label>
-
-    <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
-    <label
-        v-if="showLabel && feature.isActive('FEATURE_NEXT_17973')"
+        v-if="showLabel"
         class="sw-media-field__label"
     >
         <slot name="label">

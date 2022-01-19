@@ -6,9 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\FlowEvent;
 
-/**
- * @internal (FEATURE_NEXT_17973)
- */
 class ChangeCustomerGroupAction extends FlowAction
 {
     private EntityRepositoryInterface $customerRepository;

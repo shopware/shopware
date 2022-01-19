@@ -90,27 +90,22 @@ Component.register('sw-flow-sequence-action', {
         },
 
         actionDescription() {
-            const actionDescription = {
+            return {
                 [ACTION.STOP_FLOW]: () => this.$tc('sw-flow.actions.textStopFlowDescription'),
                 [ACTION.SET_ORDER_STATE]: (config) => this.getSetOrderStateDescription(config),
                 [ACTION.GENERATE_DOCUMENT]: (config) => this.getGenerateDocumentDescription(config),
                 [ACTION.MAIL_SEND]: (config) => this.getMailSendDescription(config),
-            };
-
-            if (this.feature.isActive('FEATURE_NEXT_17973')) {
-                actionDescription[ACTION.CHANGE_CUSTOMER_GROUP] = (config) => this.getCustomerGroupDescription(config);
-                actionDescription[ACTION.CHANGE_CUSTOMER_STATUS] = (config) => this.getCustomerStatusDescription(config);
-                actionDescription[ACTION.SET_CUSTOMER_CUSTOM_FIELD] = (config) => this.getCustomFieldDescription(config);
+                [ACTION.CHANGE_CUSTOMER_GROUP]: (config) => this.getCustomerGroupDescription(config),
+                [ACTION.CHANGE_CUSTOMER_STATUS]: (config) => this.getCustomerStatusDescription(config),
+                [ACTION.SET_CUSTOMER_CUSTOM_FIELD]: (config) => this.getCustomFieldDescription(config),
                 // eslint-disable-next-line max-len
-                actionDescription[ACTION.SET_CUSTOMER_GROUP_CUSTOM_FIELD] = (config) => this.getCustomFieldDescription(config);
-                actionDescription[ACTION.SET_ORDER_CUSTOM_FIELD] = (config) => this.getCustomFieldDescription(config);
-                actionDescription[ACTION.ADD_CUSTOMER_AFFILIATE_AND_CAMPAIGN_CODE] =
-                    (config) => this.getAffiliateAndCampaignCodeDescription(config);
-                actionDescription[ACTION.ADD_ORDER_AFFILIATE_AND_CAMPAIGN_CODE] =
-                    (config) => this.getAffiliateAndCampaignCodeDescription(config);
-            }
-
-            return actionDescription;
+                [ACTION.SET_CUSTOMER_GROUP_CUSTOM_FIELD]: (config) => this.getCustomFieldDescription(config),
+                [ACTION.SET_ORDER_CUSTOM_FIELD]: (config) => this.getCustomFieldDescription(config),
+                [ACTION.ADD_CUSTOMER_AFFILIATE_AND_CAMPAIGN_CODE]:
+                    (config) => this.getAffiliateAndCampaignCodeDescription(config),
+                [ACTION.ADD_ORDER_AFFILIATE_AND_CAMPAIGN_CODE]:
+                    (config) => this.getAffiliateAndCampaignCodeDescription(config),
+            };
         },
 
         ...mapState('swFlowState',

@@ -95,15 +95,12 @@ Component.register('sw-text-editor-toolbar', {
     },
 
     /**
-     * @feature-deprecated (FEATURE_NEXT_17973) tag:v6.5.0 - Use unmounted instead.
+     * @deprecated tag:v6.5.0 - Use unmounted instead.
      */
     beforeDestroy() {
         this.beforeDestroyComponent();
     },
 
-    /**
-     * @internal (flag:FEATURE_NEXT_17973)
-     */
     unmounted() {
         this.beforeUnmountedComponent();
     },
@@ -169,7 +166,7 @@ Component.register('sw-text-editor-toolbar', {
         },
 
         /**
-         * @feature-deprecated (FEATURE_NEXT_17973) tag:v6.5.0 - Use `beforeUnmountedComponent` instead.
+         * @deprecated tag:v6.5.0 - Use `beforeUnmountedComponent` instead.
          */
         beforeDestroyComponent() {
             this.beforeUnmountedComponent();

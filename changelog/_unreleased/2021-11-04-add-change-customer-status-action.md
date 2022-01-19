@@ -1,7 +1,6 @@
 ---
 title: Add change customer status action
 issue: NEXT-18193
-flag: FEATURE_NEXT_17973
 ---
 # Core
 * Added `Shopware/Core/Content/Flow/Dispatching/Action/ChangeCustomerStatusAction` class to handle change customer status flow action.

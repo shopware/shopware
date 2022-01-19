@@ -11,7 +11,6 @@ describe('Flow builder: add an affiliate and campaign code testing', () => {
     });
 
     it('@settings: add an affilicate and campaign code flow', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_17973');
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
 
         cy.intercept({

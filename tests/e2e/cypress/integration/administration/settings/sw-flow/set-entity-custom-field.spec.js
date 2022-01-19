@@ -3,7 +3,6 @@
 describe('Flow builder: set entity custom field testing', () => {
     // eslint-disable-next-line no-undef
     beforeEach(() => {
-        cy.onlyOnFeature('FEATURE_NEXT_17973');
         // Clean previous state and prepare Administration
         cy.loginViaApi().then(() => {
                 return cy.createProductFixture();

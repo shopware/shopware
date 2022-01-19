@@ -9,9 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\CustomerGroupAware;
 use Shopware\Core\Framework\Event\FlowEvent;
 
-/**
- * @internal (flag:FEATURE_NEXT_17973)
- */
 class SetCustomerGroupCustomFieldAction extends FlowAction
 {
     use CustomFieldActionTrait;

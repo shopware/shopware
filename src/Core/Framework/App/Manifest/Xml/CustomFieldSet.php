@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\App\Manifest\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\CustomFieldType;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\CustomFieldTypeFactory;
-use Symfony\Component\Config\Util\XmlUtils;
+use Shopware\Core\Framework\Util\XmlReader;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
@@ -112,7 +112,7 @@ class CustomFieldSet extends XmlElement
         $attributes = $element->attributes;
 
         foreach ($attributes as $attribute) {
-            $values[$attribute->name] = XmlUtils::phpize($attribute->value);
+            $values[$attribute->name] = XmlReader::phpize($attribute->value);
         }
 
         foreach ($element->childNodes as $child) {

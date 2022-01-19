@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
-use Symfony\Component\Config\Util\XmlUtils;
+use Shopware\Core\Framework\Util\XmlReader;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
@@ -56,7 +56,7 @@ class Webhook extends XmlElement
         $values = [];
 
         foreach ($element->attributes as $attribute) {
-            $values[$attribute->name] = XmlUtils::phpize($attribute->value);
+            $values[$attribute->name] = XmlReader::phpize($attribute->value);
         }
 
         return $values;

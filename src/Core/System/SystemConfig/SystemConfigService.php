@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Util\XmlReader;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
@@ -19,7 +20,6 @@ use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidKeyException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
-use Symfony\Component\Config\Util\XmlUtils;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class SystemConfigService
@@ -269,7 +269,7 @@ class SystemConfigService
                     continue;
                 }
 
-                $value = XmlUtils::phpize($element['defaultValue']);
+                $value = XmlReader::phpize($element['defaultValue']);
                 if ($override || $this->get($key) === null) {
                     $this->set($key, $value);
                 }

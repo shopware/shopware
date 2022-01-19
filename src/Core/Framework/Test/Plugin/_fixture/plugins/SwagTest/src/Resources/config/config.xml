@@ -39,5 +39,29 @@
             <label>Test price field</label>
             <defaultValue>null</defaultValue>
         </input-field>
+        <input-field type="text">
+            <name>numericTextField</name>
+            <label>Test text field with a numeric string default value</label>
+            <defaultValue>"100"</defaultValue>
+        </input-field>
+        <input-field type="multi-select">
+            <name>multiSelectField</name>
+            <label>Test multi select field with default values</label>
+            <options>
+                <option>
+                    <id>value1</id>
+                    <name>The first value</name>
+                </option>
+                <option>
+                    <id>value2</id>
+                    <name>The second value</name>
+                </option>
+                <option>
+                    <id>value3</id>
+                    <name>The third value</name>
+                </option>
+            </options>
+            <defaultValue>["value1", "value2"]</defaultValue>
+        </input-field>
     </card>
 </config>

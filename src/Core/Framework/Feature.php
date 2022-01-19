@@ -21,17 +21,9 @@ class Feature
          * - NEXT-1234
          * - FEATURE_NEXT_1234
          * - SAAS_321
+         * - v6.5.0.0 => v6_5_0_0
          */
-        if (!preg_match('/(feature)?[-_ ]?([^-_ 0-9]*)[-_ ]?([0-9]+)/i', $name, $matches)) {
-            throw new \InvalidArgumentException('Invalid feature name "' . $name . '"');
-        }
-
-        $project = $matches[2];
-        if ($project !== '') {
-            $project .= '_';
-        }
-
-        return strtoupper('FEATURE_' . $project . $matches[3]);
+        return \strtoupper(\str_replace(['.', ':', '-'], '_', $name));
     }
 
     public static function isActive(string $feature): bool
@@ -58,7 +50,7 @@ class Feature
             }
         }
 
-        if (!EnvironmentHelper::hasVariable($feature)) {
+        if (!EnvironmentHelper::hasVariable($feature) && !EnvironmentHelper::hasVariable(\strtolower($feature))) {
             $fallback = self::$registeredFeatures[$feature]['default'] ?? false;
 
             return (bool) $fallback;
@@ -123,6 +115,8 @@ class Feature
 
     public static function has(string $flag): bool
     {
+        $flag = self::normalizeName($flag);
+
         return isset(self::$registeredFeatures[$flag]);
     }
 
@@ -142,6 +136,8 @@ class Feature
      */
     public static function registerFeature(string $name, array $metaData = []): void
     {
+        $name = self::normalizeName($name);
+
         // merge with existing data
         $metaData = array_merge(
             self::$registeredFeatures[$name] ?? [],

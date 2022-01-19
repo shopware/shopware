@@ -83,6 +83,25 @@ class FeatureTest extends TestCase
         static::assertTrue(Feature::has('FEATURE_NEXT_102'));
     }
 
+    public function testMajorNaming(): void
+    {
+        $this->setUpFixtures();
+
+        Feature::registerFeature('v6.1.0.0', ['default' => true, 'major' => true]);
+
+        static::assertTrue(Feature::has('v6.1.0.0'));
+        static::assertTrue(Feature::has('V6.1.0.0'));
+        static::assertTrue(Feature::has('v6_1_0_0'));
+        static::assertTrue(Feature::isActive('v6.1.0.0'));
+        static::assertTrue(Feature::isActive('v6.1.0.0'));
+
+        Feature::registerFeature('paypal:v1.0.0.0', ['default' => true, 'major' => true]);
+
+        static::assertTrue(Feature::has('paypal:v1.0.0.0'));
+        static::assertTrue(Feature::has('PAYPAL:V1.0.0.0'));
+        static::assertTrue(Feature::has('paypal_v1_0_0_0'));
+    }
+
     public function testTheCallableGetsExecutes(): void
     {
         $this->setUpFixtures();
@@ -121,13 +140,13 @@ class FeatureTest extends TestCase
         $currentConfig = array_keys(Feature::getAll());
         $featureFlags = array_keys($this->getContainer()->getParameter('shopware.feature.flags'));
 
-        static::assertEquals($featureFlags, $currentConfig);
+        static::assertEquals(\array_map('strtoupper', $featureFlags), \array_map('strtoupper', $currentConfig));
 
         self::setUpFixtures();
         $featureFlags = array_merge($featureFlags, $this->fixtureFlags);
 
         $configAfterRegistration = array_keys(Feature::getAll());
-        static::assertEquals($featureFlags, $configAfterRegistration);
+        static::assertEquals(\array_map('strtoupper', $featureFlags), \array_map('strtoupper', $configAfterRegistration));
     }
 
     public function testTwigFeatureFlag(): void
@@ -157,7 +176,7 @@ class FeatureTest extends TestCase
         $twig->addExtension(new FeatureFlagExtension());
         $template = $twig->loadTemplate($twig->getTemplateClass('featuretest_unregistered.html.twig'), 'featuretest_unregistered.html.twig');
 
-        $this->expectNoticeMessageMatches('/.*FEATURE_RANDOMFLAGTHATISNOTREGISTERDE_471112.*/');
+        $this->expectNoticeMessageMatches('/.*RANDOMFLAGTHATISNOTREGISTERDE471112.*/');
 
         $template->render([]);
     }

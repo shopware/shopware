@@ -18,10 +18,16 @@
                             {% block layout_header_navigation_toggle_tablet %}
                                 <div class="nav-main-toggle">
                                     {% block layout_header_navigation_toggle_tablet_button %}
-                                        <button class="btn nav-main-toggle-btn header-actions-btn"
-                                                type="button"
+                                        <button
+                                            class="btn nav-main-toggle-btn header-actions-btn"
+                                            type="button"
+                                            {% if feature('NEXT_19709') %}
+                                                data-off-canvas-menu="true"
+                                            {% else %}
                                                 data-offcanvas-menu="true"
-                                                aria-label="{{ "general.menuLink"|trans|striptags }}">
+                                            {% endif %}
+                                            aria-label="{{ "general.menuLink"|trans|striptags }}"
+                                        >
                                             {% block layout_header_navigation_toggle_tablet_button_icon %}
                                                 {% sw_icon 'stack' %}
                                             {% endblock %}
@@ -44,10 +50,16 @@
                             <div class="col d-sm-none">
                                 <div class="menu-button">
                                     {% block layout_header_navigation_toggle_button %}
-                                        <button class="btn nav-main-toggle-btn header-actions-btn"
-                                                type="button"
+                                        <button
+                                            class="btn nav-main-toggle-btn header-actions-btn"
+                                            type="button"
+                                            {% if feature('NEXT_19709') %}
+                                                data-off-canvas-menu="true"
+                                            {% else %}
                                                 data-offcanvas-menu="true"
-                                                aria-label="{{ "general.menuLink"|trans|striptags }}">
+                                            {% endif %}
+                                            aria-label="{{ "general.menuLink"|trans|striptags }}"
+                                        >
                                             {% block layout_header_navigation_toggle_button_icon %}
                                                 {% sw_icon 'stack' %}
                                             {% endblock %}
@@ -98,8 +110,14 @@
 
                         {% block layout_header_actions_cart %}
                             <div class="col-auto">
-                                <div class="header-cart"
-                                     data-offcanvas-cart="true">
+                                <div
+                                    class="header-cart"
+                                    {% if feature('NEXT_19709') %}
+                                        data-off-canvas-cart="true"
+                                    {% else %}
+                                        data-offcanvas-cart="true"
+                                    {% endif %}
+                                >
                                     <a class="btn header-cart-btn header-actions-btn"
                                        href="{{ path('frontend.checkout.cart.page') }}"
                                        data-cart-widget="true"

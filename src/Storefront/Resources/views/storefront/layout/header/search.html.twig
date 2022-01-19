@@ -4,7 +4,11 @@
         <div class="header-search">
             <form action="{{ path('frontend.search.page') }}"
                   method="get"
-                  data-search-form="true"
+                {% if feature('NEXT_19709') %}
+                    data-search-widget="true"
+                {% else %}
+                    data-search-form="true"
+                {% endif %}
                   data-url="{{ path('frontend.search.suggest') }}?search="
                   class="header-search-form">
                 {% block layout_header_search_input_group %}

@@ -15,6 +15,7 @@
 
         <service id="Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Symfony\Component\Lock\LockFactory"/>
         </service>
 
         <service id="Shopware\Core\System\CustomEntity\Api\CustomEntityApiController" public="true">

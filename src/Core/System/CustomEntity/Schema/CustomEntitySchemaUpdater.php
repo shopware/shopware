@@ -9,55 +9,71 @@ use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use Symfony\Component\Lock\LockFactory;
 
 class CustomEntitySchemaUpdater
 {
     private const COMMENT = 'custom-entity-element';
 
     private Connection $connection;
+    private LockFactory $lockFactory;
 
-    public function __construct(Connection $connection)
+    public function __construct(Connection $connection, LockFactory $lockFactory)
     {
         $this->connection = $connection;
+        $this->lockFactory = $lockFactory;
+    }
+
+    private function lock(\Closure $closure): void
+    {
+        $lock = $this->lockFactory->createLock('custom-entity::schema-update', 30);
+
+        if ($lock->acquire(true)) {
+            $closure();
+
+            $lock->release();
+        }
     }
 
     public function update(): void
     {
-        $tables = $this->connection->fetchAllAssociative('SELECT name, fields FROM custom_entity');
+        $this->lock(function() {
+            $tables = $this->connection->fetchAllAssociative('SELECT name, fields FROM custom_entity');
 
-        $schema = $this->getSchemaManager()->createSchema();
+            $schema = $this->getSchemaManager()->createSchema();
 
-        foreach ($schema->getTables() as $table) {
-            if ($table->getComment() === self::COMMENT) {
-                $schema->dropTable($table->getName());
+            foreach ($schema->getTables() as $table) {
+                if ($table->getComment() === self::COMMENT) {
+                    $schema->dropTable($table->getName());
 
-                continue;
-            }
+                    continue;
+                }
 
-            foreach ($table->getForeignKeys() as $foreignKey) {
-                if (\strpos($foreignKey->getName(), 'fk_ce_') === 0) {
-                    $table->removeForeignKey($foreignKey->getName());
+                foreach ($table->getForeignKeys() as $foreignKey) {
+                    if (\strpos($foreignKey->getName(), 'fk_ce_') === 0) {
+                        $table->removeForeignKey($foreignKey->getName());
+                    }
+                }
+
+                foreach ($table->getColumns() as $column) {
+                    if ($column->getComment() === self::COMMENT) {
+                        $table->dropColumn($column->getName());
+                    }
                 }
             }
 
-            foreach ($table->getColumns() as $column) {
-                if ($column->getComment() === self::COMMENT) {
-                    $table->dropColumn($column->getName());
+            foreach ($tables as $table) {
+                $fields = \json_decode($table['fields'], true, 512, \JSON_THROW_ON_ERROR);
+
+                if (\strpos($table['name'], 'custom_entity_') !== 0) {
+                    throw new \RuntimeException(\sprintf('Table %s has to be prefixed with custom_', $table['name']));
                 }
-            }
-        }
 
-        foreach ($tables as $table) {
-            $fields = \json_decode($table['fields'], true, 512, \JSON_THROW_ON_ERROR);
-
-            if (\strpos($table['name'], 'custom_entity_') !== 0) {
-                throw new \RuntimeException(\sprintf('Table %s has to be prefixed with custom_', $table['name']));
+                $this->defineTable($schema, $table['name'], $fields);
             }
 
-            $this->defineTable($schema, $table['name'], $fields);
-        }
-
-        $this->updateSchema($schema);
+            $this->updateSchema($schema);
+        });
     }
 
     private function updateSchema(Schema $to): void

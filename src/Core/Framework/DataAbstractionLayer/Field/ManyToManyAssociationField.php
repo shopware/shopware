@@ -60,13 +60,13 @@ class ManyToManyAssociationField extends AssociationField
         parent::__construct($propertyName);
         $this->toManyDefinitionClass = $referenceDefinition;
         $this->referenceClass = $mappingDefinition;
-        $this->mappingDefinitionClass = $mappingDefinition;
         $this->mappingLocalColumn = $mappingLocalColumn;
         $this->mappingReferenceColumn = $mappingReferenceColumn;
         $this->sourceColumn = $sourceColumn;
         $this->referenceField = $referenceField;
-        $this->referenceEntity = $referenceEntity;
-        $this->mappingReferenceEntity = $mappingReferenceEntity;
+
+        $this->referenceEntity = $mappingReferenceEntity;
+        $this->mappingReferenceEntity = $referenceEntity;
     }
 
     public function compile(DefinitionInstanceRegistry $registry): void
@@ -77,17 +77,15 @@ class ManyToManyAssociationField extends AssociationField
 
         parent::compile($registry);
 
-        if ($this->referenceEntity !== null) {
-            $this->toManyDefinition = $registry->getByEntityName($this->referenceEntity);
+        if ($this->mappingReferenceEntity !== null) {
+            $this->toManyDefinition = $registry->getByEntityName($this->mappingReferenceEntity);
+            $this->toManyDefinitionClass = $this->toManyDefinition->getClass();
         } else {
             $this->toManyDefinition = $registry->get($this->toManyDefinitionClass);
+            $this->mappingReferenceEntity = $this->toManyDefinition->getEntityName();
         }
 
-        if ($this->mappingReferenceEntity !== null) {
-            $this->mappingDefinition = $registry->getByEntityName($this->mappingReferenceEntity);
-        } else {
-            $this->mappingDefinition = $registry->get($this->mappingDefinitionClass);
-        }
+        $this->mappingDefinition = $this->referenceDefinition;
     }
 
     public function getToManyReferenceDefinition(): EntityDefinition

@@ -2,7 +2,7 @@
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Shopware\Recovery\Common\Service\SystemConfigService;
+use Shopware\Recovery\Common\Service\RecoveryConfigManager;
 use Shopware\Recovery\Update\DependencyInjection\Container;
 use Shopware\Recovery\Update\Utils;
 
@@ -141,7 +141,7 @@ $app->get('/finish', function (ServerRequestInterface $request, ResponseInterfac
     $shopPath = str_replace('/recovery/update', '/', $shopPath);
 
     $updateToken = bin2hex(random_bytes(16));
-    /** @var SystemConfigService $systemConfig */
+    /** @var RecoveryConfigManager $systemConfig */
     $systemConfig = $container->get('system.config');
     $systemConfig->set('core.update.token', $updateToken);
     $redirectUrl = $shopPath . 'api/_action/update/finish/' . $updateToken;

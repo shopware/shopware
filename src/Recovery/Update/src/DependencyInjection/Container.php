@@ -14,7 +14,7 @@ use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
 use Shopware\Recovery\Common\DependencyInjection\Container as BaseContainer;
 use Shopware\Recovery\Common\HttpClient\CurlClient;
 use Shopware\Recovery\Common\Service\JwtCertificateService;
-use Shopware\Recovery\Common\Service\SystemConfigService;
+use Shopware\Recovery\Common\Service\RecoveryConfigManager;
 use Shopware\Recovery\Common\SystemLocker;
 use Shopware\Recovery\Update\Cleanup;
 use Shopware\Recovery\Update\CleanupFilesFinder;
@@ -259,7 +259,7 @@ class Container extends BaseContainer
         };
 
         $container['system.config'] = static function ($c) {
-            return new SystemConfigService($c['dbal']);
+            return new RecoveryConfigManager($c['dbal']);
         };
     }
 }

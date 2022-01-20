@@ -5,7 +5,7 @@ namespace Shopware\Recovery\Common\Service;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-class SystemConfigService
+class RecoveryConfigManager
 {
     private Connection $connection;
 

@@ -36,8 +36,6 @@ class EntityHydrator
 
     private static array $hydrated = [];
 
-    private static array $instances = [];
-
     /**
      * @var string[]
      */

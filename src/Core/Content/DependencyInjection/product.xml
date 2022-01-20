@@ -158,6 +158,9 @@
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannelProductBuilder"/>
             <argument type="service" id="Shopware\Core\Content\Product\ProductVariationBuilder"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator"/>
+            <argument type="service" id="Shopware\Core\Content\Product\AbstractPropertyGroupSorter"/>
+            <argument type="service" id="Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator"/>
+            <argument type="service" id="Shopware\Core\Content\Product\AbstractIsNewDetector"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

@@ -121,7 +121,6 @@ class CompiledFieldCollection extends FieldCollection
 
     public function getBasicFields(): self
     {
-        //todo@dr maybe pre filter this in compiling step??
         return $this->filter(
             function (Field $field) {
                 if ($field instanceof AssociationField) {
@@ -145,11 +144,9 @@ class CompiledFieldCollection extends FieldCollection
 
     public function filterByFlag(string $flagClass): self
     {
-        $ret = $this->filter(static function (Field $field) use ($flagClass) {
+        return $this->filter(static function (Field $field) use ($flagClass) {
             return $field->is($flagClass);
         });
-
-        return $ret;
     }
 
     public function getChildrenAssociationField(): ?ChildrenAssociationField

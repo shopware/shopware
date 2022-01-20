@@ -44,6 +44,10 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
 
         /** @var SalesChannelProductEntity $product */
         foreach ($products as $product) {
+            if (!$product instanceof SalesChannelProductEntity) {
+                continue;
+            }
+
             $this->calculatePrice($product, $context, $units);
             $this->calculateAdvancePrices($product, $context, $units);
             $this->calculateCheapestPrice($product, $context, $units);

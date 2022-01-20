@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Product;
 
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -21,7 +21,7 @@ class IsNewDetector extends AbstractIsNewDetector
         throw new DecorationPatternException(self::class);
     }
 
-    public function isNew(SalesChannelProductEntity $product, SalesChannelContext $context): bool
+    public function isNew(Entity $product, SalesChannelContext $context): bool
     {
         $markAsNewDayRange = $this->systemConfigService->get(
             'core.listing.markAsNew',
@@ -30,7 +30,10 @@ class IsNewDetector extends AbstractIsNewDetector
 
         $now = new \DateTime();
 
-        return $product->getReleaseDate() instanceof \DateTimeInterface
-            && $product->getReleaseDate()->diff($now)->days <= $markAsNewDayRange;
+        /** @var \DateTimeInterface|null $releaseDate */
+        $releaseDate = $product->get('releaseDate');
+
+        return $releaseDate instanceof \DateTimeInterface
+            && $releaseDate->diff($now)->days <= $markAsNewDayRange;
     }
 }

@@ -551,6 +551,9 @@ class Criteria extends Struct
         $this->title = $title;
     }
 
+    /**
+     * @internal
+     */
     public function addFields(array $fields): self
     {
         $this->fields = array_merge($this->fields, $fields);
@@ -558,6 +561,9 @@ class Criteria extends Struct
         return $this;
     }
 
+    /**
+     * @internal
+     */
     public function getFields(): array
     {
         return $this->fields;

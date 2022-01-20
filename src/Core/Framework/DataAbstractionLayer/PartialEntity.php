@@ -6,8 +6,4 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 
 class PartialEntity extends ArrayEntity
 {
-    public function getApiAlias(): string
-    {
-        return 'partial.' . parent::getApiAlias();
-    }
 }

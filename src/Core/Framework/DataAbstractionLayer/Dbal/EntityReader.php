@@ -34,6 +34,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
+use function array_filter;
 
 class EntityReader implements EntityReaderInterface
 {
@@ -110,7 +111,7 @@ class EntityReader implements EntityReaderInterface
             return $collection;
         }
 
-        if (!empty($partial)) {
+        if ($partial !== []) {
             $fields = $definition->getFields()->filter(function (Field $field) use ($partial) {
                 if ($field->getFlag(PrimaryKey::class)) {
                     return true;
@@ -150,12 +151,17 @@ class EntityReader implements EntityReaderInterface
         ?Criteria $criteria = null,
         array $partial = []
     ): void {
-        $filtered = $fields->fmap(function (Field $field) {
+        $isPartial = $partial !== [];
+        $filtered = $fields->filter(static function (Field $field) use ($isPartial, $partial) {
             if ($field->is(Runtime::class)) {
-                return null;
+                return false;
             }
 
-            return $field;
+            if (!$isPartial || $field->getFlag(PrimaryKey::class)) {
+                return true;
+            }
+
+            return isset($partial[$field->getPropertyName()]);
         });
 
         $parentAssociation = null;

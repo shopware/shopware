@@ -20,7 +20,7 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
         });
     });
 
-    it('@package @rule: should use rule builder with the shipping method', () => {
+    it.skip('@package @rule: should use rule builder with the shipping method', () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/rule`,
             method: 'POST'

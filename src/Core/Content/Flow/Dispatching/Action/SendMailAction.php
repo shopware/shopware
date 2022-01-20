@@ -204,10 +204,15 @@ class SendMailAction extends FlowAction
 
     private function updateMailTemplateType(FlowEvent $event, MailAware $mailAware, MailTemplateEntity $mailTemplate): void
     {
+        if (!$mailTemplate->getMailTemplateTypeId()) {
+            return;
+        }
+
         $mailTemplateTypeTranslation = $this->connection->fetchOne(
-            'SELECT 1 FROM mail_template_type_translation WHERE language_id = :languageId',
+            'SELECT 1 FROM mail_template_type_translation WHERE language_id = :languageId AND mail_template_type_id =:mailTemplateTypeId',
             [
                 'languageId' => Uuid::fromHexToBytes($event->getContext()->getLanguageId()),
+                'mailTemplateTypeId' => Uuid::fromHexToBytes($mailTemplate->getMailTemplateTypeId()),
             ]
         );
 

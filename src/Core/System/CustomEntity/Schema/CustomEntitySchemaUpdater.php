@@ -183,9 +183,10 @@ class CustomEntitySchemaUpdater
 
                     break;
                 case 'many-to-many':
-                    $reference = $field['reference'];
+                    $referenceName = $field['reference'];
 
-                    $mappingName = [$name, $reference];
+
+                    $mappingName = [$name, $referenceName];
                     sort($mappingName);
                     $mappingName = implode('_', $mappingName);
 
@@ -193,15 +194,25 @@ class CustomEntitySchemaUpdater
                         continue 2;
                     }
 
+                    $reference = $this->createTable($schema, $field['reference']);
+
                     $mapping = $schema->createTable($mappingName);
                     $mapping->setComment(self::COMMENT);
 
-                    $mapping->addColumn($name . '_id', Types::BINARY, $nullable + $binary);
-                    $mapping->addColumn($reference . '_id', Types::BINARY, $nullable + $binary);
-                    $mapping->setPrimaryKey([$name . '_id', $reference . '_id']);
+                    $mapping->addColumn($name . '_id', Types::BINARY, $binary);
+                    $mapping->addColumn($referenceName . '_id', Types::BINARY, $binary);
 
+                    if (!$reference->hasColumn('version_id')) {
+                        $mapping->setPrimaryKey([$name . '_id', $referenceName . '_id']);
+                        $mapping->addForeignKeyConstraint($table, [$name . '_id'], ['id'], $cascades);
+                        $mapping->addForeignKeyConstraint($reference, [$referenceName . '_id'], ['id'], $cascades);
+                        break;
+                    }
+
+                    $mapping->addColumn($referenceName . '_version_id', Types::BINARY, $binary);
+                    $mapping->setPrimaryKey([$name . '_id', $referenceName . '_id', $referenceName . '_version_id']);
                     $mapping->addForeignKeyConstraint($table, [$name . '_id'], ['id'], $cascades);
-                    $mapping->addForeignKeyConstraint($schema->getTable($reference), [$reference . '_id'], ['id'], $cascades);
+                    $mapping->addForeignKeyConstraint($reference, [$referenceName . '_id', $referenceName . '_version_id'], ['id', 'version_id'], $cascades);
 
                     break;
                 case 'many-to-one':

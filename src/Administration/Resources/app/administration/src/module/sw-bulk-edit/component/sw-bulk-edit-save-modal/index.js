@@ -123,7 +123,6 @@ Component.register('sw-bulk-edit-save-modal', {
         beforeUnloadListener(event) {
             if (
                 !this.feature.isActive('FEATURE_NEXT_17261') ||
-                !this.feature.isActive('FEATURE_NEXT_19244') ||
                 !this.isLoading
             ) {
                 return '';

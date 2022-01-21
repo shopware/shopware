@@ -21,7 +21,7 @@ Component.register('sw-bulk-edit-modal', {
             type: Array,
             required: false,
             default() {
-                return this.feature.isActive('FEATURE_NEXT_17261') || this.feature.isActive('FEATURE_NEXT_19244')
+                return this.feature.isActive('FEATURE_NEXT_17261')
                     ? [200, 300, 400, 500]
                     : [10, 25, 50, 75, 100];
             },
@@ -37,7 +37,7 @@ Component.register('sw-bulk-edit-modal', {
         return {
             records: [],
             bulkEditSelection: this.selection,
-            limit: this.feature.isActive('FEATURE_NEXT_17261') || this.feature.isActive('FEATURE_NEXT_19244') ? 200 : 10,
+            limit: this.feature.isActive('FEATURE_NEXT_17261') ? 200 : 10,
             page: 1,
             identifier: 'sw-bulk-edit-grid',
         };

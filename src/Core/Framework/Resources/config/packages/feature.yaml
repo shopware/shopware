@@ -229,11 +229,6 @@ shopware:
         major: true
         description: "Major feature flag for CombinationLoader"
         # issue: NEXT-18592
-      - name: FEATURE_NEXT_18083
-        default: false
-        major: true
-        description: "Flow Builder UI/UX Improvements"
-        # issue: NEXT-18083
       - name: FEATURE_NEXT_16148
         default: false
         major: false

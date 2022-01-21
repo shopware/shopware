@@ -88,23 +88,6 @@ function createWrapper() {
             'sw-label': true,
             'sw-icon': true,
             'sw-field-error': true,
-            'sw-single-select': {
-                model: {
-                    prop: 'value',
-                    event: 'change'
-                },
-                props: ['value'],
-                template: `
-                    <div class="sw-single-select">
-                    <input
-                        class="sw-single-select__selection-input"
-                        :value="value"
-                        @input="$emit('change', $event.target.value)"
-                    />
-                    <slot></slot>
-                    </div>
-                `
-            }
         }
     });
 }
@@ -118,48 +101,6 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
                 documentTypes: []
             }
         });
-    });
-
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_13810)
-     */
-    it('should show validation if document type field is empty', async () => {
-        const wrapper = createWrapper();
-
-        const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');
-        await saveButton.trigger('click');
-
-        const documentTypeSelect = wrapper.find('.sw-single-select');
-        expect(documentTypeSelect.attributes('error')).toBeTruthy();
-
-        const documentTypeInput = wrapper.find('.sw-single-select__selection-input');
-        await documentTypeInput.setValue('delivery_note');
-        await documentTypeInput.trigger('input');
-
-        await saveButton.trigger('click');
-
-        expect(documentTypeSelect.attributes('error')).toBeFalsy();
-    });
-
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_13810)
-     */
-    it('should emit process-finish when document type is selected', async () => {
-        const wrapper = createWrapper();
-
-        const documentTypeInput = wrapper.find('.sw-single-select__selection-input');
-        await documentTypeInput.setValue('invoice');
-        await documentTypeInput.trigger('input');
-
-        const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');
-        await saveButton.trigger('click');
-
-        expect(wrapper.emitted()['process-finish'][0]).toEqual([{
-            config: {
-                documentType: 'invoice',
-                documentRangerType: 'document_invoice'
-            }
-        }]);
     });
 
     it('should show validation if document multiple type field is empty', async () => {

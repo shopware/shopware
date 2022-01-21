@@ -1,7 +1,6 @@
 ---
 title: Multiple select generate document in flow builder.
 issue: NEXT-17914
-flag: FEATURE_NEXT_18083
 ---
 # Core
 * Changed `Shopware\Core\Content\Flow\Dispatching\Action\GenerateDocumentAction` to be able to create single document and multiple documents

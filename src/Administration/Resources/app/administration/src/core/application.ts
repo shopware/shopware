@@ -583,6 +583,11 @@ class ApplicationBootstrapper {
                     if (bundleName === camelCasePluginName && !!entryFiles.html) {
                         bundle.baseUrl = entryFiles.html;
                     }
+
+                    // add origin if not set yet
+                    if (bundle.baseUrl) {
+                        bundle.baseUrl = (new URL(bundle.baseUrl, window.origin)).toString();
+                    }
                 });
             }
 

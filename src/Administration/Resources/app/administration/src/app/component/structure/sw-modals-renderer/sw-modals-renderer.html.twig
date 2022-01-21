@@ -1,0 +1,33 @@
+<div
+    class="sw-modals-renderer"
+    style="display: none;"
+>
+    <template v-for="modal in modals">
+        <sw-modal
+            :key="modal.locationId"
+            :title="modal.title"
+            :closable="modal.closable"
+            :show-header="modal.showHeader"
+            :variant="modal.variant"
+            @modal-close="closeModal(modal.locationId)"
+        >
+            <sw-iframe-renderer
+                :src="modal.baseUrl"
+                :location-id="modal.locationId"
+            />
+
+            <template #modal-footer>
+                <sw-button
+                    v-for="button in modal.buttons"
+                    :key="button.label"
+                    :variant="buttonProps(button).variant"
+                    :size="buttonProps(button).size"
+                    :square="buttonProps(button).square"
+                    @click="() => buttonProps(button).method()"
+                >
+                    {{ button.label }}
+                </sw-button>
+            </template>
+        </sw-modal>
+    </template>
+</div>

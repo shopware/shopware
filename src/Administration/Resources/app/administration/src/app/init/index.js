@@ -21,8 +21,9 @@ import initializeNotifications from 'src/app/init/notification.init';
 import initializeContext from 'src/app/init/context.init';
 import initializeWindow from 'src/app/init/window.init';
 import initializeExtensionComponentSections from 'src/app/init/extension-component-sections.init';
-import tabs from 'src/app/init/tabs.init';
-import menu from './menu-item.init';
+import initTabs from 'src/app/init/tabs.init';
+import initMenu from './menu-item.init';
+import initModals from './modals.init';
 import initSettingItems from './settings-item.init';
 import initMainModules from './main-module.init';
 
@@ -46,8 +47,9 @@ export default {
     context: initializeContext,
     window: initializeWindow,
     extensionComponentSections: initializeExtensionComponentSections,
-    tabs: tabs,
-    menu: menu,
+    tabs: initTabs,
+    menu: initMenu,
     settingItems: initSettingItems,
+    modals: initModals,
     mainModules: initMainModules,
 };

@@ -74,7 +74,6 @@
                 :plain-appearance="true"
                 :show-settings="feature.isActive('FEATURE_NEXT_17421')"
                 :allow-column-edit="feature.isActive('FEATURE_NEXT_17421')"
-                @column-sort="sortColumns"
             >
                 {% block sw_sales_channel_list_grid_column_name %}
                 <template #column-name="{ item }">
@@ -126,6 +125,17 @@
                     #column-createdAt="{ item }"
                 >
                     {{ item.createdAt | date({ hour: '2-digit', minute: '2-digit' }) }}
+                </template>
+                {% endblock %}
+
+                {% block sw_sales_channel_list_grid_column_favorite %}
+                <template #column-id="{ item }">
+                    <sw-switch-field
+                        class="favorite-switch"
+                        :disabled="!acl.can('user_config:create') || !acl.can('user_config:update')"
+                        :value="salesChannelFavoritesService?.isFavorite(item.id)"
+                        @change="(isFavorite) => { salesChannelFavoritesService?.update(isFavorite, item.id) }"
+                    />
                 </template>
                 {% endblock %}
 

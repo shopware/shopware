@@ -18,6 +18,7 @@ Component.register('sw-sales-channel-detail-base', {
         'repositoryFactory',
         'knownIpsService',
         'acl',
+        'feature',
     ],
 
     mixins: [
@@ -415,6 +416,14 @@ Component.register('sw-sales-channel-detail-base', {
 
         serviceCategoryPlaceholder() {
             return this.salesChannel.serviceCategoryId ? '' : this.$tc('sw-category.base.link.categoryPlaceholder');
+        },
+
+        salesChannelFavoritesService() {
+            if (!this.feature.isActive('FEATURE_NEXT_17421')) {
+                return null;
+            }
+
+            return Shopware.Service('salesChannelFavorites');
         },
     },
 

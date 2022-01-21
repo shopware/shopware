@@ -71,6 +71,18 @@
         />
         {% endblock %}
 
+        {% block sw_sales_channel_detail_base_general_input_favorite %}
+        <sw-field
+            v-if="feature.isActive('FEATURE_NEXT_17421')"
+            v-tooltip.left="{ message: $tc('sw-sales-channel.detail.favoriteTooltip'), disabled: !salesChannel._isNew }"
+            type="switch"
+            :disabled="!acl.can('user_config:create') || !acl.can('user_config:update')"
+            :label="$tc('sw-sales-channel.detail.favoriteLabel')"
+            :value="salesChannelFavoritesService.isFavorite(salesChannel.id)"
+            @change="(isFavorite) => { salesChannelFavoritesService.update(isFavorite, salesChannel.id) }"
+        />
+        {% endblock %}
+
         {% block sw_sales_channel_detail_base_general_input_navigation_category_container %}
         <sw-container
             v-if="!isProductComparison"

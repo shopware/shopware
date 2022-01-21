@@ -7,6 +7,7 @@ describe('Sales Channel: Adding domains to a sales-channel', () => {
         cy.loginViaApi()
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
+                cy.makeSalesChannelsFavorites();
             });
 
         cy.intercept({

@@ -114,7 +114,7 @@ Component.register('sw-pagination', {
 
         possibleSteps() {
             const total = this.total;
-            const stepsSorted = [...this.steps].sort();
+            const stepsSorted = [...this.steps].sort((a, b) => a - b);
 
             let lastStep;
             const possibleSteps = stepsSorted.filter(x => {

@@ -1,8 +1,8 @@
-{# @var services \Shopware\Core\Framework\Script\Services #}
+{# @var services \Shopware\Core\Framework\Script\ServiceStubs #}
 {% do services.cart.products.add(hook.ids.get('p1')) %}
 
 {% set price = services.cart.price.create({
     'default': { 'gross': 19.99, 'net': 19.99}
 }) %}
 
-{% do services.cart.surcharge('surcharge', 'absolute', price, 'Fanzy surcharge') %}
+{% do services.cart.surcharge('my-surcharge', 'absolute', price, 'Fanzy surcharge') %}

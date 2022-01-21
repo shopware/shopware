@@ -1,8 +1,16 @@
-{# @var services \Shopware\Core\Framework\Script\Services #}
+{# @var services \Shopware\Core\Framework\Script\ServiceStubs #}
 {% do services.cart.products.add(hook.ids.get('p1')) %}
+
+{% if services.cart.items.count <= 0 %}
+    {% return %}
+{% endif %}
+
+{% if services.cart.items.has('my-discount') %}
+    {% return %}
+{% endif %}
 
 {% set price = services.cart.price.create({
     'default': { 'gross': -19.99, 'net': -19.99}
 }) %}
 
-{% do services.cart.discount('discount', 'absolute', price, 'Fanzy discount') %}
+{% do services.cart.discount('my-discount', 'absolute', price, 'Fanzy discount') %}

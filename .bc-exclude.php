@@ -50,5 +50,9 @@ return [
         'Class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\FeatureFlagExtension has been deleted',
         'Shopware\\\\Core\\\\Framework\\\\Update\\\\Api\\\\UpdateController was marked "@internal"',
         'Shopware\\\\Core\\\\Framework\\\\Update\\\\Services\\\\PluginCompatibility was marked "@internal"',
+        'Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\CartFacade#addState\(\) was removed',
+        'Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\CartFacade#removeState\(\) was removed',
+        'Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\CartFacade#hasState\(\) was removed',
+        'Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\CartFacade#getStates\(\) was removed'
     ],
 ];

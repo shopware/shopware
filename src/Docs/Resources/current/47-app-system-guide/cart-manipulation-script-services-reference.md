@@ -48,38 +48,14 @@ You can use the cart service to add line-items, change prices, add discounts, et
 * **Returns** [`Shopware\Core\Checkout\Cart\Facade\ErrorsFacade`](./cart-manipulation-script-services-reference.md#errorsfacade)
 
     A `ErrorsFacade` containing all cart errors as a collection (may be an empty collection if there are no errors)
-### addState()
+### states()
 
-* `addState()` allows you to add one or multiple states as string values to the cart.
-
-    This can be useful to check if your script did already run and did some manipulations to the cart.
-* **Arguments:**
-    * *`string`* **states**: One or more strings that will be stored on the cart.
-### removeState()
-
-* `removeState()` removes the given state from the cart, if it existed.
+* `states()` allows you to access the state functions of the current cart.
 
     
-* **Arguments:**
-    * *`string`* **state**: The state that should be removed.
-### hasState()
+* **Returns** [`Shopware\Core\Checkout\Cart\Facade\StatesFacade`](./cart-manipulation-script-services-reference.md#statesfacade)
 
-* `hasState()` allows you to check if one or more states are present on the cart.
-
-    
-* **Returns** `bool`
-
-    Returns true if at least one of the passed states is present on the cart, false otherwise.
-* **Arguments:**
-    * *`string`* **states**: One or more strings that should be checked.
-### getStates()
-
-* `getStates()` returns all states that are present on the cart.
-
-    
-* **Returns** `array`
-
-    An array containing all current states of the cart.
+    A `StatesFacade` containing all cart states as a collection (maybe an empty collection if there are no states)
 ### discount()
 
 * The `discount()` methods creates a new discount line-item with the given type and value.
@@ -97,23 +73,35 @@ You can use the cart service to add line-items, change prices, add discounts, et
     * Add an absolute discount to the cart.
 
         ```twig
-        {# @var services \Shopware\Core\Framework\Script\Services #}
+        {# @var services \Shopware\Core\Framework\Script\ServiceStubs #}
 		{% do services.cart.products.add(hook.ids.get('p1')) %}
+		
+		{% if services.cart.items.count <= 0 %}
+		    {% return %}
+		{% endif %}
+		
+		{% if services.cart.items.has('my-discount') %}
+		    {% return %}
+		{% endif %}
 		
 		{% set price = services.cart.price.create({
 		    'default': { 'gross': -19.99, 'net': -19.99}
 		}) %}
 		
-		{% do services.cart.discount('discount', 'absolute', price, 'Fanzy discount') %}
+		{% do services.cart.discount('my-discount', 'absolute', price, 'Fanzy discount') %}
         ```
     * Add a relative discount to the cart.
 
         ```twig
-        {# @var services \Shopware\Core\Framework\Script\Services #}
+        {# @var services \Shopware\Core\Framework\Script\ServiceStubs #}
 		
 		{% do services.cart.products.add(hook.ids.get('p1')) %}
 		
-		{% do services.cart.discount('discount', 'percentage', -10, 'Fanzy discount') %}
+		{% if services.cart.has('my-discount') %}
+		    {% return %}
+		{% endif %}
+		
+		{% do services.cart.discount('my-discount', 'percentage', -10, 'Fanzy discount') %}
         ```
 ### surcharge()
 
@@ -132,23 +120,27 @@ You can use the cart service to add line-items, change prices, add discounts, et
     * Add an absolute surcharge to the cart.#
 
         ```twig
-        {# @var services \Shopware\Core\Framework\Script\Services #}
+        {# @var services \Shopware\Core\Framework\Script\ServiceStubs #}
 		{% do services.cart.products.add(hook.ids.get('p1')) %}
 		
 		{% set price = services.cart.price.create({
 		    'default': { 'gross': 19.99, 'net': 19.99}
 		}) %}
 		
-		{% do services.cart.surcharge('surcharge', 'absolute', price, 'Fanzy surcharge') %}
+		{% do services.cart.surcharge('my-surcharge', 'absolute', price, 'Fanzy surcharge') %}
         ```
     * Add a relative surcharge to the cart.
 
         ```twig
-        {# @var services \Shopware\Core\Framework\Script\Services #}
+        {# @var services \Shopware\Core\Framework\Script\ServiceStubs #}
 		
 		{% do services.cart.products.add(hook.ids.get('p1')) %}
 		
-		{% do services.cart.surcharge('surcharge', 'percentage', -10, 'Fanzy discount') %}
+		{% if services.cart.has('my-surcharge') %}
+		    {% return %}
+		{% endif %}
+		
+		{% do services.cart.surcharge('my-surcharge', 'percentage', -10, 'Fanzy discount') %}
         ```
 ### get()
 
@@ -415,7 +407,7 @@ The ItemFacade is a wrapper around one line-item.
     * Take a quantity of 2 from an existing product line-item and add it to the cart again.
 
         ```twig
-        {# @var services \Shopware\Core\Framework\Script\Services #}
+        {# @var services \Shopware\Core\Framework\Script\ServiceStubs #}
 		
 		{% do services.cart.products.add(hook.ids.get('p1'), 5) %}
 		
@@ -501,14 +493,22 @@ The ItemsFacade is a wrapper around a collection of line-items.
     * Add an absolute discount to the cart.
 
         ```twig
-        {# @var services \Shopware\Core\Framework\Script\Services #}
+        {# @var services \Shopware\Core\Framework\Script\ServiceStubs #}
 		{% do services.cart.products.add(hook.ids.get('p1')) %}
+		
+		{% if services.cart.items.count <= 0 %}
+		    {% return %}
+		{% endif %}
+		
+		{% if services.cart.items.has('my-discount') %}
+		    {% return %}
+		{% endif %}
 		
 		{% set price = services.cart.price.create({
 		    'default': { 'gross': -19.99, 'net': -19.99}
 		}) %}
 		
-		{% do services.cart.discount('discount', 'absolute', price, 'Fanzy discount') %}
+		{% do services.cart.discount('my-discount', 'absolute', price, 'Fanzy discount') %}
         ```
 ### get()
 
@@ -688,4 +688,42 @@ The ProductsFacade is a wrapper around a collection of product line-items.
 * **Returns** `int`
 
     The number of line-items in this collection.
+_________
+## [`Shopware\Core\Checkout\Cart\Facade\StatesFacade`](https://github.com/shopware/platform/blob/trunk/src/Core/Checkout/Cart/Facade/StatesFacade.php) {#statesfacade}
+
+The StatesFacade allows access to the current cart states and functions.
+
+
+### add()
+
+* `add()` allows you to add one or multiple states as string values to the cart.
+
+    This can be useful to check if your script did already run and did some manipulations to the cart.
+* **Arguments:**
+    * *`string`* **states**: One or more strings that will be stored on the cart.
+### remove()
+
+* `remove()` removes the given state from the cart, if it existed.
+
+    
+* **Arguments:**
+    * *`string`* **state**: The state that should be removed.
+### has()
+
+* `has()` allows you to check if one or more states are present on the cart.
+
+    
+* **Returns** `bool`
+
+    Returns true if at least one of the passed states is present on the cart, false otherwise.
+* **Arguments:**
+    * *`string`* **states**: One or more strings that should be checked.
+### get()
+
+* `get()` returns all states that are present on the cart.
+
+    
+* **Returns** `array`
+
+    An array containing all current states of the cart.
 _________

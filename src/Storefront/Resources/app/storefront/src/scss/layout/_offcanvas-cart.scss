@@ -11,6 +11,7 @@ Extends the basic offcanvas component with additional cart styles.
 
     .cart-item {
         padding: $spacer 0;
+        position: relative;
 
         &.is-empty {
             padding-top: 0;
@@ -76,7 +77,7 @@ Extends the basic offcanvas component with additional cart styles.
 
     .cart-item-remove {
         position: absolute;
-        right: 10px;
+        right: 0;
     }
 
     .cart-quantity-price {

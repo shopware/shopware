@@ -72,6 +72,8 @@ class ProductBuilder
 
     protected array $media = [];
 
+    protected ?string $coverId;
+
     protected ?array $cmsPage = null;
 
     protected array $crossSellings = [];
@@ -407,6 +409,13 @@ class ProductBuilder
             'position' => $position,
             'media' => ['fileName' => $key],
         ];
+
+        return $this;
+    }
+
+    public function cover(string $key): ProductBuilder
+    {
+        $this->coverId = $this->ids->get($key);
 
         return $this;
     }

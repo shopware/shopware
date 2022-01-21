@@ -1,10 +1,18 @@
 @import "~scss/variables";
 
-$min-height-empty-state: 250px;
+$min-height-empty-state: 420px;
+
+$background-color: $color-gray-100;
 
 .sw-product-add-properties-modal {
-    &.sw-modal .sw-modal__body {
-        padding: 0;
+    &.sw-modal.sw-modal--default {
+        .sw-modal__dialog {
+            max-width: 900px;
+        }
+
+        .sw-modal__body {
+            padding: 0;
+        }
     }
 
     &__content .sw-card-section {
@@ -52,5 +60,30 @@ $min-height-empty-state: 250px;
     .sw-empty-state .sw-empty-state__title {
         margin-bottom: 0;
         font-size: $font-size-default;
+    }
+
+    .sw-property-search {
+        .sw-property-search__toolbar {
+            margin-bottom: 0;
+        }
+
+        .sw-property-search__tree-selection-container,
+        .sw-property-search__search-selection {
+            min-height: $min-height-empty-state;
+        }
+    }
+
+    .sw-property-search__search-field.sw-product-add-properties-modal__search-field {
+        padding: 30px;
+        border-bottom: 1px solid #d8dde6;
+        background-color: $background-color;
+
+        .sw-simple-search-field {
+            margin: 0;
+        }
+
+        .sw-icon.sw-simple-search-field__search-icon.icon--small-search.sw-icon--small {
+            right: 45px;
+        }
     }
 }

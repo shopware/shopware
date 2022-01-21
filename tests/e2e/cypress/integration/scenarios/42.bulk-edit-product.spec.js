@@ -43,7 +43,7 @@ describe('Bulk Edit - Products', () => {
         }).as('saveData');
 
         const page = new ProductPageObject();
-        const propertyValue = '.sw-product-add-properties-modal__property-values';
+        const propertyValue = '.sw-property-search__tree-selection__option_grid';
 
         cy.wait('@getProduct').its('response.statusCode').should('equal', 200);
         cy.wait('@getUserConfig').its('response.statusCode').should('equal', 200);
@@ -64,10 +64,10 @@ describe('Bulk Edit - Products', () => {
         cy.get('.sw-tooltip--wrapper > .sw-button').click();
         cy.get('#modalTitleEl').should('be.visible');
         cy.contains('Size').click();
-        cy.get('.sw-product-add-properties-modal__property-values .sw-grid__cell-content').should('be.visible');
+        cy.get(`${propertyValue} .sw-grid__cell-content`).should('be.visible');
         cy.get(`${propertyValue} .sw-grid__row--0 input`).click();
         cy.get(`${propertyValue} .sw-grid__row--1 input`).click();
-        cy.get('.sw-product-add-properties-modal__property-selected').should('include.text', '2');
+        cy.get('.sw-property-search__tree-selection__column-items-selected').should('include.text', '2');
         cy.get('.sw-product-add-properties-modal__button-save').click();
         cy.get('.sw-data-grid__cell-value').should('include.text', 'Size');
 

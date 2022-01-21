@@ -2,7 +2,7 @@ import template from './sw-product-detail-variants.html.twig';
 import './sw-product-detail-variants.scss';
 
 const { Component } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Criteria, EntityCollection } = Shopware.Data;
 const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-product-detail-variants', {
@@ -201,18 +201,27 @@ Component.register('sw-product-detail-variants', {
         },
 
         updateNewProperties() {
-            this.newProperties = this.productProperties.map((productProperty) => {
-                return {
-                    property: productProperty,
-                    selected: true,
-                };
-            });
+            this.newProperties = new EntityCollection(
+                this.productProperties.source,
+                this.productProperties.entity,
+                this.productProperties.context,
+                Criteria.fromCriteria(this.productProperties.criteria),
+                this.productProperties,
+                this.productProperties.total,
+                this.productProperties.aggregations,
+            );
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+         */
         updateNewPropertiesItem({ index, selected }) {
             this.newProperties[index].selected = selected;
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+         */
         addNewPropertiesItem({ property, selected }) {
             this.newProperties.push({ property, selected });
         },
@@ -228,18 +237,8 @@ Component.register('sw-product-detail-variants', {
                 return;
             }
 
-            newProperties.forEach(({ property, selected }) => {
-                if (selected === true) {
-                    if (this.productProperties.has(property.id)) {
-                        return;
-                    }
-
-                    this.productProperties.add(property);
-                    return;
-                }
-
-                this.productProperties.remove(property.id);
-            });
+            this.productProperties.splice(0, this.productProperties.length);
+            this.productProperties.push(...newProperties);
         },
 
     },

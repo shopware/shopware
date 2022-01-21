@@ -14,31 +14,78 @@ Component.register('sw-product-add-properties-modal', {
             type: Array,
             required: true,
         },
+        propertiesAvailable: {
+            type: Boolean,
+            required: false,
+            default: true,
+        },
     },
 
     data() {
         return {
             properties: [],
+            /**
+             * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+             */
             propertiesTotal: 0,
+            /**
+             * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+             */
             isPropertiesLoading: false,
+            /**
+             * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+             */
             selectedProperty: null,
+            /**
+             * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+             */
             propertyValues: [],
+            /**
+             * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+             */
             propertyValuesTotal: 0,
+            /**
+             * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+             */
             isPropertyValuesLoading: false,
+            /**
+             * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+             */
             propertiesPage: 1,
+            /**
+             * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+             */
             propertiesLimit: 10,
+            /**
+             * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+             */
             propertyValuesPage: 1,
+            /**
+             * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+             */
             propertyValuesLimit: 10,
+            /**
+             * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+             */
             isSelectable: true,
+            /**
+             * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+             */
             searchTerm: null,
         };
     },
 
     computed: {
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+         */
         propertyGroupRepository() {
             return this.repositoryFactory.create('property_group');
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+         */
         propertyGroupCriteria() {
             const criteria = new Criteria();
 
@@ -53,6 +100,9 @@ Component.register('sw-product-add-properties-modal', {
             return criteria;
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+         */
         propertyGroupOptionRepository() {
             return this.repositoryFactory.create(
                 this.selectedProperty.options.entity,
@@ -60,6 +110,9 @@ Component.register('sw-product-add-properties-modal', {
             );
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+         */
         propertyGroupOptionCriteria() {
             const criteria = new Criteria();
 
@@ -75,19 +128,14 @@ Component.register('sw-product-add-properties-modal', {
         },
 
         showSaveButton() {
-            return this.properties.length > 0;
+            return this.propertiesAvailable;
         },
-    },
-
-    created() {
-        this.createdComponent();
     },
 
     methods: {
-        createdComponent() {
-            this.getProperties();
-        },
-
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+         */
         getProperties() {
             this.isPropertiesLoading = true;
 
@@ -95,9 +143,6 @@ Component.register('sw-product-add-properties-modal', {
                 .then((properties) => {
                     this.properties = properties;
                     this.propertiesTotal = properties.total;
-                })
-                .then(() => {
-                    this.setSelectedPropertiesCount();
                 })
                 .catch(() => {
                     this.properties = [];
@@ -107,6 +152,9 @@ Component.register('sw-product-add-properties-modal', {
                 });
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+         */
         setSelectedPropertiesCount() {
             this.properties.forEach((property) => {
                 const selectedProperties = this.newProperties.filter((newProperty) => {
@@ -117,6 +165,9 @@ Component.register('sw-product-add-properties-modal', {
             });
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+         */
         onSelectProperty(property) {
             this.$refs.propertiesListing.selectAll(false);
             this.$refs.propertiesListing.selectItem(true, property);
@@ -126,6 +177,9 @@ Component.register('sw-product-add-properties-modal', {
             this.getPropertyValues();
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+         */
         getPropertyValues() {
             this.isPropertyValuesLoading = true;
 
@@ -151,6 +205,9 @@ Component.register('sw-product-add-properties-modal', {
                 });
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+         */
         onSelectPropertyValue(assignedPropertyValues, property, selected) {
             if (!this.isSelectable) {
                 return;
@@ -169,18 +226,27 @@ Component.register('sw-product-add-properties-modal', {
             this.setSelectedPropertiesCount();
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+         */
         onChangePageProperties({ page, limit }) {
             this.propertiesPage = page;
             this.propertiesLimit = limit;
             this.getProperties();
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+         */
         onChangePagePropertyValues({ page, limit }) {
             this.propertyValuesPage = page;
             this.propertyValuesLimit = limit;
             this.getPropertyValues();
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+         */
         onChangeSearchTerm(searchTerm) {
             if (this.$refs.propertiesListing && this.selectedProperty) {
                 this.$refs.propertiesListing.selectItem(false, this.selectedProperty);
@@ -209,6 +275,16 @@ Component.register('sw-product-add-properties-modal', {
             this.$nextTick(() => {
                 this.$router.push({ name: 'sw.property.index' });
             });
+        },
+
+        onSelectOption(selection) {
+            const item = selection.item;
+
+            if (selection.selected === true) {
+                this.newProperties.add(item);
+            } else {
+                this.newProperties.remove(item.id);
+            }
         },
     },
 });

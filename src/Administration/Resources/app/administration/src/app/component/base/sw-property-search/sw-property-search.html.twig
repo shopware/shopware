@@ -8,7 +8,11 @@
 
     {% block sw_property_search_field %}
     <div class="sw-property-search__toolbar">
-        <slot name="toolbar">
+        <slot
+            name="toolbar"
+            :focus="onFocusSearch"
+            :input="onSearchOptions"
+        >
             <div class="sw-property-search__search-field-container">
                 <slot name="toolbar-search-field">
                     <sw-field
@@ -187,7 +191,7 @@
             >
                 {% block sw_property_search_option_search_grid_columns_name %}
                 <sw-grid-column
-                    flex="200px"
+                    flex="300px"
                     data-index="name"
                 >
                     {{ item.group.translated.name }} / {{ item.translated.name }}
@@ -210,12 +214,23 @@
             </template>
         </sw-grid>
         {% endblock %}
+        {% block sw_property_search_empty %}
         <sw-empty-state
             v-else
+            :absolute="false"
             :title="$tc('sw-property-search.noPropertiesFound')"
             :subline="$tc('sw-property-search.noPropertiesFoundDescription')"
-        />
-
+        >
+            <template #icon>
+                {% block sw_property_search_empty_image %}
+                <img
+                    :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                    :alt="$tc('sw-property-search.noPropertiesFound')"
+                >
+                {% endblock %}
+            </template>
+        </sw-empty-state>
+        {% endblock %}
     </div>
     {% endblock %}
 

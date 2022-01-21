@@ -19,13 +19,19 @@ class AssetInstallCommandTest extends TestCase
         // make sure that the dir does not exist beforehand
         $filesystem->deleteDir('bundles/test');
 
+        $fixturePath = realpath(__DIR__ . '/../../App/Manifest/_fixtures/test');
+        $relativeFixturePath = ltrim(
+            str_replace($this->getContainer()->getParameter('kernel.project_dir'), '', $fixturePath),
+            '/'
+        );
+
         $activeAppsLoaderMock = $this->createMock(ActiveAppsLoader::class);
         $activeAppsLoaderMock->expects(static::once())
             ->method('getActiveApps')
             ->willReturn([
                 [
                     'name' => 'test',
-                    'path' => 'src/Core/Framework/Test/App/Manifest/_fixtures/test',
+                    'path' => $relativeFixturePath,
                     'author' => 'shopware AG',
                 ],
             ]);

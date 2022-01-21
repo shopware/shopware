@@ -9,6 +9,7 @@ describe('Customer group: Test crud operations', () => {
             return cy.createDefaultFixture('customer-group');
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/customer/group/index`);
+            cy.makeSalesChannelsFavorites();
         });
     });
 

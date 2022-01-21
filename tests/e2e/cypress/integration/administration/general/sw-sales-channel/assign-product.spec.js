@@ -25,6 +25,7 @@ describe('Sales Channel: Test product assignment operations', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+                cy.makeSalesChannelsFavorites();
             });
     });
 

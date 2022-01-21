@@ -9,6 +9,7 @@ describe('Category: site builder feature', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/category/index`);
+                cy.makeSalesChannelsFavorites();
             });
     });
 

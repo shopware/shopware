@@ -26,6 +26,7 @@ Component.register('sw-sales-channel-list', {
             isLoading: true,
             sortBy: 'name',
             searchConfigEntity: 'sales_channel',
+            lastSortedColumn: null,
         };
     },
 
@@ -40,23 +41,21 @@ Component.register('sw-sales-channel-list', {
             const columns = [{
                 property: 'name',
                 dataIndex: 'name',
-                allowResize: false,
+                allowResize: true,
                 routerLink: 'sw.sales.channel.detail',
                 label: 'sw-sales-channel.list.columnName',
                 primary: true,
             }, {
                 property: 'product_visibilities',
                 dataIndex: 'product_visibilities',
-                allowResize: false,
-                sortable: this.feature.isActive('FEATURE_NEXT_17421'),
-                useCustomSort: this.feature.isActive('FEATURE_NEXT_17421'),
+                allowResize: true,
+                sortable: false,
                 label: 'sw-sales-channel.list.productsLabel',
             }, {
                 property: 'status',
                 dataIndex: 'status',
-                allowResize: false,
-                sortable: this.feature.isActive('FEATURE_NEXT_17421'),
-                useCustomSort: this.feature.isActive('FEATURE_NEXT_17421'),
+                allowResize: true,
+                sortable: false,
                 label: 'sw-sales-channel.list.columnStatus',
             }];
 
@@ -64,14 +63,23 @@ Component.register('sw-sales-channel-list', {
                 columns.splice(1, 0, {
                     property: 'type.name',
                     dataIndex: 'type.name',
-                    allowResize: false,
+                    allowResize: true,
                     label: 'sw-sales-channel.list.columnType',
+                });
+
+                columns.push({
+                    property: 'id',
+                    dataIndex: 'id',
+                    allowResize: true,
+                    sortable: false,
+                    label: 'sw-sales-channel.list.columnFavorite',
+                    align: 'center',
                 });
 
                 columns.push({
                     property: 'createdAt',
                     dataIndex: 'createdAt',
-                    allowResize: false,
+                    allowResize: true,
                     label: 'sw-sales-channel.list.columnCreatedAt',
                 });
             }
@@ -101,6 +109,13 @@ Component.register('sw-sales-channel-list', {
             );
 
             return salesChannelCriteria;
+        },
+        salesChannelFavoritesService() {
+            if (!this.feature.isActive('FEATURE_NEXT_17421')) {
+                return null;
+            }
+
+            return Shopware.Service('salesChannelFavorites');
         },
     },
 
@@ -138,46 +153,6 @@ Component.register('sw-sales-channel-list', {
 
         getCountForSalesChannel(salesChannelId) {
             return this.productsForSalesChannel[salesChannelId] ?? 0;
-        },
-
-        sortColumns(column, sortDirection) {
-            if (!this.feature.isActive('FEATURE_NEXT_17421')) {
-                return;
-            }
-
-            if (column.dataIndex === 'product_visibilities') {
-                this.sortProductVisibilities(sortDirection);
-            }
-
-            if (column.dataIndex === 'status') {
-                this.sortStatus(sortDirection);
-            }
-        },
-
-        sortProductVisibilities(sortDirection) {
-            this.salesChannels = this.salesChannels.sort((a, b) => {
-                const countA = this.getCountForSalesChannel(a.id);
-                const countB = this.getCountForSalesChannel(b.id);
-
-                if (sortDirection === 'ASC') {
-                    return countA - countB;
-                }
-
-                return countB - countA;
-            });
-        },
-
-        sortStatus(sortDirection) {
-            this.salesChannels = this.salesChannels.sort((a, b) => {
-                const statusA = this.getSalesChannelStatusNumber(a);
-                const statusB = this.getSalesChannelStatusNumber(b);
-
-                if (sortDirection === 'ASC') {
-                    return statusA - statusB;
-                }
-
-                return statusB - statusA;
-            });
         },
 
         getSalesChannelStatusNumber(item) {

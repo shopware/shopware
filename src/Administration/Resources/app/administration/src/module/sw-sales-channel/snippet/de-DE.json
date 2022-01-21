@@ -11,6 +11,10 @@
       "titleMenuMoreItems": "Mehr",
       "manageSalesChannels": "Verkaufskanäle verwalten"
     },
+    "menu": {
+        "emptyspaceMessage": "Wähle deine wichtigsten Verkaufskanäle aus, um sie direkt in diesem Menü anzuzeigen.",
+        "emptyspaceLink": "Verkaufskanäle auswählen"
+    },
     "list": {
       "title": "Verkaufskanäle",
       "subTitle": "Über Verkaufskanäle können Sie Ihren Kunden Produkte über Social Media, der Storefront, Marktplätze oder persönlich verkaufen.",
@@ -20,6 +24,7 @@
       "columnType": "Typ",
       "columnStatus": "Status",
       "columnCreatedAt": "Erstellt am",
+      "columnFavorite": "Im Menü",
       "status": {
         "maintenance": "Wartung",
         "online": "Online",
@@ -103,6 +108,8 @@
       "buttonCloseDeleteDomainModal": "Abbrechen",
       "buttonConfirmDeleteDomain": "Löschen",
       "customerGroup": "Kundengruppe",
+      "favoriteLabel": "Im Administrations-Menü anzeigen",
+      "favoriteTooltip": "Der Verkaufskanal muss gespeichert werden, bevor er im Administrations-Menü erscheint",
       "navigation": "Navigation",
       "navigationCategoryId": "Einstiegspunkt für die Haupt-Navigation",
       "navigationCategoryDepth": "Hauptnavigations-Ebenen",

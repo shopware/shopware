@@ -69,7 +69,7 @@ describe('Rule builder: Test all line items container crud operations', () => {
         // test that any or all select exists and select all
         cy.get('@second-condition').find('.sw-condition-base-line-item__matches-all').should('exist');
         cy.get('@second-condition').find('.sw-condition-base-line-item__matches-all')
-            .typeSingleSelect('All line items', '.condition-content__spacer--and + .sw-condition .sw-condition-base-line-item__matches-all');
+            .typeSingleSelect('All', '.condition-content__spacer--and + .sw-condition .sw-condition-base-line-item__matches-all');
 
         cy.get('@first-and-container').within(() => {
             // test that condition is wrapped in all line items container
@@ -107,7 +107,7 @@ describe('Rule builder: Test all line items container crud operations', () => {
 
         // select any line items for second condition
         cy.get('@all-line-item-container').find('.sw-condition-base-line-item__matches-all')
-            .typeSingleSelect('Any line item', '.condition-all-line-items-container .sw-condition-base-line-item__matches-all');
+            .typeSingleSelect('At least one', '.condition-all-line-items-container .sw-condition-base-line-item__matches-all');
 
         cy.get('@first-and-container').within(() => {
             // test that condition is unwrapped from all line items container

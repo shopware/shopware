@@ -41,7 +41,7 @@ Component.register('sw-cms-layout-modal', {
             disableRouteParams: true,
             sortBy: 'createdAt',
             sortDirection: 'DESC',
-            limit: 25,
+            limit: 10,
             selected: null,
             selectedPageObject: null,
             isLoading: false,

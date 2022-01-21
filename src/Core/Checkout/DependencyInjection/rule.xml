@@ -8,6 +8,10 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\Rule\CartPositionPriceRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Cart\Rule\GoodsCountRule">
             <tag name="shopware.rule.definition"/>
         </service>

@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemDimensionWidthRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Container\MatchAllLineItemsRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -215,7 +214,6 @@ class LineItemDimensionWidthRuleTest extends TestCase
         string $operator,
         bool $expected
     ): void {
-        Feature::skipTestIfInActive('FEATURE_NEXT_18982', $this);
         $this->rule->assign([
             'operator' => $operator,
             'amount' => 100,

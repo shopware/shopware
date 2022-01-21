@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\MatchAllLineItemsRule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -198,10 +197,8 @@ class MatchAllLineItemsRuleTest extends TestCase
             $this->createLineItemWithCategories($categoryIdsProductC),
         ]);
 
-        if (Feature::isActive('FEATURE_NEXT_18982')) {
-            $promotionLineItem = ($this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, 1, 'PROMO'))->setPayloadValue('promotionId', 'A');
-            $lineItemCollection->add($promotionLineItem);
-        }
+        $promotionLineItem = ($this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, 1, 'PROMO'))->setPayloadValue('promotionId', 'A');
+        $lineItemCollection->add($promotionLineItem);
 
         $cart = $this->createCart($lineItemCollection);
 

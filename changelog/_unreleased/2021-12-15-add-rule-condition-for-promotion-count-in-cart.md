@@ -1,7 +1,6 @@
 ---
 title: Add rule condition for promotion count in cart
 issue: NEXT-18988
-flag: FEATURE_NEXT_18982
 author: Krispin Lütjann
 author_email: k.luetjann@shopware.com 
 author_github: King-of-Babylon

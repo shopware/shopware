@@ -12,9 +12,6 @@ use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-/**
- * @internal (flag:FEATURE_NEXT_18982)
- */
 class PromotionLineItemRule extends Rule
 {
     /**

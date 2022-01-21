@@ -1,7 +1,6 @@
 ---
 title: Add rule for promotion code of type rule
 issue: NEXT-18990
-flag: FEATURE_NEXT_18982
 author: Krispin Lütjann
 author_email: k.luetjann@shopware.com 
 author_github: King-of-Babylon

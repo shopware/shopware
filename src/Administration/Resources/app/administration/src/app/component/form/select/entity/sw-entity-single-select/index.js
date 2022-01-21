@@ -220,9 +220,52 @@ Component.register('sw-entity-single-select', {
 
         search() {
             if (this.criteria.term === this.searchTerm) {
+                if (this.allowEntityCreation) {
+                    this.filterSearchGeneratedTags();
+                }
                 return Promise.resolve();
             }
 
+            if (!this.allowEntityCreation) {
+                return this.handleSearchPromise();
+            }
+
+            this.isLoading = true;
+            return this.checkEntityExists(this.searchTerm).then(() => {
+                if (!this.entityExists && this.searchTerm) {
+                    const criteria = new Criteria();
+                    criteria.addFilter(
+                        Criteria.contains('name', this.searchTerm),
+                    );
+
+                    return this.repository.search(criteria, {
+                        ...this.context,
+                        inheritance: true,
+                    }).then((result) => {
+                        this.resultCollection = result;
+
+                        const newEntity = this.repository.create(this.context, -1);
+                        newEntity.name = this.$tc('global.sw-single-select.labelEntityAdd',
+                            0,
+                            {
+                                term: this.searchTerm,
+                                entity: this.entityCreationLabel,
+                            });
+
+                        this.resultCollection.unshift(newEntity);
+
+                        this.newEntityName = this.searchTerm;
+                        this.displaySearch(this.resultCollection);
+                        this.isLoading = false;
+
+                        return Promise.resolve();
+                    });
+                }
+                return this.handleSearchPromise();
+            });
+        },
+
+        handleSearchPromise() {
             this.criteria.setPage(1);
             this.criteria.setLimit(this.resultLimit);
             this.criteria.setTerm(this.searchTerm);
@@ -248,37 +291,6 @@ Component.register('sw-entity-single-select', {
 
         loadData() {
             this.isLoading = true;
-
-            if (this.allowEntityCreation) {
-                return this.checkEntityExists(this.searchTerm).then(() => {
-                    if (!this.entityExists) {
-                        const newEntity = this.repository.create(this.context, -1);
-                        newEntity.name = this.$tc('global.sw-single-select.labelEntityAdd',
-                            0,
-                            {
-                                term: this.searchTerm,
-                                entity: this.entityCreationLabel,
-                            });
-
-                        this.newEntityName = this.searchTerm;
-                        this.displaySearch([newEntity]);
-                        this.isLoading = false;
-
-                        return null;
-                    }
-
-                    return this.repository.search(this.criteria, {
-                        ...this.context,
-                        inheritance: true,
-                    }).then((result) => {
-                        this.displaySearch(result);
-
-                        this.isLoading = false;
-
-                        return result;
-                    });
-                });
-            }
 
             return this.repository.search(this.criteria, { ...this.context, inheritance: true }).then((result) => {
                 this.displaySearch(result);
@@ -406,12 +418,11 @@ Component.register('sw-entity-single-select', {
             }
 
             // Add new entity if not exists yet
-            if (this.allowEntityCreation && !this.entityExists) {
-                this.addItem(item);
-                return item;
+            if (this.allowEntityCreation && !this.entityExists && item.id === -1) {
+                return this.addItem(item);
             }
 
-            // This is a little against v-model. But so we dont need to load the selected item on every selection
+            // This is a little against v-model. But so we don't need to load the selected item on every selection
             // from the server
             this.lastSelection = item;
             this.$emit('change', item.id, item);
@@ -509,6 +520,12 @@ Component.register('sw-entity-single-select', {
                 });
                 Shopware.Utils.debug.error('Only Entities with "name" as the only required field are creatable.');
                 this.isLoading = false;
+            });
+        },
+
+        filterSearchGeneratedTags() {
+            this.resultCollection = this.resultCollection.filter(entity => {
+                return entity.id !== -1;
             });
         },
     },

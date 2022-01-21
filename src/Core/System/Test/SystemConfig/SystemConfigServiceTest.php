@@ -4,8 +4,9 @@ namespace Shopware\Core\System\Test\SystemConfig;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -16,6 +17,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Core\Test\TestDefaults;
+use function json_encode;
 
 class SystemConfigServiceTest extends TestCase
 {
@@ -359,19 +361,19 @@ class SystemConfigServiceTest extends TestCase
      */
     public function test1000EntitiesDoNotFail(): void
     {
-        $values = [];
+        $inserts = new MultiInsertQueryQueue($this->getContainer()->get(Connection::class));
+
         for ($i = 1; $i <= 1000; ++$i) {
-            $values[] = [
-                'id' => Uuid::randomHex(),
-                'configurationKey' => (string) $i,
-                'configurationValue' => $i,
-                'salesChannelId' => null,
-            ];
+            $inserts->addInsert('system_config', [
+                'id' => Uuid::randomBytes(),
+                'configuration_key' => (string) $i,
+                'configuration_value' => json_encode([ConfigJsonField::STORAGE_KEY => $i]),
+                'sales_channel_id' => null,
+                'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]);
         }
 
-        /** @var EntityRepositoryInterface $systemConfigRepository */
-        $systemConfigRepository = $this->getContainer()->get('system_config.repository');
-        $systemConfigRepository->create($values, Context::createDefaultContext());
+        $inserts->execute();
 
         static::assertNotNull($this->systemConfigService->get('1'));
         static::assertNotNull($this->systemConfigService->get('500'));

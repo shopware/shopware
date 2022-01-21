@@ -3,11 +3,10 @@
 namespace Shopware\Core\System\SystemConfig;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -21,6 +20,7 @@ use Shopware\Core\System\SystemConfig\Exception\InvalidKeyException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use function json_decode;
 
 class SystemConfigService
 {
@@ -143,8 +143,6 @@ class SystemConfigService
      * @internal should not be used in storefront or store api. The cache layer caches all accessed config keys and use them as cache tag.
      *
      * @throws InvalidDomainException
-     * @throws InvalidUuidException
-     * @throws InconsistentCriteriaIdsException
      */
     public function getDomain(string $domain, ?string $salesChannelId = null, bool $inherit = false): array
     {
@@ -154,7 +152,7 @@ class SystemConfigService
         }
 
         $queryBuilder = $this->connection->createQueryBuilder()
-            ->select('LOWER(HEX(id))')
+            ->select(['configuration_key', 'configuration_value'])
             ->from('system_config');
 
         if ($inherit) {
@@ -171,28 +169,28 @@ class SystemConfigService
         $salesChannelId = $salesChannelId ? Uuid::fromHexToBytes($salesChannelId) : null;
 
         $queryBuilder->andWhere('configuration_key LIKE :prefix')
-            ->orderBy('configuration_key', 'ASC')
             ->addOrderBy('sales_channel_id', 'ASC')
             ->setParameter('prefix', $escapedDomain . '%')
             ->setParameter('salesChannelId', $salesChannelId);
-        $ids = $queryBuilder->execute()->fetchAll(FetchMode::COLUMN);
 
-        if (empty($ids)) {
+        $configs = $queryBuilder->execute()->fetchAllNumeric();
+
+        if ($configs === []) {
             return [];
         }
 
-        $criteria = new Criteria($ids);
-        /** @var SystemConfigCollection $collection */
-        $collection = $this->systemConfigRepository
-            ->search($criteria, Context::createDefaultContext())
-            ->getEntities();
-
-        $collection->sortByIdArray($ids);
         $merged = [];
 
-        foreach ($collection as $cur) {
-            $key = $cur->getConfigurationKey();
-            $value = $cur->getConfigurationValue();
+        foreach ($configs as [$key, $value]) {
+            if ($value !== null) {
+                $value = json_decode($value, true);
+
+                if ($value === false || !isset($value[ConfigJsonField::STORAGE_KEY])) {
+                    $value = null;
+                } else {
+                    $value = $value[ConfigJsonField::STORAGE_KEY];
+                }
+            }
 
             $inheritedValuePresent = \array_key_exists($key, $merged);
             $valueConsideredEmpty = !\is_bool($value) && empty($value);

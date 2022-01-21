@@ -2,33 +2,26 @@
 
 namespace Shopware\Core\System\SystemConfig;
 
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
+use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Plugin\PluginEntity;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Kernel;
+use function array_shift;
+use function explode;
+use function json_decode;
 
 class SystemConfigLoader extends AbstractSystemConfigLoader
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
+    protected Connection $connection;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $pluginRepository;
+    protected Kernel $kernel;
 
-    public function __construct(EntityRepositoryInterface $repository, EntityRepositoryInterface $pluginRepository)
+    public function __construct(Connection $connection, Kernel $kernel)
     {
-        $this->repository = $repository;
-        $this->pluginRepository = $pluginRepository;
+        $this->connection = $connection;
+        $this->kernel = $kernel;
     }
 
     public function getDecorated(): AbstractSystemConfigLoader
@@ -38,47 +31,44 @@ class SystemConfigLoader extends AbstractSystemConfigLoader
 
     public function load(?string $salesChannelId): array
     {
-        $criteria = new Criteria();
-        $criteria->setTitle('system-config::load');
+        $query = $this->connection->createQueryBuilder();
+
+        $query->from('system_config');
+        $query->select(['configuration_key', 'configuration_value']);
 
         if ($salesChannelId === null) {
-            $criteria->addFilter(new EqualsFilter('salesChannelId', null));
+            $query
+                ->andWhere('sales_channel_id IS NULL');
         } else {
-            $criteria->addFilter(
-                new MultiFilter(
-                    MultiFilter::CONNECTION_OR,
-                    [
-                        new EqualsFilter('salesChannelId', $salesChannelId),
-                        new EqualsFilter('salesChannelId', null),
-                    ]
-                )
-            );
+            $query->andWhere('sales_channel_id = :salesChannelId OR system_config.sales_channel_id IS NULL');
+            $query->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannelId));
         }
 
-        $criteria->addSorting(
-            new FieldSorting('salesChannelId', FieldSorting::ASCENDING),
-            new FieldSorting('id', FieldSorting::ASCENDING)
-        );
-        $criteria->setLimit(500);
+        $query->addOrderBy('sales_channel_id', 'ASC');
 
-        $systemConfigs = new SystemConfigCollection();
-        $iterator = new RepositoryIterator($this->repository, Context::createDefaultContext(), $criteria);
+        $result = $query->execute();
 
-        while ($chunk = $iterator->fetch()) {
-            $systemConfigs->merge($chunk->getEntities());
-        }
-
-        return $this->buildSystemConfigArray($systemConfigs);
+        return $this->buildSystemConfigArray($result->fetchAllKeyValue());
     }
 
-    private function buildSystemConfigArray(SystemConfigCollection $systemConfigs): array
+    private function buildSystemConfigArray(array $systemConfigs): array
     {
         $configValues = [];
 
-        foreach ($systemConfigs as $systemConfig) {
-            $keys = explode('.', $systemConfig->getConfigurationKey());
+        foreach ($systemConfigs as $key => $value) {
+            $keys = explode('.', (string) $key);
 
-            $configValues = $this->getSubArray($configValues, $keys, $systemConfig->getConfigurationValue());
+            if ($value !== null) {
+                $value = json_decode($value, true, 512);
+
+                if ($value === false || !isset($value[ConfigJsonField::STORAGE_KEY])) {
+                    $value = null;
+                } else {
+                    $value = $value[ConfigJsonField::STORAGE_KEY];
+                }
+            }
+
+            $configValues = $this->getSubArray($configValues, $keys, $value);
         }
 
         return $this->filterNotActivatedPlugins($configValues);
@@ -92,6 +82,14 @@ class SystemConfigLoader extends AbstractSystemConfigLoader
         $key = array_shift($keys);
 
         if (empty($keys)) {
+            // Configs can be overwritten with sales_channel_id
+            $inheritedValuePresent = \array_key_exists($key, $configValues);
+            $valueConsideredEmpty = !\is_bool($value) && empty($value);
+
+            if ($inheritedValuePresent && $valueConsideredEmpty) {
+                return $configValues;
+            }
+
             $configValues[$key] = $value;
         } else {
             if (!\array_key_exists($key, $configValues)) {
@@ -106,26 +104,16 @@ class SystemConfigLoader extends AbstractSystemConfigLoader
 
     private function filterNotActivatedPlugins(array $configValues): array
     {
-        $notActivatedPlugins = $this->getNotActivatedPlugins();
+        $notActivatedPlugins = $this->kernel->getPluginLoader()->getPluginInstances()->filter(function (Plugin $plugin) {
+            return !$plugin->isActive();
+        })->all();
 
-        foreach (array_keys($configValues) as $key) {
-            $notActivatedPlugin = $notActivatedPlugins->filter(function (PluginEntity $plugin) use ($key) {
-                return $plugin->getName() === $key;
-            })->first();
-
-            if ($notActivatedPlugin) {
-                unset($configValues[$key]);
+        foreach ($notActivatedPlugins as $plugin) {
+            if (isset($configValues[$plugin->getName()])) {
+                unset($configValues[$plugin->getName()]);
             }
         }
 
         return $configValues;
-    }
-
-    private function getNotActivatedPlugins(): EntityCollection
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('active', false));
-
-        return $this->pluginRepository->search($criteria, Context::createDefaultContext())->getEntities();
     }
 }

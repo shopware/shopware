@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\MessageQueue\ScheduledTask\Command;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler;
+use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -56,7 +57,7 @@ class ScheduledTaskRunner extends Command
 
         $memoryLimit = $input->getOption('memory-limit');
         if ($memoryLimit) {
-            $memoryLimit = $this->convertToBytes($memoryLimit);
+            $memoryLimit = MemorySizeCalculator::convertToBytes($memoryLimit);
         }
 
         while (!$this->shouldStop) {
@@ -103,23 +104,5 @@ class ScheduledTaskRunner extends Command
         }
 
         return $workerStartedAt < $cacheItem->get();
-    }
-
-    private function convertToBytes(string $memoryLimit): int
-    {
-        $memoryLimit = mb_strtolower($memoryLimit);
-        $max = (int) mb_strtolower(ltrim($memoryLimit, '+'));
-
-        switch (mb_substr($memoryLimit, -1)) {
-            case 't': $max *= 1024;
-            // no break
-            case 'g': $max *= 1024;
-            // no break
-            case 'm': $max *= 1024;
-            // no break
-            case 'k': $max *= 1024;
-        }
-
-        return $max;
     }
 }

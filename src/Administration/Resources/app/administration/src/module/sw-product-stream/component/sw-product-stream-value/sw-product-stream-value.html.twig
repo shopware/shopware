@@ -284,7 +284,7 @@
             {% endblock %}
 
             <sw-entity-multi-id-select
-                v-else-if="actualCondition.type === 'equalsAny'"
+                v-else-if="isMultiSelectValue"
                 v-model="multiValue"
                 size="medium"
                 :repository="repository"

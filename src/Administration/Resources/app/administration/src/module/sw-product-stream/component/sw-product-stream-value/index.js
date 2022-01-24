@@ -78,6 +78,12 @@ Component.register('sw-product-stream-value', {
             return this.condition;
         },
 
+        isMultiSelectValue() {
+            return this.actualCondition.type === 'equalsAny' ||
+                this.actualCondition.type === 'equalsAll' ||
+                this.actualCondition.type === 'notEqualsAll';
+        },
+
         filterType: {
             get() {
                 const conditionType = this.getConditionType(this.condition);

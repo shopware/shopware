@@ -87,11 +87,73 @@ class AdminProductStreamControllerTest extends TestCase
         static::assertContains('v.2.2', $names);
     }
 
+    public function testEqualsAllPreview(): void
+    {
+        $this->ids->create('rot');
+        $this->ids->create('grün');
+
+        $data = [
+            'page' => 1,
+            'limit' => 25,
+            'filter' => [
+                [
+                    'field' => null,
+                    'type' => 'multi',
+                    'operator' => 'OR',
+                    'value' => null,
+                    'parameters' => null,
+                    'queries' => [
+                        [
+                            'field' => null,
+                            'type' => 'multi',
+                            'operator' => 'AND',
+                            'value' => null,
+                            'parameters' => null,
+                            'queries' => [
+                                [
+                                    'field' => 'properties.id',
+                                    'type' => 'equalsAll',
+                                    'operator' => null,
+                                    'value' => $this->ids->get('grün') . '|' . $this->ids->get('rot'),
+                                    'parameters' => null,
+                                    'queries' => [],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $this->getBrowser()->request(
+            'POST',
+            '/api/_admin/product-stream-preview/' . TestDefaults::SALES_CHANNEL,
+            [],
+            [],
+            [],
+            json_encode($data) ?: ''
+        );
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $content = json_decode($response->getContent() ?: '', true);
+
+        static::assertCount(3, $content['elements']);
+        $names = array_column($content['elements'], 'name');
+        static::assertContains('v.1.1', $names);
+        static::assertContains('v.1.2', $names);
+        static::assertNotContains('v.2.1', $names);
+        static::assertNotContains('v.2.2', $names);
+    }
+
     private function prepareTestData(): void
     {
         $products = [
             (new ProductBuilder($this->ids, 'p.1'))
                 ->price(900)
+                ->property('rot', 'Farbe')
+                ->property('grün', 'Farbe')
                 ->visibility(TestDefaults::SALES_CHANNEL)
                 ->prices('rule-a', 220, 'default', null, 3, true)
                 ->variant(
@@ -107,6 +169,7 @@ class AdminProductStreamControllerTest extends TestCase
                 ->build(),
             (new ProductBuilder($this->ids, 'p.2'))
                 ->price(800)
+                ->property('grün', 'Farbe')
                 ->visibility(TestDefaults::SALES_CHANNEL)
                 ->prices('rule-c', 200, 'default', null, 3, true)
                 ->variant(

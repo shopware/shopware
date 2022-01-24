@@ -112,15 +112,21 @@ Component.register('sw-condition-tree', {
                 conditions.sort((a, b) => a.translatedLabel.localeCompare(b.translatedLabel));
 
                 const groupedConditions = [];
+                const ungroupedConditions = [];
                 this.availableGroups.forEach((group) => {
                     conditions.forEach((condition) => {
                         if (condition.group === group.id) {
                             groupedConditions.push(condition);
                         }
+
+                        if (!condition.group && group.id === 'misc') {
+                            ungroupedConditions.push(condition);
+                            condition.group = 'misc';
+                        }
                     });
                 });
 
-                return groupedConditions;
+                return groupedConditions.concat(ungroupedConditions);
             }
 
             return conditions;

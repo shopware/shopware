@@ -67,7 +67,8 @@
         "general": "Allgemein",
         "cart": "Warenkorb",
         "items": "Positionen",
-        "customers": "Kunden"
+        "customers": "Kunden",
+        "misc": "Sonstige"
       }
     },
     "conditionFilter": {

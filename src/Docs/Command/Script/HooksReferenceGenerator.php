@@ -18,12 +18,12 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
 {
     public const USE_CASE_DATA_LOADING = 'data_loading';
     public const USE_CASE_CART_MANIPULATION = 'cart_manipulation';
-    public const USE_CASE_API_ENDPOINT = 'api_endpoint';
+    public const USE_CASE_CUSTOM_ENDPOINT = 'custom_endpoint';
 
     public const ALLOWED_USE_CASES = [
         self::USE_CASE_CART_MANIPULATION,
         self::USE_CASE_DATA_LOADING,
-        self::USE_CASE_API_ENDPOINT,
+        self::USE_CASE_CUSTOM_ENDPOINT,
     ];
 
     private const TEMPLATE_FILE = __DIR__ . '/../../Resources/templates/Scripts/hook-reference.md.twig';
@@ -114,9 +114,9 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
                 'description' => 'All available Hooks that can be used to manipulate the cart.',
                 'hooks' => [],
             ],
-            self::USE_CASE_API_ENDPOINT => [
-                'title' => 'Api endpoint',
-                'description' => 'All available hooks within the Store API and API',
+            self::USE_CASE_CUSTOM_ENDPOINT => [
+                'title' => 'Custom API endpoint',
+                'description' => 'All available hooks within the Store-API and API',
                 'hooks' => [],
             ],
         ];

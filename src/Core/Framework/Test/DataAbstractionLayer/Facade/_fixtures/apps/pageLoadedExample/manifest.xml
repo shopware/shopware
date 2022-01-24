@@ -14,6 +14,9 @@
     </meta>
     <permissions>
         <read>product</read>
+        <update>product</update>
+        <delete>product</delete>
         <read>product_manufacturer</read>
+        <create>tax</create>
     </permissions>
 </manifest>

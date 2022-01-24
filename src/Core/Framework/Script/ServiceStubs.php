@@ -12,6 +12,7 @@ namespace Shopware\Core\Framework\Script;
  * @method \Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacade             repository()
  * @method \Shopware\Core\System\SystemConfig\Facade\SystemConfigFacade                      config()
  * @method \Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacade store()
+ * @method \Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryWriterFacade       writer()
  */
 abstract class ServiceStubs
 {

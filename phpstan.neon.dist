@@ -137,6 +137,9 @@ parameters:
         -
             message: '#Parameter \#2 \$success of class Shopware\\Core\\Framework\\Api\\Sync\\SyncResult constructor expects bool, array given\.#'
             path: src/Core/Framework/Api/Sync/SyncService.php
+        -
+            message: '#Class Shopware\\Core\\Framework\\Api\\Sync\\SyncBehavior constructor invoked with 0 parameters, 1-4 required\.#'
+            path: src/Core/Framework/DataAbstractionLayer/Facade/RepositoryWriterFacade.php
         # Closures with no specific return type
         # EventDispatcherInterface::dispatch() should be return object
         -

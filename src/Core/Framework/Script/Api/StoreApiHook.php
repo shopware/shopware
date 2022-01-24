@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Script\Api;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryWriterFacadeHookFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacadeHookFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
 use Shopware\Core\Framework\Script\Execution\Hook;
@@ -13,7 +14,7 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
  * @internal
  * Triggered when the api endpoint /store-api/script/{hook} is called
  *
- * @hook-use-case api_endpoint
+ * @hook-use-case custom_endpoint
  */
 class StoreApiHook extends Hook implements SalesChannelContextAware
 {
@@ -62,6 +63,7 @@ class StoreApiHook extends Hook implements SalesChannelContextAware
             RepositoryFacadeHookFactory::class,
             SystemConfigFacadeHookFactory::class,
             SalesChannelRepositoryFacadeHookFactory::class,
+            RepositoryWriterFacadeHookFactory::class,
         ];
     }
 

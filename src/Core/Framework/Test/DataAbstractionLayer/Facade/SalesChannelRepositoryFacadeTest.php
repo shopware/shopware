@@ -199,7 +199,7 @@ class SalesChannelRepositoryFacadeTest extends TestCase
 
         $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
 
-        static::asserttrue($page->hasExtension('myProduct'));
+        static::assertTrue($page->hasExtension('myProduct'));
         $product = $page->getExtension('myProduct');
         static::assertInstanceOf(SalesChannelProductEntity::class, $product);
         static::assertEquals($this->ids->get('p1'), $product->getId());

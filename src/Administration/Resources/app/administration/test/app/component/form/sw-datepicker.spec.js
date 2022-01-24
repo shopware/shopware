@@ -145,4 +145,33 @@ describe('src/app/component/form/sw-datepicker', () => {
         expect(hint.text()).toContain('Europe/Berlin');
         expect(clockIcon.isVisible()).toBe(true);
     });
+
+    it('should not show the actual user timezone as a hint when the hideHint property is set to true', () => {
+        Shopware.State.get('session').currentUser = {
+            timeZone: 'Europe/Berlin'
+        };
+
+        wrapper = createWrapper({
+            propsData: {
+                dateType: 'datetime',
+                hideHint: true
+            }
+        });
+
+        const hint = wrapper.find('.sw-field__hint');
+
+        expect(hint.exists()).toBe(false);
+    });
+
+    it('should not show the actual user timezone as a hint when hideHint is false and dateType is not dateTime', () => {
+        Shopware.State.get('session').currentUser = {
+            timeZone: 'Europe/Berlin'
+        };
+
+        wrapper = createWrapper();
+
+        const hint = wrapper.find('.sw-field__hint');
+
+        expect(hint.exists()).toBe(false);
+    });
 });

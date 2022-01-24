@@ -16,6 +16,7 @@ import menuItem from './menu-item.store';
 import extensionSdkModules from './extension-sdk-module.store';
 import extensionMainModules from './main-module.store';
 import modals from './modals.store';
+import actionButtons from './action-button.store';
 
 export default {
     notification,
@@ -36,4 +37,5 @@ export default {
     extensionSdkModules,
     modals,
     extensionMainModules,
+    actionButtons,
 };

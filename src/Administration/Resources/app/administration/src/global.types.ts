@@ -12,12 +12,14 @@ import type { ModuleTypes } from 'src/core/factory/module.factory';
 import type RepositoryFactory from 'src/core/data/repository-factory.data';
 import type { default as VueType } from 'vue';
 import type { extensions } from '@shopware-ag/admin-extension-sdk/es/privileges/privilege-resolver';
+import ExtensionSdkService from 'src/core/service/api/extension-sdk.service';
 import type { ComponentConfig } from './core/factory/component.factory';
 import type { TabsState } from './app/state/tabs.store';
 import { MenuItemState } from './app/state/menu-item.store';
 import { ModalsState } from './app/state/modals.store';
 import { ExtensionSdkModuleState } from './app/state/extension-sdk-module.store';
 import { MainModuleState } from './app/state/main-module.store';
+import { ActionButtonState } from './app/state/action-button.store';
 
 // trick to make it an "external module" to support global type extension
 export {};
@@ -80,7 +82,8 @@ declare global {
         repositoryFactory: RepositoryFactory,
         snippetService: $TSFixMe,
         extensionStoreActionService: $TSFixMe,
-        recentlySearchService: $TSFixMe
+        recentlySearchService: $TSFixMe,
+        extensionSdkService: ExtensionSdkService,
     }
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface InitContainer extends SubContainer<'init'>{
@@ -125,6 +128,7 @@ declare global {
         extensionSdkModules: ExtensionSdkModuleState,
         extensionMainModules: MainModuleState,
         modals: ModalsState,
+        actionButtons: ActionButtonState,
     }
 
     /**

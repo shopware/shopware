@@ -26,6 +26,8 @@ import initMenu from './menu-item.init';
 import initModals from './modals.init';
 import initSettingItems from './settings-item.init';
 import initMainModules from './main-module.init';
+import initializeActionButtons from './action-button.init';
+import initializeActions from './actions.init';
 
 export default {
     coreMixin: initMixin,
@@ -52,4 +54,6 @@ export default {
     settingItems: initSettingItems,
     modals: initModals,
     mainModules: initMainModules,
+    actionButton: initializeActionButtons,
+    actions: initializeActions,
 };

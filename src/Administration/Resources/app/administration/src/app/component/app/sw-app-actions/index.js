@@ -3,6 +3,7 @@ import './sw-app-actions.scss';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+const { hasOwnProperty } = Shopware.Utils.object;
 
 const actionTypeConstants = Object.freeze({
     ACTION_SHOW_NOTIFICATION: 'notification',
@@ -23,7 +24,18 @@ const IFRAME_KEY = 'app.action_button.iframe';
 Component.register('sw-app-actions', {
     template,
 
-    inject: ['feature', 'appActionButtonService', 'repositoryFactory'],
+    extensionApiDevtoolInformation: {
+        property: 'ui.actionButton',
+        entity: (currentComponent) => `${currentComponent.entity}`,
+        view: (currentComponent) => `${currentComponent.view}`,
+    },
+
+    inject: [
+        'feature',
+        'appActionButtonService',
+        'repositoryFactory',
+        'extensionSdkService',
+    ],
 
     mixins: [Mixin.getByName('notification')],
 
@@ -82,6 +94,12 @@ Component.register('sw-app-actions', {
 
             return criteria;
         },
+
+        extensionSdkButtons() {
+            return Shopware.State.get('actionButtons').buttons.filter((button) => {
+                return button.entity === this.entity && button.view === this.view;
+            });
+        },
     },
 
     watch: {
@@ -92,14 +110,28 @@ Component.register('sw-app-actions', {
                 this.loadActions();
             },
         },
+
+        extensionSdkButtons() {
+            // If the matching entity and view is already open and the iframe call comes in late reload
+            this.loadActions();
+        },
     },
 
     methods: {
-        async runAction(actionId) {
-            const { data } = await this.appActionButtonService.runAction(actionId, { ids: this.params });
+        async runAction(action) {
+            const entityIdList = { ids: this.params };
+
+            if (hasOwnProperty(action, 'callback') && typeof action.callback === 'function') {
+                action.callback(action.entity, entityIdList.ids);
+
+                return;
+            }
+
+            const { data } = await this.appActionButtonService.runAction(action.id, entityIdList);
             const { actionType, redirectUrl, status, message } = data;
-            this.action = this.actions.find(action => {
-                return action.id === actionId;
+
+            this.action = this.actions.find(actionsAction => {
+                return actionsAction.id === action.id;
             });
 
             switch (actionType) {
@@ -131,6 +163,7 @@ Component.register('sw-app-actions', {
         async loadActions() {
             try {
                 this.actions = await this.appActionButtonService.getActionButtonsPerView(this.entity, this.view);
+                this.actions.push(...this.extensionSdkButtons);
             } catch (e) {
                 this.actions = [];
 

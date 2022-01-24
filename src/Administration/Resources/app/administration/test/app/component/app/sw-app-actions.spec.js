@@ -72,6 +72,8 @@ function createWrapper(router, resultData = actionResultData) {
                 }
             },
 
+            extensionSdkService: {},
+
             repositoryFactory: {
                 create: () => ({
                     search: jest.fn(() => {
@@ -137,7 +139,7 @@ describe('sw-app-actions', () => {
         router.push({ name: 'sw.product.list' });
         await flushPromises();
 
-        expect(wrapper.vm.$el).toBeInstanceOf(Comment);
+        expect(wrapper.vm.$children.length).toBe(0);
     });
 
     it('it throws an error if appActionButtonService.appActionButtonService throws an error', async () => {
@@ -154,7 +156,7 @@ describe('sw-app-actions', () => {
         expect(notificationMock).toBeCalledWith({
             message: 'sw-app.component.sw-app-actions.messageErrorFetchButtons'
         });
-        expect(wrapper.vm.$el).toBeInstanceOf(Comment);
+        expect(wrapper.vm.$children.length).toBe(0);
     });
 
     it('ignores pages where entity and view are not set', async () => {
@@ -168,7 +170,7 @@ describe('sw-app-actions', () => {
         const notificationMock = wrapper.vm.createNotificationError;
 
         expect(notificationMock).toBeCalledTimes(0);
-        expect(wrapper.vm.$el).toBeInstanceOf(Comment);
+        expect(wrapper.vm.$children.length).toBe(0);
     });
 
     it('it calls appActionButtonService.runAction if triggered by context menu button', async () => {

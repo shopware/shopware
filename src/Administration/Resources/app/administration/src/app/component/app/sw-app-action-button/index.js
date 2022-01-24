@@ -20,6 +20,10 @@ Component.register('sw-app-action-button', {
             const currentLocale = State.get('session').currentLocale;
             const fallbackLocale = Context.app.fallbackLocale;
 
+            if (typeof this.action.label === 'string') {
+                return this.action.label;
+            }
+
             return this.action.label[currentLocale] || this.action.label[fallbackLocale] || '';
         },
 
@@ -57,7 +61,7 @@ Component.register('sw-app-action-button', {
                 return;
             }
 
-            this.$emit('run-app-action', this.action.id);
+            this.$emit('run-app-action', this.action);
         },
     },
 });

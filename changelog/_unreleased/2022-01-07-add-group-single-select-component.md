@@ -1,7 +1,6 @@
 ---
 title: Add group single select component
 issue: NEXT-18627
-flag: FEATURE_NEXT_16148
 author: Timo Altholtmann
 ---
 # Administration

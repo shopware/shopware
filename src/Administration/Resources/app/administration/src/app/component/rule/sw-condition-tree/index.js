@@ -17,7 +17,6 @@ Component.register('sw-condition-tree', {
     provide() {
         return {
             availableTypes: this.availableTypes,
-            /* @internal (flag:FEATURE_NEXT_16148) */
             availableGroups: this.availableGroups,
             createCondition: this.createCondition,
             insertNodeIntoTree: this.insertNodeIntoTree,
@@ -108,7 +107,7 @@ Component.register('sw-condition-tree', {
                 condition.translatedLabel = this.$tc(condition.label);
             });
 
-            if (this.feature.isActive('FEATURE_NEXT_16148') && this.availableGroups) {
+            if (this.availableGroups) {
                 conditions.sort((a, b) => a.translatedLabel.localeCompare(b.translatedLabel));
 
                 const groupedConditions = [];

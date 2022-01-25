@@ -11,7 +11,8 @@
                                 <a class="nav-link"
                                    href="{{ seoUrl('frontend.navigation.page', { navigationId: category.id }) }}"
                                    itemprop="url"
-                                   title="{{ name }}">
+                                   title="{{ name }}"
+                                   {% if category.linkType == "external" %} rel="noopener noreferrer"{% endif %}>
                                     {% block layout_navigation_flyout_bar_category_link_text %}
                                         {{ "general.toCategory"|trans|sw_sanitize }} {{ name }}
                                         {% sw_icon 'arrow-right' style {
@@ -64,7 +65,8 @@
                             <a class="navigation-flyout-teaser-image-container"
                                href="{{ category_url(category) }}"
                                {% if category_linknewtab(category) %}target="_blank"{% endif %}
-                               title="{{ name }}">
+                               title="{{ name }}"
+                               {% if category.linkType == "external" %} rel="noopener noreferrer"{% endif %}>
                                 {% sw_thumbnails 'navigation-flyout-teaser-image-thumbnails' with {
                                     media: category.media,
                                     sizes: {

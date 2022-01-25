@@ -354,30 +354,28 @@ Component.register('sw-flow-detail', {
                 }));
             }
 
-            if (this.feature.isActive('FEATURE_NEXT_17973')) {
-                const hasChangeCustomerGroup = this.sequences.some(
-                    sequence => sequence.actionName === ACTION.CHANGE_CUSTOMER_GROUP,
-                );
+            const hasChangeCustomerGroup = this.sequences.some(
+                sequence => sequence.actionName === ACTION.CHANGE_CUSTOMER_GROUP,
+            );
 
-                if (hasChangeCustomerGroup) {
-                    // get support information for change customer group action.
-                    promises.push(this.customerGroupRepository.search(this.customerGroupCriteria).then((data) => {
-                        Shopware.State.commit('swFlowState/setCustomerGroups', data);
-                    }));
-                }
+            if (hasChangeCustomerGroup) {
+                // get support information for change customer group action.
+                promises.push(this.customerGroupRepository.search(this.customerGroupCriteria).then((data) => {
+                    Shopware.State.commit('swFlowState/setCustomerGroups', data);
+                }));
+            }
 
-                const hasSetCustomFieldAction = this.sequences.some(sequence => [ACTION.SET_ORDER_CUSTOM_FIELD,
-                    ACTION.SET_CUSTOMER_CUSTOM_FIELD, ACTION.SET_CUSTOMER_GROUP_CUSTOM_FIELD].includes(sequence.actionName));
+            const hasSetCustomFieldAction = this.sequences.some(sequence => [ACTION.SET_ORDER_CUSTOM_FIELD,
+                ACTION.SET_CUSTOMER_CUSTOM_FIELD, ACTION.SET_CUSTOMER_GROUP_CUSTOM_FIELD].includes(sequence.actionName));
 
-                if (hasSetCustomFieldAction) {
-                    promises.push(this.customFieldSetRepository.search(this.customFieldSetCriteria).then((data) => {
-                        Shopware.State.commit('swFlowState/setCustomFieldSets', data);
-                    }));
+            if (hasSetCustomFieldAction) {
+                promises.push(this.customFieldSetRepository.search(this.customFieldSetCriteria).then((data) => {
+                    Shopware.State.commit('swFlowState/setCustomFieldSets', data);
+                }));
 
-                    promises.push(this.customFieldRepository.search(this.customFieldCriteria).then((data) => {
-                        Shopware.State.commit('swFlowState/setCustomFields', data);
-                    }));
-                }
+                promises.push(this.customFieldRepository.search(this.customFieldCriteria).then((data) => {
+                    Shopware.State.commit('swFlowState/setCustomFields', data);
+                }));
             }
 
             return Promise.all(promises);

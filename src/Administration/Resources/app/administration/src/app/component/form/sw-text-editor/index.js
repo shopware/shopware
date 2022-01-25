@@ -35,8 +35,6 @@ const { Component } = Shopware;
 Component.register('sw-text-editor', {
     template,
 
-    inject: ['feature'],
-
     props: {
         value: {
             type: String,
@@ -919,9 +917,6 @@ Component.register('sw-text-editor', {
             this.isTableEdit = false;
         },
 
-        /**
-         * @internal (flag:FEATURE_NEXT_17973)
-         */
         showLabel() {
             return !!this.label || !!this.$slots.label || !!this.$scopedSlots?.label?.();
         },

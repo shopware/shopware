@@ -9,9 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\OrderAware;
 
-/**
- * @internal (flag:FEATURE_NEXT_17973)
- */
 class SetOrderCustomFieldAction extends FlowAction
 {
     use CustomFieldActionTrait;

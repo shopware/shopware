@@ -8,7 +8,6 @@ const { ShopwareError } = Shopware.Classes;
 const { capitalizeString } = Shopware.Utils.string;
 
 Component.register('sw-flow-set-entity-custom-field-modal', {
-    flag: 'FEATURE_NEXT_17973',
     template,
 
     inject: ['repositoryFactory'],

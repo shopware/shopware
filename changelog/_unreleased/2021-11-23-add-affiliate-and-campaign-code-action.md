@@ -1,7 +1,6 @@
 ---
 title: Add an affiliate and campaign code action
 issue: NEXT-18082
-flag: FEATURE_NEXT_17973
 ---
 # Core
 * Added `Shopware/Core/Content/Flow/Dispatching/Action/AddCustomerAffiliateAndCampaignCodeAction` class to handle add affiliate and campaign code to Customer action.

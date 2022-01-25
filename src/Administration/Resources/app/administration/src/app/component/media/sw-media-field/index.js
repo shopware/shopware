@@ -177,9 +177,6 @@ Component.register('sw-media-field', {
             this.showPicker = false;
         },
 
-        /**
-         * @internal (flag:FEATURE_NEXT_17973)
-         */
         showLabel() {
             return !!this.label || !!this.$slots.label || !!this.$scopedSlots?.label?.();
         },

@@ -4,9 +4,6 @@ namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @internal (flag:FEATURE_NEXT_17973)
- */
 trait CustomFieldActionTrait
 {
     public function getCustomFieldForUpdating(?array $customFields, array $config): ?array

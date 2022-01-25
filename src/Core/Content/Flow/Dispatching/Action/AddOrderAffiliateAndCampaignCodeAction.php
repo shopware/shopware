@@ -8,9 +8,6 @@ use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @internal (flag:FEATURE_NEXT_17973)
- */
 class AddOrderAffiliateAndCampaignCodeAction extends FlowAction
 {
     private Connection $connection;

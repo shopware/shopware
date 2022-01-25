@@ -92,14 +92,12 @@ export default function flowBuilderService() {
             return 'sw-flow-tag-modal';
         }
 
-        if (Shopware.Feature.isActive('FEATURE_NEXT_17973')) {
-            if (mapActionType(actionName) === ACTION_TYPE.SET_CUSTOM_FIELD) {
-                return 'sw-flow-set-entity-custom-field-modal';
-            }
+        if (mapActionType(actionName) === ACTION_TYPE.SET_CUSTOM_FIELD) {
+            return 'sw-flow-set-entity-custom-field-modal';
+        }
 
-            if (mapActionType(actionName) === ACTION_TYPE.ADD_AFFILIATE_AND_CAMPAIGN_CODE) {
-                return 'sw-flow-affiliate-and-campaign-code-modal';
-            }
+        if (mapActionType(actionName) === ACTION_TYPE.ADD_AFFILIATE_AND_CAMPAIGN_CODE) {
+            return 'sw-flow-affiliate-and-campaign-code-modal';
         }
 
         return `${actionName.replace(/\./g, '-').replace('action', 'sw-flow')}-modal`;

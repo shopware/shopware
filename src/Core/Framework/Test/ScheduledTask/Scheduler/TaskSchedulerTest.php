@@ -158,22 +158,45 @@ class TaskSchedulerTest extends TestCase
         ));
         $this->connection->exec('DELETE FROM scheduled_task');
 
-        $taskId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        // tasks will be scheduled in sort sequence of their ids
+        $taskId1 = '2206c460e1054f2290d86fb4379cc021';
+        $taskId2 = 'cc65a904c6d246479e6c4958f262a17f';
+
         $this->scheduledTaskRepo->create([
             [
-                'id' => $taskId,
-                'name' => 'test',
+                'id' => $taskId1,
+                'name' => 'test_1',
                 'scheduledTaskClass' => TestMessage::class,
                 'runInterval' => 300,
                 'status' => ScheduledTaskDefinition::STATUS_SCHEDULED,
                 'nextExecutionTime' => (new \DateTime())->modify('-1 second'),
             ],
-        ], Context::createDefaultContext());
+        ], $context);
+
+        $this->scheduledTaskRepo->create([
+            [
+                'id' => $taskId2,
+                'name' => 'test_2',
+                'scheduledTaskClass' => RequeueDeadMessagesTask::class,
+                'runInterval' => 300,
+                'status' => ScheduledTaskDefinition::STATUS_SCHEDULED,
+                'nextExecutionTime' => (new \DateTime())->modify('-1 minute'),
+            ],
+        ], $context);
 
         $this->messageBus->expects(static::never())
             ->method('dispatch');
 
-        $this->scheduler->queueScheduledTasks();
+        try {
+            $this->scheduler->queueScheduledTasks();
+        } catch (\Exception $exception) {
+            /** @var ScheduledTaskEntity $task2Entity */
+            $task2Entity = $this->scheduledTaskRepo->search(new Criteria([$taskId2]), $context)->get($taskId2);
+            static::assertEquals(ScheduledTaskDefinition::STATUS_SCHEDULED, $task2Entity->getStatus());
+            throw $exception;
+        }
     }
 
     public function testGetNextExecutionTime(): void

@@ -30,5 +30,4 @@ describe('sales channel: set and validate initial settings', () => {
         cy.get('.sw-admin-menu__logout-action').should('be.visible').click();
         cy.contains('.sw-login__content-headline', 'Shopware').should('be.visible');
     });
-
 });

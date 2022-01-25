@@ -363,6 +363,7 @@ class InfoController extends AbstractController
                 'type' => 'app',
                 'baseUrl' => $app->getBaseAppUrl(),
                 'permissions' => $this->fetchAppPermissions($app),
+                'version' => $app->getVersion(),
             ];
         }
 

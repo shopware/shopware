@@ -90,6 +90,12 @@ Component.register('sw-datepicker', {
             default: false,
             required: false,
         },
+
+        hideHint: {
+            type: Boolean,
+            default: false,
+            required: false,
+        },
     },
 
     data() {
@@ -203,10 +209,12 @@ Component.register('sw-datepicker', {
         },
 
         showTimeZoneHint() {
-            return [
+            const validMode = [
                 'datetime',
                 'datetime-local',
             ].includes(this.dateType);
+
+            return validMode && !this.hideHint;
         },
     },
 

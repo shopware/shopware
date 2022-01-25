@@ -40,7 +40,7 @@ describe('Rule builder: Test display variant information at condition', () => {
                 cy.get('.sw-condition').as('condition-general');
 
                 cy.onlyOnFeature('FEATURE_NEXT_17016', () => {
-                    page.selectTypeAndOperator('@condition-general', 'Line item', 'Is one of');
+                    page.selectTypeAndOperator('@condition-general', 'Item', 'Is one of');
                 });
                 cy.skipOnFeature('FEATURE_NEXT_17016', () => {
                     page.selectTypeAndOperator('@condition-general', 'Line items in cart', 'Is one of');
@@ -92,7 +92,7 @@ describe('Rule builder: Test display variant information at condition', () => {
                 cy.get('.sw-condition').as('condition-general');
 
                 cy.onlyOnFeature('FEATURE_NEXT_17016', () => {
-                    page.selectTypeAndOperator('@condition-general', 'Line item', 'Is one of');
+                    page.selectTypeAndOperator('@condition-general', 'Item', 'Is one of');
                 });
                 cy.skipOnFeature('FEATURE_NEXT_17016', () => {
                     page.selectTypeAndOperator('@condition-general', 'Line items in cart', 'Is one of');

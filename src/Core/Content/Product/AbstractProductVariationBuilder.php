@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Product;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Feature;
 
-if (Feature::isActive('v6.5.0.0')) {
+if (Feature::isActive('v6_5_0_0')) {
     abstract class AbstractProductVariationBuilder
     {
         abstract public function getDecorated(): AbstractProductVariationBuilder;

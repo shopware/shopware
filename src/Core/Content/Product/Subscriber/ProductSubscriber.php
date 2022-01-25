@@ -68,6 +68,9 @@ class ProductSubscriber implements EventSubscriberInterface
         $this->entityLoaded($event->getEntities(), $event->getContext());
     }
 
+    /**
+     * @internal
+     */
     public function partialEntityLoaded(PartialEntityLoadedEvent $event): void
     {
         $this->entityLoaded($event->getEntities(), $event->getContext());
@@ -78,6 +81,9 @@ class ProductSubscriber implements EventSubscriberInterface
         $this->productSalesChannelLoaded($event->getEntities(), $event->getSalesChannelContext());
     }
 
+    /**
+     * @internal
+     */
     public function partialSalesChannelLoaded(PartialSalesChannelEntityLoadedEvent $event): void
     {
         $this->productSalesChannelLoaded($event->getEntities(), $event->getSalesChannelContext());
@@ -126,7 +132,7 @@ class ProductSubscriber implements EventSubscriberInterface
                 }
             }
 
-            if (Feature::isActive('v6.5.0.0')) {
+            if (Feature::isActive('v6_5_0_0')) {
                 $assigns = [];
 
                 if (($properties = $product->get('properties')) !== null && $properties instanceof PropertyGroupOptionCollection) {

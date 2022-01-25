@@ -31,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\NonIdPrimaryKeyTestDefinition;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -69,7 +70,7 @@ class EntityReaderTest extends TestCase
 
         $this->connection->rollBack();
 
-        $this->connection->executeUpdate('
+        $this->connection->executeStatement('
             DROP TABLE IF EXISTS `non_id_primary_key_test`;
             CREATE TABLE `non_id_primary_key_test` (
                 `test_field` BINARY(16) NOT NULL,
@@ -87,7 +88,7 @@ class EntityReaderTest extends TestCase
     {
         $this->connection->rollBack();
 
-        $this->connection->executeUpdate('DROP TABLE `non_id_primary_key_test`');
+        $this->connection->executeStatement('DROP TABLE `non_id_primary_key_test`');
         $this->connection->beginTransaction();
 
         parent::tearDown();
@@ -95,6 +96,8 @@ class EntityReaderTest extends TestCase
 
     public function testPartialLoadingAddsImplicitAssociationToRequestedFields(): void
     {
+        Feature::skipTestIfInActive('v6_5_0_0', $this);
+
         $ids = new IdsCollection();
 
         $product = (new ProductBuilder($ids, 'p1'))
@@ -131,6 +134,8 @@ class EntityReaderTest extends TestCase
 
     public function testPartialLoadingManyToOne(): void
     {
+        Feature::skipTestIfInActive('v6_5_0_0', $this);
+
         $ids = new IdsCollection();
 
         $product = (new ProductBuilder($ids, 'p1'))
@@ -163,6 +168,8 @@ class EntityReaderTest extends TestCase
 
     public function testPartialLoadingOneToMany(): void
     {
+        Feature::skipTestIfInActive('v6_5_0_0', $this);
+
         $ids = new IdsCollection();
 
         $this->categoryRepository->upsert([
@@ -220,6 +227,8 @@ class EntityReaderTest extends TestCase
 
     public function testPartialLoadingManyToMany(): void
     {
+        Feature::skipTestIfInActive('v6_5_0_0', $this);
+
         $ids = new IdsCollection();
 
         $products = [

@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\PartialEntityLoadedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class PartialSalesChannelEntityLoadedEvent extends PartialEntityLoadedEvent implements ShopwareSalesChannelEvent
 {
     private SalesChannelContext $salesChannelContext;

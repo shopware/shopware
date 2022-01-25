@@ -556,6 +556,8 @@ class Criteria extends Struct
      */
     public function addFields(array $fields): self
     {
+        Feature::throwException('v6_5_0_0', 'Partial data loading is not active', false);
+
         $this->fields = array_merge($this->fields, $fields);
 
         return $this;

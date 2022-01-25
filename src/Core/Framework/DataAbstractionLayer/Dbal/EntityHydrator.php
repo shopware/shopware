@@ -135,9 +135,14 @@ class EntityHydrator
     {
         /** @var ArrayStruct $foreignKeys */
         $foreignKeys = $entity->getExtension(EntityReader::FOREIGN_KEYS);
+        $isPartial = self::$partial !== [];
 
         foreach ($fields as $field) {
             $property = $field->getPropertyName();
+
+            if ($isPartial && !isset(self::$partial[$property])) {
+                continue;
+            }
 
             $key = $root . '.' . $property;
 

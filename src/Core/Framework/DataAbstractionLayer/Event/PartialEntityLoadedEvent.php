@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Event\GenericEvent;
 use Shopware\Core\Framework\Event\NestedEvent;
 
+/**
+ * @internal
+ */
 class PartialEntityLoadedEvent extends NestedEvent implements GenericEvent
 {
     /**

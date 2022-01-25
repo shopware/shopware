@@ -59,14 +59,14 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         if ($price === null || $taxId === null) {
             return;
         }
-        $reference = ReferencePriceDto::createFromProduct($product);
+        $reference = ReferencePriceDto::createFromEntity($product);
 
         $definition = $this->buildDefinition($product, $price, $context, $units, $reference);
 
         $price = $this->calculator->calculate($definition, $context);
 
         $product->assign([
-            'calculatedPrice' => $price
+            'calculatedPrice' => $price,
         ]);
     }
 
@@ -89,7 +89,7 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         }
         $prices->sortByQuantity();
 
-        $reference = ReferencePriceDto::createFromProduct($product);
+        $reference = ReferencePriceDto::createFromEntity($product);
 
         $calculated = new CalculatedPriceCollection();
         foreach ($prices as $price) {
@@ -107,13 +107,17 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
     {
         $cheapest = $product->get('cheapestPrice');
 
+        if ($product->get('taxId') === null) {
+            return;
+        }
+
         if (!$cheapest instanceof CheapestPrice) {
             $price = $product->get('price');
             if ($price === null) {
                 return;
             }
 
-            $reference = ReferencePriceDto::createFromProduct($product);
+            $reference = ReferencePriceDto::createFromEntity($product);
 
             $definition = $this->buildDefinition($product, $price, $context, $units, $reference);
 

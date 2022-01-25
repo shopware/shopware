@@ -1,7 +1,7 @@
 shopware:
   feature:
     flags:
-      - name: v6.5.0.0
+      - name: v6_5_0_0
         default: false
         major: true
       - name: FEATURE_NEXT_1797

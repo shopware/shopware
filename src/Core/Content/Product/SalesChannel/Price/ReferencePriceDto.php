@@ -31,12 +31,21 @@ class ReferencePriceDto extends Struct
         $this->unitId = $unitId;
     }
 
-    public static function createFromProduct(Entity $product): ReferencePriceDto
+    public static function createFromEntity(Entity $product): ReferencePriceDto
     {
         return new self(
             $product->get('purchaseUnit'),
             $product->get('referenceUnit'),
             $product->get('unitId')
+        );
+    }
+
+    public static function createFromProduct(ProductEntity $product): ReferencePriceDto
+    {
+        return new self(
+            $product->getPurchaseUnit(),
+            $product->getReferenceUnit(),
+            $product->getUnitId()
         );
     }
 

@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CalculatedCheapestPrice;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -19,6 +20,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -70,7 +72,7 @@ class ProductLoadedSubscriberTest extends TestCase
 
     public function testCheapestPriceOnSalesChannelProductEntityPartial(): void
     {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
+        Feature::skipTestIfInActive('v6_5_0_0', $this);
 
         $ids = new IdsCollection();
 
@@ -87,7 +89,7 @@ class ProductLoadedSubscriberTest extends TestCase
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $criteria = new Criteria([$ids->get('p.1')]);
-        $criteria->addFields(['id', 'cheapestPrice']);
+        $criteria->addFields(['id', 'cheapestPrice', 'taxId', 'price']);
 
         /** @var SalesChannelProductEntity $productEntity */
         $productEntity = $this->getContainer()
@@ -96,6 +98,7 @@ class ProductLoadedSubscriberTest extends TestCase
             ->first();
 
         static::assertInstanceOf(CheapestPrice::class, $productEntity->get('cheapestPrice'));
+        static::assertInstanceOf(CalculatedCheapestPrice::class, $productEntity->get('calculatedCheapestPrice'));
     }
 
     /**
@@ -151,7 +154,7 @@ class ProductLoadedSubscriberTest extends TestCase
      */
     public function testSortPropertiesPartial(array $product, array $expected, array $unexpected, Criteria $criteria): void
     {
-        Feature::skipTestIfInActive('v6.5.0.0', $this);
+        Feature::skipTestIfInActive('v6_5_0_0', $this);
 
         $this->getContainer()->get('product.repository')
             ->create([$product], Context::createDefaultContext());
@@ -1303,6 +1306,26 @@ class ProductLoadedSubscriberTest extends TestCase
 
             static::assertEquals($case->percentage, $price->getListPrice()->getPercentage());
             static::assertEquals($case->discount, $price->getListPrice()->getDiscount());
+
+            if (Feature::isActive('v6_5_0_0')) {
+                $partialCriteria = new Criteria([$id]);
+                $partialCriteria->addFields(['price', 'taxId']);
+                $product = $this->getContainer()->get('sales_channel.product.repository')
+                    ->search($partialCriteria, $context)
+                    ->get($id);
+
+                static::assertInstanceOf(PartialEntity::class, $product);
+
+                $price = $product->get('calculatedPrice');
+
+                static::assertInstanceOf(ListPrice::class, $price->getListPrice());
+
+                static::assertEquals($case->expectedPrice, $price->getUnitPrice());
+                static::assertEquals($case->expectedWas, $price->getListPrice()->getPrice());
+
+                static::assertEquals($case->percentage, $price->getListPrice()->getPercentage());
+                static::assertEquals($case->discount, $price->getListPrice()->getDiscount());
+            }
         }
     }
 }

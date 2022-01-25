@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\HttpFoundation\Request;
 
 class RequestCriteriaBuilder
@@ -230,7 +231,7 @@ class RequestCriteriaBuilder
             }
         }
 
-        if (isset($payload['fields'])) {
+        if (isset($payload['fields']) && Feature::isActive('v6_5_0_0')) {
             $criteria->addFields($payload['fields']);
         }
 

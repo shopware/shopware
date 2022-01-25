@@ -380,10 +380,10 @@ export default class Criteria {
     }
 
     /**
-     * Allows grouping the result by a specific field
+     * Allows loading partial fields for the result.
      */
-    addFields(field: string): this {
-        this.fields.push(field);
+    addFields(...field: string[]): this {
+        this.fields.push(...field);
 
         return this;
     }

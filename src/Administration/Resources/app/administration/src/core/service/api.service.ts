@@ -1,18 +1,35 @@
 import parseJsonApi from 'src/core/service/jsonapi-parser.service';
+import { AxiosInstance, AxiosResponse } from 'axios';
+import { LoginService } from './login.service';
+
+export type BasicHeaders = {
+    Accept: string,
+    Authorization: string,
+    'Content-Type': string,
+    [key: string]: string,
+};
 
 /**
  * ApiService class which provides the common methods for our REST API
  * @class
  */
 class ApiService {
-    /**
-     * @constructor
-     * @param {AxiosInstance} httpClient
-     * @param {LoginService} loginService
-     * @param {String} apiEndpoint
-     * @param {String} [contentType='application/vnd.api+json']
-     */
-    constructor(httpClient, loginService, apiEndpoint, contentType = 'application/vnd.api+json') {
+    client: AxiosInstance = {} as AxiosInstance;
+
+    loginService: LoginService;
+
+    endpoint = '';
+
+    type = 'application/vnd.api+json';
+
+    name = '';
+
+    constructor(
+        httpClient: AxiosInstance,
+        loginService: LoginService,
+        apiEndpoint: string,
+        contentType = 'application/vnd.api+json',
+    ) {
         this.httpClient = httpClient;
         this.loginService = loginService;
         this.apiEndpoint = apiEndpoint;
@@ -21,19 +38,15 @@ class ApiService {
 
     /**
      * Returns the URI to the API endpoint
-     *
-     * @param {String|Number} [id]
-     * @param {String} [prefix='']
-     * @returns {String}
      */
-    getApiBasePath(id, prefix = '') {
+    getApiBasePath(id?: string|number, prefix = ''): string {
         let url = '';
 
         if (prefix?.length) {
             url += `${prefix}/`;
         }
 
-        if (id && id.length > 0) {
+        if ((id && typeof id === 'number') || (typeof id === 'string' && id.length > 0)) {
             return `${url}${this.apiEndpoint}/${id}`;
         }
 
@@ -42,11 +55,8 @@ class ApiService {
 
     /**
      * Get the basic headers for a request.
-     *
-     * @param additionalHeaders
-     * @returns {Object}
      */
-    getBasicHeaders(additionalHeaders = {}) {
+    getBasicHeaders(additionalHeaders = {}): BasicHeaders {
         const basicHeaders = {
             Accept: this.contentType,
             Authorization: `Bearer ${this.loginService.getToken()}`,
@@ -59,19 +69,21 @@ class ApiService {
     /**
      * Basic response handling.
      * Converts the JSON api data when the specific content type is set.
-     *
-     * @param response
-     * @returns {*}
      */
-    static handleResponse(response) {
+    static handleResponse(response: AxiosResponse<unknown>): unknown {
         if (response.data === null || response.data === undefined) {
             return response;
         }
 
         let data = response.data;
-        const headers = response.headers;
+        const headers = response.headers as unknown;
 
-        if (headers?.['content-type'] && headers['content-type'] === 'application/vnd.api+json') {
+        if (typeof headers !== 'object' || headers === null || !headers.hasOwnProperty('content-type')) {
+            return data;
+        }
+
+        // @ts-expect-error
+        if (headers['content-type'] && headers['content-type'] === 'application/vnd.api+json') {
             data = ApiService.parseJsonApiData(data);
         }
 
@@ -80,23 +92,17 @@ class ApiService {
 
     /**
      * Parses a JSON api data structure to a simplified object.
-     *
-     * @param data
-     * @returns {Object}
      */
-    static parseJsonApiData(data) {
+    static parseJsonApiData(data: string|unknown): Record<string, unknown>|null {
+        // @ts-expect-error
         return parseJsonApi(data);
     }
 
-    static getVersionHeader(versionId) {
+    static getVersionHeader(versionId: string): { 'sw-version-id': string } {
         return { 'sw-version-id': versionId };
     }
 
-    /**
-     * @param {object} paramDictionary key-value pairs
-     * @returns {string} a GET-query string like `?key=value&key2=value2`
-     */
-    static makeQueryParams(paramDictionary = {}) {
+    static makeQueryParams(paramDictionary = {} as { [key: string]: string|number}): string {
         const params = Object
             .keys(paramDictionary)
             .filter(key => typeof paramDictionary[key] === 'string')
@@ -110,46 +116,37 @@ class ApiService {
     }
 
     /**
-     * Getter & setter for the API end point
-     * @type {String}
+     * Getter for the API end point
      */
-    get apiEndpoint() {
+    get apiEndpoint(): string {
         return this.endpoint;
     }
 
     /**
-     * @type {String}
+     * Setter for the API end point
      */
-    set apiEndpoint(endpoint) {
+    set apiEndpoint(endpoint: string) {
         this.endpoint = endpoint;
     }
 
     /**
-     * Getter & setter for the http client
-     *
-     * @type {AxiosInstance}
+     * Getter for the http client
      */
-    get httpClient() {
+    get httpClient(): AxiosInstance {
         return this.client;
     }
 
     /**
-     * @type {AxiosInstance}
+     * Setter for the http client
      */
     set httpClient(client) {
         this.client = client;
     }
 
-    /**
-     * @type {String}
-     */
-    get contentType() {
+    get contentType(): string {
         return this.type;
     }
 
-    /**
-     * @type {String}
-     */
     set contentType(contentType) {
         this.type = contentType;
     }

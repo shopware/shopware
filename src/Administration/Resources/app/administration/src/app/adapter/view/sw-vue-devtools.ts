@@ -32,6 +32,12 @@ export default function setupShopwareDevtools(app: App): void {
                 position: relative;
             }
 
+            /* This allows the highlight to be displayed for empty sw-app-actions */
+            .${HIGHLIGHT_CLASS}.sw-app-actions {
+                width: 40px;
+                height: 40px;
+            }
+
             .${HIGHLIGHT_CLASS}::before {
               content: '';
               background-color: rgba(65, 184, 131, 0.35);
@@ -88,7 +94,7 @@ export default function setupShopwareDevtools(app: App): void {
             componentIterator(payload.app as Component, (component) => {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 if (component.$options.extensionApiDevtoolInformation) {
-                    const { property, positionId } = getExtensionInformation(component);
+                    const { property, positionId, view, entity } = getExtensionInformation(component);
 
                     // create new root node if none exists
                     const hasMatchingNode = payload.rootNodes.some(n => n.id === property);
@@ -105,7 +111,7 @@ export default function setupShopwareDevtools(app: App): void {
                     // @ts-expect-error
                     rootNode.children?.push({
                         id: `${property}_${positionId}`,
-                        label: positionId,
+                        label: positionId === 'unknown' ? `${entity}-${view}` : positionId,
                     });
                     extensionComponentCollection.push(component);
                 }
@@ -135,21 +141,48 @@ export default function setupShopwareDevtools(app: App): void {
 
             // show information about selected node
             payload.state = {
-                General: [
-                    {
-                        key: 'PositionId',
-                        // eslint-disable-next-line max-len
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
-                        value: devtoolInformation.positionId(matchingComponent),
-                    },
-                    {
-                        key: 'Property',
-                        // eslint-disable-next-line max-len
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-                        value: devtoolInformation.property,
-                    },
-                ],
+                General: [],
             };
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (devtoolInformation.hasOwnProperty('positionId') && devtoolInformation.positionId(matchingComponent)) {
+                payload.state.General.push({
+                    key: 'PositionId',
+                    // eslint-disable-next-line max-len
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
+                    value: devtoolInformation.positionId(matchingComponent),
+                });
+            }
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (devtoolInformation.hasOwnProperty('view') && devtoolInformation.view(matchingComponent)) {
+                payload.state.General.push({
+                    key: 'View',
+                    // eslint-disable-next-line max-len
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
+                    value: devtoolInformation.view(matchingComponent),
+                });
+            }
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            if (devtoolInformation.hasOwnProperty('entity') && devtoolInformation.entity(matchingComponent)) {
+                payload.state.General.push({
+                    key: 'Entity',
+                    // eslint-disable-next-line max-len
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
+                    value: devtoolInformation.entity(matchingComponent),
+                });
+            }
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            if (devtoolInformation.property) {
+                payload.state.General.push({
+                    key: 'Property',
+                    // eslint-disable-next-line max-len
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
+                    value: devtoolInformation.property,
+                });
+            }
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (devtoolInformation.method) {
@@ -220,6 +253,8 @@ function getExtensionInformation(component: Component): {
     positionId: string,
     property: string,
     method: string,
+    view: string,
+    entity: string,
 } {
     // eslint-disable-next-line max-len
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
@@ -229,12 +264,18 @@ function getExtensionInformation(component: Component): {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const method = devtoolInformation.method as string ?? 'unknown';
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-    const positionId = devtoolInformation.positionId(component) as string;
+    const positionId = devtoolInformation?.positionId?.(component) as string ?? 'unknown';
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+    const view = devtoolInformation?.view?.(component) as string ?? 'unknown';
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+    const entity = devtoolInformation?.entity?.(component) as string ?? 'unknown';
 
     return {
         nodeId: `${property}_${positionId}`,
         positionId,
         property,
         method,
+        view,
+        entity,
     };
 }

@@ -1,4 +1,3 @@
-import Vue from 'vue';
 import type { Module } from 'vuex';
 import type { uiModalOpen } from '@shopware-ag/admin-extension-sdk/es/ui/modal';
 

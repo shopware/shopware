@@ -78,6 +78,7 @@ src/Docs/Command/wiki.secret
 /performance/_fixtures.php
 /src/Docs/**/dist
 /src/Core/DevOps/Locust/fixtures/*
+.php-cs-fixer.cache
 
 # tests / ci
 /build/

@@ -32,12 +32,14 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
 
     public function processCriteria(Criteria $criteria, SalesChannelContext $context): void
     {
-        $criteria
-            ->addAssociation('prices')
-            ->addAssociation('unit')
-            ->addAssociation('deliveryTime')
-            ->addAssociation('cover.media')
-        ;
+        if (empty($criteria->getFields())) {
+            $criteria
+                ->addAssociation('prices')
+                ->addAssociation('unit')
+                ->addAssociation('deliveryTime')
+                ->addAssociation('cover.media')
+            ;
+        }
 
         if (!$this->hasAvailableFilter($criteria)) {
             $criteria->addFilter(

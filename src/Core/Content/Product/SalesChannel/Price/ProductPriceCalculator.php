@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CalculatedCheapestPrice;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
@@ -44,37 +45,45 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
 
         /** @var SalesChannelProductEntity $product */
         foreach ($products as $product) {
-            if (!$product instanceof SalesChannelProductEntity) {
-                continue;
-            }
-
             $this->calculatePrice($product, $context, $units);
             $this->calculateAdvancePrices($product, $context, $units);
             $this->calculateCheapestPrice($product, $context, $units);
         }
     }
 
-    private function calculatePrice(SalesChannelProductEntity $product, SalesChannelContext $context, UnitCollection $units): void
+    private function calculatePrice(Entity $product, SalesChannelContext $context, UnitCollection $units): void
     {
+        $price = $product->get('price');
+        $taxId = $product->get('taxId');
+
+        if ($price === null || $taxId === null) {
+            return;
+        }
         $reference = ReferencePriceDto::createFromProduct($product);
 
-        \assert($product->getPrice() !== null);
-        $definition = $this->buildDefinition($product, $product->getPrice(), $context, $units, $reference);
+        $definition = $this->buildDefinition($product, $price, $context, $units, $reference);
 
         $price = $this->calculator->calculate($definition, $context);
 
-        $product->setCalculatedPrice($price);
+        $product->assign([
+            'calculatedPrice' => $price
+        ]);
     }
 
-    private function calculateAdvancePrices(SalesChannelProductEntity $product, SalesChannelContext $context, UnitCollection $units): void
+    private function calculateAdvancePrices(Entity $product, SalesChannelContext $context, UnitCollection $units): void
     {
-        if ($product->getPrices() === null) {
+        $prices = $product->get('prices');
+        if ($prices === null) {
             return;
         }
-        $prices = $this->filterRulePrices($product->getPrices(), $context);
 
+        if (!$prices instanceof ProductPriceCollection) {
+            return;
+        }
+
+        $prices = $this->filterRulePrices($prices, $context);
         if ($prices === null) {
-            $product->setCalculatedPrices(new CalculatedPriceCollection());
+            $product->assign(['calculatedPrices' => new CalculatedPriceCollection()]);
 
             return;
         }
@@ -91,45 +100,53 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
             $calculated->add($this->calculator->calculate($definition, $context));
         }
 
-        $product->setCalculatedPrices($calculated);
+        $product->assign(['calculatedPrices' => $calculated]);
     }
 
-    private function calculateCheapestPrice(SalesChannelProductEntity $product, SalesChannelContext $context, UnitCollection $units): void
+    private function calculateCheapestPrice(Entity $product, SalesChannelContext $context, UnitCollection $units): void
     {
-        $price = $product->getCheapestPrice();
+        $cheapest = $product->get('cheapestPrice');
 
-        if (!$price instanceof CheapestPrice) {
+        if (!$cheapest instanceof CheapestPrice) {
+            $price = $product->get('price');
+            if ($price === null) {
+                return;
+            }
+
             $reference = ReferencePriceDto::createFromProduct($product);
 
-            \assert($product->getPrice() !== null);
-            $definition = $this->buildDefinition($product, $product->getPrice(), $context, $units, $reference);
+            $definition = $this->buildDefinition($product, $price, $context, $units, $reference);
 
-            $cheapest = CalculatedCheapestPrice::createFrom(
+            $calculated = CalculatedCheapestPrice::createFrom(
                 $this->calculator->calculate($definition, $context)
             );
 
-            $cheapest->setHasRange($product->getCalculatedPrices()->count() > 1);
+            $prices = $product->get('calculatedPrices');
 
-            $product->setCalculatedCheapestPrice($cheapest);
+            $hasRange = $prices instanceof CalculatedPriceCollection && $prices->count() > 1;
+
+            $calculated->setHasRange($hasRange);
+
+            $product->assign(['calculatedCheapestPrice' => $calculated]);
 
             return;
         }
 
-        $reference = ReferencePriceDto::createFromCheapestPrice($price);
+        $reference = ReferencePriceDto::createFromCheapestPrice($cheapest);
 
-        $definition = $this->buildDefinition($product, $price->getPrice(), $context, $units, $reference);
+        $definition = $this->buildDefinition($product, $cheapest->getPrice(), $context, $units, $reference);
 
-        $cheapest = CalculatedCheapestPrice::createFrom(
+        $calculated = CalculatedCheapestPrice::createFrom(
             $this->calculator->calculate($definition, $context)
         );
 
-        $cheapest->setHasRange($price->hasRange());
+        $calculated->setHasRange($cheapest->hasRange());
 
-        $product->setCalculatedCheapestPrice($cheapest);
+        $product->assign(['calculatedCheapestPrice' => $calculated]);
     }
 
     private function buildDefinition(
-        SalesChannelProductEntity $product,
+        Entity $product,
         PriceCollection $prices,
         SalesChannelContext $context,
         UnitCollection $units,
@@ -138,8 +155,8 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
     ): QuantityPriceDefinition {
         $price = $this->getPriceValue($prices, $context);
 
-        \assert($product->getTaxId() !== null);
-        $definition = new QuantityPriceDefinition($price, $context->buildTaxRules($product->getTaxId()), $quantity);
+        $taxId = $product->get('taxId');
+        $definition = new QuantityPriceDefinition($price, $context->buildTaxRules($taxId), $quantity);
         $definition->setReferencePriceDefinition(
             $this->buildReferencePriceDefinition($reference, $units)
         );

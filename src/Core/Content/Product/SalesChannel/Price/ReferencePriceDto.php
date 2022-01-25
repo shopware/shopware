@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Price;
 
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Struct\Struct;
 
 class ReferencePriceDto extends Struct
@@ -30,12 +31,12 @@ class ReferencePriceDto extends Struct
         $this->unitId = $unitId;
     }
 
-    public static function createFromProduct(ProductEntity $product): ReferencePriceDto
+    public static function createFromProduct(Entity $product): ReferencePriceDto
     {
         return new self(
-            $product->getPurchaseUnit(),
-            $product->getReferenceUnit(),
-            $product->getUnitId()
+            $product->get('purchaseUnit'),
+            $product->get('referenceUnit'),
+            $product->get('unitId')
         );
     }
 

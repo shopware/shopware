@@ -154,6 +154,10 @@ class EntityHydrator
             if ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
                 $association = $this->manyToOne($row, $root, $field, $context);
 
+                if ($association === null && $entity instanceof PartialEntity) {
+                    continue;
+                }
+
                 if ($field->is(Extension::class)) {
                     $entity->addExtension($property, $association);
                 } else {

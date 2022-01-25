@@ -597,7 +597,6 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Captcha\Annotation\Captcha"/>
-        <service id="Shopware\Storefront\Framework\Routing\Annotation\NoStore"/>
 
         <service id="Shopware\Storefront\Framework\Routing\ResponseHeaderListener">
             <tag name="kernel.event_listener" priority="-10"/>

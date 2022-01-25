@@ -43,6 +43,8 @@
             <argument type="service" id="Shopware\Core\Content\Media\File\FileNameProvider"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileImporter"/>
             <argument type="service" id="language.repository"/>
+            <argument type="service" id="theme_child.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeFileResolver">
@@ -56,6 +58,7 @@
             <argument type="service" id="Shopware\Storefront\Theme\ThemeCompiler"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ResolvedConfigLoader">
@@ -142,6 +145,10 @@
         </service>
 
         <service id="Shopware\Storefront\Theme\Aggregate\ThemeMediaDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Storefront\Theme\Aggregate\ThemeChildDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
 
@@ -255,6 +262,14 @@
             <argument type="service" id="sales_channel.repository" />
 
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Storefront\Theme\DataAbstractionLayer\ThemeIndexer">
+            <tag name="shopware.entity_indexer"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="theme.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
     </services>

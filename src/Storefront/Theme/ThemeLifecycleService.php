@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
@@ -65,6 +66,10 @@ class ThemeLifecycleService
      */
     private $languageRepository;
 
+    private EntityRepositoryInterface $themeChildRepository;
+
+    private Connection $connection;
+
     public function __construct(
         StorefrontPluginRegistryInterface $pluginRegistry,
         EntityRepositoryInterface $themeRepository,
@@ -74,7 +79,9 @@ class ThemeLifecycleService
         FileSaver $fileSaver,
         FileNameProvider $fileNameProvider,
         ThemeFileImporterInterface $themeFileImporter,
-        EntityRepositoryInterface $languageRepository
+        EntityRepositoryInterface $languageRepository,
+        EntityRepositoryInterface $themeChildRepository,
+        Connection $connection
     ) {
         $this->pluginRegistry = $pluginRegistry;
         $this->themeRepository = $themeRepository;
@@ -85,6 +92,8 @@ class ThemeLifecycleService
         $this->fileNameProvider = $fileNameProvider;
         $this->themeFileImporter = $themeFileImporter;
         $this->languageRepository = $languageRepository;
+        $this->themeChildRepository = $themeChildRepository;
+        $this->connection = $connection;
     }
 
     public function refreshThemes(
@@ -127,22 +136,37 @@ class ThemeLifecycleService
             $themeData = $this->addParentTheme($configuration, $themeData, $context);
         }
 
+        $writtenEvent = $this->themeRepository->upsert([$themeData], $context);
+
+        if (!isset($themeData['id']) || empty($themeData['id'])) {
+            $themeData['id'] = current($writtenEvent->getPrimaryKeys(ThemeDefinition::ENTITY_NAME));
+        }
+
         $this->themeRepository->upsert([$themeData], $context);
+
+        $parentThemes = $this->getParentThemes($configuration, $themeData['id']);
+        $parentCriteria = new Criteria();
+        $parentCriteria->addFilter(new EqualsFilter('childId', $themeData['id']));
+        $toDeleteIds = $this->themeChildRepository->searchIds($parentCriteria, $context);
+        $this->themeChildRepository->delete($toDeleteIds->getIds(), $context);
+        $this->themeChildRepository->upsert($parentThemes, $context);
     }
 
     public function removeTheme(string $technicalName, Context $context): void
     {
         $criteria = new Criteria();
-        $criteria->addAssociation('childThemes');
+        $criteria->addAssociation('dependentThemes');
         $criteria->addFilter(new EqualsFilter('technicalName', $technicalName));
 
+        /** @var ThemeEntity|null $theme */
         $theme = $this->themeRepository->search($criteria, $context)->first();
 
         if ($theme === null) {
             return;
         }
 
-        $ids = array_merge(array_values($theme->getChildThemes()->getIds()), [$theme->getId()]);
+        $dependentThemes = $theme->getDependentThemes() ?? new ThemeCollection();
+        $ids = array_merge(array_values($dependentThemes->getIds()), [$theme->getId()]);
 
         $this->removeOldMedia($technicalName, $context);
         $this->themeRepository->delete(array_map(function (string $id) {
@@ -452,5 +476,52 @@ class ThemeLifecycleService
         }
 
         return $themeData;
+    }
+
+    private function getParentThemes(StorefrontPluginConfiguration $config, string $id): array
+    {
+        $allThemeConfigs = $this->pluginRegistry->getConfigurations()->getThemes();
+
+        $allThemes = $this->getAllThemesPlain();
+
+        $parentThemeConfigs = $allThemeConfigs->filter(
+            fn (StorefrontPluginConfiguration $parentConfig) => $this->isDependentTheme($parentConfig, $config)
+        );
+
+        $technicalNames = $parentThemeConfigs->map(
+            fn (StorefrontPluginConfiguration $theme) => $theme->getTechnicalName()
+        );
+
+        $parentThemes = array_filter(
+            $allThemes,
+            fn (array $theme) => \in_array($theme['technicalName'] ?? '', $technicalNames, true)
+        );
+
+        $updateParents = [];
+        /** @var array $parentTheme */
+        foreach ($parentThemes as $parentTheme) {
+            $updateParents[] = [
+                'parentId' => $parentTheme['parentThemeId'] ?? '',
+                'childId' => $id,
+            ];
+        }
+
+        return $updateParents;
+    }
+
+    private function getAllThemesPlain(): array
+    {
+        return $this->connection->fetchAllAssociative(
+            'SELECT theme.technical_name as technicalName, LOWER(HEX(theme.id)) as parentThemeId FROM theme'
+        );
+    }
+
+    private function isDependentTheme(
+        StorefrontPluginConfiguration $parentConfig,
+        StorefrontPluginConfiguration $currentThemeConfig
+    ): bool {
+        return $currentThemeConfig->getTechnicalName() !== $parentConfig->getTechnicalName()
+            && \in_array('@' . $parentConfig->getTechnicalName(), $currentThemeConfig->getStyleFiles()->getFilepaths(), true)
+        ;
     }
 }

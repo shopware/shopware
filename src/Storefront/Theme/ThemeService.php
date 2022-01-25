@@ -2,12 +2,14 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
@@ -31,13 +33,16 @@ class ThemeService
 
     private AbstractConfigLoader $configLoader;
 
+    private Connection $connection;
+
     public function __construct(
         StorefrontPluginRegistryInterface $extensionRegistry,
         EntityRepositoryInterface $themeRepository,
         EntityRepositoryInterface $themeSalesChannelRepository,
         ThemeCompilerInterface $themeCompiler,
         EventDispatcherInterface $dispatcher,
-        AbstractConfigLoader $configLoader
+        AbstractConfigLoader $configLoader,
+        Connection $connection
     ) {
         $this->extensionRegistery = $extensionRegistry;
         $this->themeRepository = $themeRepository;
@@ -45,8 +50,13 @@ class ThemeService
         $this->themeCompiler = $themeCompiler;
         $this->dispatcher = $dispatcher;
         $this->configLoader = $configLoader;
+        $this->connection = $connection;
     }
 
+    /**
+     * Only compiles a single theme/saleschannel combination.
+     * Use `compileThemeById` to compile all dependend saleschannels
+     */
     public function compileTheme(
         string $salesChannelId,
         string $themeId,
@@ -61,6 +71,33 @@ class ThemeService
             $configurationCollection ?? $this->extensionRegistery->getConfigurations(),
             $withAssets
         );
+    }
+
+    /**
+     * Compiles all dependend saleschannel/Theme combinations
+     */
+    public function compileThemeById(
+        string $themeId,
+        Context $context,
+        ?StorefrontPluginConfigurationCollection $configurationCollection = null,
+        bool $withAssets = true
+    ): array {
+        $mappings = $this->getThemeDependencyMapping($themeId);
+
+        $compiledThemeIds = [];
+        /** @var ThemeSalesChannel $mapping */
+        foreach ($mappings as $mapping) {
+            $this->themeCompiler->compileTheme(
+                $mapping->getSalesChannelId(),
+                $mapping->getThemeId(),
+                $this->configLoader->load($themeId, $context),
+                $configurationCollection ?? $this->extensionRegistery->getConfigurations(),
+                $withAssets
+            );
+            $compiledThemeIds[] = $mapping->getThemeId();
+        }
+
+        return $compiledThemeIds;
     }
 
     public function updateTheme(string $themeId, ?array $config, ?string $parentThemeId, Context $context): void
@@ -107,9 +144,7 @@ class ThemeService
             return;
         }
 
-        foreach ($theme->getSalesChannels() as $salesChannel) {
-            $this->compileTheme($salesChannel->getId(), $themeId, $context, null, false);
-        }
+        $this->compileThemeById($themeId, $context, null, false);
     }
 
     public function assignTheme(string $themeId, string $salesChannelId, Context $context, bool $skipCompile = false): bool
@@ -190,7 +225,11 @@ class ThemeService
 
         foreach ($themeConfig['fields'] as $name => &$item) {
             $configFields[$name] = $themeConfigFieldFactory->create($name, $item);
-            if (\is_array($item['value']) && \array_key_exists($name, $configuredTheme['fields'])) {
+            if (
+                \is_array($item['value'])
+                && \array_key_exists('fields', $configuredTheme)
+                && \array_key_exists($name, $configuredTheme['fields'])
+            ) {
                 $configFields[$name]->setValue($configuredTheme['fields'][$name]['value']);
             }
         }
@@ -266,6 +305,33 @@ class ThemeService
         }
 
         return $outputStructure;
+    }
+
+    public function getThemeDependencyMapping(string $themeId): ThemeSalesChannelCollection
+    {
+        $mappings = new ThemeSalesChannelCollection();
+        $themeData = $this->connection->fetchAllAssociative(
+            'SELECT LOWER(HEX(theme.id)) as id, LOWER(HEX(childTheme.id)) as dependentId, 
+            LOWER(HEX(tsc.sales_channel_id)) as saleschannelId,
+            LOWER(HEX(dtsc.sales_channel_id)) as dsaleschannelId 
+            FROM theme 
+            LEFT JOIN theme as childTheme ON childTheme.parent_theme_id = theme.id 
+            LEFT JOIN theme_sales_channel as tsc ON theme.id = tsc.theme_id
+            LEFT JOIN theme_sales_channel as dtsc ON childTheme.id = dtsc.theme_id
+            WHERE theme.id = :id',
+            ['id' => Uuid::fromHexToBytes($themeId)]
+        );
+
+        foreach ($themeData as $data) {
+            if (isset($data['id']) && isset($data['saleschannelId']) && $data['id'] === $themeId) {
+                $mappings->add(new ThemeSalesChannel($data['id'], $data['saleschannelId']));
+            }
+            if (isset($data['dependentId']) && isset($data['dsaleschannelId'])) {
+                $mappings->add(new ThemeSalesChannel($data['dependentId'], $data['dsaleschannelId']));
+            }
+        }
+
+        return $mappings;
     }
 
     private function getParentThemeIds(EntitySearchResult $themes, ThemeEntity $mainTheme, array $parentThemes = []): array

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Test\Theme;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Constraint\Callback;
 use PHPUnit\Framework\Constraint\IsEqual;
 use PHPUnit\Framework\TestCase;
@@ -549,6 +550,7 @@ class ThemeTest extends TestCase
                 ),
                 $this->getContainer()->get('media.repository'),
             ),
+            $this->getContainer()->get(Connection::class)
         );
         $themeService->updateTheme(
             $childTheme->getId(),

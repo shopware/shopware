@@ -32,25 +32,41 @@ class UpdateSubscriberTest extends TestCase
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
         $context = Context::createDefaultContext();
+
         $themes = $this->setupThemes($context);
 
         $updateSubscriber = new UpdateSubscriber($themeService, $themeLifecycleService, $salesChannelRepository);
         $event = new UpdatePostFinishEvent(Context::createDefaultContext(), 'v6.2.0', 'v6.2.1');
 
         $themeLifecycleService->expects(static::once())->method('refreshThemes');
-        $themeService->expects(static::exactly(3))
-            ->method('compileTheme')
-            ->willReturnCallback(function ($salesChannelId, $themeId, $c) use (&$themes, $context) {
-                $this->assertArrayHasKey($themeId, $themes);
-                $this->assertSame($themes[$themeId], $salesChannelId);
+        $themeService->expects(static::atLeast(2))
+            ->method('compileThemeById')
+            ->willReturnCallback(function ($themeId, $c) use (&$themes, $context) {
+                echo $themeId . 'one' . \PHP_EOL;
                 $this->assertEquals($context, $c);
+                $compiledThemes = [];
+                if (isset($themes['otherTheme']) && $themes['otherTheme']['id'] === $themeId) {
+                    $compiledThemes[] = $themes['otherTheme']['id'];
+                    unset($themes['otherTheme']);
+                } elseif (isset($themes['parentTheme']) && $themes['parentTheme']['id'] === $themeId) {
+                    $compiledThemes[] = $themes['parentTheme']['id'];
+                    unset($themes['parentTheme']);
+                    if (isset($themes['childTheme'])) {
+                        $compiledThemes[] = $themes['childTheme']['id'];
+                        unset($themes['childTheme']);
+                    }
+                } elseif (isset($themes['childTheme']) && $themes['childTheme']['id'] === $themeId) {
+                    $compiledThemes[] = $themes['childTheme']['id'];
+                    unset($themes['childTheme']);
+                }
+
                 unset($themes[$themeId]);
 
-                return true;
+                return $compiledThemes;
             });
 
         $updateSubscriber->updateFinished($event);
-        static::assertEmpty($themes);
+        static::assertEmpty($themes, print_r($themes, true));
     }
 
     private function setupThemes(Context $context): array
@@ -61,11 +77,20 @@ class UpdateSubscriberTest extends TestCase
 
         $parentThemeId = Uuid::randomHex();
         $otherThemeId = Uuid::randomHex();
-        $childId = Uuid::randomHex();
+        $childThemeId = Uuid::randomHex();
         $themes = [
-            $parentThemeId => Uuid::randomHex(),
-            $otherThemeId => Uuid::randomHex(),
-            $childId => Uuid::randomHex(),
+            'parentTheme' => [
+                'id' => $parentThemeId,
+                'salesChannelId' => Uuid::randomHex(),
+            ],
+            'otherTheme' => [
+                'id' => $otherThemeId,
+                'salesChannelId' => Uuid::randomHex(),
+            ],
+            'childTheme' => [
+                'id' => $childThemeId,
+                'salesChannelId' => Uuid::randomHex(),
+            ],
         ];
 
         $themeRepository->create(
@@ -78,7 +103,7 @@ class UpdateSubscriberTest extends TestCase
                     'active' => true,
                 ],
                 [
-                    'id' => $childId,
+                    'id' => $childThemeId,
                     'parentThemeId' => $parentThemeId,
                     'name' => 'Child theme',
                     'author' => 'test',
@@ -95,19 +120,24 @@ class UpdateSubscriberTest extends TestCase
             $context
         );
 
-        foreach ($themes as $themeId => $salesChannelId) {
+        foreach ($themes as $theme) {
             $this->createSalesChannel([
-                'id' => $salesChannelId, 'domains' => [
+                'id' => $theme['salesChannelId'], 'domains' => [
                     [
                         'languageId' => Defaults::LANGUAGE_SYSTEM,
                         'currencyId' => Defaults::CURRENCY,
                         'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
-                        'url' => 'http://localhost/' . $themeId,
+                        'url' => 'http://localhost/' . $theme['id'],
                     ],
                 ],
             ]);
 
-            $themeSalesChannelRepository->create([['themeId' => $themeId, 'salesChannelId' => $salesChannelId]], $context);
+            $themeSalesChannelRepository->create(
+                [
+                    ['themeId' => $theme['id'], 'salesChannelId' => $theme['salesChannelId']],
+                ],
+                $context
+            );
         }
 
         return $themes;

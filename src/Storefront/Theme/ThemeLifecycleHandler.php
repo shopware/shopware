@@ -3,12 +3,11 @@
 namespace Shopware\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
@@ -44,124 +43,102 @@ class ThemeLifecycleHandler
         StorefrontPluginConfigurationCollection $configurationCollection,
         Context $context
     ): void {
+        $themeId = null;
         if ($config->getIsTheme()) {
             $this->themeLifecycleService->refreshTheme($config, $context);
-            $this->changeThemeActive($config->getTechnicalName(), true, $context);
+            $themeData = $this->getThemeDataByTechnicalName($config->getTechnicalName());
+            $themeId = $themeData['id'];
+            $this->changeThemeActive($themeData, true, $context);
         }
 
-        $this->recompileThemesIfNecessary($config, $context, $configurationCollection);
+        $this->recompileThemesIfNecessary($config, $context, $configurationCollection, $themeId);
     }
 
     public function handleThemeUninstall(StorefrontPluginConfiguration $config, Context $context): void
     {
+        $themeId = null;
         if ($config->getIsTheme()) {
+            $themeData = $this->getThemeDataByTechnicalName($config->getTechnicalName());
+            $themeId = $themeData['id'];
+
             // throw an exception if theme is still assigned to a sales channel
-            $this->validateThemeAssignment($config->getTechnicalName(), $context);
+            $this->validateThemeAssignment($themeId);
 
             // set active = false in the database to theme and all children
-            $this->changeThemeActive($config->getTechnicalName(), false, $context);
+            $this->changeThemeActive($themeData, false, $context);
         }
 
         $configs = $this->storefrontPluginRegistry->getConfigurations();
+
         $configs = $configs->filter(function (StorefrontPluginConfiguration $registeredConfig) use ($config): bool {
             return $registeredConfig->getTechnicalName() !== $config->getTechnicalName();
         });
 
-        $this->recompileThemesIfNecessary($config, $context, $configs);
+        $this->recompileThemesIfNecessary($config, $context, $configs, $themeId);
     }
 
     /**
      * @throws ThemeAssignmentException
      * @throws InconsistentCriteriaIdsException
      */
-    private function validateThemeAssignment(string $technicalName, Context $context): void
+    private function validateThemeAssignment(?string $themeId): void
     {
-        $criteria = new Criteria();
-        $criteria->addAssociation('salesChannels');
-        $criteria->addFilter(new EqualsFilter('technicalName', $technicalName));
-        /** @var ThemeEntity|null $theme */
-        $theme = $this->themeRepository->search($criteria, $context)->first();
-
-        if (!$theme) {
+        if (!$themeId) {
             return;
         }
 
-        $themeSalesChannel = [];
-        $salesChannels = $theme->getSalesChannels() ?? new SalesChannelCollection();
-        if ($salesChannels->count() > 0) {
-            $themeSalesChannel[$technicalName] = array_values($salesChannels->getIds());
-        }
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('parentThemeId', $theme->getId()));
-        $criteria->addAssociation('salesChannels');
-        /** @var ThemeCollection $childThemes */
-        $childThemes = $this->themeRepository->search($criteria, $context)->getEntities();
-
-        $childThemeSalesChannel = [];
-        if ($childThemes->count() > 0) {
-            foreach ($childThemes as $childTheme) {
-                $childThemeSalesChannels = $childTheme->getSalesChannels();
-                if ($childThemeSalesChannels === null || $childThemeSalesChannels->count() === 0) {
-                    continue;
-                }
-                $salesChannels->merge($childThemeSalesChannels);
-                $childThemeSalesChannel[$childTheme->getName()] = array_values($childThemeSalesChannels->getIds());
-            }
-        }
-
-        if (\count($themeSalesChannel) === 0 && \count($childThemeSalesChannel) === 0) {
+        if ($this->themeService->getThemeDependencyMapping($themeId)->count() === 0) {
             return;
         }
 
-        throw new ThemeAssignmentException($technicalName, $themeSalesChannel, $childThemeSalesChannel, $salesChannels);
+        $this->throwAssignmentException($themeId);
     }
 
-    private function changeThemeActive(string $technicalName, bool $active, Context $context): void
+    private function changeThemeActive(array $themeData, bool $active, Context $context): void
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('technicalName', $technicalName));
-        $criteria->addAssociation('childThemes');
-        /** @var ThemeEntity|null $theme */
-        $theme = $this->themeRepository->search($criteria, $context)->first();
-
-        if (!$theme) {
+        if (empty($themeData)) {
             return;
         }
 
         $data = [];
-        $data[] = ['id' => $theme->getId(), 'active' => $active];
-        $childThemes = $theme->getChildThemes();
-        if ($childThemes) {
-            foreach ($childThemes->getIds() as $id) {
+        $data[] = ['id' => $themeData['id'], 'active' => $active];
+
+        if (isset($themeData['dependentThemes'])) {
+            foreach ($themeData['dependentThemes'] as $id) {
                 $data[] = ['id' => $id, 'active' => $active];
             }
         }
 
         if (\count($data)) {
-            $this->themeRepository->update($data, $context);
+            $this->themeRepository->upsert($data, $context);
         }
     }
 
-    private function recompileThemesIfNecessary(StorefrontPluginConfiguration $config, Context $context, StorefrontPluginConfigurationCollection $configurationCollection): void
-    {
+    private function recompileThemesIfNecessary(
+        StorefrontPluginConfiguration $config,
+        Context $context,
+        StorefrontPluginConfigurationCollection $configurationCollection,
+        ?string $themeId
+    ): void {
         if (!$config->hasFilesToCompile()) {
             return;
         }
 
-        if (!$config->getIsTheme()) {
-            // Recompile all themes as the extension generally extends the storefront
-            $mappings = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(sales_channel_id)) as sales_channel_id, LOWER(HEX(theme_id)) as theme_id FROM theme_sales_channel');
-        } else {
-            // Recompile only the updated themes and children thereof
-            $mappings = $this->connection->fetchAllAssociative('
-                SELECT LOWER(HEX(`theme_sales_channel`.`sales_channel_id`)) as sales_channel_id, LOWER(HEX(`theme_sales_channel`.`theme_id`)) as theme_id
-                FROM `theme_sales_channel`
-                INNER JOIN `theme` ON `theme_sales_channel`.`theme_id` = `theme`.`id`
-                LEFT JOIN `theme` AS `parent` ON `theme`.`parent_theme_id` = `parent`.`id`
-                WHERE `parent`.`technical_name` = :themeName OR `theme`.`technical_name` = :themeName
-            ', ['themeName' => $config->getTechnicalName()]);
+        if ($themeId !== null) {
+            $this->themeService->compileThemeById(
+                $themeId,
+                $context,
+                $configurationCollection
+            );
+
+            return;
         }
+
+        // Recompile all themes as the extension generally extends the storefront
+        $mappings = $this->connection->fetchAllAssociative(
+            'SELECT LOWER(HEX(sales_channel_id)) as sales_channel_id, LOWER(HEX(theme_id)) as theme_id 
+             FROM theme_sales_channel'
+        );
 
         foreach ($mappings as $mapping) {
             $this->themeService->compileTheme(
@@ -171,5 +148,85 @@ class ThemeLifecycleHandler
                 $configurationCollection
             );
         }
+    }
+
+    private function getThemeDataByTechnicalName(string $technicalName): array
+    {
+        $themeData = $this->connection->fetchAllAssociative(
+            'SELECT LOWER(HEX(theme.id)) as id, LOWER(HEX(childTheme.id)) as dependentId FROM theme 
+                LEFT JOIN theme as childTheme ON childTheme.parent_theme_id = theme.id 
+                WHERE theme.technical_name = :technicalName',
+            ['technicalName' => $technicalName]
+        );
+
+        if (empty($themeData)) {
+            return [
+                'id' => null,
+            ];
+        }
+
+        $themes = [
+            'id' => current($themeData)['id'],
+        ];
+        foreach ($themeData as $data) {
+            if ($data['dependentId']) {
+                $themes['dependentThemes'][] = $data['dependentId'];
+            }
+        }
+
+        return $themes;
+    }
+
+    private function throwAssignmentException(string $themeId): void
+    {
+        $salesChannels = [];
+        $themeSalesChannel = [];
+        $themeName = $themeId;
+
+        try {
+            $themeData = $this->connection->fetchAllAssociative(
+                'SELECT theme.name as themeName, childTheme.name as dthemeName, LOWER(HEX(theme.id)) as id, 
+                LOWER(HEX(childTheme.id)) as dependentId, LOWER(HEX(tsc.sales_channel_id)) as saleschannelId,
+                sc.name as saleschannelName, dsc.name as dsaleschannelName,
+                LOWER(HEX(dtsc.sales_channel_id)) as dsaleschannelId 
+                FROM theme 
+                LEFT JOIN theme as childTheme ON childTheme.parent_theme_id = theme.id 
+                LEFT JOIN theme_sales_channel as tsc ON theme.id = tsc.theme_id
+                LEFT JOIN sales_channel_translation as sc ON tsc.sales_channel_id = sc.sales_channel_id AND sc.language_id = :langId
+                LEFT JOIN theme_sales_channel as dtsc ON childTheme.id = dtsc.theme_id
+                LEFT JOIN sales_channel_translation as dsc ON dtsc.sales_channel_id = dsc.sales_channel_id AND dsc.language_id = :langId
+                WHERE theme.id = :id',
+                ['id' => Uuid::fromHexToBytes($themeId), 'langId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
+            );
+
+            $childThemeSalesChannel = [];
+            foreach ($themeData as $data) {
+                $themeName = $data['themeName'];
+                if (isset($data['id']) && isset($data['saleschannelId']) && $data['id'] === $themeId && $data['saleschannelId'] !== null) {
+                    $themeSalesChannel[$data['themeName']][] = $data['saleschannelId'];
+                    $salesChannels[$data['saleschannelId']] = $data['saleschannelName'];
+                }
+                if (isset($data['dsaleschannelId']) && !empty($data['dsaleschannelId']) && isset($data['dthemeName'])) {
+                    $childThemeSalesChannel[$data['dthemeName']][] = $data['dsaleschannelId'];
+                    $salesChannels[$data['dsaleschannelId']] = $data['dsaleschannelName'];
+                }
+            }
+        } catch (\Throwable $e) {
+            // on case an error occurs while fetching data for the exception we still want to have the correct exception
+            throw new ThemeAssignmentException(
+                $themeId,
+                [],
+                [],
+                $salesChannels,
+                $e
+            );
+        }
+
+        throw new ThemeAssignmentException(
+            $themeName,
+            $themeSalesChannel,
+            $childThemeSalesChannel,
+            $salesChannels
+        );
     }
 }

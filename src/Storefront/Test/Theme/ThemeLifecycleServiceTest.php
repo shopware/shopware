@@ -278,8 +278,8 @@ class ThemeLifecycleServiceTest extends TestCase
         $themeEntity = $this->getTheme($bundle, true);
         $childId = Uuid::randomHex();
 
-        // check if we have no childs
-        static::assertEquals(0, $themeEntity->getChildThemes()->count());
+        // check if we have no dependent Themes
+        static::assertEquals(0, $themeEntity->getDependentThemes()->count());
 
         // clone theme and make it child
         $this->themeRepository->clone($themeEntity->getId(), $this->context, $childId, new CloneBehavior([
@@ -296,7 +296,7 @@ class ThemeLifecycleServiceTest extends TestCase
 
         static::assertTrue($themeEntity->isActive());
         static::assertEquals(2, $themeMedia->count());
-        static::assertEquals(1, $themeEntity->getChildThemes()->count());
+        static::assertEquals(1, $themeEntity->getDependentThemes()->count());
 
         $themeDefaultFolderId = $this->getThemeMediaDefaultFolderId();
         foreach ($themeMedia as $media) {
@@ -333,7 +333,7 @@ class ThemeLifecycleServiceTest extends TestCase
         $criteria->addAssociation('translations.language.locale');
 
         if ($withChild) {
-            $criteria->addAssociation('childThemes');
+            $criteria->addAssociation('dependentThemes');
         }
 
         return $this->themeRepository->search($criteria, $this->context)->getEntities()->first();

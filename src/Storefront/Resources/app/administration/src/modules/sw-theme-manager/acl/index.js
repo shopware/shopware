@@ -7,6 +7,7 @@ Shopware.Service('privileges')
             viewer: {
                 privileges: [
                     'theme:read',
+                    'theme_child:read',
                     'sales_channel:read',
                     Shopware.Service('privileges').getPrivileges('media.viewer')
                 ],
@@ -15,6 +16,7 @@ Shopware.Service('privileges')
             editor: {
                 privileges: [
                     'theme:update',
+                    'theme_child:update',
                     'tag:read',
                     'product_media:read',
                     'product:read',
@@ -37,7 +39,8 @@ Shopware.Service('privileges')
             },
             creator: {
                 privileges: [
-                    'theme:create'
+                    'theme:create',
+                    'theme_child:create'
                 ],
                 dependencies: [
                     'theme.viewer',
@@ -46,7 +49,8 @@ Shopware.Service('privileges')
             },
             deleter: {
                 privileges: [
-                    'theme:delete'
+                    'theme:delete',
+                    'theme_child:delete'
                 ],
                 dependencies: [
                     'theme.viewer'

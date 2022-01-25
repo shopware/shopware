@@ -8,14 +8,19 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ThemeAssignmentException extends ShopwareHttpException
 {
-    private SalesChannelCollection $stillAssignedSalesChannels;
+    private array $stillAssignedSalesChannels;
 
     /**
      * @deprecated tag:v6.5.0 parameter $stillAssignedSalesChannels will be required
      */
-    public function __construct(string $themeName, array $themeSalesChannel, array $childThemeSalesChannel, ?SalesChannelCollection $stillAssignedSalesChannels = null)
-    {
-        $this->stillAssignedSalesChannels = $stillAssignedSalesChannels ?? new SalesChannelCollection();
+    public function __construct(
+        string $themeName,
+        array $themeSalesChannel,
+        array $childThemeSalesChannel,
+        ?array $stillAssignedSalesChannels = null,
+        ?\Throwable $e = null
+    ) {
+        $this->stillAssignedSalesChannels = $stillAssignedSalesChannels ?? [];
 
         $parameters = ['themeName' => $themeName];
         $message = 'Unable to deactivate or uninstall theme "{{ themeName }}".';
@@ -30,7 +35,7 @@ class ThemeAssignmentException extends ShopwareHttpException
         }
         $parameters['assignments'] = $assignments;
 
-        parent::__construct($message, $parameters);
+        parent::__construct($message, $parameters, $e);
     }
 
     public function getErrorCode(): string
@@ -43,25 +48,34 @@ class ThemeAssignmentException extends ShopwareHttpException
         return Response::HTTP_BAD_REQUEST;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - will be removed on v6.5.0 use `getAssignedSalesChannels` instead
+     */
     public function getStillAssignedSalesChannels(): SalesChannelCollection
+    {
+        return new SalesChannelCollection();
+    }
+
+    public function getAssignedSalesChannels(): ?array
     {
         return $this->stillAssignedSalesChannels;
     }
 
-    private function formatAssignments(array $assignmentMapping)
+    private function formatAssignments(array $assignmentMapping): string
     {
         $output = [];
         foreach ($assignmentMapping as $themeName => $salesChannelIds) {
             $salesChannelNames = [];
             foreach ($salesChannelIds as $salesChannelId) {
-                $salesChannel = $this->getStillAssignedSalesChannels()->get($salesChannelId);
-                if (!$salesChannel) {
+                if ($this->stillAssignedSalesChannels[$salesChannelId]) {
+                    $salesChannel = $this->stillAssignedSalesChannels[$salesChannelId];
+                } else {
                     $salesChannelNames[] = $salesChannelId;
 
                     continue;
                 }
 
-                $salesChannelNames[] = $salesChannel->getName();
+                $salesChannelNames[] = $salesChannel;
             }
 
             $output[] = sprintf('"%s" => "%s"', $themeName, implode(', ', $salesChannelNames));

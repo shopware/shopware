@@ -72,8 +72,15 @@ class ThemeEntity extends Entity
 
     /**
      * @var ThemeCollection|null
+     *
+     * @deprecated tag:v6.5.0 Property `childThemes` will be removed in  v6.5.0
      */
     protected $childThemes;
+
+    /**
+     * @var ThemeCollection|null
+     */
+    protected $dependentThemes;
 
     /**
      * @var MediaEntity|null
@@ -235,11 +242,17 @@ class ThemeEntity extends Entity
         $this->previewMedia = $previewMedia;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 `getChildThemes` will be removed in v6.5.0
+     */
     public function getChildThemes(): ?ThemeCollection
     {
         return $this->childThemes;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 `setChildThemes` will be removed in  v6.5.0
+     */
     public function setChildThemes(ThemeCollection $childThemes): void
     {
         $this->childThemes = $childThemes;
@@ -253,5 +266,15 @@ class ThemeEntity extends Entity
     public function setTranslations(ThemeTranslationCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getDependentThemes(): ?ThemeCollection
+    {
+        return $this->dependentThemes;
+    }
+
+    public function setDependentThemes(ThemeCollection $dependentThemes): void
+    {
+        $this->dependentThemes = $dependentThemes;
     }
 }

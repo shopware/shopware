@@ -21,7 +21,7 @@
             "confirmLanguageSwitch": "Sprache wechseln",
             "cancelLanguageSwitch": "Abbrechen",
             "switchLanguageMessage": "Die Sprach-Erweiterung \"{pluginName}\" wurde erfolgreich installiert. Möchtest Du die Sprache der Benutzeroberfläche ändern?",
-            "pluginsInstalled": "Sprach-Erweiterung Installiert",
+            "pluginsInstalled": "Sprach-Erweiterung installiert",
             "pluginsInstalledMessage": "Sprach-Erweiterung installiert: | Sprach-Erweiterung für folgende Sprachen wurden installiert: ",
             "pluginNotFoundMessage": "Die Sprach-Erweiterung {languageName} konnte nicht gefunden werden.",
             "pluginInstallationFailedMessage": "Erweiterung konnte nicht installiert werden: ",
@@ -30,7 +30,7 @@
             "noConnectionMessage": "Verbindungsprobleme, die gewünschte Sprache kann derzeit nicht installiert werden."
         },
         "dataImport": {
-            "modalTitle": "Dein Start mit Shopware 6",
+            "modalTitle": "Dein Start in Shopware 6",
             "headlineDemoData": "Demodaten benutzen",
             "messageDemoData": "Statte Deinen Shop mit Demodaten aus und erkunde Shopware 6. Demodaten sollten ausschließlich zu Testzwecken verwendet werden.",
             "buttonInstallDemoData": "Demodaten installieren",
@@ -85,7 +85,7 @@
             "headline": "Shopware Account - Anmeldung",
             "passwordLabel": "Passwort",
             "passwordPlaceholder": "Gib Dein Passwort ein ...",
-            "emailAddressLabel": "Email-Addresse",
+            "emailAddressLabel": "E-Mail-Addresse",
             "emailAddressPlaceholder": "Gib Deine E-Mail-Adresse ein ...",
             "modalTitle": "Shopware Account",
             "message": "Der Shopware Account ist Deine zentrale Plattform zur Interaktion mit Shopware.",
@@ -106,20 +106,20 @@
         },
         "store": {
           "modalTitle": "Shopware Store",
-          "loadStatusCollect": "Store Informationen werden abgerufen...",
+          "loadStatusCollect": "Store-Informationen werden abgerufen...",
           "takeMinutes": "Dies kann ein paar Minuten dauern.",
           "alreadyActivated": "Store ist bereits erfolgreich aktiviert.",
           "enablingStore": "Aktivieren des Shopware-Stores ... ",
           "activationErrorTitle": "Fehler bei der Aktivierung",
-          "activationErrorDescription": "Bitte frage deinen Administrator um Hilfe.",
+          "activationErrorDescription": "Bitte frage Deinen Administrator um Hilfe.",
           "headingOne": "Erkunde und kaufe Erweiterungen einfach -",
-          "headingTwo": "direkt aus deinem eigenen Shopware Shop.",
-          "description": "Aktiviere den neuen Shopware Store und erhalte Zugriff auf viele hilfreiche Erweiterungen und moderne Themes, die du nahtlos in deinen Shop integrieren kannst - ganz ohne Programmierkenntnisse."
+          "headingTwo": "direkt aus Deinem eigenen Shopware-Shop.",
+          "description": "Aktiviere den neuen Shopware Store und erhalte Zugriff auf viele hilfreiche Erweiterungen und moderne Themes, die Du nahtlos in Deinen Shop integrieren kannst - ganz ohne Programmierkenntnisse."
         },
         "markets": {
           "modalTitle": "Shopware Markets",
           "heading": "Shopware Markets",
-          "description": "Shopware Markets gibt Dir die Möglichkeit Deinen Shop mit den Marktplätzen von Amazon und eBay zu verbinden und erlaubt, Produkte und Bestellungen so einfach wie nur möglich zu übertragen.<br>Wir haben Shopware Markets erstellt, um  mithilfe von Verkaufskanälen Dein Business noch weiter wachsen zu lassen *¹.",
+          "description": "Shopware Markets gibt Dir die Möglichkeit, Deinen Shop mit den Marktplätzen von Amazon und eBay zu verbinden und erlaubt, Produkte und Bestellungen so einfach wie nur möglich zu übertragen.<br>Wir haben Shopware Markets erstellt, um  mithilfe von Verkaufskanälen Dein Business noch weiter wachsen zu lassen *¹.",
           "footnote": "*¹ Für die Verwendung von Shopware Markets und den zusätzlichen Verkaufskanälen wird eine zahlungspflichtiges Abonnement benötigt."
         },
         "defaults": {
@@ -127,7 +127,7 @@
         },
         "finish": {
             "headlineAllDone": "Herzlichen Glückwunsch!",
-            "message": "Dein Shopware 6 {edition} ist jetzt verifiziert.",
+            "message": "Deine Shopware 6 {edition} ist jetzt verifiziert.",
             "messageNotLicensed": "Dein Shopware 6 ist jetzt vorbereitet.",
             "headlineUsefulLinks": "Nützliche Links",
             "loadingMessage": "Anwendung wird neu gestartet<br>Das könnte einen Moment dauern ...",
@@ -153,7 +153,7 @@
     "sw-privileges": {
         "additional_permissions": {
             "system": {
-              "frw": "First Run Wizard"
+              "frw": "Ersteinrichtungs-Assistent"
             }
         }
     }

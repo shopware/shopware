@@ -7,6 +7,9 @@ import Plugin from 'src/plugin-system/plugin.class';
  * form submit button when the form is submitted
  */
 export default class FormSubmitLoaderPlugin extends Plugin {
+    static options = {
+        formWrapperSelector: 'body',
+    };
 
     init() {
         if (!this._getForm() || !this._getSubmitButton()) {
@@ -40,7 +43,7 @@ export default class FormSubmitLoaderPlugin extends Plugin {
      * @private
      */
     _getSubmitButton() {
-        this._submitButton = DomAccess.querySelector(this._form, 'button[type=submit]');
+        this._submitButton = DomAccess.querySelector(this._form, 'button[type=submit]', false);
 
         if (!this._submitButton) {
             return this._getSubmitButtonWithId();
@@ -60,7 +63,7 @@ export default class FormSubmitLoaderPlugin extends Plugin {
         const id = this._form.id;
         if (!id) return false;
 
-        this._submitButton = DomAccess.querySelector(this._form, `button[type=submit][form=${id}]`);
+        this._submitButton = DomAccess.querySelector(this._form.closest(this.options.formWrapperSelector), `button[type=submit][form=${id}]`, false);
 
         return this._submitButton;
     }

@@ -11,8 +11,9 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 /**
  * Triggered when the api endpoint /api/script/{hook} is called
  *
- * @internal
  * @hook-use-case custom_endpoint
+ *
+ * @since 6.4.9.0
  */
 class ApiHook extends Hook
 {

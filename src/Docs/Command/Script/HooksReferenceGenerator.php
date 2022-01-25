@@ -4,6 +4,7 @@ namespace Shopware\Docs\Command\Script;
 
 use League\ConstructFinder\ConstructFinder;
 use phpDocumentor\Reflection\DocBlock\Tags\Generic;
+use phpDocumentor\Reflection\DocBlock\Tags\Since;
 use phpDocumentor\Reflection\DocBlockFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Hook;
@@ -140,12 +141,22 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
                 ));
             }
 
+            /** @var Since[] $since */
+            $since = $docBlock->getTagsByName('since');
+            if (\count($since) !== 1) {
+                throw new \RuntimeException(sprintf(
+                    '`@since` annotation is missing for hook "%s". All HookClasses need to be tagged with the `@since` annotation with the correct version, in which the hook was introduced.',
+                    $hook,
+                ));
+            }
+
             $data[$description->render()]['hooks'][] = [
                 'name' => $hook::HOOK_NAME,
                 'class' => $hook,
                 'trigger' => $docBlock->getSummary() . '<br>' . $docBlock->getDescription()->render(),
                 'data' => $this->getAvailableData($reflection),
                 'services' => $this->getAvailableServices($reflection),
+                'since' => $since[0]->getVersion(),
             ];
         }
 

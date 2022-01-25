@@ -12,6 +12,7 @@
 | <!-- -->               | <!-- -->                                                                                                                                                             |
 |:-----------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Name**               | {{ hook.name }}                                                                                                                                                      |
+| **Since**              | {{ hook.since }}                                                                                                                                                     |
 | **Class**              | `{{ hook.class }}`                                                                                                                                                   |
 | **Description**        | {{ hook.trigger|raw }}                                                                                                                                               |
 | **Available Data**     | {% for data in hook.data %}{{ data.name }}: {% if data.link is not null %}[`{{ data.type }}`]({{ data.link }}){% else %}`{{ data.type }}`{% endif %} <br>{% endfor%} |

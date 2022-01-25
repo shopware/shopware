@@ -15,6 +15,8 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
  * Triggered when the api endpoint /store-api/script/{hook} is called
  *
  * @hook-use-case custom_endpoint
+ *
+ * @since 6.4.9.0
  */
 class StoreApiHook extends Hook implements SalesChannelContextAware
 {

@@ -10,6 +10,8 @@ use Shopware\Storefront\Page\PageLoadedHook;
  * Triggered when the AccountOrderDetailPage is loaded
  *
  * @hook-use-case data_loading
+ *
+ * @since 6.4.8.0
  */
 class AccountOrderDetailPageLoadedHook extends PageLoadedHook
 {

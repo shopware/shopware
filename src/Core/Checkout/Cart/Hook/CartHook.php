@@ -12,6 +12,8 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
  * Triggered during the cart calculation process.
  *
  * @hook-use-case cart_manipulation
+ *
+ * @since 6.4.8.0
  */
 class CartHook extends Hook implements CartAware
 {

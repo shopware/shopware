@@ -10,6 +10,8 @@ use Shopware\Storefront\Page\PageLoadedHook;
  * Triggered when the CheckoutInfoWidget is loaded
  *
  * @hook-use-case data_loading
+ *
+ * @since 6.4.8.0
  */
 class CheckoutInfoWidgetLoadedHook extends PageLoadedHook
 {

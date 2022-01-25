@@ -170,8 +170,6 @@ Component.register('sw-bulk-edit-product', {
                     price: this.product.purchasePrices,
                     taxRate: this.taxRate,
                     currency: this.currency,
-                    allowOverwrite: true,
-                    allowClear: true,
                     changeLabel: this.$tc('sw-bulk-edit.product.prices.purchasePrices.changeLabel'),
                     placeholder: this.$tc('sw-bulk-edit.product.prices.purchasePrices.placeholderPurchasePrices'),
                 },

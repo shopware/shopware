@@ -194,6 +194,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-18179 - Improve entity creation option in sw-single-select](/changelog/release-6-4-8-0/2022-01-18-improve-entity-creation-option-in-sw-single-select.md)
 *  [NEXT-19656 - Improve parsing of XML values](/changelog/release-6-4-8-0/2022-01-18-improve-parsing-of-xml-values.md)
 *  [NEXT-19583 - Install assets of apps](/changelog/release-6-4-8-0/2022-01-18-install-assets-of-apps.md)
+*  [NEXT-11486 - Product card border cut off from the left in a product slider.](/changelog/release-6-4-8-0/2022-01-18-product-card-border-cut-off-from-the-left-in-a-product-slider.md)
 *  [NEXT-19502 - Add translator to AppScripts](/changelog/release-6-4-8-0/2022-01-19-add-translator-to-app-scripts.md)
 *  [NEXT-19674 - Added MailAware to OrderPaymentMethodChangedEvent](/changelog/release-6-4-8-0/2022-01-19-added-mailaware-to-orderpaymentmethodchangedevent.md)
 *  [NEXT-18128 - Implement modal functionality for Extension SDK](/changelog/release-6-4-8-0/2022-01-19-next-18128-implement-modal-functionality-for-extension-sdk.md)

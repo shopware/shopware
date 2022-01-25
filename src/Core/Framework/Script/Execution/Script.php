@@ -19,19 +19,16 @@ class Script extends Struct
 
     protected \DateTimeInterface $lastModified;
 
-    private ?string $appId;
+    private ?ScriptAppInformation $scriptAppInformation;
 
-    private ?string $appName;
-
-    public function __construct(string $name, string $script, \DateTimeInterface $lastModified, ?string $appId, ?string $appName, array $twigOptions = [], array $includes = [])
+    public function __construct(string $name, string $script, \DateTimeInterface $lastModified, ?ScriptAppInformation $scriptAppInformation = null, array $twigOptions = [], array $includes = [])
     {
         $this->name = $name;
         $this->script = $script;
         $this->twigOptions = $twigOptions;
         $this->lastModified = $lastModified;
         $this->includes = $includes;
-        $this->appId = $appId;
-        $this->appName = $appName;
+        $this->scriptAppInformation = $scriptAppInformation;
     }
 
     public function getName(): string
@@ -62,13 +59,13 @@ class Script extends Struct
         return $this->includes;
     }
 
-    public function getAppId(): ?string
+    public function isAppScript(): bool
     {
-        return $this->appId;
+        return $this->scriptAppInformation !== null;
     }
 
-    public function getAppName(): ?string
+    public function getScriptAppInformation(): ?ScriptAppInformation
     {
-        return $this->appName;
+        return $this->scriptAppInformation;
     }
 }

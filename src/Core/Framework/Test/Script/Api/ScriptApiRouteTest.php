@@ -4,7 +4,10 @@ namespace Shopware\Core\Framework\Test\Script\Api;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
@@ -93,5 +96,39 @@ class ScriptApiRouteTest extends TestCase
         static::assertEquals('Internal Server Error', $response['errors'][0]['title']);
         static::assertStringContainsString('api-insufficient-permissions', $response['errors'][0]['detail']);
         static::assertStringContainsString('Missing privilege', $response['errors'][0]['detail']);
+    }
+
+    public function testMissingAclPrivilegesToAccessRoute(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures');
+
+        $browser = $this->getBrowser();
+        // no admin permissions
+        $this->authorizeBrowser($browser, [], []);
+        $browser->request('POST', '/api/script/simple-script');
+
+        $response = \json_decode($browser->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), print_r($response, true));
+
+        static::assertArrayHasKey('errors', $response);
+        static::assertCount(1, $response['errors']);
+        static::assertEquals('Forbidden', $response['errors'][0]['title']);
+        static::assertEquals('The user does not have the permission to do this action.', $response['errors'][0]['detail']);
+    }
+
+    public function testAccessFromAppIntegrationIsAllowed(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', 'api-endpoint-cases'));
+        /** @var AppEntity $app */
+        $app = $this->getContainer()->get('app.repository')->search($criteria, Context::createDefaultContext())->first();
+
+        $browser = $this->getBrowserAuthenticatedWithIntegration($app->getIntegrationId());
+        $browser->request('POST', '/api/script/simple-script');
+
+        $response = \json_decode($browser->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), print_r($response, true));
     }
 }

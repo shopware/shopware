@@ -20,7 +20,6 @@ class ScriptTwigLoaderTest extends TestCase
             file_get_contents(__DIR__ . '/_fixtures/simple-function-case/Resources/scripts/simple-function-case/simple-function-case.twig'),
             new \DateTimeImmutable(),
             null,
-            '',
             []
         );
 

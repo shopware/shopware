@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Script\Execution\Script;
+use Shopware\Core\Framework\Script\Execution\ScriptAppInformation;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
@@ -46,7 +48,7 @@ class RepositoryFacadeTest extends TestCase
 
         $facade = $this->factory->factory(
             new TestHook('test', Context::createDefaultContext()),
-            new Script('test', '', new \DateTimeImmutable(), null, '')
+            new Script('test', '', new \DateTimeImmutable(), null)
         );
 
         $result = $facade->$method('product', $criteria);
@@ -174,11 +176,11 @@ class RepositoryFacadeTest extends TestCase
         $this->ids = new IdsCollection();
         $this->createProducts();
 
-        $appId = $this->installApp(__DIR__ . '/_fixtures/apps/withProductPermission');
+        $apInfo = $this->installApp(__DIR__ . '/_fixtures/apps/withProductPermission');
 
         $facade = $this->factory->factory(
             new TestHook('test', Context::createDefaultContext()),
-            new Script('test', '', new \DateTimeImmutable(), $appId, '')
+            new Script('test', '', new \DateTimeImmutable(), $apInfo)
         );
 
         $result = $facade->search('product', []);
@@ -205,11 +207,11 @@ class RepositoryFacadeTest extends TestCase
         $this->ids = new IdsCollection();
         $this->createProducts();
 
-        $appId = $this->installApp(__DIR__ . '/_fixtures/apps/withoutProductPermission');
+        $appInfo = $this->installApp(__DIR__ . '/_fixtures/apps/withoutProductPermission');
 
         $facade = $this->factory->factory(
             new TestHook('test', Context::createDefaultContext()),
-            new Script('test', '', new \DateTimeImmutable(), $appId, '')
+            new Script('test', '', new \DateTimeImmutable(), $appInfo)
         );
 
         static::expectException(MissingPrivilegeException::class);
@@ -391,13 +393,17 @@ class RepositoryFacadeTest extends TestCase
         ], Context::createDefaultContext());
     }
 
-    private function installApp(string $appDir): string
+    private function installApp(string $appDir): ScriptAppInformation
     {
         $this->loadAppsFromDir($appDir);
 
-        /** @var string $appId */
-        $appId = $this->getContainer()->get('app.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId();
+        /** @var AppEntity $app */
+        $app = $this->getContainer()->get('app.repository')->search(new Criteria(), Context::createDefaultContext())->first();
 
-        return $appId;
+        return new ScriptAppInformation(
+            $app->getId(),
+            $app->getName(),
+            $app->getIntegrationId()
+        );
     }
 }

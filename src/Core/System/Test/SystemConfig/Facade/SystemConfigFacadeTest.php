@@ -4,10 +4,12 @@ namespace Shopware\Core\System\Test\SystemConfig\Facade;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
+use Shopware\Core\Framework\Script\Execution\ScriptAppInformation;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
@@ -45,7 +47,7 @@ class SystemConfigFacadeTest extends TestCase
 
         $facade = $this->factory->factory(
             $hook,
-            new Script('test', '', new \DateTimeImmutable(), null, '')
+            new Script('test', '', new \DateTimeImmutable(), null)
         );
 
         static::assertEquals($result, $facade->get('test.value', $salesChannelId));
@@ -84,11 +86,11 @@ class SystemConfigFacadeTest extends TestCase
     {
         $this->systemConfigService->set('test.value', 'generic');
 
-        $appId = $this->installApp(__DIR__ . '/_fixtures/apps/withoutSystemConfigPermission');
+        $appInfo = $this->installApp(__DIR__ . '/_fixtures/apps/withoutSystemConfigPermission');
 
         $facade = $this->factory->factory(
             new TestHook('test', Context::createDefaultContext()),
-            new Script('test', '', new \DateTimeImmutable(), $appId, '')
+            new Script('test', '', new \DateTimeImmutable(), $appInfo)
         );
 
         static::expectException(MissingPrivilegeException::class);
@@ -99,11 +101,11 @@ class SystemConfigFacadeTest extends TestCase
     {
         $this->systemConfigService->set('test.value', 'generic');
 
-        $appId = $this->installApp(__DIR__ . '/_fixtures/apps/withSystemConfigPermission');
+        $appInfo = $this->installApp(__DIR__ . '/_fixtures/apps/withSystemConfigPermission');
 
         $facade = $this->factory->factory(
             new TestHook('test', Context::createDefaultContext()),
-            new Script('test', '', new \DateTimeImmutable(), $appId, '')
+            new Script('test', '', new \DateTimeImmutable(), $appInfo)
         );
 
         static::assertEquals('generic', $facade->get('test.value'));
@@ -113,11 +115,11 @@ class SystemConfigFacadeTest extends TestCase
     {
         $this->systemConfigService->set('withoutSystemConfigPermission.config.testValue', 'test');
 
-        $appId = $this->installApp(__DIR__ . '/_fixtures/apps/withoutSystemConfigPermission');
+        $appInfo = $this->installApp(__DIR__ . '/_fixtures/apps/withoutSystemConfigPermission');
 
         $facade = $this->factory->factory(
             new TestHook('test', Context::createDefaultContext()),
-            new Script('test', '', new \DateTimeImmutable(), $appId, '')
+            new Script('test', '', new \DateTimeImmutable(), $appInfo)
         );
 
         static::assertEquals('test', $facade->app('testValue'));
@@ -127,11 +129,11 @@ class SystemConfigFacadeTest extends TestCase
     {
         $this->systemConfigService->set('withSystemConfigPermission.config.testValue', 'test');
 
-        $appId = $this->installApp(__DIR__ . '/_fixtures/apps/withSystemConfigPermission');
+        $appInfo = $this->installApp(__DIR__ . '/_fixtures/apps/withSystemConfigPermission');
 
         $facade = $this->factory->factory(
             new TestHook('test', Context::createDefaultContext()),
-            new Script('test', '', new \DateTimeImmutable(), $appId, '')
+            new Script('test', '', new \DateTimeImmutable(), $appInfo)
         );
 
         static::assertEquals('test', $facade->app('testValue'));
@@ -143,7 +145,7 @@ class SystemConfigFacadeTest extends TestCase
 
         $facade = $this->factory->factory(
             new TestHook('test', Context::createDefaultContext()),
-            new Script('test', '', new \DateTimeImmutable(), null, '')
+            new Script('test', '', new \DateTimeImmutable(), null)
         );
 
         static::expectException(\BadMethodCallException::class);
@@ -178,13 +180,17 @@ class SystemConfigFacadeTest extends TestCase
         static::assertEquals('app_config', $extension->get('appConfig'));
     }
 
-    private function installApp(string $appDir): string
+    private function installApp(string $appDir): ScriptAppInformation
     {
         $this->loadAppsFromDir($appDir);
 
-        /** @var string $appId */
-        $appId = $this->getContainer()->get('app.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId();
+        /** @var AppEntity $app */
+        $app = $this->getContainer()->get('app.repository')->search(new Criteria(), Context::createDefaultContext())->first();
 
-        return $appId;
+        return new ScriptAppInformation(
+            $app->getId(),
+            $app->getName(),
+            $app->getIntegrationId()
+        );
     }
 }

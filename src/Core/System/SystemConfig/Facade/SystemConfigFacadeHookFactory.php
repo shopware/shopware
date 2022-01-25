@@ -34,6 +34,6 @@ class SystemConfigFacadeHookFactory extends HookServiceFactory
             $salesChannelId = $hook->getSalesChannelContext()->getSalesChannelId();
         }
 
-        return new SystemConfigFacade($this->systemConfigService, $this->connection, $script->getAppId(), $salesChannelId);
+        return new SystemConfigFacade($this->systemConfigService, $this->connection, $script->getScriptAppInformation(), $salesChannelId);
     }
 }

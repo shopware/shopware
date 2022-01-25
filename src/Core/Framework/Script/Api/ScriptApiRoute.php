@@ -3,11 +3,13 @@
 namespace Shopware\Core\Framework\Script\Api;
 
 use OpenApi\Annotations as OA;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Script\Execution\Script;
+use Shopware\Core\Framework\Script\Execution\ScriptAppInformation;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -78,17 +80,26 @@ class ScriptApiRoute
 
         /** @var Script $script */
         foreach ($scripts as $script) {
-            if (!$script->getAppName()) {
+            // todo@dr after implementing UI in admin, we can allow "private scripts"
+            if (!$script->isAppScript()) {
                 throw new PermissionDeniedException();
             }
 
-            // todo@dr after implementing UI in admin, we can allow "private scripts"
+            /** @var ScriptAppInformation $appInfo */
+            $appInfo = $script->getScriptAppInformation();
+
+            $source = $context->getSource();
+            if ($source instanceof AdminApiSource && $source->getIntegrationId() === $appInfo->getIntegrationId()) {
+                // allow access to app endpoints from the integration of the same app
+                continue;
+            }
+
             if ($context->isAllowed('app.all')) {
                 continue;
             }
 
 //            $name = $script->getAppName() ?? 'shop-owner-scripts';
-            if ($context->isAllowed('app.' . $script->getAppName())) {
+            if ($context->isAllowed('app.' . $appInfo->getAppName())) {
                 continue;
             }
 

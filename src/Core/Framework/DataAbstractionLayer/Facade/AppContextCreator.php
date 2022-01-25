@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
+use Shopware\Core\Framework\Script\Execution\ScriptAppInformation;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -28,12 +29,13 @@ class AppContextCreator
 
     public function getAppContext(Hook $hook, Script $script): Context
     {
-        if (!$script->getAppId()) {
+        $scriptAppInformation = $script->getScriptAppInformation();
+        if (!$scriptAppInformation) {
             return $hook->getContext();
         }
 
         return new Context(
-            $this->getAppContextSource($script->getAppId()),
+            $this->getAppContextSource($scriptAppInformation),
             $hook->getContext()->getRuleIds(),
             $hook->getContext()->getCurrencyId(),
             $hook->getContext()->getLanguageIdChain(),
@@ -45,36 +47,33 @@ class AppContextCreator
         );
     }
 
-    private function getAppContextSource(string $appId): AdminApiSource
+    private function getAppContextSource(ScriptAppInformation $scriptAppInformation): AdminApiSource
     {
-        if (\array_key_exists($appId, $this->appSources)) {
-            return $this->appSources[$appId];
+        if (\array_key_exists($scriptAppInformation->getAppId(), $this->appSources)) {
+            return $this->appSources[$scriptAppInformation->getAppId()];
         }
 
-        $data = $this->fetchPrivileges($appId);
-        $source = new AdminApiSource(null, $data['integrationId']);
+        $privileges = $this->fetchPrivileges($scriptAppInformation->getAppId());
+        $source = new AdminApiSource(null, $scriptAppInformation->getIntegrationId());
         $source->setIsAdmin(false);
-        $source->setPermissions($data['privileges']);
+        $source->setPermissions($privileges);
 
-        return $this->appSources[$appId] = $source;
+        return $this->appSources[$scriptAppInformation->getAppId()] = $source;
     }
 
     private function fetchPrivileges(string $appId): array
     {
-        $data = $this->connection->fetchAssociative('
-            SELECT `acl_role`.`privileges` AS `privileges`, `app`.`integration_id` AS `integrationId`
+        $privileges = $this->connection->fetchOne('
+            SELECT `acl_role`.`privileges` AS `privileges`
             FROM `acl_role`
             INNER JOIN `app` ON `app`.`acl_role_id` = `acl_role`.`id`
             WHERE `app`.`id` = :appId
         ', ['appId' => Uuid::fromHexToBytes($appId)]);
 
-        if (!$data) {
+        if (!$privileges) {
             throw new \RuntimeException(sprintf('Privileges for app with id "%s" not found.', $appId));
         }
 
-        return [
-            'privileges' => json_decode($data['privileges'] ?? '[]', true),
-            'integrationId' => Uuid::fromBytesToHex($data['integrationId']),
-        ];
+        return json_decode($privileges, true);
     }
 }

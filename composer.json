@@ -366,5 +366,23 @@
         "exclude-from-classmap": [
             "src/**/Test/"
         ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+             "Shopware\\Storefront\\Test\\": "src/Storefront/Test/",
+             "Shopware\\Administration\\Test\\": "src/Administration/Test",
+             "Shopware\\Elasticsearch\\Test\\": "src/Elasticsearch/Test",
+             "Shopware\\Recovery\\Test\\": "src/Recovery/Test",
+             "Shopware\\Docs\\Test\\": "src/Docs/Test",
+            "Shopware\\Core\\Content\\Test\\": "src/Core/Content/Test/",
+             "Shopware\\Core\\Framework\\Test\\": "src/Core/Framework/Test/",
+             "Shopware\\Core\\Migration\\Test\\": "src/Core/Migration/Test/",
+             "Shopware\\Core\\Maintenance\\Test\\": "src/Core/Maintenance/Test/",
+             "Shopware\\Core\\DevOps\\Test\\": "src/Core/DevOps/Test/",
+             "Shopware\\Core\\System\\Test\\": "src/Core/System/Test/",
+             "Shopware\\Core\\Checkout\\Test\\": "src/Core/Checkout/Test/",
+             "Shopware\\Core\\Profiling\\Test\\": "src/Core/Profiling/Test/",
+             "Shopware\\Core\\Test\\": "src/Core/Test/"
+        }
     }
 }

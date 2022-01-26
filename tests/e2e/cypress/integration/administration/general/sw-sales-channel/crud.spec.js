@@ -7,7 +7,6 @@ describe('Sales Channel: Test crud operations', () => {
         cy.loginViaApi()
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
-                cy.makeSalesChannelsFavorites();
             });
     });
 
@@ -32,12 +31,6 @@ describe('Sales Channel: Test crud operations', () => {
 
         // Fill in form and save new sales channel
         page.fillInBasicSalesChannelData('1st Epic Sales Channel');
-
-        cy.featureIsActive('FEATURE_NEXT_17421').then(isActive => {
-            if (isActive) {
-                cy.contains('.sw-field--switch__content', 'Show in Administration menu').find('input').click();
-            }
-        });
 
         cy.get(page.elements.salesChannelSaveAction).click();
         cy.wait('@saveData')

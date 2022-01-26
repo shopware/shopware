@@ -7,7 +7,6 @@ describe('Basic Informaion: Edit assignments', () => {
         cy.loginViaApi()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/basic/information/index`);
-                cy.makeSalesChannelsFavorites();
             });
     });
 

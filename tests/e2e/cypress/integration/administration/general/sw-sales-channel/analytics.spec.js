@@ -7,7 +7,6 @@ describe('Sales Channel: Test saving and loading the analytics tab', () => {
         cy.loginViaApi()
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
-                cy.makeSalesChannelsFavorites();
             });
     });
 

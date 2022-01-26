@@ -17,7 +17,6 @@ describe('Sales Channel: Test acl', () => {
                 role: 'viewer'
             }
         ]);
-        cy.makeSalesChannelsFavorites();
 
         cy.get('.sw-admin-menu__sales-channel-item--1').click();
         cy.get('#sw-field--salesChannel-name').should('have.value', 'Storefront');
@@ -43,7 +42,6 @@ describe('Sales Channel: Test acl', () => {
                 role: 'editor'
             }
         ]);
-        cy.makeSalesChannelsFavorites();
 
         cy.get('.sw-admin-menu__sales-channel-item--1').click();
         cy.get('#sw-field--salesChannel-name').should('have.value', 'Storefront');
@@ -70,7 +68,6 @@ describe('Sales Channel: Test acl', () => {
                 role: 'creator'
             }
         ]);
-        cy.makeSalesChannelsFavorites();
 
         // Request we want to wait for later
         cy.intercept({
@@ -112,7 +109,6 @@ describe('Sales Channel: Test acl', () => {
                 role: 'deleter'
             }
         ]);
-        cy.makeSalesChannelsFavorites();
 
         cy.get('.sw-admin-menu__sales-channel-item--1').click();
         cy.get('.sw-sales-channel-detail-base__button-delete').scrollIntoView().click();

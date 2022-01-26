@@ -9,7 +9,6 @@ describe('Sales Channel: Visual tests', () => {
             })
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
-                cy.makeSalesChannelsFavorites();
             });
     });
 

@@ -8,12 +8,12 @@ use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader as CoreMigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime as CoreMigrationRuntime;
-use Shopware\Core\Framework\Migration\MigrationSource as CoreMigrationSource;
 use Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator;
 use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
 use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
 use Shopware\Core\Maintenance\User\Service\UserProvisioner;
 use Shopware\Recovery\Common\HttpClient\CurlClient;
+use Shopware\Recovery\Common\MigrationSourceCollector;
 use Shopware\Recovery\Common\Service\JwtCertificateService;
 use Shopware\Recovery\Common\Service\Notification;
 use Shopware\Recovery\Common\Service\UniqueIdGenerator;
@@ -197,12 +197,7 @@ class ContainerProvider implements ServiceProviderInterface
         };
 
         $container['migration.sources'] = static function ($c) {
-            return [
-                new CoreMigrationSource('core', []),
-                self::createMigrationSource('V6_3', true),
-                self::createMigrationSource('V6_4', true),
-                self::createMigrationSource('V6_5'),
-            ];
+            return MigrationSourceCollector::collect();
         };
 
         $container['migration.runtime'] = static function ($c) {
@@ -230,49 +225,5 @@ class ContainerProvider implements ServiceProviderInterface
         $container['admin.service'] = static function ($c) {
             return new AdminService($c['dbal'], $c['shopware.kernel']->getContainer()->get(UserProvisioner::class));
         };
-    }
-
-    private static function createMigrationSource(string $version, bool $addReplacements = false): CoreMigrationSource
-    {
-        if (file_exists(SW_PATH . '/platform/src/Core/schema.sql')) {
-            $coreBasePath = SW_PATH . '/platform/src/Core';
-            $storefrontBasePath = SW_PATH . '/platform/src/Storefront';
-            $adminBasePath = SW_PATH . '/platform/src/Administration';
-        } elseif (file_exists(SW_PATH . '/src/Core/schema.sql')) {
-            $coreBasePath = SW_PATH . '/src/Core';
-            $storefrontBasePath = SW_PATH . '/src/Storefront';
-            $adminBasePath = SW_PATH . '/src/Administration';
-        } else {
-            $coreBasePath = SW_PATH . '/vendor/shopware/core';
-            $storefrontBasePath = SW_PATH . '/vendor/shopware/storefront';
-            $adminBasePath = SW_PATH . '/vendor/shopware/administration';
-        }
-
-        $hasStorefrontMigrations = is_dir($storefrontBasePath);
-        $hasAdminMigrations = is_dir($adminBasePath);
-
-        $source = new CoreMigrationSource('core.' . $version, [
-            sprintf('%s/Migration/%s', $coreBasePath, $version) => sprintf('Shopware\\Core\\Migration\\%s', $version),
-        ]);
-
-        if ($hasStorefrontMigrations) {
-            $source->addDirectory(sprintf('%s/Migration/%s', $storefrontBasePath, $version), sprintf('Shopware\\Storefront\\Migration\\%s', $version));
-        }
-
-        if ($hasAdminMigrations) {
-            $source->addDirectory(sprintf('%s/Migration/%s', $adminBasePath, $version), sprintf('Shopware\\Administration\\Migration\\%s', $version));
-        }
-
-        if ($addReplacements) {
-            $source->addReplacementPattern(sprintf('#^(Shopware\\\\Core\\\\Migration\\\\)%s\\\\([^\\\\]*)$#', $version), '$1$2');
-            if ($hasStorefrontMigrations) {
-                $source->addReplacementPattern(sprintf('#^(Shopware\\\\Storefront\\\\Migration\\\\)%s\\\\([^\\\\]*)$#', $version), '$1$2');
-            }
-            if ($hasAdminMigrations) {
-                $source->addReplacementPattern(sprintf('#^(Shopware\\\\Administration\\\\Migration\\\\)%s\\\\([^\\\\]*)$#', $version), '$1$2');
-            }
-        }
-
-        return $source;
     }
 }

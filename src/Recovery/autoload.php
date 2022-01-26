@@ -47,6 +47,10 @@ if (file_exists(SW_PATH . '/vendor/shopware/platform/composer.json')) {
         'Shopware\\Elasticsearch\\',
         SW_PATH . '/vendor/shopware/platform/src/Elasticsearch/'
     );
+    $autoloader->addPsr4(
+        'Shopware\\Administration\\',
+        SW_PATH . '/vendor/shopware/platform/src/Administration/'
+    );
 } elseif (file_exists(SW_PATH . '/vendor/shopware/core/composer.json')) {
     $autoloader->addPsr4(
         'Shopware\\Core\\',
@@ -66,6 +70,13 @@ if (file_exists(SW_PATH . '/vendor/shopware/platform/composer.json')) {
             SW_PATH . '/vendor/shopware/elasticsearch/'
         );
     }
+
+    if (file_exists(SW_PATH . '/vendor/shopware/administration/composer.json')) {
+        $autoloader->addPsr4(
+            'Shopware\\Administration\\',
+            SW_PATH . '/vendor/shopware/administration/'
+        );
+    }
 } elseif (file_exists(SW_PATH . '/src/Core/composer.json')) {
     $autoloader->addPsr4(
         'Shopware\\Core\\',
@@ -78,6 +89,10 @@ if (file_exists(SW_PATH . '/vendor/shopware/platform/composer.json')) {
     $autoloader->addPsr4(
         'Shopware\\Elasticsearch\\',
         SW_PATH . '/src/Elasticsearch/'
+    );
+    $autoloader->addPsr4(
+        'Shopware\\Administration\\',
+        SW_PATH . '/src/Administration/'
     );
 }
 

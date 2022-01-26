@@ -9,10 +9,10 @@ use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader as CoreMigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime as CoreMigrationRuntime;
-use Shopware\Core\Framework\Migration\MigrationSource as CoreMigrationSource;
 use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
 use Shopware\Recovery\Common\DependencyInjection\Container as BaseContainer;
 use Shopware\Recovery\Common\HttpClient\CurlClient;
+use Shopware\Recovery\Common\MigrationSourceCollector;
 use Shopware\Recovery\Common\Service\JwtCertificateService;
 use Shopware\Recovery\Common\Service\RecoveryConfigManager;
 use Shopware\Recovery\Common\SystemLocker;
@@ -29,6 +29,7 @@ use Shopware\Recovery\Update\Utils;
 use Slim\App;
 use Slim\Views\PhpRenderer;
 use Symfony\Component\Dotenv\Dotenv;
+use const SW_PATH;
 
 class Container extends BaseContainer
 {
@@ -121,40 +122,7 @@ class Container extends BaseContainer
         };
 
         $container['migration.sources'] = static function ($c) {
-            if (file_exists(SW_PATH . '/platform/src/Core/schema.sql')) {
-                $coreBasePath = SW_PATH . '/platform/src/Core';
-                $storefrontBasePath = SW_PATH . '/platform/src/Storefront';
-            } elseif (file_exists(SW_PATH . '/src/Core/schema.sql')) {
-                $coreBasePath = SW_PATH . '/src/Core';
-                $storefrontBasePath = SW_PATH . '/src/Storefront';
-            } else {
-                $coreBasePath = SW_PATH . '/vendor/shopware/core';
-                $storefrontBasePath = SW_PATH . '/vendor/shopware/storefront';
-            }
-
-            $v3 = new CoreMigrationSource('core.V6_3', [
-                $coreBasePath . '/Migration/V6_3' => 'Shopware\\Core\\Migration\\V6_3',
-                $storefrontBasePath . '/Migration/V6_3' => 'Shopware\\Storefront\\Migration\\V6_3',
-            ]);
-            $v3->addReplacementPattern('#^(Shopware\\\\Core\\\\Migration\\\\)V6_3\\\\([^\\\\]*)$#', '$1$2');
-            $v3->addReplacementPattern('#^(Shopware\\\\Storefront\\\\Migration\\\\)V6_3\\\\([^\\\\]*)$#', '$1$2');
-
-            $v4 = new CoreMigrationSource('core.V6_4', [
-                $coreBasePath . '/Migration/V6_4' => 'Shopware\\Core\\Migration\\V6_4',
-                $storefrontBasePath . '/Migration/V6_4' => 'Shopware\\Storefront\\Migration\\V6_4',
-            ]);
-            $v4->addReplacementPattern('#^(Shopware\\\\Core\\\\Migration\\\\)V6_4\\\\([^\\\\]*)$#', '$1$2');
-            $v4->addReplacementPattern('#^(Shopware\\\\Storefront\\\\Migration\\\\)V6_4\\\\([^\\\\]*)$#', '$1$2');
-
-            return [
-                new CoreMigrationSource('core', []),
-                $v3,
-                $v4,
-                new CoreMigrationSource('core.V6_5', [
-                    $coreBasePath . '/Migration/V6_5' => 'Shopware\\Core\\Migration\\V6_5',
-                    $storefrontBasePath . '/Migration/V6_5' => 'Shopware\\Storefront\\Migration\\V6_5',
-                ]),
-            ];
+            return MigrationSourceCollector::collect();
         };
 
         $container['migration.runtime'] = static function ($c) {

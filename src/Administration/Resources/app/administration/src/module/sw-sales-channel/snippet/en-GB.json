@@ -11,10 +11,6 @@
       "titleMenuMoreItems": "More",
       "manageSalesChannels": "Manage Sales Channels"
     },
-    "menu": {
-        "emptyspaceMessage": "Select your most important Sales Channels for display right here in the menu.",
-        "emptyspaceLink": "Select Sales Channels"
-    },
     "list": {
       "title": "Sales Channels",
       "subTitle": "Sales Channels let you sell items to your customers through social media, storefronts, marketplaces or in person.",
@@ -24,7 +20,6 @@
       "columnType": "Type",
       "columnStatus": "Status",
       "columnCreatedAt": "Created at",
-      "columnFavorite": "In menu",
       "status": {
         "maintenance": "Maintenance",
         "online": "Online",
@@ -108,8 +103,6 @@
       "buttonCloseDeleteDomainModal": "Cancel",
       "buttonConfirmDeleteDomain": "Delete",
       "customerGroup": "Customer group",
-      "favoriteLabel": "Show in Administration menu",
-      "favoriteTooltip": "The Sales Channel needs to be saved before it appears in the Administration menu.",
       "navigation": "Navigation",
       "navigationCategoryId": "Entry point main navigation",
       "navigationCategoryDepth": "Navigation levels",

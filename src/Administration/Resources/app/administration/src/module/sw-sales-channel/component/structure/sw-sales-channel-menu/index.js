@@ -8,13 +8,12 @@ const FlatTree = Shopware.Helper.FlatTreeHelper;
 Component.register('sw-sales-channel-menu', {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'feature'],
+    inject: ['repositoryFactory', 'acl'],
 
     data() {
         return {
             salesChannels: [],
             showModal: false,
-            loading: true,
         };
     },
 
@@ -34,11 +33,6 @@ Component.register('sw-sales-channel-menu', {
             criteria.addAssociation('type');
             criteria.addAssociation('domains');
             criteria.setLimit(7);
-
-            if (this.feature.isActive('FEATURE_NEXT_17421')) {
-                criteria.setLimit(25);
-                criteria.addFilter(Criteria.equalsAny('id', this.salesChannelFavorites));
-            }
 
             return criteria;
         },
@@ -78,28 +72,6 @@ Component.register('sw-sales-channel-menu', {
                 position: -1, // use last position
             };
         },
-        salesChannelFavoritesService() {
-            if (!this.feature.isActive('FEATURE_NEXT_17421')) {
-                return null;
-            }
-
-            return Shopware.Service('salesChannelFavorites');
-        },
-        salesChannelFavorites() {
-            if (!this.feature.isActive('FEATURE_NEXT_17421')) {
-                return [];
-            }
-
-            return this.salesChannelFavoritesService.getFavoriteIds();
-        },
-    },
-
-    watch: {
-        salesChannelFavorites() {
-            if (this.feature.isActive('FEATURE_NEXT_17421')) {
-                this.loadEntityData();
-            }
-        },
     },
 
     created() {
@@ -128,18 +100,10 @@ Component.register('sw-sales-channel-menu', {
             this.$root.$off('on-add-sales-channel', this.openSalesChannelModal);
         },
 
-        async loadEntityData() {
-            try {
-                this.loading = true;
-
-                if (!this.feature.isActive('FEATURE_NEXT_17421') || this.salesChannelFavorites.length) {
-                    this.salesChannels = await this.salesChannelRepository.search(this.salesChannelCriteria);
-                } else {
-                    this.salesChannels = [];
-                }
-            } finally {
-                this.loading = false;
-            }
+        loadEntityData() {
+            this.salesChannelRepository.search(this.salesChannelCriteria).then((response) => {
+                this.salesChannels = response;
+            });
         },
 
         openSalesChannelModal() {

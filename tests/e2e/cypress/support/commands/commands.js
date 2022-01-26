@@ -3,29 +3,6 @@ require('@percy/cypress');
 const { v4: uuid } = require('uuid');
 
 /**
- * Searches the API for all salesChannels to then write them to the salesChannelFavorites state, to provide navigation to salesChannels via menu.
- * This can be used by tests, which rely on or test the menu navigation, since by default there are no favorites and thus no entries in the navigation.
- * This commands needs to be called, AFTER cypress visited the page, which should be tested (e.g. using "cy.openInitialPage").
- * @memberOf Cypress.Chainable
- * @name makeSalesChannelsFavorites
- * @function
- */
-Cypress.Commands.add('makeSalesChannelsFavorites', () => {
-    return cy.requestAdminApi('POST', `api/search/sales-channel`).then((responseData) => {
-        return cy.window().then((_window) => {
-            const favoritesService = _window.Shopware.Service().get('salesChannelFavorites');
-
-            if (!favoritesService) {
-                return;
-            }
-
-            favoritesService.state.favorites = responseData.map(({ id }) => id);
-        });
-    });
-});
-
-
-/**
  * Takes a snapshot for percy visual testing
  * @memberOf Cypress.Chainable#
  * @name takeSnapshot

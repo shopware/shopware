@@ -301,7 +301,7 @@ Component.register('sw-dashboard-statistics', {
 
             criteria.addAssociation('stateMachineState');
 
-            criteria.addFilter(Criteria.equals('transactions.stateMachineState.name', 'paid'));
+            criteria.addFilter(Criteria.equals('transactions.stateMachineState.technicalName', 'paid'));
             criteria.addFilter(Criteria.range('orderDate', { gte: this.formatDate(this.dateAgo) }));
 
             return this.orderRepository.search(criteria);

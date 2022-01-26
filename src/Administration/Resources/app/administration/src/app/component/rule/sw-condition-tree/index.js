@@ -111,7 +111,6 @@ Component.register('sw-condition-tree', {
                 conditions.sort((a, b) => a.translatedLabel.localeCompare(b.translatedLabel));
 
                 const groupedConditions = [];
-                const ungroupedConditions = [];
                 this.availableGroups.forEach((group) => {
                     conditions.forEach((condition) => {
                         if (condition.group === group.id) {
@@ -119,13 +118,13 @@ Component.register('sw-condition-tree', {
                         }
 
                         if (!condition.group && group.id === 'misc') {
-                            ungroupedConditions.push(condition);
+                            groupedConditions.push(condition);
                             condition.group = 'misc';
                         }
                     });
                 });
 
-                return groupedConditions.concat(ungroupedConditions);
+                return groupedConditions;
             }
 
             return conditions;
@@ -147,6 +146,15 @@ Component.register('sw-condition-tree', {
             });
 
             groups.sort((a, b) => a.label.localeCompare(b.label));
+
+            groups.map((group, index) => {
+                if (group.id === 'misc') {
+                    groups.splice(index, 1);
+                    groups.push(group);
+                }
+
+                return groups;
+            });
 
             return groups;
         },

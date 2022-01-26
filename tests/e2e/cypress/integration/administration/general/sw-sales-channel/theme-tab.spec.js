@@ -7,7 +7,6 @@ describe('Sales Channel: Tests about the theme tab in the sales channel', () => 
         cy.loginViaApi()
             .then(() => {
                 cy.openInitialPage(Cypress.env('admin'));
-                cy.makeSalesChannelsFavorites();
             });
     });
 

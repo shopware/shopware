@@ -131,9 +131,7 @@ function createWrapper(salesChannels = [], privileges = []) {
             'sw-icon': { props: ['name'], template: '<div :class="`sw-icon sw-icon--${name}`"></div>' },
             'sw-admin-menu-item': Shopware.Component.build('sw-admin-menu-item'),
             'sw-context-button': true,
-            'sw-context-menu-item': true,
-            'sw-loader': true,
-            'sw-internal-link': true,
+            'sw-context-menu-item': true
         },
         provide: {
             acl: {

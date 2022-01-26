@@ -11,8 +11,8 @@ import type { ShopwareClass } from 'src/core/shopware';
 import type { ModuleTypes } from 'src/core/factory/module.factory';
 import type RepositoryFactory from 'src/core/data/repository-factory.data';
 import type { default as VueType } from 'vue';
-import type { extensions } from '@shopware-ag/admin-extension-sdk/es/privileges/privilege-resolver';
-import ExtensionSdkService from 'src/core/service/api/extension-sdk.service';
+import type ExtensionSdkService from 'src/core/service/api/extension-sdk.service';
+import type { ExtensionsState } from './app/state/extensions.store';
 import type { ComponentConfig } from './core/factory/component.factory';
 import type { TabsState } from './app/state/tabs.store';
 import { MenuItemState } from './app/state/menu-item.store';
@@ -117,7 +117,7 @@ declare global {
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface VuexRootState {
         context: ContextState,
-        extensions: extensions,
+        extensions: ExtensionsState,
         tabs: TabsState,
         extensionComponentSections: ExtensionComponentSectionsState,
         session: {

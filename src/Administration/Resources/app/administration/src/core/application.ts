@@ -11,7 +11,8 @@ interface bundlesSinglePluginResponse {
     js?: string | string[],
     html?: string,
     baseUrl?: null | string,
-    type?: string,
+    type?: 'app'|'plugin',
+    version?: string,
 }
 
 interface bundlesPluginResponse {
@@ -591,7 +592,12 @@ class ApplicationBootstrapper {
                 });
             }
 
-            this.injectIframe(bundleName, bundle.baseUrl);
+            this.injectIframe({
+                bundleName,
+                bundleVersion: bundle.version,
+                iframeSrc: bundle.baseUrl,
+                bundleType: bundle.type,
+            });
         });
 
         if (isDevelopmentMode === 'development') {
@@ -604,7 +610,11 @@ class ApplicationBootstrapper {
                     return;
                 }
 
-                this.injectIframe(camelCasePluginName, entryFiles.html);
+                this.injectIframe({
+                    bundleVersion: undefined,
+                    bundleName: camelCasePluginName,
+                    iframeSrc: entryFiles.html,
+                });
             });
         }
 
@@ -694,7 +704,17 @@ class ApplicationBootstrapper {
     /**
      * Inject hidden iframes
      */
-    private injectIframe(bundleName: string, iframeSrc: string): void {
+    private injectIframe({
+        bundleName,
+        iframeSrc,
+        bundleVersion,
+        bundleType,
+    }: {
+        bundleName: string,
+        iframeSrc: string,
+        bundleVersion?: string,
+        bundleType?: 'app'|'plugin',
+    }): void {
         const bundles = Shopware.Context.app.config.bundles;
         let permissions = null;
 
@@ -705,6 +725,8 @@ class ApplicationBootstrapper {
         const extension = {
             name: bundleName,
             baseUrl: iframeSrc,
+            version: bundleVersion,
+            type: bundleType,
         };
 
         // To keep permissions reactive no matter if empty or not

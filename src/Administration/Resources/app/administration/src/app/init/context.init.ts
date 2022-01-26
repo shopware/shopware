@@ -27,6 +27,33 @@ export default function initializeContext(): void {
         };
     });
 
+    Shopware.ExtensionAPI.handle('contextShopwareVersion', () => {
+        return Shopware.Context.app.config.version ?? '';
+    });
+
+    Shopware.ExtensionAPI.handle('contextAppInformation', (_, { _event_ }) => {
+        const appOrigin = _event_.origin;
+        const extension = Object.entries(Shopware.State.get('extensions')).find((ext) => {
+            return ext[1].baseUrl.startsWith(appOrigin);
+        });
+
+        if (!extension || !extension[0] || !extension[1]) {
+            const type: 'app'|'plugin' = 'app';
+
+            return {
+                name: 'unknown',
+                type: type,
+                version: '0.0.0',
+            };
+        }
+
+        return {
+            name: extension[0],
+            type: extension[1].type,
+            version: extension[1].version ?? '',
+        };
+    });
+
     Shopware.State.watch((state) => {
         return {
             languageId: state.context.api.languageId,

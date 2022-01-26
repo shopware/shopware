@@ -106,6 +106,7 @@ class InfoControllerTest extends TestCase
                 'update' => ['user'],
                 'delete' => ['user'],
             ],
+            'version' => '1.0.0',
         ];
 
         $expected = [

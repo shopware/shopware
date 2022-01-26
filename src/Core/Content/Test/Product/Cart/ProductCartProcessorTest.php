@@ -212,7 +212,7 @@ class ProductCartProcessorTest extends TestCase
         $service->add($cart, $product, $context);
 
         $actualProduct = $cart->get($product->getId());
-        static::assertSame($product->getLabel(), $actualProduct->getLabel());
+        static::assertSame('My special product', $actualProduct->getLabel());
     }
 
     public function testOverwriteLabelWithPermissionNoLabel(): void

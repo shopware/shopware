@@ -3,7 +3,6 @@
 $sw-loader-color-overlay: rgba(255, 255, 255, 0.8);
 $sw-loader-element-color: $color-shopware-brand-500;
 $sw-loader-rotate-duration: 1.4s;
-$sw-loader-colors-duration: 5.6s;
 $sw-loader-z-index: $z-index-loader;
 
 .sw-loader {
@@ -21,9 +20,6 @@ $sw-loader-z-index: $z-index-loader;
     .sw-loader__container {
         display: grid;
         grid-auto-columns: auto;
-        align-items: center;
-        justify-items: center;
-        justify-content: center;
         text-align: center;
         position: relative;
         top: 50%;
@@ -31,54 +27,28 @@ $sw-loader-z-index: $z-index-loader;
         transform: translate(-50%, -50%);
     }
 
-    .sw-loader__element {
-        animation: sw-loader-rotator $sw-loader-rotate-duration linear infinite;
-    }
+    .sw-loader-element {
+        div {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-width: 4px;
+            border-style: solid;
+            border-radius: 50%;
+            border-color: $sw-loader-element-color transparent transparent transparent;
+            animation: sw-loader-rotator $sw-loader-rotate-duration cubic-bezier(0.5, 0, 0.5, 1) infinite;
 
-    .sw-loader__path {
-        stroke-dasharray: 187;
-        stroke-dashoffset: 0;
-        transform-origin: center;
-        animation:
-            sw-loader-dash $sw-loader-rotate-duration ease-in-out infinite,
-            sw-loader-colors $sw-loader-colors-duration ease-in-out infinite;
-    }
+            &:nth-child(1) {
+                animation-delay: -0.45s;
+            }
 
-    @keyframes sw-loader-colors {
-        0% {
-            stroke: $sw-loader-element-color;
-        }
+            &:nth-child(2) {
+                animation-delay: -0.3s;
+            }
 
-        25% {
-            stroke: lighten($sw-loader-element-color, 25%);
-        }
-
-        50% {
-            stroke: saturate($sw-loader-element-color, 50%);
-        }
-
-        75% {
-            stroke: lighten($sw-loader-element-color, 25%);
-        }
-
-        100% {
-            stroke: $sw-loader-element-color;
-        }
-    }
-
-    @keyframes sw-loader-dash {
-        0% {
-            stroke-dashoffset: 187;
-        }
-
-        50% {
-            stroke-dashoffset: 46.75;
-            transform: rotate(135deg);
-        }
-
-        100% {
-            stroke-dashoffset: 187;
-            transform: rotate(450deg);
+            &:nth-child(3) {
+                animation-delay: -0.15s;
+            }
         }
     }
 
@@ -88,7 +58,7 @@ $sw-loader-z-index: $z-index-loader;
         }
 
         100% {
-            transform: rotate(270deg);
+            transform: rotate(360deg);
         }
     }
 }

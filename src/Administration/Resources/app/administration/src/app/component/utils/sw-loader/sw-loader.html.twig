@@ -6,23 +6,12 @@
         :style="loaderSize"
     >
         {% block sw_loader_element %}
-        <svg
-            class="sw-loader__element"
-            :width="size"
-            :height="size"
-            viewBox="0 0 66 66"
-            xmlns="http://www.w3.org/2000/svg"
-        >
-            <circle
-                class="sw-loader__path"
-                fill="none"
-                stroke-width="6"
-                stroke-linecap="round"
-                cx="33"
-                cy="33"
-                r="30"
-            />
-        </svg>
+        <div class="sw-loader-element">
+            <div :style="{ borderWidth: borderWidth }"></div>
+            <div :style="{ borderWidth: borderWidth }"></div>
+            <div :style="{ borderWidth: borderWidth }"></div>
+            <div :style="{ borderWidth: borderWidth }"></div>
+        </div>
         {% endblock %}
     </div>
     {% endblock %}

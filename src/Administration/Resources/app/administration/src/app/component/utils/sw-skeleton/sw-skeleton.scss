@@ -1,0 +1,24 @@
+@import "~scss/variables";
+
+$sw-skeleton-background: $color-gray-50;
+
+.sw-skeleton {
+    cursor: progress;
+
+    &__detail {
+        width: 736px;
+        height: 264px;
+        background-color: $sw-skeleton-background;
+        overflow: hidden;
+    }
+
+    &__detail-container {
+        display: flex;
+        column-gap: 32px;
+    }
+
+    &__detail-container-group {
+        width: 50%;
+        height: 100%;
+    }
+}

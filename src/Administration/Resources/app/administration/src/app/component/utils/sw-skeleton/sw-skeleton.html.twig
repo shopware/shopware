@@ -1,0 +1,23 @@
+{% block sw_skeleton %}
+<div
+    class="sw-skeleton"
+    :class="classList"
+>
+    <template v-if="variant === 'detail'">
+        <sw-skeleton-bar />
+
+        <div class="sw-skeleton__detail-container">
+            <div class="sw-skeleton__detail-container-group">
+                <sw-skeleton-bar />
+                <sw-skeleton-bar />
+                <sw-skeleton-bar />
+            </div>
+
+            <div class="sw-skeleton__detail-container-group">
+                <sw-skeleton-bar />
+                <sw-skeleton-bar />
+            </div>
+        </div>
+    </template>
+</div>
+{% endblock %}

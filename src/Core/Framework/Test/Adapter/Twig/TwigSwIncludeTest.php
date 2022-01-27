@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Adapter\Twig\Extension\NodeExtension;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\Test\Adapter\Twig\fixtures\BundleFixture;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
@@ -28,6 +29,19 @@ class TwigSwIncludeTest extends TestCase
 
         $template = $twig->loadTemplate($twig->getTemplateClass('storefront/frontend/index.html.twig'), 'storefront/frontend/index.html.twig');
         static::assertSame('innerblockplugin2innerblockplugin1innerblock', $template->render([]));
+    }
+
+    public function testInterpolatedInheritance(): void
+    {
+        // order storefront, TestPlugin2, TestPlugin1 is important for this test. Do not change.
+        $twig = $this->initTwig([
+            new BundleFixture('Storefront', __DIR__ . '/fixtures/Storefront/'),
+            new BundleFixture('TestPlugin2', __DIR__ . '/fixtures/Plugins/TestPlugin2'),
+            new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1'),
+        ]);
+
+        $template = $twig->loadTemplate($twig->getTemplateClass('@TestPlugin1/storefront/frontend/include_base.html.twig'), '@TestPlugin1/storefront/frontend/include_base.html.twig');
+        static::assertSame('--(Textfield base)(Textfield Extend)-(Textfield base)(Textfield Extend)--', $template->render([]));
     }
 
     public function testIncludeWithVars(): void
@@ -111,7 +125,7 @@ class TwigSwIncludeTest extends TestCase
             $loader->addPath($directory, $bundle->getName());
         }
 
-        $twig = new Environment($loader, ['cache' => false]);
+        $twig = new TwigEnvironment($loader, ['cache' => false]);
 
         $kernel = $this->createMock(Kernel::class);
         $kernel->expects(static::any())

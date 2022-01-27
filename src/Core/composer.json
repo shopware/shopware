@@ -56,7 +56,7 @@
         "doctrine/annotations": "1.13.1",
         "doctrine/dbal": "2.13.3",
         "doctrine/inflector": "~1.4.4",
-        "dompdf/dompdf": "1.1.1",
+        "dompdf/dompdf": "1.0.2",
         "enqueue/dbal": "0.10.11",
         "ezyang/htmlpurifier": "4.13.0",
         "google/cloud-storage": "~1.25.1",

@@ -894,7 +894,9 @@ class DefinitionValidator
         $ref = $this->getShortClassName($ref);
         $def = $this->getShortClassName($definition);
 
-        $ref = str_replace($def, '', $ref);
+        if ($ref !== $def) { // self referencing references have same name.
+            $ref = str_replace($def, '', $ref);
+        }
 
         $namespace = $this->getAggregateNamespace($definition);
         if ($namespace !== $ref) {

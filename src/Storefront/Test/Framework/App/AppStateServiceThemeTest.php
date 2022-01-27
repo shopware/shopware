@@ -87,13 +87,14 @@ class AppStateServiceThemeTest extends TestCase
         $childTheme = [
             'id' => $childId,
             'name' => 'child',
+            'parentThemeId' => $themeId,
             'author' => 'author',
             'active' => true,
         ];
 
         $this->themeRepo->upsert([[
             'id' => $themeId,
-            'childThemes' => [$childTheme],
+            'dependentThemes' => [$childTheme],
         ]], $context);
 
         $salesChannelId = $this->createSalesChannel();

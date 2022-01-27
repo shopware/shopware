@@ -53,6 +53,7 @@ class UpdateSubscriber implements EventSubscriberInterface
         $criteria->getAssociation('themes')
             ->addFilter(new EqualsFilter('active', true));
 
+        $alreadyCompiled = [];
         /** @var SalesChannelEntity $salesChannel */
         foreach ($this->salesChannelRepository->search($criteria, $context) as $salesChannel) {
             $themes = $salesChannel->getExtension('themes');
@@ -61,8 +62,10 @@ class UpdateSubscriber implements EventSubscriberInterface
             }
 
             foreach ($themes as $theme) {
-                $salesChannelId = $salesChannel->getId();
-                $this->themeService->compileTheme($salesChannelId, $theme->getId(), $context);
+                if (\in_array($theme->getId(), $alreadyCompiled, true) !== false) {
+                    continue;
+                }
+                $alreadyCompiled += $this->themeService->compileThemeById($theme->getId(), $context);
             }
         }
     }

@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
@@ -19,7 +20,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Shopware\Storefront\Theme\Aggregate\ThemeChildDefinition;
 use Shopware\Storefront\Theme\Aggregate\ThemeMediaDefinition;
 use Shopware\Storefront\Theme\Aggregate\ThemeSalesChannelDefinition;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationDefinition;
@@ -50,7 +53,7 @@ class ThemeDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $fields = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             (new StringField('technical_name', 'technicalName'))->addFlags(new ApiAware()),
             (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
@@ -69,7 +72,15 @@ class ThemeDefinition extends EntityDefinition
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, ThemeSalesChannelDefinition::class, 'theme_id', 'sales_channel_id'),
             (new ManyToManyAssociationField('media', MediaDefinition::class, ThemeMediaDefinition::class, 'theme_id', 'media_id'))->addFlags(new ApiAware()),
             new ManyToOneAssociationField('previewMedia', 'preview_media_id', MediaDefinition::class),
-            new OneToManyAssociationField('childThemes', ThemeDefinition::class, 'parent_theme_id'),
         ]);
+
+        $fields->add(new ManyToManyAssociationField('dependentThemes', ThemeDefinition::class, ThemeChildDefinition::class, 'parent_id', 'child_id'));
+
+        if (!Feature::isActive('v6.5.0.0')) {
+            /** @deprecated tag:v6.5.0 - `childThemes` association will be removed in v6.5.0.0  */
+            $fields->add((new OneToManyAssociationField('childThemes', ThemeDefinition::class, 'parent_theme_id'))->addFlags(new Deprecated('v6.4.8', 'v6.5.0')));
+        }
+
+        return $fields;
     }
 }

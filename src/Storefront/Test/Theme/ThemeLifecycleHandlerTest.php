@@ -8,12 +8,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Storefront;
+use Shopware\Storefront\Test\Theme\fixtures\InheritanceWithConfig\InheritanceWithConfig;
 use Shopware\Storefront\Test\Theme\fixtures\SimplePlugin\SimplePlugin;
 use Shopware\Storefront\Test\Theme\fixtures\SimplePluginWithoutCompilation\SimplePluginWithoutCompilation;
 use Shopware\Storefront\Test\Theme\fixtures\SimpleTheme\SimpleTheme;
@@ -22,8 +24,11 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
+use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeLifecycleHandler;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
+use Shopware\Storefront\Theme\ThemeSalesChannel;
+use Shopware\Storefront\Theme\ThemeSalesChannelCollection;
 use Shopware\Storefront\Theme\ThemeService;
 
 class ThemeLifecycleHandlerTest extends TestCase
@@ -88,6 +93,27 @@ class ThemeLifecycleHandlerTest extends TestCase
         $this->themeLifecycleHandler->handleThemeInstallOrUpdate($installConfig, $configs, Context::createDefaultContext());
     }
 
+    public function testHandleThemeInstallOrUpdateWithInheritance(): void
+    {
+        $installConfig = $this->configFactory->createFromBundle(new InheritanceWithConfig());
+
+        $configs = new StorefrontPluginConfigurationCollection([
+            $this->configFactory->createFromBundle(new Storefront()),
+            $installConfig,
+        ]);
+
+        $this->themeLifecycleHandler->handleThemeInstallOrUpdate($installConfig, $configs, Context::createDefaultContext());
+
+        /** @var EntityRepositoryInterface $themeRepository */
+        $themeRepository = $this->getContainer()->get('theme.repository');
+        $context = Context::createDefaultContext();
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('technicalName', 'ThemeWithMultiInheritance'));
+        $criteria->addAssociation('parentThemes');
+        /** @var ThemeEntity $theme */
+        $theme = $themeRepository->search($criteria, $context)->first();
+    }
+
     public function testHandleThemeInstallOrUpdateWillRecompileOnlyTouchedTheme(): void
     {
         $salesChannelId = $this->createSalesChannel();
@@ -96,9 +122,8 @@ class ThemeLifecycleHandlerTest extends TestCase
         $installConfig->setStyleFiles(FileCollection::createFromArray(['onlyForFile']));
 
         $this->themeServiceMock->expects(static::once())
-            ->method('compileTheme')
+            ->method('compileThemeById')
             ->with(
-                $salesChannelId,
                 $themeId,
                 static::isInstanceOf(Context::class),
                 static::callback(function (StorefrontPluginConfigurationCollection $configs): bool {
@@ -178,10 +203,16 @@ class ThemeLifecycleHandlerTest extends TestCase
 
         $wasThrown = false;
 
+        $scCollection = new ThemeSalesChannelCollection();
+        $scCollection->add(new ThemeSalesChannel(Uuid::randomHex(), Uuid::randomHex()));
+        $this->themeServiceMock->expects(static::once())
+            ->method('getThemeDependencyMapping')
+            ->willReturn($scCollection);
+
         try {
             $this->themeLifecycleHandler->handleThemeUninstall($uninstalledConfig, Context::createDefaultContext());
         } catch (ThemeAssignmentException $e) {
-            static::assertEquals([TestDefaults::SALES_CHANNEL], array_values($e->getStillAssignedSalesChannels()->getIds()));
+            static::assertEquals([TestDefaults::SALES_CHANNEL], array_keys($e->getAssignedSalesChannels()));
             $wasThrown = true;
         }
 

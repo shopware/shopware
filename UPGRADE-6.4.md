@@ -1,6 +1,11 @@
 UPGRADE FROM 6.3.x.x to 6.4
 =======================
 
+# 6.4.8.0
+## Theme dependencies
+* Added a new association to `ThemeDefinition` and `ThemeEntity` to provide multiple depenencies of themes.
+* Deprecated `childThemes` in `ThemeDefinition` and `ThemeEntity`. Will be removed in `v6.5.0`.
+
 # 6.4.7.0
 Added a new constructor argument `iterable $updateBy = []` in `Shopware\Core\Content\ImportExport\Struct\Config` which will become required starting from `v6.5.0`.
 

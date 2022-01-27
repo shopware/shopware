@@ -3746,11 +3746,6 @@ parameters:
 			path: src/Storefront/Storefront.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Exception\\\\ThemeAssignmentException\\:\\:formatAssignments\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Exception/ThemeAssignmentException.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\FileCollection\\:\\:createFromArray\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Storefront/Theme/StorefrontPluginConfiguration/FileCollection.php

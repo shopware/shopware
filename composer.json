@@ -66,7 +66,7 @@
         "doctrine/annotations": "1.13.1",
         "doctrine/dbal": "2.13.3",
         "doctrine/inflector": "~1.4.4",
-        "dompdf/dompdf": "1.1.1",
+        "dompdf/dompdf": "1.0.2",
         "elasticsearch/elasticsearch": "7.16.0",
         "enqueue/dbal": "0.10.11",
         "erusev/parsedown-extra": "0.8.1",

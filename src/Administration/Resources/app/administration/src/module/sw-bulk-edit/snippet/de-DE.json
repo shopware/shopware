@@ -12,7 +12,7 @@
       "remove": "Entfernen"
     },
     "product": {
-      "textTitle": "Mehrfachänderung: {productTotal} Produkte",
+      "textTitle": "Mehrfachänderung: {productTotal} Produkt | Mehrfachänderung: {productTotal} Produkte",
       "messageEmptyTitle": "Keine Produkte für die Mehrfachänderung ausgewählt",
       "messageEmptySubline": "Gehe zurück und wähle Produkte aus.",
       "generalInformation": {
@@ -243,7 +243,7 @@
       "messageBeforeTabLeave": "Mehrfachänderungen werden gerade durchgeführt. Wenn du den Tab schließt, werden eventuell nicht alle Änderungen übernommen."
     },
     "order": {
-      "textTitle": "Mehrfachänderung: {orderTotal} Bestellungen",
+      "textTitle": "Mehrfachänderung: {orderTotal} Bestellung | Mehrfachänderung: {orderTotal} Bestellungen",
       "messageEmptyTitle": "Keine Bestellungen ausgewählt",
       "messageEmptySubline": "Gehe zurück und wähle Bestellungen aus.",
       "status": {
@@ -316,7 +316,7 @@
       }
     },
     "customer": {
-      "textTitle": "Mehrfachbearbeitung: {customerTotal} Kunden",
+      "textTitle": "Mehrfachbearbeitung: {customerTotal} Kunde | Mehrfachbearbeitung: {customerTotal} Kunden",
       "messageEmptyTitle": "Keine Kunden ausgewählt",
       "messageEmptySubline": "Gehe zurück und wähle Kunden aus.",
       "account": {

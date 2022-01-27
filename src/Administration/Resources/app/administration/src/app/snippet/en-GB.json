@@ -880,7 +880,7 @@
     "sw-bulk-edit-modal": {
       "bulkEdit": "Bulk edit",
       "startBulkEdit": "Start bulk edit",
-      "bulkEditModalTitle": "Bulk edit - {count} items selected | Bulk edit - {count} items selected"
+      "bulkEditModalTitle": "Bulk edit - {count} item selected | Bulk edit - {count} items selected"
     },
     "sw-search-preferences-modal": {
       "title": "Search preferences",

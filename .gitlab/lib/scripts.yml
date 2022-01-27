@@ -1,0 +1,12 @@
+.scripts:
+  # install node $NODE_VERSION
+  install-node:
+      script:
+        - apk add curl bash wget coreutils || true
+        - apt-update && apt-get install curl bash || true
+        - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+        - export NVM_DIR="$HOME/.nvm"
+        - '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'
+        - export NODE_VERSION="${NODE_VERSION:-14}"
+        - nvm install $NODE_VERSION
+        - nvm use $NODE_VERSION

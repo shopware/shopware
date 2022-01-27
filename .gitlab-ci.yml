@@ -23,6 +23,7 @@ include:
     # include library files
     -   local: .gitlab/lib/rules.yml
     -   local: .gitlab/lib/datadog.yml
+    -   local: .gitlab/lib/scripts.yml
     # defines basic stuff and base templates
     -   local: .gitlab/base.yml
     # put your jobs into the matching stage file you want it to run

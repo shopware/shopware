@@ -9,6 +9,7 @@ import 'src/app/component/form/select/base/sw-single-select';
 import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/select/base/sw-select-result';
 import 'src/app/component/form/select/base/sw-select-result-list';
+import 'src/app/component/form/select/base/sw-grouped-single-select';
 import 'src/app/component/base/sw-highlight-text';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 // eslint-disable-next-line
@@ -100,6 +101,7 @@ function createWrapperForComponent(componentName, props = {}) {
             'sw-context-button': Shopware.Component.build('sw-context-button'),
             'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
             'sw-single-select': Shopware.Component.build('sw-single-select'),
+            'sw-grouped-single-select': Shopware.Component.build('sw-grouped-single-select'),
             'sw-highlight-text': Shopware.Component.build('sw-highlight-text'),
             'sw-select-result': Shopware.Component.build('sw-select-result'),
             'sw-entity-tag-select': true,

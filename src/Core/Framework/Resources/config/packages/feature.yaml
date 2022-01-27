@@ -222,11 +222,6 @@ shopware:
         major: true
         description: "Major feature flag for CombinationLoader"
         # issue: NEXT-18592
-      - name: FEATURE_NEXT_16148
-        default: false
-        major: false
-        description: "Add grouping to rule conditions"
-        # issue: NEXT-16148
       - name: FEATURE_NEXT_19048
         default: false
         major: true

@@ -32,7 +32,6 @@ const { Component } = Shopware;
  *      ]"
  * </sw-grouped-single-select>
  */
-/* @internal (flag:FEATURE_NEXT_16148) */
 Component.extend('sw-grouped-single-select', 'sw-single-select', {
     template,
 

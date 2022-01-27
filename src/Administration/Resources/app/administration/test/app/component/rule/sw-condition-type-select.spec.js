@@ -5,7 +5,7 @@ function createWrapper(customProps = {}) {
     return shallowMount(Shopware.Component.build('sw-condition-type-select'), {
         stubs: {
             'sw-arrow-field': true,
-            'sw-single-select': true
+            'sw-grouped-single-select': true
         },
         provide: {
             removeNodeFromTree: () => {}
@@ -29,7 +29,7 @@ describe('src/app/component/rule/sw-condition-type-select', () => {
         const wrapper = createWrapper();
 
         const arrowField = wrapper.find('sw-arrow-field-stub');
-        const singleSelect = wrapper.find('sw-single-select-stub');
+        const singleSelect = wrapper.find('sw-grouped-single-select-stub');
 
         expect(arrowField.attributes().disabled).toBeUndefined();
         expect(singleSelect.attributes().disabled).toBeUndefined();
@@ -42,7 +42,7 @@ describe('src/app/component/rule/sw-condition-type-select', () => {
         });
 
         const arrowField = wrapper.find('sw-arrow-field-stub');
-        const singleSelect = wrapper.find('sw-single-select-stub');
+        const singleSelect = wrapper.find('sw-grouped-single-select-stub');
 
         expect(arrowField.attributes().disabled).toBe('true');
         expect(singleSelect.attributes().disabled).toBe('true');

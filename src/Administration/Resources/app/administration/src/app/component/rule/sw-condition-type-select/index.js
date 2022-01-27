@@ -34,7 +34,6 @@ Component.register('sw-condition-type-select', {
             default: false,
         },
 
-        /* @internal (flag:FEATURE_NEXT_16148) */
         availableGroups: {
             type: Array,
             required: false,
@@ -56,7 +55,7 @@ Component.register('sw-condition-type-select', {
         },
 
         /**
-         * @feature-deprecated (FEATURE_NEXT_16148) tag:v6.5.0 - Function is no longer needed,
+         * @deprecated tag:v6.5.0 - Function is no longer needed,
          * use translatedLabel property instead
          */
         translatedTypes() {
@@ -70,20 +69,7 @@ Component.register('sw-condition-type-select', {
 
         typeOptions() {
             if (!(typeof this.typeSearchTerm === 'string') || this.typeSearchTerm === '') {
-                if (!this.feature.isActive('FEATURE_NEXT_16148')) {
-                    return this.translatedTypes;
-                }
-
                 return this.availableTypes;
-            }
-
-            if (!this.feature.isActive('FEATURE_NEXT_16148')) {
-                return this.translatedTypes.filter(({ type, label }) => {
-                    const ucType = type.toUpperCase();
-                    const ucLabel = label.toUpperCase();
-
-                    return ucType.includes(this.ucTerm) || ucLabel.includes(this.ucTerm);
-                });
             }
 
             return this.availableTypes.filter(({ type, label }) => {

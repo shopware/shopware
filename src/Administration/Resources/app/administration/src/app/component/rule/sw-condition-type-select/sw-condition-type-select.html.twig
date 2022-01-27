@@ -5,41 +5,21 @@
     :disabled="disabled"
     v-bind="arrowColor"
 >
-
-    <template v-if="feature.isActive('FEATURE_NEXT_16148')">
-        <sw-grouped-single-select
-            class="sw-condition-type-select__select"
-            size="medium"
-            label-value="label"
-            value-property="type"
-            label-property="translatedLabel"
-            :options="typeOptions"
-            :groups="availableGroups"
-            :placeholder="$tc('global.sw-condition.condition.placeholder')"
-            :value="condition.type"
-            :disabled="disabled"
-            required
-            show-clearable-button
-            @change="changeType"
-            @search-term-change="typeSearchTerm = $event"
-        />
-    </template>
-    <template v-else>
-        <sw-single-select
-            class="sw-condition-type-select__select"
-            size="medium"
-            label-value="label"
-            value-property="type"
-            :options="typeOptions"
-            :placeholder="$tc('global.sw-condition.condition.placeholder')"
-            :value="condition.type"
-            :disabled="disabled"
-            required
-            show-clearable-button
-            @change="changeType"
-            @search-term-change="typeSearchTerm = $event"
-        />
-    </template>
-
+    <sw-grouped-single-select
+        class="sw-condition-type-select__select"
+        size="medium"
+        label-value="label"
+        value-property="type"
+        label-property="translatedLabel"
+        :options="typeOptions"
+        :groups="availableGroups"
+        :placeholder="$tc('global.sw-condition.condition.placeholder')"
+        :value="condition.type"
+        :disabled="disabled"
+        required
+        show-clearable-button
+        @change="changeType"
+        @search-term-change="typeSearchTerm = $event"
+    />
 </sw-arrow-field>
 {% endblock %}

@@ -19,6 +19,7 @@ Den aktuellen Status Ihrer Bestellung können Sie jederzeit über diesen Link ab
 <table border="0" style="font-family:Arial, Helvetica, sans-serif; font-size:12px;">
     <tr>
         <td bgcolor="#F7F7F2" style="border-bottom:1px solid #cccccc;"><strong>Produkt-Nr.</strong></td>
+        <td bgcolor="#F7F7F2" style="border-bottom:1px solid #cccccc;"><strong>Produktbild</strong></td>
         <td bgcolor="#F7F7F2" style="border-bottom:1px solid #cccccc;"><strong>Bezeichnung</strong></td>
         <td bgcolor="#F7F7F2" style="border-bottom:1px solid #cccccc;"><strong>Menge</strong></td>
         <td bgcolor="#F7F7F2" style="border-bottom:1px solid #cccccc;"><strong>Preis</strong></td>
@@ -31,6 +32,7 @@ Den aktuellen Status Ihrer Bestellung können Sie jederzeit über diesen Link ab
         {% block lineItem %}
             <tr>
                 <td>{% if nestedItem.payload.productNumber is defined %}{{ nestedItem.payload.productNumber|u.wordwrap(80) }}{% endif %}</td>
+                <td>{% if nestedItem.cover is defined and nestedItem.cover is not null %}<img src="{{ nestedItem.cover.url }}" width="75" height="auto"/>{% endif %}</td>
                 <td>
                     {% if nestingLevel > 0 %}
                         {% for i in 1..nestingLevel %}

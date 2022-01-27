@@ -125,7 +125,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
             ->addAssociation('deliveries.shippingMethod')
             ->addAssociation('deliveries.shippingOrderAddress.country')
             ->addAssociation('transactions.paymentMethod')
-            ->addAssociation('lineItems')
+            ->addAssociation('lineItems.cover')
             ->addAssociation('currency')
             ->addAssociation('addresses.country');
 

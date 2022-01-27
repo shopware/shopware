@@ -235,6 +235,7 @@ Component.register('sw-order-line-items-grid', {
 
             Promise.all(deletionPromises).then(() => {
                 this.$emit('item-delete');
+                this.$refs.dataGrid.resetSelection();
             });
         },
 

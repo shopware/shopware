@@ -134,7 +134,11 @@ Component.register('sw-cms-el-config-image-slider', {
                     });
                 });
 
-                this.$set(this.element.data, 'sliderItems', sliderItems);
+                if (!this.element.data) {
+                    this.$set(this.element, 'data', { sliderItems });
+                } else {
+                    this.$set(this.element.data, 'sliderItems', sliderItems);
+                }
             }
         },
 

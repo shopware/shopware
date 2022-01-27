@@ -48,6 +48,10 @@ Component.register('sw-profile-index-general', {
             type: Object,
             required: true,
         },
+        timezoneOptions: {
+            type: Array,
+            required: true,
+        },
     },
 
     computed: {

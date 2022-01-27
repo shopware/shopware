@@ -52,16 +52,31 @@
             {% endblock %}
         </sw-container>
 
-        {% block sw_profile_index_general_information_email %}
-        <sw-text-field
-            v-model="user.email"
-            validation="email"
-            name="sw-field--email"
-            required
-            :label="$tc('sw-profile.index.labelEmailField')"
-            :disabled="!acl.can('user.update_profile')"
-        />
-        {% endblock %}
+        <sw-container v-bind="{ columns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '0 30px' }">
+            {% block sw_profile_index_general_information_email %}
+            <sw-text-field
+                v-model="user.email"
+                validation="email"
+                name="sw-field--email"
+                required
+                :label="$tc('sw-profile.index.labelEmailField')"
+                :disabled="!acl.can('user.update_profile')"
+            />
+            {% endblock %}
+
+            {% block sw_profile_index_general_information_timezone %}
+            <sw-single-select
+                v-model="user.timeZone"
+                class="sw-profile--timezone"
+                :options="timezoneOptions"
+                required
+                name="sw-field--timezone"
+                :label="$tc('sw-users-permissions.users.user-detail.labelTimezone')"
+                :is-loading="timezoneOptions.length <= 0"
+                :disabled="!acl.can('user.update_profile')"
+            />
+            {% endblock %}
+        </sw-container>
     </sw-card>
     {% endblock %}
 

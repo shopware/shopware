@@ -69,20 +69,31 @@ class LineItemRule extends Rule
 
     private function lineItemMatches(LineItem $lineItem): bool
     {
-        if ($lineItem->getReferencedId() === null) {
+        $parentId = $lineItem->getPayloadValue('parentId');
+        if ($parentId !== null && $this->matchId($parentId)) {
+            return true;
+        }
+
+        $referencedId = $lineItem->getReferencedId();
+        if ($referencedId === null) {
             return false;
         }
 
+        return $this->matchId($referencedId);
+    }
+
+    private function matchId(string $uuid): bool
+    {
         if ($this->identifiers === null) {
             return false;
         }
 
         switch ($this->operator) {
             case self::OPERATOR_EQ:
-                return \in_array($lineItem->getReferencedId(), $this->identifiers, true);
+                return \in_array($uuid, $this->identifiers, true);
 
             case self::OPERATOR_NEQ:
-                return !\in_array($lineItem->getReferencedId(), $this->identifiers, true);
+                return !\in_array($uuid, $this->identifiers, true);
 
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);

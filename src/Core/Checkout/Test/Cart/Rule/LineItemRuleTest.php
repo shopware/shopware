@@ -185,6 +185,30 @@ class LineItemRuleTest extends TestCase
         static::assertTrue($matches);
     }
 
+    public function testMatchesWithPayloadParentId(): void
+    {
+        $matches = $this->getLineItemRule()->match(
+            new LineItemScope(
+                ($this->createLineItem())->setPayloadValue('parentId', 'A'),
+                $this->createMock(SalesChannelContext::class)
+            )
+        );
+
+        static::assertTrue($matches);
+    }
+
+    public function testNoMatchesWithDifferentPayloadParentId(): void
+    {
+        $matches = $this->getLineItemRule()->match(
+            new LineItemScope(
+                ($this->createLineItem())->setPayloadValue('parentId', 'C'),
+                $this->createMock(SalesChannelContext::class)
+            )
+        );
+
+        static::assertFalse($matches);
+    }
+
     public function testNotMatchesWithPayloadId(): void
     {
         $matches = $this->getLineItemRule(Rule::OPERATOR_NEQ)->match(

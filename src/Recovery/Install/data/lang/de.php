@@ -285,7 +285,7 @@ return [
     'select_country_zmb' => 'Sambia',
     'select_country_zwe' => 'Simbabwe',
 
-    'language-selection_welcome_title' => 'Willkommen zu Shopware 6',
+    'language-selection_welcome_title' => 'Willkommen in Shopware 6',
     'language-selection_select_language' => 'Sprache des Installations-Assistenten',
     'language-selection_header' => 'Deine Shopware-Installation',
     'language-selection_info_message' => 'Diese Auswahl bezieht sich nur auf die Sprache des Installations-Assistenten. Die Systemstandard-Sprache Deines Shops kannst Du später noch definieren.',
@@ -301,7 +301,7 @@ return [
     'requirements_success' => 'Alle Voraussetzungen für eine erfolgreiche Installation sind erfüllt.',
     'requirements_success_title' => 'Dein System ist bereit für Shopware 6',
     'requirements_php_info' => 'Dein Server sollte die folgenden Systemvoraussetzungen erfüllen, um Shopware im ganzen Ausmaß nutzen zu können.',
-    'requirements_php_max_compatible_version' => 'Diese Version von Shopware unterstützt PHP bis Version %s. Eine vollständige Funktionalität kann mit neueren PHP Versionen nicht garantiert werden.',
+    'requirements_php_max_compatible_version' => 'Diese Version von Shopware unterstützt PHP bis Version %s. Eine vollständige Funktionalität kann mit neueren PHP-Versionen nicht garantiert werden.',
     'requirements_system_col_check' => 'Voraussetzung',
     'requirements_system_col_required' => 'Erforderlich',
     'requirements_system_col_found' => 'Dein System',
@@ -325,20 +325,20 @@ return [
     'database-configuration_field_password' => 'Passwort:',
     'database-configuration_field_database' => 'Datenbank-Name:',
     'database-configuration_field_new_database' => 'Neue Datenbank:',
-    'database-configuration_info' => 'Um Shopware auf Deinem System zu installieren, brauchst Du die Zugangsdaten zu Deiner Datenbank. Wenn Du Dir nicht sicher bist, was Du hier eintragen musst, kontaktiere bitte Deinen Administrator / Hoster.',
+    'database-configuration_info' => 'Um Shopware auf Deinem System zu installieren, brauchst Du die Zugangsdaten zu Deiner Datenbank. Wenn Du Dir nicht sicher bist, was Du hier eintragen musst, kontaktiere bitte Deinen Administrator/Hoster.',
     'database-configuration-create_new_database' => 'Neue Datenbank anlegen',
     'database-configuration_non_empty_database' => 'Die ausgewählte Datenbank enthält bereits Daten. Bitte wähle eine leere Datenbank aus oder erstelle eine neue.',
     'database-configuration_error_required_fields' => 'Bitte fülle alle Felder aus.',
-    'database-configuration_field_ssl_ca_path' => 'Dateipfad zur SSL Zertifizierungsstelle',
-    'database-configuration_field_ssl_cert_path' => 'Dateipfad zur SSL Zertifikat',
-    'database-configuration_field_ssl_cert_key_path' => 'Dateipfad zur SSL Zertifikatsschlüssel',
-    'database-configuration_field_ssl_dont_verify_cert' => 'Server Zertifikat nicht überprüfen',
+    'database-configuration_field_ssl_ca_path' => 'Dateipfad zur SSL-Zertifizierungsstelle',
+    'database-configuration_field_ssl_cert_path' => 'Dateipfad zum SSL-Zertifikat',
+    'database-configuration_field_ssl_cert_key_path' => 'Dateipfad zum SSL-Zertifikatsschlüssel',
+    'database-configuration_field_ssl_dont_verify_cert' => 'Server-Zertifikat nicht überprüfen',
 
     'database-import_header' => 'Installation',
     'database-import_skip_import' => 'Überspringen',
     'database-import_progress' => 'Fortschritt: ',
-    'database-import-hint' => '<strong>Hinweis:</strong> Falls in der konfigurierten Datenbank bereits Shopware-Tabellen bestehen, werden diese durch die Installation / das Update entfernt!',
-    'database-import_info_text' => 'Shopware 6 wird auf der von dir ausgewählten Datenbank installiert. Dieser Vorgang kann einige Minuten dauern, abhängig von Deinem System.',
+    'database-import-hint' => '<strong>Hinweis:</strong> Falls in der konfigurierten Datenbank bereits Shopware-Tabellen bestehen, werden diese durch die Installation/das Update entfernt!',
+    'database-import_info_text' => 'Shopware 6 wird auf der von Dir ausgewählten Datenbank installiert. Dieser Vorgang kann einige Minuten dauern, abhängig von Deinem System.',
     'database_import_success' => 'Shopware 6 wurde erfolgreich installiert!',
     'database_import_install_label' => 'Datenbank-Installation:',
     'database_import_install_step_text' => 'Schritt',
@@ -390,15 +390,15 @@ return [
     'finish_header' => 'Installation abgeschlossen',
     'finish_info' => 'Du hast Shopware erfolgreich installiert!',
     'finish_info_heading' => 'Juhu!',
-    'finish_first_steps' => '"Erste Schritte" - Guide',
+    'finish_first_steps' => '"Erste Schritte"-Anleitung',
     'finish_frontend' => 'Zur Storefront',
     'finish_backend' => 'Zur Administration',
     'finish_message' => '
 <p>
-    <strong>Herzlich Willkommen bei Shopware,</strong>
+    <strong>Herzlich Willkommen in Shopware,</strong>
 </p>
 <p>
     wir freuen uns Dich in unserer Community begrüßen zu dürfen. Du hast Shopware erfolgreich installiert.
-<p>Dein Shop ist jetzt einsatzbereit. Falls Du noch neu bei Shopware bist, empfehlen wir den Guide <a href="https://docs.shopware.com/de/shopware-5-de/erste-schritte/erste-schritte-in-shopware" target="_blank">"Erste Schritte in Shopware"</a>. Wenn Du Dich zum ersten Mal in der Administration anmeldest, wird Dich unser First Run Wizard durch die grundlegende Einrichtung Deines Shops führen.</p>
+<p>Dein Shop ist jetzt einsatzbereit. Falls Du noch neu in Shopware bist, empfehlen wir die Anleitung <a href="https://docs.shopware.com/de/shopware-5-de/erste-schritte/erste-schritte-in-shopware" target="_blank">"Erste Schritte in Shopware"</a>. Wenn Du Dich zum ersten Mal in der Administration anmeldest, wird Dich unser Ersteinrichtungs-Assistent durch die grundlegende Einrichtung Deines Shops führen.</p>
 <p>Viel Spaß und Erfolg mit Deinem neuen Onlineshop!</p>',
 ];

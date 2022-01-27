@@ -290,7 +290,7 @@ return [
     'language-selection_select_language' => 'Installation wizard language',
     'language-selection_header' => 'Your Shopware installation',
     'language-selection_info_message' => 'The language selected here only applies to this installation wizard. If you like, you can specify another language for your shop later.',
-    'language-selection_welcome_message' => 'We are delighted you want to join our fantastic, global Shopware community. We will now take you through the installation process step by step. If you have any queries, simply take a look in our <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">forum</a>, give us a call on <a class="is--nowrap" href="tel:0080074676260">00 800 746 7626 0 (free of charge)</a> or send us an <a class="is--nowrap" href="mailto:info@shopware.com">e-mail</a>.',
+    'language-selection_welcome_message' => 'We are delighted you want to join our fantastic, global Shopware community. We will now take you through the installation process step by step. If you have any queries, simply take a look in our <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">forum</a>, give us a call on <a class="is--nowrap" href="tel:0080074676260">00 800 746 7626 0 (free of charge)</a> or send us an <a class="is--nowrap" href="mailto:info@shopware.com">email</a>.',
     'requirements_header' => 'System requirements',
     'requirements_header_files' => 'Files and directories',
     'requirements_header_system' => 'System',
@@ -314,7 +314,7 @@ return [
     'requirements_status_ready' => 'Ready',
 
     'license_agreement_header' => 'General Terms and Conditions of Business ("GTC")',
-    'license_agreement_info' => 'These are our General Terms and Conditions of Business. You will have to read and accept the GTC in order to successfully install Shopware 6. The Community Edition is completely free of charge and has been released under the MIT-Licence.',
+    'license_agreement_info' => 'These are our General Terms and Conditions of Business. You will have to read and accept the GTC in order to successfully install Shopware 6. The Community Edition is completely free of charge and has been released under the MIT License.',
     'license_agreement_error' => 'Please accept our GTC.',
     'license_agreement_checkbox' => 'I agree to the General Terms and Conditions of Business (GTC)',
 
@@ -326,7 +326,7 @@ return [
     'database-configuration_field_password' => 'Password:',
     'database-configuration_field_database' => 'Database name:',
     'database-configuration_field_new_database' => 'New database:',
-    'database-configuration_info' => 'In order to install Shopware on your system, you will need the access credentials to your database. If you are not sure what to put here, contact your administrator / hosting service.',
+    'database-configuration_info' => 'In order to install Shopware on your system, you will need the access credentials to your database. If you are not sure what to put here, contact your administrator/hosting service.',
     'database-configuration-create_new_database' => 'Create new database',
     'database-configuration_non_empty_database' => 'The selected database already contains data. Please select an empty database or create a new one from scratch.',
     'database-configuration_error_required_fields' => 'Please fill in all the blanks.',
@@ -382,7 +382,7 @@ return [
     'configuration_admin_lastName' => 'Admin last name:',
     'configuration_defaults_warning' => 'Beware! The settings for your default system language as well as the default currency are permanent and cannot be changed ever again.',
     'configuration_admin_currency_headline' => 'Available currencies',
-    'configuration_admin_currency_text' => 'Add more currencies to your Shopware shop. If you want to add currencies afterwards, you can create them at any time in the administration.',
+    'configuration_admin_currency_text' => 'Add more currencies to your Shopware shop. If you want to add currencies afterwards, you can create them at any time in the Administration.',
     'configuration_email_help_text' => 'This email address will be used for outgoing shop emails.',
     'configuration_admin_language_de' => 'German',
     'configuration_admin_language_en' => 'English',
@@ -392,8 +392,8 @@ return [
     'finish_info' => 'You have successfully installed Shopware!',
     'finish_info_heading' => 'Hooray!',
     'finish_first_steps' => '"First steps" guide',
-    'finish_frontend' => 'Go to storefront',
-    'finish_backend' => 'Go to  Administration',
+    'finish_frontend' => 'Open Storefront',
+    'finish_backend' => 'Open Administration',
     'finish_message' => '
 <p>
     <strong>Welcome to Shopware,</strong>

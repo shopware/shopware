@@ -14,7 +14,7 @@
         },
         "welcome": {
             "modalTitle": "Welcome",
-            "headlineWelcome": "Welcome in the Shopware 6 Administration",
+            "headlineWelcome": "Welcome to the Shopware 6 Administration",
             "messageWelcome": "This wizard guides you through the setup and tries to be helpful with the most important settings.<br>Do you want to use your shop in a different language and reach customers in other countries? Then simply install the desired language packs here.",
             "headlineChangeLanguage": "Install additional languages",
             "switchLanguageModalTitle": "Select the interface language",
@@ -106,15 +106,15 @@
         },
         "store": {
           "modalTitle": "Shopware Store",
-          "loadStatusCollect": "Collect store information...",
+          "loadStatusCollect": "Collecting store information...",
           "takeMinutes": "This may take a few minutes.",
-          "alreadyActivated": "Store is already successfully activated.",
+          "alreadyActivated": "Store has already been successfully activated.",
           "enablingStore": "Enabling the Shopware Store ... ",
           "activationErrorTitle": "Error on activation",
           "activationErrorDescription": "Please ask your administrator for help.",
           "headingOne": "Explore and buy extensions easily -",
           "headingTwo": "right from within your own Shopware shop.",
-          "description": "Activate the all new Shopware Store and get access to loads of helpful Extensions and modern Themes that can be integrated into your Shop seemlessly - without any programming skills."
+          "description": "Activate the all new Shopware Store and get access to loads of helpful extensions and modern themes that can be integrated into your Shop seemlessly - without any programming skills."
         },
         "markets": {
           "modalTitle": "Shopware Markets",

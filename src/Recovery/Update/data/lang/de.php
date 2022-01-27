@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 return [
-    'title' => 'Shopware 6 - Update Script',
+    'title' => 'Shopware 6 - Update-Script',
     'meta_text' => '<strong>Shopware-Update:</strong>',
 
     'tab_start' => 'Aktualisierung starten',
@@ -35,7 +35,7 @@ return [
 
     'step2_header_files' => 'Dateien und Verzeichnisse',
     'step2_files_info' => 'Die nachfolgenden Dateien und Verzeichnisse müssen vorhanden sein und Schreibrechte besitzen',
-    'step2_files_delete_info' => 'Die nachfolgenden Verzeichnisse müssen <strong>gelöscht</strong> sein.',
+    'step2_files_delete_info' => 'Die nachfolgenden Verzeichnisse müssen <strong>gelöscht</strong> werden.',
     'step2_error' => 'Einige Voraussetzungen werden nicht erfüllt',
     'step2_php_info' => 'Dein Server muss die folgenden Systemvoraussetzungen erfüllen, damit Shopware lauffähig ist',
     'step2_system_colcheck' => 'Voraussetzung',
@@ -50,10 +50,10 @@ return [
     'migration_counter_text_unpack' => 'Dateien werden überschrieben',
     'migration_update_success' => 'Das Update wurde erfolgreich durchgeführt',
 
-    'cleanup_header' => 'Aufräumen',
-    'cleanup_dir_table_header' => 'Verzeichnis / Datei',
-    'cleanup_disclaimer' => 'Die folgenden Dateien gehören zu einer früheren Shopware Version und werden nach diesem Update nicht länger benötigt. Klicke auf "Weiter" um die Dateien automatisch zu löschen und das Update zu beenden. Wir empfehlen vorher ein Backup anzulegen. <strong>Abhänging von der Menge der aufzuräumenden Dateien kann dieser Prozess einige Zeit in Anspruch nehmen.</strong>',
-    'cleanup_error' => 'Die folgenden Dateien konnten nicht gelöscht werden. Bitte lösche diese per Hand, oder stelle sicher, dass Dein Webserver genug Rechte besitzt, diese Dateien zu löschen. Klicke auf "Weiter", um den Update-Vorgang fortzusetzen.',
+    'cleanup_header' => 'Dateien aufräumen',
+    'cleanup_dir_table_header' => 'Verzeichnis/Datei',
+    'cleanup_disclaimer' => 'Die folgenden Dateien gehören zu Deiner früheren Shopware-Version und werden nach diesem Update nicht länger benötigt. Klicke auf "Weiter" um die Dateien automatisch zu löschen und das Update abzuschließen. Wir empfehlen dennoch, vorher ein Backup anzulegen. <strong>Abhängig von der Menge der aufzuräumenden Dateien kann dieser Prozess einige Zeit in Anspruch nehmen.</strong>',
+    'cleanup_error' => 'Die folgenden Dateien konnten nicht gelöscht werden. Bitte lösche diese per Hand, oder stelle sicher, dass Dein Webserver genug Rechte besitzt, um diese Dateien zu löschen. Klicke auf "Weiter", um den Update-Vorgang fortzusetzen.',
 
     'done_title' => 'Das Update war erfolgreich!',
     'done_info' => 'Deine Shopware-Installation wurde erfolgreich aktualisiert.',

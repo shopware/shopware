@@ -1,5 +1,11 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-profile/view/sw-profile-index-general';
+import 'src/app/component/form/select/base/sw-single-select';
+import 'src/app/component/form/select/base/sw-select-base';
+import 'src/app/component/form/select/base/sw-select-result';
+import 'src/app/component/form/select/base/sw-select-result-list';
+import 'src/app/component/base/sw-highlight-text';
+
 
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
@@ -11,7 +17,13 @@ function createWrapper(privileges = []) {
             'sw-container': true,
             'sw-text-field': true,
             'sw-select-field': true,
-            'sw-password-field': true
+            'sw-password-field': true,
+            'sw-select-base': true,
+            'sw-popover': true,
+            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
+            'sw-single-select': Shopware.Component.build('sw-single-select'),
+            'sw-highlight-text': Shopware.Component.build('sw-highlight-text'),
+            'sw-select-result': Shopware.Component.build('sw-select-result'),
         },
         provide: {
             acl: {
@@ -31,7 +43,13 @@ function createWrapper(privileges = []) {
             isUserLoading: false,
             languageId: null,
             isDisabled: true,
-            userRepository: {}
+            userRepository: {},
+            timezoneOptions: [
+                {
+                    label: 'UTC',
+                    value: 'UTC',
+                },
+            ],
         }
     });
 }
@@ -101,5 +119,15 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
         wrapper.vm.onOpenMedia();
 
         expect(spyMediaOpenEmit).toBeCalledWith('media-open');
+    });
+
+    it('should be able to select timezone', async () => {
+        await wrapper.find('.sw-profile--timezone').trigger('click');
+        await wrapper.vm.$nextTick();
+
+        const results = wrapper.findAll('.sw-select-result');
+        const resultNames = results.wrappers.map(result => result.text());
+
+        expect(resultNames).toContain('UTC');
     });
 });

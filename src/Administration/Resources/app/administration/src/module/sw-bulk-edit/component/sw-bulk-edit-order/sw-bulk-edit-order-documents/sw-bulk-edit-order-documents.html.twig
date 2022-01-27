@@ -5,25 +5,11 @@
         columns="1fr"
         rows="50px"
     >
-        {% block sw_bulk_edit_order_documents_target %}
-        <sw-select-field
-            v-model="value.target"
-            size="small"
-        >
-            <option value="newest">
-                {{ $tc('sw-bulk-edit.order.status.documents.options.newest') }}
-            </option>
-            <option value="all">
-                {{ $tc('sw-bulk-edit.order.status.documents.options.all') }}
-            </option>
-        </sw-select-field>
-        {% endblock %}
-
         {% block sw_bulk_edit_order_documents_type %}
         <sw-checkbox-field
             v-for="document in documentTypes"
             :key="document.id"
-            v-model="value.documentType[document]"
+            v-model="value.documentType[document.technicalName]"
             :label="document.name"
         />
         {% endblock %}

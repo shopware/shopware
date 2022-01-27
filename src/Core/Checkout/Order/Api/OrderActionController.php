@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\Api;
 
+use Doctrine\DBAL\Connection;
 use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
@@ -9,12 +10,15 @@ use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\StateMachineDefinition;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -22,26 +26,24 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class OrderActionController extends AbstractController
 {
-    /**
-     * @var OrderService
-     */
-    private $orderService;
+    private OrderService $orderService;
 
-    /**
-     * @var ApiVersionConverter
-     */
-    private $apiVersionConverter;
+    private ApiVersionConverter $apiVersionConverter;
 
-    /**
-     * @var StateMachineDefinition
-     */
-    private $stateMachineDefinition;
+    private StateMachineDefinition $stateMachineDefinition;
 
-    public function __construct(OrderService $orderService, ApiVersionConverter $apiVersionConverter, StateMachineDefinition $stateMachineDefinition)
-    {
+    private Connection $connection;
+
+    public function __construct(
+        OrderService $orderService,
+        ApiVersionConverter $apiVersionConverter,
+        StateMachineDefinition $stateMachineDefinition,
+        Connection $connection
+    ) {
         $this->orderService = $orderService;
         $this->apiVersionConverter = $apiVersionConverter;
         $this->stateMachineDefinition = $stateMachineDefinition;
+        $this->connection = $connection;
     }
 
     /**
@@ -111,7 +113,14 @@ Note: If you choose a transition that is not available, you will get an error th
         Request $request,
         Context $context
     ): JsonResponse {
-        $documentIds = $request->request->all('documentIds');
+        $documentTypes = $request->request->all('documentTypes');
+        if (\count($documentTypes) > 0) {
+            $skipSentDocuments = (bool) $request->request->get('skipSentDocuments', false);
+            $documentIds = $this->getDocumentIds('order', $orderId, $documentTypes, $skipSentDocuments);
+        } else {
+            $documentIds = $request->request->all('documentIds');
+        }
+
         $mediaIds = $request->request->all('mediaIds');
 
         $context->addExtension(
@@ -205,7 +214,14 @@ Note: If you choose a transition that is not available, you will get an error th
         Request $request,
         Context $context
     ): JsonResponse {
-        $documentIds = $request->request->all('documentIds');
+        $documentTypes = $request->request->all('documentTypes');
+        if (\count($documentTypes) > 0) {
+            $skipSentDocuments = (bool) $request->request->get('skipSentDocuments', false);
+            $documentIds = $this->getDocumentIds('order_transaction', $orderTransactionId, $documentTypes, $skipSentDocuments);
+        } else {
+            $documentIds = $request->request->all('documentIds');
+        }
+
         $mediaIds = $request->request->all('mediaIds');
 
         $context->addExtension(
@@ -299,7 +315,14 @@ Note: If you choose a transition which is not possible, you will get an error th
         Request $request,
         Context $context
     ): JsonResponse {
-        $documentIds = $request->request->all('documentIds');
+        $documentTypes = $request->request->all('documentTypes');
+        if (\count($documentTypes) > 0) {
+            $skipSentDocuments = (bool) $request->request->get('skipSentDocuments', false);
+            $documentIds = $this->getDocumentIds('order_delivery', $orderDeliveryId, $documentTypes, $skipSentDocuments);
+        } else {
+            $documentIds = $request->request->all('documentIds');
+        }
+
         $mediaIds = $request->request->all('mediaIds');
 
         $context->addExtension(
@@ -324,5 +347,55 @@ Note: If you choose a transition which is not possible, you will get an error th
         );
 
         return new JsonResponse($response);
+    }
+
+    private function getDocumentIds(string $entity, string $referencedId, array $documentTypes, bool $skipSentDocuments): array
+    {
+        if (!\in_array($entity, ['order', 'order_transaction', 'order_delivery'], true)) {
+            throw new NotFoundHttpException();
+        }
+
+        $query = $this->connection->createQueryBuilder();
+        $query->select([
+            'LOWER(hex(document.document_type_id)) as doc_type',
+            'LOWER(hex(document.id)) as doc_id',
+            'document.created_at as newest_date',
+        ]);
+        $query->from('document', 'document');
+        $query->innerJoin('document', 'document_type', 'document_type', 'document.document_type_id = document_type.id');
+        $query->where('document.order_id = :orderId');
+
+        if ($entity === 'order') {
+            $query->setParameter('orderId', Uuid::fromHexToBytes($referencedId));
+        } else {
+            $fetchOrder = $this->connection->createQueryBuilder();
+            $fetchOrder->select('order_id')->from($entity)->where('id = :id');
+
+            $fetchOrder->setParameter('id', Uuid::fromHexToBytes($referencedId));
+
+            $orderId = $fetchOrder->execute()->fetchOne();
+
+            $query->setParameter('orderId', $orderId);
+        }
+
+        if ($skipSentDocuments) {
+            $query->andWhere('document.sent = 0');
+        }
+
+        $query->andWhere('document_type.technical_name IN (:documentTypes)');
+        $query->orderBy('document.created_at', 'DESC');
+
+        $query->setParameter('documentTypes', $documentTypes, Connection::PARAM_STR_ARRAY);
+
+        $documents = $query->execute()->fetchAllAssociative();
+
+        $documentsGroupByType = FetchModeHelper::group($documents);
+
+        $documentIds = [];
+        foreach ($documentsGroupByType as $document) {
+            $documentIds[] = array_shift($document)['doc_id'];
+        }
+
+        return $documentIds;
     }
 }

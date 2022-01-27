@@ -75,7 +75,7 @@ Component.register('sw-bulk-edit-order', {
         },
 
         statusFormFields() {
-            return [
+            let fields = [
                 {
                     name: 'orderTransactions',
                     config: {
@@ -106,24 +106,31 @@ Component.register('sw-bulk-edit-order', {
                         options: this.orderStatus,
                     },
                 },
-                // TODO: NEXT-6061 - allow sending email for status changes including document attachments
-                // {
-                //     name: 'statusMails',
-                //     helpText: this.$tc('sw-bulk-edit.order.status.statusMails.helpText'),
-                //     config: {
-                //         hidden: true,
-                //         changeLabel: this.$tc('sw-bulk-edit.order.status.statusMails.label'),
-                //     },
-                // },
-                // {
-                //     name: 'documents',
-                //     helpText: this.$tc('sw-bulk-edit.order.status.documents.helpText'),
-                //     config: {
-                //         componentName: 'sw-bulk-edit-order-documents',
-                //         changeLabel: this.$tc('sw-bulk-edit.order.status.documents.label'),
-                //     },
-                // },
             ];
+
+            if (this.feature.isActive('FEATURE_NEXT_17261')) {
+                fields = [
+                    ...fields,
+                    {
+                        name: 'statusMails',
+                        labelHelpText: this.$tc('sw-bulk-edit.order.status.statusMails.helpText'),
+                        config: {
+                            hidden: true,
+                            changeLabel: this.$tc('sw-bulk-edit.order.status.statusMails.label'),
+                        },
+                    },
+                    {
+                        name: 'documents',
+                        labelHelpText: this.$tc('sw-bulk-edit.order.status.documents.helpText'),
+                        config: {
+                            componentName: 'sw-bulk-edit-order-documents',
+                            changeLabel: this.$tc('sw-bulk-edit.order.status.documents.label'),
+                        },
+                    },
+                ];
+            }
+
+            return fields;
         },
 
         documentsFormFields() {
@@ -274,14 +281,12 @@ Component.register('sw-bulk-edit-order', {
                 disabled: true,
             });
 
-            // TODO: NEXT-15616 - allow sending email for status changes including document attachments
             this.$set(this.bulkEditData, 'documents', {
                 ...this.bulkEditData.documents,
                 disabled: true,
             });
 
             this.order.documents = {
-                target: null,
                 documentType: {},
                 skipSentDocuments: null,
             };
@@ -393,10 +398,20 @@ Component.register('sw-bulk-edit-order', {
                     };
 
                     if (dataPush.includes(key)) {
+                        const documentTypes = this.order.documents.documentType;
+                        const selectedDocumentTypes = [];
+                        Object.keys(documentTypes).forEach(documentTypeName => {
+                            if (documentTypes[documentTypeName] === true) {
+                                selectedDocumentTypes.push(documentTypeName);
+                            }
+                        });
+
                         payload.sendMail = this.bulkEditData?.statusMails?.isChanged;
+                        payload.documentTypes = selectedDocumentTypes;
+                        payload.skipSentDocuments = this.order.documents.skipSentDocuments;
                         payload.value = this.order?.[key];
                         data.statusData.push(payload);
-                    } else {
+                    } else if (key !== 'documents' && key !== 'statusMails') {
                         data.syncData.push(payload);
                     }
                 }

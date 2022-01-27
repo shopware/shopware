@@ -633,9 +633,9 @@ Component.register('sw-text-editor', {
 
             const {
                 anchorOffset,
-                anchorNode: { nodeValue: anchorNodeText },
+                anchorNode: { textContent: anchorNodeText },
                 focusOffset,
-                focusNode: { nodeValue: focusNodeText },
+                focusNode: { textContent: focusNodeText },
             } = this.selection;
 
             const contentBeforeSelection = Array.from(anchorNodeText)

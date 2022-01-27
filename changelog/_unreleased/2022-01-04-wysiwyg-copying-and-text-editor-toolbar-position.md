@@ -10,3 +10,4 @@ author_email: n.limberg@shopware.com
 * Changed `sw-text-editor/index.js` to allow copy and paste of html in editor mode
 * Added a `copy` event listener to the `.sw-text-editor__content-editor` element in `sw-text-editor.html.twig` 
 * Changed style of `.sw-cms-toolbar` in `sw-cms-toolbar.scss`, to let the text-editor-toolbar slide under the `cms-toolbar`
+* Changed `sw-text-editor/index.js` to fix text alignment assignment, when a complete HTML element is selected

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\Migration1595492052SeoUrl;
+use Shopware\Core\Migration\V6_4\Migration1643366069AddSeoUrlUpdaterIndex;
 
 class Migration1595492052SeoUrlTest extends TestCase
 {
@@ -34,6 +35,9 @@ class Migration1595492052SeoUrlTest extends TestCase
 
         $migration = new Migration1595492052SeoUrl();
         $migration->update($conn);
+
+        $m = new Migration1643366069AddSeoUrlUpdaterIndex();
+        $m->update($conn);
         $exists = $conn->fetchColumn('SELECT COUNT(*) FROM `seo_url`') !== false;
 
         static::assertTrue($exists);

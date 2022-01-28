@@ -29,6 +29,13 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Payment\PreparedPaymentService">
+            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
+            <argument type="service" id="app_payment_method.repository"/>
+            <argument type="service" id="logger"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Payment\Controller\PaymentController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>

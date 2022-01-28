@@ -18,7 +18,7 @@ use Shopware\Core\System\StateMachine\Transition;
 /**
  * @internal only for use by the app-system
  */
-class AppSyncPaymentHandler extends AbstractAppPaymentHandler implements SynchronousPaymentHandlerInterface
+class AppSyncPaymentHandler extends AppPreparedPaymentHandler implements SynchronousPaymentHandlerInterface
 {
     public function pay(SyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): void
     {

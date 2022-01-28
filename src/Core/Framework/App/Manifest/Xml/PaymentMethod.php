@@ -14,35 +14,27 @@ class PaymentMethod extends XmlElement
         'name',
     ];
 
-    /**
-     * @var string
-     */
-    protected $identifier;
+    protected string $identifier;
 
     /**
      * @var string[]
      */
-    protected $name = [];
+    protected array $name = [];
 
     /**
      * @var string[]
      */
-    protected $description = [];
+    protected array $description = [];
 
-    /**
-     * @var string|null
-     */
-    protected $payUrl;
+    protected ?string $payUrl = null;
 
-    /**
-     * @var string|null
-     */
-    protected $finalizeUrl;
+    protected ?string $finalizeUrl = null;
 
-    /**
-     * @var string|null
-     */
-    protected $icon;
+    protected ?string $validateUrl = null;
+
+    protected ?string $captureUrl = null;
+
+    protected ?string $icon = null;
 
     private function __construct(array $data)
     {
@@ -75,9 +67,11 @@ class PaymentMethod extends XmlElement
             'identifier' => $data['identifier'],
             'payUrl' => $data['payUrl'],
             'finalizeUrl' => $data['finalizeUrl'],
+            'validateUrl' => $data['validateUrl'],
+            'captureUrl' => $data['captureUrl'],
         ];
 
-        unset($data['identifier'], $data['payUrl'], $data['finalizeUrl'], $data['icon']);
+        unset($data['identifier'], $data['payUrl'], $data['finalizeUrl'], $data['validateUrl'], $data['captureUrl'], $data['icon']);
 
         return $data;
     }
@@ -111,6 +105,16 @@ class PaymentMethod extends XmlElement
     public function getFinalizeUrl(): ?string
     {
         return $this->finalizeUrl;
+    }
+
+    public function getValidateUrl(): ?string
+    {
+        return $this->validateUrl;
+    }
+
+    public function getCaptureUrl(): ?string
+    {
+        return $this->captureUrl;
     }
 
     public function getIcon(): ?string

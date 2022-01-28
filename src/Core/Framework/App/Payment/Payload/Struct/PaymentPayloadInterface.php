@@ -7,9 +7,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEnti
 /**
  * @internal only for use by the app-system
  */
-interface PaymentPayloadInterface extends \JsonSerializable
+interface PaymentPayloadInterface extends SourcedPayloadInterface
 {
-    public function setSource(Source $source): void;
-
     public function getOrderTransaction(): OrderTransactionEntity;
 }

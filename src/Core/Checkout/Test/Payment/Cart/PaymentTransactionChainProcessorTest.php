@@ -14,13 +14,11 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
-use Shopware\Core\Checkout\Test\Payment\Handler\V630\PreparedTestPaymentHandler;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -40,8 +38,6 @@ class PaymentTransactionChainProcessorTest extends TestCase
 
     public function testThrowsExceptionOnNullOrder(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_16769', $this);
-
         $orderRepository = $this->createMock(EntityRepositoryInterface::class);
         $orderRepository
             ->method('search')
@@ -79,8 +75,6 @@ class PaymentTransactionChainProcessorTest extends TestCase
 
     public function testThrowsExceptionOnNullPaymentHandler(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_16769', $this);
-
         $paymentMethodEntity = new PaymentMethodEntity();
         $paymentMethodEntity->setHandlerIdentifier($this->ids->get('handler-identifier'));
 
@@ -132,128 +126,6 @@ class PaymentTransactionChainProcessorTest extends TestCase
         static::expectException(UnknownPaymentMethodException::class);
         static::expectExceptionMessage(
             \sprintf('The payment method %s could not be found.', $this->ids->get('handler-identifier'))
-        );
-
-        $processor->process(
-            $this->ids->get('test-order'),
-            new RequestDataBag(),
-            Generator::createSalesChannelContext()
-        );
-    }
-
-    public function testPreparedPaymentHandlerValidateGetsCalled(): void
-    {
-        Feature::skipTestIfInActive('FEATURE_NEXT_16769', $this);
-
-        $transaction = new OrderTransactionEntity();
-        $transaction->setId(Uuid::randomHex());
-        $transaction->setStateId($this->ids->get('order-state'));
-        $transaction->setPaymentMethod(new PaymentMethodEntity());
-
-        $order = new OrderEntity();
-        $order->setUniqueIdentifier($this->ids->get('test-order'));
-        $order->setTransactions(new OrderTransactionCollection([$transaction]));
-
-        $orderRepository = $this->createMock(EntityRepositoryInterface::class);
-        $orderRepository
-            ->method('search')
-            ->willReturn(
-                new EntitySearchResult(
-                    'order',
-                    1,
-                    new EntityCollection([$order]),
-                    null,
-                    new Criteria(),
-                    Context::createDefaultContext()
-                )
-            );
-
-        $paymentHandler = $this->createMock(PreparedTestPaymentHandler::class);
-        $paymentHandler
-            ->expects(static::once())
-            ->method('validate');
-
-        $paymentHandlerRegistry = $this->createMock(PaymentHandlerRegistry::class);
-        $paymentHandlerRegistry
-            ->method('getHandlerForPaymentMethod')
-            ->willReturn($paymentHandler);
-
-        $stateMachineEntity = new StateMachineStateEntity();
-        $stateMachineEntity->setId($this->ids->get('order-state'));
-
-        $stateMachineRegistry = $this->createMock(StateMachineRegistry::class);
-        $stateMachineRegistry
-            ->method('getInitialState')
-            ->willReturn($stateMachineEntity);
-
-        $processor = new PaymentTransactionChainProcessor(
-            $this->createMock(TokenFactoryInterfaceV2::class),
-            $orderRepository,
-            $this->createMock(RouterInterface::class),
-            $paymentHandlerRegistry,
-            $stateMachineRegistry,
-            $this->createMock(SystemConfigService::class)
-        );
-
-        $processor->process(
-            $this->ids->get('test-order'),
-            new RequestDataBag(),
-            Generator::createSalesChannelContext()
-        );
-    }
-
-    public function testPreparedPaymentHandlerCaptureGetsCalled(): void
-    {
-        Feature::skipTestIfInActive('FEATURE_NEXT_16769', $this);
-
-        $transaction = new OrderTransactionEntity();
-        $transaction->setId(Uuid::randomHex());
-        $transaction->setStateId($this->ids->get('order-state'));
-        $transaction->setPaymentMethod(new PaymentMethodEntity());
-
-        $order = new OrderEntity();
-        $order->setUniqueIdentifier($this->ids->get('test-order'));
-        $order->setTransactions(new OrderTransactionCollection([$transaction]));
-
-        $orderRepository = $this->createMock(EntityRepositoryInterface::class);
-        $orderRepository
-            ->method('search')
-            ->willReturn(
-                new EntitySearchResult(
-                    'order',
-                    1,
-                    new EntityCollection([$order]),
-                    null,
-                    new Criteria(),
-                    Context::createDefaultContext()
-                )
-            );
-
-        $paymentHandler = $this->createMock(PreparedTestPaymentHandler::class);
-        $paymentHandler
-            ->expects(static::once())
-            ->method('capture');
-
-        $paymentHandlerRegistry = $this->createMock(PaymentHandlerRegistry::class);
-        $paymentHandlerRegistry
-            ->method('getHandlerForPaymentMethod')
-            ->willReturn($paymentHandler);
-
-        $stateMachineEntity = new StateMachineStateEntity();
-        $stateMachineEntity->setId($this->ids->get('order-state'));
-
-        $stateMachineRegistry = $this->createMock(StateMachineRegistry::class);
-        $stateMachineRegistry
-            ->method('getInitialState')
-            ->willReturn($stateMachineEntity);
-
-        $processor = new PaymentTransactionChainProcessor(
-            $this->createMock(TokenFactoryInterfaceV2::class),
-            $orderRepository,
-            $this->createMock(RouterInterface::class),
-            $paymentHandlerRegistry,
-            $stateMachineRegistry,
-            $this->createMock(SystemConfigService::class)
         );
 
         $processor->process(

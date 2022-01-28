@@ -14,15 +14,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class OrderPersister implements OrderPersisterInterface
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $orderRepository;
+    private EntityRepositoryInterface $orderRepository;
 
-    /**
-     * @var OrderConverter
-     */
-    private $converter;
+    private OrderConverter $converter;
 
     public function __construct(
         EntityRepositoryInterface $repository,

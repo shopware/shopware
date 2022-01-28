@@ -2,12 +2,13 @@
 
 namespace Shopware\Core\Checkout\Payment\Exception;
 
-class ValidatePreparedPaymentException extends PaymentProcessException
+use Shopware\Core\Framework\ShopwareHttpException;
+
+class ValidatePreparedPaymentException extends ShopwareHttpException
 {
-    public function __construct(string $orderTransactionId, string $errorMessage)
+    public function __construct(string $errorMessage)
     {
         parent::__construct(
-            $orderTransactionId,
             'The validation process of the prepared payment was interrupted due to the following error:' . \PHP_EOL . '{{ errorMessage }}',
             ['errorMessage' => $errorMessage]
         );

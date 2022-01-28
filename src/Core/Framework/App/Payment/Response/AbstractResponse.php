@@ -15,11 +15,13 @@ abstract class AbstractResponse extends Struct
 
     abstract public function validate(string $transactionId): void;
 
-    public static function create(string $transactionId, array $data): self
+    public static function create(?string $transactionId, array $data): self
     {
         $response = new static();
         $response->assign($data);
-        $response->validate($transactionId);
+        if ($transactionId) {
+            $response->validate($transactionId);
+        }
 
         return $response;
     }

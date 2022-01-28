@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Test\Payment\Handler\V630;
 
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PreparedPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PreparedPaymentTransactionStruct;
@@ -14,7 +15,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class MultipleTestPaymentHandler implements SynchronousPaymentHandlerInterface, PreparedPaymentHandlerInterface
 {
     public function validate(
-        PreparedPaymentTransactionStruct $preparedPaymentTransactionStruct,
+        Cart $cart,
         RequestDataBag $requestDataBag,
         SalesChannelContext $context
     ): Struct {
@@ -22,7 +23,7 @@ class MultipleTestPaymentHandler implements SynchronousPaymentHandlerInterface, 
     }
 
     public function capture(
-        PreparedPaymentTransactionStruct $preparedPaymentTransactionStruct,
+        PreparedPaymentTransactionStruct $transaction,
         RequestDataBag $requestDataBag,
         SalesChannelContext $context,
         Struct $preOrderPaymentStruct

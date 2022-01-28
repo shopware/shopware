@@ -9,7 +9,8 @@ return [
         '**/src/Core/DevOps/StaticAnalyze/**', // dev dependency
         '**/src/Core/Migration/Traits/MigrationUntouchedDbTestTrait.php', // Test code in prod
         '**/src/Elasticsearch/Framework/Command/ElasticsearchTestAnalyzerCommand.php', // Why?
-        '**/src/Core/Checkout/Payment/Cart/PaymentHandler/PreparedPaymentHandlerInterface.php', // remove with FEATURE_NEXT_16769
+        '**/src/Core/Checkout/Payment/Cart/PaymentHandler/PreparedPaymentHandlerInterface.php', // internal has been removed
+        '**/src/Core/Checkout/Payment/Exception/ValidatePreparedPaymentException.php', // internal has been removed
     ],
     'errors' => [
         'Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Util\\\\ConfigReader#\\$xsdFile', // Can not be inspected through reflection (__DIR__ constant)

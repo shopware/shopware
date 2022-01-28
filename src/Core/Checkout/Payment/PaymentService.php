@@ -33,50 +33,23 @@ use Symfony\Component\HttpFoundation\Request;
 
 class PaymentService
 {
-    /**
-     * @var PaymentTransactionChainProcessor
-     */
-    private $paymentProcessor;
+    private PaymentTransactionChainProcessor $paymentProcessor;
 
-    /**
-     * @var TokenFactoryInterfaceV2
-     */
-    private $tokenFactory;
+    private TokenFactoryInterfaceV2 $tokenFactory;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $paymentMethodRepository;
+    private EntityRepositoryInterface $paymentMethodRepository;
 
-    /**
-     * @var PaymentHandlerRegistry
-     */
-    private $paymentHandlerRegistry;
+    private PaymentHandlerRegistry $paymentHandlerRegistry;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $orderTransactionRepository;
+    private EntityRepositoryInterface $orderTransactionRepository;
 
-    /**
-     * @var OrderTransactionStateHandler
-     */
-    private $transactionStateHandler;
+    private OrderTransactionStateHandler $transactionStateHandler;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $orderRepository;
+    private EntityRepositoryInterface $orderRepository;
 
-    /**
-     * @var SalesChannelContextServiceInterface
-     */
-    private $contextService;
+    private SalesChannelContextServiceInterface $contextService;
 
     public function __construct(
         PaymentTransactionChainProcessor $paymentProcessor,

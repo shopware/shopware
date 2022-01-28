@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Payment\PaymentService;
+use Shopware\Core\Checkout\Payment\PreparedPaymentService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
@@ -40,6 +41,11 @@ abstract class AbstractAppPaymentHandlerTest extends TestCase
     protected $paymentService;
 
     /**
+     * @var PreparedPaymentService
+     */
+    protected $preparedPaymentService;
+
+    /**
      * @var ShopIdProvider
      */
     protected $shopIdProvider;
@@ -51,7 +57,7 @@ abstract class AbstractAppPaymentHandlerTest extends TestCase
     /**
      * @var EntityRepositoryInterface
      */
-    private $orderRepository;
+    protected $orderRepository;
 
     /**
      * @var EntityRepositoryInterface
@@ -91,6 +97,7 @@ abstract class AbstractAppPaymentHandlerTest extends TestCase
         $this->shopUrl = $_SERVER['APP_URL'];
         $this->shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
         $this->paymentService = $this->getContainer()->get(PaymentService::class);
+        $this->preparedPaymentService = $this->getContainer()->get(PreparedPaymentService::class);
         $this->context = Context::createDefaultContext();
 
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/testPayments/manifest.xml');
@@ -222,12 +229,15 @@ abstract class AbstractAppPaymentHandlerTest extends TestCase
         return $id;
     }
 
-    protected function getSalesChannelContext(string $paymentMethodId): SalesChannelContext
+    protected function getSalesChannelContext(string $paymentMethodId, ?string $customerId = null): SalesChannelContext
     {
         return $this->salesChannelContextFactory->create(
             Uuid::randomHex(),
             TestDefaults::SALES_CHANNEL,
-            [SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId]
+            [
+                SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId,
+                SalesChannelContextService::CUSTOMER_ID => $customerId,
+            ]
         );
     }
 

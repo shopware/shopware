@@ -5,12 +5,15 @@ namespace Shopware\Core\Framework\App\Payment\Payload;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
+use Shopware\Core\Checkout\Payment\Exception\ValidatePreparedPaymentException;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\PaymentPayloadInterface;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\Source;
+use Shopware\Core\Framework\App\Payment\Payload\Struct\SourcedPayloadInterface;
+use Shopware\Core\Framework\App\Payment\Response\AbstractResponse;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -48,9 +51,9 @@ class PayloadService
     }
 
     /**
-     * @depretacted tag:v6.5.0 - Parameter $context will be required
-     **/
-    public function request(string $url, PaymentPayloadInterface $payload, AppEntity $app, string $responseClass, ?SalesChannelContext $context = null): ?Struct
+     * @param class-string<AbstractResponse> $responseClass
+     */
+    public function request(string $url, SourcedPayloadInterface $payload, AppEntity $app, string $responseClass, SalesChannelContext $context): ?Struct
     {
         $optionRequest = $this->getRequestOptions($payload, $app, $context);
 
@@ -59,20 +62,29 @@ class PayloadService
 
             $content = $response->getBody()->getContents();
 
-            return $responseClass::create($payload->getOrderTransaction()->getId(), json_decode($content, true));
+            $transactionId = null;
+            if ($payload instanceof PaymentPayloadInterface) {
+                $transactionId = $payload->getOrderTransaction()->getId();
+            }
+
+            return $responseClass::create($transactionId, json_decode($content, true));
         } catch (GuzzleException $ex) {
             return null;
         }
     }
 
-    private function getRequestOptions(PaymentPayloadInterface $payload, AppEntity $app, ?SalesChannelContext $context = null): array
+    private function getRequestOptions(SourcedPayloadInterface $payload, AppEntity $app, SalesChannelContext $context): array
     {
         $payload->setSource($this->buildSource($app));
         $encoded = $this->encode($payload);
         $jsonPayload = json_encode($encoded);
 
         if (!$jsonPayload) {
-            throw new AsyncPaymentProcessException($payload->getOrderTransaction()->getId(), 'Invalid payload');
+            if ($payload instanceof PaymentPayloadInterface) {
+                throw new AsyncPaymentProcessException($payload->getOrderTransaction()->getId(), \sprintf('Empty payload, got: %s', var_export($jsonPayload, true)));
+            }
+
+            throw new ValidatePreparedPaymentException(\sprintf('Empty payload, got: %s', var_export($jsonPayload, true)));
         }
 
         $secret = $app->getAppSecret();
@@ -80,7 +92,8 @@ class PayloadService
             throw new AppRegistrationException('App secret missing');
         }
 
-        $optionRequest = [
+        return [
+            AuthMiddleware::APP_REQUEST_CONTEXT => $context->getContext(),
             AuthMiddleware::APP_REQUEST_TYPE => [
                 AuthMiddleware::APP_SECRET => $secret,
                 AuthMiddleware::VALIDATED_RESPONSE => true,
@@ -90,12 +103,6 @@ class PayloadService
             ],
             'body' => $jsonPayload,
         ];
-
-        if ($context !== null) {
-            $optionRequest = array_merge($optionRequest, [AuthMiddleware::APP_REQUEST_CONTEXT => $context->getContext()]);
-        }
-
-        return $optionRequest;
     }
 
     private function buildSource(AppEntity $app): Source
@@ -107,25 +114,44 @@ class PayloadService
         );
     }
 
-    private function encode(PaymentPayloadInterface $payload): array
+    private function encode(SourcedPayloadInterface $payload): array
     {
         $array = $payload->jsonSerialize();
 
         foreach ($array as $propertyName => $property) {
+            if ($property instanceof SalesChannelContext) {
+                $salesChannelContext = $property->jsonSerialize();
+
+                foreach ($salesChannelContext as $subPropertyName => $subProperty) {
+                    if (!$subProperty instanceof Entity) {
+                        continue;
+                    }
+
+                    $salesChannelContext[$subPropertyName] = $this->encodeEntity($subProperty);
+                }
+
+                $array[$propertyName] = $salesChannelContext;
+            }
+
             if (!$property instanceof Entity) {
                 continue;
             }
 
-            $definition = $this->definitionRegistry->getByEntityName($property->getApiAlias());
-
-            $array[$propertyName] = $this->entityEncoder->encode(
-                new Criteria(),
-                $definition,
-                $property,
-                '/api'
-            );
+            $array[$propertyName] = $this->encodeEntity($property);
         }
 
         return $array;
+    }
+
+    private function encodeEntity(Entity $entity): array
+    {
+        $definition = $this->definitionRegistry->getByEntityName($entity->getApiAlias());
+
+        return $this->entityEncoder->encode(
+            new Criteria(),
+            $definition,
+            $entity,
+            '/api'
+        );
     }
 }

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1616076922AppPaymentMethod;
+use Shopware\Core\Migration\V6_4\Migration1643386819AddPreparedPaymentsToAppPaymentMethod;
 
 class Migration1616076922AppPaymentMethodTest extends TestCase
 {
@@ -44,6 +45,10 @@ class Migration1616076922AppPaymentMethodTest extends TestCase
         $exists = $this->connection->fetchFirstColumn('SELECT COUNT(*) FROM `app_payment_method`') !== false;
 
         static::assertTrue($exists);
+
+        // we need to execute additional migrations to restore the final table state
+        $migration = new Migration1643386819AddPreparedPaymentsToAppPaymentMethod();
+        $migration->update($this->connection);
     }
 
     public function testDefaultFolder(): void

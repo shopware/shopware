@@ -10,14 +10,11 @@ use Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentHandlerIdentifier
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\MultipleTestPaymentHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
-use Shopware\Core\Framework\Feature;
 
 class PaymentMethodHandlerRuntimeFieldTest extends TestCase
 {
     public function testSynchronousRuntimeField(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_16769', $this);
-
         $event = $this->createMock(EntityLoadedEvent::class);
         $event
             ->method('getEntities')
@@ -39,8 +36,6 @@ class PaymentMethodHandlerRuntimeFieldTest extends TestCase
 
     public function testAsynchronousRuntimeField(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_16769', $this);
-
         $event = $this->createMock(EntityLoadedEvent::class);
         $event
             ->method('getEntities')
@@ -62,8 +57,6 @@ class PaymentMethodHandlerRuntimeFieldTest extends TestCase
 
     public function testPreparedRuntimeField(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_16769', $this);
-
         $event = $this->createMock(EntityLoadedEvent::class);
         $event
             ->method('getEntities')
@@ -85,8 +78,6 @@ class PaymentMethodHandlerRuntimeFieldTest extends TestCase
 
     public function testMultipleRuntimeFieldsAtOnce(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_16769', $this);
-
         $event = $this->createMock(EntityLoadedEvent::class);
         $event
             ->method('getEntities')

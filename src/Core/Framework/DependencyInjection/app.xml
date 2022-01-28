@@ -140,13 +140,18 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Payment\Handler\AppSyncPaymentHandler"
-                 parent="Shopware\Core\Framework\App\Payment\Handler\AbstractAppPaymentHandler">
+                 parent="Shopware\Core\Framework\App\Payment\Handler\AppPreparedPaymentHandler">
             <tag name="shopware.payment.method.sync"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Payment\Handler\AppAsyncPaymentHandler"
-                 parent="Shopware\Core\Framework\App\Payment\Handler\AbstractAppPaymentHandler">
+                 parent="Shopware\Core\Framework\App\Payment\Handler\AppPreparedPaymentHandler">
             <tag name="shopware.payment.method.async"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Payment\Handler\AppPreparedPaymentHandler"
+                 parent="Shopware\Core\Framework\App\Payment\Handler\AbstractAppPaymentHandler">
+            <tag name="shopware.payment.method.prepared"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService">

@@ -8,13 +8,13 @@ framework:
         app: cache.adapter.array
         system: cache.adapter.array
         pools:
-            serializer:
+            cache.serializer:
                 adapter: cache.adapter.array
-            annotations:
+            cache.annotations:
                 adapter: cache.adapter.array
-            property_info:
+            cache.property_info:
                 adapter: cache.adapter.array
-            messenger:
+            cache.messenger:
                 adapter: cache.adapter.array
-            property_access:
+            cache.property_access:
                 adapter: cache.adapter.array

@@ -39,6 +39,8 @@ class ProductCartProcessorTest extends TestCase
     public const TEST_LOCALE_ID = 'cf735c44dc7b4428bb3870fe4ffea2df';
     public const CUSTOM_FIELD_ID = '24c8b3e8cacc4bf2a743b8c5a7522a33';
     public const PURCHASE_STEP_QUANTITY_ERROR_KEY = 'purchase-steps-quantity';
+    public const MIN_ORDER_QUANTITY_ERROR_KEY = 'min-order-quantity';
+    public const PRODUCT_STOCK_REACHED_ERROR_KEY = 'product-stock-reached';
 
     /**
      * @var TestDataCollection
@@ -546,7 +548,7 @@ class ProductCartProcessorTest extends TestCase
      * @dataProvider productDeliverabilityProvider
      * @group slow
      */
-    public function testProcessCartShouldReturnFixedQuantity(int $minPurchase, int $purchaseSteps, int $maxPurchase, int $quantity, int $quantityExpected, bool $isCheckMessage): void
+    public function testProcessCartShouldReturnFixedQuantity(int $minPurchase, int $purchaseSteps, int $maxPurchase, int $quantity, int $quantityExpected, ?string $errorKey): void
     {
         $additionalData = [
             'maxPurchase' => $maxPurchase,
@@ -576,27 +578,27 @@ class ProductCartProcessorTest extends TestCase
 
         $actualProduct = $cart->get($product->getId());
         static::assertEquals($quantityExpected, $actualProduct->getQuantity());
-        if ($isCheckMessage) {
-            static::assertEquals(self::PURCHASE_STEP_QUANTITY_ERROR_KEY, $service->getCart($token, $context)->getErrors()->first()->getMessageKey());
+        if ($errorKey !== null) {
+            static::assertEquals($errorKey, $service->getCart($token, $context)->getErrors()->first()->getMessageKey());
         }
     }
 
     public function productDeliverabilityProvider()
     {
         return [
-            'fixed quantity should be return 2' => [2, 2, 20, 3, 2, true],
-            'fixed quantity should be return 4' => [2, 2, 20, 5, 4, true],
-            'fixed quantity should be return 3' => [1, 2, 20, 4, 3, true],
-            'fixed quantity should be return 9' => [1, 2, 20, 10, 9, true],
-            'fixed quantity should be return 5, actual quantity is 6' => [5, 5, 20, 6, 5, true],
-            'fixed quantity should be return 5, actual quantity is 7' => [5, 5, 20, 7, 5, true],
-            'fixed quantity should be return 5, actual quantity is 8' => [5, 5, 20, 8, 5, true],
-            'fixed quantity should be return 5, actual quantity is 9' => [5, 5, 20, 9, 5, true],
-            'fixed quantity should be return equal max purchase' => [2, 2, 20, 22, 20, false],
-            'fixed quantity should be return equal min purchase' => [2, 2, 20, 1, 2, false],
-            'fixed quantity should be return 1' => [1, 3, 5, 2, 1, true],
-            'fixed quantity should be return 10 with error message' => [10, 3, 13, 11, 10, true],
-            'fixed quantity should be return 10, without error message' => [10, 2, 20, 2, 10, false],
+            'fixed quantity should be return 2' => [2, 2, 20, 3, 2, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
+            'fixed quantity should be return 4' => [2, 2, 20, 5, 4, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
+            'fixed quantity should be return 3' => [1, 2, 20, 4, 3, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
+            'fixed quantity should be return 9' => [1, 2, 20, 10, 9, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
+            'fixed quantity should be return 5, actual quantity is 6' => [5, 5, 20, 6, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
+            'fixed quantity should be return 5, actual quantity is 7' => [5, 5, 20, 7, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
+            'fixed quantity should be return 5, actual quantity is 8' => [5, 5, 20, 8, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
+            'fixed quantity should be return 5, actual quantity is 9' => [5, 5, 20, 9, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
+            'fixed quantity should be return equal max purchase' => [2, 2, 20, 22, 20, self::PRODUCT_STOCK_REACHED_ERROR_KEY],
+            'fixed quantity should be return equal min purchase' => [2, 2, 20, 1, 2, self::MIN_ORDER_QUANTITY_ERROR_KEY],
+            'fixed quantity should be return 1' => [1, 3, 5, 2, 1, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
+            'fixed quantity should be return 10 with purchase step error message' => [10, 3, 13, 11, 10, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
+            'fixed quantity should be return 10, with min order quantity error message' => [10, 2, 20, 2, 10, self::MIN_ORDER_QUANTITY_ERROR_KEY],
         ];
     }
 

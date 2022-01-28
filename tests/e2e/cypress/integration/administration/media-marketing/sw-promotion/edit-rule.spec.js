@@ -87,7 +87,7 @@ describe('Promotion: Test promotion with preconditional rules', () => {
 
         cy.get('.product-box').should('be.visible');
         cy.get('.btn-buy').click();
-        cy.get('.offcanvas.is-open').should('be.visible');
+        cy.get('.offcanvas').should('be.visible');
         cy.get('#addPromotionOffcanvasCartInput').type('funicular');
         cy.get('#addPromotionOffcanvasCart').click();
         cy.get('.alert-success .icon-checkmark-circle').should('be.visible');

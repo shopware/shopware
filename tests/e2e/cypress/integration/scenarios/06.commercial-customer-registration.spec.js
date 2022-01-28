@@ -102,7 +102,7 @@ describe('Product creation via API and commercial customer registration', () => 
             cy.get('.header-search-input').type('Product name');
             cy.contains('.search-suggest-product-name', 'Product name').click();
             cy.get('.product-detail-buy .btn-buy').click();
-            cy.get('.offcanvas.is-open').should('be.visible');
+            cy.get('.offcanvas').should('be.visible');
             cy.contains(`${lineItemSelector}-label`, 'Product name').should('be.visible');
             cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').should('be.visible').click();
             cy.contains(`${lineItemSelector}-details-container [title]`, 'Product name').should('be.visible');

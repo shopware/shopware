@@ -74,7 +74,7 @@ describe('Checkout: Visual tests', () => {
             cy.get('.loader').should('not.exist');
 
             cy.takeSnapshot('[Checkout] Offcanvas',
-                `${page.elements.offCanvasCart}.is-open`,
+                page.elements.offCanvasCart,
                 {widths: [375, 1920]});
 
             cy.contains(`${lineItemSelector}-label`, product.name);

@@ -100,7 +100,7 @@ describe('Promotion: Test crud operations', () => {
 
             cy.get('.product-box').should('be.visible');
             cy.get('.btn-buy').click();
-            cy.get('.offcanvas.is-open').should('be.visible');
+            cy.get('.offcanvas').should('be.visible');
             cy.contains(`${lineItemSelector}-promotion ${lineItemSelector}-label`, 'Funicular prices');
             cy.contains(`${lineItemSelector}-promotion ${lineItemTotalPriceSelector}`, '-€10.00*');
             cy.contains('.summary-total', '39.98');

@@ -134,7 +134,7 @@ describe('Promotions: Discount for a specific range of products', () => {
             cy.get('.product-detail-buy .btn-buy').click();
 
             // Off canvas, verify promo code is not available since 1 product added to card
-            cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(checkoutPage.elements.offCanvasCart).should('be.visible');
             cy.contains(`${lineItemSelector}-label`, 'Test Product');
             cy.contains(promoCode).should('not.exist');
             cy.get('.summary-value.summary-total').should('include.text', '60,00');
@@ -255,7 +255,7 @@ describe('Promotions: Discount for a specific range of products', () => {
             cy.get('.product-detail-buy .btn-buy').click();
 
             // Verify promo code is NOT available since the product price is 60€, which is under 100€
-            cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(checkoutPage.elements.offCanvasCart).should('be.visible');
             cy.contains(`${lineItemSelector}-label`, 'Test Product');
             cy.contains(promoCode).should('not.exist');
             cy.get('.summary-value.summary-total').should('include.text', '60,00');
@@ -392,7 +392,7 @@ describe('Promotions: Discount for a specific range of products', () => {
             cy.get('.product-detail-buy .btn-buy').click();
 
             // Verify promo code is applied to to the product, which should reduce the price
-            cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(checkoutPage.elements.offCanvasCart).should('be.visible');
             cy.contains(`${lineItemSelector}-label`, 'Test Product');
             cy.contains(promoCode).should('exist');
             cy.get('.summary-value.summary-total').should('include.text', '40,00');

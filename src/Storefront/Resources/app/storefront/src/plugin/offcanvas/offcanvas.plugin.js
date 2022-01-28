@@ -2,9 +2,10 @@ import DeviceDetection from 'src/helper/device-detection.helper';
 import NativeEventEmitter from 'src/helper/emitter.helper';
 import Backdrop, { BACKDROP_EVENT } from 'src/utility/backdrop/backdrop.util';
 import Iterator from 'src/helper/iterator.helper';
+import Feature from 'src/helper/feature.helper';
 
 const OFF_CANVAS_CLASS = 'offcanvas';
-const OFF_CANVAS_OPEN_CLASS = 'is-open';
+const OFF_CANVAS_OPEN_CLASS = Feature.isActive('v6.5.0.0') ? 'show' : 'is-open';
 const OFF_CANVAS_FULLWIDTH_CLASS = 'is-fullwidth';
 const OFF_CANVAS_CLOSE_TRIGGER_CLASS = 'js-offcanvas-close';
 const REMOVE_OFF_CANVAS_DELAY = 350;
@@ -26,6 +27,7 @@ class OffCanvasSingleton {
      * Open the offcanvas and its backdrop
      * @param {string} content
      * @param {function|null} callback
+     * @deprecated tag:v6.5.0 - Bootstrap v5 will require position {'start'|'end'|'top'|'bottom'}
      * @param {'left'|'right'|'bottom'} position
      * @param {boolean} closable
      * @param {number} delay
@@ -174,17 +176,26 @@ class OffCanvasSingleton {
 
     /**
      * Defines the position of the offcanvas by setting css class
+     * @deprecated tag:v6.5.0 - Bootstrap v5 will require position {'start'|'end'|'top'|'bottom'}
      * @param {'left'|'right'|'bottom'} position
      * @returns {string}
      * @private
      */
     _getPositionClass(position) {
+        /**
+         * @deprecated tag:v6.5.0 - Bootstrap v5 uses `offcanvas-*` classes for positions
+         * @see https://getbootstrap.com/docs/5.1/components/offcanvas/#placement
+         */
+        if (Feature.isActive('v6.5.0.0')) {
+            return `offcanvas-${position}`;
+        }
         return `is-${position}`;
     }
 
     /**
      * Creates the offcanvas element prototype including all relevant settings,
      * appends it to the DOM and returns the HTMLElement for further processing
+     * @deprecated tag:v6.5.0 - Bootstrap v5 will require position {'start'|'end'|'top'|'bottom'}
      * @param {'left'|'right'|'bottom'} position
      * @param {boolean} fullwidth
      * @param {array|string} cssClass
@@ -195,6 +206,13 @@ class OffCanvasSingleton {
         const offCanvas = document.createElement('div');
         offCanvas.classList.add(OFF_CANVAS_CLASS);
         offCanvas.classList.add(this._getPositionClass(position));
+
+        // todo NEXT-21024: Workaround for additional attributes. Will be set automatically via Bootstrap v5
+        if (Feature.isActive('v6.5.0.0')) {
+            offCanvas.setAttribute('tabindex', '-1');
+            offCanvas.setAttribute('aria-modal', 'true');
+            offCanvas.setAttribute('role', 'dialog');
+        }
 
         if (fullwidth === true) {
             offCanvas.classList.add(OFF_CANVAS_FULLWIDTH_CLASS);
@@ -233,6 +251,7 @@ export default class OffCanvas {
      * Open the OffCanvas
      * @param {string} content
      * @param {function|null} callback
+     * @deprecated tag:v6.5.0 - Bootstrap v5 uses parameters {'start'|'end'|'top'|'bottom'}
      * @param {'left'|'right'|'bottom'} position
      * @param {boolean} closable
      * @param {number} delay

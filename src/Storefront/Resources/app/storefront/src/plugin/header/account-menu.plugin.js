@@ -3,6 +3,7 @@ import DomAccess from 'src/helper/dom-access.helper';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
 import DeviceDetection from 'src/helper/device-detection.helper';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
+import Feature from 'src/helper/feature.helper';
 
 export default class OffCanvasAccountMenu extends Plugin {
 
@@ -23,10 +24,10 @@ export default class OffCanvasAccountMenu extends Plugin {
         hiddenClass: 'd-none',
 
         /**
-         * from which direction the
-         * offcanvas opens
+         * from which direction the offcanvas opens
+         * @deprecated tag:v6.5.0 - Bootstrap v5 will require position `start` instead of `left`.
          */
-        offcanvasPostion: 'left',
+        offcanvasPostion: Feature.isActive('v6.5.0.0') ? 'start' : 'left',
     };
 
     init() {

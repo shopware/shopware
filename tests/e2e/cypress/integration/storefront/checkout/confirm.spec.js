@@ -37,7 +37,7 @@ describe('Test payment and shipping methods selection', () => {
             cy.get('.product-detail-buy .btn-buy').click();
 
             // Off canvas
-            cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(page.elements.offCanvasCart).should('be.visible');
             cy.get(`${lineItemSelector}-label`).contains(product.name);
 
             // Go to cart
@@ -81,7 +81,7 @@ describe('Test payment and shipping methods selection', () => {
                     cy.get('.product-detail-buy .btn-buy').click();
 
                     // Off canvas
-                    cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
+                    cy.get(page.elements.offCanvasCart).should('be.visible');
                     cy.get(`${lineItemSelector}-label`).contains(product.name);
                 });
 
@@ -127,7 +127,7 @@ describe('Test payment and shipping methods selection', () => {
             cy.get('.product-detail-buy .btn-buy').click();
 
             // Off canvas
-            cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(page.elements.offCanvasCart).should('be.visible');
             cy.get(`${lineItemSelector}-label`).contains(product.name);
         });
 
@@ -177,7 +177,7 @@ describe('Test payment and shipping methods selection', () => {
             cy.get('.product-detail-buy .btn-buy').click();
 
             // Off canvas
-            cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(page.elements.offCanvasCart).should('be.visible');
             cy.get(`${lineItemSelector}-label`).contains(product.name);
 
             // Go to cart
@@ -206,7 +206,7 @@ describe('Test payment and shipping methods selection', () => {
             cy.contains('Repeat order').click();
 
             // Off canvas
-            cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(page.elements.offCanvasCart).should('be.visible');
             cy.get(`${lineItemSelector}-label`).contains(product.name);
 
             // Go to cart
@@ -261,7 +261,7 @@ describe('Test payment and shipping methods selection', () => {
             cy.get('.product-detail-buy .btn-buy').click();
 
             // Off canvas
-            cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(page.elements.offCanvasCart).should('be.visible');
             cy.get(`${lineItemSelector}-label`).contains(product.name);
 
             // Go to cart
@@ -337,7 +337,7 @@ describe('Test payment and shipping methods selection', () => {
             cy.get('.product-detail-buy .btn-buy').click();
 
             // Off canvas
-            cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(page.elements.offCanvasCart).should('be.visible');
             cy.get(`${lineItemSelector}-label`).contains(product.name);
 
             // Go to cart

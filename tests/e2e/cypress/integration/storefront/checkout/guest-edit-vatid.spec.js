@@ -55,7 +55,7 @@ describe('Checkout as Guest', () => {
             cy.get('.product-detail-buy .btn-buy').click();
 
             // Off canvas
-            cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(page.elements.offCanvasCart).should('be.visible');
             cy.get(`${lineItemSelector}-label`).contains(product.name);
 
             // Checkout

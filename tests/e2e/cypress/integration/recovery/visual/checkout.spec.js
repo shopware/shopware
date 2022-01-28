@@ -66,7 +66,7 @@ describe('Checkout: Visual tests', () => {
 
             // Take snapshot for visual testing on desktop
             cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Checkout - Offcanvas`,
-                `${page.elements.offCanvasCart}.is-open`,
+                page.elements.offCanvasCart,
                 {widths: [375, 1920]}
             );
             cy.get(`${lineItemSelector}-label`).contains('Adidas R.Y.V. Hoodie');

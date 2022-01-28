@@ -9,6 +9,7 @@ import Iterator from 'src/helper/iterator.helper';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
 import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-loading-indicator.util';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
+import Feature from 'src/helper/feature.helper';
 
 export default class OffCanvasCartPlugin extends Plugin {
 
@@ -18,7 +19,8 @@ export default class OffCanvasCartPlugin extends Plugin {
         addPromotionTriggerSelector: '.js-offcanvas-cart-add-promotion',
         cartItemSelector: '.js-cart-item',
         cartPromotionSelector: '.js-offcanvas-cart-promotion',
-        offcanvasPosition: 'right',
+        /** @deprecated tag:v6.5.0 - Bootstrap v5 will require position `end` instead of `right`. */
+        offcanvasPosition: Feature.isActive('v6.5.0.0') ? 'end' : 'right',
         shippingContainerSelector: '.offcanvas-shipping-preference',
         shippingToggleSelector: '.js-toggle-shipping-selection',
         additionalOffcanvasClass: 'cart-offcanvas',

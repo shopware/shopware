@@ -33,7 +33,7 @@ describe('Header menu:Visual tests', () => {
             cy.get('.header-main .menu-button .nav-main-toggle-btn').should('be.visible').click();
 
             // Take snapshot for visual testing
-            cy.takeSnapshot('[Header] Mobile menu', '.offcanvas.is-left.is-open', { widths: [375] });
+            cy.takeSnapshot('[Header] Mobile menu', '.offcanvas.navigation-offcanvas', { widths: [375] });
         });
     });
 });

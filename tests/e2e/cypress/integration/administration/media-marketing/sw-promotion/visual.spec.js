@@ -106,6 +106,6 @@ describe('Promotion: Visual tests', () => {
         cy.get('.btn-buy').click();
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('[Promotion] In Storefront checkout', '.offcanvas.is-open');
+        cy.takeSnapshot('[Promotion] In Storefront checkout', '.offcanvas');
     });
 });

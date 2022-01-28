@@ -636,5 +636,9 @@
             <argument type="service" id="Shopware\Storefront\Framework\Twig\TwigAppVariable.inner"/>
             <argument>%shopware.twig.app_variable.allowed_server_params%</argument>
         </service>
+
+        <service id="Shopware\Storefront\Framework\Script\Facade\StorefrontServicesFacadeHookFactory" public="true">
+            <argument type="service" id="Shopware\Storefront\Controller\ScriptController"/>
+        </service>
     </services>
 </container>

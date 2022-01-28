@@ -122,12 +122,9 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
         return $description->render();
     }
 
-    /**
-     * @param class-string<object> $className
-     */
     public function getLinkForClass(string $className, array $scriptServices = []): ?string
     {
-        if (!str_starts_with($className, 'Shopware\\')) {
+        if (!str_starts_with($className, 'Shopware\\') || !\class_exists($className)) {
             return null;
         }
 

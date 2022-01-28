@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Exception\NoHookServiceFactoryException;
 use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
+use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
 use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -48,7 +49,6 @@ class ScriptExecutor
     public function execute(Hook $hook): void
     {
         $scripts = $this->loader->get($hook->getName());
-
         $this->traces->init($hook->getName());
 
         foreach ($scripts as $script) {
@@ -59,6 +59,10 @@ class ScriptExecutor
                 $this->logger->error($scriptException->getMessage(), ['exception' => $e]);
 
                 throw $scriptException;
+            }
+
+            if ($hook instanceof StoppableHook && $hook->isPropagationStopped()) {
+                break;
             }
         }
     }

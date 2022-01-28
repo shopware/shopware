@@ -17,6 +17,7 @@
 | **Description**        | {{ hook.trigger|raw }}                                                                                                                                               |
 | **Available Data**     | {% for data in hook.data %}{{ data.name }}: {% if data.link is not null %}[`{{ data.type }}`]({{ data.link }}){% else %}`{{ data.type }}`{% endif %} <br>{% endfor%} |
 | **Available Services** | {% for service in hook.services %}[{{ service.name }}]({{ service.link }})<br>{% endfor%}                                                                            |
+| **Stoppable**          | `{{ hook.stoppable }}`                                                                                                                                                 |
 
 {% endfor %}
 

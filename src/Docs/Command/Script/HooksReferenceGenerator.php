@@ -5,8 +5,10 @@ namespace Shopware\Docs\Command\Script;
 use League\ConstructFinder\ConstructFinder;
 use phpDocumentor\Reflection\DocBlock\Tags\Generic;
 use phpDocumentor\Reflection\DocBlock\Tags\Since;
+use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 use phpDocumentor\Reflection\DocBlockFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
+use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Twig\Environment;
@@ -157,6 +159,7 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
                 'data' => $this->getAvailableData($reflection),
                 'services' => $this->getAvailableServices($reflection),
                 'since' => $since[0]->getVersion(),
+                'stoppable' => mb_strtolower(var_export($reflection->implementsInterface(StoppableHook::class), true)),
             ];
         }
 
@@ -172,16 +175,25 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
 
         foreach ($reflection->getProperties() as $property) {
             $propertyType = $property->getType();
-            if (!$propertyType instanceof \ReflectionNamedType) {
-                throw new \RuntimeException(sprintf(
-                    'Property "%s" in HookClass "%s" is not typed.',
-                    $property->getName(),
-                    $reflection->getName()
-                ));
-            }
 
-            /** @var class-string<object> $type */
-            $type = $propertyType->getName();
+            if (!$propertyType instanceof \ReflectionNamedType) {
+                $propertyDoc = $this->docFactory->create($property);
+                /** @var Var_[] $varDoc */
+                $varDoc = $propertyDoc->getTagsByName('var');
+
+                if (\count($varDoc) === 0) {
+                    throw new \RuntimeException(sprintf(
+                        'Property "%s" in HookClass "%s" is not typed and has no @var annotation.',
+                        $property->getName(),
+                        $reflection->getName()
+                    ));
+                }
+
+                $varDoc = $varDoc[0];
+                $type = (string) $varDoc->getType();
+            } else {
+                $type = $propertyType->getName();
+            }
 
             $availableData[] = [
                 'name' => $property->getName(),

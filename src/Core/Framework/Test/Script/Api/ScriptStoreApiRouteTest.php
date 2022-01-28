@@ -96,12 +96,13 @@ class ScriptStoreApiRouteTest extends TestCase
 
         $browser = $this->getSalesChannelBrowser();
         $browser->request('POST', '/store-api/script/insufficient-permissions');
-
         $response = \json_decode($browser->getResponse()->getContent(), true);
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), print_r($response, true));
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
-        static::assertEquals('Internal Server Error', $response['errors'][0]['title']);
+        static::assertEquals('Forbidden', $response['errors'][0]['title']);
         static::assertStringContainsString('store-api-insufficient-permissions', $response['errors'][0]['detail']);
         static::assertStringContainsString('Missing privilege', $response['errors'][0]['detail']);
     }

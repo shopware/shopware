@@ -103,6 +103,21 @@ class ScriptExecutorTest extends TestCase
         static::assertSame('Realisiert mit Unit test', $object->get('translated'));
     }
 
+    public function testStoppableHooksStopsPropagation(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures');
+
+        $object = new ArrayStruct();
+
+        $context = Context::createDefaultContext();
+        $this->executor->execute(new StoppableTestHook('stoppable-case', $context, ['object' => $object]));
+
+        static::assertEquals([
+            'first-script' => 'called',
+            'second-script' => 'called',
+        ], $object->all());
+    }
+
     public function executeProvider()
     {
         yield 'Test simple function call' => [

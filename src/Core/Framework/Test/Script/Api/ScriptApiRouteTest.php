@@ -89,11 +89,13 @@ class ScriptApiRouteTest extends TestCase
         $browser = $this->getBrowser();
         $browser->request('POST', '/api/script/insufficient-permissions');
 
+        static::assertEquals(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode());
+
         $response = \json_decode($browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
-        static::assertEquals('Internal Server Error', $response['errors'][0]['title']);
+        static::assertEquals('Forbidden', $response['errors'][0]['title']);
         static::assertStringContainsString('api-insufficient-permissions', $response['errors'][0]['detail']);
         static::assertStringContainsString('Missing privilege', $response['errors'][0]['detail']);
     }

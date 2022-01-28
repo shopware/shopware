@@ -85,3 +85,50 @@ Keep in mind that your app needs to have the correct permissions for the data it
 		{% do services.writer.sync(payload) %}
         ```
 _________
+## [services.storefront (`Shopware\Storefront\Framework\Script\Facade\StorefrontServicesFacade`)](https://github.com/shopware/platform/blob/trunk/src/Storefront/Framework/Script/Facade/StorefrontServicesFacade.php) {#storefrontservicesfacade}
+
+The `storefront` service allows you render a twig template and to ensure that the current customer is logged in.
+
+
+### render()
+
+* The `render()` method allows you to render a twig view with the parameters you provide.
+
+    
+* **Returns** `Symfony\Component\HttpFoundation\Response`
+
+    The `Response` with the rendered template as the content.
+* **Arguments:**
+    * *`string`* **view**: The name of the twig template you want to render e.g. `@Storefront/storefront/page/content/detail.html.twig`
+    * *`array`* **parameters**: The parameters you want to pass to the template, ensure that you pass the `page` parameter from the hook to the templates.
+
+        Default: `array (
+)`
+* **Examples:**
+    * Fetch a product, add it to the page and return a rendered response.
+
+        ```twig
+        {% set product = services.store.search('product', { 'ids': [productId]}).first %}
+		
+		{% do hook.page.addExtension('myProduct', product) %}
+		
+		{% do hook.setResponse(
+		    services.storefront.render('@MyApp/storefront/page/custom-page/index.html.twig', { 'page': hook.page })
+		) %}
+        ```
+### ensureCustomerIsLoggedIn()
+
+* `ensureCustomerIsLoggedIn()` lets you ensure that your custom endpoint is only accessed by logged in customers.
+
+    It will throw a `CustomerNotLoggedInException` in case that the validation fails.
+* **Arguments:**
+    * *`bool`* **allowGuest**: Wether guest customers are allowed or not, defaults to `true`.
+
+        Default: `true`
+* **Examples:**
+    * Ensure that a customer is logged in. If guest customers are allowed is determined by a query parameter.
+
+        ```twig
+        {% do services.storefront.ensureCustomerIsLoggedIn(hook.query['allow-guest']|boolval) %}
+        ```
+_________

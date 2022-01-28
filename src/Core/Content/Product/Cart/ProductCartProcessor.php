@@ -234,11 +234,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             $steps = $item->getQuantityInformation()->getPurchaseSteps() ?? 1;
         }
 
-        if ($item->getQuantity() < $minPurchase) {
-            $item->setQuantity($minPurchase);
-        }
-
-        if ($available <= 0 || $available < $minPurchase) {
+        if ($available < $minPurchase) {
             $scope->remove($item->getId());
 
             $cart->addErrors(
@@ -249,11 +245,24 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
 
         if ($available < $item->getQuantity()) {
-            $item->setQuantity($available);
+            $maxAvailable = $this->fixQuantity($minPurchase, $available, $steps);
+
+            $item->setQuantity($maxAvailable);
 
             $cart->addErrors(
-                new ProductStockReachedError((string) $item->getReferencedId(), (string) $item->getLabel(), $available)
+                new ProductStockReachedError((string) $item->getReferencedId(), (string) $item->getLabel(), $maxAvailable)
             );
+
+            return;
+        }
+
+        if ($item->getQuantity() < $minPurchase) {
+            $item->setQuantity($minPurchase);
+
+            $cart->addErrors(
+                new MinOrderQuantityError((string) $item->getReferencedId(), (string) $item->getLabel(), $minPurchase)
+            );
+            return;
         }
 
         $fixedQuantity = $this->fixQuantity($minPurchase, $item->getQuantity(), $steps);

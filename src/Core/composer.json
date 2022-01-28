@@ -58,6 +58,7 @@
         "doctrine/inflector": "~1.4.4",
         "dompdf/dompdf": "1.1.1",
         "enqueue/dbal": "0.10.11",
+        "enqueue/redis": "0.10.9",
         "ezyang/htmlpurifier": "4.13.0",
         "google/cloud-storage": "~1.25.1",
         "guzzlehttp/guzzle": "~7.2",

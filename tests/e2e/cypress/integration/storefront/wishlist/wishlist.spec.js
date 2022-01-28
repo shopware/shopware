@@ -181,8 +181,6 @@ describe('Wishlist: for wishlist', () => {
 
         cy.visit('/');
 
-        cy.onlyOnFeature('FEATURE_NEXT_10549');
-
         cy.intercept({
             method: 'POST',
             url: '/wishlist/guest-pagelet',

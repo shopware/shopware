@@ -40,7 +40,7 @@
 
         {% block sw_review_list_content_list %}
         <sw-entity-listing
-            v-if="items"
+            v-if="isLoading || items"
             ref="listing"
             detail-route="sw.review.detail"
             :repository="repository"
@@ -53,6 +53,7 @@
             :sort-by="sortBy"
             :sort-direction="sortDirection"
             identifier="sw-review-list"
+            :is-loading="isLoading"
             @page-change="onPageChange"
             @column-sort="onSortColumn"
         >

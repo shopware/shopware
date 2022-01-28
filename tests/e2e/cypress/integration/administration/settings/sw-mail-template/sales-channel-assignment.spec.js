@@ -51,6 +51,7 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
 
         cy.get('.sw-button__loader').should('not.exist');
         cy.get('.smart-bar__back-btn').click();
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('#mailHeaderFooterGrid').find('.sw-data-grid__body .sw-data-grid__row').first().find('.sw-data-grid__cell--salesChannels-name').contains('Storefront');
     });
 
@@ -87,6 +88,7 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
 
         cy.get('.sw-button__loader').should('not.exist');
         cy.get('.smart-bar__back-btn').click();
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('#mailHeaderFooterGrid').find('.sw-data-grid__body .sw-data-grid__row').first().find('.sw-data-grid__cell--salesChannels-name').contains('Storefront');
 
         cy.contains('.sw-button__content', 'Add').click();
@@ -115,6 +117,7 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
 
         cy.get('.sw-button__loader').should('not.exist');
         cy.get('.smart-bar__back-btn').click();
+        cy.get('.sw-skeleton').should('not.exist');
         cy.contains('.sw-data-grid__row', 'Example').should('exist').contains('.sw-data-grid__cell-content', 'Storefront');
     });
 
@@ -154,6 +157,7 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
 
         cy.get('.sw-button__loader').should('not.exist');
         cy.get('.smart-bar__back-btn').click();
+        cy.get('.sw-skeleton').should('not.exist');
         cy.contains('.sw-data-grid__row', 'Example').should('exist').contains('.sw-data-grid__cell-content', 'Storefront');
 
         cy.contains('.sw-data-grid__row', 'Default email footer').find('.sw-data-grid__actions-menu').click();
@@ -179,6 +183,7 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
 
         cy.get('.sw-button__loader').should('not.exist');
         cy.get('.smart-bar__back-btn').click();
+        cy.get('.sw-skeleton').should('not.exist');
 
         cy.contains('.sw-data-grid__row', 'Default email footer').should('exist').contains('.sw-data-grid__cell-content', 'Storefront');
     });

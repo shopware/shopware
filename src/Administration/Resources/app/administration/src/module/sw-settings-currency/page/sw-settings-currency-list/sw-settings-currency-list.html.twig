@@ -63,7 +63,7 @@
         {% block sw_settings_currency_list_content %}
         <div class="sw-currency-list__content">
             <sw-entity-listing
-                v-if="currency"
+                v-if="isLoading || currency"
                 ref="swSettingsCurrencyGrid"
                 class="sw-settings-currency-list-grid"
                 :items="currency"

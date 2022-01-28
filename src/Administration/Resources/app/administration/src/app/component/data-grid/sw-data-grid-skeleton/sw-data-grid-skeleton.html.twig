@@ -30,9 +30,12 @@
             class="sw-data-grid__cell"
         >
             {% block sw_data_grid_skeleton_columns_content %}
-            <div class="sw-data-grid__cell-content">
+            <div
+                class="sw-data-grid__cell-content"
+                :style="{ 'width': getRandomLength() + '%', 'min-width': '100px' }"
+            >
                 {% block sw_data_grid_skeleton_element %}
-                <span class="sw-data-grid__skeleton"></span>
+                <sw-skeleton variant="listing" />
                 {% endblock %}
             </div>
             {% endblock %}

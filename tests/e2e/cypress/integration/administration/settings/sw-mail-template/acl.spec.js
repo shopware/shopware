@@ -42,6 +42,7 @@ describe('Mail templates: Test acl privileges', () => {
         // TODO: verify fields will do when NEXT-7072 search function is fixed
 
         cy.get(page.elements.smartBarBack).click();
+        cy.get('.sw-skeleton').should('not.exist');
 
         cy.wait('@loadMailTemplates').its('response.statusCode').should('equal', 200);
         cy.wait('@loadMailHeaderFooter').its('response.statusCode').should('equal', 200);
@@ -127,6 +128,7 @@ describe('Mail templates: Test acl privileges', () => {
         cy.wait('@saveMailTemplate').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
+        cy.get('.sw-skeleton').should('not.exist');
 
         // verify fields
         cy.get(`${page.elements.mailTemplateGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailTemplateColumnDescription}`)
@@ -157,6 +159,7 @@ describe('Mail templates: Test acl privileges', () => {
         cy.wait('@saveMailHeaderFooter').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
+        cy.get('.sw-skeleton').should('not.exist');
 
         // verify fields
         cy.get(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailHeaderFooterColumnDescription}`)
@@ -214,6 +217,7 @@ describe('Mail templates: Test acl privileges', () => {
 
         // assert that country is updated successfully
         cy.get(page.elements.smartBarBack).click();
+        cy.get('.sw-skeleton').should('not.exist');
 
         // TODO: verify fields will do when NEXT-7072 search function is fixed
 
@@ -232,6 +236,7 @@ describe('Mail templates: Test acl privileges', () => {
         cy.wait('@createMailHeaderFooter').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
+        cy.get('.sw-skeleton').should('not.exist');
 
         // TODO: verify fields will do when NEXT-7072 search function is fixed
     });
@@ -290,6 +295,7 @@ describe('Mail templates: Test acl privileges', () => {
 
         // wait up to 3 seconds for template listing, because it will push put the mailheader/footer out of viewport
         cy.get('#mailTemplateGrid.sw-mail-templates-list-grid .sw-data-grid__row', { timeout: 3000 }).should('be.visible');
+        cy.get('.sw-skeleton').should('not.exist');
 
         // scroll to email header footer
         cy.get(page.elements.mailHeaderFooterGridList).scrollIntoView();
@@ -375,6 +381,7 @@ describe('Mail templates: Test acl privileges', () => {
         cy.wait('@saveMailTemplate').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
+        cy.get('.sw-skeleton').should('not.exist');
 
         // TODO: verify fields will do when NEXT-7072 search function is fixed
 
@@ -406,6 +413,7 @@ describe('Mail templates: Test acl privileges', () => {
         cy.wait('@saveMailHeaderFooter').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
+        cy.get('.sw-skeleton').should('not.exist');
 
         // verify fields
         cy.get(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailHeaderFooterColumnName}`)

@@ -19,5 +19,9 @@
             </div>
         </div>
     </template>
+
+    <template v-else-if="variant === 'listing'">
+        <sw-skeleton-bar />
+    </template>
 </div>
 {% endblock %}

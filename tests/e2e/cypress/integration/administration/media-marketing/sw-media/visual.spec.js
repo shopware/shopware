@@ -10,7 +10,7 @@ describe('Media: Visual tests', () => {
                 return cy.createProductFixture();
             })
             .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             });
     });
 
@@ -36,6 +36,7 @@ describe('Media: Visual tests', () => {
 
         cy.setEntitySearchable('media', ['fileName', 'title']);
 
+        cy.get('sw-skeleton').should('not.exist');
         cy.clickMainMenuItem({
             targetPath: '#/sw/media/index',
             mainMenuId: 'sw-content',

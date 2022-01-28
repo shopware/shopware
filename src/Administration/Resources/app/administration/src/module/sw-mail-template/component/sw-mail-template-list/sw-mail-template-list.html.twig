@@ -7,7 +7,7 @@
     <template>
         {% block sw_mail_template_list_grid_empty_state %}
         <sw-empty-state
-            v-if="!showListing"
+            v-if="!isLoading && !showListing"
             :title="$tc('sw-mail-template.list.emptyStateTitle')"
             :subline="$tc('sw-mail-template.list.emptyStateSubTitle')"
             :absolute="false"
@@ -28,7 +28,7 @@
 
     <template #grid>
         <sw-entity-listing
-            v-if="showListing"
+            v-if="isLoading || showListing"
             id="mailTemplateGrid"
             class="sw-mail-templates-list-grid"
             detail-route="sw.mail.template.detail"

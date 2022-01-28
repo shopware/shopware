@@ -63,7 +63,7 @@
 
             {% block sw_product_stream_list_grid %}
             <sw-entity-listing
-                v-if="productStreams && entitySearchable"
+                v-if="isLoading || (productStreams && entitySearchable)"
                 ref="swProductStreamGrid"
                 class="sw-product-stream-list-grid"
                 :items="productStreams"
@@ -171,9 +171,8 @@
             </template>
             {% endblock %}
 
-            {% block sw_product_list_grid_loader %}
-            <sw-loader v-if="isLoading" />
-            {% endblock %}
+            {# @deprecated tag:v6.5.0 - Will be removed #}
+            {% block sw_product_list_grid_loader %}{% endblock %}
         </div>
         {% endblock %}
     </template>

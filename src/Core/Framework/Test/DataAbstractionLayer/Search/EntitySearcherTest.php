@@ -90,6 +90,7 @@ class EntitySearcherTest extends TestCase
 
         static::assertSame(2, $result->getTotal());
         static::assertCount(2, $result->getEntities());
+        static::assertSame(1, $result->getPage());
     }
 
     public function testSortingAndTotalCountWithManyAssociation(): void
@@ -197,10 +198,12 @@ class EntitySearcherTest extends TestCase
         $criteria->addSorting(new FieldSorting('product.options.id'));
 
         $criteria->setLimit(25);
+        $criteria->setOffset(0);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
         $result = $this->productRepository->search($criteria, $context);
 
+        static::assertSame(1, $result->getPage());
         static::assertSame(6, $result->getTotal());
         static::assertCount(6, $result->getEntities());
     }

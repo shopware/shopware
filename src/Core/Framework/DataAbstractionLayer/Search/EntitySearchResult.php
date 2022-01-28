@@ -65,7 +65,7 @@ class EntitySearchResult extends EntityCollection
         $this->criteria = $criteria;
         $this->context = $context;
         $this->limit = $criteria->getLimit();
-        $this->page = !$criteria->getLimit() ? 1 : (int) ceil(($criteria->getOffset() ?? 0 + 1) / $criteria->getLimit());
+        $this->page = !$criteria->getLimit() ? 1 : (int) ceil((($criteria->getOffset() ?? 0) + 1) / $criteria->getLimit());
 
         parent::__construct($entities);
         $this->entity = $entity;

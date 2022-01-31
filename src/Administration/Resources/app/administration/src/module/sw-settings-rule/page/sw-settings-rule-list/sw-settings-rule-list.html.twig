@@ -62,7 +62,7 @@
         <div class="sw-settings-rule-list__content">
             {% block sw_settings_rule_list_grid %}
             <sw-entity-listing
-                v-if="rules"
+                v-if="isLoading || rules"
                 ref="swRuleGrid"
                 class="sw-rule-list-grid"
                 :items="rules"
@@ -123,9 +123,8 @@
             />
             {% endblock %}
 
-            {% block sw_settings_rule_list_loader %}
-            <sw-loader v-if="isLoading" />
-            {% endblock %}
+            {# @deprecated tag:v6.5.0 - Will be removed #}
+            {% block sw_settings_rule_list_loader %}{% endblock %}
         </div>
         {% endblock %}
     </template>

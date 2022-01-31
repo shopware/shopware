@@ -21,4 +21,13 @@ $sw-skeleton-background: $color-gray-50;
         width: 50%;
         height: 100%;
     }
+
+    &__listing {
+        width: 100%;
+        height: 100%;
+
+        .sw-skeleton-bar {
+            height: 100%;
+        }
+    }
 }

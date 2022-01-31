@@ -52,12 +52,11 @@
     <sw-card-view slot="content">
         <sw-card
             position-identifier="sw-settings-units-content"
-            :is-loading="isLoading"
             :class="{ 'sw-settings-units-card-empty': isEmpty }"
         >
             {% block sw_settings_units_content_empty_state %}
             <sw-empty-state
-                v-if="isEmpty"
+                v-if="!isLoading && isEmpty"
                 :title="$tc('sw-settings-units.empty-state.title')"
                 :subline="$tc('sw-settings-units.empty-state.subline')"
                 icon="default-object-scale"
@@ -67,7 +66,7 @@
             <template #grid>
                 {% block sw_settings_units_content_grid %}
                 <sw-data-grid
-                    v-show="!isEmpty"
+                    v-show="isLoading || !isEmpty"
                     ref="swDataGrid"
                     class="sw-settings-units-grid"
                     :is-loading="isLoading"

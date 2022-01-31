@@ -307,9 +307,8 @@
             </template>
             {% endblock %}
 
-            {% block sw_product_list_grid_loader %}
-            <sw-loader v-if="isLoading" />
-            {% endblock %}
+            {# @deprecated tag:v6.5.0 - Will be removed #}
+            {% block sw_product_list_grid_loader %}{% endblock %}
         </div>
         {% endblock %}
 

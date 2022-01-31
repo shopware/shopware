@@ -54,7 +54,7 @@
         <div class="sw-product-feature-sets-list__content">
 
             <sw-entity-listing
-                v-if="productFeatureSets"
+                v-if="isLoading || productFeatureSets"
                 ref="swSettingsProductFeatureSetsGrid"
                 class="sw-settings-product-feature-sets-list-grid"
                 :items="productFeatureSets"
@@ -158,10 +158,6 @@
 
         </div>
         {% endblock %}
-
-        <sw-loader v-if="isLoading">
-            {# TODO: Remove once NEXT-9721 is resolved #}
-        </sw-loader>
 
     </template>
 

@@ -57,7 +57,7 @@
         <div class="sw-customer-list__content">
             {% block sw_customer_list_grid %}
             <sw-entity-listing
-                v-if="customers && entitySearchable"
+                v-if="isLoading || (customers && entitySearchable)"
                 ref="swCustomerGrid"
                 class="sw-customer-list-grid"
                 identifier="sw-customer-list"

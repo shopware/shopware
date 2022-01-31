@@ -38,4 +38,13 @@ Component.register('sw-data-grid-skeleton', {
             default: false,
         },
     },
+
+    methods: {
+        getRandomLength() {
+            const max = 100;
+            const min = 50;
+
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        },
+    },
 });

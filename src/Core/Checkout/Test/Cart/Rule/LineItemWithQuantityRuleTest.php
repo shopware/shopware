@@ -288,6 +288,18 @@ class LineItemWithQuantityRuleTest extends TestCase
             true,
         ];
 
+        yield 'Payload parent id should match with quantity' => [
+            (new LineItem($ids->get('line-item-id'), LineItem::PRODUCT_LINE_ITEM_TYPE, Uuid::randomHex(), 4))->setPayloadValue('parentId', $ids->get('reference-id')),
+            new LineItemWithQuantityRule(Rule::OPERATOR_EQ, $ids->get('reference-id'), 4),
+            true,
+        ];
+
+        yield 'Payload parent id should not match with quantity' => [
+            (new LineItem($ids->get('line-item-id'), LineItem::PRODUCT_LINE_ITEM_TYPE, $ids->get('reference-id'), 4))->setPayloadValue('parentId', $ids->get('reference-id')),
+            new LineItemWithQuantityRule(Rule::OPERATOR_EQ, Uuid::randomHex(), 4),
+            false,
+        ];
+
         yield 'Reference id should not match with quantity' => [
             new LineItem($ids->get('line-item-id'), LineItem::PRODUCT_LINE_ITEM_TYPE, $ids->get('reference-id'), 3),
             new LineItemWithQuantityRule(Rule::OPERATOR_EQ, $ids->get('reference-id'), 4),

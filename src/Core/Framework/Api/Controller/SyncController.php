@@ -172,7 +172,7 @@ a list of identifiers can be provided.",
     private function createResponse(SyncResult $result, int $statusCode = 200): JsonResponse
     {
         $response = new JsonResponse(null, $statusCode);
-        $response->setEncodingOptions(\JSON_INVALID_UTF8_SUBSTITUTE);
+        $response->setEncodingOptions(JsonResponse::DEFAULT_ENCODING_OPTIONS | \JSON_INVALID_UTF8_SUBSTITUTE);
         $response->setData($result);
 
         return $response;

@@ -88,6 +88,6 @@ class ChangelogChangeCommand extends Command
             'major' => $input->getOption('major'),
         ];
 
-        return \in_array(true, array_values($requested), true) ? $requested : array_fill_keys(array_keys($requested), true);
+        return \in_array(true, $requested, true) ? $requested : array_fill_keys(array_keys($requested), true);
     }
 }

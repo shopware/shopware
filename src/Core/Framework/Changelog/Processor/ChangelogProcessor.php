@@ -7,7 +7,12 @@ use Shopware\Core\Framework\Changelog\ChangelogFileCollection;
 use Shopware\Core\Framework\Changelog\ChangelogParser;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use function array_map;
+use function implode;
+use function iterator_to_array;
+use function sprintf;
 
 /**
  * @deprecated tag:v6.5.0 - will be marked internal
@@ -20,16 +25,19 @@ class ChangelogProcessor
 
     protected ValidatorInterface $validator;
 
+    protected array $featureFlags;
+
     private string $projectDir;
 
     private ?string $platformRoot;
 
-    public function __construct(ChangelogParser $parser, ValidatorInterface $validator, Filesystem $filesystem, string $projectDir)
+    public function __construct(ChangelogParser $parser, ValidatorInterface $validator, Filesystem $filesystem, string $projectDir, array $featureFlags)
     {
         $this->parser = $parser;
         $this->validator = $validator;
         $this->filesystem = $filesystem;
         $this->projectDir = $projectDir;
+        $this->featureFlags = $featureFlags;
     }
 
     /**
@@ -38,6 +46,14 @@ class ChangelogProcessor
     public function setPlatformRoot(string $platformRoot): void
     {
         $this->platformRoot = $platformRoot;
+    }
+
+    /**
+     * @internal
+     */
+    public function setActiveFlags(array $flags): void
+    {
+        $this->featureFlags = $flags;
     }
 
     protected function getUnreleasedDir(): string
@@ -117,18 +133,33 @@ class ChangelogProcessor
         if ($finder->hasResults()) {
             foreach ($finder as $file) {
                 $definition = $this->parser->parse($file->getContents());
-                if (\count($this->validator->validate($definition))) {
-                    throw new \InvalidArgumentException('Bad syntax FOUND in ' . $file->getRealPath());
+
+                /** @var \Countable&\IteratorAggregate<ConstraintViolation> $issues */
+                $issues = $this->validator->validate($definition);
+                if ($issues->count()) {
+                    $messages = array_map(static function (ConstraintViolation $violation) {
+                        return $violation->getMessage();
+                    }, iterator_to_array($issues));
+
+                    throw new \InvalidArgumentException(sprintf('Invalid file at path: %s, errors: %s', $file->getRealPath(), implode(', ', $messages)));
                 }
-                if (!$includeFeatureFlags && $definition->getFlag()) {
+
+                $featureFlagDefaultOn = false;
+
+                if ($definition->getFlag()) {
+                    $featureFlagDefaultOn = $this->featureFlags[$definition->getFlag()]['default'] ?? false;
+                }
+
+                if (!$featureFlagDefaultOn && !$includeFeatureFlags && $definition->getFlag()) {
                     continue;
                 }
-                $entries->add(
-                    (new ChangelogFile())
-                        ->setName($file->getFilename())
-                        ->setPath((string) $file->getRealPath())
-                        ->setDefinition($definition)
-                );
+
+                $changelog = (new ChangelogFile())
+                    ->setName($file->getFilename())
+                    ->setPath((string) $file->getRealPath())
+                    ->setDefinition($definition);
+
+                $entries->add($changelog);
             }
         }
 

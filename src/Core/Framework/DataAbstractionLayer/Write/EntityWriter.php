@@ -9,7 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
@@ -250,12 +252,22 @@ class EntityWriter implements EntityWriterInterface
             return;
         }
 
+        $setNullFields = $definition->getFields()->filterByFlag(SetNullOnDelete::class);
+
         $setNulls = $this->foreignKeyResolver->getAffectedSetNulls($definition, $resolved, $writeContext->getContext());
 
         foreach ($setNulls as $affectedDefinitionClass => $restrictions) {
             [$entity, $field] = explode('.', $affectedDefinitionClass);
 
             $affectedDefinition = $this->registry->getByEntityName($entity);
+
+            /** @var AssociationField $associationField */
+            $associationField = $setNullFields
+                ->filter(fn (Field $setNullField) => $setNullField instanceof AssociationField && $setNullField->getReferenceField() === $field)
+                ->first();
+
+            /** @var SetNullOnDelete $flag */
+            $flag = $associationField->getFlag(SetNullOnDelete::class);
 
             foreach ($restrictions as $key) {
                 $payload = ['id' => Uuid::fromHexToBytes($key), $field => null];
@@ -269,7 +281,7 @@ class EntityWriter implements EntityWriterInterface
                     $payload[$versionField] = null;
                 }
 
-                $queue->add($affectedDefinition, new SetNullOnDeleteCommand($affectedDefinition, $payload, $primary, $existence, ''));
+                $queue->add($affectedDefinition, new SetNullOnDeleteCommand($affectedDefinition, $payload, $primary, $existence, '', $flag->isEnforcedByConstraint()));
             }
         }
     }

@@ -65,6 +65,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'versionId',
             'parentVersionId',
             'productManufacturerVersionId',
+            'productMediaVersionId',
             'taxId',
             'productNumber',
             'stock',
@@ -111,14 +112,12 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
 
     it('media: should not find any missing required fields', async () => {
         const invalidFields = importExportProfileMappingService.validate('media', mappings.mediaProfileOnlyRequired);
-
         expect(invalidFields.missingRequiredFields.length).toEqual(0);
     });
 
     it('media: should find missing required field id', async () => {
         const mapping = mappings.productProfileOnlyRequired.filter(field => field.key !== 'id');
         const invalidFields = importExportProfileMappingService.validate('product', mapping);
-
         expect(invalidFields.missingRequiredFields.length).toEqual(1);
         expect(invalidFields.missingRequiredFields).toContain('id');
     });

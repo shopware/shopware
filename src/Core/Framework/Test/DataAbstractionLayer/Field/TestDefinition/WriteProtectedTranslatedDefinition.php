@@ -33,7 +33,7 @@ class WriteProtectedTranslatedDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new Required(), new PrimaryKey()),
             (new TranslatedField('protected'))->addFlags(new ApiAware(), new WriteProtected()),
             (new TranslatedField('systemProtected'))->addFlags(new ApiAware(), new WriteProtected(Context::SYSTEM_SCOPE)),
-            (new TranslationsAssociationField(WriteProtectedTranslationDefinition::class, 'wp_id'))->addFlags(new ApiAware()),
+            (new TranslationsAssociationField(WriteProtectedTranslationDefinition::class, '_test_nullable_id'))->addFlags(new ApiAware()),
         ]);
     }
 

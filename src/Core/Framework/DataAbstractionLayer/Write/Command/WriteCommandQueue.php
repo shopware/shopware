@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\ImpossibleWriteOrderException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
@@ -136,13 +137,20 @@ class WriteCommandQueue
                 return $storage instanceof FkField;
             });
 
-        $toManyDefinitions = $definition->getFields()
+        $requiredToManyDefinitions = $definition->getFields()
             ->filterInstance(OneToManyAssociationField::class)
             ->fmap(function (OneToManyAssociationField $field) {
+                /** @var Field $storage */
+                $storage = $field->getReferenceDefinition()->getFields()->getByStorageName($field->getReferenceField());
+
+                if (!$storage->is(Required::class)) {
+                    return null;
+                }
+
                 return $field->getReferenceDefinition()->getClass();
             });
 
-        $toManyDefinitions = array_flip($toManyDefinitions);
+        $requiredToManyDefinitions = array_flip($requiredToManyDefinitions);
 
         $dependencies = [];
 
@@ -162,8 +170,9 @@ class WriteCommandQueue
                 continue;
             }
 
-            //if the current dependency is defined also defined as OneToManyAssociationField, skip
-            if (\array_key_exists($class, $toManyDefinitions)) {
+            // if the current dependency is defined also defined as OneToManyAssociationField and is required in the ReferenceDefinition, skip
+            // in this case the reference definition has a dependency on this definition
+            if (\array_key_exists($class, $requiredToManyDefinitions)) {
                 continue;
             }
 

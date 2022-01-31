@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductMedia;
 
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
@@ -37,6 +38,11 @@ class ProductMediaEntity extends Entity
      * @var ProductEntity|null
      */
     protected $product;
+
+    /**
+     * @var ProductCollection|null
+     */
+    protected $coverProducts;
 
     public function getProductId(): string
     {
@@ -86,5 +92,15 @@ class ProductMediaEntity extends Entity
     public function setProduct(ProductEntity $product): void
     {
         $this->product = $product;
+    }
+
+    public function getCoverProducts(): ?ProductCollection
+    {
+        return $this->coverProducts;
+    }
+
+    public function setCoverProducts(ProductCollection $coverProducts): void
+    {
+        $this->coverProducts = $coverProducts;
     }
 }

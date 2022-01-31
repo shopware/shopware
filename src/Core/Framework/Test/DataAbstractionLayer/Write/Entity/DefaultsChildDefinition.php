@@ -39,7 +39,7 @@ class DefaultsChildDefinition extends EntityDefinition
             new FkField('defaults_id', 'defaultsId', DefaultsDefinition::class),
             (new StringField('foo', 'foo'))->addFlags(new Required()),
             new TranslatedField('name'),
-            new TranslationsAssociationField(DefaultsChildTranslationDefinition::class, 'translations'),
+            new TranslationsAssociationField(DefaultsChildTranslationDefinition::class, 'defaults_child_id'),
             new ManyToOneAssociationField('defaults', 'defaults_id', DefaultsDefinition::class),
         ]);
     }

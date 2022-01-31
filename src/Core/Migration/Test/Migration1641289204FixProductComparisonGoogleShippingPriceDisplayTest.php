@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+namespace Shopware\Core\Migration\Test;
+
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\TestCase;

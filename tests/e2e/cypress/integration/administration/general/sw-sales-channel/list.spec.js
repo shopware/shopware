@@ -44,6 +44,7 @@ describe('Sales Channel: Test list', () => {
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/sales/channel/list`);
+                cy.get('.sw-skeleton').should('not.exist');
             });
     });
 
@@ -56,12 +57,15 @@ describe('Sales Channel: Test list', () => {
         cy.get('.sw-data-grid__row--0')
             .find('.sw-context-button__button')
             .click();
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-context-menu-item')
             .contains('Edit')
             .click();
+        cy.get('.sw-skeleton').should('not.exist');
 
         // check if sales channel was opened correctly
         cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.smart-bar__header').contains('Headless');
     });
 
@@ -76,6 +80,7 @@ describe('Sales Channel: Test list', () => {
         cy.onlyOnFeature('FEATURE_NEXT_17421');
 
         cy.contains('.sw-data-grid__header .sw-data-grid__cell', 'Sales Channel').click('left');
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-data-grid__body .sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Headless');
         cy.get('.sw-data-grid__body .sw-data-grid__row--3 .sw-data-grid__cell--name').contains('SalesChannel #3');
         cy.get('.sw-data-grid__body .sw-data-grid__row--5 .sw-data-grid__cell--name').contains('Storefront');
@@ -85,6 +90,8 @@ describe('Sales Channel: Test list', () => {
         cy.onlyOnFeature('FEATURE_NEXT_17421');
 
         cy.contains('.sw-data-grid__header .sw-data-grid__cell', 'Type').click('left');
+        cy.get('.sw-skeleton').should('not.exist');
+
         cy.get('.sw-data-grid__body .sw-data-grid__row--0 .sw-data-grid__cell--type-name').contains('Headless');
         cy.get('.sw-data-grid__body .sw-data-grid__row--3 .sw-data-grid__cell--type-name').contains('Storefront');
         cy.get('.sw-data-grid__body .sw-data-grid__row--5 .sw-data-grid__cell--type-name').contains('Storefront');
@@ -94,6 +101,8 @@ describe('Sales Channel: Test list', () => {
         cy.onlyOnFeature('FEATURE_NEXT_17421');
 
         cy.contains('.sw-data-grid__header .sw-data-grid__cell', 'Products').click('left');
+        cy.get('.sw-skeleton').should('not.exist');
+
         cy.get('.sw-data-grid__body .sw-data-grid__row--0 .sw-data-grid__cell--product_visibilities').contains('0');
         cy.get('.sw-data-grid__body .sw-data-grid__row--3 .sw-data-grid__cell--product_visibilities').contains('0');
         cy.get('.sw-data-grid__body .sw-data-grid__row--5 .sw-data-grid__cell--product_visibilities').contains('3');
@@ -103,6 +112,8 @@ describe('Sales Channel: Test list', () => {
         cy.onlyOnFeature('FEATURE_NEXT_17421');
 
         cy.contains('.sw-data-grid__header .sw-data-grid__cell', 'Status').click('left');
+        cy.get('.sw-skeleton').should('not.exist');
+
         cy.get('.sw-data-grid__body .sw-data-grid__row--0 .sw-data-grid__cell--status').contains('Online');
         cy.get('.sw-data-grid__body .sw-data-grid__row--3 .sw-data-grid__cell--status').contains('Maintenance');
         cy.get('.sw-data-grid__body .sw-data-grid__row--5 .sw-data-grid__cell--status').contains('Offline');
@@ -112,6 +123,7 @@ describe('Sales Channel: Test list', () => {
         cy.onlyOnFeature('FEATURE_NEXT_17421');
 
         cy.contains('.sw-data-grid__header .sw-data-grid__cell', 'Status').find('.sw-context-button__button').click();
+        cy.get('.sw-skeleton').should('not.exist');
 
         cy.contains('.sw-context-menu-item', 'Hide column').click();
         cy.contains('.sw-data-grid__header .sw-data-grid__cell', 'Status').should('not.be.visible');

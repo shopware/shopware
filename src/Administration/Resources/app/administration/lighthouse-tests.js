@@ -161,6 +161,7 @@ async function main() {
             await page.goto(`${APP_URL}/admin#/sw/product/index`);
             await page.waitForNavigation();
             await page.waitForFunction(() => !document.querySelector('.sw-loader'));
+            await page.waitForFunction(() => !document.querySelector('.sw-skeleton'));
 
             await page.waitForSelector('.sw-data-grid__row--0');
             await page.click('.sw-data-grid__row--0 a');

@@ -20,7 +20,16 @@
         </div>
     </template>
 
-    <template v-else-if="variant === 'listing'">
+    <template v-if="variant === 'gallery'">
+        <sw-skeleton-bar />
+    </template>
+
+    <template v-if="variant === 'media'">
+        <sw-skeleton-bar class="sw-skeleton__media-preview" />
+        <sw-skeleton-bar class="sw-skeleton__media-subtitle" />
+    </template>
+
+    <template v-if="variant === 'listing'">
         <sw-skeleton-bar />
     </template>
 </div>

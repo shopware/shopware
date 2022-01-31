@@ -52,6 +52,7 @@ function createWrapper() {
             'router-link': true,
             'sw-data-grid-skeleton': true,
             'sw-loader': true,
+            'sw-skeleton': true,
             'sw-empty-state': true,
             'sw-sorting-select': true,
         },
@@ -102,6 +103,8 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                 }
             ]
         });
+
+        await wrapper.vm.$nextTick();
 
         await wrapper.find('.sw-cms-list-item--0 .sw-context-button__button')
             .trigger('click');

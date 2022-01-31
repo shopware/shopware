@@ -71,6 +71,10 @@
         grid-template-columns: 1fr 1fr 1fr;
         grid-gap: 30px;
         align-content: start;
+
+        .sw-skeleton__gallery::before {
+            padding-top: 65%;
+        }
     }
 
     .sw-theme-list__list-data-grid {

@@ -24,6 +24,7 @@ describe('Media: Test crud operations of folders', () => {
 
         // Create folder
         cy.get(page.elements.loader).should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
         page.createFolder('1 thing to fold about');
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
         cy.get('.sw-media-base-item__name[title="1 thing to fold about"]')
@@ -41,6 +42,7 @@ describe('Media: Test crud operations of folders', () => {
 
         // Edit folder's name
         cy.get(page.elements.loader).should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get(page.elements.smartBarHeader).click();
         cy.clickContextMenuItem(
             '.sw-media-context-item__rename-folder-action',
@@ -77,10 +79,12 @@ describe('Media: Test crud operations of folders', () => {
 
         // navigate to subfolder
         cy.get(page.elements.loader).should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-media-folder-item')
             .contains('.sw-media-base-item__name', 'A thing to fold about')
             .click();
         cy.get(page.elements.loader).should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
         page.createFolder('new child');
 
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
@@ -138,6 +142,7 @@ describe('Media: Test crud operations of folders', () => {
 
         // Delete folder
         cy.get(page.elements.loader).should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get(page.elements.smartBarHeader).click();
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',

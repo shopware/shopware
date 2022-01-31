@@ -174,7 +174,8 @@
                                         {% block sw_theme_list_listing_list_grid_content %}
                                             <div class="sw-theme-list__list-grid-content">
                                                 {% block sw_theme_list_listing_list_item %}
-                                                    <sw-theme-list-item
+                                                    <template v-if="!isLoading">
+                                                        <sw-theme-list-item
                                                         v-for="theme in themes"
                                                         :theme="theme"
                                                         :key="theme.id"
@@ -237,6 +238,19 @@
                                                             {% endblock %}
                                                         </sw-context-button>
                                                     </sw-theme-list-item>
+                                                    </template>
+
+                                                    <template v-else>
+                                                        <sw-skeleton variant="gallery" />
+                                                        <sw-skeleton variant="gallery" />
+                                                        <sw-skeleton variant="gallery" />
+                                                        <sw-skeleton variant="gallery" />
+                                                        <sw-skeleton variant="gallery" />
+                                                        <sw-skeleton variant="gallery" />
+                                                        <sw-skeleton variant="gallery" />
+                                                        <sw-skeleton variant="gallery" />
+                                                        <sw-skeleton variant="gallery" />
+                                                    </template>
                                                 {% endblock %}
                                             </div>
                                         {% endblock %}
@@ -258,9 +272,8 @@
                     </div>
                 {% endblock %}
 
-                {% block sw_theme_list_listing_list_loader %}
-                    <sw-loader v-if="isLoading && listMode === 'grid'"></sw-loader>
-                {% endblock %}
+                {# @deprecated tag:v6.5.0 - Will be removed #}
+                {% block sw_theme_list_listing_list_loader %}{% endblock %}
 
                 {% block sw_theme_list_media_modal %}
                     <sw-media-modal-v2

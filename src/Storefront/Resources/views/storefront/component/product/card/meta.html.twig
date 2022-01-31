@@ -1,7 +1,8 @@
 {% block component_product_box_rich_snippets_inner %}
     {% block component_product_box_rich_snippets_brand %}
-        <meta itemprop="brand"
-              content="{{ product.manufacturer.translated.name }}"/>
+        <div itemprop="brand" itemtype="https://schema.org/Brand" itemscope>
+            <meta itemprop="name" content="{{ product.manufacturer.translated.name }}" />
+        </div>
     {% endblock %}
 
     {% block component_product_box_rich_snippets_gtin13 %}

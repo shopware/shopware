@@ -19,8 +19,13 @@
         <meta property="product:brand"
               content="{{ page.product.manufacturer.translated.name }}"/>
     {% endif %}
+
+    {% set metaPrice = page.product.calculatedPrice %}
+    {% if page.product.calculatedPrices.count > 0 %}
+        {% set metaPrice = page.product.calculatedPrices.last %}
+    {% endif %}
     <meta property="product:price:amount"
-          content="{{ page.product.calculatedPrice.unitPrice|round(context.currency.itemRounding.decimals) }}"/>
+          content="{{ metaPrice.unitPrice|round(context.currency.itemRounding.decimals) }}"/>
     <meta property="product:price:currency"
           content="{{ context.currency.isoCode }}"/>
     <meta property="product:product_link"

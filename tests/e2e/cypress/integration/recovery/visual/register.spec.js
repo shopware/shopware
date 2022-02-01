@@ -9,7 +9,7 @@ describe('Account - Register: Visual tests', () => {
         cy.get('.register-card').should('be.visible');
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('Registration', page.elements.registerCard, { widths: [375, 1920] });
+        cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Registration`, page.elements.registerCard, { widths: [375, 1920] });
 
         const salutation = Cypress.env('locale') === 'en-GB' ? 'Mr.' : 'Herr';
         cy.get('select[name="salutationId"]').select(salutation);

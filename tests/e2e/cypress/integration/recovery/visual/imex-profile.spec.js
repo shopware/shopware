@@ -18,7 +18,7 @@ describe('Import/Export - Profiles:  Visual tests', () => {
         // Take snapshot for visual testing
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.prepareAdminForScreenshot();
-        cy.takeSnapshot('Import export - Profiles overview',
+        cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Import export - Profiles overview`,
             '.sw-import-export-view-profiles__listing'
         );
 
@@ -27,6 +27,6 @@ describe('Import/Export - Profiles:  Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.prepareAdminForScreenshot();
-        cy.takeSnapshot('Import export - Profile creation', '.sw-modal');
+        cy.takeSnapshot(` ${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Import export - Profile creation`, '.sw-modal');
     });
 });

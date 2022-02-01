@@ -58,7 +58,7 @@ describe('Product: Visual tests', () => {
         const save = Cypress.env('locale') === 'en-GB' ? 'Save' : 'Speichern';
         cy.get(page.elements.productSaveAction).contains(save);
         cy.prepareAdminForScreenshot();
-        cy.takeSnapshot('Product detail base', '.sw-product-detail-base');
+        cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Product detail base`, '.sw-product-detail-base');
 
         cy.get(page.elements.smartBarBack).click();
 
@@ -69,6 +69,6 @@ describe('Product: Visual tests', () => {
 
         cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.prepareAdminForScreenshot();
-        cy.takeSnapshot('Product listing');
+        cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Product listing`);
     });
 });

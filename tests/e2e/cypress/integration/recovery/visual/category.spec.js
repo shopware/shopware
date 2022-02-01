@@ -33,6 +33,6 @@ describe('Category: Visual tests', () => {
         cy.prepareAdminForScreenshot();
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('Category - detail', '.sw-category-detail-base');
+        cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Category - detail`, '.sw-category-detail-base');
     });
 });

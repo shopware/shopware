@@ -1,5 +1,8 @@
 {% block sw_app_actions %}
-<div class="sw-app-actions">
+<div
+    class="sw-app-actions"
+    :class="{'sw-app-actions__empty': !areActionsAvailable}"
+>
     <template v-if="areActionsAvailable">
         <sw-context-button class="sw-app-actions__action-button">
             <template slot="button">

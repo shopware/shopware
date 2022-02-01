@@ -182,6 +182,7 @@ Component.register('sw-tree', {
             treeItems: [],
             draggedItem: null,
             currentTreeSearch: null,
+            // @deprecated tag:v6.5.0 - Will be removed
             isLoading: false,
             newElementId: null,
             contextItem: null,

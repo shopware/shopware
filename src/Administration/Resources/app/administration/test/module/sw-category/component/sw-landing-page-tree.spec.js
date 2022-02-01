@@ -25,6 +25,7 @@ function createWrapper(privileges = ['landing_page.creator', 'landing_page.edito
         router,
         stubs: {
             'sw-loader': true,
+            'sw-skeleton': true,
             'sw-tree': {
                 props: ['items'],
                 template: `

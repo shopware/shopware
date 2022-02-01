@@ -69,4 +69,49 @@ $sw-skeleton-background: $color-gray-50;
             height: 24px;
         }
     }
+
+    &__tree-item,
+    &__tree-item-nested {
+        display: flex;
+        height: 24px;
+        margin-top: 13px;
+        padding-left: 28px;
+
+        .sw-skeleton-bar {
+            height: 100%;
+        }
+
+        &:first-child {
+            margin-top: 14px;
+        }
+
+        &:last-child {
+            margin-bottom: 14px;
+        }
+
+        .sw-skeleton__tree-item-text {
+            margin-left: 14px;
+            width: 50%;
+        }
+
+        &:nth-child(2n) {
+            .sw-skeleton__tree-item-text {
+                width: 25%;
+            }
+        }
+
+        &:nth-child(3n) {
+            .sw-skeleton__tree-item-text {
+                width: 60%;
+            }
+        }
+    }
+
+    &__tree-item-nested {
+        margin-left: 32px;
+    }
+
+    &__tree-item-checkbox {
+        width: 24px;
+    }
 }

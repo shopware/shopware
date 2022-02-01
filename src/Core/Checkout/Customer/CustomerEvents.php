@@ -65,27 +65,27 @@ class CustomerEvents
     public const CUSTOMER_ADDRESS_ID_SEARCH_RESULT_LOADED_EVENT = 'customer_address.id.search.result.loaded';
 
     /**
-     * @Event("\Shopware\Core\Checkout\Customer\Event\CustomerChangedPaymentMethodEvent")
+     * @Event("Shopware\Core\Checkout\Customer\Event\CustomerChangedPaymentMethodEvent")
      */
     public const CUSTOMER_CHANGED_PAYMENT_METHOD_EVENT = 'checkout.customer.changed-payment-method';
 
     /**
-     * @Event("\Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent")
+     * @Event("Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent")
      */
     public const CUSTOMER_BEFORE_LOGIN_EVENT = 'checkout.customer.before.login';
 
     /**
-     * @Event("\Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent")
+     * @Event("Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent")
      */
     public const CUSTOMER_LOGIN_EVENT = 'checkout.customer.login';
 
     /**
-     * @Event("\Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent")
+     * @Event("Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent")
      */
     public const CUSTOMER_LOGOUT_EVENT = 'checkout.customer.logout';
 
     /**
-     * @Event("\Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent")
+     * @Event("Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent")
      */
     public const CUSTOMER_REGISTER_EVENT = 'checkout.customer.register';
 

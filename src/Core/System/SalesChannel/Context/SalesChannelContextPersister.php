@@ -174,7 +174,7 @@ class SalesChannelContextPersister
             ->set('customer_id', 'NULL')
             ->where('customer_id = :customerId')
             ->setParameter(':payload', json_encode($revokeParams))
-            ->setParameter(':customerId', $customerId);
+            ->setParameter(':customerId', Uuid::fromHexToBytes($customerId));
 
         // keep tokens valid, which are given in $preserveTokens
         if ($preserveTokens) {

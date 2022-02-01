@@ -310,7 +310,7 @@ class SalesChannelContextPersisterTest extends TestCase
             'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
         ]);
 
-        $this->contextPersister->revokeAllCustomerTokens(Uuid::fromHexToBytes($customerId));
+        $this->contextPersister->revokeAllCustomerTokens($customerId);
 
         static::assertNull($this->connection->fetchOne('SELECT customer_id FROM sales_channel_api_context'));
     }

@@ -33,8 +33,6 @@ describe('CMS: Check usage and editing of buy box elements', () => {
     });
 
     it('@base @content: use simple buy box element', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_10078');
-
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'PATCH'
@@ -113,8 +111,6 @@ describe('CMS: Check usage and editing of buy box elements', () => {
     });
 
     it('@base @content: use simple gallery buy box block', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_10078');
-
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'PATCH'

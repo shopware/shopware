@@ -52,6 +52,11 @@ class PromotionIndividualCodeSerializer extends EntitySerializer
             }
         }
 
+        // set promotion id to prevent failures
+        if (empty($deserialized['promotion']['id']) && isset($deserialized['promotionId'])) {
+            $deserialized['promotion']['id'] = $deserialized['promotionId'];
+        }
+
         // set promotion useIndividualCodes to true if not specified otherwise
         // this ensures that the imported codes are needed for the promotion
         if (!isset($deserialized['promotion']['useIndividualCodes'])) {

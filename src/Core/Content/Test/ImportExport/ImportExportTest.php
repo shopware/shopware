@@ -1265,14 +1265,17 @@ class ImportExportTest extends ImportExportTestCase
         $progress = $this->import($context, PromotionIndividualCodeDefinition::ENTITY_NAME, '/fixtures/promotion_individual_codes.csv', 'promotion_individual_codes.csv');
 
         // validate import
-        static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
+        static::assertImportExportFailed($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
+
+        $failingRecords = $this->getInvalidLogContent($progress->getInvalidRecordsLogId());
+        static::assertCount(4, $failingRecords);
 
         $repository = $this->getContainer()->get('promotion_individual_code.repository');
         $criteria = new Criteria();
         $criteria->addAssociation('promotion');
         $result = $repository->search($criteria, Context::createDefaultContext());
 
-        static::assertSame(13, $result->count());
+        static::assertSame(10, $result->count());
 
         /** @var PromotionIndividualCodeEntity $promoCodeResult */
         foreach ($result as $promoCodeResult) {
@@ -1292,7 +1295,6 @@ class ImportExportTest extends ImportExportTestCase
         foreach ($result as $promoCodeResult) {
             static::assertStringContainsString($promoCodeResult->getId(), $csv);
             static::assertStringContainsString($promoCodeResult->getPromotion()->getId(), $csv);
-            static::assertStringContainsString($promoCodeResult->getPromotion()->getName(), $csv);
             static::assertStringContainsString($promoCodeResult->getCode(), $csv);
         }
     }

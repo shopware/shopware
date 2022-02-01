@@ -51,14 +51,14 @@ describe('Customer:  Visual test', () => {
         // Take snapshot for visual testing
         cy.prepareAdminForScreenshot();
         cy.get('.sw-data-grid__skeleton').should('not.exist');
-        cy.takeSnapshot('Customer listing', '.sw-customer-list-grid');
+        cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Customer listing`, '.sw-customer-list-grid');
 
         // Fill in basic data
         cy.get('a[href="#/sw/customer/create"]').click();
 
         // Take snapshot for visual testing
         cy.prepareAdminForScreenshot();
-        cy.takeSnapshot('Customer create', '.sw-customer-create');
+        cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Customer create`, '.sw-customer-create');
 
         const salutation = Cypress.env('locale') === 'en-GB' ? 'Mr' : 'Herr';
         cy.get('.sw-customer-base-form__salutation-select')
@@ -96,6 +96,6 @@ describe('Customer:  Visual test', () => {
 
         // Take snapshot for visual testing
         cy.prepareAdminForScreenshot();
-        cy.takeSnapshot('Customer detail', '.sw-customer-card');
+        cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Customer detail`, '.sw-customer-card');
     });
 });

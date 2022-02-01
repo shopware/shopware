@@ -22,7 +22,7 @@ describe('Checkout: Visual tests', () => {
         }).as('cartInfo');
 
         // Take snapshot for visual testing on desktop
-        cy.takeSnapshot(`Checkout - Search product`,
+        cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Checkout - Search product`,
             '.header-search-input',
             { widths: [375, 1920] }
         );
@@ -35,7 +35,7 @@ describe('Checkout: Visual tests', () => {
         cy.contains('.search-suggest-product-name','Adidas R.Y.V. Hoodie').click();
         cy.get('.product-detail-name').contains('Adidas R.Y.V. Hoodie');
         // Take snapshot for visual testing
-        cy.takeSnapshot(`Checkout - See product`,
+        cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Checkout - See product`,
             '.product-detail-buy',
             { widths: [ 375, 1920 ] }
         );
@@ -59,7 +59,7 @@ describe('Checkout: Visual tests', () => {
         cy.get('.header-cart-total').contains('64');
 
         // Take snapshot for visual testing on desktop
-        cy.takeSnapshot(`Checkout - Offcanvas`,
+        cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Checkout - Offcanvas`,
             `${page.elements.offCanvasCart}.is-open`,
             { widths: [375, 1920] }
         );
@@ -74,7 +74,7 @@ describe('Checkout: Visual tests', () => {
         cy.get('.login-form').should('be.visible');
 
         // Take snapshot for visual testing on desktop
-        cy.takeSnapshot(`Checkout - Login`, accountPage.elements.loginCard, {widths: [375, 1920]});
+        cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Checkout - Login`, accountPage.elements.loginCard, {widths: [375, 1920]});
 
         cy.get('#loginMail').type('kathie.jaeger@test.com');
         cy.get('#loginPassword').type('shopware');
@@ -90,7 +90,7 @@ describe('Checkout: Visual tests', () => {
         cy.get('.col-5.checkout-aside-summary-total').contains('64');
 
         // Take snapshot for visual testing on desktop
-        cy.takeSnapshot('Checkout - Confirm', '.confirm-tos', { widths: [375, 1920] });
+        cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Checkout - Confirm`, '.confirm-tos', { widths: [375, 1920] });
 
         // Select invoice payment method and verify checked radio
         cy.get('.payment-method-radio').contains('Rechnung').should('be.visible');
@@ -111,7 +111,7 @@ describe('Checkout: Visual tests', () => {
         cy.get('.finish-header').contains(' Vielen Dank für Ihre Bestellung bei Footwear!');
 
         // Take snapshot for visual testing on desktop
-        cy.takeSnapshot('Checkout - Finish', '.finish-header', {widths: [375, 1920]});
+        cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Checkout - Finish`, '.finish-header', {widths: [375, 1920]});
 
         cy.login();
         cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
@@ -123,7 +123,7 @@ describe('Checkout: Visual tests', () => {
         cy.changeElementStyling('.sw-data-grid__cell--orderDateTime', 'color: #fff');
 
         // Take snapshot for visual testing
-        cy.takeSnapshot(`Order listing`, '.sw-order-list');
+        cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Order listing`, '.sw-order-list');
 
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
@@ -162,6 +162,6 @@ describe('Checkout: Visual tests', () => {
         cy.prepareAdminForScreenshot();
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('Order detail', '.sw-order-detail');
+        cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Order detail`, '.sw-order-detail');
     });
 });

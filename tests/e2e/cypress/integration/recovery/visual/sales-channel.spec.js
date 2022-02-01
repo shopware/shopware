@@ -7,14 +7,14 @@ describe('Sales Channel: Visual tests', () => {
         cy.setLocaleToEnGb().then(() => {
             cy.loginViaApi();
         })
-        .then(() => {
-            // freezes the system time to Jan 1, 2018
-            const now = new Date(2018, 1, 1);
-            cy.clock(now);
-        })
-        .then(() => {
-            cy.openInitialPage(Cypress.env('admin'));
-        });
+            .then(() => {
+                // freezes the system time to Jan 1, 2018
+                const now = new Date(2018, 1, 1);
+                cy.clock(now);
+            })
+            .then(() => {
+                cy.openInitialPage(Cypress.env('admin'));
+            });
     });
 
     it('@visual: check appearance of basic sales channel workflow', () => {
@@ -59,7 +59,7 @@ describe('Sales Channel: Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.prepareAdminForScreenshot();
-        cy.takeSnapshot('Sales channel detail', '.sw-sales-channel-detail-base');
+        cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Sales channel detail`, '.sw-sales-channel-detail-base');
     });
 });
 

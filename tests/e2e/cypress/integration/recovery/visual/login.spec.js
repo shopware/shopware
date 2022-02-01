@@ -10,7 +10,7 @@ describe('Account - Login: Visual tests', () => {
         cy.visit('/account/login');
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('Account overview after login',
+        cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Account overview after login`,
             page.elements.loginCard,
             {widths: [375, 1920]}
         );

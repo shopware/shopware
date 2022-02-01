@@ -31,6 +31,6 @@ describe('Media: Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.prepareAdminForScreenshot();
-        cy.takeSnapshot('Media listing', '.sw-media-library');
+        cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Media listing`, '.sw-media-library');
     });
 });

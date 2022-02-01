@@ -186,9 +186,9 @@ class SalesChannelProxyController extends AbstractController
 
         $this->fetchSalesChannel($salesChannelId, $context);
 
-        $this->persistPermissions($request);
-
         $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $request, $context);
+
+        $this->persistPermissions($request, $salesChannelContext);
 
         $this->updateCustomerToContext($request->get(self::CUSTOMER_ID), $salesChannelContext);
 
@@ -412,18 +412,24 @@ class SalesChannelProxyController extends AbstractController
         $this->eventDispatcher->dispatch($event);
     }
 
-    private function persistPermissions(Request $request): void
+    private function persistPermissions(Request $request, SalesChannelContext $salesChannelContext): void
     {
-        $contextToken = $this->getContextToken($request);
+        $contextToken = $salesChannelContext->getToken();
 
-        $salesChannelId = (string) $request->request->get('salesChannelId');
+        $salesChannelId = $salesChannelContext->getSalesChannelId();
 
         $payload = $this->contextPersister->load($contextToken, $salesChannelId);
+        $requestPermissions = $request->get(SalesChannelContextService::PERMISSIONS);
 
-        if (!\in_array(SalesChannelContextService::PERMISSIONS, $payload, true)) {
-            $payload[SalesChannelContextService::PERMISSIONS] = self::ADMIN_ORDER_PERMISSIONS;
-            $this->contextPersister->save($contextToken, $payload, $salesChannelId);
+        if (\in_array(SalesChannelContextService::PERMISSIONS, $payload, true) && !$requestPermissions) {
+            return;
         }
+
+        $payload[SalesChannelContextService::PERMISSIONS] = $requestPermissions
+            ? \array_fill_keys($requestPermissions, true)
+            : [self::ADMIN_ORDER_PERMISSIONS];
+
+        $this->contextPersister->save($contextToken, $payload, $salesChannelId);
     }
 
     private function parseCalculatedPriceByRequest(Request $request): CalculatedPrice

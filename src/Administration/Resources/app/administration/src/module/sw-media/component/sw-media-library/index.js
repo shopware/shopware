@@ -80,6 +80,7 @@ Component.register('sw-media-library', {
             pageItem: 0,
             pageFolder: 0,
             itemLoaderDone: false,
+            // @deprecated tag:v6.5.0 - Will be removed
             folderLoaderDone: false,
             items: [],
             subFolders: [],
@@ -129,7 +130,7 @@ Component.register('sw-media-library', {
         },
 
         showLoadMoreButton() {
-            return !this.isLoading && (!this.itemLoaderDone || !this.folderLoaderDone);
+            return !this.isLoading && (!this.itemLoaderDone);
         },
     },
 
@@ -185,16 +186,19 @@ Component.register('sw-media-library', {
             if (this.isLoading === true) {
                 return;
             }
+
+            this.subFolders = [];
+            this.items = [];
+
             this.isLoading = true;
 
             this.clearSelection();
             await this.fetchAssociatedFolders();
-            this.subFolders = [];
-            this.items = [];
 
             this.pageItem = 0;
             this.pageFolder = 0;
             this.itemLoaderDone = false;
+            // @deprecated tag:v6.5.0 - Will be removed
             this.folderLoaderDone = false;
 
             this.loadItems();
@@ -222,50 +226,49 @@ Component.register('sw-media-library', {
 
         async loadItems() {
             this.isLoading = true;
-            await this.nextFolders();
+            const nextFolders = await this.nextFolders();
 
-            if (this.folderLoaderDone) {
-                this.pageItem += 1;
+            this.pageItem += 1;
 
-                let criteria = new Criteria(this.pageItem, this.limit);
-                criteria
-                    .addFilter(Criteria.equals('mediaFolderId', this.folderId))
-                    .addAssociation('tags')
-                    .addAssociation('productMedia.product')
-                    .addAssociation('categories')
-                    .addAssociation('productManufacturers.products')
-                    .addAssociation('mailTemplateMedia.mailTemplate')
-                    .addAssociation('documentBaseConfigs')
-                    .addAssociation('avatarUser')
-                    .addAssociation('paymentMethods')
-                    .addAssociation('shippingMethods')
-                    .addAssociation('cmsBlocks.section.page')
-                    .addAssociation('cmsSections.page')
-                    .addAssociation('cmsPages')
-                    .addSorting(Criteria.sort(this.sorting.sortBy, this.sorting.sortDirection))
-                    .setTerm(this.term);
+            let criteria = new Criteria(this.pageItem, this.limit);
+            criteria
+                .addFilter(Criteria.equals('mediaFolderId', this.folderId))
+                .addAssociation('tags')
+                .addAssociation('productMedia.product')
+                .addAssociation('categories')
+                .addAssociation('productManufacturers.products')
+                .addAssociation('mailTemplateMedia.mailTemplate')
+                .addAssociation('documentBaseConfigs')
+                .addAssociation('avatarUser')
+                .addAssociation('paymentMethods')
+                .addAssociation('shippingMethods')
+                .addAssociation('cmsBlocks.section.page')
+                .addAssociation('cmsSections.page')
+                .addAssociation('cmsPages')
+                .addSorting(Criteria.sort(this.sorting.sortBy, this.sorting.sortDirection))
+                .setTerm(this.term);
 
-                if (this.isValidTerm(this.term)) {
-                    const searchRankingFields = await this.searchRankingService.getSearchFieldsByEntity('media');
+            if (this.isValidTerm(this.term)) {
+                const searchRankingFields = await this.searchRankingService.getSearchFieldsByEntity('media');
 
-                    if (!searchRankingFields || Object.keys(searchRankingFields).length < 1) {
-                        this.isLoading = false;
-                        this.itemLoaderDone = true;
-                        return;
-                    }
-
-                    criteria = this.searchRankingService.buildSearchQueriesForEntity(
-                        searchRankingFields,
-                        this.term,
-                        criteria,
-                    );
+                if (!searchRankingFields || Object.keys(searchRankingFields).length < 1) {
+                    this.isLoading = false;
+                    this.itemLoaderDone = true;
+                    return;
                 }
 
-                const items = await this.mediaRepository.search(criteria, Context.api);
-
-                this.items.push(...items);
-                this.itemLoaderDone = this.isLoaderDone(criteria, items);
+                criteria = this.searchRankingService.buildSearchQueriesForEntity(
+                    searchRankingFields,
+                    this.term,
+                    criteria,
+                );
             }
+
+            const items = await this.mediaRepository.search(criteria, Context.api);
+
+            this.items.push(...items);
+            this.subFolders.push(...nextFolders);
+            this.itemLoaderDone = this.isLoaderDone(criteria, items);
 
             this.isLoading = false;
         },
@@ -283,10 +286,6 @@ Component.register('sw-media-library', {
         },
 
         async nextFolders() {
-            if (this.folderLoaderDone) {
-                return;
-            }
-
             this.pageFolder += 1;
 
             const criteria = new Criteria(this.pageFolder)
@@ -295,9 +294,11 @@ Component.register('sw-media-library', {
                 .setTerm(this.term);
 
             const subFolders = await this.mediaFolderRepository.search(criteria, Context.api);
-            this.subFolders.push(...subFolders);
 
+            // @deprecated tag:v6.5.0 - Will be removed
             this.folderLoaderDone = this.isLoaderDone(criteria, subFolders);
+
+            return subFolders;
         },
 
         async fetchAssociatedFolders() {

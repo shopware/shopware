@@ -64,6 +64,7 @@
         {% endblock %}
 
         <div class="sw-media-library__scroll-content">
+
             {% block sw_media_library_media_grid %}
             <sw-media-grid
                 ref="mediaGrid"
@@ -74,7 +75,7 @@
 
                 {% block sw_media_library_back_to_parent_item %}
                 <sw-media-folder-item
-                    v-if="parentFolder"
+                    v-if="parentFolder && (!isLoading || selectableItems.length > 0)"
                     :allow-edit="acl.can('media.editor')"
                     :allow-delete="acl.can('media.deleter')"
                     class="sw-media-library__parent-folder"
@@ -112,6 +113,17 @@
                 />
                 {% endblock %}
 
+                <template v-if="isLoading">
+                    <sw-skeleton variant="media" />
+                    <sw-skeleton variant="media" />
+                    <sw-skeleton variant="media" />
+                    <sw-skeleton variant="media" />
+                    <sw-skeleton variant="media" />
+                    <sw-skeleton variant="media" />
+                    <sw-skeleton variant="media" />
+                    <sw-skeleton variant="media" />
+                </template>
+
                 {% block sw_media_library_load_more_button %}
                 <sw-button
                     v-if="showLoadMoreButton"
@@ -127,8 +139,7 @@
     </div>
     {% endblock %}
 
-    {% block sw_media_library_loader %}
-    <sw-loader v-if="isLoading" />
-    {% endblock %}
+    {# @deprecated tag:v6.5.0 - Will be removed #}
+    {% block sw_media_library_loader %}{% endblock %}
 </div>
 {% endblock %}

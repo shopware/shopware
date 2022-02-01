@@ -253,6 +253,7 @@ function refreshTokenInterceptor(client) {
                         window.location.reload();
                         return;
                     }
+                    Shopware.Service('loginService').logout();
                     Shopware.Application.getApplicationRoot().$router.push({ name: 'sw.login.index' });
                     reject(err);
                 });

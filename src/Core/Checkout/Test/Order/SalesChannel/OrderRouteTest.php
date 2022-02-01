@@ -712,11 +712,15 @@ class OrderRouteTest extends TestCase
                 ],
             ],
         ]);
-        $testOrder = $this->createOrder($this->customerId, $this->email, $this->password);
+
+        $orderId = Uuid::randomHex();
+        $orderData = $this->getOrderData($orderId, $this->customerId, $this->email, $this->password, $this->context);
+        unset($orderData[0]['orderCustomer']['customer']['password']);
+        $this->orderRepository->create($orderData, $this->context);
 
         $this->orderRepository->update([
             [
-                'id' => $testOrder,
+                'id' => $orderId,
                 'salesChannelId' => $testChannel['id'],
             ],
         ], $this->context);

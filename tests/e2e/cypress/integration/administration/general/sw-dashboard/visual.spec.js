@@ -43,6 +43,9 @@ describe('Dashboard:  Visual tests', () => {
             cy.get('.sw-dashboard-statistics__card-headline').should('be.visible');
         });
 
+        cy.get('#sw-field--statisticDateRanges-value').select('14Days');
+        cy.get('.apexcharts-series-markers-wrap').should('be.visible');
+
         // Take snapshot for visual testing
         cy.takeSnapshot('[Dashboard] overview', '.sw-dashboard-index__content');
     });

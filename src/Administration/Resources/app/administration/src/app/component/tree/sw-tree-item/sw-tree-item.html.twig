@@ -26,16 +26,11 @@
             @click="openTreeItem(); getTreeItemChildren(item)"
         >
 
-            {% block sw_tree_item_element_toggle_loader %}
-            <sw-loader
-                v-if="isLoading"
-                size="14px"
-            />
-            {% endblock %}
+            {# @deprecated tag:v6.5.0 - Will be removed #}
+            {% block sw_tree_item_element_toggle_loader %}{% endblock %}
 
             {% block sw_tree_item_element_toggle_icon %}
             <sw-icon
-                v-else
                 :name="opened ? 'small-arrow-small-down' : 'small-arrow-small-right'"
                 size="18"
             />
@@ -446,6 +441,17 @@
             {% endblock %}
         </div>
         {% endblock %}
+
+        <div
+            v-else-if="isLoading"
+            class="sw-tree-item__children"
+        >
+            <sw-skeleton variant="tree-item" />
+            <sw-skeleton variant="tree-item" />
+            <sw-skeleton variant="tree-item" />
+            <sw-skeleton variant="tree-item" />
+            <sw-skeleton variant="tree-item" />
+        </div>
     </transition>
     {% endblock %}
 </div>

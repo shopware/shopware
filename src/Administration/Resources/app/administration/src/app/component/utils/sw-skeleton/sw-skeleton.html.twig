@@ -29,6 +29,11 @@
         <sw-skeleton-bar class="sw-skeleton__media-subtitle" />
     </template>
 
+    <template v-if="['tree-item', 'tree-item-nested'].includes(variant)">
+        <sw-skeleton-bar class="sw-skeleton__tree-item-checkbox" />
+        <sw-skeleton-bar class="sw-skeleton__tree-item-text" />
+    </template>
+
     <template v-if="variant === 'listing'">
         <sw-skeleton-bar />
     </template>

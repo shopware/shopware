@@ -19,6 +19,8 @@ Component.register('sw-skeleton', {
                     'detail',
                     'category',
                     'listing',
+                    'tree-item',
+                    'tree-item-nested',
                     'media',
                 ];
 
@@ -34,6 +36,8 @@ Component.register('sw-skeleton', {
                 'sw-skeleton__detail': this.variant === 'detail',
                 'sw-skeleton__category': this.variant === 'category',
                 'sw-skeleton__listing': this.variant === 'listing',
+                'sw-skeleton__tree-item': this.variant === 'tree-item',
+                'sw-skeleton__tree-item-nested': this.variant === 'tree-item-nested',
                 'sw-skeleton__media': this.variant === 'media',
             };
         },

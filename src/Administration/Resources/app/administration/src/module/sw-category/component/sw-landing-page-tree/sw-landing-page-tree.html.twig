@@ -114,6 +114,16 @@
     </sw-tree>
     {% endblock %}
 
+    <div v-else>
+        <sw-skeleton variant="tree-item" />
+        <sw-skeleton variant="tree-item" />
+        <sw-skeleton variant="tree-item" />
+        <sw-skeleton variant="tree-item" />
+        <sw-skeleton variant="tree-item" />
+        <sw-skeleton variant="tree-item" />
+        <sw-skeleton variant="tree-item" />
+    </div>
+
     {% block sw_landing_page_tree_action %}
     <div class="sw-landing-page-tree__add-button">
         <sw-button

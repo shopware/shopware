@@ -89,9 +89,8 @@
             </slot>
             {% endblock %}
 
-            {% block sw_tree_loader %}
-            <sw-loader v-if="isLoading" />
-            {% endblock %}
+            {# @deprecated tag:v6.5.0 - Will be removed #}
+            {% block sw_tree_loader %}{% endblock %}
 
         </div>
     </div>

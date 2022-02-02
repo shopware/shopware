@@ -25,6 +25,7 @@ function createWrapper() {
         router,
         stubs: {
             'sw-loader': true,
+            'sw-skeleton': true,
             'sw-tree': {
                 props: ['items'],
                 template: `

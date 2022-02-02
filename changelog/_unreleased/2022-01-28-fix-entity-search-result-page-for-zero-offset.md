@@ -6,4 +6,4 @@ author_email: max@swk-web.com
 author_github: @aragon999
 ---
 # Core
-* Return correct page in EntitySearchResult if the offset was set to zero
+* Changed \Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult::__construct to calculate the correct page if offset is zero

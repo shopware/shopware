@@ -66,7 +66,7 @@
       "groups": {
         "general": "General",
         "cart": "Shopping cart",
-        "items": "Line items",
+        "items": "Items in shopping cart",
         "customers": "Customers",
         "promotions": "Marketing & promotions",
         "misc": "Miscellaneous"

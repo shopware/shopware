@@ -89,7 +89,7 @@ describe('Rule builder: Test crud operations', () => {
 
             page.createBasicSelectCondition({
                 selector: '@condition-general',
-                type: 'Free shipping',
+                type: 'Item with free shipping',
                 operator: null,
                 value: 'No'
             });
@@ -100,7 +100,7 @@ describe('Rule builder: Test crud operations', () => {
             cy.get('.sw-condition').eq(1).as('second-condition');
             page.createBasicInputCondition({
                 selector: '@second-condition',
-                type: 'Cart amount',
+                type: 'Grand total',
                 operator: 'Is greater than',
                 inputName: 'amount',
                 value: '100'
@@ -138,7 +138,7 @@ describe('Rule builder: Test crud operations', () => {
             cy.get('.sw-condition').eq(2).as('third-condition');
             page.createBasicSelectConditionFromSearch({
                 selector: '@third-condition',
-                type: 'Billing country',
+                type: 'Billing address: Country',
                 operator: 'Is none of',
                 value: 'Australia'
             });
@@ -220,7 +220,7 @@ describe('Rule builder: Test crud operations', () => {
                     cy.get('@first-and-container').within(() => {
                         cy.get('.sw-condition').as('condition-general');
 
-                        page.selectTypeAndOperator('@condition-general', 'Line item property', 'Is one of');
+                        page.selectTypeAndOperator('@condition-general', 'Item with property', 'Is one of');
 
                         cy.get('@condition-general').within(() => {
                             cy.get('.sw-select input').last().clearTypeAndCheck(resultCase.value);

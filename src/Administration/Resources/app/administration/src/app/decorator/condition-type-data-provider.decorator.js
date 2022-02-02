@@ -267,7 +267,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         component: 'sw-condition-goods-price',
         label: 'global.sw-condition.condition.goodsPriceRule',
         scopes: ['cart'],
-        group: 'cart',
+        group: 'item',
     });
     ruleConditionService.addCondition('cartLineItemOfType', {
         component: 'sw-condition-line-item-of-type',
@@ -302,7 +302,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         component: 'sw-condition-line-items-in-cart-count',
         label: 'global.sw-condition.condition.lineItemsInCartCountRule',
         scopes: ['cart'],
-        group: 'cart',
+        group: 'item',
     });
     ruleConditionService.addCondition('cartLineItemTotalPrice', {
         component: 'sw-condition-line-item-total-price',
@@ -555,7 +555,7 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         component: 'sw-condition-promotion-value',
         label: 'global.sw-condition.condition.promotionValueRule',
         scopes: ['cart'],
-        group: 'cart',
+        group: 'promotion',
     });
 
     return ruleConditionService;

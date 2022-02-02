@@ -1,0 +1,18 @@
+name: Windows clone check
+
+on:
+    push:
+      branches:
+          - trunk
+    pull_request:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    name: "Windows check"
+
+    steps:
+    - name: Clone platform
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: '0'

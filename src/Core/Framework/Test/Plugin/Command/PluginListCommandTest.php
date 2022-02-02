@@ -69,7 +69,7 @@ class PluginListCommandTest extends TestCase
         $commandTester = $this->executeCommand([]);
         static::assertSame(0, $commandTester->getStatusCode());
         static::assertStringEqualsFile(
-            __DIR__ . '/../_assertion/PluginListCommandTest::testCommand.txt',
+            __DIR__ . '/../_assertion/PluginListCommandTest-testCommand.txt',
             implode("\n", array_map('trim', explode("\n", trim($commandTester->getDisplay())))) . "\n"
         );
     }

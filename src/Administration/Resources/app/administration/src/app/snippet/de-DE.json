@@ -606,6 +606,11 @@
         "isNewCustomerRule": "Neukunde",
         "lastNameRule": "Kundennachname",
         "isCompanyRule": "Firmenkunde",
+        "cartTaxDisplay": {
+          "label": "Steuerdarstellung",
+          "gross": "Brutto",
+          "net": "Netto"
+        },
         "isGuestRule": "Gastbesteller",
         "isNewsletterRecipient": "Kunde ist Newsletter-Empfänger",
         "daysSinceLastOrderRule": "Tage seit letzter Bestellung",

@@ -10,6 +10,14 @@
     padding-top: $spacer-lg;
 }
 
+.address-card {
+    margin-bottom: $spacer * 2.5;
+}
+
+.address-action-set-default {
+    line-height: $spacer-lg;
+}
+
 .address-action-delete {
     margin-left: $spacer-sm;
 }

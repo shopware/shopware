@@ -4,6 +4,9 @@ namespace Shopware\Core\DevOps\Test\Environment;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\DevOps\Environment\EnvironmentHelperTransformerInterface;
+use Shopware\Core\DevOps\Test\Environment\_fixtures\EnvironmentHelperTransformer;
+use Shopware\Core\DevOps\Test\Environment\_fixtures\EnvironmentHelperTransformer2;
 
 class EnvironmentHelperTest extends TestCase
 {
@@ -72,5 +75,98 @@ class EnvironmentHelperTest extends TestCase
         unset($_SERVER['foo'], $_ENV['foo']);
 
         static::assertFalse(EnvironmentHelper::hasVariable('foo'));
+    }
+
+    public function testVariableTransformerVariableChangeWorks(): void
+    {
+        $_SERVER['foo'] = 'foo';
+        EnvironmentHelper::addTransformer(EnvironmentHelperTransformer::class);
+
+        static::assertEquals('foo bar', EnvironmentHelper::getVariable('foo'));
+    }
+
+    public function testAddingMultipleTransformersWorks(): void
+    {
+        $_SERVER['foo'] = 'foo';
+        EnvironmentHelper::addTransformer(EnvironmentHelperTransformer::class);
+        EnvironmentHelper::addTransformer(EnvironmentHelperTransformer2::class, 1);
+
+        static::assertEquals('foo baz bar', EnvironmentHelper::getVariable('foo'));
+    }
+
+    public function testTransformerPriorityIsCorrectAfterModifications(): void
+    {
+        $_SERVER['foo'] = 'foo';
+
+        EnvironmentHelper::addTransformer(EnvironmentHelperTransformer2::class, -1);
+        EnvironmentHelper::addTransformer(EnvironmentHelperTransformer::class);
+        EnvironmentHelper::addTransformer(EnvironmentHelperTransformer2::class, 1);
+        EnvironmentHelper::addTransformer(EnvironmentHelperTransformer2::class, 2);
+
+        static::assertEquals('foo baz baz bar baz', EnvironmentHelper::getVariable('foo'));
+
+        EnvironmentHelper::removeTransformer(EnvironmentHelperTransformer2::class, 1);
+        static::assertEquals('foo baz bar baz', EnvironmentHelper::getVariable('foo'));
+
+        EnvironmentHelper::removeTransformer(EnvironmentHelperTransformer2::class, -1);
+        static::assertEquals('foo baz bar', EnvironmentHelper::getVariable('foo'));
+    }
+
+    public function testSameTransformerIsOnlyAddedOncePerPriority(): void
+    {
+        $_SERVER['foo'] = 'foo';
+        EnvironmentHelper::addTransformer(EnvironmentHelperTransformer::class);
+        EnvironmentHelper::addTransformer(EnvironmentHelperTransformer::class);
+
+        static::assertEquals('foo bar', EnvironmentHelper::getVariable('foo'));
+    }
+
+    public function testSameTransformerIsAddedMultipleTimesForDifferentPriorities(): void
+    {
+        $_SERVER['foo'] = 'foo';
+        EnvironmentHelper::addTransformer(EnvironmentHelperTransformer::class);
+        EnvironmentHelper::addTransformer(EnvironmentHelperTransformer::class, 1);
+
+        static::assertEquals('foo bar bar', EnvironmentHelper::getVariable('foo'));
+    }
+
+    public function testVariableTransformerDefaultChangeWorks(): void
+    {
+        EnvironmentHelper::addTransformer(EnvironmentHelperTransformer::class);
+
+        static::assertEquals('my baz', EnvironmentHelper::getVariable('foo', 'my'));
+    }
+
+    public function testRemovingTransformerWorks(): void
+    {
+        $_SERVER['foo'] = 'foo';
+        EnvironmentHelper::addTransformer(EnvironmentHelperTransformer::class);
+
+        static::assertEquals('foo bar', EnvironmentHelper::getVariable('foo'));
+
+        EnvironmentHelper::removeTransformer(EnvironmentHelperTransformer::class);
+        static::assertEquals('foo', EnvironmentHelper::getVariable('foo'));
+    }
+
+    public function testAddingInvalidClassFails(): void
+    {
+        static::expectException(\InvalidArgumentException::class);
+        static::expectExceptionMessage(
+            sprintf(
+                'Expected class to implement "%1$s" but got "%2$s".',
+                EnvironmentHelperTransformerInterface::class,
+                self::class
+            )
+        );
+        EnvironmentHelper::addTransformer(self::class);
+    }
+
+    /**
+     * @before
+     * @after
+     */
+    public function removeAllTransformers(): void
+    {
+        EnvironmentHelper::removeAllTransformers();
     }
 }

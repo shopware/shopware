@@ -95,7 +95,7 @@ class ValidateAppCommand extends Command
 
     protected function configure(): void
     {
-        $this->setDescription('checks manifests for errors')
+        $this->setDescription('Check manifests for errors')
             ->addArgument(
                 'name',
                 InputArgument::OPTIONAL,

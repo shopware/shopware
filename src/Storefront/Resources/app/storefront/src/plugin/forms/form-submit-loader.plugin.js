@@ -12,7 +12,7 @@ export default class FormSubmitLoaderPlugin extends Plugin {
     };
 
     init() {
-        if (!this._getForm() || !this._getSubmitButton()) {
+        if (!this._getForm() || !this._getSubmitButtons()) {
             return;
         }
 
@@ -20,7 +20,7 @@ export default class FormSubmitLoaderPlugin extends Plugin {
     }
 
     /**
-     * tries to get the closest form
+     * Tries to get the closest form
      *
      * @returns {HTMLElement|boolean}
      * @private
@@ -37,35 +37,27 @@ export default class FormSubmitLoaderPlugin extends Plugin {
     }
 
     /**
-     * tries to get the submit button fo the form
+     * Tries to get the submit buttons for the form, returns false if
+     * no button has been found, true otherwise
      *
-     * @returns {HTMLElement|boolean}
+     * @returns {boolean}
      * @private
      */
-    _getSubmitButton() {
-        this._submitButton = DomAccess.querySelector(this._form, 'button[type=submit]', false);
+    _getSubmitButtons() {
+        this._submitButtons = Array.from(DomAccess.querySelectorAll(this._form, 'button[type=submit]', false));
 
-        if (!this._submitButton) {
-            return this._getSubmitButtonWithId();
+        const formId = this._form.id;
+        if (formId) {
+            this._submitButtons = this._submitButtons.concat(Array.from(
+                DomAccess.querySelectorAll(
+                    this._form.closest(this.options.formWrapperSelector),
+                    `:not(form) > button[type=submit][form="${formId}"]`,
+                    false
+                )
+            ));
         }
 
-        return true;
-    }
-
-    /**
-     * tries to get the submit button
-     * with the form id
-     *
-     * @returns {HTMLElement|boolean}
-     * @private
-     */
-    _getSubmitButtonWithId() {
-        const id = this._form.id;
-        if (!id) return false;
-
-        this._submitButton = DomAccess.querySelector(this._form.closest(this.options.formWrapperSelector), `button[type=submit][form=${id}]`, false);
-
-        return this._submitButton;
+        return Boolean(this._submitButtons.length);
     }
 
     /**
@@ -83,10 +75,11 @@ export default class FormSubmitLoaderPlugin extends Plugin {
      * @private
      */
     _onFormSubmit() {
-        // show loading indicator in submit button
-        const loader = new ButtonLoadingIndicator(this._submitButton);
-
-        loader.create();
+        // show loading indicator in submit buttons
+        this._submitButtons.forEach((submitButton) => {
+            const loader = new ButtonLoadingIndicator(submitButton);
+            loader.create();
+        });
 
         /**
          * @deprecated tag:v6.5.0 - onFormSubmit event will be removed, use beforeSubmit instead

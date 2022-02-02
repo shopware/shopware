@@ -543,6 +543,7 @@ base-uri 'self';
             <argument type="service" id="validator"/>
             <argument type="service" id="filesystem"/>
             <argument>%kernel.project_dir%</argument>
+            <argument>%shopware.feature.flags%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseCreator">
@@ -550,6 +551,7 @@ base-uri 'self';
             <argument type="service" id="validator"/>
             <argument type="service" id="filesystem"/>
             <argument>%kernel.project_dir%</argument>
+            <argument>%shopware.feature.flags%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseExporter">
@@ -557,6 +559,7 @@ base-uri 'self';
             <argument type="service" id="validator"/>
             <argument type="service" id="filesystem"/>
             <argument>%kernel.project_dir%</argument>
+            <argument>%shopware.feature.flags%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogValidator">
@@ -564,6 +567,7 @@ base-uri 'self';
             <argument type="service" id="validator"/>
             <argument type="service" id="filesystem"/>
             <argument>%kernel.project_dir%</argument>
+            <argument>%shopware.feature.flags%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Changelog\ChangelogParser" public="false" />

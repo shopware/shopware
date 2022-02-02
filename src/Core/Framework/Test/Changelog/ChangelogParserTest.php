@@ -59,7 +59,7 @@ class ChangelogParserTest extends TestCase
     /**
      * @dataProvider provide
      */
-    public function testData(string $inFile, array $expecvtedData, string $outFile, int $expectedExceptions): void
+    public function testData(string $inFile, array $expectedData, string $outFile, int $expectedExceptions): void
     {
         $parser = $this
             ->getContainer()
@@ -67,19 +67,21 @@ class ChangelogParserTest extends TestCase
 
         $logEntry = $parser->parse(file_get_contents($inFile));
 
-        static::assertSame($expecvtedData['title'], $logEntry->getTitle());
-        static::assertSame($expecvtedData['issue'], $logEntry->getIssue());
-        static::assertSame($expecvtedData['flag'], $logEntry->getFlag());
-        static::assertSame($expecvtedData['author'], $logEntry->getAuthor());
-        static::assertSame($expecvtedData['authorEmail'], $logEntry->getAuthorEmail());
-        static::assertSame($expecvtedData['authorGithub'], $logEntry->getAuthorGitHub());
-        static::assertSame($expecvtedData['core'], $logEntry->getCore());
-        static::assertSame($expecvtedData['storefront'], $logEntry->getStorefront());
-        static::assertSame($expecvtedData['admin'], $logEntry->getAdministration());
-        static::assertSame($expecvtedData['api'], $logEntry->getApi());
-        static::assertSame($expecvtedData['upgrade'], $logEntry->getUpgradeInformation());
-        static::assertSame($expecvtedData['major'], $logEntry->getNextMajorVersionChanges());
+        static::assertSame($expectedData['title'], $logEntry->getTitle());
+        static::assertSame($expectedData['issue'], $logEntry->getIssue());
+        static::assertSame($expectedData['flag'], $logEntry->getFlag());
+        static::assertSame($expectedData['author'], $logEntry->getAuthor());
+        static::assertSame($expectedData['authorEmail'], $logEntry->getAuthorEmail());
+        static::assertSame($expectedData['authorGithub'], $logEntry->getAuthorGitHub());
+        static::assertSame($expectedData['core'], $logEntry->getCore());
+        static::assertSame($expectedData['storefront'], $logEntry->getStorefront());
+        static::assertSame($expectedData['admin'], $logEntry->getAdministration());
+        static::assertSame($expectedData['api'], $logEntry->getApi());
+        static::assertSame($expectedData['upgrade'], $logEntry->getUpgradeInformation());
+        static::assertSame($expectedData['major'], $logEntry->getNextMajorVersionChanges());
         $lines = file($outFile);
+
+        /** @var string[] $templateLines */
         $templateLines = explode(\PHP_EOL, $logEntry->toTemplate());
 
         foreach ($lines as $index => $line) {

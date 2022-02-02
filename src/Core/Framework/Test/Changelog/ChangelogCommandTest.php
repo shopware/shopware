@@ -9,10 +9,13 @@ use Shopware\Core\Framework\Changelog\Command\ChangelogReleaseCommand;
 use Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseCreator;
 use Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseExporter;
 use Shopware\Core\Framework\Changelog\Processor\ChangelogValidator;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\Changelog\ChangelogTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Output\NullOutput;
+use function file_get_contents;
 
 class ChangelogCommandTest extends TestCase
 {
@@ -205,5 +208,29 @@ class ChangelogCommandTest extends TestCase
                 static::assertSame(1, substr_count($fileContents, $line), sprintf("Multiple occurrences of %s in \n %s", $line, $fileContents));
             }
         }
+    }
+
+    public function testChangelogReleaseWithFlags(): void
+    {
+        $this->getContainer()->get(ChangelogReleaseCreator::class)->setPlatformRoot(__DIR__ . '/_fixture/stage/command-valid-flag');
+        $cmd = $this->getContainer()->get(ChangelogReleaseCommand::class);
+
+        Feature::registerFeature('CHANGELOG-00001', []);
+        Feature::registerFeature('CHANGELOG-00002', []);
+
+        $this->getContainer()->get(ChangelogReleaseCreator::class)->setActiveFlags([
+            'CHANGELOG-00001' => [
+                'default' => true,
+            ],
+        ]);
+
+        $cmd->run(new StringInput('12.13.14.15'), new NullOutput());
+
+        static::assertFileExists(__DIR__ . '/_fixture/stage/command-valid-flag/CHANGELOG.md');
+        $content = file_get_contents(__DIR__ . '/_fixture/stage/command-valid-flag/CHANGELOG.md');
+
+        static::assertStringContainsString('/changelog/release-12-13-14-15/1977-12-10-a-full-change.md', $content);
+        static::assertStringContainsString('/changelog/release-12-13-14-15/1977-12-11-flag-active', $content);
+        static::assertStringNotContainsString('/changelog/release-12-13-14-15/1977-12-11-flag-inactive', $content);
     }
 }

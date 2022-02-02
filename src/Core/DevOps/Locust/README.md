@@ -35,8 +35,10 @@ composer run locust:init
 The `env.json` file allows the following configurations:
 - `url`: The base url of the shopware api.
 - `oauth`: The oauth credentials.
-- `wait`: The time in seconds to wait between requests. To disable wait time define `"wait": None`. The default value is `[3, 5]` which defines a minimal wait time of 3 seconds to a maximum of 5.
+- `wait`: The time in seconds to wait between requests. To disable wait time define `"wait": false`. The default value is `[3, 5]` which defines a minimal wait time of 3 seconds to a maximum of 5.
 - `aggregate`: If enabled, groups the requests by a logical key. Default `true`.
+- `indexing_behavior`: Allows to configure the indexing behavior. The default value is `false`. Allowed behavior values are: `disable-indexing`, `use-queue-indexing`
+- `max_api_user`: Allows to limit the number of users which sends requests against the sync api
 
 ## Enabled cache
 Since locust is a benchmark script, the caches should be enabled.
@@ -51,7 +53,19 @@ framework:
 #framework:
 #    cache:
 #        app: cache.adapter.redis
+#    session:
+#      handler_id: 'redis://redis:6379'
 ```
+
+You may also want to configure a delayed cache, which invalidates all tags after a given time.
+```yaml
+shopware:
+    cache:
+        invalidation:
+            delay: 30
+            count: 150
+```
+Only tags which are not invalidated again within the last 30 seconds will be invalidated. This prevents duplicate invalidation calls. The `count` property defines how many tags are invalidated at the same time.
 
 ## Disabled csrf protection 
 To allow registrations and tracing the order process, the csrf protection has to be disabled. 

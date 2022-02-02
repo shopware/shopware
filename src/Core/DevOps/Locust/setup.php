@@ -4,6 +4,7 @@ $connection = require __DIR__ . '/boo.php';
 class Api
 {
     private string $host;
+
     private ?string $token = null;
 
     public function __construct(array $data)
@@ -12,7 +13,7 @@ class Api
         $this->token = $this->getAccessToken($data['oauth']);
     }
 
-    public function fetchAll(string $url, array $params = [])
+    public function fetchAll(string $url, array $params = []): array
     {
         $params['page'] = 1;
         $params['limit'] = 100;
@@ -21,7 +22,7 @@ class Api
 
         $all = [];
         while (!empty($response['data'])) {
-            foreach($response['data'] as $item) {
+            foreach ($response['data'] as $item) {
                 unset($item['apiAlias']);
                 if (count(array_keys($item)) === 1) {
                     $all[] = $item[array_keys($item)[0]];
@@ -30,21 +31,21 @@ class Api
                 }
             }
 
-            $params['page']++;
+            ++$params['page'];
             $response = $this->request($url, $params);
         }
 
         return $all;
     }
 
-    public function fetchRow(string $url, array $params = [])
+    public function fetchRow(string $url, array $params = []): array
     {
         $response = $this->request($url, $params);
 
         return $response['data'][0];
     }
 
-    public function fetchOne(string $url, array $params = [])
+    public function fetchOne(string $url, array $params = []): string
     {
         $response = $this->request($url, $params);
 
@@ -54,33 +55,42 @@ class Api
         return $item[array_keys($item)[0]];
     }
 
-    private function getAccessToken(array $oauth)
+    private function getAccessToken(array $oauth): string
     {
         $response = $this->request('/api/oauth/token', $oauth);
 
         return $response['access_token'];
     }
 
-    private function request(string $url, array $params = [])
+    private function request(string $url, array $params = []): array
     {
         $resource = curl_init($this->host . $url);
 
-        curl_setopt($resource, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($resource, CURLOPT_POST, true);
-        curl_setopt($resource, CURLOPT_POSTFIELDS, json_encode($params));
+        if ($resource === false) {
+            throw new \RuntimeException('Cannot initialize cURL resource');
+        }
+
+        curl_setopt($resource, \CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($resource, \CURLOPT_POST, true);
+        curl_setopt($resource, \CURLOPT_POSTFIELDS, json_encode($params));
 
         $headers = ['Content-Type:application/json', 'Accept:application/json'];
         if ($this->token) {
             $headers[] = 'Authorization: Bearer ' . $this->token;
         }
 
-        curl_setopt($resource, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($resource, \CURLOPT_HTTPHEADER, $headers);
 
-        return json_decode(curl_exec($resource), true);
+        $response = curl_exec($resource);
+        if ($response === false) {
+            throw new \RuntimeException('Cannot initialize cURL resource');
+        }
+
+        return json_decode((string) $response, true);
     }
 }
 
-$data = json_decode(file_get_contents(__DIR__ . '/env.json'), true);
+$data = json_decode((string) file_get_contents(__DIR__ . '/env.json'), true);
 $api = new Api($data);
 
 echo str_pad('Fetching listing urls...', 30);
@@ -95,9 +105,11 @@ $listings = $api->fetchAll('/api/search/seo-url', [
 ]);
 
 $time = microtime(true);
-$listings = array_map(function(string $url) { return '/' . $url; }, $listings);
-file_put_contents(__DIR__ . '/fixtures/listing_urls.json', json_encode($listings, JSON_PRETTY_PRINT));
-echo ' collected: ' . count($listings) . ' urls' . PHP_EOL;
+$listings = array_map(function (string $url) {
+    return '/' . $url;
+}, $listings);
+file_put_contents(__DIR__ . '/fixtures/listing_urls.json', json_encode($listings, \JSON_PRETTY_PRINT));
+echo ' collected: ' . count($listings) . ' urls' . \PHP_EOL;
 
 echo str_pad('Fetching product urls...', 30);
 $productUrls = $api->fetchAll('/api/search/seo-url', [
@@ -109,18 +121,19 @@ $productUrls = $api->fetchAll('/api/search/seo-url', [
         ['type' => 'equals', 'field' => 'isCanonical', 'value' => true],
     ],
 ]);
-$productUrls = array_map(function(string $url) { return '/' . $url; }, $productUrls);
-file_put_contents(__DIR__ . '/fixtures/product_urls.json', json_encode($productUrls, JSON_PRETTY_PRINT));
-echo ' collected: ' . count($productUrls) . ' urls' . PHP_EOL;
+$productUrls = array_map(function (string $url) {
+    return '/' . $url;
+}, $productUrls);
+file_put_contents(__DIR__ . '/fixtures/product_urls.json', json_encode($productUrls, \JSON_PRETTY_PRINT));
+echo ' collected: ' . count($productUrls) . ' urls' . \PHP_EOL;
 
 echo str_pad('Fetching product numbers...', 30);
 $products = $api->fetchAll('/api/search/product', [
     'includes' => ['product' => ['productNumber', 'id']],
     'fields' => ['productNumber', 'id'],
 ]);
-file_put_contents(__DIR__ . '/fixtures/products.json', json_encode($products, JSON_PRETTY_PRINT));
-echo ' collected: ' . count($products) . ' product numbers' . PHP_EOL;
-
+file_put_contents(__DIR__ . '/fixtures/products.json', json_encode($products, \JSON_PRETTY_PRINT));
+echo ' collected: ' . count($products) . ' product numbers' . \PHP_EOL;
 
 echo str_pad('Fetching search dictionary...', 30);
 $keywords = $api->fetchAll('/api/search/product-keyword-dictionary', [
@@ -130,9 +143,8 @@ $keywords = $api->fetchAll('/api/search/product-keyword-dictionary', [
         ['type' => 'equals', 'field' => 'languageId', 'value' => '2fbb5fe2e29a4d70aa5854ce7ce3e20b'],
     ],
 ]);
-file_put_contents(__DIR__ . '/fixtures/keywords.json', json_encode($keywords, JSON_PRETTY_PRINT));
-echo ' collected: ' . count($keywords) . ' keywords' . PHP_EOL;
-
+file_put_contents(__DIR__ . '/fixtures/keywords.json', json_encode($keywords, \JSON_PRETTY_PRINT));
+echo ' collected: ' . count($keywords) . ' keywords' . \PHP_EOL;
 
 $salesChannel = $api->fetchRow('/api/search/sales-channel', [
     'fields' => ['languageId', 'currencyId', 'countryId'],
@@ -145,4 +157,5 @@ $salesChannel = $api->fetchRow('/api/search/sales-channel', [
 ]);
 
 $salesChannel['salutationId'] = 'ed643807c9f84cc8b50132ea3ccb1c3b';
-file_put_contents(__DIR__ . '/fixtures/sales_channel.json', json_encode($salesChannel, JSON_PRETTY_PRINT));
+file_put_contents(__DIR__ . '/fixtures/sales_channel.json', json_encode($salesChannel, \JSON_PRETTY_PRINT));
+

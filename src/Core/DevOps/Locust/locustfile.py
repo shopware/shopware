@@ -1,9 +1,8 @@
 import os
 import sys
+import uuid
 from locust import FastHttpUser, task, between, constant
 from bs4 import BeautifulSoup
-from locust.env import Environment
-from pprint import pprint
 
 sys.path.append(os.path.dirname(__file__) + '/src')
 from storefront import Storefront
@@ -13,20 +12,42 @@ from api import Api
 context = Context()
 
 class Admin(FastHttpUser):
-    weight=1
+    id = None
+    weight = 1
 
     @task
     def stock_updates(self):
+        # fixed_count locust config is broken
+        if (not self.allowed()):
+            return
+
         api = Api(self.client, context)
         api.update_stock()
 
     @task
     def price_updates(self):
+        # fixed_count locust config is broken
+        if (not self.allowed()):
+            return
+
         api = Api(self.client, context)
         api.update_prices()
 
+    def allowed(self):
+        if (self.id == None):
+            self.id = str(uuid.uuid4())
+
+        if (self.id in context.admin_ids):
+            return True
+
+        if (len(context.admin_ids) < context.max_api_users):
+            context.admin_ids.append(self.id)
+            return True
+
+        return False
+
 class Customer(FastHttpUser):
-    weight=20
+    weight=5
 
     @task(4)
     def short_time_listing_visitor(self):

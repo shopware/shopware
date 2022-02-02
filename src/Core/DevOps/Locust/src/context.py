@@ -14,6 +14,7 @@ class Context:
     aggregate: False
     wait: False
     host: None
+    indexing_behavior: None
 
     def __init__(self):
         self.env = self.__get_env()
@@ -27,6 +28,12 @@ class Context:
         self.numbers = self.__column(self.products, 'productNumber')
         self.product_ids = self.__column(self.products, 'id')
         self.register = self.__initRegister()
+        self.indexing_behavior = None
+        self.admin_ids = []
+        self.max_api_users = self.env['max_api_users']
+
+        if (self.env['indexing_behavior'] != False):
+            self.indexing_behavior = self.env['indexing_behavior']
 
     def __initListings(self):
         return self.__get_json_file('/../fixtures/listing_urls.json')

@@ -17,9 +17,7 @@
         </dl>
 
         {% if page.cart.deliveries is defined %}
-
             {% for activeShipping in page.cart.deliveries.elements %}
-
                 {% block component_offcanvas_summary_content_info %}
                     <div class="row offcanvas-shipping-info">
                         <span class="col-7 shipping-label shipping-cost">
@@ -36,9 +34,11 @@
                         </span>
                     </div>
                 {% endblock %}
-        {% endfor %}
+            {% endfor %}
 
-        {% block component_offcanvas_summary_content_shipping %}
+            {% set activeShipping = page.cart.deliveries.elements | first %}
+
+            {% block component_offcanvas_summary_content_shipping %}
                 {% if page.shippingMethods|length %}
                     <div class="offcanvas-shipping-preference mb-2 mt-2 offcanvas-shipping-preference--hidden">
                         <form

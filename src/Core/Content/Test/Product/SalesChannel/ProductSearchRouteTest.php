@@ -2,25 +2,28 @@
 
 namespace Shopware\Core\Content\Test\Product\SalesChannel;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute;
+use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\Test\TestDefaults;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
+use function json_decode;
+use function sprintf;
 
 /**
  * @group store-api
@@ -30,30 +33,13 @@ class ProductSearchRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
-     */
-    private $browser;
+    private TestDataCollection $ids;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private SearchKeywordUpdater $searchKeywordUpdater;
 
-    /**
-     * @var SearchKeywordUpdater
-     */
-    private $searchKeywordUpdater;
+    private EntityRepositoryInterface $productSearchConfigRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $productSearchConfigRepository;
-
-    /**
-     * @var string
-     */
-    private $productSearchConfigId;
+    private string $productSearchConfigId;
 
     protected function setUp(): void
     {
@@ -61,33 +47,72 @@ class ProductSearchRouteTest extends TestCase
         $this->searchKeywordUpdater = $this->getContainer()->get(SearchKeywordUpdater::class);
         $this->productSearchConfigRepository = $this->getContainer()->get('product_search_config.repository');
         $this->productSearchConfigId = $this->getProductSearchConfigId();
-
-        $this->resetSearchKeywordUpdaterConfig();
-        $this->createData();
-
-        $this->browser = $this->createCustomSalesChannelBrowser([
-            'id' => $this->ids->create('sales-channel'),
-            'navigationCategoryId' => $this->ids->get('category'),
-        ]);
-
-        $this->setVisibilities();
-        $this->setupProductsForImplementSearch();
     }
 
-    public function testFindingProductsByTerm(): void
+    /**
+     * @beforeClass
+     */
+    public static function startTransactionBefore(): void
     {
+        $connection = KernelLifecycleManager::getKernel()
+            ->getContainer()
+            ->get(Connection::class);
+
+        $connection->beginTransaction();
+    }
+
+    /**
+     * @afterClass
+     */
+    public static function stopTransactionAfter(): void
+    {
+        $connection = KernelLifecycleManager::getKernel()
+            ->getContainer()
+            ->get(Connection::class);
+
+        $connection->rollBack();
+    }
+
+    /**
+     * @doesNotPerformAssertions
+     */
+    public function testIndexing(): array
+    {
+        $this->resetSearchKeywordUpdaterConfig();
+        $this->createNavigationCategory();
+
+        $browser = $this->createCustomSalesChannelBrowser([
+            'id' => $this->ids->create('sales-channel'),
+            'navigationCategoryId' => $this->ids->get('category'),
+            'languages' => [['id' => Defaults::LANGUAGE_SYSTEM], ['id' => $this->getDeDeLanguageId()]],
+        ]);
+
+        $this->createGermanSalesChannelDomain();
+
+        $this->setupProductsForImplementSearch();
+
+        return [$browser, $this->ids];
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testFindingProductsByTerm(array $services): void
+    {
+        [$browser, $ids] = $services;
+
         $this->productSearchConfigRepository->update([
             ['id' => $this->productSearchConfigId, 'andLogic' => false],
         ], $this->ids->context);
 
-        $this->browser->request(
+        $browser->request(
             'POST',
             '/store-api/search?search=Test-Product',
             [
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($browser->getResponse()->getContent(), true);
         static::assertSame(15, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
         // Limited to max 10 entries
@@ -95,180 +120,164 @@ class ProductSearchRouteTest extends TestCase
         static::assertSame('product', $response['elements'][0]['apiAlias']);
     }
 
-    public function testNotFindingProducts(): void
+    /**
+     * @depends testIndexing
+     */
+    public function testNotFindingProducts(array $services): void
     {
+        [$browser, $ids] = $services;
+
         $this->productSearchConfigRepository->update([
             ['id' => $this->productSearchConfigId, 'andLogic' => false],
         ], $this->ids->context);
 
-        $this->browser->request(
+        $browser->request(
             'POST',
             '/store-api/search?search=YAYY',
             [
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($browser->getResponse()->getContent(), true);
 
         static::assertSame(0, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
         static::assertCount(0, $response['elements']);
     }
 
-    public function testMissingSearchTerm(): void
+    /**
+     * @depends testIndexing
+     */
+    public function testMissingSearchTerm(array $services): void
     {
-        $this->browser->request(
+        [$browser, $ids] = $services;
+
+        $browser->request(
             'POST',
             '/store-api/search',
             [
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($browser->getResponse()->getContent(), true);
+        static::assertArrayHasKey('errors', $response);
+        static::assertSame('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code']);
+
+        $browser->request(
+            'POST',
+            '/store-api/search-suggest',
+            [
+            ]
+        );
+
+        $response = json_decode($browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('errors', $response);
         static::assertSame('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code']);
     }
 
     /**
+     * @depends testIndexing
      * @dataProvider searchOrCases
      */
-    public function testSearchOr(string $term, array $expected): void
+    public function testSearchOr(string $term, array $expected, array $services): void
     {
+        [$browser, $ids] = $services;
+
         $this->productSearchConfigRepository->update([
             ['id' => $this->productSearchConfigId, 'andLogic' => false],
         ], $this->ids->context);
 
-        $this->proceedTestSearch($term, $expected);
+        $this->proceedTestSearch($browser, $term, $expected);
     }
 
     /**
+     * @depends testIndexing
      * @dataProvider searchAndCases
      */
-    public function testSearchAnd(string $term, array $expected): void
+    public function testSearchAnd(string $term, array $expected, array $services): void
     {
+        [$browser, $ids] = $services;
+
         $this->productSearchConfigRepository->update([
             ['id' => $this->productSearchConfigId, 'andLogic' => true],
         ], $this->ids->context);
 
-        $this->proceedTestSearch($term, $expected);
+        $this->proceedTestSearch($browser, $term, $expected);
     }
 
-    public function testFindingProductAlreadyHaveVariantsWithCustomSearchKeywords(): void
+    /**
+     * @depends testIndexing
+     */
+    public function testFindingProductAlreadyHaveVariantsWithCustomSearchKeywords(array $services): void
     {
-        $productRepository = $this->getContainer()->get('product.repository');
+        [$browser, $ids] = $services;
 
         $this->productSearchConfigRepository->update([
             ['id' => $this->productSearchConfigId, 'andLogic' => false],
         ], $this->ids->context);
 
-        $parentProductData = $this->generateProductData();
-        $products = [$parentProductData];
-        for ($i = 0; $i < 3; ++$i) {
-            $products[] = $this->generateProductData($parentProductData['id']);
-        }
-
-        $productRepository->create($products, $this->ids->context);
-        $productRepository->update([
-            ['id' => $parentProductData['id'], 'customSearchKeywords' => ['bmw']],
-        ], $this->ids->context);
-
-        $this->browser->request(
+        $browser->request(
             'POST',
             '/store-api/search?search=bmw',
             [
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
-        static::assertSame(1, $response['total']);
+        $response = json_decode($browser->getResponse()->getContent(), true);
+        static::assertSame(2, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
         // Limited to max 10 entries
-        static::assertCount(1, $response['elements']);
+        static::assertCount(2, $response['elements']);
+        static::assertSame('product', $response['elements'][0]['apiAlias']);
+
+        $browser->request(
+            'POST',
+            '/store-api/search-suggest?search=bmw',
+            [
+            ]
+        );
+
+        $response = json_decode($browser->getResponse()->getContent(), true);
+        static::assertSame(2, $response['total']);
+        static::assertSame('product_listing', $response['apiAlias']);
+        // Limited to max 10 entries
+        static::assertCount(2, $response['elements']);
         static::assertSame('product', $response['elements'][0]['apiAlias']);
     }
 
-    public function testFindingProductWhenAddedVariantsAfterSettingCustomSearchKeywords(): void
+    /**
+     * @depends testIndexing
+     */
+    public function testFindingProductWhenAddedVariantsAfterSettingCustomSearchKeywords(array $services): void
     {
-        $productRepository = $this->getContainer()->get('product.repository');
+        [$browser, $ids] = $services;
 
         $this->productSearchConfigRepository->update([
             ['id' => $this->productSearchConfigId, 'andLogic' => false],
         ], $this->ids->context);
 
-        $parentProductData = $this->generateProductData();
-        $productRepository->create([$parentProductData], $this->ids->context);
-        $productRepository->update([
-            ['id' => $parentProductData['id'], 'customSearchKeywords' => ['bmw']],
-        ], $this->ids->context);
-
-        $products = [];
-        for ($i = 0; $i < 3; ++$i) {
-            $products[] = $this->generateProductData($parentProductData['id']);
-        }
-
-        $productRepository->create($products, $this->ids->context);
-
-        $this->browser->request(
+        $browser->request(
             'POST',
-            '/store-api/search?search=bmw',
+            '/store-api/search?search=volvo',
             [
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
-        static::assertSame(1, $response['total']);
-        static::assertSame('product_listing', $response['apiAlias']);
-        // Limited to max 10 entries
-        static::assertCount(1, $response['elements']);
-        static::assertSame('product', $response['elements'][0]['apiAlias']);
-    }
-
-    public function testFindingProductAlreadySetCustomSearchKeywordsWhenRemovedVariants(): void
-    {
-        $productRepository = $this->getContainer()->get('product.repository');
-
-        $this->productSearchConfigRepository->update([
-            ['id' => $this->productSearchConfigId, 'andLogic' => false],
-        ], $this->ids->context);
-
-        $parentProductData = $this->generateProductData();
-        $products = [$parentProductData];
-        for ($i = 0; $i < 3; ++$i) {
-            $products[] = $this->generateProductData($parentProductData['id']);
-        }
-
-        $productRepository->create($products, $this->ids->context);
-        $productRepository->update([
-            ['id' => $parentProductData['id'], 'customSearchKeywords' => ['bmw']],
-        ], $this->ids->context);
-
-        $this->browser->request(
-            'POST',
-            '/store-api/search?search=bmw',
-            [
-            ]
-        );
-
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($browser->getResponse()->getContent(), true);
         static::assertSame(1, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
         // Limited to max 10 entries
         static::assertCount(1, $response['elements']);
         static::assertSame('product', $response['elements'][0]['apiAlias']);
 
-        $products = array_filter($products, fn ($product) => $product['parentId']);
-        $products = array_map(fn ($product) => ['id' => $product['id']], $products);
-
-        $productRepository->delete([$products], $this->ids->context);
-
-        $this->browser->request(
+        $browser->request(
             'POST',
-            '/store-api/search?search=bmw',
+            '/store-api/search-suggest?search=volvo',
             [
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($browser->getResponse()->getContent(), true);
         static::assertSame(1, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
         // Limited to max 10 entries
@@ -276,51 +285,67 @@ class ProductSearchRouteTest extends TestCase
         static::assertSame('product', $response['elements'][0]['apiAlias']);
     }
 
-    public function testFindingProductWithVariantsHaveDifferentKeyword(): void
+    /**
+     * @depends testIndexing
+     */
+    public function testFindingProductAlreadySetCustomSearchKeywordsWhenRemovedVariants(array $services): void
     {
+        [$browser, $ids] = $services;
+
         $productRepository = $this->getContainer()->get('product.repository');
 
         $this->productSearchConfigRepository->update([
             ['id' => $this->productSearchConfigId, 'andLogic' => false],
         ], $this->ids->context);
 
-        $parentProductData = $this->generateProductData();
-        $products = [$parentProductData];
-        for ($i = 0; $i < 3; ++$i) {
-            $products[] = $this->generateProductData($parentProductData['id']);
-        }
+        $browser->request(
+            'POST',
+            '/store-api/search?search=audi',
+            [
+            ]
+        );
 
-        $productRepository->create($products, $this->ids->context);
-        $productRepository->update([
-            ['id' => $parentProductData['id'], 'customSearchKeywords' => ['bmw']],
+        $response = json_decode($browser->getResponse()->getContent(), true);
+        static::assertSame(2, $response['total']);
+        static::assertSame('product_listing', $response['apiAlias']);
+        // Limited to max 10 entries
+        static::assertCount(2, $response['elements']);
+        static::assertSame('product', $response['elements'][0]['apiAlias']);
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testFindingProductWithVariantsHaveDifferentKeyword(array $services): void
+    {
+        [$browser, $ids] = $services;
+
+        $this->productSearchConfigRepository->update([
+            ['id' => $this->productSearchConfigId, 'andLogic' => false],
         ], $this->ids->context);
 
-        $productRepository->update([
-            ['id' => $products[1]['id'], 'customSearchKeywords' => ['mercedes']],
-        ], $this->ids->context);
-
-        $this->browser->request(
+        $browser->request(
             'POST',
             '/store-api/search?search=bmw',
             [
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
-        static::assertSame(1, $response['total']);
+        $response = json_decode($browser->getResponse()->getContent(), true);
+        static::assertSame(2, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
         // Limited to max 10 entries
-        static::assertCount(1, $response['elements']);
+        static::assertCount(2, $response['elements']);
         static::assertSame('product', $response['elements'][0]['apiAlias']);
 
-        $this->browser->request(
+        $browser->request(
             'POST',
             '/store-api/search?search=mercedes',
             [
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($browser->getResponse()->getContent(), true);
         static::assertSame(1, $response['total']);
         static::assertSame('product_listing', $response['apiAlias']);
         // Limited to max 10 entries
@@ -330,19 +355,18 @@ class ProductSearchRouteTest extends TestCase
 
     /**
      * @dataProvider searchTestCases
+     * @depends testIndexing
      */
-    public function testProductSearch(array $productData, string $productNumber, array $searchTerms, IdsCollection $ids, ?string $languageId = null): void
+    public function testProductSearch(string $productNumber, array $searchTerms, ?string $languageId, array $services): void
     {
-        $this->createGermanSalesChannelDomain();
-
-        $productRepository = $this->getContainer()->get('product.repository');
-        $productRepository->create([$productData], $ids->getContext());
+        [$browser, $ids] = $services;
 
         $searchRoute = $this->getContainer()->get(ProductSearchRoute::class);
+        $suggestRoute = $this->getContainer()->get(ProductSuggestRoute::class);
 
         $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
             'token',
-            TestDefaults::SALES_CHANNEL,
+            $ids->get('sales-channel'),
             [
                 SalesChannelContextService::LANGUAGE_ID => $languageId ?? Defaults::LANGUAGE_SYSTEM,
             ]
@@ -365,22 +389,30 @@ class ProductSearchRouteTest extends TestCase
                     $searchTerm
                 )
             );
+
+            $result = $suggestRoute->load(
+                new Request(['search' => $searchTerm]),
+                $salesChannelContext,
+                new Criteria()
+            );
+
+            static::assertEquals(
+                $shouldBeFound,
+                $result->getListingResult()->has($ids->get($productNumber)),
+                sprintf(
+                    'Product was%s found, but should%s be found for term "%s".',
+                    $result->getListingResult()->has($ids->get($productNumber)) ? '' : ' not',
+                    $shouldBeFound ? '' : ' not',
+                    $searchTerm
+                )
+            );
         }
     }
 
     public function searchTestCases(): array
     {
-        $idsCollection = new IdsCollection();
-
         return [
             'test it finds product' => [
-                (new ProductBuilder($idsCollection, '1000'))
-                    ->price(10)
-                    ->name('Lorem ipsum')
-                    ->translation($this->getDeDeLanguageId(), 'name', 'dolor sit amet')
-                    ->visibility()
-                    ->manufacturer('manufacturer', [$this->getDeDeLanguageId() => ['name' => 'Hersteller']])
-                    ->build(),
                 '1000',
                 [
                     '1000' => true, // productNumber
@@ -391,16 +423,9 @@ class ProductSearchRouteTest extends TestCase
                     'dolor sit amet' => false, // full name but different language
                     'Hersteller' => false, // manufacturer but different language
                 ],
-                $idsCollection,
+                null,
             ],
             'test it finds product by translation' => [
-                (new ProductBuilder($idsCollection, '1000'))
-                    ->price(10)
-                    ->name('Lorem ipsum')
-                    ->translation($this->getDeDeLanguageId(), 'name', 'dolor sit amet')
-                    ->visibility()
-                    ->manufacturer('manufacturer', [$this->getDeDeLanguageId() => ['name' => 'Hersteller']])
-                    ->build(),
                 '1000',
                 [
                     '1000' => true, // productNumber
@@ -412,44 +437,19 @@ class ProductSearchRouteTest extends TestCase
                     'Lorem ipsum' => false, // full name but different language
                     'manufacturer' => false, // manufacturer but different language
                 ],
-                $idsCollection,
                 $this->getDeDeLanguageId(),
             ],
             'test it finds product by fallback translations' => [
-                (new ProductBuilder($idsCollection, '1000'))
-                    ->price(10)
-                    ->name('Lorem ipsum')
-                    ->visibility()
-                    ->manufacturer('manufacturer')
-                    ->build(),
-                '1000',
+                '1002',
                 [
-                    '1000' => true, // productNumber
-                    'Lorem' => true, // part of name
-                    'ipsum' => true, // part of name
-                    'Lorem ipsum' => true, // full name
-                    'manufacturer' => true, // manufacturer
+                    '1002' => true, // productNumber
+                    'Latin' => true, // part of name
+                    'literature' => true, // part of name
+                    'latin literature' => true, // full name
                 ],
-                $idsCollection,
                 $this->getDeDeLanguageId(),
             ],
             'test it finds variant product' => [
-                (new ProductBuilder($idsCollection, '1001'))
-                    ->name('consectetur adipiscing')
-                    ->translation($this->getDeDeLanguageId(), 'name', 'Suspendisse in')
-                    ->price(5)
-                    ->visibility()
-                    ->manufacturer('varius', [$this->getDeDeLanguageId() => ['name' => 'Vestibulum']])
-                    ->variant(
-                        (new ProductBuilder($idsCollection, '1000'))
-                            ->price(10)
-                            ->name('Lorem ipsum')
-                            ->translation($this->getDeDeLanguageId(), 'name', 'dolor sit amet')
-                            ->visibility()
-                            ->manufacturer('manufacturer', [$this->getDeDeLanguageId() => ['name' => 'Hersteller']])
-                            ->build()
-                    )
-                    ->build(),
                 '1000',
                 [
                     '1000' => true, // productNumber
@@ -464,25 +464,9 @@ class ProductSearchRouteTest extends TestCase
                     'varius' => false, // manufacturer but of parent
                     'Vestibulum' => false, // manufacturer but of parent & different language
                 ],
-                $idsCollection,
+                null,
             ],
             'test it finds variant product by translation' => [
-                (new ProductBuilder($idsCollection, '1001'))
-                    ->name('consectetur adipiscing')
-                    ->translation($this->getDeDeLanguageId(), 'name', 'Suspendisse in')
-                    ->price(5)
-                    ->visibility()
-                    ->manufacturer('varius', [$this->getDeDeLanguageId() => ['name' => 'Vestibulum']])
-                    ->variant(
-                        (new ProductBuilder($idsCollection, '1000'))
-                            ->price(10)
-                            ->name('Lorem ipsum')
-                            ->translation($this->getDeDeLanguageId(), 'name', 'dolor sit amet')
-                            ->visibility()
-                            ->manufacturer('manufacturer', [$this->getDeDeLanguageId() => ['name' => 'Hersteller']])
-                            ->build()
-                    )
-                    ->build(),
                 '1000',
                 [
                     '1000' => true, // productNumber
@@ -498,55 +482,25 @@ class ProductSearchRouteTest extends TestCase
                     'varius' => false, // manufacturer but of parent
                     'Vestibulum' => false, // manufacturer but of parent & different language
                 ],
-                $idsCollection,
                 $this->getDeDeLanguageId(),
             ],
             'test it finds variant product by parent translation' => [
-                (new ProductBuilder($idsCollection, '1001'))
-                    ->name('consectetur adipiscing')
-                    ->translation($this->getDeDeLanguageId(), 'name', 'Suspendisse in')
-                    ->price(5)
-                    ->visibility()
-                    ->manufacturer('varius', [$this->getDeDeLanguageId() => ['name' => 'Vestibulum']])
-                    ->variant(
-                        (new ProductBuilder($idsCollection, '1000'))
-                            ->price(10)
-                            ->name('Lorem ipsum')
-                            ->visibility()
-                            ->manufacturer('manufacturer')
-                            ->build()
-                    )
-                    ->build(),
-                '1000',
+                '1001.1',
                 [
-                    '1000' => true, // productNumber
+                    '1001' => true, // productNumber
                     'Suspendisse' => true, // part of parent name
                     'Suspendisse in' => true, // full parent name
-                    'manufacturer' => true, // manufacturer
+                    'Vestibulum' => true, // manufacturer
                     'Lorem ipsum' => false, // full name but different language
                     'consectetur adipiscing' => false, // full name but of parent language
                     'varius' => false, // manufacturer but of parent & different language
-                    'Vestibulum' => false, // manufacturer but of parent
                 ],
-                $idsCollection,
                 $this->getDeDeLanguageId(),
             ],
             'test it finds variant product with inherited data' => [
-                (new ProductBuilder($idsCollection, '1001'))
-                    ->name('consectetur adipiscing')
-                    ->translation($this->getDeDeLanguageId(), 'name', 'Suspendisse in')
-                    ->price(5)
-                    ->visibility()
-                    ->manufacturer('varius', [$this->getDeDeLanguageId() => ['name' => 'Vestibulum']])
-                    ->variant(
-                        (new ProductBuilder($idsCollection, '1000'))
-                            ->name(null)
-                            ->build()
-                    )
-                    ->build(),
-                '1000',
+                '1001.1',
                 [
-                    '1000' => true, // productNumber
+                    '1001' => true, // productNumber
                     'consectetur' => true, // part of parent name
                     'adipiscing' => true, // part of parent name
                     'consectetur adipiscing' => true, // full parent name
@@ -554,7 +508,7 @@ class ProductSearchRouteTest extends TestCase
                     'Suspendisse in' => false, // full name but different language
                     'Vestibulum' => false, // manufacturer but different language
                 ],
-                $idsCollection,
+                null,
             ],
         ];
     }
@@ -691,22 +645,20 @@ class ProductSearchRouteTest extends TestCase
         ];
     }
 
-    private function proceedTestSearch(string $term, array $expected): void
+    private function proceedTestSearch(KernelBrowser $browser, string $term, array $expected): void
     {
-        $this->browser->request(
+        $browser->request(
             'POST',
             '/store-api/search?search=' . $term,
             [
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($browser->getResponse()->getContent(), true);
 
         /** @var array $entites */
         $entites = $response['elements'];
-        $resultProductName = array_map(function ($product) {
-            return $product['name'];
-        }, $entites);
+        $resultProductName = array_column($entites, 'name');
 
         sort($expected);
         sort($resultProductName);
@@ -714,74 +666,15 @@ class ProductSearchRouteTest extends TestCase
         static::assertEquals($expected, $resultProductName);
     }
 
-    private function createData(): void
+    private function createNavigationCategory(): void
     {
-        $product = [
-            'stock' => 10,
-            'price' => [
-                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
-            ],
-            'tax' => ['name' => 'test', 'taxRate' => 15],
-            'active' => true,
-        ];
-
-        $products = [];
-        for ($i = 0; $i < 15; ++$i) {
-            $products[] = array_merge(
-                [
-                    'id' => $this->ids->create('product' . $i),
-                    'active' => true,
-                    'manufacturer' => ['id' => $this->ids->create('manufacturer-' . $i), 'name' => 'test-' . $i],
-                    'productNumber' => $this->ids->get('product' . $i),
-                    'name' => 'Test-Product',
-                ],
-                $product
-            );
-        }
-
         $data = [
             'id' => $this->ids->create('category'),
             'name' => 'Test',
-            'cmsPage' => [
-                'id' => $this->ids->create('cms-page'),
-                'type' => 'product_list',
-                'sections' => [
-                    [
-                        'position' => 0,
-                        'type' => 'sidebar',
-                        'blocks' => [
-                            [
-                                'type' => 'product-listing',
-                                'position' => 1,
-                                'slots' => [
-                                    ['type' => 'product-listing', 'slot' => 'content'],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-            'products' => $products,
         ];
 
         $this->getContainer()->get('category.repository')
             ->create([$data], $this->ids->context);
-    }
-
-    private function setVisibilities(): void
-    {
-        $products = [];
-        for ($i = 0; $i < 15; ++$i) {
-            $products[] = [
-                'id' => $this->ids->get('product' . $i),
-                'visibilities' => [
-                    ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-                ],
-            ];
-        }
-
-        $this->getContainer()->get('product.repository')
-            ->update($products, $this->ids->context);
     }
 
     private function setupProductsForImplementSearch(): void
@@ -789,51 +682,138 @@ class ProductSearchRouteTest extends TestCase
         /** @var EntityRepositoryInterface $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $productIds = [];
-        $productsName = [
-            'Rustic Copper Drastic Plastic',
-            'Incredible Plastic Duoflex',
-            'Fantastic Concrete Comveyer',
-            'Fantastic Copper Ginger Vitro',
-        ];
-        $productsNumber = [
-            '123123123',
-            '765752342',
-            '834157484',
-            '9095345345',
+        $productsNames = [
+            'Rustic Copper Drastic Plastic' => '123123123',
+            'Incredible Plastic Duoflex' => '765752342',
+            'Fantastic Concrete Comveyer' => '834157484',
+            'Fantastic Copper Ginger Vitro' => '9095345345',
         ];
 
-        foreach ($productsName as $index => $name) {
-            $productId = Uuid::randomHex();
-            $productIds[] = $productId;
+        $products = [
+            (new ProductBuilder($this->ids, 'bmw'))
+                ->name(Uuid::randomHex())
+                ->visibility($this->ids->get('sales-channel'))
+                ->price(10, 9)
+                ->manufacturer('shopware AG')
+                ->add('customSearchKeywords', ['bmw'])
+                ->variant(
+                    (new ProductBuilder($this->ids, 'bmw.1'))
+                        ->visibility($this->ids->get('sales-channel'))
+                        ->build()
+                )
+                ->build(),
+            // same as above, but has mercedes as variant
+            (new ProductBuilder($this->ids, 'mercedes'))
+                ->name(Uuid::randomHex())
+                ->visibility($this->ids->get('sales-channel'))
+                ->price(10, 9)
+                ->manufacturer('shopware AG')
+                ->add('customSearchKeywords', ['bmw'])
+                ->variant(
+                    (new ProductBuilder($this->ids, 'mercedes.1'))
+                        ->visibility($this->ids->get('sales-channel'))
+                        ->add('customSearchKeywords', ['bmw'])
+                        ->build()
+                )
+                ->build(),
+            // Add to a product later variants
+            (new ProductBuilder($this->ids, 'volvo'))
+                ->name(Uuid::randomHex())
+                ->visibility($this->ids->get('sales-channel'))
+                ->price(10, 9)
+                ->manufacturer('shopware AG')
+                ->add('customSearchKeywords', ['volvo'])
+                ->build(),
+            (new ProductBuilder($this->ids, 'audi'))
+                ->name(Uuid::randomHex())
+                ->visibility($this->ids->get('sales-channel'))
+                ->price(10, 9)
+                ->manufacturer('shopware AG')
+                ->add('customSearchKeywords', ['audi'])
+                ->variant(
+                    (new ProductBuilder($this->ids, 'audi.1'))
+                        ->visibility($this->ids->get('sales-channel'))
+                        ->build(),
+                )
+                ->variant(
+                    (new ProductBuilder($this->ids, 'audi.2'))
+                        ->visibility($this->ids->get('sales-channel'))
+                        ->build()
+                )
+                ->variant(
+                    (new ProductBuilder($this->ids, 'audi.3'))
+                        ->visibility($this->ids->get('sales-channel'))
+                        ->build()
+                )
+                ->build(),
 
-            $product = [
-                'id' => $productId,
-                'name' => $name,
-                'productNumber' => $productsNumber[$index],
-                'stock' => 1,
-                'price' => [
-                    ['currencyId' => Defaults::CURRENCY, 'gross' => 19.99, 'net' => 10, 'linked' => false],
-                ],
-                'manufacturer' => ['id' => $productId, 'name' => 'shopware AG'],
-                'tax' => ['id' => $this->getValidTaxId(), 'name' => 'testTaxRate', 'taxRate' => 15],
-                'categories' => [
-                    ['id' => $productId, 'name' => 'Random category'],
-                ],
-                'visibilities' => [
-                    [
-                        'id' => $productId,
-                        'salesChannelId' => $this->ids->get('sales-channel'),
-                        'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
-                    ],
-                ],
-            ];
+            // search by term
+            (new ProductBuilder($this->ids, '1000'))
+                    ->price(10)
+                    ->name('Lorem ipsum')
+                    ->translation($this->getDeDeLanguageId(), 'name', 'dolor sit amet')
+                    ->visibility($this->ids->get('sales-channel'))
+                    ->manufacturer('manufacturer', [$this->getDeDeLanguageId() => ['name' => 'Hersteller']])
+                    ->build(),
 
-            $productRepository->create([$product], $this->ids->context);
+            (new ProductBuilder($this->ids, '1001'))
+                ->name('consectetur adipiscing')
+                ->translation($this->getDeDeLanguageId(), 'name', 'Suspendisse in')
+                ->price(5)
+                ->visibility($this->ids->get('sales-channel'))
+                ->manufacturer('varius', [$this->getDeDeLanguageId() => ['name' => 'Vestibulum']])
+                ->variant(
+                    (new ProductBuilder($this->ids, '1001.1'))
+                        ->price(10)
+                        ->name(null)
+                        ->visibility($this->ids->get('sales-channel'))
+                        ->build()
+                )
+                ->build(),
+
+            (new ProductBuilder($this->ids, '1002'))
+                    ->price(10)
+                    ->name('Latin literature')
+                    ->visibility($this->ids->get('sales-channel'))
+                    ->build(),
+        ];
+
+        foreach ($productsNames as $name => $number) {
+            $products[] = (new ProductBuilder($this->ids, $number))
+                ->name($name)
+                ->stock(1)
+                ->price(19.99, 10)
+                ->manufacturer('shopware AG')
+                ->tax('15', 15)
+                ->category('random cat')
+                ->visibility($this->ids->get('sales-channel'))
+                ->build();
         }
+
+        for ($i = 1; $i <= 15; ++$i) {
+            $products[] = (new ProductBuilder($this->ids, 'product' . $i))
+                ->name('Test-Product')
+                ->manufacturer('test-' . $i)
+                ->active(true)
+                ->price(15, 10)
+                ->tax('test', 15)
+                ->visibility($this->ids->get('sales-channel'))
+                ->build();
+        }
+
+        $productRepository->create($products, $this->ids->context);
+
         $this->searchKeywordUpdater->update($productIds, $this->ids->context);
 
         $this->productSearchConfigRepository->update([
             ['id' => $this->productSearchConfigId, 'minSearchLength' => 3],
+        ], $this->ids->context);
+
+        $productRepository->create([
+            (new ProductBuilder($this->ids, 'volvo.1'))
+                ->visibility($this->ids->get('sales-channel'))
+                ->parent('volvo')
+                ->build(),
         ], $this->ids->context);
     }
 
@@ -867,26 +847,6 @@ class ProductSearchRouteTest extends TestCase
         );
     }
 
-    private function generateProductData(?string $parentId = null): array
-    {
-        return [
-            'id' => Uuid::randomHex(),
-            'productNumber' => Uuid::randomHex(),
-            'name' => 'Car',
-            'active' => true,
-            'stock' => 10,
-            'parentId' => $parentId,
-            'price' => [
-                ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false],
-            ],
-            'tax' => ['name' => 'Car Tax', 'taxRate' => 15],
-            'manufacturer' => ['name' => 'Car Manufacture'],
-            'visibilities' => [
-                ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-            ],
-        ];
-    }
-
     private function createGermanSalesChannelDomain(): void
     {
         $this->getContainer()->get('language.repository')->upsert([
@@ -894,7 +854,7 @@ class ProductSearchRouteTest extends TestCase
                 'id' => $this->getDeDeLanguageId(),
                 'salesChannelDomains' => [
                     [
-                        'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                        'salesChannelId' => $this->ids->get('sales-channel'),
                         'currencyId' => Defaults::CURRENCY,
                         'snippetSetId' => $this->getSnippetSetIdForLocale('de-DE'),
                         'url' => $_SERVER['APP_URL'] . '/de',

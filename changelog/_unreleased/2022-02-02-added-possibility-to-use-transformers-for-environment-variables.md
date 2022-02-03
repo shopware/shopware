@@ -1,6 +1,6 @@
 ---
 title: Added possibility to use transformers for environment variables used by the EnvironmentHelper utility.
-issue: https://issues.shopware.com/issues/NEXT-19880
+issue: NEXT-19892
 author: Andreas Allacher
 author_email: andreas.allacher@massiveart.com
 author_github: @AndreasA

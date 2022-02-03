@@ -10,11 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ManyToManyAssoc
 class ManyToManyAssociationField extends AssociationField
 {
     /**
-     * @var string
-     */
-    private $mappingDefinitionClass;
-
-    /**
      * @var EntityDefinition
      */
     private $mappingDefinition;

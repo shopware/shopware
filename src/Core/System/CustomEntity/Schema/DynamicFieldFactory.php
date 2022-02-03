@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\EmailField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension as DalExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
@@ -179,6 +181,7 @@ class DynamicFieldFactory
                 sort($mapping);
 
                 $association = new ManyToManyAssociationField($property, DynamicEntityDefinition::class, DynamicMappingEntityDefinition::class, $entityName . '_id', $field['reference'] . '_id', 'id', 'id', implode('_', $mapping), $field['reference']);
+                $association->addFlags(new CascadeDelete());
                 if ($apiAware) {
                     $association->addFlags($apiAware);
                 }
@@ -201,13 +204,19 @@ class DynamicFieldFactory
                 if ($apiAware) {
                     $association->addFlags($apiAware);
                 }
-
                 $collection->add($association);
+
+                $reference = $registry->getByEntityName($field['reference']);
+                if ($reference->isVersionAware()) {
+                    $collection->add(
+                        (new ReferenceVersionField($reference->getClass(), $name . '_version_id', $reference->getEntityName()))->addFlags(new Required()),
+                    );
+                }
 
                 break;
             case 'one-to-one':
                 $collection->add(
-                    (new FkField($name . '_id', $property, DynamicEntityDefinition::class, 'id', $field['reference']))
+                    (new FkField($name . '_id', $property . 'Id', DynamicEntityDefinition::class, 'id', $field['reference']))
                         ->addFlags(...$flags)
                 );
 
@@ -223,6 +232,10 @@ class DynamicFieldFactory
                 $association = new OneToManyAssociationField($property, DynamicEntityDefinition::class, $entityName . '_id', 'id', $field['reference']);
                 if ($apiAware) {
                     $association->addFlags($apiAware);
+                }
+
+                if (strpos($field['reference'], 'custom_entity_') === 0) {
+                    $association->addFlags(new CascadeDelete());
                 }
 
                 $collection->add($association);

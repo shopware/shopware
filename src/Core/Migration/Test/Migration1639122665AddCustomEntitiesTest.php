@@ -21,6 +21,7 @@ class Migration1639122665AddCustomEntitiesTest extends TestCase
         $migration->update($this->getContainer()->get(Connection::class));
 
         $e = null;
+
         try {
             $this->getContainer()->get(Connection::class)->fetchOne('SELECT id FROM custom_entity');
         } catch (Exception $e) {

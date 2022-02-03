@@ -72,13 +72,11 @@ class ProductBuilder
 
     protected array $media = [];
 
-    protected ?string $coverId;
+    protected ?string $coverId = null;
 
     protected ?array $cmsPage = null;
 
     protected array $crossSellings = [];
-
-    protected ?string $coverId = null;
 
     public function __construct(IdsCollection $ids, string $number, int $stock = 1, string $taxKey = 't1')
     {

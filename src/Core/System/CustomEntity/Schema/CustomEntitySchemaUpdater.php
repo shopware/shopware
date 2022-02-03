@@ -16,6 +16,7 @@ class CustomEntitySchemaUpdater
     private const COMMENT = 'custom-entity-element';
 
     private Connection $connection;
+
     private LockFactory $lockFactory;
 
     public function __construct(Connection $connection, LockFactory $lockFactory)
@@ -24,20 +25,9 @@ class CustomEntitySchemaUpdater
         $this->lockFactory = $lockFactory;
     }
 
-    private function lock(\Closure $closure): void
-    {
-        $lock = $this->lockFactory->createLock('custom-entity::schema-update', 30);
-
-        if ($lock->acquire(true)) {
-            $closure();
-
-            $lock->release();
-        }
-    }
-
     public function update(): void
     {
-        $this->lock(function() {
+        $this->lock(function (): void {
             $tables = $this->connection->fetchAllAssociative('SELECT name, fields FROM custom_entity');
 
             $schema = $this->getSchemaManager()->createSchema();
@@ -74,6 +64,17 @@ class CustomEntitySchemaUpdater
 
             $this->updateSchema($schema);
         });
+    }
+
+    private function lock(\Closure $closure): void
+    {
+        $lock = $this->lockFactory->createLock('custom-entity::schema-update', 30);
+
+        if ($lock->acquire(true)) {
+            $closure();
+
+            $lock->release();
+        }
     }
 
     private function updateSchema(Schema $to): void
@@ -185,7 +186,6 @@ class CustomEntitySchemaUpdater
                 case 'many-to-many':
                     $referenceName = $field['reference'];
 
-
                     $mappingName = [$name, $referenceName];
                     sort($mappingName);
                     $mappingName = implode('_', $mappingName);
@@ -199,6 +199,9 @@ class CustomEntitySchemaUpdater
                     $mapping = $schema->createTable($mappingName);
                     $mapping->setComment(self::COMMENT);
 
+                    $mapping->addColumn('created_at', Types::DATETIME_MUTABLE, ['notnull' => true]);
+                    $mapping->addColumn('updated_at', Types::DATETIME_MUTABLE, ['notnull' => false]);
+
                     $mapping->addColumn($name . '_id', Types::BINARY, $binary);
                     $mapping->addColumn($referenceName . '_id', Types::BINARY, $binary);
 
@@ -206,6 +209,7 @@ class CustomEntitySchemaUpdater
                         $mapping->setPrimaryKey([$name . '_id', $referenceName . '_id']);
                         $mapping->addForeignKeyConstraint($table, [$name . '_id'], ['id'], $cascades);
                         $mapping->addForeignKeyConstraint($reference, [$referenceName . '_id'], ['id'], $cascades);
+
                         break;
                     }
 
@@ -220,12 +224,20 @@ class CustomEntitySchemaUpdater
                     if ($table->hasColumn($field['name'] . '_id')) {
                         continue 2;
                     }
-
                     $table->addColumn($field['name'] . '_id', Types::BINARY, $nullable + $binary);
 
                     $options = $required ? $restrict : $nulls;
 
-                    $table->addForeignKeyConstraint($schema->getTable($field['reference']), [$field['name'] . '_id'], ['id'], $options);
+                    $reference = $this->createTable($schema, $field['reference']);
+
+                    if ($reference->hasColumn('version_id')) {
+                        $table->addColumn($field['name'] . '_version_id', Types::BINARY, $nullable + $binary);
+                        $table->addForeignKeyConstraint($reference, [$field['name'] . '_id', $field['name'] . '_version_id'], ['id', 'version_id'], $options);
+
+                        break;
+                    }
+
+                    $table->addForeignKeyConstraint($reference, [$field['name'] . '_id'], ['id'], $options);
 
                     break;
                 case 'one-to-many':

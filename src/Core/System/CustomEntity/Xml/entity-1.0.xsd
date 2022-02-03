@@ -87,6 +87,7 @@
         <xs:attribute type="xs:string" name="name" use="required"/>
         <xs:attribute type="xs:string" name="reference" use="required" />
         <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
+        <xs:attribute type="xs:boolean" name="inherited" />
     </xs:complexType>
 
     <xs:complexType name="field-many-to-one-type">
@@ -94,12 +95,14 @@
         <xs:attribute type="xs:string" name="reference" use="required" />
         <xs:attribute type="xs:boolean" name="required" default="false" />
         <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
+        <xs:attribute type="xs:boolean" name="inherited" />
     </xs:complexType>
 
     <xs:complexType name="field-one-to-many-type">
         <xs:attribute type="xs:string" name="name" use="required"/>
         <xs:attribute type="xs:string" name="reference" use="required" />
         <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
+        <xs:attribute type="xs:boolean" name="inherited" />
     </xs:complexType>
 
     <xs:complexType name="field-one-to-one-type">
@@ -107,6 +110,7 @@
         <xs:attribute type="xs:string" name="reference" use="required" />
         <xs:attribute type="xs:boolean" name="required" default="false" />
         <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
+        <xs:attribute type="xs:boolean" name="inherited" />
     </xs:complexType>
 
 </xs:schema>

@@ -25,8 +25,7 @@ class StorefrontServicesFacadeHookFactory extends HookServiceFactory
         }
 
         return new StorefrontServicesFacade(
-            $this->scriptController,
-            $hook->getSalesChannelContext()
+            $this->scriptController
         );
     }
 

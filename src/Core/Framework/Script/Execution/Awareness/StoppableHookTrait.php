@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Script\Execution\Awareness;
 
+/**
+ * @internal
+ */
 trait StoppableHookTrait
 {
     protected bool $isPropagationStopped = false;

@@ -33,7 +33,7 @@ class ScriptController extends StorefrontController
      * @HttpCache()
      * @Route("/storefront/script/{hook}", name="frontend.script_endpoint", defaults={"XmlHttpRequest"=true}, methods={"GET", "POST"})
      */
-    public function load(string $hook, Request $request, SalesChannelContext $context): Response
+    public function execute(string $hook, Request $request, SalesChannelContext $context): Response
     {
         //  blog/update =>  blog-update
         $hook = \str_replace('/', '-', $hook);

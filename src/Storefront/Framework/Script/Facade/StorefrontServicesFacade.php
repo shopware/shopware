@@ -16,12 +16,9 @@ class StorefrontServicesFacade
 {
     private ScriptController $scriptController;
 
-    private SalesChannelContext $context;
-
-    public function __construct(ScriptController $scriptController, SalesChannelContext $context)
+    public function __construct(ScriptController $scriptController)
     {
         $this->scriptController = $scriptController;
-        $this->context = $context;
     }
 
     /**
@@ -37,24 +34,5 @@ class StorefrontServicesFacade
     public function render(string $view, array $parameters = []): Response
     {
         return $this->scriptController->renderStorefront($view, $parameters);
-    }
-
-    /**
-     * `ensureCustomerIsLoggedIn()` lets you ensure that your custom endpoint is only accessed by logged in customers.
-     * It will throw a `CustomerNotLoggedInException` in case that the validation fails.
-     *
-     * @param bool $allowGuest Wether guest customers are allowed or not, defaults to `true`.
-     *
-     * @example storefront-ensure-login/script.twig 1 1 Ensure that a customer is logged in. If guest customers are allowed is determined by a query parameter.
-     */
-    public function ensureCustomerIsLoggedIn(bool $allowGuest = true): void
-    {
-        if ($this->context->getCustomer() === null) {
-            throw new CustomerNotLoggedInException();
-        }
-
-        if (!$allowGuest && $this->context->getCustomer()->getGuest()) {
-            throw new CustomerNotLoggedInException();
-        }
     }
 }

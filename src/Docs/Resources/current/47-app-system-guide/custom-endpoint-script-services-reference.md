@@ -116,19 +116,4 @@ The `storefront` service allows you render a twig template and to ensure that th
 		    services.storefront.render('@MyApp/storefront/page/custom-page/index.html.twig', { 'page': hook.page })
 		) %}
         ```
-### ensureCustomerIsLoggedIn()
-
-* `ensureCustomerIsLoggedIn()` lets you ensure that your custom endpoint is only accessed by logged in customers.
-
-    It will throw a `CustomerNotLoggedInException` in case that the validation fails.
-* **Arguments:**
-    * *`bool`* **allowGuest**: Wether guest customers are allowed or not, defaults to `true`.
-
-        Default: `true`
-* **Examples:**
-    * Ensure that a customer is logged in. If guest customers are allowed is determined by a query parameter.
-
-        ```twig
-        {% do services.storefront.ensureCustomerIsLoggedIn(hook.query['allow-guest']|boolval) %}
-        ```
 _________

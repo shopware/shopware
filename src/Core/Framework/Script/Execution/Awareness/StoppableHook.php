@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Script\Execution\Awareness;
 
+/**
+ * @internal
+ */
 interface StoppableHook
 {
     public function stopPropagation(): void;

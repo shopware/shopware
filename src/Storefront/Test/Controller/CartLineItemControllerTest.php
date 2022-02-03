@@ -38,21 +38,29 @@ class CartLineItemControllerTest extends TestCase
     /**
      * @dataProvider productNumbers
      */
-    public function testAddProductByNumber(string $productId, string $productNumber): void
+    public function testAddProductByNumber(?string $productId, string $productNumber): void
     {
         $contextToken = Uuid::randomHex();
 
         $cartService = $this->getContainer()->get(CartService::class);
-        $this->createProduct($productId, $productNumber);
+        if ($productId) {
+            $this->createProduct($productId, $productNumber);
+        }
         $request = $this->createRequest(['number' => $productNumber]);
 
         $salesChannelContext = $this->createSalesChannelContext($contextToken);
         $response = $this->getContainer()->get(CartLineItemController::class)->addProductByNumber($request, $salesChannelContext);
 
         $cartLineItem = $cartService->getCart($contextToken, $salesChannelContext)->getLineItems()->get($productId);
-
-        static::assertArrayHasKey('success', $this->getFlashBag()->all());
-        static::assertNotNull($cartLineItem);
+        $flashBag = $this->getFlashBag()->all();
+        if ($productId) {
+            static::assertArrayHasKey('success', $flashBag);
+            static::assertNotNull($cartLineItem);
+        } else {
+            static::assertArrayHasKey('danger', $flashBag);
+            static::assertSame($this->getContainer()->get('translator')->trans('error.productNotFound', ['%number%' => \strip_tags($productNumber)]), $flashBag['danger'][0]);
+            static::assertNull($cartLineItem);
+        }
         static::assertSame(200, $response->getStatusCode());
     }
 
@@ -65,7 +73,40 @@ class CartLineItemControllerTest extends TestCase
             [Uuid::randomHex(), 'test_123'],
             [Uuid::randomHex(), 'testäüö123'],
             [Uuid::randomHex(), 'test/123'],
+            [null, 'nonExisting'],
+            [null, 'with<br>HTML'],
         ];
+    }
+
+    public function promotions(): array
+    {
+        return [
+            ['testCode'],
+            ['with<br>HTML'],
+        ];
+    }
+
+    /**
+     * @dataProvider promotions
+     */
+    public function testAddPromotion(string $code): void
+    {
+        $contextToken = Uuid::randomHex();
+
+        $cartService = $this->getContainer()->get(CartService::class);
+        $request = $this->createRequest(['code' => $code]);
+
+        $salesChannelContext = $this->createSalesChannelContext($contextToken);
+        $this->getContainer()->get(CartLineItemController::class)->addPromotion(
+            $cartService->getCart($contextToken, $salesChannelContext),
+            $request,
+            $salesChannelContext
+        );
+
+        $flashBag = $this->getFlashBag()->all();
+        static::assertArrayHasKey('danger', $flashBag);
+        static::assertSame($this->getContainer()->get('translator')->trans('checkout.promotion-not-found', ['%code%' => \strip_tags($code)]), $flashBag['danger'][0]);
+        static::assertSame(0, $cartService->getCart($contextToken, $salesChannelContext)->getLineItems()->count());
     }
 
     private function getLineItemAddPayload(string $productId): array

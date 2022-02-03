@@ -3,8 +3,9 @@
         {% block page_product_detail_rich_snippets %}
             {% block page_product_detail_rich_snippets_brand %}
                 {% if page.product.manufacturer %}
-                    <meta itemprop="brand"
-                          content="{{ page.product.manufacturer.translated.name }}"/>
+                    <div itemprop="brand" itemtype="https://schema.org/Brand" itemscope>
+                        <meta itemprop="name" content="{{ page.product.manufacturer.translated.name }}" />
+                    </div>
                 {% endif %}
             {% endblock %}
 

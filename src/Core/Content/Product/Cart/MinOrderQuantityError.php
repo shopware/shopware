@@ -7,20 +7,11 @@ use Shopware\Core\Checkout\Cart\Error\Error;
 
 class MinOrderQuantityError extends Error
 {
-    /**
-     * @var string
-     */
-    protected $id;
+    protected string $id;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
-    /**
-     * @var int
-     */
-    protected $quantity;
+    protected int $quantity;
 
     public function __construct(string $id, string $name, int $quantity)
     {

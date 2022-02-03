@@ -230,7 +230,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         if ($item->getQuantityInformation() !== null) {
             $minPurchase = $item->getQuantityInformation()->getMinPurchase();
-            $available = $item->getQuantityInformation()->getMaxPurchase();
+            $available = $item->getQuantityInformation()->getMaxPurchase() ?? 0;
             $steps = $item->getQuantityInformation()->getPurchaseSteps() ?? 1;
         }
 
@@ -262,6 +262,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             $cart->addErrors(
                 new MinOrderQuantityError((string) $item->getReferencedId(), (string) $item->getLabel(), $minPurchase)
             );
+
             return;
         }
 

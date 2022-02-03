@@ -1,6 +1,6 @@
 ---
 title: Fix checkout on Windows
-issue: 
+issue: https://issues.shopware.com/issues/NEXT-19924
 author: Lech Groblewicz
 author_github: @xrogers
 ---

@@ -64,7 +64,7 @@ abstract class AbstractAppActivationCommand extends Command
 
     protected function configure(): void
     {
-        $this->setDescription($this->action . ' the app in the folder with the given name')
+        $this->setDescription(ucfirst($this->action) . ' the app in the folder with the given name')
             ->addArgument(
                 'name',
                 InputArgument::REQUIRED,

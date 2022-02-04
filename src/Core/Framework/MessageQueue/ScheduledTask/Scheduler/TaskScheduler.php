@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MinAggregation;
@@ -109,7 +110,7 @@ class TaskScheduler
             new RangeFilter(
                 'nextExecutionTime',
                 [
-                    RangeFilter::LT => (new \DateTime())->format(\DATE_ATOM),
+                    RangeFilter::LT => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             ),
             new EqualsFilter('status', ScheduledTaskDefinition::STATUS_SCHEDULED)

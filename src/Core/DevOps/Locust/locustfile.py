@@ -14,6 +14,7 @@ context = Context()
 class Admin(FastHttpUser):
     id = None
     weight = 1
+    wait_time = between(5, 10)
 
     @task
     def stock_updates(self):
@@ -47,7 +48,8 @@ class Admin(FastHttpUser):
         return False
 
 class Customer(FastHttpUser):
-    weight=5
+    weight=100
+    wait_time = between(2, 10)
 
     @task(4)
     def short_time_listing_visitor(self):

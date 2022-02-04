@@ -1,161 +1,50 @@
 <?php declare(strict_types=1);
 
-$connection = require __DIR__ . '/boo.php';
-class Api
-{
-    private string $host;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Uuid\Uuid;
 
-    private ?string $token = null;
+$connection = require __DIR__ . '/boot.php';
 
-    public function __construct(array $data)
-    {
-        $this->host = $data['url'];
-        $this->token = $this->getAccessToken($data['oauth']);
-    }
+/** @var \Doctrine\DBAL\Connection $connection */
+$listings = $connection->fetchFirstColumn("SELECT CONCAT('/', seo_path_info) FROM seo_url WHERE route_name = 'frontend.navigation.page' AND is_deleted = 0 AND is_canonical = 1");
 
-    public function fetchAll(string $url, array $params = []): array
-    {
-        $params['page'] = 1;
-        $params['limit'] = 100;
+$details = $connection->fetchFirstColumn("SELECT CONCAT('/', seo_path_info) FROM seo_url  WHERE route_name = 'frontend.detail.page' AND is_deleted = 0 AND is_canonical = 1");
 
-        $response = $this->request($url, $params);
+$keywords = $connection->fetchFirstColumn('SELECT keyword FROM product_keyword_dictionary');
 
-        $all = [];
-        while (!empty($response['data'])) {
-            foreach ($response['data'] as $item) {
-                unset($item['apiAlias']);
-                if (count(array_keys($item)) === 1) {
-                    $all[] = $item[array_keys($item)[0]];
-                } else {
-                    $all[] = $item;
-                }
-            }
+$products = $connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id, product_number as productNumber FROM product');
 
-            ++$params['page'];
-            $response = $this->request($url, $params);
-        }
+$salesChannel = $connection->fetchAssociative(
+    'SELECT LOWER(HEX(country_id)) as countryId FROM sales_channel WHERE type_id = :type',
+    [':type' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_STOREFRONT)]
+);
 
-        return $all;
-    }
-
-    public function fetchRow(string $url, array $params = []): array
-    {
-        $response = $this->request($url, $params);
-
-        return $response['data'][0];
-    }
-
-    public function fetchOne(string $url, array $params = []): string
-    {
-        $response = $this->request($url, $params);
-
-        $item = $response['data'][0];
-        unset($item['apiAlias']);
-
-        return $item[array_keys($item)[0]];
-    }
-
-    private function getAccessToken(array $oauth): string
-    {
-        $response = $this->request('/api/oauth/token', $oauth);
-
-        return $response['access_token'];
-    }
-
-    private function request(string $url, array $params = []): array
-    {
-        $resource = curl_init($this->host . $url);
-
-        if ($resource === false) {
-            throw new \RuntimeException('Cannot initialize cURL resource');
-        }
-
-        curl_setopt($resource, \CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($resource, \CURLOPT_POST, true);
-        curl_setopt($resource, \CURLOPT_POSTFIELDS, json_encode($params));
-
-        $headers = ['Content-Type:application/json', 'Accept:application/json'];
-        if ($this->token) {
-            $headers[] = 'Authorization: Bearer ' . $this->token;
-        }
-
-        curl_setopt($resource, \CURLOPT_HTTPHEADER, $headers);
-
-        $response = curl_exec($resource);
-        if ($response === false) {
-            throw new \RuntimeException('Cannot initialize cURL resource');
-        }
-
-        return json_decode((string) $response, true);
-    }
+if ($salesChannel === false) {
+    throw new RuntimeException('No storefront sales channel found');
 }
 
-$data = json_decode((string) file_get_contents(__DIR__ . '/env.json'), true);
-$api = new Api($data);
+$salesChannel['salutationId'] = $connection->fetchOne('SELECT LOWER(HEX(id)) FROM salutation LIMIT 1');
 
-echo str_pad('Fetching listing urls...', 30);
-$listings = $api->fetchAll('/api/search/seo-url', [
-    'includes' => ['seo_url' => ['seoPathInfo']],
-    'fields' => ['seoPathInfo'],
-    'filter' => [
-        ['type' => 'equals', 'field' => 'routeName', 'value' => 'frontend.navigation.page'],
-        ['type' => 'equals', 'field' => 'isDeleted', 'value' => false],
-        ['type' => 'equals', 'field' => 'isCanonical', 'value' => true],
-    ],
-]);
+if (empty($details)) {
+    throw new RuntimeException('No product urls found');
+}
+if (empty($listings)) {
+    throw new RuntimeException('No listing urls found');
+}
+if (empty($products)) {
+    throw new RuntimeException('No product numbers found');
+}
 
-$time = microtime(true);
-$listings = array_map(function (string $url) {
-    return '/' . $url;
-}, $listings);
-file_put_contents(__DIR__ . '/fixtures/listing_urls.json', json_encode($listings, \JSON_PRETTY_PRINT));
-echo ' collected: ' . count($listings) . ' urls' . \PHP_EOL;
+echo 'Collected: ' . count($listings) . ' listing urls' . \PHP_EOL;
+file_put_contents(__DIR__ . '/fixtures/listing_urls.json', json_encode($listings));
 
-echo str_pad('Fetching product urls...', 30);
-$productUrls = $api->fetchAll('/api/search/seo-url', [
-    'includes' => ['seo_url' => ['seoPathInfo']],
-    'fields' => ['seoPathInfo'],
-    'filter' => [
-        ['type' => 'equals', 'field' => 'routeName', 'value' => 'frontend.detail.page'],
-        ['type' => 'equals', 'field' => 'isDeleted', 'value' => false],
-        ['type' => 'equals', 'field' => 'isCanonical', 'value' => true],
-    ],
-]);
-$productUrls = array_map(function (string $url) {
-    return '/' . $url;
-}, $productUrls);
-file_put_contents(__DIR__ . '/fixtures/product_urls.json', json_encode($productUrls, \JSON_PRETTY_PRINT));
-echo ' collected: ' . count($productUrls) . ' urls' . \PHP_EOL;
+echo 'Collected: ' . count($details) . ' product urls' . \PHP_EOL;
+file_put_contents(__DIR__ . '/fixtures/product_urls.json', json_encode($details));
 
-echo str_pad('Fetching product numbers...', 30);
-$products = $api->fetchAll('/api/search/product', [
-    'includes' => ['product' => ['productNumber', 'id']],
-    'fields' => ['productNumber', 'id'],
-]);
-file_put_contents(__DIR__ . '/fixtures/products.json', json_encode($products, \JSON_PRETTY_PRINT));
-echo ' collected: ' . count($products) . ' product numbers' . \PHP_EOL;
+file_put_contents(__DIR__ . '/fixtures/sales_channel.json', json_encode($salesChannel));
 
-echo str_pad('Fetching search dictionary...', 30);
-$keywords = $api->fetchAll('/api/search/product-keyword-dictionary', [
-    'includes' => ['product_keyword_dictionary' => ['keyword']],
-    'fields' => ['keyword'],
-    'filter' => [
-        ['type' => 'equals', 'field' => 'languageId', 'value' => '2fbb5fe2e29a4d70aa5854ce7ce3e20b'],
-    ],
-]);
-file_put_contents(__DIR__ . '/fixtures/keywords.json', json_encode($keywords, \JSON_PRETTY_PRINT));
-echo ' collected: ' . count($keywords) . ' keywords' . \PHP_EOL;
+echo 'Collected: ' . count($keywords) . ' keywords' . \PHP_EOL;
+file_put_contents(__DIR__ . '/fixtures/keywords.json', json_encode($keywords));
 
-$salesChannel = $api->fetchRow('/api/search/sales-channel', [
-    'fields' => ['languageId', 'currencyId', 'countryId'],
-    'includes' => [
-        'sales_channel' => ['languageId', 'currencyId', 'countryId'],
-    ],
-    'filter' => [
-        ['type' => 'equals', 'field' => 'typeId', 'value' => '8a243080f92e4c719546314b577cf82b'],
-    ],
-]);
-
-$salesChannel['salutationId'] = 'ed643807c9f84cc8b50132ea3ccb1c3b';
-file_put_contents(__DIR__ . '/fixtures/sales_channel.json', json_encode($salesChannel, \JSON_PRETTY_PRINT));
-
+echo 'Collected: ' . count($products) . ' products' . \PHP_EOL;
+file_put_contents(__DIR__ . '/fixtures/products.json', json_encode($products));

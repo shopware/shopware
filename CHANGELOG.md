@@ -199,6 +199,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-19674 - Added MailAware to OrderPaymentMethodChangedEvent](/changelog/release-6-4-8-0/2022-01-19-added-mailaware-to-orderpaymentmethodchangedevent.md)
 *  [NEXT-18128 - Implement modal functionality for Extension SDK](/changelog/release-6-4-8-0/2022-01-19-next-18128-implement-modal-functionality-for-extension-sdk.md)
 *  [NEXT-19779 - Timezone Settings in user profile missing](/changelog/release-6-4-8-0/2022-01-26-timezone-settings-in-user-profile-missing.md)
+*  [NEXT-19953 - Update twig](/changelog/release-6-4-8-0/2022-02-04-update-twig.md)
 
 ## 6.4.7.0
 *  [NEXT-18101 - Improve clickabilty of sw-tabs](/changelog/release-6-4-7-0/2020-18-10-sw-tabs-clickability.md) ([Enzo Volkmann](https://github.com/evolkmann))

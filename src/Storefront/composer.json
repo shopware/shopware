@@ -55,9 +55,9 @@
         "symfony/security-core": "~5.4.0",
         "symfony/mime": "~5.4.0",
         "true/punycode": "2.1.1",
-        "twig/intl-extra": "3.3.0",
-        "twig/string-extra": "3.3.0",
-        "twig/twig": "3.3.4"
+        "twig/intl-extra": "~3.3.5",
+        "twig/string-extra": "~3.3.5",
+        "twig/twig": "~3.3.8"
     },
     "require-dev": {
         "symfony/css-selector": "~5.4.0",

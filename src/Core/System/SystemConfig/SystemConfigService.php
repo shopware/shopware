@@ -13,7 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Util\XmlReader;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigChangedEvent;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
+use Shopware\Core\System\SystemConfig\Event\SystemConfigDomainLoadedEvent;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidKeyException;
@@ -202,7 +204,10 @@ class SystemConfigService
             $merged[$key] = $value;
         }
 
-        return $merged;
+        $event = new SystemConfigDomainLoadedEvent($domain, $merged, $inherit, $salesChannelId);
+        $this->eventDispatcher->dispatch($event);
+
+        return $event->getConfig();
     }
 
     /**
@@ -227,14 +232,17 @@ class SystemConfigService
             return;
         }
 
+        $event = new BeforeSystemConfigChangedEvent($key, $value, $salesChannelId);
+        $this->eventDispatcher->dispatch($event);
+
         $data = [
             'id' => $id ?? Uuid::randomHex(),
             'configurationKey' => $key,
-            'configurationValue' => $value,
+            'configurationValue' => $event->getValue(),
             'salesChannelId' => $salesChannelId,
         ];
         $this->systemConfigRepository->upsert([$data], Context::createDefaultContext());
-        $this->eventDispatcher->dispatch(new SystemConfigChangedEvent($key, $value, $salesChannelId));
+        $this->eventDispatcher->dispatch(new SystemConfigChangedEvent($key, $event->getValue(), $salesChannelId));
     }
 
     public function delete(string $key, ?string $salesChannel = null): void

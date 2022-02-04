@@ -1,6 +1,10 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/2020-08-03-Implement-New-Changelog.md).
 
+## 6.4.8.1
+*  [NEXT-19820 - Improve session invalidate](/changelog/release-6-4-8-1/2022-02-01-improve-session-invalidate.md)
+*  [NEXT-19276 - Add filtering to product and promotion codes](/changelog/release-6-4-8-1/2022-02-03-add-filtering-to-product-and-promotion-codes.md)
+
 ## 6.4.8.0
 *  [NEXT-12608 - Add Appstore](/changelog/release-6-4-8-0/2021-01-04-add-appstore.md)
 *  [NEXT-19537 - Remove price-specific values from range-filter template](/changelog/release-6-4-8-0/2021-01-05-Remove-price-specific-values-from-range-filter-template.md) ([Sven Lauer](https://github.com/svlauer))

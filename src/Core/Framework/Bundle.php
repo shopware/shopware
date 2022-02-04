@@ -161,14 +161,25 @@ abstract class Bundle extends SymfonyBundle
         ]);
         $delegatingLoader = new DelegatingLoader($loaderResolver);
 
-        foreach (glob($this->getPath() . '/Resources/config/services.*') as $path) {
+        foreach ($this->getServicesFilePathArray($this->getPath() . '/Resources/config/services.*') as $path) {
             $delegatingLoader->load($path);
         }
 
         if ($container->getParameter('kernel.environment') === 'test') {
-            foreach (glob($this->getPath() . '/Resources/config/services_test.*') as $path) {
-                $delegatingLoader->load($path);
+            foreach ($this->getServicesFilePathArray($this->getPath() . '/Resources/config/services_test.*') as $testPath) {
+                $delegatingLoader->load($testPath);
             }
         }
+    }
+
+    private function getServicesFilePathArray(string $path): array
+    {
+        $pathArray = glob($path);
+
+        if ($pathArray === false) {
+            return [];
+        }
+
+        return $pathArray;
     }
 }

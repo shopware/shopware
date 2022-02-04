@@ -6,6 +6,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\VersionMergeAlreadyLockedException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
@@ -44,6 +45,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
@@ -73,6 +75,8 @@ class VersionManager
 
     private DefinitionInstanceRegistry $registry;
 
+    private LockFactory $lockFactory;
+
     public function __construct(
         EntityWriterInterface $entityWriter,
         EntityReaderInterface $entityReader,
@@ -83,7 +87,8 @@ class VersionManager
         DefinitionInstanceRegistry $registry,
         VersionCommitDefinition $versionCommitDefinition,
         VersionCommitDataDefinition $versionCommitDataDefinition,
-        VersionDefinition $versionDefinition
+        VersionDefinition $versionDefinition,
+        LockFactory $lockFactory
     ) {
         $this->entityWriter = $entityWriter;
         $this->entityReader = $entityReader;
@@ -95,6 +100,7 @@ class VersionManager
         $this->versionCommitDataDefinition = $versionCommitDataDefinition;
         $this->versionDefinition = $versionDefinition;
         $this->registry = $registry;
+        $this->lockFactory = $lockFactory;
     }
 
     public function upsert(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
@@ -166,6 +172,12 @@ class VersionManager
 
     public function merge(string $versionId, WriteContext $writeContext): void
     {
+        $lock = $this->lockFactory->createLock('sw-merge-version-' . $versionId);
+
+        if (!$lock->acquire()) {
+            throw new VersionMergeAlreadyLockedException($versionId);
+        }
+
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('version_commit.versionId', $versionId));
         $criteria->addSorting(new FieldSorting('version_commit.autoIncrement'));
@@ -286,6 +298,8 @@ class VersionManager
             $this->entityWriter->delete($definition, [$primary], $versionContext);
         }
         $versionContext->removeState('merge-scope');
+
+        $lock->release();
 
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($writtenEvents, $liveContext->getContext(), []);
         $this->eventDispatcher->dispatch($event);

@@ -30,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\VersionMergeAlreadyLockedException;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\SumAggregation;
@@ -1826,6 +1827,58 @@ class VersioningTest extends TestCase
         static::assertEquals(1, $this->getReviewCount($id, Defaults::LIVE_VERSION));
 
         static::assertEquals(0, $this->getReviewCount($id, $version));
+    }
+
+    public function testMergingIsLocked(): void
+    {
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'name' => 'test',
+            'ean' => 'EAN',
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 10, 'linked' => false]],
+            'manufacturer' => ['name' => 'create'],
+            'tax' => ['name' => 'create', 'taxRate' => 1],
+        ];
+
+        $context = Context::createDefaultContext();
+        $this->productRepository->create([$data], $context);
+
+        $versionId = $this->productRepository->createVersion($id, $context);
+        $versionContext = $context->createWithVersionId($versionId);
+        $this->productRepository->upsert([['id' => $id, 'ean' => 'updated']], $versionContext);
+
+        $commits = $this->getCommits('product', $id, $versionId);
+        static::assertCount(2, $commits);
+
+        $lockFactory = $this->getContainer()->get('lock.factory');
+        $lock = $lockFactory->createLock('sw-merge-version-' . $versionId);
+        $lock->acquire();
+
+        $exceptionWasThrown = false;
+
+        try {
+            $this->productRepository->merge($versionId, $context);
+        } catch (VersionMergeAlreadyLockedException $e) {
+            $exceptionWasThrown = true;
+        } finally {
+            $lock->release();
+        }
+
+        static::assertTrue($exceptionWasThrown);
+
+        // assert that commits are not removed
+        $commits = $this->getCommits('product', $id, $versionId);
+        static::assertCount(2, $commits);
+
+        // assert that changes are not applied
+        /** @var ProductEntity|null $product */
+        $product = $this->productRepository->search(new Criteria([$id]), $context)->first();
+
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertEquals('EAN', $product->getEan());
     }
 
     private function getReviewCount(string $productId, string $versionId): int

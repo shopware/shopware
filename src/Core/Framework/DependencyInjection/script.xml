@@ -33,14 +33,23 @@
 
         <service id="Shopware\Core\Framework\Script\Api\ScriptStoreApiRoute" public="true">
             <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Script\Api\ScriptResponseEncoder"/>
         </service>
 
         <service id="Shopware\Core\Framework\Script\Api\ScriptApiRoute" public="true">
             <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
             <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\Script\Api\ScriptResponseEncoder"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacadeHookFactory" public="true">
+            <argument type="service" id="router"/>
+            <argument type="service" id="Shopware\Storefront\Controller\ScriptController" on-invalid="null"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Script\Api\ScriptResponseEncoder">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Api\StructEncoder"/>
+        </service>
     </services>
 </container>
 

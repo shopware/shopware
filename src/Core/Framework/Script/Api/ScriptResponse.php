@@ -2,20 +2,62 @@
 
 namespace Shopware\Core\Framework\Script\Api;
 
+use Shopware\Core\Framework\Script\Exception\HookMethodException;
+use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Script\Facade\ArrayFacade;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @internal
- */
 class ScriptResponse
 {
-    public int $code = Response::HTTP_OK;
+    private int $code;
 
-    public ArrayFacade $body;
+    private ArrayFacade $body;
 
-    public function __construct()
+    private ?Response $inner;
+
+    public function __construct(?Response $inner = null, int $code = Response::HTTP_OK)
     {
         $this->body = new ArrayFacade([]);
+        $this->inner = $inner;
+        $this->code = $code;
+    }
+
+    public function getCode(): int
+    {
+        return $this->code;
+    }
+
+    public function setCode(int $code): void
+    {
+        $this->code = $code;
+    }
+
+    public function getBody(): ArrayFacade
+    {
+        return $this->body;
+    }
+
+    /**
+     * @param array|ArrayFacade $body
+     */
+    public function setBody($body): void
+    {
+        if (\is_array($body)) {
+            $body = new ArrayFacade($body);
+        }
+
+        $this->body = $body;
+    }
+
+    /**
+     * @internal access from twig scripts is not supported
+     */
+    public function getInner(): ?Response
+    {
+        if (ScriptExecutor::$isInScriptExecutionContext) {
+            throw HookMethodException::accessFromScriptExecutionContextNotAllowed(__CLASS__, __METHOD__);
+        }
+
+        return $this->inner;
     }
 }

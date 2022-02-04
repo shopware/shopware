@@ -78,6 +78,22 @@ class ScriptControllerTest extends TestCase
         static::assertStringContainsString('My Test-Product', $response->getContent());
     }
 
+    public function testRedirectResponseTemplate(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps');
+        $ids = new IdsCollection();
+        $this->createProducts($ids);
+
+        $response = $this->request(
+            'GET',
+            '/storefront/script/redirect-response?product-id=' . $ids->get('p1'),
+            []
+        );
+
+        static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+        static::assertSame('/detail/' . $ids->get('p1'), $response->headers->get('location'));
+    }
+
     /**
      * @dataProvider ensureLoginProvider
      */

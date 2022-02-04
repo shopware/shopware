@@ -12,9 +12,9 @@ use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptAppInformation;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
-use Shopware\Core\Framework\Struct\ArrayStruct;
-use Shopware\Core\System\SalesChannel\GenericStoreApiResponse;
+use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -27,10 +27,13 @@ class ScriptApiRoute
 
     private ScriptLoader $loader;
 
-    public function __construct(ScriptExecutor $executor, ScriptLoader $loader)
+    private ScriptResponseEncoder $scriptResponseEncoder;
+
+    public function __construct(ScriptExecutor $executor, ScriptLoader $loader, ScriptResponseEncoder $scriptResponseEncoder)
     {
         $this->executor = $executor;
         $this->loader = $loader;
+        $this->scriptResponseEncoder = $scriptResponseEncoder;
     }
 
     /**
@@ -54,23 +57,26 @@ class ScriptApiRoute
      * )
      * @Route("/api/script/{hook}", name="api.script_endpoint", methods={"POST"})
      */
-    public function load(string $hook, Request $request, Context $context): GenericStoreApiResponse
+    public function execute(string $hook, Request $request, Context $context): Response
     {
         //  blog/update =>  blog-update
         $hook = \str_replace('/', '-', $hook);
 
-        $response = new ScriptResponse();
-
-        $instance = new ApiHook($hook, $request->request->all(), $response, $context);
+        $instance = new ApiHook($hook, $request->request->all(), $context);
 
         $this->validate($instance, $context);
 
         // hook: api-{hook}
         $this->executor->execute($instance);
 
-        return new GenericStoreApiResponse(
-            $response->code,
-            new ArrayStruct($response->body->all(), 'api_' . $hook . '_response')
+        $fields = new ResponseFields(
+            $request->get('includes', [])
+        );
+
+        return $this->scriptResponseEncoder->encodeToSymfonyResponse(
+            $instance->getScriptResponse(),
+            $fields,
+            \str_replace('-', '_', 'api_' . $hook . '_response')
         );
     }
 

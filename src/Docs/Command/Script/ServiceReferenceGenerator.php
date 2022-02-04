@@ -386,8 +386,10 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
                 // exclude js files including node_modules for performance reasons, filtering with `notPath`, etc. has no performance impact
                 // note that excluded paths need to be relative to platform/src and that no wildcards are supported
                 ->exclude([
-                    'Administration/Resources/app',
-                    'Storefront/Resources/app',
+                    'Administration/Resources',
+                    'Storefront/Resources',
+                    'Recovery',
+                    'Docs',
                 ])
                 ->path($example->getFilePath())
                 ->ignoreUnreadableDirs();

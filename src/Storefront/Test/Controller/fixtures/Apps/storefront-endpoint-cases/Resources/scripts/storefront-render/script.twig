@@ -5,5 +5,5 @@
 {% do hook.page.addExtension('myProduct', product) %}
 
 {% do hook.setResponse(
-    services.storefront.render('@MyApp/storefront/page/custom-page/index.html.twig', { 'page': hook.page })
+    services.response.render('@MyApp/storefront/page/custom-page/index.html.twig', { 'page': hook.page })
 ) %}

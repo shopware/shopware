@@ -85,19 +85,76 @@ Keep in mind that your app needs to have the correct permissions for the data it
 		{% do services.writer.sync(payload) %}
         ```
 _________
-## [services.storefront (`Shopware\Storefront\Framework\Script\Facade\StorefrontServicesFacade`)](https://github.com/shopware/platform/blob/trunk/src/Storefront/Framework/Script/Facade/StorefrontServicesFacade.php) {#storefrontservicesfacade}
+## [services.response (`Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade`)](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Script/Api/ScriptResponseFactoryFacade.php) {#scriptresponsefactoryfacade}
 
-The `storefront` service allows you render a twig template and to ensure that the current customer is logged in.
+The `response` service allows you to create HTTP-Responses.
 
 
-### render()
+### json()
 
-* The `render()` method allows you to render a twig view with the parameters you provide.
+* The `json()` method allows you to create a JSON-Response.
 
     
-* **Returns** `Symfony\Component\HttpFoundation\Response`
+* **Returns** [`Shopware\Core\Framework\Script\Api\ScriptResponse`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Script/Api/ScriptResponse.php)
 
-    The `Response` with the rendered template as the content.
+    The created response object, remember to assign it to the hook with `hook.setResponse()`.
+* **Arguments:**
+    * *`array`* **data**: The data that should be sent in the response as array.
+    * *`int`* **code**: The HTTP-Status-Code of the response, defaults to 200.
+
+        Default: `200`
+* **Examples:**
+    * Return hard coded values as JsonResponse.
+
+        ```twig
+        {% set response = services.response.json({ 'foo': 'bar' }) %}
+		{% do hook.setResponse(response) %}
+        ```
+    * Search for products and return them in a JsonResponse.
+
+        ```twig
+        {# @var services \Shopware\Core\Framework\Script\ServiceStubs #}
+		{% set products = services.repository.search('product', hook.request) %}
+		
+		{% set response = services.response.json({ 'products': products }) %}
+		{% do hook.setResponse(response) %}
+        ```
+### redirect()
+
+* The `redirect()` method allows you to create a RedirectResponse.
+
+    
+* **Returns** [`Shopware\Core\Framework\Script\Api\ScriptResponse`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Script/Api/ScriptResponse.php)
+
+    The created response object, remember to assign it to the hook with `hook.setResponse()`.
+* **Arguments:**
+    * *`string`* **route**: The name of the route that should be redirected to.
+    * *`array`* **parameters**: The parameters needing to generate the URL of the route as an associative array.
+    * *`int`* **code**: he HTTP-Status-Code of the response, defaults to 302.
+
+        Default: `302`
+* **Examples:**
+    * Redirect to an Admin-API route.
+
+        ```twig
+        {% set response = services.response.redirect('api.product.detail', { 'path': productId }) %}
+		{% do hook.setResponse(response) %}
+        ```
+    * Redirect to a storefront page.
+
+        ```twig
+        {% set response = services.response.redirect('frontend.detail.page', { 'productId': productId }) %}
+		{% do hook.setResponse(response) %}
+        ```
+### render()
+
+* The `render()` method allows you to render a twig view with the parameters you provide and create a StorefrontResponse.
+
+    Note that the `render()` method will throw an exception if it is called from outside a `SalesChannelContext` (e.g. from an `/api` route)
+	or if the Storefront-bundle is not installed.
+* **Returns** [`Shopware\Core\Framework\Script\Api\ScriptResponse`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Script/Api/ScriptResponse.php)
+
+    The created response object with the rendered template as content, remember to assign it to the hook with `hook.setResponse()`.
 * **Arguments:**
     * *`string`* **view**: The name of the twig template you want to render e.g. `@Storefront/storefront/page/content/detail.html.twig`
     * *`array`* **parameters**: The parameters you want to pass to the template, ensure that you pass the `page` parameter from the hook to the templates.
@@ -113,7 +170,7 @@ The `storefront` service allows you render a twig template and to ensure that th
 		{% do hook.page.addExtension('myProduct', product) %}
 		
 		{% do hook.setResponse(
-		    services.storefront.render('@MyApp/storefront/page/custom-page/index.html.twig', { 'page': hook.page })
+		    services.response.render('@MyApp/storefront/page/custom-page/index.html.twig', { 'page': hook.page })
 		) %}
         ```
 _________

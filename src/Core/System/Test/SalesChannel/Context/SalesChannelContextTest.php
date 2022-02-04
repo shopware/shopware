@@ -20,7 +20,6 @@ use Shopware\Core\System\Tax\TaxRuleType\IndividualStatesRuleTypeFilter;
 use Shopware\Core\System\Tax\TaxRuleType\ZipCodeRangeRuleTypeFilter;
 use Shopware\Core\System\Tax\TaxRuleType\ZipCodeRuleTypeFilter;
 use Shopware\Core\Test\TestDefaults;
-use Symfony\Component\HttpFoundation\Response;
 
 class SalesChannelContextTest extends TestCase
 {
@@ -725,7 +724,7 @@ class SalesChannelContextTest extends TestCase
         ?string $shippingCountryId = null,
         ?string $billingCountryId = null,
         ?array $countryState = null,
-        bool $isGuest = false,
+        bool $isGuest = false
     ): void {
         $customerRepository = $this->getContainer()->get('customer.repository');
         $salutationId = $this->getValidSalutationId();

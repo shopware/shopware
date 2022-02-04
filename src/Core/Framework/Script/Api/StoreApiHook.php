@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFact
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryWriterFacadeHookFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacadeHookFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
+use Shopware\Core\Framework\Script\Execution\Awareness\ScriptResponseAwareTrait;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHookTrait;
 use Shopware\Core\Framework\Script\Execution\Hook;
@@ -22,6 +23,7 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 class StoreApiHook extends Hook implements SalesChannelContextAware, StoppableHook
 {
     use StoppableHookTrait;
+    use ScriptResponseAwareTrait;
 
     public const HOOK_NAME = 'store-api-{hook}';
 
@@ -29,17 +31,14 @@ class StoreApiHook extends Hook implements SalesChannelContextAware, StoppableHo
 
     private SalesChannelContext $salesChannelContext;
 
-    private ScriptResponse $response;
-
     private string $script;
 
-    public function __construct(string $name, array $request, ScriptResponse $response, SalesChannelContext $salesChannelContext)
+    public function __construct(string $name, array $request, SalesChannelContext $salesChannelContext)
     {
         $this->request = $request;
         $this->salesChannelContext = $salesChannelContext;
 
         parent::__construct($salesChannelContext->getContext());
-        $this->response = $response;
         $this->script = $name;
     }
 
@@ -69,11 +68,7 @@ class StoreApiHook extends Hook implements SalesChannelContextAware, StoppableHo
             SystemConfigFacadeHookFactory::class,
             SalesChannelRepositoryFacadeHookFactory::class,
             RepositoryWriterFacadeHookFactory::class,
+            ScriptResponseFactoryFacadeHookFactory::class,
         ];
-    }
-
-    public function getResponse(): ScriptResponse
-    {
-        return $this->response;
     }
 }

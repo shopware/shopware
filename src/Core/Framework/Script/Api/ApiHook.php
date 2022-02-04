@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Script\Api;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryWriterFacadeHookFactory;
+use Shopware\Core\Framework\Script\Execution\Awareness\ScriptResponseAwareTrait;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHookTrait;
 use Shopware\Core\Framework\Script\Execution\Hook;
@@ -20,19 +21,17 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 class ApiHook extends Hook implements StoppableHook
 {
     use StoppableHookTrait;
+    use ScriptResponseAwareTrait;
 
     public const HOOK_NAME = 'api-{hook}';
 
     private array $request;
 
-    private ScriptResponse $response;
-
     private string $name;
 
-    public function __construct(string $name, array $request, ScriptResponse $response, Context $context)
+    public function __construct(string $name, array $request, Context $context)
     {
         $this->request = $request;
-        $this->response = $response;
         $this->name = $name;
         parent::__construct($context);
     }
@@ -62,11 +61,7 @@ class ApiHook extends Hook implements StoppableHook
             RepositoryFacadeHookFactory::class,
             RepositoryWriterFacadeHookFactory::class,
             SystemConfigFacadeHookFactory::class,
+            ScriptResponseFactoryFacadeHookFactory::class,
         ];
-    }
-
-    public function getResponse(): ScriptResponse
-    {
-        return $this->response;
     }
 }

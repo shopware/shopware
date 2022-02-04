@@ -70,7 +70,7 @@ class ScriptApiRouteTest extends TestCase
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
 
         $expected = [
-            'apiAlias' => 'api_repository-test_response',
+            'apiAlias' => 'api_repository_test_response',
             'products' => [
                 'apiAlias' => 'dal_entity_search_result',
                 'elements' => [
@@ -132,5 +132,53 @@ class ScriptApiRouteTest extends TestCase
 
         $response = \json_decode($browser->getResponse()->getContent(), true);
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), print_r($response, true));
+    }
+
+    public function testRedirectResponse(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures');
+
+        $ids = new IdsCollection();
+
+        $products = [
+            (new ProductBuilder($ids, 'p1'))->price(100)->build(),
+        ];
+
+        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+
+        $browser = $this->getBrowser();
+        $browser->followRedirects(false);
+        $browser->request('POST', '/api/script/redirect-response', [], [], [], \json_encode(['productId' => $ids->get('p1')]));
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+
+        static::assertTrue($response->headers->has('location'));
+        static::assertSame('/api/product/' . $ids->get('p1'), $response->headers->get('location'));
+    }
+
+    public function testAccessToInnerSymfonyResponseIsProhibited(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures');
+
+        $ids = new IdsCollection();
+
+        $products = [
+            (new ProductBuilder($ids, 'p1'))->price(100)->build(),
+        ];
+
+        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+
+        $browser = $this->getBrowser();
+        $browser->followRedirects(false);
+        $browser->request('POST', '/api/script/access-inner', [], [], [], \json_encode(['productId' => $ids->get('p1')]));
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
+
+        $content = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('errors', $content);
+        static::assertCount(1, $content['errors']);
+        static::assertEquals('FRAMEWORK__HOOK_METHOD_EXCEPTION', $content['errors'][0]['code']);
     }
 }

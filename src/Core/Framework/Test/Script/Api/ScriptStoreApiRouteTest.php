@@ -35,7 +35,7 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
         static::assertEquals('bar', $response['foo']);
-        static::assertSame('store_api_simple-script_response', $response['apiAlias']);
+        static::assertSame('store_api_simple_script_response', $response['apiAlias']);
     }
 
     public function testRepositoryCall(): void
@@ -73,7 +73,7 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
 
         $expected = [
-            'apiAlias' => 'store_api_repository-test_response',
+            'apiAlias' => 'store_api_repository_test_response',
             'products' => [
                 'apiAlias' => 'dal_entity_search_result',
                 'elements' => [
@@ -92,9 +92,10 @@ class ScriptStoreApiRouteTest extends TestCase
 
     public function testInsufficientPermissionException(): void
     {
+        $browser = $this->getSalesChannelBrowser();
+
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');
 
-        $browser = $this->getSalesChannelBrowser();
         $browser->request('POST', '/store-api/script/insufficient-permissions');
         $response = \json_decode($browser->getResponse()->getContent(), true);
 
@@ -105,5 +106,28 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertEquals('Forbidden', $response['errors'][0]['title']);
         static::assertStringContainsString('store-api-insufficient-permissions', $response['errors'][0]['detail']);
         static::assertStringContainsString('Missing privilege', $response['errors'][0]['detail']);
+    }
+
+    public function testRedirectResponse(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures');
+
+        $ids = new IdsCollection();
+
+        $products = [
+            (new ProductBuilder($ids, 'p1'))->price(100)->build(),
+        ];
+
+        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+
+        $browser = $this->getSalesChannelBrowser();
+        $browser->followRedirects(false);
+        $browser->request('POST', '/store-api/script/redirect-response', ['productId' => $ids->get('p1')]);
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+
+        static::assertTrue($response->headers->has('location'));
+        static::assertSame('/api/product/' . $ids->get('p1'), $response->headers->get('location'));
     }
 }

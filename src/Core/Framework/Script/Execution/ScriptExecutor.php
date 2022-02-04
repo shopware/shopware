@@ -19,6 +19,8 @@ use Twig\Extension\DebugExtension;
 
 class ScriptExecutor
 {
+    public static bool $isInScriptExecutionContext = false;
+
     private LoggerInterface $logger;
 
     private ScriptLoader $loader;
@@ -53,12 +55,15 @@ class ScriptExecutor
 
         foreach ($scripts as $script) {
             try {
+                static::$isInScriptExecutionContext = true;
                 $this->render($hook, $script);
             } catch (\Throwable $e) {
                 $scriptException = new ScriptExecutionFailedException($hook->getName(), $script->getName(), $e);
                 $this->logger->error($scriptException->getMessage(), ['exception' => $e]);
 
                 throw $scriptException;
+            } finally {
+                static::$isInScriptExecutionContext = false;
             }
 
             if ($hook instanceof StoppableHook && $hook->isPropagationStopped()) {

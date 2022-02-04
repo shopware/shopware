@@ -287,6 +287,7 @@
 
         <service id="Shopware\Storefront\Controller\ScriptController">
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\Script\Api\ScriptResponseEncoder"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

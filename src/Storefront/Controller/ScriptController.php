@@ -4,13 +4,12 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\Framework\Script\Api\ScriptResponse;
+use Shopware\Core\Framework\Script\Api\ScriptResponseEncoder;
+use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
-use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Framework\Script\Api\StorefrontHook;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -23,9 +22,12 @@ class ScriptController extends StorefrontController
 {
     private GenericPageLoaderInterface $pageLoader;
 
-    public function __construct(GenericPageLoaderInterface $pageLoader)
+    private ScriptResponseEncoder $scriptResponseEncoder;
+
+    public function __construct(GenericPageLoaderInterface $pageLoader, ScriptResponseEncoder $scriptResponseEncoder)
     {
         $this->pageLoader = $pageLoader;
+        $this->scriptResponseEncoder = $scriptResponseEncoder;
     }
 
     /**
@@ -36,24 +38,23 @@ class ScriptController extends StorefrontController
     public function execute(string $hook, Request $request, SalesChannelContext $context): Response
     {
         //  blog/update =>  blog-update
-        $hook = \str_replace('/', '-', $hook);
+        $hookName = \str_replace('/', '-', $hook);
 
-        $response = new ScriptResponse();
         $page = $this->pageLoader->load($request, $context);
 
-        $hook = new StorefrontHook($hook, $request->request->all(), $request->query->all(), $response, $page, $context);
+        $hook = new StorefrontHook($hookName, $request->request->all(), $request->query->all(), $page, $context);
 
         // hook: storefront-{hook}
         $this->hook($hook);
 
-        $response = $hook->getResponse();
-        if ($response instanceof StorefrontResponse) {
-            return $response;
-        }
+        $fields = new ResponseFields(
+            $request->get('includes', [])
+        );
 
-        return new JsonResponse(
-            $response->body->all(),
-            $response->code
+        return $this->scriptResponseEncoder->encodeToSymfonyResponse(
+            $hook->getScriptResponse(),
+            $fields,
+            \str_replace('-', '_', 'storefront_' . $hookName . '_response')
         );
     }
 

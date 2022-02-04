@@ -1,6 +1,6 @@
 ---
 title: Fix active ShippingMethod in Offcanvas-Cart
-issue: -
+issue: NEXT-19950
 author: David Fecke
 author_github: @leptoquark1
 ---

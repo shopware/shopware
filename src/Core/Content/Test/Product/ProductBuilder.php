@@ -129,7 +129,7 @@ class ProductBuilder
     public function manufacturer(string $key, array $translations = []): self
     {
         $this->manufacturer = [
-            'id' => $this->ids->create($key),
+            'id' => $this->ids->get($key),
             'name' => $key,
             'translations' => $translations,
         ];

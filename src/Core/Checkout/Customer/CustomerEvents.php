@@ -80,6 +80,11 @@ class CustomerEvents
     public const CUSTOMER_LOGIN_EVENT = 'checkout.customer.login';
 
     /**
+     * @Event("Shopware\Core\Checkout\Customer\Event\CustomerLoginFailureEvent")
+     */
+    public const CUSTOMER_LOGIN_FAILURE_EVENT = 'checkout.customer.login.failure';
+
+    /**
      * @Event("Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent")
      */
     public const CUSTOMER_LOGOUT_EVENT = 'checkout.customer.logout';

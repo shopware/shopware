@@ -6,6 +6,7 @@ use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerLoginFailureEvent;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
@@ -130,6 +131,8 @@ class LoginRoute extends AbstractLoginRoute
                 $context
             );
         } catch (CustomerNotFoundException | BadCredentialsException $exception) {
+            $this->eventDispatcher->dispatch(new CustomerLoginFailureEvent($context, $email, $exception));
+
             throw new UnauthorizedHttpException('json', $exception->getMessage());
         }
 

@@ -14,10 +14,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class AclCriteriaValidator
 {
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
+    private DefinitionInstanceRegistry $registry;
 
     public function __construct(DefinitionInstanceRegistry $registry)
     {
@@ -43,7 +40,7 @@ class AclCriteriaValidator
         foreach ($criteria->getAssociations() as $field => $nested) {
             $association = $definition->getField($field);
 
-            if (!$association || !$association instanceof AssociationField) {
+            if (!$association instanceof AssociationField) {
                 throw new AssociationNotFoundException($field);
             }
 

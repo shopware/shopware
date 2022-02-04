@@ -148,6 +148,7 @@ interface RequestParams {
     aggregations?: Aggregation[],
     groupFields?: GroupField[],
     grouping?: string[],
+    fields?: string[],
     associations?: {
         [association: string]: RequestParams
     },
@@ -178,6 +179,8 @@ export default class Criteria {
 
     private grouping: string[]
 
+    private fields: string[]
+
     private groupFields: GroupField[];
 
     private totalCountMode: TotalCountMode | null;
@@ -198,6 +201,7 @@ export default class Criteria {
         this.aggregations = [];
         this.grouping = [];
         this.groupFields = [];
+        this.fields = [];
         this.totalCountMode = TotalCountMode.EXACT_TOTAL_COUNT;
     }
 
@@ -243,6 +247,9 @@ export default class Criteria {
         }
         if (this.grouping.length > 0) {
             params.grouping = this.grouping;
+        }
+        if (this.fields.length > 0) {
+            params.fields = this.fields;
         }
         if (this.associations.length > 0) {
             params.associations = {};
@@ -364,10 +371,19 @@ export default class Criteria {
     }
 
     /**
-     * Allows grouping the result by an specific field
+     * Allows grouping the result by a specific field
      */
     addGrouping(field: string): this {
         this.grouping.push(field);
+
+        return this;
+    }
+
+    /**
+     * Allows loading partial fields for the result.
+     */
+    addFields(...field: string[]): this {
+        this.fields.push(...field);
 
         return this;
     }

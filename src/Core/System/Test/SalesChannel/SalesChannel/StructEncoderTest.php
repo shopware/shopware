@@ -11,6 +11,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Struct\StructCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -269,6 +271,45 @@ class StructEncoderTest extends TestCase
 
         static::assertNull($response['customFields']);
         static::assertSame(['test'], $response['translated']['customFields']);
+    }
+
+    public function testApiAwareWorksWithPartialEntity(): void
+    {
+        $entity = new PartialEntity();
+        $entity->set('id', Uuid::randomHex());
+        $entity->internalSetEntityData('my_entity', new FieldVisibility([]));
+        $entity->set('name', 'test');
+        $entity->set('description', 'test');
+        $entity->set('translated', [
+            'name' => 'test',
+            'description' => 'test',
+        ]);
+
+        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry->method('has')
+            ->willReturn(true);
+
+        $definition = new MyEntityDefinition();
+        $definition->compile(
+            $this->getContainer()->get(DefinitionInstanceRegistry::class)
+        );
+
+        $registry->method('getByEntityName')
+            ->willReturn($definition);
+
+        $encoder = new StructEncoder(
+            $registry,
+            $this->getContainer()->get('serializer')
+        );
+
+        $encoded = $encoder->encode($entity, new ResponseFields(null));
+
+        static::assertArrayHasKey('name', $encoded);
+        static::assertArrayNotHasKey('description', $encoded);
+        static::assertArrayHasKey('translated', $encoded);
+
+        static::assertArrayHasKey('name', $encoded['translated']);
+        static::assertArrayNotHasKey('description', $encoded['translated']);
     }
 }
 

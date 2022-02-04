@@ -49,9 +49,6 @@ class OpenApiLoader
         $this->eventDispatcher->dispatch($openApiPathsEvent);
         $openApi = scan($openApiPathsEvent->getPaths(), ['analysis' => new DeactivateValidationAnalysis()]);
 
-        // @see: https://regex101.com/r/XYRxEm/1
-        // $sinceRegex = '/\@Since\("(.*)"\)/m';
-
         $calculatedPaths = [];
         foreach ($openApi->paths as $pathItem) {
             if (!$this->routeIsActive($pathItem)) {
@@ -84,12 +81,6 @@ class OpenApiLoader
                             unset($operation->tags[$tKey]);
                         }
                     }
-
-                    /*preg_match($sinceRegex, $operation->_context->comment, $match);
-
-                    if (\array_key_exists(1, $match)) {
-                        $operation->description = 'Available since: ' . $match[1];
-                    }*/
 
                     $operation->tags = array_values($operation->tags);
                 }
@@ -164,7 +155,7 @@ class OpenApiLoader
                         ];
 
                         if ($operation->requestBody->content['application/json']->schema !== UNDEFINED) {
-                            array_push($allOf, $operation->requestBody->content['application/json']->schema);
+                            $allOf[] = $operation->requestBody->content['application/json']->schema;
                         }
 
                         $operation->requestBody->content['application/json']->schema = new Schema([

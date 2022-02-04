@@ -273,7 +273,12 @@ class EntityRepository implements EntityRepositoryInterface
             throw new \RuntimeException('Event loaded factory was not injected');
         }
 
-        $event = $this->eventFactory->create($entities->getElements(), $context);
+        if ($criteria->getFields() === []) {
+            $event = $this->eventFactory->create($entities->getElements(), $context);
+        } else {
+            $event = $this->eventFactory->createPartial($entities->getElements(), $context);
+        }
+
         $this->eventDispatcher->dispatch($event);
 
         return $entities;

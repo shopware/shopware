@@ -81,7 +81,6 @@ class CountryDefinition extends EntityDefinition
             (new TranslatedField('name'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new StringField('iso', 'iso'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new IntField('position', 'position'))->addFlags(new ApiAware()),
-            (new BoolField('tax_free', 'taxFree'))->addFlags(new ApiAware()),
             (new BoolField('active', 'active'))->addFlags(new ApiAware()),
             (new BoolField('shipping_available', 'shippingAvailable'))->addFlags(new ApiAware()),
             (new StringField('iso3', 'iso3'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),

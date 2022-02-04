@@ -144,11 +144,9 @@ class CompiledFieldCollection extends FieldCollection
 
     public function filterByFlag(string $flagClass): self
     {
-        $ret = $this->filter(static function (Field $field) use ($flagClass) {
+        return $this->filter(static function (Field $field) use ($flagClass) {
             return $field->is($flagClass);
         });
-
-        return $ret;
     }
 
     public function getChildrenAssociationField(): ?ChildrenAssociationField

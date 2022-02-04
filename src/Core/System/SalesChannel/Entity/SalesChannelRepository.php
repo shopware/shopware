@@ -180,7 +180,12 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
             throw new \RuntimeException('Event loaded factory was not injected');
         }
 
-        $events = $this->eventFactory->createForSalesChannel($entities->getElements(), $salesChannelContext);
+        if ($criteria->getFields() === []) {
+            $events = $this->eventFactory->createForSalesChannel($entities->getElements(), $salesChannelContext);
+        } else {
+            $events = $this->eventFactory->createPartialForSalesChannel($entities->getElements(), $salesChannelContext);
+        }
+
         foreach ($events as $event) {
             $this->eventDispatcher->dispatch($event);
         }

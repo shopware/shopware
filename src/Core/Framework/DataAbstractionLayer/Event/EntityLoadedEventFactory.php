@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Struct\Collection;
+use Shopware\Core\System\SalesChannel\Entity\PartialSalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -34,6 +35,17 @@ class EntityLoadedEventFactory
         return $this->buildEvents($mapping, $generator, $context);
     }
 
+    public function createPartial(array $entities, Context $context): EntityLoadedContainerEvent
+    {
+        $mapping = $this->recursion($entities, []);
+
+        $generator = function (EntityDefinition $definition, array $entities) use ($context) {
+            return new PartialEntityLoadedEvent($definition, $entities, $context);
+        };
+
+        return $this->buildEvents($mapping, $generator, $context);
+    }
+
     /**
      * @return EntityLoadedContainerEvent[]
      */
@@ -47,6 +59,27 @@ class EntityLoadedEventFactory
 
         $salesGenerator = function (EntityDefinition $definition, array $entities) use ($context) {
             return new SalesChannelEntityLoadedEvent($definition, $entities, $context, false);
+        };
+
+        return [
+            $this->buildEvents($mapping, $generator, $context->getContext()),
+            $this->buildEvents($mapping, $salesGenerator, $context->getContext()),
+        ];
+    }
+
+    /**
+     * @return EntityLoadedContainerEvent[]
+     */
+    public function createPartialForSalesChannel(array $entities, SalesChannelContext $context): array
+    {
+        $mapping = $this->recursion($entities, []);
+
+        $generator = function (EntityDefinition $definition, array $entities) use ($context) {
+            return new PartialEntityLoadedEvent($definition, $entities, $context->getContext());
+        };
+
+        $salesGenerator = function (EntityDefinition $definition, array $entities) use ($context) {
+            return new PartialSalesChannelEntityLoadedEvent($definition, $entities, $context);
         };
 
         return [

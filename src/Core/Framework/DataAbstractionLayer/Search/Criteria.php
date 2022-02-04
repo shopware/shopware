@@ -107,6 +107,8 @@ class Criteria extends Struct
      */
     protected $title;
 
+    protected array $fields = [];
+
     public function __construct(?array $ids = null)
     {
         if ($ids === null) {
@@ -468,6 +470,7 @@ class Criteria extends Struct
         }
 
         $self->associations = $associations;
+        $self->fields = $this->fields;
 
         return $self;
     }
@@ -546,6 +549,26 @@ class Criteria extends Struct
     public function setTitle(?string $title): void
     {
         $this->title = $title;
+    }
+
+    /**
+     * @internal
+     */
+    public function addFields(array $fields): self
+    {
+        Feature::throwException('v6_5_0_0', 'Partial data loading is not active', false);
+
+        $this->fields = array_merge($this->fields, $fields);
+
+        return $this;
+    }
+
+    /**
+     * @internal
+     */
+    public function getFields(): array
+    {
+        return $this->fields;
     }
 
     private function collectFields(array $parts): array

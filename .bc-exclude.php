@@ -26,5 +26,13 @@ return [
         // OpenAPI library update
         'The return type of Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi\\\\DeactivateValidationAnalysis#validate',
         'OpenApi\\\\Analysis',
+
+        // Condional feature flag class loading
+        'The parameter \\$product of Shopware\\\\Core\\\\Content\\\\Product\\\\ProductVariationBuilder#build()',
+        'The parameter \\$product of Shopware\\\\Core\\\\Content\\\\Product\\\\AbstractProductMaxPurchaseCalculator#calculate()',
+        'The parameter \\$product of Shopware\\\\Core\\\\Content\\\\Product\\\\AbstractIsNewDetector#isNew()',
+        'The parameter \\$product of Shopware\\\\Core\\\\Content\\\\Product\\\\AbstractProductVariationBuilder#build()',
+        'The parameter \\$product of Shopware\\\\Core\\\\Content\\\\Product\\\\ProductMaxPurchaseCalculator#calculate()',
+        'The parameter \\$product of Shopware\\\\Core\\\\Content\\\\Product\\\\IsNewDetector#isNew()',
     ],
 ];

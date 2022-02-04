@@ -11,10 +11,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Twig\Environment;
 use Twig\Error\RuntimeError;
 use Twig\Loader\ArrayLoader;
+use function method_exists;
+use function sprintf;
+use function ucfirst;
 
 class TwigFieldVisibilityTest extends TestCase
 {
@@ -32,14 +36,14 @@ class TwigFieldVisibilityTest extends TestCase
                 });
 
             foreach ($internalFields as $field) {
-                $this->testAccessibilityForField($definition, $field->getPropertyName());
+                $this->testAccessibilityForField($definition, $field->getPropertyName(), $definition->getEntityClass());
+                $this->testAccessibilityForField($definition, $field->getPropertyName(), PartialEntity::class);
             }
         }
     }
 
-    private function testAccessibilityForField(EntityDefinition $definition, string $propertyName): void
+    private function testAccessibilityForField(EntityDefinition $definition, string $propertyName, string $entityClass): void
     {
-        $entityClass = $definition->getEntityClass();
         $entity = new $entityClass();
         $entity->internalSetEntityData($definition->getEntityName(), $definition->getFieldVisibility());
 
@@ -63,19 +67,25 @@ class TwigFieldVisibilityTest extends TestCase
         $innerException = null;
 
         try {
-            $twig->render('implicit-get.twig', ['object' => $entity]);
+            $result = $twig->render('implicit-get.twig', ['object' => $entity]);
         } catch (RuntimeError $e) {
             $innerException = $e->getPrevious();
         }
-        static::assertInstanceOf(
-            InternalFieldAccessNotAllowedException::class,
-            $innerException,
-            sprintf(
-                'It was possible to call getter for property %s on entity %s, but the property is not ApiAware, therefore access to that property in twig contexts is prohibited, please ensure to call the `$this->checkIfPropertyAccessIsAllowed("propertyName")` in the getter of that property.',
-                $propertyName,
-                \get_class($entity)
-            )
-        );
+
+        // When the entity class don't have an explicit getter the magic methods will be called. As the isset/exists method returns false for protected fields the getter will not called
+        if (method_exists($entity, 'get' . ucfirst($propertyName))) {
+            static::assertInstanceOf(
+                InternalFieldAccessNotAllowedException::class,
+                $innerException,
+                sprintf(
+                    'It was possible to call getter for property %s on entity %s, but the property is not ApiAware, therefore access to that property in twig contexts is prohibited, please ensure to call the `$this->checkIfPropertyAccessIsAllowed("propertyName")` in the getter of that property.',
+                    $propertyName,
+                    \get_class($entity)
+                )
+            );
+        } else {
+            static::assertStringNotContainsString('password', $result);
+        }
 
         $innerException = null;
 
@@ -84,15 +94,21 @@ class TwigFieldVisibilityTest extends TestCase
         } catch (RuntimeError $e) {
             $innerException = $e->getPrevious();
         }
-        static::assertInstanceOf(
-            InternalFieldAccessNotAllowedException::class,
-            $innerException,
-            sprintf(
-                'It was possible to call getter for property %s on entity %s, but the property is not ApiAware, therefore access to that property in twig contexts is prohibited, please ensure to call the `$this->checkIfPropertyAccessIsAllowed("propertyName")` in the getter of that property.',
-                $propertyName,
-                \get_class($entity)
-            )
-        );
+
+        // When the entity class don't have an explicit getter the magic methods will be called. As the isset/exists method returns false for protected fields the getter will not called
+        if (method_exists($entity, 'get' . ucfirst($propertyName))) {
+            static::assertInstanceOf(
+                InternalFieldAccessNotAllowedException::class,
+                $innerException,
+                sprintf(
+                    'It was possible to call getter for property %s on entity %s, but the property is not ApiAware, therefore access to that property in twig contexts is prohibited, please ensure to call the `$this->checkIfPropertyAccessIsAllowed("propertyName")` in the getter of that property.',
+                    $propertyName,
+                    \get_class($entity)
+                )
+            );
+        } else {
+            static::assertStringNotContainsString('password', $result);
+        }
     }
 
     private function initTwig(string $propertyName): Environment

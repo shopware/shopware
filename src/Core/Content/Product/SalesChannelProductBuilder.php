@@ -6,6 +6,9 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @deprecated tag:v6.5.0 - Call the AbstractPropertyGroupSorter, AbstractProductMaxPurchaseCalculator, AbstractIsNewDetector by using the respective services instead.
+ */
 class SalesChannelProductBuilder extends AbstractSalesChannelProductBuilder
 {
     private AbstractPropertyGroupSorter $propertyGroupSorter;

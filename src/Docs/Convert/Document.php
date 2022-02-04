@@ -6,7 +6,7 @@ use Symfony\Component\Finder\SplFileInfo;
 
 class Document
 {
-    private const METATAG_REGEX = '/^\[(.*?)\]:\s*<>\((.*?)\)\s*?$/m';
+    private const METATAG_REGEX = '/^\[(?<first>.*?)\]:\s*<>\((?<second>.*?)\)\s*?$/m';
 
     private const IGNORE_TAGS = [
         'titleDe',
@@ -99,14 +99,14 @@ class Document
         $fileContents = $this->file->getContents();
         $metadata = [];
 
-        /** @var array{'first': string, 'second': string}[] $matches */
         $matches = [];
         if (!preg_match_all(self::METATAG_REGEX, $fileContents, $matches, \PREG_SET_ORDER)) {
             throw new \InvalidArgumentException(sprintf('Missing metadata in %s', $this->file));
         }
 
+        /** @var array{'first': string, 'second': string} $match */
         foreach ($matches as $match) {
-            $metadata[(string) $match[1]] = $match[2];
+            $metadata[$match['first']] = $match['second'];
         }
 
         $metadata = array_filter($metadata, static function (string $key): bool {

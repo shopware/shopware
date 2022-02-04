@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Product;
 
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -21,21 +21,21 @@ class ProductMaxPurchaseCalculator extends AbstractProductMaxPurchaseCalculator
         throw new DecorationPatternException(self::class);
     }
 
-    public function calculate(SalesChannelProductEntity $product, SalesChannelContext $context): int
+    public function calculate(Entity $product, SalesChannelContext $context): int
     {
         $fallback = $this->systemConfigService->getInt(
             'core.cart.maxQuantity',
             $context->getSalesChannel()->getId()
         );
 
-        $max = $product->getMaxPurchase() ?? $fallback;
+        $max = $product->get('maxPurchase') ?? $fallback;
 
-        if ($product->getIsCloseout() && $product->getAvailableStock() < $max) {
-            $max = (int) $product->getAvailableStock();
+        if ($product->get('isCloseout') && $product->get('availableStock') < $max) {
+            $max = (int) $product->get('availableStock');
         }
 
-        $steps = $product->getPurchaseSteps() ?? 1;
-        $min = $product->getMinPurchase() ?? 1;
+        $steps = $product->get('purchaseSteps') ?? 1;
+        $min = $product->get('minPurchase') ?? 1;
 
         // the amount of times the purchase step is fitting in between min and max added to the minimum
         $max = \floor(($max - $min) / $steps) * $steps + $min;

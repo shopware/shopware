@@ -2,9 +2,21 @@
 
 namespace Shopware\Core\Content\Product;
 
-abstract class AbstractProductVariationBuilder
-{
-    abstract public function getDecorated(): AbstractProductVariationBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\Feature;
 
-    abstract public function build(ProductEntity $product): void;
+if (Feature::isActive('v6_5_0_0')) {
+    abstract class AbstractProductVariationBuilder
+    {
+        abstract public function getDecorated(): AbstractProductVariationBuilder;
+
+        abstract public function build(Entity $product): void;
+    }
+} else {
+    abstract class AbstractProductVariationBuilder
+    {
+        abstract public function getDecorated(): AbstractProductVariationBuilder;
+
+        abstract public function build(ProductEntity $product): void;
+    }
 }

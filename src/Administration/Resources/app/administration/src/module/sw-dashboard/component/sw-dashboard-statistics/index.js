@@ -31,6 +31,7 @@ Component.register('sw-dashboard-statistics', {
                     yesterday: 1,
                 },
             },
+            isLoading: true,
         };
     },
 
@@ -241,6 +242,8 @@ Component.register('sw-dashboard-statistics', {
     methods: {
         async initializeOrderData() {
             if (!this.acl.can('order.viewer')) {
+                this.isLoading = false;
+
                 return;
             }
 
@@ -249,6 +252,7 @@ Component.register('sw-dashboard-statistics', {
             await this.getHistoryOrderData();
             this.todayOrderData = await this.fetchTodayData();
             this.todayOrderDataLoaded = true;
+            this.isLoading = false;
         },
 
         getHistoryOrderData() {

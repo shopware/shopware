@@ -207,4 +207,10 @@ $content-max-width: 960px;
     &__campaign-banner {
         margin-top: 24px;
     }
+
+    &__skeleton {
+        display: flex;
+        flex-flow: column;
+        align-items: center;
+    }
 }

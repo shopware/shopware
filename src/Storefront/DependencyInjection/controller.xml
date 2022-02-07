@@ -53,6 +53,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ChangePasswordRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ChangeEmailRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\DeleteCustomerRoute"/>
+            <argument type="service" id="logger"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

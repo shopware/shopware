@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeCustomerProfileRoute;
@@ -43,13 +44,16 @@ class AccountProfileController extends StorefrontController
 
     private AbstractDeleteCustomerRoute $deleteCustomerRoute;
 
+    private LoggerInterface $logger;
+
     public function __construct(
         AccountOverviewPageLoader $overviewPageLoader,
         AccountProfilePageLoader $profilePageLoader,
         AbstractChangeCustomerProfileRoute $changeCustomerProfileRoute,
         AbstractChangePasswordRoute $changePasswordRoute,
         AbstractChangeEmailRoute $changeEmailRoute,
-        AbstractDeleteCustomerRoute $deleteCustomerRoute
+        AbstractDeleteCustomerRoute $deleteCustomerRoute,
+        LoggerInterface $logger
     ) {
         $this->overviewPageLoader = $overviewPageLoader;
         $this->profilePageLoader = $profilePageLoader;
@@ -57,6 +61,7 @@ class AccountProfileController extends StorefrontController
         $this->changePasswordRoute = $changePasswordRoute;
         $this->changeEmailRoute = $changeEmailRoute;
         $this->deleteCustomerRoute = $deleteCustomerRoute;
+        $this->logger = $logger;
     }
 
     /**
@@ -119,6 +124,7 @@ class AccountProfileController extends StorefrontController
         } catch (ConstraintViolationException $formViolations) {
             return $this->forwardToRoute('frontend.account.profile.page', ['formViolations' => $formViolations]);
         } catch (\Exception $exception) {
+            $this->logger->error($exception->getMessage(), ['e' => $exception]);
             $this->addFlash(self::DANGER, $this->trans('error.message-default'));
         }
 
@@ -143,6 +149,7 @@ class AccountProfileController extends StorefrontController
 
             return $this->forwardToRoute('frontend.account.profile.page', ['formViolations' => $formViolations, 'emailFormViolation' => true]);
         } catch (\Exception $exception) {
+            $this->logger->error($exception->getMessage(), ['e' => $exception]);
             $this->addFlash(self::DANGER, $this->trans('error.message-default'));
         }
 
@@ -184,6 +191,7 @@ class AccountProfileController extends StorefrontController
             $this->deleteCustomerRoute->delete($context, $customer);
             $this->addFlash(self::SUCCESS, $this->trans('account.profileDeleteSuccessAlert'));
         } catch (\Exception $exception) {
+            $this->logger->error($exception->getMessage(), ['e' => $exception]);
             $this->addFlash(self::DANGER, $this->trans('error.message-default'));
         }
 

@@ -7,7 +7,7 @@ return [
     'tab_start' => 'Aktualisierung starten',
     'tab_check' => 'Systemvoraussetzungen',
     'tab_migration' => 'Datenbank-Migration',
-    'tab_cleanup' => 'Aufräumen',
+    'tab_cleanup' => 'Dateien aufräumen',
     'tab_done' => 'Fertig',
 
     'start_update' => 'Aktualisierung starten',

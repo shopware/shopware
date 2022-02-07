@@ -65,9 +65,9 @@ describe('Minimal auto update', () => {
             .its('response.statusCode').should('equal', 200);
 
         cy.get('[name="cleanupForm"]', { timeout: 120000 }).should('be.visible');
-        cy.get('.is--active > .navigation--link', { timeout: 1000 }).contains('Aufräumen');
+        cy.get('.is--active > .navigation--link', { timeout: 1000 }).contains('Dateien aufräumen');
         cy.get('.navigation--entry.is--complete').contains('Datenbank-Migration');
-        cy.get('.content--main h2').contains('Aufräumen');
+        cy.get('.content--main h2').contains('Dateien aufräumen');
 
         // Change display of the element to ensure consistent snapshots
          cy.changeElementStyling(
@@ -84,7 +84,7 @@ describe('Minimal auto update', () => {
         cy.get('.alert-hero-title').contains('Das Update war erfolgreich!');
 
         // Take snapshot for visual testing
-        cy.get('.navigation--entry.is--complete').contains('Aufräumen');
+        cy.get('.navigation--entry.is--complete').contains('Dateien aufräumen');
         cy.takeSnapshot('Finish');
 
         cy.get('.btn.btn-primary').contains('Update abschließen').click();

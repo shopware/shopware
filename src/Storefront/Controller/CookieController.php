@@ -51,7 +51,10 @@ class CookieController extends StorefrontController
 
         $cookieGroups = $this->filterGoogleReCaptchaCookie($context->getSalesChannelId(), $cookieGroups);
 
-        return $this->renderStorefront('@Storefront/storefront/layout/cookie/cookie-configuration.html.twig', ['cookieGroups' => $cookieGroups]);
+        $response = $this->renderStorefront('@Storefront/storefront/layout/cookie/cookie-configuration.html.twig', ['cookieGroups' => $cookieGroups]);
+        $response->headers->set('x-robots-tag', 'noindex,follow');
+
+        return $response;
     }
 
     /**
@@ -67,7 +70,10 @@ class CookieController extends StorefrontController
 
         $cookieGroups = $this->filterGoogleReCaptchaCookie($context->getSalesChannelId(), $cookieGroups);
 
-        return $this->renderStorefront('@Storefront/storefront/layout/cookie/cookie-permission.html.twig', ['cookieGroups' => $cookieGroups]);
+        $response = $this->renderStorefront('@Storefront/storefront/layout/cookie/cookie-permission.html.twig', ['cookieGroups' => $cookieGroups]);
+        $response->headers->set('x-robots-tag', 'noindex,follow');
+
+        return $response;
     }
 
     private function filterGoogleAnalyticsCookie(SalesChannelContext $context, array $cookieGroups): array

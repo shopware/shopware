@@ -1,6 +1,7 @@
 import AdminWorker from 'src/core/worker/admin-worker.worker';
 import WorkerNotificationListener from 'src/core/worker/worker-notification-listener';
 import AdminNotificationWorker from 'src/core/worker/admin-notification-worker';
+import getRefreshTokenHelper from 'src/core/helper/refresh-token.helper';
 
 let enabled = false;
 let enabledNotification = false;
@@ -47,10 +48,8 @@ export default function initializeWorker() {
 }
 
 function enableAdminWorker(loginService, context, config) {
-    let worker = getWorker(loginService);
-
     if (loginService.isLoggedIn()) {
-        worker.postMessage({
+        getWorker().postMessage({
             context: {
                 languageId: context.languageId,
                 apiResourcePath: context.apiResourcePath,
@@ -62,9 +61,7 @@ function enableAdminWorker(loginService, context, config) {
     }
 
     loginService.addOnTokenChangedListener((auth) => {
-        worker.terminate();
-        worker = getWorker(loginService);
-        worker.postMessage({
+        getWorker().postMessage({
             context: {
                 languageId: context.languageId,
                 apiResourcePath: context.apiResourcePath,
@@ -76,18 +73,27 @@ function enableAdminWorker(loginService, context, config) {
     });
 
     loginService.addOnLogoutListener(() => {
-        worker.terminate();
-        worker = getWorker(loginService);
+        getWorker(loginService).postMessage({ type: 'logout' });
     });
 
     enabled = true;
 }
 
-function getWorker(loginService) {
-    const worker = new AdminWorker();
+// singleton instance of worker
+let worker;
+function getWorker() {
+    if (worker) {
+        return worker;
+    }
+
+    worker = new AdminWorker();
 
     worker.onmessage = () => {
-        loginService.refreshToken();
+        const tokenHandler = getRefreshTokenHelper();
+
+        if (!tokenHandler.isRefreshing) {
+            tokenHandler.fireRefreshTokenRequest();
+        }
     };
 
     return worker;

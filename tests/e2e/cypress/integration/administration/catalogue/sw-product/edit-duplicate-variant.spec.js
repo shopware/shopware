@@ -169,7 +169,6 @@ describe('Product: Test variants', () => {
 
         // Verify product
         cy.wait('@duplicateProduct').its('response.statusCode').should('equal', 200);
-        cy.get('.clone-variant__modal').should('be.visible');
         cy.get('.clone-variant__modal').should('not.exist');
         cy.get('input[name=sw-field--product-name]').should(
             'have.value',

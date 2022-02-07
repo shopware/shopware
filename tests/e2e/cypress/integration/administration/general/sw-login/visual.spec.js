@@ -4,6 +4,8 @@ describe('Login: Visual tests', () => {
     // eslint-disable-next-line no-undef
     beforeEach(() => {
         cy.clearCookies();
+        cy.clearCookie('bearerAuth')
+        cy.clearCookie('refreshBearerAuth')
         cy.setLocaleToEnGb()
             .then(() => {
                 cy.visit(Cypress.env('admin'));

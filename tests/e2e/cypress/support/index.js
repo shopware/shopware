@@ -26,7 +26,7 @@ require('cypress-grep')()
 require('./commands/commands');
 
 Cypress.Cookies.defaults({
-    preserve: ['_test-api-dbName', '_apiAuth']
+    preserve: ['_test-api-dbName', '_apiAuth', 'bearerAuth', 'refreshBearerAuth']
 })
 
 // this sets the default browser locale to the environment variable

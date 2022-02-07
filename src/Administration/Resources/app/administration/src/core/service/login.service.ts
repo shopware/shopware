@@ -122,9 +122,11 @@ export default function createLoginService(
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             baseURL: context.apiPath!,
         }).then((response) => {
+            const expiry = response.data.expires_in;
+
             setBearerAuthentication({
                 access: response.data.access_token,
-                expiry: response.data.expires_in,
+                expiry: expiry,
                 refresh: response.data.refresh_token,
             });
 
@@ -218,11 +220,29 @@ export default function createLoginService(
         } else {
             bearerAuth = authObject;
         }
-        notifyOnTokenChangedListener(authObject);
 
+        notifyOnTokenChangedListener(authObject);
         context.authToken = authObject;
 
+        autoRefreshToken(expiry);
+
         return authObject;
+    }
+
+    /**
+     * Refresh token in half of expiry time
+     */
+    let autoRefreshTokenTimeoutId: ReturnType<typeof setTimeout> | undefined;
+    function autoRefreshToken(expiryTimestamp: number):void {
+        if (autoRefreshTokenTimeoutId) {
+            clearTimeout(autoRefreshTokenTimeoutId);
+        }
+
+        const timeUntilExpiry = expiryTimestamp * 1000 - Date.now();
+
+        autoRefreshTokenTimeoutId = setTimeout(() => {
+            void refreshToken();
+        }, timeUntilExpiry / 2);
     }
 
     /**
@@ -296,7 +316,13 @@ export default function createLoginService(
      * valid then the normal token.
      */
     function isLoggedIn(): boolean {
-        return !!getToken();
+        const tokenExists = !!getToken();
+
+        if (tokenExists) {
+            autoRefreshToken(getBearerAuthentication('expiry'));
+        }
+
+        return tokenExists;
     }
 
     /**

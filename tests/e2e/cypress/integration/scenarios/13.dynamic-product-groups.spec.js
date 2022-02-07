@@ -13,7 +13,7 @@ describe('Dynamic Product Groups in categories', () => {
                 productNumber: 'CP-1112',
             });
         }).then(() => {
-            cy.login('admin');
+            cy.loginViaApi('admin');
         });
     });
 

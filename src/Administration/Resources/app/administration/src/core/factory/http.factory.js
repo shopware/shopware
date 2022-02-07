@@ -2,7 +2,7 @@
  * @module core/factory/http
  */
 import Axios from 'axios';
-import RefreshTokenHelper from 'src/core/helper/refresh-token.helper';
+import getRefreshTokenHelper from 'src/core/helper/refresh-token.helper';
 import cacheAdapterFactory from 'src/core/factory/cache-adapter.factory';
 
 /**
@@ -220,7 +220,7 @@ function handleErrorStates({ status, errors, error = null, data }) {
  * @returns {AxiosInstance}
  */
 function refreshTokenInterceptor(client) {
-    const tokenHandler = new RefreshTokenHelper();
+    const tokenHandler = getRefreshTokenHelper();
 
     client.interceptors.response.use((response) => {
         return response;

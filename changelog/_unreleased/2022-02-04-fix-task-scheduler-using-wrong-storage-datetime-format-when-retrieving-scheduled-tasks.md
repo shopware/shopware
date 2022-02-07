@@ -1,6 +1,6 @@
 ---
 title: Fix task scheduler using wrong storage DateTime format when retrieving scheduled tasks.
-issue: NEXT-16402
+issue: NEXT-19989
 author: Andreas Allacher
 author_email: andreas.allacher@massiveart.com
 author_github: @AndreasA

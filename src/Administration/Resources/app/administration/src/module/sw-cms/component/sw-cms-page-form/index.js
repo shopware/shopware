@@ -49,8 +49,8 @@ Component.register('sw-cms-page-form', {
         },
 
         getBlockTitle(block) {
-            if (block.config?.name) {
-                return block.config.name;
+            if (typeof block.name === 'string' && block.name.length !== 0) {
+                return block.name;
             }
 
             if (typeof this.cmsBlocks[block.type] !== 'undefined') {

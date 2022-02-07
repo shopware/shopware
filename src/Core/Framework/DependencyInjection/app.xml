@@ -137,25 +137,23 @@
             <argument type="string">%env(APP_URL)%</argument>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Payment\Handler\AbstractAppPaymentHandler" abstract="true">
+        <service id="Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\App\Payment\Payload\PayloadService"/>
+            <argument type="service" id="order_transaction_capture_refund.repository"/>
+            <tag name="shopware.payment.method.prepared"/>
+            <tag name="shopware.payment.method.refund"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Payment\Handler\AppSyncPaymentHandler"
-                 parent="Shopware\Core\Framework\App\Payment\Handler\AppPreparedPaymentHandler">
+                 parent="Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler">
             <tag name="shopware.payment.method.sync"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Payment\Handler\AppAsyncPaymentHandler"
-                 parent="Shopware\Core\Framework\App\Payment\Handler\AppPreparedPaymentHandler">
+                 parent="Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler">
             <tag name="shopware.payment.method.async"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\App\Payment\Handler\AppPreparedPaymentHandler"
-                 parent="Shopware\Core\Framework\App\Payment\Handler\AbstractAppPaymentHandler">
-            <tag name="shopware.payment.method.prepared"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService">

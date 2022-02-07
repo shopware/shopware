@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal only for use by the app-system
  */
-class AppAsyncPaymentHandler extends AppPreparedPaymentHandler implements AsynchronousPaymentHandlerInterface
+class AppAsyncPaymentHandler extends AppPaymentHandler implements AsynchronousPaymentHandlerInterface
 {
     public function pay(AsyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): RedirectResponse
     {
@@ -49,7 +49,7 @@ class AppAsyncPaymentHandler extends AppPreparedPaymentHandler implements Asynch
         }
 
         try {
-            $response = $this->payloadService->request($url, $payload, $app, AsyncPayResponse::class, $salesChannelContext);
+            $response = $this->payloadService->request($url, $payload, $app, AsyncPayResponse::class, $salesChannelContext->getContext());
         } catch (ClientExceptionInterface $exception) {
             throw new AsyncPaymentProcessException($transaction->getOrderTransaction()->getId(), sprintf('App error: %s', $exception->getMessage()));
         }
@@ -95,7 +95,7 @@ class AppAsyncPaymentHandler extends AppPreparedPaymentHandler implements Asynch
         }
 
         try {
-            $response = $this->payloadService->request($url, $payload, $app, AsyncFinalizeResponse::class, $salesChannelContext);
+            $response = $this->payloadService->request($url, $payload, $app, AsyncFinalizeResponse::class, $salesChannelContext->getContext());
         } catch (ClientExceptionInterface $exception) {
             throw new AsyncPaymentFinalizeException($transaction->getOrderTransaction()->getId(), sprintf('App error: %s', $exception->getMessage()));
         }

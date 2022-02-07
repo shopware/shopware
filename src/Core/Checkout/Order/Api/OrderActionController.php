@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\Order\Api;
 use Doctrine\DBAL\Connection;
 use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
+use Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor;
+use Shopware\Core\Checkout\Payment\Exception\RefundProcessException;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
@@ -17,6 +19,7 @@ use Shopware\Core\System\StateMachine\StateMachineDefinition;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -33,16 +36,20 @@ class OrderActionController extends AbstractController
 
     private Connection $connection;
 
+    private PaymentRefundProcessor $paymentRefundProcessor;
+
     public function __construct(
         OrderService $orderService,
         ApiVersionConverter $apiVersionConverter,
         StateMachineDefinition $stateMachineDefinition,
-        Connection $connection
+        Connection $connection,
+        PaymentRefundProcessor $paymentRefundProcessor
     ) {
         $this->orderService = $orderService;
         $this->apiVersionConverter = $apiVersionConverter;
         $this->stateMachineDefinition = $stateMachineDefinition;
         $this->connection = $connection;
+        $this->paymentRefundProcessor = $paymentRefundProcessor;
     }
 
     /**
@@ -340,6 +347,45 @@ Note: If you choose a transition which is not possible, you will get an error th
         );
 
         return new JsonResponse($response);
+    }
+
+    /**
+     * @Since("6.4.12.0")
+     * @OA\Post(
+     *     path="/_action/order_transaction_capture_refund/{refundId}",
+     *     summary="Refund an order transaction capture",
+     *     description="Refunds an order transaction capture.",
+     *     operationId="orderTransactionCaptureRefund",
+     *     tags={"Admin API", "Order Management"},
+     *     @OA\Parameter(
+     *         name="refundId",
+     *         description="Identifier of the order transaction capture refund.",
+     *         @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
+     *         in="path",
+     *         required=true
+     *     ),
+     *     @OA\Response(
+     *         response="204",
+     *         description="Refund was successful"
+     *     ),
+     *     @OA\Response(
+     *         response="400",
+     *         description="Something went wrong, while processing the refund"
+     *     ),
+     *     @OA\Response(
+     *         response="404",
+     *         description="Refund with id not found"
+     *     )
+     * )
+     * @Route("/api/_action/order_transaction_capture_refund/{refundId}", name="api.action.order.order_transaction_capture_refund", methods={"POST"}, defaults={"_acl"={"order.editor"}})
+     *
+     * @throws RefundProcessException
+     */
+    public function refundOrderTransactionCapture(string $refundId, Context $context): JsonResponse
+    {
+        $this->paymentRefundProcessor->processRefund($refundId, $context);
+
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
     private function getDocumentIds(string $entity, string $referencedId, array $documentTypes, bool $skipSentDocuments): array

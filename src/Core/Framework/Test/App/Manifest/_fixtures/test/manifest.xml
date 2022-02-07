@@ -122,6 +122,7 @@ Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
             <finalize-url>https://payment.app/payment/finalize</finalize-url>
             <validate-url>https://payment.app/payment/validate</validate-url>
             <capture-url>https://payment.app/payment/capture</capture-url>
+            <refund-url>https://payment.app/payment/refund</refund-url>
             <icon>Resources/payment.png</icon>
         </payment-method>
         <payment-method>

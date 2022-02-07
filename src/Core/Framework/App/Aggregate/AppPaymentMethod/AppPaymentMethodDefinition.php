@@ -52,6 +52,7 @@ class AppPaymentMethodDefinition extends EntityDefinition
             new StringField('finalize_url', 'finalizeUrl'),
             new StringField('validate_url', 'validateUrl'),
             new StringField('capture_url', 'captureUrl'),
+            new StringField('refund_url', 'refundUrl'),
 
             new FkField('app_id', 'appId', AppDefinition::class),
             new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),

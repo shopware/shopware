@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PluginPaymentMethodsDeleteRestrictionException extends ShopwareHttpException
 {
-    public function __construct()
+    public function __construct(?\Throwable $e = null)
     {
-        parent::__construct('Plugin payment methods can not be deleted via API.');
+        parent::__construct('Plugin payment methods can not be deleted via API.', [], $e);
     }
 
     public function getErrorCode(): string

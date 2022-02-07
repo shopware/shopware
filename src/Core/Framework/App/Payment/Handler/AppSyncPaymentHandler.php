@@ -18,7 +18,7 @@ use Shopware\Core\System\StateMachine\Transition;
 /**
  * @internal only for use by the app-system
  */
-class AppSyncPaymentHandler extends AppPreparedPaymentHandler implements SynchronousPaymentHandlerInterface
+class AppSyncPaymentHandler extends AppPaymentHandler implements SynchronousPaymentHandlerInterface
 {
     public function pay(SyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): void
     {
@@ -34,7 +34,7 @@ class AppSyncPaymentHandler extends AppPreparedPaymentHandler implements Synchro
         }
 
         try {
-            $response = $this->payloadService->request($payUrl, $payload, $app, SyncPayResponse::class, $salesChannelContext);
+            $response = $this->payloadService->request($payUrl, $payload, $app, SyncPayResponse::class, $salesChannelContext->getContext());
         } catch (ClientExceptionInterface $exception) {
             throw new AsyncPaymentProcessException($transaction->getOrderTransaction()->getId(), sprintf('App error: %s', $exception->getMessage()));
         }

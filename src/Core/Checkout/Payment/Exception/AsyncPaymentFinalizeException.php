@@ -4,12 +4,13 @@ namespace Shopware\Core\Checkout\Payment\Exception;
 
 class AsyncPaymentFinalizeException extends PaymentProcessException
 {
-    public function __construct(string $orderTransactionId, string $errorMessage)
+    public function __construct(string $orderTransactionId, string $errorMessage, ?\Throwable $e = null)
     {
         parent::__construct(
             $orderTransactionId,
             'The asynchronous payment finalize was interrupted due to the following error:' . \PHP_EOL . '{{ errorMessage }}',
-            ['errorMessage' => $errorMessage]
+            ['errorMessage' => $errorMessage],
+            $e
         );
     }
 

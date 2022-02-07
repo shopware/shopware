@@ -8,7 +8,7 @@ namespace Shopware\Core\Framework\App\Payment\Response;
 class SyncPayResponse extends AbstractResponse
 {
     /**
-     * One of the possible transaction statusses based on status set in pay-response.
+     * One of the possible transaction statuses based on status set in pay-response.
      * Usually, this is one of: paid, paid_partially, authorize, process, fail
      * By default, the payment will remain on 'open'
      */

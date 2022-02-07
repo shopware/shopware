@@ -55,6 +55,12 @@
             <argument type="service" id="Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStateHandler"/>
+            <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
+        </service>
+
         <service id="shopware.jwt_signer" class="Lcobucci\JWT\Signer\Rsa\Sha256"/>
 
         <service id="shopware.jwt_config" class="Lcobucci\JWT\Configuration">
@@ -74,6 +80,8 @@
             <argument type="tagged_locator" tag="shopware.payment.method.sync"/>
             <argument type="tagged_locator" tag="shopware.payment.method.async"/>
             <argument type="tagged_locator" tag="shopware.payment.method.prepared"/>
+            <argument type="tagged_locator" tag="shopware.payment.method.refund"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment">

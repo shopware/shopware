@@ -414,6 +414,7 @@
             <xs:element type="xs:anyURI" name="finalize-url" minOccurs="0"/>
             <xs:element type="xs:anyURI" name="validate-url" minOccurs="0"/>
             <xs:element type="xs:anyURI" name="capture-url" minOccurs="0"/>
+            <xs:element type="xs:anyURI" name="refund-url" minOccurs="0"/>
             <xs:element type="xs:string" name="icon" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation xml:lang="en">

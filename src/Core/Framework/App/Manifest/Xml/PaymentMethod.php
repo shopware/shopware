@@ -34,6 +34,8 @@ class PaymentMethod extends XmlElement
 
     protected ?string $captureUrl = null;
 
+    protected ?string $refundUrl = null;
+
     protected ?string $icon = null;
 
     private function __construct(array $data)
@@ -69,9 +71,18 @@ class PaymentMethod extends XmlElement
             'finalizeUrl' => $data['finalizeUrl'],
             'validateUrl' => $data['validateUrl'],
             'captureUrl' => $data['captureUrl'],
+            'refundUrl' => $data['refundUrl'],
         ];
 
-        unset($data['identifier'], $data['payUrl'], $data['finalizeUrl'], $data['validateUrl'], $data['captureUrl'], $data['icon']);
+        unset(
+            $data['identifier'],
+            $data['payUrl'],
+            $data['finalizeUrl'],
+            $data['validateUrl'],
+            $data['captureUrl'],
+            $data['refundUrl'],
+            $data['icon']
+        );
 
         return $data;
     }
@@ -115,6 +126,11 @@ class PaymentMethod extends XmlElement
     public function getCaptureUrl(): ?string
     {
         return $this->captureUrl;
+    }
+
+    public function getRefundUrl(): ?string
+    {
+        return $this->refundUrl;
     }
 
     public function getIcon(): ?string

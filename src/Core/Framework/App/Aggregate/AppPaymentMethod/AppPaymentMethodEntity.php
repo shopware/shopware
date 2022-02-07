@@ -59,6 +59,8 @@ class AppPaymentMethodEntity extends Entity
 
     protected ?string $captureUrl;
 
+    protected ?string $refundUrl;
+
     /**
      * @var string|null
      */
@@ -167,6 +169,16 @@ class AppPaymentMethodEntity extends Entity
     public function setCaptureUrl(?string $captureUrl): void
     {
         $this->captureUrl = $captureUrl;
+    }
+
+    public function getRefundUrl(): ?string
+    {
+        return $this->refundUrl;
+    }
+
+    public function setRefundUrl(?string $refundUrl): void
+    {
+        $this->refundUrl = $refundUrl;
     }
 
     public function getOriginalMediaId(): ?string

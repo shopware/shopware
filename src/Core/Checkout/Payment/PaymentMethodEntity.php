@@ -130,6 +130,8 @@ class PaymentMethodEntity extends Entity
 
     protected bool $prepared = false;
 
+    protected bool $refundable = false;
+
     public function getPluginId(): ?string
     {
         return $this->pluginId;
@@ -368,5 +370,15 @@ class PaymentMethodEntity extends Entity
     public function setPrepared(bool $prepared): void
     {
         $this->prepared = $prepared;
+    }
+
+    public function isRefundable(): bool
+    {
+        return $this->refundable;
+    }
+
+    public function setRefundable(bool $refundable): void
+    {
+        $this->refundable = $refundable;
     }
 }

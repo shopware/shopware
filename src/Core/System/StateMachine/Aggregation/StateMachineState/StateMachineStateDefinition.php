@@ -4,6 +4,8 @@ namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineState;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -64,6 +66,8 @@ class StateMachineStateDefinition extends EntityDefinition
             new OneToManyAssociationField('orderTransactions', OrderTransactionDefinition::class, 'state_id'),
             new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'state_id'),
             new OneToManyAssociationField('orders', OrderDefinition::class, 'state_id'),
+            new OneToManyAssociationField('orderTransactionCaptures', OrderTransactionCaptureDefinition::class, 'state_id'),
+            new OneToManyAssociationField('orderTransactionCaptureRefunds', OrderTransactionCaptureRefundDefinition::class, 'state_id'),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
             new OneToManyAssociationField('toStateMachineHistoryEntries', StateMachineHistoryDefinition::class, 'to_state_id'),
             new OneToManyAssociationField('fromStateMachineHistoryEntries', StateMachineHistoryDefinition::class, 'from_state_id'),

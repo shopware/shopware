@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UnknownPaymentMethodException extends ShopwareHttpException
 {
-    public function __construct(string $paymentMethodId)
+    public function __construct(string $paymentMethodId, ?\Throwable $e = null)
     {
         parent::__construct(
             'The payment method {{ paymentMethodId }} could not be found.',
-            ['paymentMethodId' => $paymentMethodId]
+            ['paymentMethodId' => $paymentMethodId],
+            $e
         );
     }
 

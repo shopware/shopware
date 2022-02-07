@@ -53,7 +53,8 @@ function createWrapper(privileges = []) {
             },
             'sw-product-layout-assignment': true,
             'sw-cms-layout-modal': true,
-            'sw-cms-page-form': true
+            'sw-cms-page-form': true,
+            'sw-skeleton': true,
         }
     });
 }

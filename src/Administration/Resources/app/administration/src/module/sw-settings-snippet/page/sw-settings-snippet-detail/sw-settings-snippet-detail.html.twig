@@ -62,57 +62,64 @@
 
     {% block sw_settings_snippet_detail_content %}
     <sw-card-view slot="content">
-        {% block sw_settings_snippet_set_detail_card %}
-        <div class="sw-settings-snippet-set-detail-card">
-            {% block sw_settings_snippet_set_detail_card_information %}
-            <sw-card
-                position-identifier="sw-settings-snippet-detail-information"
-                :title="$tc('sw-settings-snippet.detail.cardGeneralTitle')"
-                :is-loading="isLoading"
-            >
-                <div class="snippet-general-card">
-                    {% block sw_settings_snippet_set_detail_card_information_key %}
-                    <sw-field
-                        v-model="translationKey"
-                        v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
-                        type="text"
-                        :label="$tc('sw-settings-snippet.detail.labelName')"
-                        :placeholder="$tc('sw-settings-snippet.detail.labelNamePlaceholder')"
-                        :disabled="!(isCreate || isAddedSnippet)"
-                        :error="invalidKeyError"
-                        @input="onChange"
-                    />
-                    {% endblock %}
-                </div>
-            </sw-card>
-            {% endblock %}
+        <template v-if="isLoading">
+            <sw-skeleton />
+            <sw-skeleton />
+        </template>
 
-            {% block sw_settings_snippet_set_detail_card_snippets %}
-            <sw-card
-                position-identifier="sw-settings-snippet-detail-snippets"
-                :title="$tc('sw-settings-snippet.detail.cardSnippetSetsTitle')"
-                :is-loading="isLoading"
-            >
-                <div class="snippet-overview-card">
-                    {% block sw_settings_snippet_set_detail_card_snippets_fields %}
-                    <sw-field
-                        v-for="(snippet, index) in snippets"
-                        :key="snippet.setId"
-                        v-model="snippet.value"
-                        v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
-                        type="text"
-                        :class="`sw-settings-snippet-detail__translation-field--${index}`"
-                        :disabled="!acl.can('snippet.editor')"
-                        :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: sets.get(snippet.setId).name })"
-                        :placeholder="snippet.origin || $tc('sw-settings-snippet.general.placeholderValue')"
-                        @input="onChange"
-                    />
-                    {% endblock %}
-                </div>
-            </sw-card>
+        <template v-else>
+            {% block sw_settings_snippet_set_detail_card %}
+            <div class="sw-settings-snippet-set-detail-card">
+                {% block sw_settings_snippet_set_detail_card_information %}
+                <sw-card
+                    position-identifier="sw-settings-snippet-detail-information"
+                    :title="$tc('sw-settings-snippet.detail.cardGeneralTitle')"
+                    :is-loading="isLoading"
+                >
+                    <div class="snippet-general-card">
+                        {% block sw_settings_snippet_set_detail_card_information_key %}
+                        <sw-field
+                            v-model="translationKey"
+                            v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
+                            type="text"
+                            :label="$tc('sw-settings-snippet.detail.labelName')"
+                            :placeholder="$tc('sw-settings-snippet.detail.labelNamePlaceholder')"
+                            :disabled="!(isCreate || isAddedSnippet)"
+                            :error="invalidKeyError"
+                            @input="onChange"
+                        />
+                        {% endblock %}
+                    </div>
+                </sw-card>
+                {% endblock %}
+
+                {% block sw_settings_snippet_set_detail_card_snippets %}
+                <sw-card
+                    position-identifier="sw-settings-snippet-detail-snippets"
+                    :title="$tc('sw-settings-snippet.detail.cardSnippetSetsTitle')"
+                    :is-loading="isLoading"
+                >
+                    <div class="snippet-overview-card">
+                        {% block sw_settings_snippet_set_detail_card_snippets_fields %}
+                        <sw-field
+                            v-for="(snippet, index) in snippets"
+                            :key="snippet.setId"
+                            v-model="snippet.value"
+                            v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
+                            type="text"
+                            :class="`sw-settings-snippet-detail__translation-field--${index}`"
+                            :disabled="!acl.can('snippet.editor')"
+                            :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: sets.get(snippet.setId).name })"
+                            :placeholder="snippet.origin || $tc('sw-settings-snippet.general.placeholderValue')"
+                            @input="onChange"
+                        />
+                        {% endblock %}
+                    </div>
+                </sw-card>
+                {% endblock %}
+            </div>
             {% endblock %}
-        </div>
-        {% endblock %}
+        </template>
     </sw-card-view>
     {% endblock %}
 </sw-page>

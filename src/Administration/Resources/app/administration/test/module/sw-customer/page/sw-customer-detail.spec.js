@@ -84,7 +84,8 @@ function createWrapper(privileges = []) {
             },
             'sw-custom-field-set-renderer': Shopware.Component.build('sw-custom-field-set-renderer'),
             'sw-form-field-renderer': Shopware.Component.build('sw-form-field-renderer'),
-            'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper')
+            'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper'),
+            'sw-skeleton': true,
         }
     });
 }

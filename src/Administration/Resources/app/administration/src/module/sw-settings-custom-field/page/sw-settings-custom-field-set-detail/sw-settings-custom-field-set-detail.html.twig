@@ -43,17 +43,26 @@
 
     {% block sw_settings_custom_field_set_detail_content %}
     <sw-card-view slot="content">
-        {% block sw_settings_custom_field_set_detail_content_detail_base %}
-        <sw-custom-field-set-detail-base :set="set" />
-        {% endblock %}
+        <template v-if="isLoading">
+            <sw-skeleton />
+            <sw-skeleton />
+        </template>
 
-        {% block sw_settings_custom_field_set_detail_content_detail_custom_field_list %}
-        <sw-custom-field-list
-            v-if="set.id"
-            ref="customFieldList"
-            :set="set"
-        />
-        {% endblock %}
+        {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
+        <div v-show="!isLoading">
+            {% block sw_settings_custom_field_set_detail_content_detail_base %}
+            <sw-custom-field-set-detail-base :set="set" />
+            {% endblock %}
+
+            {% block sw_settings_custom_field_set_detail_content_detail_custom_field_list %}
+            <sw-custom-field-list
+                v-if="set.id"
+                ref="customFieldList"
+                :set="set"
+                @loading-changed="onLoadingChanged"
+            />
+            {% endblock %}
+        </div>
     </sw-card-view>
     {% endblock %}
 </sw-page>

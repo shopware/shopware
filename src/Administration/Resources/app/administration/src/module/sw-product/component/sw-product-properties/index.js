@@ -127,7 +127,7 @@ Component.register('sw-product-properties', {
         getProperties() {
             if (!this.product?.id || this.groupIds.length <= 0) {
                 this.properties = [];
-                return Promise.reject();
+                return Promise.resolve();
             }
 
             this.isPropertiesLoading = true;

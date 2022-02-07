@@ -48,7 +48,7 @@
     {% block sw_users_permissions_role_detail_content %}
     <template #content>
         {% block sw_users_permissions_role_detail_content_card_view %}
-        <sw-card-view v-if="!isLoading">
+        <sw-card-view>
             {% block sw_users_permissions_role_detail_content_card_view_tabs %}
             <sw-tabs
                 default-item="general"
@@ -72,7 +72,13 @@
             </sw-tabs>
             {% endblock %}
 
+            <template v-if="isLoading">
+                <sw-skeleton variant="detail-bold" />
+                <sw-skeleton />
+            </template>
+
             <router-view
+                v-else
                 :role="role"
                 :detailed-privileges="detailedPrivileges"
             />

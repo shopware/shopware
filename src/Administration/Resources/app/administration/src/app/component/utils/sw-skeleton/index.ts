@@ -12,11 +12,13 @@ Component.register('sw-skeleton', {
     props: {
         variant: {
             type: String,
-            required: true,
+            required: false,
+            default: 'detail',
             validator(value) {
                 const variants = [
                     'gallery',
                     'detail',
+                    'detail-bold',
                     'category',
                     'listing',
                     'tree-item',
@@ -34,6 +36,7 @@ Component.register('sw-skeleton', {
             return {
                 'sw-skeleton__gallery': this.variant === 'gallery',
                 'sw-skeleton__detail': this.variant === 'detail',
+                'sw-skeleton__detail-bold': this.variant === 'detail-bold',
                 'sw-skeleton__category': this.variant === 'category',
                 'sw-skeleton__listing': this.variant === 'listing',
                 'sw-skeleton__tree-item': this.variant === 'tree-item',

@@ -120,7 +120,8 @@ function createWrapper(privileges = []) {
                         <slot></slot>
                     </button>
                 `
-            }
+            },
+            'sw-skeleton': true,
         }
     });
 }

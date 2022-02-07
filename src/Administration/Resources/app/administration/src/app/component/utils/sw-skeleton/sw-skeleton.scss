@@ -6,15 +6,32 @@ $sw-skeleton-background: $color-gray-50;
     cursor: progress;
 
     &__detail {
-        width: 736px;
+        width: 706px;
         height: 264px;
         background-color: $sw-skeleton-background;
         overflow: hidden;
+        margin: 0 auto;
+
+        &:not(:last-child) {
+            margin-bottom: 112px;
+        }
+    }
+
+    &__detail-bold {
+        width: 706px;
+        height: 234px;
+        background-color: $sw-skeleton-background;
+        overflow: hidden;
+        margin: 0 auto;
+
+        &:not(:last-child) {
+            margin-bottom: 112px;
+        }
     }
 
     &__detail-container {
         display: flex;
-        column-gap: 32px;
+        column-gap: 24px;
     }
 
     &__detail-container-group {

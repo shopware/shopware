@@ -59,7 +59,8 @@ function createWrapper(privileges = []) {
             'sw-select-rule-create': true,
             'sw-settings-shipping-price-matrices': true,
             'sw-settings-shipping-tax-cost': true,
-            'sw-language-info': true
+            'sw-language-info': true,
+            'sw-skeleton': true,
         }
     });
 }

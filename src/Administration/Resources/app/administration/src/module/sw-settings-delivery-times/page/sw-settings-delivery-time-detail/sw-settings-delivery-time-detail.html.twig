@@ -49,91 +49,95 @@
     <template #content>
         <sw-card-view>
 
-            {% block sw_settings_delivery_time_language_info %}
-            <sw-language-info
-                :entity-description="displayName"
-                :is-new-entity="!$route.params.id"
-            />
-            {% endblock %}
+            <sw-skeleton v-if="isLoading" />
 
-            {% block sw_settings_delivery_time_detail_form %}
-            <sw-card
-                :is-loading="isLoading"
-                position-identifier="sw-settings-delivery-time-detail-form"
-            >
-                <template v-if="deliveryTime">
-
-                    {% block sw_settings_delivery_time_detail_name_field %}
-                    <sw-field
-                        v-model="deliveryTime.name"
-                        :label="$tc('sw-settings-delivery-time.detail.labelName')"
-                        :error="deliveryTimeNameError"
-                        :disabled="!acl.can('delivery_times.editor')"
-                        required
-                    />
-                    {% endblock %}
-
-                    {% block sw_settings_delivery_time_detail_unit_field %}
-                    <sw-single-select
-                        v-model="deliveryTime.unit"
-                        class="sw-delivery-time-detail__field-unit"
-                        :options="deliveryTimeUnits"
-                        :error="deliveryTimeUnitError"
-                        :label="$tc('sw-settings-delivery-time.detail.labelUnit')"
-                        :disabled="!acl.can('delivery_times.editor')"
-                        required
-                        show-clearable-button
-                    />
-                    {% endblock %}
-
-                    {% block sw_settings_delivery_time_min_max_container %}
-                    <sw-container
-                        columns="1fr 1fr"
-                        gap="30px"
-                    >
-
-                        {% block sw_settings_delivery_time_detail_min_field %}
-                        <sw-number-field
-                            v-model="deliveryTime.min"
-                            :label="$tc('sw-settings-delivery-time.detail.labelMin')"
-                            :error="deliveryTimeMinError || invalidMinError"
-                            :min="0"
-                            :max="deliveryTime.max"
-                            :disabled="!acl.can('delivery_times.editor')"
-                            required
-                        />
-                        {% endblock %}
-
-                        {% block sw_settings_delivery_time_detail_max_field %}
-                        <sw-number-field
-                            v-model="deliveryTime.max"
-                            :label="$tc('sw-settings-delivery-time.detail.labelMax')"
-                            :error="deliveryTimeMaxError"
-                            :min="deliveryTime.min"
-                            :disabled="!acl.can('delivery_times.editor')"
-                            required
-                        />
-                        {% endblock %}
-                    </sw-container>
-                    {% endblock %}
-                </template>
-            </sw-card>
-            {% endblock %}
-
-            {% block sw_settings_delivery_time_detail_custom_field_sets %}
-            <sw-card
-                v-if="showCustomFields"
-                position-identifier="sw-settings-delivery-time-detail-custom-field-sets"
-                :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
-                :is-loading="isLoading"
-            >
-                <sw-custom-field-set-renderer
-                    :entity="deliveryTime"
-                    :disabled="!acl.can('delivery_times.editor')"
-                    :sets="customFieldSets"
+            <template v-else>
+                {% block sw_settings_delivery_time_language_info %}
+                <sw-language-info
+                    :entity-description="displayName"
+                    :is-new-entity="!$route.params.id"
                 />
-            </sw-card>
-            {% endblock %}
+                {% endblock %}
+
+                {% block sw_settings_delivery_time_detail_form %}
+                <sw-card
+                    :is-loading="isLoading"
+                    position-identifier="sw-settings-delivery-time-detail-form"
+                >
+                    <template v-if="deliveryTime">
+
+                        {% block sw_settings_delivery_time_detail_name_field %}
+                        <sw-field
+                            v-model="deliveryTime.name"
+                            :label="$tc('sw-settings-delivery-time.detail.labelName')"
+                            :error="deliveryTimeNameError"
+                            :disabled="!acl.can('delivery_times.editor')"
+                            required
+                        />
+                        {% endblock %}
+
+                        {% block sw_settings_delivery_time_detail_unit_field %}
+                        <sw-single-select
+                            v-model="deliveryTime.unit"
+                            class="sw-delivery-time-detail__field-unit"
+                            :options="deliveryTimeUnits"
+                            :error="deliveryTimeUnitError"
+                            :label="$tc('sw-settings-delivery-time.detail.labelUnit')"
+                            :disabled="!acl.can('delivery_times.editor')"
+                            required
+                            show-clearable-button
+                        />
+                        {% endblock %}
+
+                        {% block sw_settings_delivery_time_min_max_container %}
+                        <sw-container
+                            columns="1fr 1fr"
+                            gap="30px"
+                        >
+
+                            {% block sw_settings_delivery_time_detail_min_field %}
+                            <sw-number-field
+                                v-model="deliveryTime.min"
+                                :label="$tc('sw-settings-delivery-time.detail.labelMin')"
+                                :error="deliveryTimeMinError || invalidMinError"
+                                :min="0"
+                                :max="deliveryTime.max"
+                                :disabled="!acl.can('delivery_times.editor')"
+                                required
+                            />
+                            {% endblock %}
+
+                            {% block sw_settings_delivery_time_detail_max_field %}
+                            <sw-number-field
+                                v-model="deliveryTime.max"
+                                :label="$tc('sw-settings-delivery-time.detail.labelMax')"
+                                :error="deliveryTimeMaxError"
+                                :min="deliveryTime.min"
+                                :disabled="!acl.can('delivery_times.editor')"
+                                required
+                            />
+                            {% endblock %}
+                        </sw-container>
+                        {% endblock %}
+                    </template>
+                </sw-card>
+                {% endblock %}
+
+                {% block sw_settings_delivery_time_detail_custom_field_sets %}
+                <sw-card
+                    v-if="showCustomFields"
+                    position-identifier="sw-settings-delivery-time-detail-custom-field-sets"
+                    :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                    :is-loading="isLoading"
+                >
+                    <sw-custom-field-set-renderer
+                        :entity="deliveryTime"
+                        :disabled="!acl.can('delivery_times.editor')"
+                        :sets="customFieldSets"
+                    />
+                </sw-card>
+                {% endblock %}
+            </template>
         </sw-card-view>
     </template>
     {% endblock %}

@@ -70,7 +70,8 @@ function createWrapper() {
             'sw-help-text': Shopware.Component.build('sw-help-text'),
             'sw-search-bar': true,
             'sw-notification-center': true,
-            'sw-loader': true
+            'sw-loader': true,
+            'sw-skeleton': true,
         }
     });
 }

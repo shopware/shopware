@@ -177,6 +177,7 @@ describe('Product: Test variants', () => {
         cy.get(page.elements.productSaveAction).click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);
 
+        cy.get('.sw-product-detail__select-category').scrollIntoView();
         cy.contains('.sw-label', 'Home').should('be.visible');
 
         cy.get('.sw-product-detail__tab-variants').scrollIntoView();

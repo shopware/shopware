@@ -1,9 +1,14 @@
 {% block sw_product_detail_reviews %}
+<div v-if="isLoading">
+    <sw-skeleton />
+    <sw-skeleton />
+</div>
+
 <sw-card
+    v-else
     class="sw-product-detail-reviews"
     position-identifier="sw-product-detail-reviews"
     :title="cardTitle"
-    :is-loading="isLoading"
 >
     {% block sw_product_detail_reviews_data %}
     <template

@@ -1,16 +1,19 @@
 {% block sw_product_detail_specifications %}
-<div>
+<div v-if="isLoading">
+    <sw-skeleton />
+    <sw-skeleton />
+</div>
+
+<div v-else>
     {% block sw_product_detail_specifications_measures_packaging %}
     <sw-card
         v-show="showProductCard('measures_packaging')"
         class="sw-product-detail-specification__measures-packaging"
         position-identifier="sw-product-detail-specifications-measures-packaging"
         :title="$tc('sw-product.specifications.cardTitleMeasuresPackaging')"
-        :is-loading="isLoading"
     >
         {% block sw_product_detail_specifications_measures_packaging_content %}
         <sw-product-packaging-form
-            v-if="!isLoading"
             :show-setting-packaging="showModeSetting"
             :allow-edit="acl.can('product.editor')"
         />
@@ -34,13 +37,9 @@
         class="sw-product-detail-specification__essential-characteristics"
         position-identifier="sw-product-detail-specifications-essential-characteristics"
         :title="$tc('sw-product.specifications.cardTitleEssentialCharacteristics')"
-        :is-loading="isLoading"
     >
         {% block sw_product_detail_specifications_essential_characteristics_content %}
-        <sw-product-feature-set-form
-            v-if="!isLoading"
-            :allow-edit="acl.can('product.editor')"
-        />
+        <sw-product-feature-set-form :allow-edit="acl.can('product.editor')" />
         {% endblock %}
     </sw-card>
     {% endblock %}
@@ -54,7 +53,6 @@
         class="sw-product-detail-specification__custom-fields"
         position-identifier="sw-product-detail-specifications-custom-fields"
         :title="$tc('sw-product.specifications.cardTitleCustomFields')"
-        :is-loading="isLoading"
     >
         {% block sw_product_detail_specifications_custom_fields_content %}
         <sw-custom-field-set-renderer

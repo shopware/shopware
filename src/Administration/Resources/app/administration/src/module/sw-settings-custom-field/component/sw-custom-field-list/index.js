@@ -66,6 +66,10 @@ Component.register('sw-custom-field-list', {
                 this.loadCustomFields();
             }
         },
+
+        isLoading(value) {
+            this.$emit('loading-changed', value);
+        },
     },
 
     created() {

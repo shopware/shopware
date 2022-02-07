@@ -20,6 +20,7 @@ Component.register('sw-settings-cart', {
         saveFinish() {
             this.isSaveSuccessful = false;
         },
+
         onSave() {
             this.isSaveSuccessful = false;
             this.isLoading = true;
@@ -33,6 +34,10 @@ Component.register('sw-settings-cart', {
                     message: err,
                 });
             });
+        },
+
+        onLoadingChanged(loading) {
+            this.isLoading = loading;
         },
     },
 });

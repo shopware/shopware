@@ -127,7 +127,8 @@ async function createWrapper(privileges = []) {
                 `
             },
             'sw-context-menu-item': true,
-            'sw-empty-state': true
+            'sw-empty-state': true,
+            'sw-skeleton': true,
         }
     });
 
@@ -161,6 +162,8 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
     });
 
     it('should contain all fields', async () => {
+        await wrapper.setData({ isLoading: false });
+
         const fieldFirstName = wrapper.find('.sw-settings-user-detail__grid-firstName');
         const fieldLastName = wrapper.find('.sw-settings-user-detail__grid-lastName');
         const fieldEmail = wrapper.find('.sw-settings-user-detail__grid-eMail');
@@ -194,7 +197,8 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
                 firstName: 'Max',
                 lastName: 'Mustermann',
                 email: 'max@mustermann.com'
-            }
+            },
+            isLoading: false,
         });
 
         const fieldFirstName = wrapper.find('.sw-settings-user-detail__grid-firstName');
@@ -232,7 +236,8 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
                 firstName: 'Max',
                 lastName: 'Mustermann',
                 email: 'max@mustermann.com'
-            }
+            },
+            isLoading: false,
         });
 
         const aclRolesSelect = wrapper.find('.sw-settings-user-detail__grid-aclRoles');
@@ -253,7 +258,8 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
                 firstName: 'Max',
                 lastName: 'Mustermann',
                 email: 'max@mustermann.com'
-            }
+            },
+            isLoading: false,
         });
 
         const aclRolesSelect = wrapper.find('.sw-settings-user-detail__grid-aclRoles');
@@ -339,7 +345,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
 
     it('should change the password', async () => {
         wrapper = await createWrapper('users_and_permissions.editor');
-        await wrapper.vm.$nextTick();
+        await wrapper.setData({ isLoading: false });
 
         expect(wrapper.vm.user.password).toBe(undefined);
 
@@ -354,7 +360,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
 
     it('should delete the password when input is empty', async () => {
         wrapper = await createWrapper('users_and_permissions.editor');
-        await wrapper.vm.$nextTick();
+        await wrapper.setData({ isLoading: false });
 
         expect(wrapper.vm.user.password).toBe(undefined);
 
@@ -374,7 +380,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
 
     it('should send a request with the new password', async () => {
         wrapper = await createWrapper('users_and_permissions.editor');
-        await wrapper.vm.$nextTick();
+        await wrapper.setData({ isLoading: false });
 
         expect(wrapper.vm.user.password).toBe(undefined);
 
@@ -389,7 +395,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
 
     it('should not send a request when user clears the password field', async () => {
         wrapper = await createWrapper('users_and_permissions.editor');
-        await wrapper.vm.$nextTick();
+        await wrapper.setData({ isLoading: false });
 
         expect(wrapper.vm.user.password).toBe(undefined);
 

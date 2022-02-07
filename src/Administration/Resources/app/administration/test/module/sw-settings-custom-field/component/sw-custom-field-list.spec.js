@@ -2,6 +2,7 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-custom-field/component/sw-custom-field-list';
 import 'src/app/component/grid/sw-grid';
 import 'src/app/component/grid/sw-pagination';
+import flushPromises from 'flush-promises';
 
 const set = {
     id: '9f359a2ab0824784a608fc2a443c5904',
@@ -129,7 +130,7 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
 
     it('should always have a pagination', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const pagination = wrapper.find('.sw-pagination');
         expect(pagination.exists()).toBe(true);
@@ -137,7 +138,7 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
 
     it('should have one page initially', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const paginationButtons = wrapper.findAll('.sw-pagination__list-button');
         expect(paginationButtons.length).toBe(1);
@@ -197,8 +198,7 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
 
     it('should sort custom fields by position ', async () => {
         const wrapper = createWrapper();
-
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const customFieldPositionCells = wrapper.findAll('.sw-grid-column[data-index="position"]').wrappers;
         const [first, second, third, fourth] = customFieldPositionCells;
@@ -211,7 +211,7 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
 
     it('should not be able to edit', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-custom-field-list__edit-action');
         expect(editMenuItem.attributes().disabled).toBeTruthy();
@@ -221,7 +221,7 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
         const wrapper = createWrapper([
             'custom_field.editor'
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-custom-field-list__edit-action');
         expect(editMenuItem.attributes().disabled).toBeFalsy();

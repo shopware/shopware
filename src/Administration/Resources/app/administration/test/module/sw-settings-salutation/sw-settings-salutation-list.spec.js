@@ -105,7 +105,8 @@ function createWrapper(privileges = []) {
             'sw-icon': true,
             'sw-language-switch': true,
             'sw-button': true,
-            'sw-context-menu-item': true
+            'sw-context-menu-item': true,
+            'sw-skeleton': true,
         }
     });
 }

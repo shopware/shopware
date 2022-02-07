@@ -45,9 +45,9 @@ describe('Theme: Test sales channel assignment', () => {
 
     it('@content: can\'t remove saved sales-channel from default theme', () => {
         cy.intercept({
-            url: `${Cypress.env('apiPath')}/_action/theme/*`,
-            method: 'PATCH'
-        }).as('saveData');
+            url: `${Cypress.env('apiPath')}/_action/theme/*/configuration`,
+            method: 'GET'
+        }).as('loadData');
 
         cy.get('.sw-theme-list-item')
             .last()
@@ -67,7 +67,7 @@ describe('Theme: Test sales channel assignment', () => {
 
         cy.get('.sw-modal__footer > .sw-button--primary').click();
 
-        cy.wait('@saveData').its('response.statusCode').should('equal', 200);
+        cy.wait('@loadData').its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-theme-manager-detail__saleschannels-select .sw-select-selection-list__item-holder').should('have.length', 3);
         cy.contains('.sw-select-selection-list__item-holder', 'Channel No 9').should('exist');

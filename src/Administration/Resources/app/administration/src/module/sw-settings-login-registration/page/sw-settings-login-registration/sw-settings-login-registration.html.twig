@@ -38,9 +38,9 @@
         {% block sw_settings_login_registration_actions_save %}
         <sw-button-process
             class="sw-settings-login-registration__save-action"
-            :is-loading="isLoading"
+            :is-loading="isLoading || systemConfigLoading"
             :process-success="isSaveSuccessful"
-            :disabled="isLoading"
+            :disabled="isLoading || systemConfigLoading"
             variant="primary"
             @process-finish="saveFinish"
             @click="onSave"
@@ -54,21 +54,31 @@
     {% block sw_settings_login_registration_content %}
     <template slot="content">
         <sw-card-view>
-            {% block sw_setting_login_registration_system_config %}
-            <sw-system-config
-                ref="systemConfig"
-                sales-channel-switchable
-                domain="core.loginRegistration"
-            />
-            {% endblock %}
+            <template v-if="systemConfigLoading">
+                <sw-skeleton />
+                <sw-skeleton />
+            </template>
 
-            {% block sw_setting_login_registration_system_wide %}
-            <sw-system-config
-                ref="systemConfigSystemWide"
-                :sales-channel-switchable="false"
-                domain="core.systemWideLoginRegistration"
-            />
-            {% endblock %}
+            {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
+            <div v-show="!systemConfigLoading">
+                {% block sw_setting_login_registration_system_config %}
+                <sw-system-config
+                    ref="systemConfig"
+                    sales-channel-switchable
+                    domain="core.loginRegistration"
+                    @loading-changed="onLoginRegistrationLoadingChanged"
+                />
+                {% endblock %}
+
+                {% block sw_setting_login_registration_system_wide %}
+                <sw-system-config
+                    ref="systemConfigSystemWide"
+                    :sales-channel-switchable="false"
+                    domain="core.systemWideLoginRegistration"
+                    @loading-changed="onSystemWideLoadingChanged"
+                />
+                {% endblock %}
+            </div>
         </sw-card-view>
     </template>
     {% endblock %}

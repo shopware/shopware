@@ -45,10 +45,15 @@
     {% block sw_settings_sitemap_content %}
     <template slot="content">
         <sw-card-view>
+            <sw-skeleton v-if="isLoading" />
+
+            {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
             <sw-system-config
+                v-show="!isLoading"
                 ref="systemConfig"
                 sales-channel-switchable
                 domain="core.sitemap"
+                @loading-changed="onLoadingChanged"
             />
         </sw-card-view>
     </template>

@@ -54,10 +54,18 @@
     {% block sw_settings_basic_information_content %}
     <template slot="content">
         <sw-card-view>
+            <template v-if="isLoading">
+                <sw-skeleton />
+                <sw-skeleton />
+            </template>
+
+            {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
             <sw-system-config
+                v-show="!isLoading"
                 ref="systemConfig"
                 sales-channel-switchable
                 domain="core.basicInformation"
+                @loading-changed="onLoadingChanged"
             />
         </sw-card-view>
     </template>

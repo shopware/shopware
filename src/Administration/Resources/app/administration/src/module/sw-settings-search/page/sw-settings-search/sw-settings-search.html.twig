@@ -69,7 +69,14 @@
             {% endblock %}
 
             {% block sw_settings_search_tabs_content %}
+            <template v-if="isLoading">
+                <sw-skeleton />
+                <sw-skeleton />
+            </template>
+
+            {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
             <router-view
+                v-show="!isLoading"
                 :is-loading="isLoading"
                 :product-search-configs="productSearchConfigs"
                 :current-sales-channel-id="currentSalesChannelId"

@@ -5,6 +5,7 @@ export default class OrderPageObject {
         this.elements = {
             ...elements,
             ...{
+                loader: '.sw-skeleton.sw-skeleton__detail',
                 smartBarSave: '.sw-order-detail__smart-bar-save-button',
                 userMetadata: '.sw-order-user-card__metadata',
                 stateSelects: {
@@ -82,6 +83,8 @@ export default class OrderPageObject {
             method: 'post',
         }).as(`${call}Call`);
 
+        cy.get(elements.loader).should('not.exist');
+        cy.get(`${stateSelector} .sw-loader__element`).should('not.exist');
         cy.get(stateSelector).scrollIntoView();
 
         cy.skipOnFeature('FEATURE_NEXT_7530', () => {
@@ -113,6 +116,7 @@ export default class OrderPageObject {
 
         cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
             cy.get(stateSelector)
+                .click()
                 .find('.sw-single-select__selection-input')
                 .should('have.attr', 'placeholder', stateTitle);
         });

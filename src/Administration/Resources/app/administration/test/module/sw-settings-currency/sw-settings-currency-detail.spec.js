@@ -41,7 +41,8 @@ function createWrapper(privileges = []) {
             'sw-number-field': true,
             'sw-language-info': true,
             'sw-settings-price-rounding': true,
-            'sw-empty-state': true
+            'sw-empty-state': true,
+            'sw-skeleton': true,
         }
     });
 }

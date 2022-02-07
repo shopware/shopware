@@ -18,6 +18,7 @@ Component.register('sw-settings-address', {
         saveFinish() {
             this.isSaveSuccessful = false;
         },
+
         onSave() {
             this.isSaveSuccessful = false;
             this.isLoading = true;
@@ -31,6 +32,10 @@ Component.register('sw-settings-address', {
                     message: err,
                 });
             });
+        },
+
+        onLoadingChanged(loading) {
+            this.isLoading = loading;
         },
     },
 });

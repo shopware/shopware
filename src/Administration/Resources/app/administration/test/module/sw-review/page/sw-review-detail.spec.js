@@ -90,7 +90,8 @@ function createWrapper(privileges = []) {
             'sw-entity-single-select': true,
             'sw-switch-field': true,
             'sw-textarea-field': true,
-            'sw-language-switch': true
+            'sw-language-switch': true,
+            'sw-skeleton': true,
         }
     });
 }
@@ -128,6 +129,8 @@ describe('module/sw-review/page/sw-review-detail', () => {
     it('should not be able to edit review fields', async () => {
         const wrapper = createWrapper();
 
+        await wrapper.setData({ isLoading: false });
+
         const languageField = wrapper.find('.sw-review__language-select');
         const activeField = wrapper.find('.status-switch');
         const commentField = wrapper.find('.sw-review__comment-field');
@@ -141,6 +144,8 @@ describe('module/sw-review/page/sw-review-detail', () => {
         const wrapper = createWrapper([
             'review.editor'
         ]);
+
+        await wrapper.setData({ isLoading: false });
 
         const languageField = wrapper.find('.sw-review__language-select');
         const activeField = wrapper.find('.status-switch');

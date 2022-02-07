@@ -22,5 +22,9 @@ Component.register('sw-order-detail-documents', {
         saveAndReload() {
             this.$emit('save-and-reload');
         },
+
+        onUpdateLoading(loading) {
+            this.$emit('update-loading', loading);
+        },
     },
 });

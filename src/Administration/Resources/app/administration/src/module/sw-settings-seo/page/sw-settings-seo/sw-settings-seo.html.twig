@@ -35,17 +35,25 @@
     <template slot="content">
         <sw-card-view>
             {% block sw_settings_seo_content_inner %}
+            <template v-if="isLoading">
+                <sw-skeleton />
+                <sw-skeleton />
+            </template>
 
-            {% block sw_settings_seo_content_inner_seo_url_template %}
-            <sw-seo-url-template-card ref="seoUrlTemplateCard" />
-            {% endblock %}
+            {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
+            <div v-show="!isLoading">
+                {% block sw_settings_seo_content_inner_seo_url_template %}
+                <sw-seo-url-template-card ref="seoUrlTemplateCard" />
+                {% endblock %}
 
-            {% block sw_settings_seo_content_inner_redirect %}
-            <sw-system-config
-                ref="systemConfig"
-                domain="core.seo"
-            />
-            {% endblock %}
+                {% block sw_settings_seo_content_inner_redirect %}
+                <sw-system-config
+                    ref="systemConfig"
+                    domain="core.seo"
+                    @loading-changed="onLoadingChanged"
+                />
+                {% endblock %}
+            </div>
 
             {% endblock %}
         </sw-card-view>

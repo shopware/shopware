@@ -56,105 +56,110 @@
     {% block sw_product_stream_detail_content %}
     <template #content>
         <sw-card-view>
-            {% block sw_product_stream_detail_content_language_info %}
-            <sw-language-info
-                :entity-description="placeholder(productStream, 'name', $tc('sw-product-stream.detail.textHeadline'))"
-            />
-            {% endblock %}
+            <template v-if="isLoading">
+                <sw-skeleton variant="detail-bold" />
+                <sw-skeleton />
+            </template>
 
-            {% block sw_product_stream_detail_basic_info %}
-            <sw-card
-                position-identifier="sw-product-stream-detail-basic-info"
-                :is-loading="isLoading"
-                :large="true"
-                :title="$tc('sw-product-stream.detail.titleCard')"
-            >
-                {% block sw_product_basic_form_name_field %}
-                <sw-text-field
-                    v-if="productStream"
-                    v-model="productStream.name"
-                    v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')"
-                    :label="$tc('sw-product-stream.detail.labelName')"
-                    :validation="nameRequired"
-                    :required="isSystemLanguage"
-                    :placeholder="placeholder(productStream, 'name', $tc('sw-product-stream.detail.placeholderName'))"
-                    :error="productStreamNameError"
-                    :disabled="!acl.can('product_stream.editor')"
+            <template v-else>
+
+                {% block sw_product_stream_detail_content_language_info %}
+                <sw-language-info
+                    :entity-description="placeholder(productStream, 'name', $tc('sw-product-stream.detail.textHeadline'))"
                 />
                 {% endblock %}
 
-                {% block sw_product_basic_form_description_field %}
-                <sw-textarea-field
-                    v-if="productStream"
-                    v-model="productStream.description"
-                    v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')"
-                    :label="$tc('sw-product-stream.detail.labelDescription')"
-                    :placeholder="placeholder(productStream, 'description', $tc('sw-product-stream.detail.placeholderDescription'))"
-                    :disabled="!acl.can('product_stream.editor')"
-                />
-                {% endblock %}
-            </sw-card>
-            {% endblock %}
-
-            {% block sw_product_stream_detail_filter %}
-            <sw-card
-                :large="true"
-                position-identifier="sw-product-stream-detail-filter"
-                class="sw-product-stream-detail__condition_container"
-                :class="{ 'is--disabled': !acl.can('product_stream.editor') }"
-                :title="$tc('sw-product-stream.detail.titleFilter')"
-            >
-                {% block sw_product_stream_detail_filter_tree %}
-                <sw-condition-tree
-                    v-if="productStream"
-                    :initial-conditions="productStreamFilters"
-                    :condition-repository="productStreamFiltersRepository"
-                    :condition-data-provider-service="productStreamConditionService"
-                    child-association-field="queries"
-                    association-field="productStreamId"
-                    :association-value="productStream.id"
-                    :root-condition="null"
-                    :disabled="!acl.can('product_stream.editor')"
-                    @conditions-changed="updateFilterTree"
-                />
-                {% endblock %}
-
-                {% block sw_product_stream_detail_filter_preview_button %}
-                <sw-button
-                    class="sw-product-stream-detail__open_modal_preview"
-                    :disabled="isLoading"
-                    @click.prevent="openModalPreview"
+                {% block sw_product_stream_detail_basic_info %}
+                <sw-card
+                    position-identifier="sw-product-stream-detail-basic-info"
+                    :large="true"
+                    :title="$tc('sw-product-stream.detail.titleCard')"
                 >
-                    {{ $tc('sw-product-stream.detail.buttonOpenPreview') }}
-                </sw-button>
+                    {% block sw_product_basic_form_name_field %}
+                    <sw-text-field
+                        v-if="productStream"
+                        v-model="productStream.name"
+                        v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')"
+                        :label="$tc('sw-product-stream.detail.labelName')"
+                        :validation="nameRequired"
+                        :required="isSystemLanguage"
+                        :placeholder="placeholder(productStream, 'name', $tc('sw-product-stream.detail.placeholderName'))"
+                        :error="productStreamNameError"
+                        :disabled="!acl.can('product_stream.editor')"
+                    />
+                    {% endblock %}
+
+                    {% block sw_product_basic_form_description_field %}
+                    <sw-textarea-field
+                        v-if="productStream"
+                        v-model="productStream.description"
+                        v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')"
+                        :label="$tc('sw-product-stream.detail.labelDescription')"
+                        :placeholder="placeholder(productStream, 'description', $tc('sw-product-stream.detail.placeholderDescription'))"
+                        :disabled="!acl.can('product_stream.editor')"
+                    />
+                    {% endblock %}
+                </sw-card>
                 {% endblock %}
-            </sw-card>
-            {% endblock %}
 
-            {% block sw_prouct_stream_detail_preview_modal %}
-            <sw-product-stream-modal-preview
-                v-if="showModalPreview"
-                ref="modalPreview"
-                :filters="productStreamFiltersTree"
-                @modal-close="closeModalPreview"
-            />
-            {% endblock %}
+                {% block sw_product_stream_detail_filter %}
+                <sw-card
+                    :large="true"
+                    position-identifier="sw-product-stream-detail-filter"
+                    class="sw-product-stream-detail__condition_container"
+                    :class="{ 'is--disabled': !acl.can('product_stream.editor') }"
+                    :title="$tc('sw-product-stream.detail.titleFilter')"
+                >
+                    {% block sw_product_stream_detail_filter_tree %}
+                    <sw-condition-tree
+                        v-if="productStream"
+                        :initial-conditions="productStreamFilters"
+                        :condition-repository="productStreamFiltersRepository"
+                        :condition-data-provider-service="productStreamConditionService"
+                        child-association-field="queries"
+                        association-field="productStreamId"
+                        :association-value="productStream.id"
+                        :root-condition="null"
+                        :disabled="!acl.can('product_stream.editor')"
+                        @conditions-changed="updateFilterTree"
+                    />
+                    {% endblock %}
 
-            {% block sw_prouct_stream_detail_custom_field_sets %}
-            <sw-card
-                v-if="showCustomFields"
-                position-identifier="sw-product-stream-detail-custom-field-sets"
-                :large="true"
-                :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
-                :is-loading="isLoading"
-            >
-                <sw-custom-field-set-renderer
-                    :entity="productStream"
-                    :disabled="!acl.can('product_stream.editor')"
-                    :sets="customFieldSets"
+                    {% block sw_product_stream_detail_filter_preview_button %}
+                    <sw-button
+                        class="sw-product-stream-detail__open_modal_preview"
+                        @click.prevent="openModalPreview"
+                    >
+                        {{ $tc('sw-product-stream.detail.buttonOpenPreview') }}
+                    </sw-button>
+                    {% endblock %}
+                </sw-card>
+                {% endblock %}
+
+                {% block sw_prouct_stream_detail_preview_modal %}
+                <sw-product-stream-modal-preview
+                    v-if="showModalPreview"
+                    ref="modalPreview"
+                    :filters="productStreamFiltersTree"
+                    @modal-close="closeModalPreview"
                 />
-            </sw-card>
-            {% endblock %}
+                {% endblock %}
+
+                {% block sw_prouct_stream_detail_custom_field_sets %}
+                <sw-card
+                    v-if="showCustomFields"
+                    position-identifier="sw-product-stream-detail-custom-field-sets"
+                    :large="true"
+                    :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                >
+                    <sw-custom-field-set-renderer
+                        :entity="productStream"
+                        :disabled="!acl.can('product_stream.editor')"
+                        :sets="customFieldSets"
+                    />
+                </sw-card>
+                {% endblock %}
+            </template>
         </sw-card-view>
     </template>
     {% endblock %}

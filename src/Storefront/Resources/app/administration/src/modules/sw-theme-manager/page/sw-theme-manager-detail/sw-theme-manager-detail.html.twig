@@ -99,12 +99,19 @@
 
         {% block sw_theme_manager_detail_content %}
             <template slot="content">
-                <sw-loader v-if="isLoading" size="30" class="sw-theme-manager-detail__loading-indicator"></sw-loader>
+                <div
+                    v-if="!shouldShowContent"
+                    class="sw-theme-manager-detail__content-skeleton"
+                >
+                    <sw-skeleton />
+                    <sw-skeleton />
+                </div>
 
                 <div v-else class="sw-theme-manager-detail__content">
-                    <sw-tabs v-if="shouldShowContent" defaultItem="default" @new-item-active="onChangeTab">
-                        <template #default="{ active }" v-if="hasMoreThanOneTab">
-                            <sw-tabs-item v-for="(tab, tabName) in structuredThemeFields.tabs"
+                    <sw-tabs defaultItem="default" @new-item-active="onChangeTab">
+                        <template #default="{ active }">
+                            <sw-tabs-item v-if="hasMoreThanOneTab"
+                                          v-for="(tab, tabName) in structuredThemeFields.tabs"
                                           :key="tabName"
                                           :title="tab.label"
                                           :name="tabName"

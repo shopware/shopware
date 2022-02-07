@@ -56,6 +56,7 @@ const detailPage = (additionalOptions = {}, privileges = []) => {
             'sw-field-error': true,
             'sw-settings-product-feature-sets-values-card': true,
             'sw-extension-component-section': true,
+            'sw-skeleton': true,
             i18n: true
         },
         propsData: {

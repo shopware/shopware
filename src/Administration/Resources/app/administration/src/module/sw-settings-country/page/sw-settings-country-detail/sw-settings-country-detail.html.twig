@@ -131,31 +131,38 @@
             </sw-tabs>
             {% endblock %}
 
-            {% block sw_settings_country_tabs_content %}
-            <router-view
-                :country="country"
-                :country-state-repository="countryStateRepository"
-                :is-loading="isLoading"
-                :user-config="userConfig"
-                :user-config-values="userConfigValues"
-                @modal-save="onSaveModal"
-            />
-            {% endblock %}
+            <template v-if="isLoading">
+                <sw-skeleton />
+                <sw-skeleton />
+            </template>
 
-            {% block sw_settings_country_detail_custom_field_sets %}
-            <sw-card
-                v-if="showCustomFields"
-                position-identifier="sw-settings-country-detail-custom-field-sets"
-                :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
-                :is-loading="isLoading"
-            >
-                <sw-custom-field-set-renderer
-                    :entity="country"
-                    :disabled="!acl.can('country.editor')"
-                    :sets="customFieldSets"
+            <template v-else>
+                {% block sw_settings_country_tabs_content %}
+                <router-view
+                    :country="country"
+                    :country-state-repository="countryStateRepository"
+                    :is-loading="isLoading"
+                    :user-config="userConfig"
+                    :user-config-values="userConfigValues"
+                    @modal-save="onSaveModal"
                 />
-            </sw-card>
-            {% endblock %}
+                {% endblock %}
+
+                {% block sw_settings_country_detail_custom_field_sets %}
+                <sw-card
+                    v-if="showCustomFields"
+                    position-identifier="sw-settings-country-detail-custom-field-sets"
+                    :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                    :is-loading="isLoading"
+                >
+                    <sw-custom-field-set-renderer
+                        :entity="country"
+                        :disabled="!acl.can('country.editor')"
+                        :sets="customFieldSets"
+                    />
+                </sw-card>
+                {% endblock %}
+            </template>
         </sw-card-view>
     </template>
     {% endblock %}

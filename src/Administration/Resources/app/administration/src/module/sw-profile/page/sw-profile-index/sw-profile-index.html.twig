@@ -55,7 +55,13 @@
             {% endblock %}
 
             {% block sw_profile_index_router_view %}
+            <template v-if="isUserLoading">
+                <sw-skeleton />
+                <sw-skeleton />
+            </template>
+
             <router-view
+                v-else
                 v-bind="{
                     user,
                     timezoneOptions,

@@ -50,7 +50,8 @@ function createWrapper(privileges = []) {
             },
             'sw-field': true,
             'sw-text-editor': true,
-            'sw-entity-single-select': true
+            'sw-entity-single-select': true,
+            'sw-skeleton': true,
         }
     });
 }

@@ -50,171 +50,177 @@
     {% block sw_settings_shipping_detail_content %}
     <template #content>
         <sw-card-view>
+            <template v-if="isLoading">
+                <sw-skeleton variant="detail-bold" />
+                <sw-skeleton />
+            </template>
 
-            {% block sw_settings_shipping_detail_content_language_info %}
-            <sw-language-info
-                :is-new-entity="isNewShippingMethod"
-                :entity-description="placeholder(shippingMethod, 'name', $tc('sw-settings-shipping.detail.textHeadline'))"
-            />
-            {% endblock %}
+            <template v-else>
+                {% block sw_settings_shipping_detail_content_language_info %}
+                <sw-language-info
+                    :is-new-entity="isNewShippingMethod"
+                    :entity-description="placeholder(shippingMethod, 'name', $tc('sw-settings-shipping.detail.textHeadline'))"
+                />
+                {% endblock %}
 
-            {% block sw_settings_shipping_detail_base %}
-            <sw-card
-                position-identifier="sw-settings-shipping-detail-base"
-                :title="$tc('sw-settings-shipping.detail.labelBasicInfo')"
-                :is-loading="isLoading"
-            >
-                <sw-container
-                    columns="repeat(auto-fit, minmax(250px, 1fr))"
-                    gap="0px 30px"
+                {% block sw_settings_shipping_detail_base %}
+                <sw-card
+                    position-identifier="sw-settings-shipping-detail-base"
+                    :title="$tc('sw-settings-shipping.detail.labelBasicInfo')"
+                    :is-loading="isLoading"
                 >
-                    {% block sw_settings_shipping_detail_base_content_field_name %}
-                    <sw-field
-                        v-model="shippingMethod.name"
-                        type="text"
+                    <sw-container
+                        columns="repeat(auto-fit, minmax(250px, 1fr))"
+                        gap="0px 30px"
+                    >
+                        {% block sw_settings_shipping_detail_base_content_field_name %}
+                        <sw-field
+                            v-model="shippingMethod.name"
+                            type="text"
+                            required
+                            :disabled="!acl.can('shipping.editor')"
+                            :error="shippingMethodNameError"
+                            :label="$tc('sw-settings-shipping.detail.labelName')"
+                            :placeholder="placeholder(shippingMethod, 'name', $tc('sw-settings-shipping.detail.placeholderName'))"
+                        />
+                        {% endblock %}
+                        {% block sw_settings_shipping_detail_base_content_field_active %}
+                        <sw-field
+                            v-model="shippingMethod.active"
+                            type="switch"
+                            bordered
+                            :disabled="!acl.can('shipping.editor')"
+                            :label="$tc('sw-settings-shipping.detail.labelActive')"
+                        />
+                        {% endblock %}
+                    </sw-container>
+                    <sw-container
+                        columns="repeat(auto-fit, minmax(250px, 1fr))"
+                        gap="0px 30px"
+                    >
+                        {% block sw_settings_shipping_detail_base_content_field_description %}
+                        <sw-textarea-field
+                            v-model="shippingMethod.description"
+                            :value="shippingMethod.description"
+                            class="sw-settings-shipping-detail__description"
+                            :disabled="!acl.can('shipping.editor')"
+                            :label="$tc('sw-settings-shipping.detail.labelDescription')"
+                            :placeholder="placeholder(shippingMethod, 'description', $tc('sw-settings-shipping.detail.placeholderDescription'))"
+                        />
+                        {% endblock %}
+
+                        {% block sw_settings_shipping_detail_base_content_media_upload %}
+                        <sw-upload-listener
+                            :upload-tag="uploadTag"
+                            auto-upload
+                            @media-upload-finish="setMediaItem"
+                        />
+                        <sw-media-upload-v2
+                            v-if="!isLoading"
+                            :upload-tag="uploadTag"
+                            :source="logoMediaItem"
+                            class="sw-settings-shipping-detail__logo-image-upload"
+                            :allow-multi-select="false"
+                            variant="regular"
+                            :disabled="!acl.can('shipping.editor')"
+                            :label="$tc('sw-settings-shipping.detail.labelLogoUpload')"
+                            :default-folder="shippingMethod.getEntityName()"
+                            @media-drop="onDropMedia"
+                            @media-upload-sidebar-open="openMediaSidebar"
+                            @media-upload-remove-image="onUnlinkLogo"
+                        />
+                        {% endblock %}
+                    </sw-container>
+
+                    {% block sw_settings_shipping_detail_base_content_field_delivery_time %}
+                    <sw-entity-single-select
+                        v-model="shippingMethod.deliveryTimeId"
+                        class="sw-settings-shipping-detail__delivery-time"
+                        entity="delivery_time"
+                        :disabled="!acl.can('shipping.editor')"
+                        :criteria="deliveryTimeCriteria"
+                        :label="$tc('sw-settings-shipping.detail.labelDeliveryTime')"
+                        :placeholder="$tc('sw-settings-shipping.detail.placeholderDeliveryTime')"
+                        :error="shippingMethodDeliveryTimeIdError"
+                        show-clearable-button
                         required
-                        :disabled="!acl.can('shipping.editor')"
-                        :error="shippingMethodNameError"
-                        :label="$tc('sw-settings-shipping.detail.labelName')"
-                        :placeholder="placeholder(shippingMethod, 'name', $tc('sw-settings-shipping.detail.placeholderName'))"
                     />
                     {% endblock %}
-                    {% block sw_settings_shipping_detail_base_content_field_active %}
+
+                    {% block sw_settings_shipping_detail_base_content_tracking_url_field %}
                     <sw-field
-                        v-model="shippingMethod.active"
-                        type="switch"
-                        bordered
+                        v-model="shippingMethod.trackingUrl"
+                        type="text"
                         :disabled="!acl.can('shipping.editor')"
-                        :label="$tc('sw-settings-shipping.detail.labelActive')"
-                    />
-                    {% endblock %}
-                </sw-container>
-                <sw-container
-                    columns="repeat(auto-fit, minmax(250px, 1fr))"
-                    gap="0px 30px"
-                >
-                    {% block sw_settings_shipping_detail_base_content_field_description %}
-                    <sw-textarea-field
-                        v-model="shippingMethod.description"
-                        :value="shippingMethod.description"
-                        class="sw-settings-shipping-detail__description"
-                        :disabled="!acl.can('shipping.editor')"
-                        :label="$tc('sw-settings-shipping.detail.labelDescription')"
-                        :placeholder="placeholder(shippingMethod, 'description', $tc('sw-settings-shipping.detail.placeholderDescription'))"
+                        :label="$tc('sw-settings-shipping.detail.labelTrackingUrl')"
+                        :placeholder="placeholder(shippingMethod, 'trackingUrl', $tc('sw-settings-shipping.detail.placeholderTrackingUrl'))"
+                        :help-text="$tc('sw-settings-shipping.detail.helpTextTrackingUrl')"
                     />
                     {% endblock %}
 
-                    {% block sw_settings_shipping_detail_base_content_media_upload %}
-                    <sw-upload-listener
-                        :upload-tag="uploadTag"
-                        auto-upload
-                        @media-upload-finish="setMediaItem"
-                    />
-                    <sw-media-upload-v2
+                    {% block sw_settings_shipping_detail_base_content_tags_field %}
+                    <sw-entity-tag-select
                         v-if="!isLoading"
-                        :upload-tag="uploadTag"
-                        :source="logoMediaItem"
-                        class="sw-settings-shipping-detail__logo-image-upload"
-                        :allow-multi-select="false"
-                        variant="regular"
+                        v-model="shippingMethod.tags"
                         :disabled="!acl.can('shipping.editor')"
-                        :label="$tc('sw-settings-shipping.detail.labelLogoUpload')"
-                        :default-folder="shippingMethod.getEntityName()"
-                        @media-drop="onDropMedia"
-                        @media-upload-sidebar-open="openMediaSidebar"
-                        @media-upload-remove-image="onUnlinkLogo"
+                        :placeholder="$tc('sw-product.categoryForm.placeholderTags')"
                     />
                     {% endblock %}
-                </sw-container>
-
-                {% block sw_settings_shipping_detail_base_content_field_delivery_time %}
-                <sw-entity-single-select
-                    v-model="shippingMethod.deliveryTimeId"
-                    class="sw-settings-shipping-detail__delivery-time"
-                    entity="delivery_time"
-                    :disabled="!acl.can('shipping.editor')"
-                    :criteria="deliveryTimeCriteria"
-                    :label="$tc('sw-settings-shipping.detail.labelDeliveryTime')"
-                    :placeholder="$tc('sw-settings-shipping.detail.placeholderDeliveryTime')"
-                    :error="shippingMethodDeliveryTimeIdError"
-                    show-clearable-button
-                    required
-                />
+                </sw-card>
                 {% endblock %}
 
-                {% block sw_settings_shipping_detail_base_content_tracking_url_field %}
-                <sw-field
-                    v-model="shippingMethod.trackingUrl"
-                    type="text"
-                    :disabled="!acl.can('shipping.editor')"
-                    :label="$tc('sw-settings-shipping.detail.labelTrackingUrl')"
-                    :placeholder="placeholder(shippingMethod, 'trackingUrl', $tc('sw-settings-shipping.detail.placeholderTrackingUrl'))"
-                    :help-text="$tc('sw-settings-shipping.detail.helpTextTrackingUrl')"
-                />
+                {% block sw_settings_shipping_detail_top_ruleshippingPriceStore %}
+                <sw-card
+                    position-identifier="sw-settings-shipping-detail-condition-container"
+                    class="sw-settings-shipping-detail__condition_container"
+                    :title="$tc('sw-settings-shipping.detail.topRule')"
+                >
+                    {% block sw_settings_shipping_detail_top_rule_select %}
+                    <sw-select-rule-create
+                        :rule-id="shippingMethod.availabilityRuleId"
+                        :rule-filter="ruleFilter"
+                        :disabled="!acl.can('shipping.editor')"
+                        required
+                        :error="shippingMethodAvailabilityRuleIdError"
+                        :restriction="feature.isActive('FEATURE_NEXT_18215') ? 'shippingMethods' : ''"
+                        :label="$tc('sw-settings-shipping.detail.topRule')"
+                        class="sw-settings-shipping-detail__top-rule"
+                        @save-rule="onSaveRule"
+                    />
+                    {% endblock %}
+                </sw-card>
                 {% endblock %}
 
-                {% block sw_settings_shipping_detail_base_content_tags_field %}
-                <sw-entity-tag-select
+                {% block sw_settings_shipping_detail_tax_cost %}
+                <sw-settings-shipping-tax-cost
                     v-if="!isLoading"
-                    v-model="shippingMethod.tags"
                     :disabled="!acl.can('shipping.editor')"
-                    :placeholder="$tc('sw-product.categoryForm.placeholderTags')"
                 />
                 {% endblock %}
-            </sw-card>
-            {% endblock %}
 
-            {% block sw_settings_shipping_detail_top_ruleshippingPriceStore %}
-            <sw-card
-                position-identifier="sw-settings-shipping-detail-condition-container"
-                class="sw-settings-shipping-detail__condition_container"
-                :title="$tc('sw-settings-shipping.detail.topRule')"
-            >
-                {% block sw_settings_shipping_detail_top_rule_select %}
-                <sw-select-rule-create
-                    :rule-id="shippingMethod.availabilityRuleId"
-                    :rule-filter="ruleFilter"
+                {% block sw_settings_shipping_detail_price_matrices %}
+                <sw-settings-shipping-price-matrices
+                    v-if="!isLoading"
+                    ref="priceMatrices"
                     :disabled="!acl.can('shipping.editor')"
-                    required
-                    :error="shippingMethodAvailabilityRuleIdError"
-                    :restriction="feature.isActive('FEATURE_NEXT_18215') ? 'shippingMethods' : ''"
-                    :label="$tc('sw-settings-shipping.detail.topRule')"
-                    class="sw-settings-shipping-detail__top-rule"
-                    @save-rule="onSaveRule"
                 />
                 {% endblock %}
-            </sw-card>
-            {% endblock %}
 
-            {% block sw_settings_shipping_detail_tax_cost %}
-            <sw-settings-shipping-tax-cost
-                v-if="!isLoading"
-                :disabled="!acl.can('shipping.editor')"
-            />
-            {% endblock %}
-
-            {% block sw_settings_shipping_detail_price_matrices %}
-            <sw-settings-shipping-price-matrices
-                v-if="!isLoading"
-                ref="priceMatrices"
-                :disabled="!acl.can('shipping.editor')"
-            />
-            {% endblock %}
-
-            {% block sw_settings_shipping_detail_custom_field_sets %}
-            <sw-card
-                v-if="showCustomFields"
-                position-identifier="sw-settings-shipping-detail-custom-fields"
-                :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
-                :is-loading="isLoading"
-            >
-                <sw-custom-field-set-renderer
-                    :entity="shippingMethod"
-                    :disabled="!acl.can('shipping.editor')"
-                    :sets="customFieldSets"
-                />
-            </sw-card>
-            {% endblock %}
+                {% block sw_settings_shipping_detail_custom_field_sets %}
+                <sw-card
+                    v-if="showCustomFields"
+                    position-identifier="sw-settings-shipping-detail-custom-fields"
+                    :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                    :is-loading="isLoading"
+                >
+                    <sw-custom-field-set-renderer
+                        :entity="shippingMethod"
+                        :disabled="!acl.can('shipping.editor')"
+                        :sets="customFieldSets"
+                    />
+                </sw-card>
+                {% endblock %}
+            </template>
         </sw-card-view>
     </template>
     {% endblock %}

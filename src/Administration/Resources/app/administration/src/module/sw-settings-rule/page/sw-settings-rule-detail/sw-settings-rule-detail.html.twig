@@ -45,39 +45,42 @@
     <template #content>
         <sw-card-view>
 
-            <template>
-                {% block sw_settings_rule_detail_tabs %}
-                <sw-tabs
-                    v-if="rule && !rule.isNew()"
-                    class="sw-settings-rule-detail__tabs"
-                    position-identifier="sw-settings-rule-detail"
+            {% block sw_settings_rule_detail_tabs %}
+            <sw-tabs
+                v-if="rule && !rule.isNew()"
+                class="sw-settings-rule-detail__tabs"
+                position-identifier="sw-settings-rule-detail"
+            >
+                {% block sw_settings_rule_detail_tab_items %}
+                <sw-tabs-item
+                    v-for="tab in tabItems"
+                    :key="tab.route.name"
+                    :class="'sw-settings-rule-detail__tab-item sw-settings-rule-detail__tab-item-' + tab.cssClassSuffix"
+                    :route="tab.route"
+                    :title="tab.title"
                 >
-                    {% block sw_settings_rule_detail_tab_items %}
-                    <sw-tabs-item
-                        v-for="tab in tabItems"
-                        :key="tab.route.name"
-                        :class="'sw-settings-rule-detail__tab-item sw-settings-rule-detail__tab-item-' + tab.cssClassSuffix"
-                        :route="tab.route"
-                        :title="tab.title"
-                    >
-                        {{ tab.title }}
-                    </sw-tabs-item>
-                    {% endblock %}
-                </sw-tabs>
+                    {{ tab.title }}
+                </sw-tabs-item>
                 {% endblock %}
+            </sw-tabs>
+            {% endblock %}
 
-                {% block sw_settings_rule_detail_content_view %}
-                <router-view
-                    v-if="rule !== null"
-                    :key="$route.path"
-                    :rule="rule"
-                    :conditions="conditions"
-                    :condition-repository="conditionRepository"
-                    :is-loading="isLoading"
-                    @conditions-changed="conditionsChanged"
-                />
-                {% endblock %}
+            {% block sw_settings_rule_detail_content_view %}
+            <template v-if="isLoading">
+                <sw-skeleton variant="detail-bold" />
+                <sw-skeleton />
             </template>
+
+            <router-view
+                v-else-if="rule !== null"
+                :key="$route.path"
+                :rule="rule"
+                :conditions="conditions"
+                :condition-repository="conditionRepository"
+                :is-loading="isLoading"
+                @conditions-changed="conditionsChanged"
+            />
+            {% endblock %}
         </sw-card-view>
     </template>
     {% endblock %}

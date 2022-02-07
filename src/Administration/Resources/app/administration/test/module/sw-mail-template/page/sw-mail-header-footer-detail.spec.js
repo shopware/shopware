@@ -74,7 +74,8 @@ const createWrapper = (privileges = []) => {
             'sw-entity-multi-select': true,
             'sw-field': true,
             'sw-code-editor': true,
-            'sw-button': true
+            'sw-button': true,
+            'sw-skeleton': true,
         }
     });
 };

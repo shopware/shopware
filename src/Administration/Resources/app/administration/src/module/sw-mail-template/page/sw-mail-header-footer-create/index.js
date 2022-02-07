@@ -33,6 +33,7 @@ Component.extend('sw-mail-header-footer-create', 'sw-mail-header-footer-detail',
         },
 
         onSave() {
+            this.isLoading = true;
             this.$super('onSave');
         },
     },

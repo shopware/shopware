@@ -69,7 +69,8 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
                 'sw-list-price-field': Shopware.Component.build('sw-list-price-field'),
                 'sw-price-field': Shopware.Component.build('sw-price-field'),
                 'sw-entity-single-select': Shopware.Component.build('sw-entity-single-select'),
-                'sw-select-base': Shopware.Component.build('sw-select-base')
+                'sw-select-base': Shopware.Component.build('sw-select-base'),
+                'sw-skeleton': true,
             },
             provide: {
                 repositoryFactory: {

@@ -67,7 +67,8 @@ function createWrapper(privileges = [], isShopwareDefaultTax = true) {
             'sw-button-process': true,
             'sw-switch-field': true,
             'sw-text-field': true,
-            'sw-number-field': true
+            'sw-number-field': true,
+            'sw-skeleton': true,
         }
     });
 }

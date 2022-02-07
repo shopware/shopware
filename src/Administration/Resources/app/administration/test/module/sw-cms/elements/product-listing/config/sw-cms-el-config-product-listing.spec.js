@@ -186,10 +186,10 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         });
     });
 
-    it('should update the productSortings priority with the values from the config', () => {
+    it('should update the productSortings priority with the values from the config', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setData({
+        await wrapper.setData({
             element: {
                 config: {
                     availableSortings: {
@@ -203,8 +203,8 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
 
         const before = [
             {
-                key: 'foo',
-                value: 'test',
+                key: 'fist',
+                value: 'bump',
                 priority: 7
             }
         ];
@@ -213,14 +213,14 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
 
         expect(after).toStrictEqual([
             {
-                key: 'foo',
-                value: 'test',
-                priority: 4
+                key: 'fist',
+                value: 'bump',
+                priority: 7
             }
         ]);
     });
 
-    it('should transform the product sortings corrrectly', () => {
+    it('should transform the product sortings corrrectly', async () => {
         const wrapper = createWrapper();
 
         const before = [
@@ -234,7 +234,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
             }
         ];
 
-        wrapper.setData({
+        await wrapper.setData({
             productSortings: before
         });
 

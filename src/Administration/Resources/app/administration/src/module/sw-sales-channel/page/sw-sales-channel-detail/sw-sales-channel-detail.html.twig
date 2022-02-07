@@ -96,7 +96,13 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_content_view %}
+        <template v-if="isLoading">
+            <sw-skeleton />
+            <sw-skeleton />
+        </template>
+
         <router-view
+            v-else
             :key="$route.params.id"
             :sales-channel="salesChannel"
             :product-export="productExport"

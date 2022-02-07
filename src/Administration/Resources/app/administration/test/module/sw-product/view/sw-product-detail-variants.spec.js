@@ -22,6 +22,17 @@ function createWrapper(privileges = []) {
                     },
                     delete: () => {
                         return Promise.resolve();
+                    },
+                    get: () => {
+                        return Promise.resolve({
+                            configuratorSettings: [
+                                {
+                                    option: {
+                                        groupId: 1,
+                                    },
+                                },
+                            ],
+                        });
                     }
                 })
             },
@@ -62,7 +73,9 @@ function createWrapper(privileges = []) {
             'sw-context-menu-item': true,
             'sw-loader': Shopware.Component.build('sw-loader'),
             'sw-button': Shopware.Component.build('sw-button'),
-            'sw-modal': true
+            'sw-modal': true,
+            'sw-skeleton': true,
+            'sw-product-variants-overview': true,
         }
     });
 }
@@ -178,9 +191,9 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
     it('should display a customized empty state if there are neither variants nor properties', async () => {
         const wrapper = createWrapper();
 
-        await wrapper.vm.$nextTick();
         await wrapper.setData({
-            isLoading: false
+            groups: [{}],
+            isLoading: false,
         });
 
         expect(wrapper.vm).toBeTruthy();

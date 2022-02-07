@@ -7,7 +7,6 @@
         :title="$tc('sw-order.detailsTab.labelTransactionCard')"
         :order="order"
         :entity="transaction"
-        :is-loading="isLoading"
         :state-label="$tc('sw-order.stateCard.headlineTransactionState')"
         :disabled="!acl.can('order.editor')"
         @show-status-history="showStateHistoryModal = true"
@@ -46,7 +45,6 @@
         :title="$tc('sw-order.detailsTab.labelDeliveryCard')"
         :order="order"
         :entity="delivery"
-        :is-loading="isLoading"
         :state-label="$tc('sw-order.stateCard.headlineDeliveryState')"
         :disabled="!acl.can('order.editor')"
         @show-status-history="showStateHistoryModal = true"
@@ -122,7 +120,6 @@
         :title="$tc('sw-order.detailsTab.labelOrderCard')"
         :order="order"
         :entity="order"
-        :is-loading="isLoading"
         :disabled="!acl.can('order.editor')"
         :state-label="$tc('sw-order.stateCard.headlineOrderState')"
         @show-status-history="showStateHistoryModal = true"
@@ -198,7 +195,6 @@
         {% block sw_order_detail_details_order_promotion %}
         <sw-order-promotion-field
             class="sw-order-detail-details__promotion"
-            :is-loading="isLoading"
             @loading-change="updateLoading"
             @reload-entity-data="reloadEntityData"
             @error="showError"
@@ -213,7 +209,6 @@
         v-if="customFieldSets.length > 0"
         position-identifier="sw-order-detail-details-custom-fields"
         :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
-        :is-loading="isLoading"
     >
         <sw-custom-field-set-renderer
             :entity="order"
@@ -227,7 +222,6 @@
     <sw-order-state-history-modal
         v-if="showStateHistoryModal"
         :order="order"
-        :is-loading="isLoading"
         @modal-close="showStateHistoryModal = false"
     />
     {% endblock %}

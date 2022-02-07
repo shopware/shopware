@@ -100,11 +100,18 @@
             </sw-tabs>
             {% endblock %}
 
-            {% block sw_product_detail_content_view %}
+            {% block sw_promotion_v2_detail_content_view %}
+            <div
+                v-if="isLoading"
+                class="sw-promotion-v2-detail__content-view-skeleton"
+            >
+                <sw-skeleton />
+                <sw-skeleton />
+            </div>
+
             <router-view
-                v-if="promotion"
+                v-else-if="promotion"
                 :promotion="promotion"
-                :is-loading="isLoading"
                 :is-create-mode="isCreateMode"
                 @clean-up-codes="onCleanUpCodes"
                 @generate-individual-codes-finish="onGenerateIndividualCodesFinish"

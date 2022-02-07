@@ -358,6 +358,10 @@ Component.register('sw-settings-listing', {
             return sortingKey === this.$refs.systemConfig.actualConfigData.null['core.listing.defaultSorting'];
         },
 
+        onLoadingChanged(loading) {
+            this.isLoading = loading;
+        },
+
         /**
          * @deprecated tag:v6.5.0 -
          *  Use `fetchSalesChannelsSystemConfig()` in `sw-settings-listing-default-sales-channel-card` instead

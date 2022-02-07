@@ -25,8 +25,13 @@
 
     {% block sw_newsletter_recipient_detail_content %}
     <sw-card-view slot="content">
+        <template v-if="isLoading">
+            <sw-skeleton />
+            <sw-skeleton />
+        </template>
+
         <sw-card
-            v-if="newsletterRecipient"
+            v-else-if="newsletterRecipient"
             position-identifier="sw-newsletter-recipient-detail"
             :title="$tc('sw-newsletter-recipient.general.information')"
         >

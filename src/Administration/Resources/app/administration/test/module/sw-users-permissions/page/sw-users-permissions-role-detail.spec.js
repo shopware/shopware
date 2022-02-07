@@ -41,7 +41,8 @@ function createWrapper({
             'sw-users-permissions-additional-permissions': true,
             'sw-verify-user-modal': true,
             'sw-tabs': true,
-            'router-view': true
+            'router-view': true,
+            'sw-skeleton': true,
         },
         mocks: {
             $route: $route

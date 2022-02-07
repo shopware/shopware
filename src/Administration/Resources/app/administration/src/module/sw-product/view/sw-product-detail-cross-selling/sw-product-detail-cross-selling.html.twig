@@ -1,5 +1,13 @@
 {% block sw_product_detail_cross_selling %}
-<div class="sw-product-detail-cross-selling">
+<div v-if="isLoading">
+    <sw-skeleton />
+    <sw-skeleton />
+</div>
+
+<div
+    v-else
+    class="sw-product-detail-cross-selling"
+>
     {% block sw_product_detail_cross_selling_items_wrapper %}
     <template v-if="showCrossSellingCard">
         {% block sw_product_detail_cross_selling_items %}
@@ -36,10 +44,7 @@
         v-else
         position-identifier="sw-product-detail-cross-selling-empty-state"
     >
-        <sw-loader v-if="isLoading" />
-
         <sw-empty-state
-            v-else
             :title="$tc('sw-product.crossselling.cardTitleCrossSelling')"
             :subline="$tc('sw-product.crossselling.emptyStateDescription')"
             :absolute="false"

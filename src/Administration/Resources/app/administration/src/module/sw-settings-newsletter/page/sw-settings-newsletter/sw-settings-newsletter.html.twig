@@ -54,11 +54,16 @@
     {% block sw_settings_newsletter_content %}
     <template slot="content">
         <sw-card-view>
+            <sw-skeleton v-if="isLoading" />
+
             {% block sw_setting_newsletter_system_config %}
+            {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
             <sw-system-config
+                v-show="!isLoading"
                 ref="systemConfig"
                 sales-channel-switchable
                 domain="core.newsletter"
+                @loading-changed="onLoadingChanged"
             />
             {% endblock %}
         </sw-card-view>

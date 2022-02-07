@@ -61,8 +61,10 @@ describe('Create a new property and select value display type', () => {
 
         // define the new created category to the product
         cy.visit(`${Cypress.env('admin')}#/sw/product/detail`);
-        cy.get('[placeholder="Wijs categorieën toe ..."]').should('be.visible')
+        cy.get('.sw-product-variant-info').should('be.visible');
+        cy.get('[placeholder="Wijs categorieën toe ..."]')
             .scrollIntoView()
+            .should('be.visible')
             .type('Home {enter}');
         cy.get('.sw-button-process.sw-product-detail__save-action').click();
 
@@ -87,11 +89,12 @@ describe('Create a new property and select value display type', () => {
         cy.get('.sw-select__selection > input').click()
             .type('Test Product {enter}');
         cy.get('.sw-button-process').click();
-        cy.get('.sw-loader').should('not.exist');
         cy.wait('@searchCategoryDetail').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-category-detail__content-loader').should('not.exist');
 
         // configure properties under product/specifications
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-product-list-grid').should('be.visible');
         cy.url().should('include', 'product/index');
 
         cy.get('.sw-data-grid__table a').click();
@@ -101,7 +104,6 @@ describe('Create a new property and select value display type', () => {
 
         cy.get('.sw-button.sw-button--ghost').click();
         cy.get('#modalTitleEl').should('be.visible');
-        cy.get('.sw-loader').should('not.exist');
         cy.wait('@searchPropertyGroup').its('response.statusCode').should('equal', 200);
         cy.contains('.sw-property-search__tree-selection__group_grid .sw-grid__row--0 .sw-grid__cell-content', 'Color')
             .should('be.visible')

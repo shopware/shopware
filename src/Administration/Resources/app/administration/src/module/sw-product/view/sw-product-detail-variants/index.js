@@ -136,11 +136,24 @@ Component.register('sw-product-detail-variants', {
                     const groupCriteria = new Criteria();
                     groupCriteria
                         .setLimit(100)
-                        .setPage(1);
+                        .setPage(1)
+                        .setTotalCountMode(1);
 
                     this.groupRepository.search(groupCriteria).then((searchResult) => {
-                        this.groups = searchResult;
-                        resolve();
+                        if(searchResult.total > 100){
+                            const groupCriteriaTotal = new Criteria();
+                            groupCriteriaTotal
+                                .setLimit(searchResult.total)
+                                .setPage(1)
+                                .setTotalCountMode(0);
+                            this.groupRepository.search(groupCriteriaTotal).then((searchResultTotal) => {
+                                this.groups = searchResultTotal;
+                                resolve();
+                            });
+                        }else{
+                            this.groups = searchResult;
+                            resolve();
+                        }
                     });
                 });
             });

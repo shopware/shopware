@@ -6,7 +6,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
- * @internal (flag:FEATURE_NEXT_17540) - only for use by the app-system
+ * @internal
  */
 class Parameter extends XmlElement
 {

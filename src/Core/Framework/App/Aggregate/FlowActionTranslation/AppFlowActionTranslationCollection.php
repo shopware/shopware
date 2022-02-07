@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\App\Aggregate\FlowActionTranslation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @internal (flag:FEATURE_NEXT_17540) - only for use by the app-system
+ * @internal
  *
  * @method void                                       add(AppFlowActionTranslationEntity $entity)
  * @method void                                       set(string $key, AppFlowActionTranslationEntity $entity)

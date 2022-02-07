@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @internal (flag:FEATURE_NEXT_17540) - only for use by the app-system
+ * @internal
  */
 class AppFlowActionLoadedSubscriber implements EventSubscriberInterface
 {

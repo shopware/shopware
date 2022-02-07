@@ -464,12 +464,10 @@
 
         <service id="Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionDefinition">
             <tag name="shopware.entity.definition" />
-            <tag name="shopware.feature" flag="FEATURE_NEXT_17540"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Aggregate\FlowActionTranslation\AppFlowActionTranslationDefinition">
             <tag name="shopware.entity.definition" />
-            <tag name="shopware.feature" flag="FEATURE_NEXT_17540"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\FlowAction\AppFlowActionLoadedSubscriber">

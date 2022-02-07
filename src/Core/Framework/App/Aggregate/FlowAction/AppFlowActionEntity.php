@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 /**
- * @internal (flag:FEATURE_NEXT_17540) - only for use by the app-system
+ * @internal
  */
 class AppFlowActionEntity extends Entity
 {

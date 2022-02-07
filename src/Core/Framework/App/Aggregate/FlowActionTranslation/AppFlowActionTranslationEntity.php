@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
 /**
- * @internal (flag:FEATURE_NEXT_17540) - only for use by the app-system
+ * @internal
  */
 class AppFlowActionTranslationEntity extends TranslationEntity
 {

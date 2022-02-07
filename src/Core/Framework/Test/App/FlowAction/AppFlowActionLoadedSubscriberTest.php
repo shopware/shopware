@@ -8,7 +8,6 @@ use Shopware\Core\Framework\App\FlowAction\AppFlowActionLoadedSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -18,8 +17,6 @@ class AppFlowActionLoadedSubscriberTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17540', $this);
-
         static::assertEquals([
             'app_flow_action.loaded' => 'unserialize',
         ], AppFlowActionLoadedSubscriber::getSubscribedEvents());
@@ -27,8 +24,6 @@ class AppFlowActionLoadedSubscriberTest extends TestCase
 
     public function testUnserialize(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17540', $this);
-
         /** @var EntityRepositoryInterface $appFlowActionRepository */
         $appFlowActionRepository = $this->getContainer()->get('app_flow_action.repository');
 

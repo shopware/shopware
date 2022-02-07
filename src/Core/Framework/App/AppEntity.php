@@ -197,7 +197,7 @@ class AppEntity extends Entity
     protected $cmsBlocks;
 
     /**
-     * @internal (flag:FEATURE_NEXT_17540)
+     * @internal
      *
      * @var AppFlowActionCollection|null
      */
@@ -563,7 +563,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @internal (flag:FEATURE_NEXT_17540)
+     * @internal
      */
     public function getFlowActions(): ?AppFlowActionCollection
     {
@@ -571,7 +571,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @internal (flag:FEATURE_NEXT_17540)
+     * @internal
      */
     public function setFlowActions(AppFlowActionCollection $flowActions): void
     {

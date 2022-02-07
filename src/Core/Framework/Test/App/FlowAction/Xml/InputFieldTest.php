@@ -5,15 +5,9 @@ namespace Shopware\Core\Framework\Test\App\FlowAction\Xml;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\FlowAction\FlowAction;
 use Shopware\Core\Framework\App\FlowAction\Xml\InputField;
-use Shopware\Core\Framework\Feature;
 
 class InputFieldTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17540', $this);
-    }
-
     public function testFromXml(): void
     {
         $flowActions = FlowAction::createFromXmlFile(__DIR__ . '/../_fixtures/valid/flowActionWithFlowActions.xml');

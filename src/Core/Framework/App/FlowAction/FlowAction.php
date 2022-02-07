@@ -7,7 +7,7 @@ use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
- * @internal (flag:FEATURE_NEXT_17540) - only for use by the app-system
+ * @internal
  */
 class FlowAction
 {

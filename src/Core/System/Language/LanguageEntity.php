@@ -356,8 +356,6 @@ class LanguageEntity extends Entity
     protected $appCmsBlockTranslations;
 
     /**
-     * @internal (flag:FEATURE_NEXT_17540)
-     *
      * @var AppFlowActionTranslationCollection|null
      */
     protected $appFlowActionTranslations;
@@ -952,17 +950,11 @@ class LanguageEntity extends Entity
         $this->appCmsBlockTranslations = $appCmsBlockTranslations;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_17540)
-     */
     public function getAppFlowActionTranslations(): ?AppFlowActionTranslationCollection
     {
         return $this->appFlowActionTranslations;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_17540)
-     */
     public function setAppFlowActionTranslations(AppFlowActionTranslationCollection $appFlowActionTranslations): void
     {
         $this->appFlowActionTranslations = $appFlowActionTranslations;

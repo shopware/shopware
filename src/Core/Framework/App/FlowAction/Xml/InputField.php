@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\App\FlowAction\Xml;
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 
 /**
- * @internal (flag:FEATURE_NEXT_17540) - only for use by the app-system
+ * @internal
  */
 class InputField extends XmlElement
 {

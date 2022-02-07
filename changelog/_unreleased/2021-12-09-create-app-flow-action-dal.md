@@ -1,7 +1,6 @@
 ---
 title: Create app flow action DAL
 issue: NEXT-18950
-flag: FEATURE_NEXT_17540
 ---
 # Core
 *  Added migration to create two new tables `app_flow_action` and `app_flow_action_translation`.

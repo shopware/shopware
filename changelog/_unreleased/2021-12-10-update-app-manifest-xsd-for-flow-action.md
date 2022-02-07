@@ -1,7 +1,6 @@
 ---
 title: Update app manifest xsd for flow action.
 issue: NEXT-19083
-flag: FEATURE_NEXT_17540
 ---
 # Core
 * Added following classes to parser data from flow-action.xml:

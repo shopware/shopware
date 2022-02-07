@@ -122,9 +122,7 @@ class AppDefinition extends EntityDefinition
             );
         }
 
-        if (Feature::isActive('FEATURE_NEXT_17540')) {
-            $fields->add((new OneToManyAssociationField('flowActions', AppFlowActionDefinition::class, 'app_id'))->addFlags(new CascadeDelete()));
-        }
+        $fields->add((new OneToManyAssociationField('flowActions', AppFlowActionDefinition::class, 'app_id'))->addFlags(new CascadeDelete()));
 
         return $fields;
     }

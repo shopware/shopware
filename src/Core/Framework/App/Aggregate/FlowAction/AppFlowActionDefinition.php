@@ -20,7 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 /**
- * @internal (flag:FEATURE_NEXT_17540) - only for use by the app-system
+ * @internal
  */
 class AppFlowActionDefinition extends EntityDefinition
 {

@@ -4,16 +4,10 @@ namespace Shopware\Core\Framework\Test\App\FlowAction;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\FlowAction\FlowAction;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 
 class FlowActionTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17540', $this);
-    }
-
     public function testCreateFromXmlWithFlowAction(): void
     {
         $flowActions = FlowAction::createFromXmlFile(__DIR__ . '/_fixtures/valid/flowActionWithFlowActions.xml');

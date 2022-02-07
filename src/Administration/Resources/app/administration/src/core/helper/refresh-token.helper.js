@@ -2,7 +2,7 @@
  * Refresh token helper which manages a cache of requests to retry them after the token got refreshed.
  * @class
  */
-export default class RefreshTokenHelper {
+class RefreshTokenHelper {
     constructor() {
         this._isRefreshing = false;
         this._subscribers = [];
@@ -90,4 +90,10 @@ export default class RefreshTokenHelper {
     set isRefreshing(value) {
         this._isRefreshing = value;
     }
+}
+
+const refreshTokenHelper = new RefreshTokenHelper();
+
+export default function getRefreshTokenHelper() {
+    return refreshTokenHelper;
 }

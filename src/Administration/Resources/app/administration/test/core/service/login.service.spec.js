@@ -37,9 +37,16 @@ describe('core/service/login.service.js', () => {
     beforeEach(() => {
         const mockDate = new Date(1577881800000);
         jest.spyOn(global, 'Date').mockImplementation(() => mockDate);
+        Date.now = jest.fn(() => 1577876400);
+
+        jest.useFakeTimers();
 
         window.localStorage.removeItem('redirectFromLogin');
         document.cookie = '';
+    });
+
+    afterEach(async () => {
+        await jest.runAllTimers();
     });
 
     it('should contain all public functions', async () => {
@@ -324,5 +331,55 @@ describe('core/service/login.service.js', () => {
         const { loginService } = loginServiceFactory();
 
         await expect(loginService.isLoggedIn()).toBe(false);
+    });
+
+    it('should start auto refresh the token after login', async () => {
+        const { loginService, clientMock } = loginServiceFactory();
+
+        clientMock.onPost('/oauth/token')
+            .reply(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'aCcEsS_tOkEn_first',
+                refresh_token: 'rEfReSh_ToKeN_first'
+            });
+
+        await loginService.loginByUsername('admin', 'shopware');
+
+        expect(clientMock.history.post[0]).toBeDefined();
+        expect(clientMock.history.post[1]).toBeUndefined();
+        expect(JSON.parse(clientMock.history.post[0].data).grant_type).toEqual('password');
+
+        await jest.runAllTimers();
+
+        expect(clientMock.history.post[1]).toBeDefined();
+        expect(JSON.parse(clientMock.history.post[1].data).grant_type).toEqual('refresh_token');
+    });
+
+    it('should start auto refresh the token after token refresh', async () => {
+        const { loginService, clientMock } = loginServiceFactory();
+
+        clientMock.onPost('/oauth/token')
+            .reply(200, {
+                token_type: 'Bearer',
+                expires_in: 600,
+                access_token: 'aCcEsS_tOkEn',
+                refresh_token: 'rEfReSh_ToKeN'
+            });
+
+        await loginService.loginByUsername('admin', 'shopware');
+
+        clientMock.onPost('/oauth/token')
+            .reply(200, {
+                token_type: 'Bearer',
+                expires_in: 400,
+                access_token: 'aCcEsS_tOkEn_TwO',
+                refresh_token: 'rEfReSh_ToKeN_tWo'
+            });
+
+        await loginService.refreshToken();
+
+        expect(clientMock.history.post[1]).toBeDefined();
+        expect(JSON.parse(clientMock.history.post[1].data).grant_type).toEqual('refresh_token');
     });
 });

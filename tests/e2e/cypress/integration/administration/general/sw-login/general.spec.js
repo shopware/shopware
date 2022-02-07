@@ -3,6 +3,8 @@
 describe('User: Test general user values', () => {
     beforeEach(() => {
         cy.clearCookies();
+        cy.clearCookie('bearerAuth')
+        cy.clearCookie('refreshBearerAuth')
         cy.visit(`${Cypress.env('admin')}`)
     });
 

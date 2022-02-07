@@ -97,30 +97,31 @@ class OrderRepositoryTest extends TestCase
     }
 
     /**
-     * Writing Orders without calculatedTaxes generates 500 staus codes
-     * and leaves partially written orders
+     * Regression from NEXT-19378
      */
-    public function testCreateOrderWithoutCalculatedTaxes(): void
+    public function testCreateOrderWithoutCalculatedTaxesThrows(): void
     {
         $orderId = Uuid::randomHex();
         $defaultContext = Context::createDefaultContext();
         $orderData = $this->getOrderData($orderId, $defaultContext);
         $orderData = \json_decode(\json_encode($orderData), true);
 
-        //unset($orderData[0]['lineItems'][0]['price']);
         unset($orderData[0]['lineItems'][0]['price']['calculatedTaxes']);
-//        unset($orderData[0]['lineItems'][0]['price']);
+
+        $wasThrown = false;
 
         try {
             $this->orderRepository->create($orderData, $defaultContext);
-        } catch(\Error $e) {
-            //nth
+        } catch (WriteException $e) {
+            $wasThrown = true;
         }
+
+        static::assertTrue($wasThrown);
 
         $criteria = new Criteria([$orderId]);
 
         $order = $this->orderRepository->search($criteria, $defaultContext);
-        self::assertSame(0, $order->count());
+        static::assertSame(0, $order->count());
     }
 
     public function testDeleteOrder(): void

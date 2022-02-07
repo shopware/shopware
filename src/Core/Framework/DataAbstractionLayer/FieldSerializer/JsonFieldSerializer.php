@@ -164,10 +164,14 @@ class JsonFieldSerializer extends AbstractFieldSerializer
             );
 
             /*
-             * Dont call encode on nested JsonFields if they are not typed. This also allows directly storing
-             * non-array values like strings.
+             * Don't call `encode()` or `validateIfNeeded()` on nested JsonFields if they are not typed.
+             * This also allows directly storing non-array values like strings.
              */
             if ($nestedField instanceof JsonField && empty($nestedField->getPropertyMapping())) {
+                // Validate required flag manually
+                if ($nestedField->is(Required::class)) {
+                    $this->validate([new NotNull()], $kvPair, $nestedParams->getPath());
+                }
                 $stack->update($kvPair->getKey(), $kvPair->getValue());
 
                 continue;

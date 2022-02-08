@@ -65,9 +65,9 @@ describe('Category: site builder feature', () => {
         cy.get('.sw-confirm-modal__button-confirm').click();
 
         // wait for the loading state to finish
-        cy.get('.sw-category-detail__content-loader').should('exist');
+        cy.get('.sw-skeleton').should('exist');
         cy.wait('@updateCategory');
-        cy.get('.sw-category-detail__content-loader').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
 
         // validate changes
         cy.get('input[name="categoryActive"]').should('be.checked');
@@ -140,9 +140,9 @@ describe('Category: site builder feature', () => {
 
         // save and wait for the loading state to finish
         cy.get('.sw-category-detail__save-action').click();
-        cy.get('.sw-category-detail__content-loader').should('exist');
+        cy.get('.sw-skeleton').should('exist');
         cy.wait('@updateCategory');
-        cy.get('.sw-category-detail__content-loader').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
 
         // validate changes
         cy.get('input[name="categoryActive"]').should('be.checked');
@@ -183,9 +183,9 @@ describe('Category: site builder feature', () => {
 
         // save and wait for the loading state to finish
         cy.get('.sw-category-detail__save-action').click();
-        cy.get('.sw-category-detail__content-loader').should('exist');
+        cy.get('.sw-skeleton').should('exist');
         cy.wait('@updateCategory');
-        cy.get('.sw-category-detail__content-loader').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
 
         // validate changes
         cy.get('input[name="categoryActive"]').should('be.checked');
@@ -227,9 +227,9 @@ describe('Category: site builder feature', () => {
 
         // save and wait for the loading state to finish
         cy.get('.sw-category-detail__save-action').click();
-        cy.get('.sw-category-detail__content-loader').should('exist');
+        cy.get('.sw-skeleton').should('exist');
         cy.wait('@updateCategory');
-        cy.get('.sw-category-detail__content-loader').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
 
         // validate changes
         cy.get('input[name="categoryActive"]').should('be.checked');
@@ -272,9 +272,9 @@ describe('Category: site builder feature', () => {
 
         // save and wait for the loading state to finish
         cy.get('.sw-category-detail__save-action').click();
-        cy.get('.sw-category-detail__content-loader').should('exist');
+        cy.get('.sw-skeleton').should('exist');
         cy.wait('@updateCategory');
-        cy.get('.sw-category-detail__content-loader').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
 
         // validate changes
         cy.get('input[name="categoryActive"]').should('be.checked');

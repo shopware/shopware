@@ -57,9 +57,14 @@ describe('CMS: Check usage and editing of cross selling element', () => {
 
         // Open product and add cross selling
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-data-grid').should('exist');
+        cy.get('.sw-skeleton').should('not.exist');
         cy.contains('First product').click();
 
+        cy.get('.sw-tabs').should('exist');
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-product-detail__tab-cross-selling').click();
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('input[name="sw-field--crossSelling-active"]').click();
 
         // Fill in cross selling form
@@ -168,9 +173,14 @@ describe('CMS: Check usage and editing of cross selling element', () => {
 
         // Open product and add cross selling
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-data-grid').should('exist');
+        cy.get('.sw-skeleton').should('not.exist');
         cy.contains('First product').click();
 
+        cy.get('.sw-tabs').should('exist');
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-product-detail__tab-cross-selling').click();
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('input[name="sw-field--crossSelling-active"]').click();
 
         // Fill in cross selling form

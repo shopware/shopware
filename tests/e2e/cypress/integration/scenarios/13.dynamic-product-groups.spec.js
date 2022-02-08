@@ -59,6 +59,7 @@ describe('Dynamic Product Groups in categories', () => {
                 });
             cy.get('#sw-field--stringValue').type('RS-333');
             cy.get('.sw-loader').should('not.exist');
+            cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-button-process__content').contains('Opslaan').click();
             cy.wait('@saveProductStream').its('response.statusCode').should('equal', 204);
         });
@@ -76,6 +77,7 @@ describe('Dynamic Product Groups in categories', () => {
         cy.contains('Product name').should('not.exist');
         cy.get('.sw-button-process__content').contains('Opslaan').click();
         cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
         cy.wait('@getCategory').its('response.statusCode').should('equal', 200);
 
         // Add both products to the sales channel

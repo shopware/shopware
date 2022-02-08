@@ -135,6 +135,7 @@ describe('Product: Edit in various ways', () => {
 
         cy.get('.sw-product-detail__tab-variants').click();
         cy.get(page.elements.loader).should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get(`.sw-product-detail-variants__generated-variants-empty-state ${page.elements.ghostButton}`)
             .should('be.visible')
             .click();
@@ -218,6 +219,7 @@ describe('Product: Edit in various ways', () => {
 
         cy.get('.sw-product-detail__tab-variants').click();
         cy.get(page.elements.loader).should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get(`.sw-product-detail-variants__generated-variants-empty-state ${page.elements.ghostButton}`)
             .should('be.visible')
             .click();
@@ -325,6 +327,7 @@ describe('Product: Edit in various ways', () => {
 
         cy.get('.sw-product-detail__tab-variants').click();
         cy.get(page.elements.loader).should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get(`.sw-product-detail-variants__generated-variants-empty-state ${page.elements.ghostButton}`)
             .should('be.visible')
             .click();
@@ -332,10 +335,18 @@ describe('Product: Edit in various ways', () => {
 
         // Create and verify multi-dimensional variant
         page.generateVariants('Color', [0, 1, 2], 3);
+        cy.get('.sw-empty-state').should('not.exist');
         cy.get('.sw-product-variants__generate-action').should('be.visible');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // Check field inheritance in variant
-        cy.get('.sw-product-variants-overview__single-variation').contains('Green').click();
+        cy.get('.sw-data-grid__row--2 .sw-product-variants-overview__variation-link')
+        cy.get('.sw-data-grid__row--2 .sw-product-variants-overview__variation-link').should('be.visible');
+        cy.get('.sw-data-grid__row--2 .sw-product-variants-overview__variation-link').contains('Green');
+        cy.get('.sw-data-grid__row--2 .sw-product-variants-overview__variation-link').realHover();
+        cy.get('.sw-data-grid__row--2 .sw-product-variants-overview__variation-link .icon--default-text-editor-link').should('be.visible');
+        cy.get('.sw-data-grid__row--2 .sw-product-variants-overview__variation-link').click();
 
         cy.get('.sw-skeleton__detail-bold').should('not.exist');
         cy.get('.sw-category-tree-field.sw-product-detail__select-category.is--disabled')

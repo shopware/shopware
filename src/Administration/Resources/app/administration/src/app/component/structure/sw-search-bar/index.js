@@ -78,6 +78,7 @@ Component.register('sw-search-bar', {
             showSearchPreferencesModal: false,
             searchLimit: 10,
             userSearchPreference: null,
+            isComponentMounted: true,
         };
     },
 
@@ -165,7 +166,7 @@ Component.register('sw-search-bar', {
         // Watch for changes in query parameters
         '$route'(newValue) {
             // Use type search again when route changes and the term is undefined
-            if (newValue.query.term === undefined && this.initialSearchType) {
+            if (this.isComponentMounted === true && newValue.query.term === undefined && this.initialSearchType) {
                 this.currentSearchType = this.initialSearchType;
             }
 
@@ -389,6 +390,7 @@ Component.register('sw-search-bar', {
 
         resetSearchType() {
             if (this.searchTerm.length === 0) {
+                this.isComponentMounted = false;
                 this.currentSearchType = null;
             }
         },

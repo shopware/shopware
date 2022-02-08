@@ -75,7 +75,7 @@
             <template #result-item="{ item, index }">
                 <slot
                     name="result-item"
-                    v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, isSelected, addItem, getKey }"
+                    v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, isSelected, addItem, getKey, displayLabelProperty, isSelectionDisabled, descriptionPosition }"
                 >
                     <li
                         is="sw-select-result"

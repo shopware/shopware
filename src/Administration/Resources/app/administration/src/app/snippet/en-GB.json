@@ -675,6 +675,7 @@
         "lineItemClearanceSale": "Item with clearance sale",
         "lineItemPromotedRule": "Item is promoted",
         "lineItemInCategoryRule": "Item in category",
+        "categoryWithProductStreamTooltip": "Products in this category are assigned by a dynamic product group. Please use the condition \"Item in dynamic product group\" to dynamically access these products.",
         "lineItemInProductStreamRule": "Item in dynamic product group",
         "lineItemTaxationRule": "Item with tax rate",
         "lineItemDimensionWidthRule": "Item with width",

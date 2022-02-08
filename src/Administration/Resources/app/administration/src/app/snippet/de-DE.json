@@ -675,6 +675,7 @@
         "lineItemClearanceSale": "Position im Abverkauf",
         "lineItemPromotedRule": "Position ist hervorgehoben",
         "lineItemInCategoryRule": "Position in Kategorie",
+        "categoryWithProductStreamTooltip": "Produkte in dieser Kategorie werden durch eine dynamische Produktgruppe zugewiesen. Bitte verwende die Bedingung \"Position in dynamischer Produktgruppe\" um dynamisch auf diese Produkte zuzugreifen.",
         "lineItemInProductStreamRule": "Position in dynamischer Produktgruppe",
         "lineItemTaxationRule": "Position mit Steuersatz",
         "lineItemDimensionWidthRule": "Position mit Breite",

@@ -100,7 +100,9 @@ function createWrapper(privileges = []) {
             }
         },
         propsData: {
-            salesChannel: {}
+            salesChannel: {
+                id: 'storefrontSalesChannelTypeId'
+            }
         }
     });
 }
@@ -109,6 +111,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
     const productsMock = [
         { id: '101', active: true, productNumber: '001' },
         { id: '102', active: false, productNumber: '002' }
+    ];
+    const variantProductMocks = [
+        { id: '201', active: true, productNumber: '001.1', parentId: '101', visibilities: [{ id: '1', productId: '101', salesChannelId: 'storefrontSalesChannelTypeId' }] },
+        { id: '202', active: true, productNumber: '001.2', parentId: '101', visibilities: [{ id: '2', productId: '202', salesChannelId: 'storefrontSalesChannelTypeId' }] }
     ];
     productsMock.has = (id) => {
         return productsMock.some((item) => {
@@ -436,5 +442,15 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         });
 
         wrapper.vm.productVisibilityRepository.saveAll.mockRestore();
+    });
+
+    it('should not be able to delete variants which have inherit visibility', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        await wrapper.setData({ products: [...productsMock, ...variantProductMocks] });
+
+        expect(wrapper.vm.isProductRemovable(variantProductMocks[0])).toBe(false);
+        expect(wrapper.vm.isProductRemovable(variantProductMocks[1])).toBe(true);
     });
 });

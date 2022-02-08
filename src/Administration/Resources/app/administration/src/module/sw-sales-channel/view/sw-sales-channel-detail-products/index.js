@@ -275,5 +275,13 @@ Component.register('sw-sales-channel-detail-products', {
 
             return this.productVisibilityRepository.saveAll(data, Context.api);
         },
+
+        isProductRemovable(product) {
+            const relevantVisibility = product.visibilities.find(
+                visibility => visibility.salesChannelId === this.salesChannel.id,
+            );
+
+            return product.parentId !== relevantVisibility.productId;
+        },
     },
 });

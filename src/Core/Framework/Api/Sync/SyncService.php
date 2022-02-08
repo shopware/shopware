@@ -61,7 +61,12 @@ class SyncService implements SyncServiceInterface
             $behavior->getIndexingBehavior() !== null
             && \in_array($behavior->getIndexingBehavior(), [EntityIndexerRegistry::DISABLE_INDEXING, EntityIndexerRegistry::USE_INDEXING_QUEUE], true)
         ) {
-            $context->addExtension($behavior->getIndexingBehavior(), new ArrayEntity());
+            // @deprecated tag:v6.5.0 - complete if statement will be removed, context.state should be used instead
+            if (!Feature::isActive('v6.5.0.0')) {
+                $context->addExtension($behavior->getIndexingBehavior(), new ArrayEntity());
+            }
+
+            $context->addState($behavior->getIndexingBehavior());
         }
 
         // allows to execute all writes inside a single transaction and a single entity write event

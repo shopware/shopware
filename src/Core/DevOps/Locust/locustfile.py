@@ -1,224 +1,168 @@
-import requests
-import time
-import csv
 import os
-import random
+import sys
 import uuid
-import json
-from locust import HttpUser, task, between, constant
+from locust import FastHttpUser, task, between, constant
+from bs4 import BeautifulSoup
 
-class Purchaser(HttpUser):
-    weight = 10
-    wait_time = constant(15)
-    countryId = 1
-    salutationId = 1
+sys.path.append(os.path.dirname(__file__) + '/src')
+from storefront import Storefront
+from context import Context
+from api import Api
 
-    def on_start(self):
-        self.initRegister()
-        self.register()
+context = Context()
 
-    def initRegister(self):
-        path = os.path.dirname(os.path.realpath(__file__)) + '/fixtures/register.json'
-        with open(path) as file:
-            data = json.load(file)
-            self.countryId = data['countryId']
-            self.salutationId = data['salutationId']
-
-    def register(self):
-        register = {
-            'redirectTo': 'frontend.account.home.page',
-            'salutationId': self.salutationId,
-            'firstName': 'Firstname',
-            'lastName': 'Lastname',
-            'email': 'user-' + str(uuid.uuid4()).replace('-', '') + '@example.com',
-            'password': 'shopware',
-            'billingAddress[street]': 'Test street',
-            'billingAddress[zipcode]': '11111',
-            'billingAddress[city]': 'Test city',
-            'billingAddress[countryId]': self.countryId
-        }
-
-        self.client.post('/account/register', data=register, name='register')
-
-    def addProduct(self):
-        number = random.choice(numbers)
-
-        self.client.post('/checkout/product/add-by-number', name='add-product', data={
-            'redirectTo': 'frontend.checkout.cart.page',
-            'number': number
-        })
+class Admin(FastHttpUser):
+    id = None
+    weight = 1
+    wait_time = between(5, 10)
 
     @task
-    def order(self):
-        url = random.choice(listings)
-        self.client.get(url, name='listing-page-logged-in')
+    def stock_updates(self):
+        # fixed_count locust config is broken
+        if (not self.allowed()):
+            return
 
-        self.client.get('/widgets/checkout/info', name='cart-widget')
+        api = Api(self.client, context)
+        api.update_stock()
 
-        count = random.randint(1, 5)
-        for i in range(1,count+1):
-            self.addProduct()
+    @task
+    def price_updates(self):
+        # fixed_count locust config is broken
+        if (not self.allowed()):
+            return
 
-        self.client.get('/checkout/cart', name='cart-page')
+        api = Api(self.client, context)
+        api.update_prices()
 
-        self.client.get('/checkout/confirm', name='confirm-page')
+    def allowed(self):
+        if (self.id == None):
+            self.id = str(uuid.uuid4())
 
-        self.client.post('/checkout/order', name='order', data={
-            'tos': 'on'
-        })
+        if (self.id in context.admin_ids):
+            return True
 
-class Surfer(HttpUser):
-    weight = 10
-    wait_time = constant(2)
+        if (len(context.admin_ids) < context.max_api_users):
+            context.admin_ids.append(self.id)
+            return True
 
-    @task(10)
-    def listing_page(self):
-        url = random.choice(listings)
-        self.client.get(url, name='listing-page')
-        self.client.get('/widgets/checkout/info', name='cart-widget')
+        return False
+
+class Customer(FastHttpUser):
+    weight=100
+    wait_time = between(2, 10)
 
     @task(4)
-    def detail_page(self):
-        url = random.choice(details)
-        self.client.get(url, name='detail-page')
-        self.client.get('/widgets/checkout/info', name='cart-widget')
+    def short_time_listing_visitor(self):
+        page = Storefront(self.client, context)
+        page = page.go_to_listing()
+        page = page.view_products(2)
 
+        page = page.go_to_next_page()
+        page = page.view_products(3)
 
-listings = []
-details = []
-numbers = []
+    @task(4)
+    def short_time_search_visitor(self):
+        page = Storefront(self.client, context)
+        page = page.do_search()
+        page = page.view_products(2)
 
-def initListings():
-    path = os.path.dirname(os.path.realpath(__file__)) + '/fixtures/listing_urls.csv'
-    with open(path) as file:
-        reader = csv.reader(file, delimiter=',')
-        for row in reader:
-            listings.append(row[0])
+        page = page.go_to_next_page()
+        page = page.view_products(2)
+        page = page.go_to_next_page()
 
-def initProducts():
-    path = os.path.dirname(os.path.realpath(__file__)) + '/fixtures/product_urls.csv'
-    with open(path) as file:
-        reader = csv.reader(file, delimiter=',')
-        for row in reader:
-            details.append(row[0])
+        page = page.add_manufacturer_filter()
+        page = page.select_sorting()
+        page = page.view_products(3)
 
-def initNumbers():
-    path = os.path.dirname(os.path.realpath(__file__)) + '/fixtures/product_numbers.csv'
-    with open(path) as file:
-        reader = csv.reader(file, delimiter=',')
-        for row in reader:
-            numbers.append(row[0])
+    @task(3)
+    def long_time_visitor(self):
+        page = Storefront(self.client, context)
 
-initListings()
-initProducts()
-initNumbers()
+        # search products over listings
+        page = page.go_to_listing()
 
-# class Importer(HttpUser):
-#     weight = 1
-#     wait_time = constant(60)
-#     salesChannelId = 0
-#     taxId = 0
-#     currencyId = 0
-#     categoryIds = []
-#     productIds = []
-#
-#     def on_start(self):
-#         self.initImporter()
-#
-#     @task
-#     def stock_update(self):
-#         products = []
-#
-#         count = random.randint(20, 50)
-#
-#         for i in range(1,count+1):
-#             products.append({
-#                 'id': random.choice(self.productIds),
-#                 'stock': random.randint(5, 2000)
-#             })
-#
-#         response = requests.post(
-#             self.environment.host + '/api/_action/sync',
-#             json={
-#                 'import-products': {
-#                     'entity': 'product',
-#                     'action': 'upsert',
-#                     'payload': products
-#                 }
-#             },
-#             headers={
-#                 'Authorization': 'Bearer ' + self.getAccessToken(),
-#                 'single-operation': 'true'
-#             }
-#         )
-#
-#     @task
-#     def product_import(self):
-#         response = requests.post(
-#             self.environment.host + '/api/_action/sync',
-#             json={
-#                 "import-products": {
-#                     "entity": "product",
-#                     "action": "upsert",
-#                     "payload": self.buildProducts()
-#                 }
-#             },
-#             headers={
-#                 'Authorization': 'Bearer ' + self.getAccessToken(),
-#                 'single-operation': 'true'
-#             }
-#         )
-#
-#     def initImporter(self):
-#         path = os.path.dirname(os.path.realpath(__file__)) + '/fixtures/importer.json'
-#
-#         with open(path) as file:
-#             data = json.load(file)
-#             self.currencyId = data['currencyId']
-#             self.salesChannelId = data['salesChannelId']
-#             self.productIds = data['productIds']
-#             self.categoryIds = data['categoryIds']
-#             self.taxId = data['taxId']
-#
-#     def getAccessToken(self):
-#         response = self.client.post(self.environment.host + '/api/oauth/token', json={
-#             "client_id": "administration",
-#             "grant_type": "password",
-#             "scopes": "write",
-#             "username": "admin",
-#             "password": "shopware"
-#         })
-#
-#         data = response.json()
-#
-#         return data['access_token']
-#
-#     def buildProducts(self):
-#         count = random.randint(20, 50)
-#
-#         products = []
-#
-#         for i in range(1,count+1):
-#             products.append({
-#                 'name': 'Example',
-#                 'active': True,
-#                 'visibilities': [
-#                     { 'salesChannelId': self.salesChannelId, 'visibility': 30 }
-#                 ],
-#                 'taxId': self.taxId,
-#                 'productNumber': str(uuid.uuid4()).replace('-', ''),
-#                 'price': [
-#                     {
-#                         'currencyId': self.currencyId,
-#                         'gross': random.randint(100, 400),
-#                         'net': random.randint(100, 400),
-#                         'linked': True
-#                     }
-#                 ],
-#                 'stock': random.randint(5, 2000),
-#                 'categories': [
-#                     { 'id': random.choice(self.categoryIds) }
-#                 ]
-#             })
-#
-#         return products
+        # take a look to the first two products
+        page = page.view_products(2)
+        page = page.go_to_next_page()
+
+        # open two different product pages
+        page = page.view_products(2)
+
+        # sort listing and use properties to filter
+        page = page.select_sorting()
+        page = page.add_property_filter()
+
+        page = page.view_products(1)
+        page = page.go_to_next_page()
+
+        # switch to search to find products
+        page = page.do_search()
+        page = page.view_products(2)
+
+        # use property filter to find products
+        page = page.add_property_filter()
+
+        # take a look to the top three hits
+        page = page.view_products(3)
+        page = page.go_to_next_page()
+
+    @task(3)
+    def short_time_buyer(self):
+        page = Storefront(self.client, context)
+        page = page.register()       #instead of login, we register
+        page = page.go_to_account_orders()
+
+        page = page.go_to_listing()
+        page = page.view_products(2)
+        page = page.add_product_to_cart()
+        page = page.add_product_to_cart()
+        page = page.instant_order()
+        page = page.logout()
+
+    @task(2)
+    def long_time_buyer(self):
+        page = Storefront(self.client, context)
+        page = page.register()      #instead of login, we register
+        page = page.go_to_account()
+        page = page.go_to_account_orders()
+
+        # search products over listings
+        page = page.go_to_listing()
+
+        # take a look to the first two products
+        page = page.view_products(2)
+        page = page.add_product_to_cart()
+        page = page.go_to_next_page()
+
+        # open two different product pages
+        page = page.view_products(2)
+        page = page.add_product_to_cart()
+
+        # sort listing and use properties to filter
+        page = page.select_sorting()
+        page = page.add_property_filter()
+        page = page.view_products(1)
+        page = page.go_to_next_page()
+        page = page.add_product_to_cart()
+        page = page.instant_order()
+
+        # switch to search to find products
+        page = page.do_search()
+        page = page.view_products(2)
+
+        # use property filter to find products
+        page = page.add_property_filter()
+
+        # take a look to the top three hits
+        page = page.view_products(3)
+        page = page.add_product_to_cart()
+        page = page.add_product_to_cart()
+        page = page.go_to_next_page()
+
+        page = page.view_products(2)
+        page = page.add_product_to_cart()
+        page = page.add_product_to_cart()
+        page = page.add_product_to_cart()
+
+        page = page.instant_order()
+        page = page.logout()

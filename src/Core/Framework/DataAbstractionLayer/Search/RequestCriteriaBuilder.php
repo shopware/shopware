@@ -72,7 +72,7 @@ class RequestCriteriaBuilder
         }
 
         if ($criteria->getOffset()) {
-            $array['offset'] = $criteria->getOffset();
+            $array['page'] = ($criteria->getOffset() / $criteria->getLimit()) + 1;
         }
 
         if ($criteria->getTerm()) {

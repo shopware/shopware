@@ -63,7 +63,9 @@ describe('Product: Test variants', () => {
         cy.get('.sw-product-variants-overview').should('be.visible');
         cy.get('.sw-skeleton.sw-skeleton__detail').should('not.exist');
         cy.get('.sw-skeleton.sw-skeleton__listing').should('not.exist');
-        cy.get('.sw-data-grid__body').contains('Red').click();
+        cy.get('.sw-data-grid__row--1 a').should('exist');
+        cy.get('.sw-data-grid__row--1 a').contains('Red');
+        cy.get('.sw-data-grid__row--1 a').click();
         cy.get('.product-basic-form .sw-inheritance-switch').eq(0).click();
         cy.get('input[name=sw-field--product-name]').clearTypeAndCheck('New Product name');
         cy.get(page.elements.productSaveAction).click();

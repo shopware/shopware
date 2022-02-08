@@ -12,6 +12,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\HttpKernel\KernelInterface;
+use function is_dir;
+use function is_file;
 
 class TestBootstrapper
 {
@@ -81,21 +83,21 @@ class TestBootstrapper
             return $this->projectDir;
         }
 
-        if (isset($_SERVER['PROJECT_ROOT']) && file_exists($_SERVER['PROJECT_ROOT'])) {
+        if (isset($_SERVER['PROJECT_ROOT']) && is_dir($_SERVER['PROJECT_ROOT'])) {
             return $this->projectDir = $_SERVER['PROJECT_ROOT'];
         }
 
-        if (isset($_ENV['PROJECT_ROOT']) && file_exists($_ENV['PROJECT_ROOT'])) {
+        if (isset($_ENV['PROJECT_ROOT']) && is_dir($_ENV['PROJECT_ROOT'])) {
             return $this->projectDir = $_ENV['PROJECT_ROOT'];
         }
 
         // only test cwd if it's not platform embedded (custom/plugins)
-        if (!$this->platformEmbedded && file_exists('vendor')) {
+        if (!$this->platformEmbedded && is_dir('vendor')) {
             return $this->projectDir = (string) getcwd();
         }
 
         $dir = $rootDir = __DIR__;
-        while (!file_exists($dir . '/vendor')) {
+        while (!is_dir($dir . '/vendor')) {
             if ($dir === \dirname($dir)) {
                 return $rootDir;
             }
@@ -170,7 +172,7 @@ class TestBootstrapper
 
             $dir = \dirname($callerFile);
             $max = 10;
-            while ($max-- > 0 && !file_exists($dir . '/composer.json')) {
+            while ($max-- > 0 && !is_file($dir . '/composer.json')) {
                 $dir = \dirname($dir);
             }
 
@@ -181,7 +183,7 @@ class TestBootstrapper
             $pathToComposerJson = $dir . '/composer.json';
         }
 
-        if (!file_exists($pathToComposerJson)) {
+        if (!is_file($pathToComposerJson)) {
             throw new \RuntimeException('Could not auto detect plugin name via composer.json. Path: ' . $pathToComposerJson);
         }
 
@@ -281,15 +283,14 @@ class TestBootstrapper
         }
 
         $envFilePath = $this->getProjectDir() . '/.env';
-        if (file_exists($envFilePath) || file_exists($envFilePath . '.dist')) {
-            (new Dotenv())->usePutenv()->loadEnv($envFilePath);
+        if (is_file($envFilePath) || is_file($envFilePath . '.dist') || is_file($envFilePath . '.local.php')) {
+            (new Dotenv())->usePutenv()->bootEnv($envFilePath);
         }
     }
 
     private function install(): void
     {
-        $application = new Application($this->getKernel());
-        $installCommand = $application->find('system:install');
+        $installCommand = (new Application($this->getKernel()))->find('system:install');
 
         $returnCode = $installCommand->run(
             new ArrayInput(

@@ -331,7 +331,7 @@ Component.register('sw-tree-item', {
 
     methods: {
         updatedComponent() {
-            if (this.item.children.length > 0) {
+            if (this.item.children.length > 0 || this.item.childCount <= 0) {
                 this.isLoading = false;
             }
         },

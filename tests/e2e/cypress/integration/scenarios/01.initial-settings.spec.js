@@ -4,8 +4,7 @@ describe('sales channel: set and validate initial settings', () => {
     beforeEach(() => {
         cy.loginViaApi();
     });
-
-    it.skip('@package: should set and validate default sales channel settings', () => {
+    it('@package: should set and validate default sales channel settings', () => {
         cy.visit(`${Cypress.env('admin')}#/sw/settings/listing/index`);
         cy.url().should('include', 'settings/listing/index');
         cy.setSalesChannel('E2E install test');

@@ -1,10 +1,14 @@
 {% block sw_product_detail_seo %}
-<div>
+<div v-if="isLoading">
+    <sw-skeleton variant="detail-bold" />
+    <sw-skeleton />
+</div>
+
+<div v-else>
     {% block sw_product_detail_seo_general %}
     <sw-card
         position-identifier="sw-product-detail-seo"
         :title="$tc('sw-product.seo.cardTitleSeo')"
-        :is-loading="isLoading"
     >
         {% block sw_product_detail_seo_general_content %}
         <sw-product-seo-form
@@ -18,7 +22,6 @@
     {% block sw_product_detail_seo_urls %}
     <sw-seo-url
         v-if="product.seoUrls"
-        :is-loading="isLoading"
         :has-default-template="false"
         :disabled="!acl.can('product.editor')"
         :urls="product.seoUrls"
@@ -41,7 +44,6 @@
                         :current-sales-channel-id="props.currentSalesChannelId"
                         :categories="categories"
                         :main-categories="isInherited ? parentProduct.mainCategories : product.mainCategories"
-                        :is-loading="isLoading"
                         :overwrite-label="true"
                         :allow-edit="acl.can('product.editor') && !isInherited"
                         @main-category-add="onAddMainCategory"

@@ -4,20 +4,26 @@
     :class="classList"
 >
     <template v-if="variant === 'detail'">
-        <sw-skeleton-bar />
+        <sw-skeleton-bar style="width: 170px" />
 
         <div class="sw-skeleton__detail-container">
-            <div class="sw-skeleton__detail-container-group">
-                <sw-skeleton-bar />
-                <sw-skeleton-bar />
-                <sw-skeleton-bar />
-            </div>
-
-            <div class="sw-skeleton__detail-container-group">
-                <sw-skeleton-bar />
-                <sw-skeleton-bar />
-            </div>
+            <sw-skeleton-bar style="width: 359px" />
+            <sw-skeleton-bar style="width: 323px" />
         </div>
+
+        <sw-skeleton-bar style="width: 443px" />
+        <sw-skeleton-bar style="width: 234px" />
+    </template>
+
+    <template v-if="variant === 'detail-bold'">
+        <sw-skeleton-bar style="width: 520px" />
+
+        <div class="sw-skeleton__detail-container">
+            <sw-skeleton-bar style="width: 359px" />
+            <sw-skeleton-bar style="width: 323px" />
+        </div>
+
+        <sw-skeleton-bar style="height: 122px" />
     </template>
 
     <template v-if="variant === 'gallery'">

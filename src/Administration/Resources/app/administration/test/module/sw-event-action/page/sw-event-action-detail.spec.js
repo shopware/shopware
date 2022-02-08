@@ -74,7 +74,8 @@ function createWrapper(eventActionId = null, privileges = []) {
             'sw-select-rule-create': true,
             'sw-field': true,
             'sw-custom-field-set-renderer': true,
-            'sw-event-action-deprecated-alert': true
+            'sw-event-action-deprecated-alert': true,
+            'sw-skeleton': true,
         },
         propsData: {
             eventActionId: eventActionId

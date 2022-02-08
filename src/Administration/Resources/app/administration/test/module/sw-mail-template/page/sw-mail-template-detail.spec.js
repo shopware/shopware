@@ -153,7 +153,8 @@ const createWrapper = (privileges = []) => {
             },
             'sw-sidebar-media-item': {
                 template: '<div><slot name="context-menu-items"></slot></div>'
-            }
+            },
+            'sw-skeleton': true,
         }
     });
 };
@@ -247,10 +248,10 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
     it('all fields should be disabled without edit permission', async () => {
         wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
-
-        wrapper.setData({ mailTemplateMedia: [mailTemplateMediaMock] });
-        await wrapper.vm.$nextTick();
+        await wrapper.setData({
+            isLoading: false,
+            mailTemplateMedia: [mailTemplateMediaMock],
+        });
 
         [
             { selector: wrapper.find('.sw-mail-template-detail__save-action'), attribute: 'disabled', expect: 'true' },
@@ -284,10 +285,10 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
     it('all fields should be enabled with edit permission', async () => {
         wrapper = createWrapper(['mail_templates.editor']);
-        await wrapper.vm.$nextTick();
-
-        wrapper.setData({ mailTemplateMedia: [mailTemplateMediaMock] });
-        await wrapper.vm.$nextTick();
+        await wrapper.setData({
+            mailTemplateMedia: [mailTemplateMediaMock],
+            isLoading: false,
+        });
 
         [
             { selector: wrapper.find('.sw-mail-template-detail__save-action'), attribute: 'disabled', expect: undefined },

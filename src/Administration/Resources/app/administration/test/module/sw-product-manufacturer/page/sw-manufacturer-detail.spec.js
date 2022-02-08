@@ -48,7 +48,7 @@ function createWrapper(privileges = []) {
             'sw-empty-state': true,
             'sw-container': true,
             'sw-button': true,
-            'sw-loader': true
+            'sw-skeleton': true
         },
         provide: {
             acl: {

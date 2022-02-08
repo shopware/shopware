@@ -19,7 +19,8 @@ function createWrapper(privileges = []) {
             'sw-card-view': true,
             'sw-language-info': true,
             'sw-tabs': true,
-            'sw-tabs-item': true
+            'sw-tabs-item': true,
+            'sw-skeleton': true,
         },
         provide: {
             acl: {

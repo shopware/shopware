@@ -151,7 +151,8 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
                 'sw-base-field': Shopware.Component.build('sw-base-field'),
                 'sw-field-error': Shopware.Component.build('sw-field-error'),
                 'sw-button-process': true,
-                'sw-button': true
+                'sw-button': true,
+                'sw-skeleton': true,
             }
         });
     }
@@ -174,7 +175,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
         const roles = role.split(', ');
         const wrapper = createWrapper(roles);
 
-        await wrapper.vm.$nextTick();
+        await wrapper.setData({ isLoading: false });
 
         const [firstInput, secondInput] = wrapper.findAll('input[name=sw-field--snippet-value]').wrappers;
 

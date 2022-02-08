@@ -29,6 +29,8 @@ describe('Product Search: Test crud operations', () => {
 
         cy.get('.sw-settings-search__view-general .sw-card').eq(1).scrollIntoView();
 
+        cy.get('.sw-skeleton.sw-skeleton__detail').should('not.exist');
+
         cy.get(`.sw-settings-search__searchable-content-general ${page.elements.dataGridRow}--0`).dblclick();
 
         cy.get('.sw-settings-search__searchable-content-general ' +

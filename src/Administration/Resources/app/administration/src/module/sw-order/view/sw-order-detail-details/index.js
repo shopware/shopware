@@ -195,8 +195,11 @@ Component.register('sw-order-detail-details', {
 
     methods: {
         createdComponent() {
+            this.$emit('update-loading', true);
+
             this.customFieldSetRepository.search(this.customFieldSetCriteria).then((result) => {
                 this.customFieldSets = result;
+                this.$emit('update-loading', false);
             });
         },
 

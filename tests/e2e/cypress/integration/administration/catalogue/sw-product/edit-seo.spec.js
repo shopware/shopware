@@ -262,6 +262,12 @@ describe('Product: Edit in various ways', () => {
         cy.wait('@productCall')
             .its('response.statusCode').should('equal', 200);
 
+        cy.get('#salesChannelSelect')
+            .scrollIntoView()
+            .typeSingleSelectAndCheck(
+                'Storefront',
+                '#salesChannelSelect'
+            );
         cy.get('.sw-seo-main-category').scrollIntoView().contains('Anime');
     });
 
@@ -331,9 +337,10 @@ describe('Product: Edit in various ways', () => {
         // Check field inheritance in variant
         cy.get('.sw-product-variants-overview__single-variation').contains('Green').click();
 
-        cy.get('.sw-product-detail__select-category')
-            .scrollIntoView()
+        cy.get('.sw-skeleton__detail-bold').should('not.exist');
+        cy.get('.sw-category-tree-field.sw-product-detail__select-category.is--disabled')
             .parent()
+            .scrollIntoView()
             .find('.sw-inheritance-switch--is-inherited')
             .should('be.visible')
             .click();
@@ -367,6 +374,13 @@ describe('Product: Edit in various ways', () => {
         cy.wait('@productCall')
             .its('response.statusCode').should('equal', 200);
 
+        cy.get('.sw-skeleton__detail-bold').should('not.exist');
+        cy.get('#salesChannelSelect')
+            .scrollIntoView()
+            .typeSingleSelectAndCheck(
+                'Storefront',
+                '#salesChannelSelect'
+            );
         cy.get('.sw-seo-main-category').scrollIntoView().contains('Anime');
     });
 });

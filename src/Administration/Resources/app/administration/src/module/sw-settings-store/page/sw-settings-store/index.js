@@ -55,5 +55,9 @@ Component.register('sw-settings-store', {
                 actualConfigData.null['core.store.licenseHost'] = actualConfigData.null['core.store.licenseHost'].trim();
             }
         },
+
+        onLoadingChanged(loading) {
+            this.isLoading = loading;
+        },
     },
 });

@@ -84,7 +84,8 @@ function createWrapper(privileges = []) {
             'sw-select-field': true,
             'sw-switch-field': true,
             'sw-entity-multi-select': true,
-            'sw-single-select': true
+            'sw-single-select': true,
+            'sw-skeleton': true,
         }
     });
 }
@@ -125,6 +126,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
     });
 
     it('should allow to set the password', async () => {
+        await wrapper.setData({ isLoading: false });
         expect(wrapper.vm.user.password).toBe('');
 
         const fieldPassword = wrapper.find('.sw-settings-user-detail__grid-password');
@@ -134,6 +136,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
     });
 
     it('should not be an admin by default', async () => {
+        await wrapper.setData({ isLoading: false });
         const adminSwitch = wrapper.find('.sw-settings-user-detail__grid-is-admin');
 
         expect(adminSwitch.attributes().value).toBeUndefined();

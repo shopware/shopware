@@ -72,7 +72,8 @@ function createWrapper(privileges = []) {
             'sw-help-text': true,
             'sw-multi-select': true,
             'sw-entity-single-select': true,
-            'sw-alert': true
+            'sw-alert': true,
+            'sw-skeleton': true,
         }
     });
 }
@@ -130,6 +131,7 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
             'number_ranges.editor'
         ]);
 
+        await wrapper.setData({ isLoading: false });
         await wrapper.vm.$nextTick();
 
         const elements = wrapper.findAll('.sw-field');

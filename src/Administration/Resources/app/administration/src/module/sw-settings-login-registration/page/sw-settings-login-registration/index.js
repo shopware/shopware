@@ -13,6 +13,8 @@ Component.register('sw-settings-login-registration', {
         return {
             isLoading: false,
             isSaveSuccessful: false,
+            coreLoginRegistrationLoading: false,
+            coreSystemWideLoginRegistrationLoading: false,
         };
     },
 
@@ -20,6 +22,12 @@ Component.register('sw-settings-login-registration', {
         return {
             title: this.$createTitle(),
         };
+    },
+
+    computed: {
+        systemConfigLoading() {
+            return this.coreLoginRegistrationLoading || this.coreSystemWideLoginRegistrationLoading;
+        },
     },
 
     methods: {
@@ -43,6 +51,14 @@ Component.register('sw-settings-login-registration', {
                     message: err,
                 });
             });
+        },
+
+        onLoginRegistrationLoadingChanged(loading) {
+            this.coreLoginRegistrationLoading = loading;
+        },
+
+        onSystemWideLoadingChanged(loading) {
+            this.coreSystemWideLoginRegistrationLoading = loading;
         },
     },
 });

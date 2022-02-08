@@ -75,5 +75,9 @@ Component.register('sw-settings-shopware-updates-index', {
                 });
             });
         },
+
+        onLoadingChanged(loading) {
+            this.isLoading = loading;
+        },
     },
 });

@@ -117,6 +117,8 @@ describe('Product: Edit product media', () => {
         cy.get(`.sw-product-image:nth-of-type(3) ${page.elements.contextMenuButton}`)
             .click({ force: true });
         cy.contains('Use as cover').click();
+
+        cy.get('.sw-product-media-form__previews').scrollIntoView();
         cy.get('.sw-product-image:nth-of-type(3) .sw-label--primary').should('be.visible');
         cy.get('.sw-product-media-form__cover-image img')
             .first()
@@ -178,6 +180,8 @@ describe('Product: Edit product media', () => {
         cy.get(`.sw-product-image:nth-of-type(1) ${page.elements.contextMenuButton}`)
             .click({ force: true });
         cy.contains('Remove').click();
+
+        cy.get('.sw-product-media-form__previews').scrollIntoView();
         cy.get('.sw-product-media-form__cover-image.is--placeholder').should('be.visible');
 
         // Save product

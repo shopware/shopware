@@ -1,5 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-document/page/sw-settings-document-detail';
+import flushPromises from 'flush-promises';
 
 const documentBaseConfigRepositoryMock = {
     create: () => {
@@ -110,7 +111,8 @@ const createWrapper = (customOptions, privileges = []) => {
             'sw-base-field': true,
             'sw-field-error': true,
             'sw-media-field': { template: '<div id="sw-media-field"/>', props: ['disabled'] },
-            'sw-multi-select': { template: '<div id="documentSalesChannel"/>', props: ['disabled'] }
+            'sw-multi-select': { template: '<div id="documentSalesChannel"/>', props: ['disabled'] },
+            'sw-skeleton': true,
         },
         provide: {
             repositoryFactory: {
@@ -147,8 +149,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
             propsData: { documentConfigId: 'documentConfigWithSalesChannels' }
         });
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.documentConfigSalesChannels).toEqual(['associationId1']);
     });
@@ -158,8 +159,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
             propsData: { documentConfigId: 'documentConfigWithDocumentType' }
         });
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.documentConfigSalesChannelOptionsCollection[0]).toEqual({
             documentBaseConfigId: 'documentConfigWithDocumentType',
@@ -183,8 +183,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
             propsData: { documentConfigId: 'documentConfigWithDocumentTypeAndSalesChannels' }
         });
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.documentConfigSalesChannelOptionsCollection[0]).toEqual({
             id: 'associationId1',
@@ -206,8 +205,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
             }
         });
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.documentConfigSalesChannels).toEqual(['associationId1']);
 
@@ -234,11 +232,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
             ['document.editor']
         );
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
-
+        await flushPromises();
 
         expect(wrapper.find('.sw-settings-document-detail__save-action')
             .attributes().disabled).toBeUndefined();
@@ -253,8 +247,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
             propsData: { documentConfigId: 'documentConfigWithDocumentTypeAndSalesChannels' }
         });
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-settings-document-detail__save-action')
             .attributes().disabled).toBe('true');

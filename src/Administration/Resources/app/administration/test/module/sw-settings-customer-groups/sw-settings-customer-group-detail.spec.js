@@ -42,7 +42,8 @@ function createWrapper(privileges = []) {
             'sw-button-process': true,
             'sw-switch-field': true,
             'sw-entity-multi-select': true,
-            'sw-custom-field-set-renderer': true
+            'sw-custom-field-set-renderer': true,
+            'sw-skeleton': true,
         },
 
         provide: {

@@ -41,7 +41,8 @@ function createWrapper() {
             'sw-card': true,
             'sw-button': true,
             'sw-product-cross-selling-form': true,
-            'sw-empty-state': true
+            'sw-empty-state': true,
+            'sw-skeleton': true,
         },
         mocks: {
             $store: store

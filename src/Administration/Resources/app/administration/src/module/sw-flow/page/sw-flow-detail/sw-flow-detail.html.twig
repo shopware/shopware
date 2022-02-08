@@ -58,7 +58,13 @@
             {% endblock %}
 
             {% block sw_flow_tabs_content %}
+            <template v-if="isLoading">
+                <sw-skeleton />
+                <sw-skeleton />
+            </template>
+
             <router-view
+                v-else
                 :is-loading="isLoading"
                 :is-new-flow="isNewFlow"
             />

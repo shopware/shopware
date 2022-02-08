@@ -115,7 +115,8 @@ function createWrapper(privileges = []) {
             'sw-button-process': true,
             'sw-context-menu-item': true,
             'sw-language-info': true,
-            'sw-field': true
+            'sw-field': true,
+            'sw-skeleton': true,
         }
     });
 }

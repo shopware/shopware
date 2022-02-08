@@ -17,10 +17,12 @@ Component.extend('sw-settings-custom-field-set-create', 'sw-settings-custom-fiel
 
     methods: {
         async createdComponent() {
+            this.isLoading = true;
             this.set = await this.customFieldSetRepository.create(Shopware.Context.api, this.$route.params.id);
             this.set.name = 'custom_';
             this.$set(this.set, 'config', {});
             this.setId = this.set.id;
+            this.isLoading = false;
         },
         saveFinish() {
             this.isSaveSuccessful = false;

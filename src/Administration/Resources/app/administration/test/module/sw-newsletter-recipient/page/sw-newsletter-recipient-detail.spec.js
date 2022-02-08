@@ -1,5 +1,6 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import 'src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail';
+import flushPromises from 'flush-promises';
 
 import 'src/app/component/entity/sw-entity-listing';
 import 'src/app/component/data-grid/sw-data-grid';
@@ -76,7 +77,8 @@ function createWrapper(privileges = []) {
             'sw-loader': true,
             'sw-card': {
                 template: '<div><slot name="toolbar">TOOLBAR</slot><slot>CONTENT</slot></div>'
-            }
+            },
+            'sw-skeleton': true,
         },
         provide: {
             acl: {
@@ -104,7 +106,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
 
     it('should disable all inputs and disallow saving', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // check if the save-action-btn is disabled
         expect(wrapper.get('#save-btn').props().disabled).toBe(true);
@@ -119,7 +121,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
 
     it('should enable all inputs and allow saving', async () => {
         const wrapper = createWrapper(['newsletter_recipient.editor']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // check if the save-action-btn is enabled
         expect(wrapper.get('#save-btn').props().disabled).toBeFalsy();

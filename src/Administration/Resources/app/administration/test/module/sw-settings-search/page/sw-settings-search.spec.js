@@ -102,7 +102,8 @@ function createWrapper() {
             'sw-confirm-modal': Shopware.Component.build('sw-confirm-modal'),
             'sw-modal': true,
             'router-link': true,
-            'router-view': true
+            'router-view': true,
+            'sw-skeleton': true,
         }
     });
 }

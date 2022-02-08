@@ -31,14 +31,15 @@ describe('Listing: Test crud operations', () => {
             .click();
 
         cy.reload();
+        cy.get('.smart-bar__header').should('be.visible');
+        cy.get('.sw-skeleton.sw-skeleton__detail').should('not.exist');
 
         // check updated data
         cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--label').contains('Price descending');
         cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--criteria').contains('Cheapest product price');
         cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--priority').contains('5');
 
-
-        cy.get('.sw-settings-listing-index__sorting-options-card').should('be.visible');
+        cy.get('.sw-settings-listing-index__sorting-options-card').scrollIntoView().should('be.visible');
 
         // create new product sorting
         cy.get('.sw-container > .sw-button').click();

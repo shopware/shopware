@@ -40,7 +40,8 @@ Component.register('sw-order-details-state-card', {
         },
         isLoading: {
             type: Boolean,
-            required: true,
+            required: false,
+            default: false,
         },
         disabled: {
             type: Boolean,

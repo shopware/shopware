@@ -42,5 +42,9 @@ Component.register('sw-settings-basic-information', {
                 });
             });
         },
+
+        onLoadingChanged(loading) {
+            this.isLoading = loading;
+        },
     },
 });

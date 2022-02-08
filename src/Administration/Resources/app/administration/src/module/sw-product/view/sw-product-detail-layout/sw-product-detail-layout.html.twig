@@ -1,9 +1,16 @@
 {% block sw_product_detail_layout %}
-<div class="sw-product-detail-layout">
+<div v-if="isLoading">
+    <sw-skeleton variant="detail-bold" />
+    <sw-skeleton />
+</div>
+
+<div
+    v-else
+    class="sw-product-detail-layout"
+>
     {% block sw_product_detail_layout_assignment %}
     <sw-card
         position-identifier="sw-product-detail-layout-assignment"
-        :is-loading="isLoading"
         :title="$tc('sw-product.layout.title')"
         :subtitle="$tc('sw-product.layout.subtitle')"
     >

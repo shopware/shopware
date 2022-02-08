@@ -43,5 +43,9 @@ Component.register('sw-settings-newsletter', {
                 });
             });
         },
+
+        onLoadingChanged(loading) {
+            this.isLoading = loading;
+        },
     },
 });

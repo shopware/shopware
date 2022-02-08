@@ -41,5 +41,9 @@ Component.register('sw-settings-sitemap', {
                 });
             });
         },
+
+        onLoadingChanged(loading) {
+            this.isLoading = loading;
+        },
     },
 });

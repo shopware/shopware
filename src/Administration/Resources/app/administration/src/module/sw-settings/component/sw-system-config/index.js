@@ -75,6 +75,10 @@ Component.register('sw-system-config', {
             },
             deep: true,
         },
+
+        isLoading(value) {
+            this.$emit('loading-changed', value);
+        },
     },
 
     created() {

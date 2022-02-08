@@ -53,7 +53,8 @@ function createWrapper(privileges = []) {
             },
             'sw-empty-state': true,
             'sw-context-menu-item': true,
-            'sw-modal': true
+            'sw-modal': true,
+            'sw-skeleton': true,
         }
     });
 }

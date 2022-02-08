@@ -19,7 +19,8 @@ function createWrapper(customString = '') {
                         }
                     };
                 }
-            }
+            },
+            'sw-skeleton': true,
         }
     });
 }

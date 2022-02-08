@@ -56,7 +56,8 @@ function createWrapper(privileges = []) {
             'sw-icon': true,
             'sw-text-field': true,
             'sw-select-field': true,
-            'router-link': true
+            'router-link': true,
+            'sw-skeleton': true,
         },
         mocks: {
             $route: {

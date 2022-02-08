@@ -29,6 +29,7 @@ function createWrapper() {
             'sw-loader': true,
             'sw-app-actions': true,
             'sw-extension-component-section': true,
+            'sw-skeleton': true,
         },
         mocks: {
             $route: {

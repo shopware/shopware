@@ -21,7 +21,13 @@
     {% block sw_settings_cache_content %}
     <template slot="content">
         <sw-card-view>
+            <template v-if="isLoading">
+                <sw-skeleton />
+                <sw-skeleton />
+            </template>
+
             <sw-card
+                v-else
                 position-identifier="sw-settings-cache-content"
                 :title="$tc('sw-settings-cache.general.mainMenuItemGeneral')"
                 :is-loading="isLoading"

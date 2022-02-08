@@ -14,6 +14,11 @@ describe('Product: Test ACL privileges', () => {
     });
 
     it('@base @catalogue: can view product', () => {
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/property-group`,
+            method: 'POST'
+        }).as('propertyGroupSearch');
+
         const page = new ProductPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -52,6 +57,10 @@ describe('Product: Test ACL privileges', () => {
         cy.get('.sw-product-detail__tab-variants')
             .scrollIntoView()
             .click();
+
+        cy.wait('@propertyGroupSearch');
+
+        cy.get('.sw-skeleton__detail').should('not.exist');
         cy.get('.sw-product-detail-variants__generated-variants-empty-state')
             .should('be.visible');
 

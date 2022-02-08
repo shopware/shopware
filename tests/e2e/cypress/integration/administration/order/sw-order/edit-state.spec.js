@@ -53,7 +53,7 @@ describe('Order: Test order state', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.get('.sw-loader__element').should('not.exist');
+        cy.get(page.elements.loader).should('not.exist');
 
         cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
         cy.wait('@stateMachineTypeCall').its('response.statusCode').should('equal', 200);
@@ -66,7 +66,7 @@ describe('Order: Test order state', () => {
             call: 'remind'
         });
 
-        cy.get('.sw-loader__element').should('not.exist');
+        cy.get(page.elements.loader).should('not.exist');
 
         cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
         cy.wait('@stateMachineTypeCall').its('response.statusCode').should('equal', 200);
@@ -90,7 +90,7 @@ describe('Order: Test order state', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.get('.sw-loader__element').should('not.exist');
+        cy.get(page.elements.loader).should('not.exist');
 
         cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
         cy.wait('@stateMachineTypeCall').its('response.statusCode').should('equal', 200);
@@ -114,7 +114,7 @@ describe('Order: Test order state', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.get('.sw-loader__element').should('not.exist');
+        cy.get(page.elements.loader).should('not.exist');
 
         cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
         cy.wait('@stateMachineTypeCall').its('response.statusCode').should('equal', 200);
@@ -127,7 +127,7 @@ describe('Order: Test order state', () => {
             call: 'process'
         });
 
-        cy.get('.sw-loader__element').should('not.exist');
+        cy.get(page.elements.loader).should('not.exist');
 
         cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
         cy.wait('@stateMachineTypeCall').its('response.statusCode').should('equal', 200);
@@ -141,7 +141,7 @@ describe('Order: Test order state', () => {
             call: 'pay'
         });
 
-        cy.get('.sw-loader__element').should('not.exist');
+        cy.get(page.elements.loader).should('not.exist');
 
         cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
         cy.wait('@stateMachineTypeCall').its('response.statusCode').should('equal', 200);
@@ -190,7 +190,7 @@ describe('Order: Test order state', () => {
 
         page.changeActiveTab('details');
 
-        cy.get('.sw-loader__element').should('not.exist');
+        cy.get(page.elements.loader).should('not.exist');
 
         cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
         cy.wait('@stateMachineTypeCall').its('response.statusCode').should('equal', 200);
@@ -203,7 +203,7 @@ describe('Order: Test order state', () => {
             call: 'remind'
         });
 
-        cy.get('.sw-loader__element').should('not.exist');
+        cy.get(page.elements.loader).should('not.exist');
 
         cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
         cy.wait('@stateMachineTypeCall').its('response.statusCode').should('equal', 200);
@@ -216,7 +216,7 @@ describe('Order: Test order state', () => {
             call: 'cancel'
         });
 
-        cy.get('.sw-loader__element').should('not.exist');
+        cy.get(page.elements.loader).should('not.exist');
 
         cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
         cy.wait('@stateMachineTypeCall').its('response.statusCode').should('equal', 200);

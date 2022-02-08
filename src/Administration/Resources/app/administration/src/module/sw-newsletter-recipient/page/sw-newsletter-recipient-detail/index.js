@@ -53,7 +53,9 @@ Component.register('sw-newsletter-recipient-detail', {
             recipientCriteria.addAssociation('tags');
             this.newsletterRecipientStore.search(recipientCriteria).then((newsletterRecipient) => {
                 this.newsletterRecipient = newsletterRecipient.first();
-                this.isLoading = false;
+                this.$nextTick(() => {
+                    this.isLoading = false;
+                });
             });
         },
 

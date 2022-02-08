@@ -82,7 +82,8 @@ function createWrapper(privileges = []) {
             'sw-field': true,
             'sw-number-field': true,
             'sw-language-info': true,
-            'sw-single-select': true
+            'sw-single-select': true,
+            'sw-skeleton': true,
         }
     });
 }

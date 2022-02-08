@@ -1,24 +1,23 @@
 {% block sw_product_detail_prices %}
+<div v-if="isLoading">
+    <sw-skeleton />
+    <sw-skeleton />
+</div>
+
 <sw-container
+    v-else
     rows="auto"
     columns="100%"
     class="sw-product-detail-context-prices"
 >
 
+    {# @deprecated tag:v6.5.0 - The block will be removed the module now uses skeleton loading #}
     {% block sw_product_detail_prices_empty_state %}
-    <sw-card
-        v-if="isLoading"
-        class="context-prices__empty-state"
-        position-identifier="sw-product-detail-context-prices-empty-state"
-        :large="true"
-    >
-        <sw-loader />
-    </sw-card>
     {% endblock %}
 
     {% block sw_product_detail_prices_price_card %}
     <sw-container
-        v-else-if="priceRuleGroupsExists"
+        v-if="priceRuleGroupsExists"
         columns="100%"
     >
         <sw-card
@@ -28,7 +27,6 @@
             position-identifier="sw-product-detail-context-prices-context-price"
             :class="getPriceRuleGroupClass(index)"
             :title="priceGroup.rule ? priceGroup.rule.name : $tc('sw-product.prices.cardTitlePriceRule')"
-            :is-loading="isLoading"
             :large="true"
         >
 

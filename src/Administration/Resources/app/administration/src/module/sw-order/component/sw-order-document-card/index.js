@@ -34,7 +34,8 @@ Component.register('sw-order-document-card', {
         },
         isLoading: {
             type: Boolean,
-            required: true,
+            required: false,
+            default: false,
         },
         attachView: {
             type: Boolean,
@@ -154,6 +155,18 @@ Component.register('sw-order-document-card', {
             }
 
             return columns;
+        },
+
+        isDataLoading() {
+            return this.isLoading || this.documentsLoading || this.cardLoading;
+        },
+    },
+
+    watch: {
+        isDataLoading: {
+            handler(value) {
+                this.$emit('update-loading', value);
+            },
         },
     },
 

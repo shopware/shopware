@@ -137,7 +137,8 @@ function createWrapper(privileges = []) {
             'sw-tabs': Shopware.Component.build('sw-tabs'),
             'sw-tabs-item': Shopware.Component.build('sw-tabs-item'),
             'router-link': true,
-            'router-view': true
+            'router-view': true,
+            'sw-skeleton': true,
         }
     });
 }

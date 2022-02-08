@@ -50,20 +50,24 @@
 
     {% block sw_manufacturer_detail_content %}
     <sw-card-view slot="content">
+        <template v-if="manufacturerIsLoading">
+            <sw-skeleton variant="detail-bold" />
+            <sw-skeleton />
+        </template>
 
-        {% block sw_manufacturer_detail_content_language_info %}
-        <sw-language-info
-            :entity-description="placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.textHeadline'))"
-        />
-        {% endblock %}
+        <template v-else>
 
-        {% block sw_manufacturer_detail_base_basic_info_card %}
-        <sw-card
-            position-identifier="sw-manufacturer-detail-basic-info"
-            :title="$tc('sw-manufacturer.detail.cardTitleManufacturerInfo')"
-            :is-loading="manufacturerIsLoading"
-        >
-            <template v-if="!manufacturerIsLoading">
+            {% block sw_manufacturer_detail_content_language_info %}
+            <sw-language-info
+                :entity-description="placeholder(manufacturer, 'name', $tc('sw-manufacturer.detail.textHeadline'))"
+            />
+            {% endblock %}
+
+            {% block sw_manufacturer_detail_base_basic_info_card %}
+            <sw-card
+                position-identifier="sw-manufacturer-detail-basic-info"
+                :title="$tc('sw-manufacturer.detail.cardTitleManufacturerInfo')"
+            >
                 <sw-container
                     class="sw-manufacturer-detail__container"
                     columns="repeat(auto-fit, minmax(250px, 1fr))"
@@ -131,25 +135,25 @@
                     :disabled="!acl.can('product_manufacturer.editor')"
                 />
                 {% endblock %}
-            </template>
-        </sw-card>
-        {% endblock %}
+            </sw-card>
+            {% endblock %}
 
-        {% block sw_manufacturer_detail_custom_field_sets %}
-        <sw-card
-            v-if="customFieldSets.length > 0"
-            position-identifier="sw-manufacturer-detail-custom-field-sets"
-            :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
-            :is-loading="manufacturerIsLoading"
-        >
-            <sw-custom-field-set-renderer
-                v-if="manufacturer"
-                :entity="manufacturer"
-                :sets="customFieldSets"
-                :disabled="!acl.can('product_manufacturer.editor')"
-            />
-        </sw-card>
-        {% endblock %}
+            {% block sw_manufacturer_detail_custom_field_sets %}
+            <sw-card
+                v-if="customFieldSets.length > 0"
+                position-identifier="sw-manufacturer-detail-custom-field-sets"
+                :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                :is-loading="manufacturerIsLoading"
+            >
+                <sw-custom-field-set-renderer
+                    v-if="manufacturer"
+                    :entity="manufacturer"
+                    :sets="customFieldSets"
+                    :disabled="!acl.can('product_manufacturer.editor')"
+                />
+            </sw-card>
+            {% endblock %}
+        </template>
     </sw-card-view>
     {% endblock %}
 

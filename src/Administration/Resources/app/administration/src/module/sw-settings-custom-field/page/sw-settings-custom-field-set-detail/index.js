@@ -31,7 +31,7 @@ Component.register('sw-settings-custom-field-set-detail', {
         return {
             set: {},
             setId: '',
-            isLoading: false,
+            isLoading: true,
             isSaveSuccessful: false,
         };
     },
@@ -175,6 +175,10 @@ Component.register('sw-settings-custom-field-set-detail', {
 
         onChangeLanguage() {
             this.loadEntityData();
+        },
+
+        onLoadingChanged(loading) {
+            this.isLoading = loading;
         },
     },
 });

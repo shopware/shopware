@@ -121,7 +121,7 @@ Component.register('sw-theme-manager-detail', {
         },
 
         shouldShowContent() {
-            return Object.values(this.structuredThemeFields).length > 0;
+            return Object.values(this.structuredThemeFields).length > 0 && !this.isLoading;
         },
 
         hasMoreThanOneTab() {

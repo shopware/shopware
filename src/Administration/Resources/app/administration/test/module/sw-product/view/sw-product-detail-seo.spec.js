@@ -158,7 +158,8 @@ function createWrapper(privileges = []) {
             },
             'sw-help-text': true,
             'sw-loader': true,
-            'sw-field-error': Shopware.Component.build('sw-field-error')
+            'sw-field-error': Shopware.Component.build('sw-field-error'),
+            'sw-skeleton': true,
         }
     });
 }

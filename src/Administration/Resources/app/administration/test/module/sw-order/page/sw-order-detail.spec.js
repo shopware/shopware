@@ -29,7 +29,8 @@ function createWrapper(privileges = []) {
                     </div>`
             },
             'sw-button': true,
-            'sw-label': true
+            'sw-label': true,
+            'sw-skeleton': true,
         },
         propsData: {
             orderId: Shopware.Utils.createId()

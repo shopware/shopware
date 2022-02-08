@@ -3,7 +3,7 @@
     class="sw-order-detail-state-card"
     position-identifier="sw-order-details-state"
     :title="title"
-    :is-loading="isLoading || statesLoading"
+    :is-loading="isLoading"
 >
 
     {% block sw_order_detail_state_card_state %}
@@ -28,6 +28,7 @@
                 :label="stateLabel"
                 :background-style="stateSelectBackgroundStyle"
                 :disabled="disabled"
+                :is-loading="statesLoading"
                 @state-select="onStateSelected"
             />
             {% endblock %}

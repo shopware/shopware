@@ -4,7 +4,10 @@ namespace Shopware\Storefront\Test\Framework\Cache;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
+use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -21,6 +24,7 @@ class HttpCacheIntegrationTest extends TestCase
 {
     use KernelTestBehaviour;
     use CacheTestBehaviour;
+    use AppSystemTestBehaviour;
 
     private static $originalHttpCacheValue;
 
@@ -64,7 +68,7 @@ class HttpCacheIntegrationTest extends TestCase
     {
         $kernel = $this->getCacheKernel();
 
-        $request = $this->createRequest($_SERVER['APP_URL']);
+        $request = $this->createRequest(EnvironmentHelper::getVariable('APP_URL'));
 
         $response = $kernel->handle($request);
         static::assertTrue($response->headers->has('x-symfony-cache'));
@@ -78,7 +82,7 @@ class HttpCacheIntegrationTest extends TestCase
     {
         $kernel = $this->getCacheKernel();
 
-        $request = $this->createRequest($_SERVER['APP_URL']);
+        $request = $this->createRequest(EnvironmentHelper::getVariable('APP_URL'));
         $request->cookies->set(CacheResponseSubscriber::CONTEXT_CACHE_COOKIE, 'a');
 
         $response = $kernel->handle($request);
@@ -91,6 +95,89 @@ class HttpCacheIntegrationTest extends TestCase
 
         $response = $kernel->handle($request);
         static::assertEquals('GET /: miss, store', $response->headers->get('x-symfony-cache'));
+    }
+
+    public function testCacheForAppScriptEndpointIsEnabledByDefault(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures/http-cache-cases');
+
+        $kernel = $this->getCacheKernel();
+
+        $route = '/storefront/script/cache-default';
+        $request = $this->createRequest(EnvironmentHelper::getVariable('APP_URL') . $route);
+
+        $response = $kernel->handle($request);
+        static::assertEquals(sprintf('GET %s: miss, store', $route), $response->headers->get('x-symfony-cache'));
+        static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
+
+        $response = $kernel->handle($request);
+        static::assertEquals(sprintf('GET %s: fresh', $route), $response->headers->get('x-symfony-cache'));
+        static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
+    }
+
+    public function testCacheForAppScriptEndpointOptOut(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures/http-cache-cases');
+
+        $kernel = $this->getCacheKernel();
+
+        $route = '/storefront/script/cache-disable';
+        $request = $this->createRequest(EnvironmentHelper::getVariable('APP_URL') . $route);
+
+        $response = $kernel->handle($request);
+        static::assertEquals(sprintf('GET %s: miss', $route), $response->headers->get('x-symfony-cache'));
+        static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
+
+        $response = $kernel->handle($request);
+        static::assertEquals(sprintf('GET %s: miss', $route), $response->headers->get('x-symfony-cache'));
+        static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
+    }
+
+    public function testCacheForAppScriptEndpointCustomCacheTags(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures/http-cache-cases');
+
+        $kernel = $this->getCacheKernel();
+
+        $route = '/storefront/script/custom-cache-tags';
+        $request = $this->createRequest(EnvironmentHelper::getVariable('APP_URL') . $route);
+
+        $response = $kernel->handle($request);
+        static::assertEquals(sprintf('GET %s: miss, store', $route), $response->headers->get('x-symfony-cache'));
+        static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
+
+        $response = $kernel->handle($request);
+        static::assertEquals(sprintf('GET %s: fresh', $route), $response->headers->get('x-symfony-cache'));
+        static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
+
+        $cacheInvalidator = $this->getContainer()->get(CacheInvalidator::class);
+        $cacheInvalidator->invalidate(['my-custom-tag'], true);
+
+        $response = $kernel->handle($request);
+        static::assertEquals(sprintf('GET %s: miss, store', $route), $response->headers->get('x-symfony-cache'));
+        static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
+    }
+
+    public function testCacheForAppScriptEndpointCustomCacheConfig(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures/http-cache-cases');
+
+        $kernel = $this->getCacheKernel();
+
+        $route = '/storefront/script/custom-cache-config';
+        $request = $this->createRequest(EnvironmentHelper::getVariable('APP_URL') . $route);
+
+        $response = $kernel->handle($request);
+        static::assertEquals(sprintf('GET %s: miss, store', $route), $response->headers->get('x-symfony-cache'));
+        static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
+        static::assertEquals(5, $response->getMaxAge());
+        static::assertEquals('logged-in', $response->headers->get(CacheResponseSubscriber::INVALIDATION_STATES_HEADER));
+
+        $response = $kernel->handle($request);
+        static::assertEquals(sprintf('GET %s: fresh', $route), $response->headers->get('x-symfony-cache'));
+        static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
+        static::assertEquals(5, $response->getMaxAge());
+        static::assertEquals('logged-in', $response->headers->get(CacheResponseSubscriber::INVALIDATION_STATES_HEADER));
     }
 
     private function createRequest(?string $url = null)

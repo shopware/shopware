@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\Cache\Annotation;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationAnnotation;
+use Shopware\Core\Framework\Script\Api\ResponseCacheConfiguration;
 
 /**
  * @Annotation
@@ -49,5 +50,16 @@ class HttpCache extends ConfigurationAnnotation
     public function setStates(?array $states): void
     {
         $this->states = $states;
+    }
+
+    /**
+     * @internal only for use by the app system
+     */
+    public static function fromScriptResponseCacheConfig(ResponseCacheConfiguration $configuration): self
+    {
+        return new self([
+            'states' => $configuration->getInvalidationStates(),
+            'maxAge' => $configuration->getMaxAge(),
+        ]);
     }
 }

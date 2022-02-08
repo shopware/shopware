@@ -15,11 +15,14 @@ class ScriptResponse
 
     private ?Response $inner;
 
+    private ResponseCacheConfiguration $cache;
+
     public function __construct(?Response $inner = null, int $code = Response::HTTP_OK)
     {
         $this->body = new ArrayFacade([]);
         $this->inner = $inner;
         $this->code = $code;
+        $this->cache = new ResponseCacheConfiguration();
     }
 
     public function getCode(): int
@@ -47,6 +50,11 @@ class ScriptResponse
         }
 
         $this->body = $body;
+    }
+
+    public function getCache(): ResponseCacheConfiguration
+    {
+        return $this->cache;
     }
 
     /**

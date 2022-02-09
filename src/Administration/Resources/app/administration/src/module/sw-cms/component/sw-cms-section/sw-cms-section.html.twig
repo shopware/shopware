@@ -59,6 +59,7 @@
                         :block="block"
                         :disabled="disabled"
                         :active="selectedBlock !== null && selectedBlock.id === block.id"
+                        :has-errors="hasBlockErrors(block)"
                         @block-overlay-click="onBlockSelection(block)"
                     >
 
@@ -131,9 +132,10 @@
                     <sw-cms-block
                         :key="block.id"
                         class="sw-cms-stage-block"
-                        :disabled="disabled"
                         :block="block"
+                        :disabled="disabled"
                         :active="selectedBlock !== null && selectedBlock.id === block.id"
+                        :has-errors="hasBlockErrors(block)"
                         @block-overlay-click="onBlockSelection(block)"
                     >
 

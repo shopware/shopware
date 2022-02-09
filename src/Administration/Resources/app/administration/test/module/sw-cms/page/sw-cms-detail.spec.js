@@ -162,7 +162,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
 
         const { uniqueSlotCount } = wrapper.vm.getSlotValidations(wrapper.vm.page.sections);
         const buyBoxElements = uniqueSlotCount.buyBox;
-        expect(buyBoxElements).toBe(2);
+        expect(buyBoxElements.count).toBe(2);
 
         expect(wrapper.vm.slotValidation()).toBe(false);
         expect(wrapper.vm.validationWarnings.length).toBe(2);

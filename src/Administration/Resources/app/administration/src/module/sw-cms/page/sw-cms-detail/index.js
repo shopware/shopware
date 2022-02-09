@@ -685,15 +685,22 @@ Component.register('sw-cms-detail', {
                         if (this.page.type === CMS.PAGE_TYPES.PRODUCT_DETAIL && this.isProductPageElement(slot)) {
                             const camelSlotType = Utils.string.camelCase(slot.type);
                             if (!uniqueSlotCount.hasOwnProperty(camelSlotType)) {
-                                uniqueSlotCount[camelSlotType] = 1;
+                                uniqueSlotCount[camelSlotType] = {
+                                    type: camelSlotType,
+                                    count: 1,
+                                    blockIds: [block.id],
+                                    slotIds: [slot.id],
+                                };
                             } else {
-                                uniqueSlotCount[camelSlotType] += 1;
+                                uniqueSlotCount[camelSlotType].count += 1;
+                                uniqueSlotCount[camelSlotType].blockIds.push(block.id);
+                                uniqueSlotCount[camelSlotType].slotIds.push(slot.id);
                             }
 
                             return;
                         }
 
-                        requiredMissingSlotConfigs.push(...this.checkRequiredSlotConfigField(slot));
+                        requiredMissingSlotConfigs.push(...this.checkRequiredSlotConfigField(slot, block));
                     });
                 });
             });
@@ -809,8 +816,9 @@ Component.register('sw-cms-detail', {
 
             if (this.page.type === CMS.PAGE_TYPES.PRODUCT_DETAIL) {
                 CMS.UNIQUE_SLOTS.forEach((index) => {
-                    if (uniqueSlotCount?.[index] > 1) {
-                        affectedErrorElements.push(this.$tc(`sw-cms.elements.${index}.label`));
+                    if (uniqueSlotCount?.[index]?.count > 1) {
+                        uniqueSlotCount[index].label = this.$tc(`sw-cms.elements.${index}.label`);
+                        affectedErrorElements.push({ ...uniqueSlotCount[index] });
 
                         valid = false;
                     } else if (!uniqueSlotCount?.[index]) {
@@ -831,7 +839,7 @@ Component.register('sw-cms-detail', {
                         code: 'uniqueSlotsOnlyOnce',
                         message,
                         payload: {
-                            children: affectedErrorElements,
+                            elements: affectedErrorElements,
                         },
                     });
                 }
@@ -847,7 +855,7 @@ Component.register('sw-cms-detail', {
                     code: 'requiredConfigMissing',
                     message: this.$tc('sw-cms.detail.notification.messageMissingBlockFields'),
                     payload: {
-                        children: requiredMissingSlotConfigs,
+                        elements: requiredMissingSlotConfigs,
                     },
                 });
 
@@ -874,15 +882,16 @@ Component.register('sw-cms-detail', {
             });
         },
 
-        checkRequiredSlotConfigField(slot) {
+        checkRequiredSlotConfigField(slot, block) {
             return Object.keys(slot.config).reduce((accumulator, index) => {
-                const slotConfig = slot.config[index];
+                const slotConfig = { ...slot.config[index] };
                 if (
                     !!slotConfig.required &&
                     (slotConfig.value === null || slotConfig.value.length < 1)
                 ) {
                     slotConfig.name = `${slot.type}.${index}`;
-                    slotConfig.parent = slot;
+                    slotConfig.blockId = block.id;
+
                     accumulator.push(slotConfig);
                 }
 

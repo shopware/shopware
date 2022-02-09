@@ -38,6 +38,10 @@ Component.register('sw-cms-slot', {
     },
 
     computed: {
+        slotElementId() {
+            return this.element.id;
+        },
+
         elementConfig() {
             return this.cmsService.getCmsElementConfigByName(this.element.type);
         },

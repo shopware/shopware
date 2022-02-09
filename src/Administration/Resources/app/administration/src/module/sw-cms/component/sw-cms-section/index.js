@@ -2,6 +2,7 @@ import template from './sw-cms-section.html.twig';
 import './sw-cms-section.scss';
 
 const { Component, Mixin, Filter } = Shopware;
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 Component.register('sw-cms-section', {
     template,
@@ -128,6 +129,11 @@ Component.register('sw-cms-section', {
         blockTypes() {
             return Object.keys(this.cmsService.getCmsBlockRegistry());
         },
+
+        ...mapPropertyErrors('page', [
+            'slots',
+            'slotConfig',
+        ]),
     },
 
     created() {
@@ -184,6 +190,33 @@ Component.register('sw-cms-section', {
 
         blockTypeExists(type) {
             return this.blockTypes.includes(type);
+        },
+
+        hasBlockErrors(block) {
+            return [
+                this.hasUniqueBlockErrors(block),
+                this.hasSlotConfigErrors(block),
+            ].some(error => !!error);
+        },
+
+        hasUniqueBlockErrors(block) {
+            const errorElements = this.pageSlotsError?.parameters?.elements;
+
+            if (!errorElements) {
+                return false;
+            }
+
+            return errorElements.some(errorType => errorType.blockIds.includes(block.id));
+        },
+
+        hasSlotConfigErrors(block) {
+            const errorElements = this.pageSlotConfigError?.parameters?.elements;
+
+            if (!errorElements) {
+                return false;
+            }
+
+            return errorElements.some(missingConfig => missingConfig.blockId === block.id);
         },
     },
 });

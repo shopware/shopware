@@ -1,5 +1,9 @@
 @import "~scss/variables";
 
+$sw-cms-block-color-active: $color-shopware-brand-500;
+$sw-cms-block-color-error: $color-crimson-500;
+$sw-cms-block-color-warning: $color-pumpkin-spice-500;
+
 .sw-cms-block {
     position: relative;
     background-repeat: no-repeat;
@@ -33,15 +37,23 @@
         left: 0;
         right: 0;
         margin: auto;
-        border: 1px dashed rgba($color-shopware-brand-500, 0.4);
+        border: 1px dashed rgba($sw-cms-block-color-active, 0.4);
         cursor: pointer;
         z-index: 50;
 
         &.is--active {
             display: block;
             pointer-events: none;
-            border: 1px solid $color-shopware-brand-500;
+            border: 1px solid $sw-cms-block-color-active;
             z-index: 10;
         }
+    }
+
+    &.has--error {
+        border: 2px solid $sw-cms-block-color-error;
+    }
+
+    &.has--warning {
+        border: 2px solid $sw-cms-block-color-warning;
     }
 }

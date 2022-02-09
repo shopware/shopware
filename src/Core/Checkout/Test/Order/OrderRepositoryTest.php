@@ -22,6 +22,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -93,6 +94,34 @@ class OrderRepositoryTest extends TestCase
         static::assertEquals($orderId, $order->first()->get('id'));
         static::assertNotNull($order->first()->getOrderCustomer());
         static::assertEquals('test@example.com', $order->first()->getOrderCustomer()->getEmail());
+    }
+
+    /**
+     * Regression from NEXT-19378
+     */
+    public function testCreateOrderWithoutCalculatedTaxesThrows(): void
+    {
+        $orderId = Uuid::randomHex();
+        $defaultContext = Context::createDefaultContext();
+        $orderData = $this->getOrderData($orderId, $defaultContext);
+        $orderData = \json_decode(\json_encode($orderData), true);
+
+        unset($orderData[0]['lineItems'][0]['price']['calculatedTaxes']);
+
+        $wasThrown = false;
+
+        try {
+            $this->orderRepository->create($orderData, $defaultContext);
+        } catch (WriteException $e) {
+            $wasThrown = true;
+        }
+
+        static::assertTrue($wasThrown);
+
+        $criteria = new Criteria([$orderId]);
+
+        $order = $this->orderRepository->search($criteria, $defaultContext);
+        static::assertSame(0, $order->count());
     }
 
     public function testDeleteOrder(): void

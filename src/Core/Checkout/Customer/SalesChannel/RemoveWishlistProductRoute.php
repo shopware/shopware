@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Event\WishlistProductRemovedEvent;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\WishlistProductNotFoundException;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -41,14 +43,21 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
      */
     private $systemConfigService;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    private EventDispatcherInterface $eventDispatcher;
+
     public function __construct(
         EntityRepositoryInterface $wishlistRepository,
         EntityRepositoryInterface $productRepository,
-        SystemConfigService $systemConfigService
+        SystemConfigService $systemConfigService,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->wishlistRepository = $wishlistRepository;
         $this->productRepository = $productRepository;
         $this->systemConfigService = $systemConfigService;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getDecorated(): AbstractRemoveWishlistProductRoute
@@ -105,6 +114,8 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
                 'id' => $wishlistProductId,
             ],
         ], $context->getContext());
+
+        $this->eventDispatcher->dispatch(new WishlistProductRemovedEvent($wishlistId, $productId, $context));
 
         return new SuccessResponse();
     }

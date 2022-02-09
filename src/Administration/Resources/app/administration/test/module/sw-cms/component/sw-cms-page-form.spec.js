@@ -46,11 +46,9 @@ function createPageProp() {
     return {
         sections: [
             {
-                blocks: []
-            },
-            {
                 blocks: [
                     {
+                        name: 'BLOCK NAME',
                         slots: [
                             {
                                 type: 'text'
@@ -58,7 +56,10 @@ function createPageProp() {
                         ]
                     }
                 ]
-            }
+            },
+            {
+                blocks: []
+            },
         ]
     };
 }
@@ -91,5 +92,12 @@ describe('module/sw-cms/component/sw-cms-page-form', () => {
         const configElement = wrapper.find('.config-element');
 
         expect(configElement.text()).toBe('Config element');
+    });
+
+    it('display the block name', async () => {
+        const wrapper = createWrapper();
+        const blockNameText = wrapper.find('.sw-card__title').text();
+
+        expect(blockNameText).toBe('BLOCK NAME');
     });
 });

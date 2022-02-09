@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Event\WishlistProductAddedEvent;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Defaults;
@@ -20,6 +21,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -42,14 +44,18 @@ class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
      */
     private $systemConfigService;
 
+    private EventDispatcherInterface $eventDispatcher;
+
     public function __construct(
         EntityRepositoryInterface $wishlistRepository,
         SalesChannelRepositoryInterface $productRepository,
-        SystemConfigService $systemConfigService
+        SystemConfigService $systemConfigService,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->wishlistRepository = $wishlistRepository;
         $this->productRepository = $productRepository;
         $this->systemConfigService = $systemConfigService;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getDecorated(): AbstractAddWishlistProductRoute
@@ -108,6 +114,8 @@ class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
                 ],
             ],
         ], $context->getContext());
+
+        $this->eventDispatcher->dispatch(new WishlistProductAddedEvent($wishlistId, $productId, $context));
 
         return new SuccessResponse();
     }

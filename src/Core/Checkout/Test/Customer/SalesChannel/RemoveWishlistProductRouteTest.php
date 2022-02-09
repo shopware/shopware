@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Event\WishlistProductRemovedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -85,7 +86,16 @@ class RemoveWishlistProductRouteTest extends TestCase
     public function testDeleteProductShouldReturnSuccess(): void
     {
         $productId = $this->createProduct($this->context);
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $eventWasThrown = false;
+
         $this->createCustomerWishlist($this->context, $this->customerId, $productId);
+
+        $listener = static function (WishlistProductRemovedEvent $event) use ($productId, &$eventWasThrown): void {
+            static::assertSame($productId, $event->getProductId());
+            $eventWasThrown = true;
+        };
+        $dispatcher->addListener(WishlistProductRemovedEvent::class, $listener);
 
         $this->browser
             ->request(
@@ -97,6 +107,9 @@ class RemoveWishlistProductRouteTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
+        static::assertTrue($eventWasThrown);
+
+        $dispatcher->removeListener(WishlistProductRemovedEvent::class, $listener);
     }
 
     public function testDeleteProductShouldThrowCustomerWishlistNotActivatedException(): void

@@ -3,6 +3,7 @@
     class="sw-multi-tag-select"
     :is-loading="isLoading"
     :error="errorObject"
+    :disabled="disabled"
     v-bind="$attrs"
     v-on="$listeners"
     @select-expanded="setDropDown(true)"
@@ -15,6 +16,7 @@
         <sw-select-selection-list
             ref="selectionList"
             :selections="objectValues"
+            :disabled="disabled"
             label-property="value"
             value-property="value"
             v-bind="{ size, placeholder, searchTerm }"

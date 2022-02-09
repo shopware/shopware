@@ -65,6 +65,10 @@ Component.register('sw-bulk-edit-customer', {
             return criteria;
         },
 
+        hasChanges() {
+            return Object.values(this.bulkEditData).some((field) => field.isChanged);
+        },
+
         actionsRequestGroup() {
             return [{
                 value: 'accept',
@@ -153,6 +157,7 @@ Component.register('sw-bulk-edit-customer', {
 
     methods: {
         createdComponent() {
+            this.setRouteMetaModule();
             if (!Shopware.State.getters['context/isSystemDefaultLanguage']) {
                 Shopware.State.commit('context/resetLanguageToDefault');
             }
@@ -172,6 +177,11 @@ Component.register('sw-bulk-edit-customer', {
             }).finally(() => {
                 this.isLoading = false;
             });
+        },
+
+        setRouteMetaModule() {
+            this.$set(this.$route.meta.$module, 'color', '#F88962');
+            this.$set(this.$route.meta.$module, 'icon', 'default-avatar-multiple');
         },
 
         defineBulkEditData(name, value = null, type = 'overwrite', isChanged = false) {

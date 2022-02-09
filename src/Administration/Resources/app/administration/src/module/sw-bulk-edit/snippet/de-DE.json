@@ -15,6 +15,9 @@
       "textTitle": "Mehrfachänderung: {productTotal} Produkt | Mehrfachänderung: {productTotal} Produkte",
       "messageEmptyTitle": "Keine Produkte für die Mehrfachänderung ausgewählt",
       "messageEmptySubline": "Gehe zurück und wähle Produkte aus.",
+      "alertInheritance": {
+        "message": "These products have inherited fields. The contents of inherited fields are drawn form the respective parent product. You can activate and deactivate inheritances by clicking on the chain symbol."
+      },
       "generalInformation": {
         "cardTitle": "Allgemeine Informationen",
         "description": {

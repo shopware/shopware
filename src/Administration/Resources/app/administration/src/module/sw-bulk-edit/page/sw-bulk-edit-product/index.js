@@ -4,6 +4,7 @@ import swProductDetailState from '../../../sw-product/page/sw-product-detail/sta
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
+const { types } = Shopware.Utils;
 const { chunk } = Shopware.Utils.array;
 const { mapState, mapGetters } = Component.getComponentHelper();
 
@@ -31,6 +32,8 @@ Component.register('sw-bulk-edit-product', {
             customFieldSets: [],
             processStatus: '',
             rules: [],
+            parentProductFrozen: null,
+            isComponentMounted: true,
         };
     },
 
@@ -43,6 +46,7 @@ Component.register('sw-bulk-edit-product', {
     computed: {
         ...mapState('swProductDetail', [
             'product',
+            'parentProduct',
             'taxes',
         ]),
 
@@ -97,37 +101,99 @@ Component.register('sw-bulk-edit-product', {
             return criteria;
         },
 
+        productCriteria() {
+            const criteria = new Criteria();
+
+            criteria.getAssociation('media')
+                .addSorting(Criteria.sort('position', 'ASC'));
+
+            criteria.getAssociation('properties')
+                .addSorting(Criteria.sort('name', 'ASC', true));
+
+            criteria.getAssociation('prices')
+                .addSorting(Criteria.sort('quantityStart', 'ASC', true));
+
+            criteria.getAssociation('tags')
+                .addSorting(Criteria.sort('name', 'ASC'));
+
+            criteria.getAssociation('seoUrls')
+                .addFilter(Criteria.equals('isCanonical', true));
+
+            criteria.getAssociation('crossSellings')
+                .addSorting(Criteria.sort('position', 'ASC'))
+                .getAssociation('assignedProducts')
+                .addSorting(Criteria.sort('position', 'ASC'))
+                .addAssociation('product')
+                .getAssociation('product')
+                .addAssociation('options.group');
+
+            criteria
+                .addAssociation('cover')
+                .addAssociation('categories')
+                .addAssociation('visibilities.salesChannel')
+                .addAssociation('options')
+                .addAssociation('configuratorSettings.option')
+                .addAssociation('unit')
+                .addAssociation('productReviews')
+                .addAssociation('seoUrls')
+                .addAssociation('mainCategories')
+                .addAssociation('options.group')
+                .addAssociation('customFieldSets')
+                .addAssociation('featureSet')
+                .addAssociation('cmsPage')
+                .addAssociation('featureSet');
+
+            criteria.getAssociation('manufacturer')
+                .addAssociation('media');
+
+            return criteria;
+        },
+
+        isChild() {
+            return this.$route.params.parentId !== 'null';
+        },
+
         generalFormFields() {
             return [{
                 name: 'description',
                 type: 'html',
+                canInherit: this.isChild,
                 config: {
-                    componentName: 'sw-text-editor',
+                    componentName: this.bulkEditProduct?.description?.isInherited
+                        ? 'sw-bulk-edit-product-description'
+                        : 'sw-text-editor',
                     changeLabel: this.$tc('sw-bulk-edit.product.generalInformation.description.changeLabel'),
+                    disabled: this.bulkEditProduct?.description?.isInherited,
                 },
             }, {
                 name: 'manufacturerId',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-entity-single-select',
                     entity: 'product_manufacturer',
                     changeLabel: this.$tc('sw-bulk-edit.product.generalInformation.manufacturer.changeLabel'),
                     placeholder: this.$tc('sw-bulk-edit.product.generalInformation.manufacturer.placeholderManufacturer'),
+                    disabled: this.bulkEditProduct?.manufacturerId?.isInherited,
                 },
             }, {
                 name: 'active',
                 type: 'bool',
+                canInherit: this.isChild,
                 config: {
                     type: 'switch',
                     label: this.$tc('sw-bulk-edit.product.generalInformation.active.switchLabel'),
                     changeLabel: this.$tc('sw-bulk-edit.product.generalInformation.active.changeLabel'),
+                    disabled: this.bulkEditProduct?.active?.isInherited,
                 },
             }, {
                 name: 'markAsTopseller',
                 type: 'bool',
+                canInherit: this.isChild,
                 config: {
                     type: 'switch',
                     label: this.$tc('sw-bulk-edit.product.generalInformation.productPromotion.switchLabel'),
                     changeLabel: this.$tc('sw-bulk-edit.product.generalInformation.productPromotion.changeLabel'),
+                    disabled: this.bulkEditProduct?.markAsTopseller?.isInherited,
                 },
             }];
         },
@@ -137,14 +203,17 @@ Component.register('sw-bulk-edit-product', {
 
             return [{
                 name: 'taxId',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-entity-single-select',
                     entity: 'tax',
                     changeLabel: this.$tc('sw-bulk-edit.product.prices.taxRate.changeLabel'),
                     placeholder: this.$tc('sw-bulk-edit.product.prices.taxRate.placeholderTax'),
+                    disabled: this.bulkEditProduct?.taxId?.isInherited,
                 },
             }, {
                 name: 'price',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-price-field',
                     price: this.product.price,
@@ -152,9 +221,11 @@ Component.register('sw-bulk-edit-product', {
                     currency: this.currency,
                     changeLabel: this.$tc('sw-bulk-edit.product.prices.price.changeLabel'),
                     placeholder: this.$tc('sw-bulk-edit.product.prices.price.placeholderPrice'),
+                    disabled: this.bulkEditProduct?.price?.isInherited,
                 },
             }, {
                 name: 'purchasePrices',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-price-field',
                     price: this.product.purchasePrices,
@@ -162,17 +233,19 @@ Component.register('sw-bulk-edit-product', {
                     currency: this.currency,
                     changeLabel: this.$tc('sw-bulk-edit.product.prices.purchasePrices.changeLabel'),
                     placeholder: this.$tc('sw-bulk-edit.product.prices.purchasePrices.placeholderPurchasePrices'),
+                    disabled: this.bulkEditProduct?.purchasePrices?.isInherited,
                 },
             }, {
                 name: 'listPrice',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-price-field',
                     price: this.product.listPrice,
-                    disabled: this.isDisabledListPrice,
                     taxRate: this.taxRate,
                     currency: this.currency,
                     changeLabel: this.$tc('sw-bulk-edit.product.prices.listPrice.changeLabel'),
                     placeholder: this.$tc('sw-bulk-edit.product.prices.listPrice.placeholderListPrice'),
+                    disabled: this.isDisabledListPrice || this.bulkEditProduct?.listPrice?.isInherited,
                 },
             }, {
                 name: 'regulationPrice',
@@ -204,6 +277,7 @@ Component.register('sw-bulk-edit-product', {
         propertyFormFields() {
             return [{
                 name: 'properties',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-product-properties',
                     allowOverwrite: true,
@@ -211,6 +285,9 @@ Component.register('sw-bulk-edit-product', {
                     allowAdd: true,
                     allowRemove: true,
                     changeLabel: this.$tc('sw-bulk-edit.product.property.changeLabel'),
+                    disabled: this.bulkEditProduct?.properties?.isInherited,
+                    isAssociation: false,
+                    showInheritanceSwitcher: false,
                 },
             }];
         },
@@ -219,6 +296,7 @@ Component.register('sw-bulk-edit-product', {
             return [{
                 name: 'stock',
                 type: 'int',
+                canInherit: false,
                 config: {
                     componentName: 'sw-number-field',
                     changeLabel: this.$tc('sw-bulk-edit.product.deliverability.stock.changeLabel'),
@@ -232,22 +310,27 @@ Component.register('sw-bulk-edit-product', {
             }, {
                 name: 'isCloseout',
                 type: 'bool',
+                canInherit: this.isChild,
                 config: {
                     type: 'switch',
                     label: this.$tc('sw-bulk-edit.product.deliverability.isCloseout.switchLabel'),
                     changeLabel: this.$tc('sw-bulk-edit.product.deliverability.isCloseout.changeLabel'),
+                    disabled: this.bulkEditProduct?.isCloseout?.isInherited,
                 },
             }, {
                 name: 'deliveryTimeId',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-entity-single-select',
                     entity: 'delivery_time',
                     changeLabel: this.$tc('sw-bulk-edit.product.deliverability.deliveryTime.changeLabel'),
                     placeholder: this.$tc('sw-bulk-edit.product.deliverability.deliveryTime.placeholderDeliveryTime'),
+                    disabled: this.bulkEditProduct?.deliveryTimeId?.isInherited,
                 },
             }, {
                 name: 'restockTime',
                 type: 'int',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-number-field',
                     changeLabel: this.$tc('sw-bulk-edit.product.deliverability.restockTime.changeLabel'),
@@ -257,18 +340,22 @@ Component.register('sw-bulk-edit-product', {
                     allowOverwrite: true,
                     allowClear: true,
                     min: 0,
+                    disabled: this.bulkEditProduct?.restockTime?.isInherited,
                 },
             }, {
                 name: 'shippingFree',
                 type: 'bool',
+                canInherit: this.isChild,
                 config: {
                     type: 'switch',
                     label: this.$tc('sw-bulk-edit.product.deliverability.freeShipping.switchLabel'),
                     changeLabel: this.$tc('sw-bulk-edit.product.deliverability.freeShipping.changeLabel'),
+                    disabled: this.bulkEditProduct?.shippingFree?.isInherited,
                 },
             }, {
                 name: 'minPurchase',
                 type: 'int',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-number-field',
                     changeLabel: this.$tc('sw-bulk-edit.product.deliverability.minOrderQuantity.changeLabel'),
@@ -279,10 +366,12 @@ Component.register('sw-bulk-edit-product', {
                     allowClear: true,
                     allowEmpty: true,
                     min: 1,
+                    disabled: this.bulkEditProduct?.minPurchase?.isInherited,
                 },
             }, {
                 name: 'purchaseSteps',
                 type: 'int',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-number-field',
                     changeLabel: this.$tc('sw-bulk-edit.product.deliverability.purchaseSteps.changeLabel'),
@@ -292,10 +381,12 @@ Component.register('sw-bulk-edit-product', {
                     allowClear: true,
                     allowEmpty: true,
                     min: 1,
+                    disabled: this.bulkEditProduct?.purchaseSteps?.isInherited,
                 },
             }, {
                 name: 'maxPurchase',
                 type: 'int',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-number-field',
                     changeLabel: this.$tc('sw-bulk-edit.product.deliverability.maxOrderQuantity.changeLabel'),
@@ -306,6 +397,7 @@ Component.register('sw-bulk-edit-product', {
                     allowClear: true,
                     allowEmpty: true,
                     min: 0,
+                    disabled: this.bulkEditProduct?.maxPurchase?.isInherited,
                 },
             }];
         },
@@ -313,6 +405,7 @@ Component.register('sw-bulk-edit-product', {
         assignmentFormFields() {
             return [{
                 name: 'visibilities',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-bulk-edit-product-visibility',
                     bulkEditProduct: this.bulkEditProduct,
@@ -322,9 +415,11 @@ Component.register('sw-bulk-edit-product', {
                     allowRemove: true,
                     changeLabel: this.$tc('sw-bulk-edit.product.assignment.visibilities.changeLabel'),
                     placeholder: this.$tc('sw-bulk-edit.product.assignment.visibilities.placeholder'),
+                    disabled: this.bulkEditProduct?.visibilities?.isInherited,
                 },
             }, {
                 name: 'categories',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-category-tree-field',
                     categoriesCollection: this.product.categories,
@@ -334,9 +429,11 @@ Component.register('sw-bulk-edit-product', {
                     allowRemove: true,
                     changeLabel: this.$tc('sw-bulk-edit.product.assignment.categories.changeLabel'),
                     placeholder: this.$tc('sw-bulk-edit.product.assignment.categories.placeholder'),
+                    disabled: this.bulkEditProduct?.categories?.isInherited,
                 },
             }, {
                 name: 'tags',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-entity-tag-select',
                     entityCollection: this.product.tags,
@@ -346,9 +443,11 @@ Component.register('sw-bulk-edit-product', {
                     allowRemove: true,
                     changeLabel: this.$tc('sw-bulk-edit.product.assignment.tags.changeLabel'),
                     placeholder: this.$tc('sw-bulk-edit.product.assignment.tags.placeholder'),
+                    disabled: this.bulkEditProduct?.tags?.isInherited,
                 },
             }, {
                 name: 'searchKeywords',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-multi-tag-select',
                     value: this.product.searchKeywords,
@@ -358,6 +457,7 @@ Component.register('sw-bulk-edit-product', {
                     allowRemove: false,
                     changeLabel: this.$tc('sw-bulk-edit.product.assignment.searchKeywords.changeLabel'),
                     placeholder: this.$tc('sw-bulk-edit.product.assignment.searchKeywords.placeholder'),
+                    disabled: this.bulkEditProduct?.searchKeywords?.isInherited,
                 },
             }];
         },
@@ -365,12 +465,14 @@ Component.register('sw-bulk-edit-product', {
         mediaFormFields() {
             return [{
                 name: 'media',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-bulk-edit-product-media',
                     allowOverwrite: true,
                     allowClear: true,
                     allowAdd: true,
                     changeLabel: this.$tc('sw-bulk-edit.product.media.changeLabel'),
+                    disabled: this.bulkEditProduct?.media?.isInherited,
                 },
             }];
         },
@@ -379,10 +481,12 @@ Component.register('sw-bulk-edit-product', {
             return [{
                 name: 'releaseDate',
                 type: 'datetime',
+                canInherit: this.isChild,
                 config: {
                     type: 'date',
                     dateType: 'datetime-local',
                     changeLabel: this.$tc('sw-bulk-edit.product.labelling.releaseDate.changeLabel'),
+                    disabled: this.bulkEditProduct?.releaseDate?.isInherited,
                 },
             }];
         },
@@ -391,29 +495,35 @@ Component.register('sw-bulk-edit-product', {
             return [{
                 name: 'metaTitle',
                 type: 'text',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-field',
                     type: 'text',
                     changeLabel: this.$tc('sw-bulk-edit.product.seo.metaTitle.changeLabel'),
                     placeholder: this.$tc('sw-bulk-edit.product.seo.metaTitle.placeholderMetaTitle'),
+                    disabled: this.bulkEditProduct?.metaTitle?.isInherited,
                 },
             }, {
                 name: 'metaDescription',
                 type: 'text',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-field',
                     type: 'textarea',
                     changeLabel: this.$tc('sw-bulk-edit.product.seo.metaDescription.changeLabel'),
                     placeholder: this.$tc('sw-bulk-edit.product.seo.metaDescription.placeholderMetaDescription'),
+                    disabled: this.bulkEditProduct?.metaDescription?.isInherited,
                 },
             }, {
                 name: 'keywords',
                 type: 'text',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-field',
                     type: 'text',
                     changeLabel: this.$tc('sw-bulk-edit.product.seo.seoKeywords.changeLabel'),
                     placeholder: this.$tc('sw-bulk-edit.product.seo.seoKeywords.placeholderSeoKeywords'),
+                    disabled: this.bulkEditProduct?.keywords?.isInherited,
                 },
             }];
         },
@@ -422,6 +532,7 @@ Component.register('sw-bulk-edit-product', {
             return [{
                 name: 'width',
                 type: 'int',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-number-field',
                     changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.widthTitle.changeLabel'),
@@ -429,10 +540,12 @@ Component.register('sw-bulk-edit-product', {
                     numberType: 'float',
                     suffixLabel: 'mm',
                     min: 0,
+                    disabled: this.bulkEditProduct?.width?.isInherited,
                 },
             }, {
                 name: 'height',
                 type: 'int',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-number-field',
                     changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.heightTitle.changeLabel'),
@@ -440,10 +553,12 @@ Component.register('sw-bulk-edit-product', {
                     numberType: 'float',
                     suffixLabel: 'mm',
                     min: 0,
+                    disabled: this.bulkEditProduct?.height?.isInherited,
                 },
             }, {
                 name: 'length',
                 type: 'int',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-number-field',
                     changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.lengthTitle.changeLabel'),
@@ -451,10 +566,12 @@ Component.register('sw-bulk-edit-product', {
                     numberType: 'float',
                     suffixLabel: 'mm',
                     min: 0,
+                    disabled: this.bulkEditProduct?.length?.isInherited,
                 },
             }, {
                 name: 'weight',
                 type: 'int',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-number-field',
                     changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.weightTitle.changeLabel'),
@@ -462,52 +579,63 @@ Component.register('sw-bulk-edit-product', {
                     numberType: 'float',
                     suffixLabel: 'kg',
                     min: 0,
+                    disabled: this.bulkEditProduct?.weight?.isInherited,
                 },
             }, {
                 name: 'purchaseUnit',
                 type: 'int',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-number-field',
                     numberType: 'float',
                     min: 0,
                     changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.sellingUnitTitle.changeLabel'),
                     placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.sellingUnitTitle.placeholder'),
+                    disabled: this.bulkEditProduct?.purchaseUnit?.isInherited,
                 },
             }, {
                 name: 'unitId',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-entity-single-select',
                     entity: 'unit',
                     changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.scaleUnitTitle.changeLabel'),
                     placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.scaleUnitTitle.placeholder'),
+                    disabled: this.bulkEditProduct?.unitId?.isInherited,
                 },
             }, {
                 name: 'packUnit',
                 type: 'text',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-field',
                     type: 'text',
                     changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.packUnitTitle.changeLabel'),
                     placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.packUnitTitle.placeholder'),
+                    disabled: this.bulkEditProduct?.packUnit?.isInherited,
                 },
             }, {
                 name: 'packUnitPlural',
                 type: 'text',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-field',
                     type: 'text',
                     changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.packUnitPluralTitle.changeLabel'),
                     placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.packUnitPluralTitle.placeholder'),
+                    disabled: this.bulkEditProduct?.packUnitPlural?.isInherited,
                 },
             }, {
                 name: 'referenceUnit',
                 type: 'int',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-number-field',
                     numberType: 'float',
                     min: 0,
                     changeLabel: this.$tc('sw-bulk-edit.product.measuresAndPackaging.basicUnitTitle.changeLabel'),
                     placeholder: this.$tc('sw-bulk-edit.product.measuresAndPackaging.basicUnitTitle.placeholder'),
+                    disabled: this.bulkEditProduct?.referenceUnit?.isInherited,
                 },
             }];
         },
@@ -515,11 +643,13 @@ Component.register('sw-bulk-edit-product', {
         essentialCharacteristicsFormFields() {
             return [{
                 name: 'featureSetId',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-entity-single-select',
                     entity: 'product_feature_set',
                     changeLabel: this.$tc('sw-bulk-edit.product.featureSets.changeLabel'),
                     placeholder: this.$tc('sw-bulk-edit.product.featureSets.placeholder'),
+                    disabled: this.bulkEditProduct?.featureSetId?.isInherited,
                 },
             }];
         },
@@ -578,13 +708,26 @@ Component.register('sw-bulk-edit-product', {
             },
             deep: true,
         },
+        'product.visibilities': {
+            handler(productVisibilities) {
+                if (!this.isChild) {
+                    return;
+                }
+                this.$set(this.bulkEditProduct.visibilities, 'value', productVisibilities);
+            },
+        },
     },
 
     beforeCreate() {
         Shopware.State.registerModule('swProductDetail', swProductDetailState);
     },
 
-    beforeDestroy() {
+    /**
+     * @deprecated tag:v6.5.0 - Can be removed, use "beforeUnmount" instead.
+    */
+    beforeDestroy() {},
+
+    beforeUnmount() {
         Shopware.State.unregisterModule('swProductDetail');
     },
 
@@ -593,8 +736,13 @@ Component.register('sw-bulk-edit-product', {
     },
 
     methods: {
-        createdComponent() {
+        async createdComponent() {
+            this.setRouteMetaModule();
             this.isLoading = true;
+
+            if (this.isChild) {
+                await this.getParentProduct();
+            }
 
             const promises = [
                 this.loadCurrencies(),
@@ -607,11 +755,43 @@ Component.register('sw-bulk-edit-product', {
             Promise.all(promises).then(() => {
                 this.loadBulkEditData();
 
-                Shopware.State.commit('swProductDetail/setProduct', this.productRepository.create());
+                const product = this.isChild ? this.parentProduct : this.productRepository.create();
+                Shopware.State.commit('swProductDetail/setProduct', product);
+
+                if (this.isChild) {
+                    this.setBulkEditProductValue();
+                }
 
                 this.isLoading = false;
                 this.isLoadedData = true;
             });
+        },
+
+        setRouteMetaModule() {
+            this.$set(this.$route.meta.$module, 'color', '#57D9A3');
+            this.$set(this.$route.meta.$module, 'icon', 'default-symbol-products');
+        },
+
+        setBulkEditProductValue() {
+            Object.keys(this.bulkEditProduct).forEach((key) => {
+                this.$set(this.bulkEditProduct[key], 'value', this.parentProduct?.[key]);
+
+                if (key === 'searchKeywords') {
+                    this.setProductSearchKeywords();
+                }
+            });
+        },
+
+        getParentProduct() {
+            return this.productRepository.get(this.$route.params.parentId, Shopware.Context.api, this.productCriteria)
+                .then((parentProduct) => {
+                    parentProduct.stock = null;
+                    Shopware.State.commit('swProductDetail/setParentProduct', parentProduct);
+                    this.parentProductFrozen = JSON.stringify(parentProduct);
+                })
+                .catch(() => {
+                    Shopware.State.commit('swProductDetail/setParentProduct', {});
+                });
         },
 
         loadDefaultCurrency() {
@@ -625,10 +805,16 @@ Component.register('sw-bulk-edit-product', {
                 return;
             }
 
+            if (name === 'stock') {
+                this.$set(this.bulkEditProduct, name, { value, type, isChanged, isInherited: false });
+                return;
+            }
+
             this.$set(this.bulkEditProduct, name, {
                 isChanged: isChanged,
                 type: type,
                 value: value,
+                isInherited: this.isChild,
             });
         },
 
@@ -662,7 +848,7 @@ Component.register('sw-bulk-edit-product', {
 
         loadTaxes() {
             return this.taxRepository.search(this.taxCriteria).then((taxes) => {
-                this.taxRate = taxes[0];
+                this.taxRate = this.isChild ? this.parentProduct?.tax : taxes[0];
                 Shopware.State.commit('swProductDetail/setTaxes', taxes);
             });
         },
@@ -684,6 +870,30 @@ Component.register('sw-bulk-edit-product', {
         },
 
         definePricesBulkEdit() {
+            const emptyPrice = [{
+                currencyId: this.currency.id,
+                net: null,
+                linked: true,
+                gross: null,
+            }];
+
+            if (!this.isComponentMounted) {
+                return;
+            }
+
+            if (this.isChild && !types.isEmpty(this.parentProduct)) {
+                this.$set(this.product, 'price', this.parentProduct.price);
+                this.$set(this.product, 'purchasePrices', this.parentProduct.purchasePrices);
+
+                if (!types.isEmpty(this.parentProduct.price[0].listPrice)) {
+                    this.$set(this.product, 'listPrice', [this.parentProduct.price[0].listPrice]);
+                } else {
+                    this.$set(this.product, 'listPrice', emptyPrice);
+                }
+
+                return;
+            }
+
             this.product.price ??= [{
                 currencyId: this.currency.id,
                 net: null,
@@ -769,6 +979,10 @@ Component.register('sw-bulk-edit-product', {
                     key = 'customSearchKeywords';
                 }
 
+                if (bulkEditField.isInherited) {
+                    bulkEditValue = null;
+                }
+
                 const change = {
                     field: key,
                     type: bulkEditField.type,
@@ -797,7 +1011,7 @@ Component.register('sw-bulk-edit-product', {
 
         processListPrice() {
             const priceField = this.bulkEditSelected.find((dataField) => {
-                return dataField.field === 'price';
+                return dataField.field === 'price' && !types.isEmpty(dataField.value);
             });
 
             if (priceField) {
@@ -832,7 +1046,13 @@ Component.register('sw-bulk-edit-product', {
         },
 
         openModal() {
-            this.$router.push({ name: 'sw.bulk.edit.product.save' });
+            this.isComponentMounted = false;
+            this.$router.push({
+                name: 'sw.bulk.edit.product.save',
+                params: {
+                    parentId: this.$route.params.parentId,
+                },
+            });
         },
 
         async onSave() {
@@ -928,6 +1148,86 @@ Component.register('sw-bulk-edit-product', {
                 }
 
                 this.product.prices.remove(price.id);
+            });
+        },
+
+        onInheritanceRestore(item) {
+            const parentProductFrozen = JSON.parse(this.parentProductFrozen);
+
+            this.$set(this.bulkEditProduct[item.name], 'isInherited', true);
+            this.$set(this.bulkEditProduct[item.name], 'value', parentProductFrozen[item.name]);
+
+            if (item.name === 'taxId') {
+                this.taxRate = parentProductFrozen.tax;
+                this.$set(this.product, 'taxId', parentProductFrozen.taxId);
+                return;
+            }
+
+            if (item.name === 'price') {
+                this.$set(this.product.price, 0, parentProductFrozen.price[0]);
+                return;
+            }
+            if (item.name === 'purchasePrices') {
+                this.$set(this.product.purchasePrices, 0, parentProductFrozen.purchasePrices[0]);
+                return;
+            }
+            if (item.name === 'listPrice') {
+                this.$set(this.product.price[0], 'listPrice', parentProductFrozen.price[0].listPrice);
+                return;
+            }
+            if (item.name === 'categories') {
+                this.$set(this.product, 'categories', parentProductFrozen.categories);
+                return;
+            }
+            if (item.name === 'media') {
+                this.$set(this.product, 'media', parentProductFrozen.media);
+                return;
+            }
+            if (item.name === 'properties') {
+                this.setProductProperties(parentProductFrozen);
+                return;
+            }
+            if (item.name === 'searchKeywords') {
+                this.setProductSearchKeywords();
+                return;
+            }
+
+            this.$set(this.product, item.name, parentProductFrozen[item.name]);
+        },
+
+        onInheritanceRemove(item) {
+            if (item.name === 'properties') {
+                this.setProductProperties();
+            }
+
+            this.$set(this.bulkEditProduct[item.name], 'isInherited', false);
+        },
+
+        setProductSearchKeywords() {
+            if (types.isEmpty(this.parentProduct?.customSearchKeywords)) {
+                this.$set(this.bulkEditProduct.searchKeywords, 'value', []);
+                this.$set(this.product, 'searchKeywords', []);
+
+                return;
+            }
+
+            this.$set(this.bulkEditProduct.searchKeywords, 'value', this.parentProduct.customSearchKeywords);
+            this.$set(this.product, 'searchKeywords', this.parentProduct.customSearchKeywords);
+        },
+
+        setProductProperties(parentProductFrozen) {
+            const ids = this.product.properties.getIds();
+            ids.forEach((id) => {
+                this.product.properties.remove(id);
+            });
+
+            if (!parentProductFrozen) {
+                this.$set(this.bulkEditProduct.properties, 'value', []);
+                return;
+            }
+
+            parentProductFrozen.properties.forEach((property) => {
+                this.product.properties.add(property);
             });
         },
     },

@@ -125,4 +125,17 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-rende
         const configValue2 = wrapper.vm.showSelectBoxType(formField2);
         expect(configValue2).toBeFalsy();
     });
+
+    it('should be able to restore and remove inheritance', () => {
+        const item = { name: 'description', canInherit: true };
+        wrapper.vm.$emit = jest.fn();
+
+        wrapper.vm.onInheritanceRestore(item);
+        expect(wrapper.vm.$emit).toBeCalledWith('inheritance-restore', item);
+        wrapper.vm.$emit.mockRestore();
+
+        wrapper.vm.onInheritanceRemove(item);
+        expect(wrapper.vm.$emit).toBeCalledWith('inheritance-remove', item);
+        wrapper.vm.$emit.mockRestore();
+    });
 });

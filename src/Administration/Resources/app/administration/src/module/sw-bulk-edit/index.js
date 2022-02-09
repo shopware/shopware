@@ -13,6 +13,7 @@ import './component/sw-bulk-edit-form-field-renderer';
 import './component/product/sw-bulk-edit-product-visibility';
 import './component/product/sw-bulk-edit-product-media';
 import './component/product/sw-bulk-edit-product-media-form';
+import './component/product/sw-bulk-edit-product-description';
 import './component/sw-bulk-edit-save-modal';
 import './component/sw-bulk-edit-save-modal-confirm';
 import './component/sw-bulk-edit-save-modal-process';
@@ -29,14 +30,11 @@ Module.register('sw-bulk-edit', {
     description: 'sw-bulk-edit.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#57D9A3',
-    icon: 'default-symbol-products',
-    favicon: 'icon-module-products.png',
 
     routes: {
         product: {
             component: 'sw-bulk-edit-product',
-            path: 'product',
+            path: 'product/:parentId',
             meta: {
                 parentPath: 'sw.product.index',
             },

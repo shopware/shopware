@@ -51,6 +51,10 @@ import 'src/app/component/base/sw-modal';
 
 const routes = [
     {
+        name: 'sw.product.detail.variants',
+        path: 'variants',
+    },
+    {
         name: 'sw.bulk.edit.product',
         path: 'index'
     },
@@ -205,6 +209,8 @@ function createWrapper(productEntityOverride) {
             'sw-alert': true,
             'sw-label': true,
             'sw-extension-component-section': true,
+            'sw-inheritance-switch': true,
+            'sw-bulk-edit-product-description': true,
         },
         props: {
             title: 'Foo bar'
@@ -214,13 +220,20 @@ function createWrapper(productEntityOverride) {
                 modules: {
                     swProductDetail: {
                         namespaced: true,
-                        state: {
+                        state: () => ({
+                            parentProduct: null,
                             product: productEntity,
                             taxes: taxes
-                        }
+                        }),
+                        mutations: {
+                            setParentProduct(state, parentProduct) {
+                                state.parentProduct = parentProduct;
+                            },
+                        },
                     }
                 }
-            })
+            }),
+            $route: { params: { parentId: 'null' } },
         },
         provide: {
             validationService: {},
@@ -254,7 +267,8 @@ function createWrapper(productEntityOverride) {
                         return {
                             create: () => Promise.resolve({
                                 isNew: () => true
-                            })
+                            }),
+                            get: () => Promise.resolve(),
                         };
                     }
 
@@ -278,6 +292,7 @@ function createWrapper(productEntityOverride) {
 
 describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     let wrapper;
+    const consoleError = console.error;
 
     beforeEach(() => {
         const mockResponses = global.repositoryFactoryMock.responses;
@@ -296,13 +311,14 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                 ]
             }
         });
-
         Shopware.State.commit('shopwareApps/setSelectedIds', [Shopware.Utils.createId()]);
+        console.error = jest.fn();
     });
 
     afterEach(() => {
         wrapper.destroy();
         wrapper.vm.$router.push({ path: 'confirm' });
+        console.error = consoleError;
     });
 
     it('should be a Vue.js component', async () => {
@@ -434,6 +450,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         };
 
         wrapper = createWrapper(productEntity);
+        wrapper.vm.$router.push({ name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
 
         await flushPromises();
 
@@ -459,6 +476,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
             minPurchase: 2
         };
         wrapper = createWrapper(productEntity);
+        wrapper.vm.$router.push({ name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
 
         await flushPromises();
 
@@ -479,6 +497,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
             minPurchase: 2
         };
         wrapper = createWrapper(productEntity);
+        wrapper.vm.$router.push({ name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
 
         await flushPromises();
 
@@ -507,6 +526,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
     it('should be getting the price', async () => {
         wrapper = createWrapper();
+        wrapper.vm.$router.push({ name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
 
         await flushPromises();
 
@@ -531,6 +551,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
     it('should be getting the list price when the price field is exists', async () => {
         wrapper = createWrapper();
+        wrapper.vm.$router.push({ name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
 
         await flushPromises();
 
@@ -562,6 +583,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
     it('should be getting the listPrice when the price field is enabled', async () => {
         wrapper = createWrapper();
+        wrapper.vm.$router.push({ name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
 
         await flushPromises();
 
@@ -603,6 +625,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
             }]
         };
         wrapper = createWrapper(productEntity);
+        wrapper.vm.$router.push({ name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
 
         await flushPromises();
 
@@ -628,6 +651,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
             }]
         };
         wrapper = createWrapper(productEntity);
+        wrapper.vm.$router.push({ name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
 
         await flushPromises();
 
@@ -653,6 +677,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
             }]
         };
         wrapper = createWrapper(productEntity);
+        wrapper.vm.$router.push({ name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
 
         await flushPromises();
 
@@ -696,6 +721,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         };
 
         wrapper = await createWrapper(productEntity);
+        wrapper.vm.$router.push({ name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
+
         await flushPromises();
 
         const advancedPricesFieldForm = wrapper.find('.sw-bulk-edit-product-base__advanced-prices');
@@ -711,5 +738,139 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(changeField.type).toBe('overwrite');
         expect(changeField.value[0].productId).toBe('productId');
         expect(changeField.value[0].ruleId).toBe('ruleId');
+    });
+
+    it('should set route meta module when component created', () => {
+        wrapper = createWrapper();
+        wrapper.vm.setRouteMetaModule = jest.fn();
+
+        wrapper.vm.createdComponent();
+        expect(wrapper.vm.setRouteMetaModule).toBeCalled();
+        expect(wrapper.vm.$route.meta.$module.color).toBe('#57D9A3');
+        expect(wrapper.vm.$route.meta.$module.icon).toBe('default-symbol-products');
+
+        wrapper.vm.setRouteMetaModule.mockRestore();
+    });
+
+    it('should disable processing button', async () => {
+        wrapper = createWrapper();
+
+        await wrapper.setData({
+            isLoading: false,
+            bulkEditProduct: {
+                taxId: {
+                    isChanged: false,
+                },
+                price: {
+                    isChanged: false,
+                },
+                purchasePrices: {
+                    isChanged: false,
+                },
+                listPrice: {
+                    isChanged: false,
+                },
+            },
+        });
+        expect(wrapper.find('.sw-button-process').classes()).toContain('sw-button--disabled');
+
+        await wrapper.setData({
+            isLoading: false,
+            bulkEditProduct: {
+                taxId: {
+                    isChanged: true,
+                },
+                price: {
+                    isChanged: true,
+                },
+                purchasePrices: {
+                    isChanged: false,
+                },
+                listPrice: {
+                    isChanged: false,
+                },
+            },
+        });
+        expect(wrapper.find('.sw-button-process').classes()).not.toContain('sw-button--disabled');
+    });
+
+    it('should get parent product when component created', () => {
+        wrapper = createWrapper();
+        wrapper.vm.getParentProduct = jest.fn();
+
+        wrapper.vm.createdComponent();
+        expect(wrapper.vm.getParentProduct).toBeCalled();
+
+        wrapper.vm.getParentProduct.mockRestore();
+    });
+
+    it('should not be able to get parent product', async () => {
+        wrapper = createWrapper();
+
+        await wrapper.setData({
+            $route: {
+                params: {
+                    parentId: 'null',
+                },
+            },
+        });
+        await wrapper.vm.getParentProduct();
+
+        expect(wrapper.vm.parentProduct).toBe(null);
+    });
+
+    it('should get parent product successful', async () => {
+        wrapper = createWrapper();
+        wrapper.vm.productRepository.get = jest.fn((productId) => {
+            if (productId === 'productId') {
+                return Promise.resolve({
+                    id: 'productId',
+                    name: 'productName',
+                });
+            }
+            return Promise.reject();
+        });
+
+        await wrapper.setData({
+            $route: {
+                params: {
+                    parentId: 'productId',
+                },
+            },
+        });
+        await wrapper.vm.getParentProduct();
+
+        expect(wrapper.vm.parentProductFrozen).toEqual(JSON.stringify({
+            id: 'productId',
+            name: 'productName',
+            stock: null,
+        }));
+        wrapper.vm.productRepository.get.mockRestore();
+    });
+
+    it('should get parent product failed', async () => {
+        wrapper = createWrapper();
+        wrapper.vm.productRepository.get = jest.fn((productId) => {
+            if (productId === 'productId') {
+                return Promise.reject();
+            }
+            return Promise.resolve({
+                id: 'productId',
+                name: 'productName',
+            });
+        });
+
+        await wrapper.setData({
+            $route: {
+                params: {
+                    parentId: 'productId',
+                },
+            },
+        });
+        await wrapper.vm.getParentProduct();
+
+        expect(wrapper.vm.parentProduct).toEqual(null);
+        expect(wrapper.vm.parentProductFrozen).toEqual(null);
+        wrapper.vm.productRepository.get.mockRestore();
     });
 });

@@ -129,6 +129,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
     }
 
     let wrapper;
+    const consoleError = console.error;
 
     beforeAll(() => {
         Shopware.State.registerModule('cmsPageState', {
@@ -141,10 +142,13 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
     beforeEach(async () => {
         wrapper = createWrapper();
+        console.error = jest.fn();
     });
 
     afterEach(() => {
         if (wrapper) wrapper.destroy();
+        Shopware.State.unregisterModule('swProductDetail');
+        console.error = consoleError;
     });
 
     it('should be a Vue.js component', () => {

@@ -15,6 +15,9 @@
       "textTitle": "Bulk edit: {productTotal} product | Bulk edit: {productTotal} products",
       "messageEmptyTitle": "No products selected for bulk edit",
       "messageEmptySubline": "Please go back and select some products",
+      "alertInheritance": {
+        "message": "These products have inherited fields. The contents of inherited fields are drawn form the respective parent product. You can activate and deactivate inheritances by clicking on the chain symbol."
+      },
       "generalInformation": {
         "cardTitle": "General information",
         "description": {

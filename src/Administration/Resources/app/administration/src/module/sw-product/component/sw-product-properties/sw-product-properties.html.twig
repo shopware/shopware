@@ -3,14 +3,18 @@
     v-if="properties"
     v-model="product.properties"
     class="sw-product-properties"
-    is-association
+    :is-association="isAssociation"
+    :disabled="disabled"
     :inherited-value="parentProduct.properties"
 >
     <template #content="{ isInherited, isInheritField, restoreInheritance, removeInheritance }">
         {% block sw_product_properties_card %}
         <sw-card
             class="sw-product-properties__card"
-            :class="{ 'is-inherited': isInherited }"
+            :class="{
+                'is--inherited': isInherited,
+                'is--disabled': disabled,
+            }"
             position-identifier="sw-product-properties"
             :is-loading="isLoading"
         >
@@ -18,11 +22,11 @@
                 {% block sw_product_properties_card_title %}
                 <div
                     class="sw-card__title"
-                    :class="{ 'is-inherited': isInherited }"
+                    :class="{ 'is--inherited': isInherited }"
                 >
                     {% block sw_product_properties_card_title_icon %}
                     <sw-inheritance-switch
-                        v-if="isInheritField"
+                        v-if="isInheritField && showInheritanceSwitcher"
                         class="sw-inherit-wrapper__inheritance-icon"
                         :is-inherited="isInherited"
                         :disabled="!acl.can('product.editor')"

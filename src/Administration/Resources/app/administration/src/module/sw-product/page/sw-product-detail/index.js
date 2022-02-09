@@ -342,7 +342,12 @@ Component.register('sw-product-detail', {
         this.createdComponent();
     },
 
-    beforeDestroy() {
+    /**
+     * @deprecated tag:v6.5.0 - Can be removed, use "beforeUnmount" instead.
+     */
+    beforeDestroy() {},
+
+    beforeUnmount() {
         Shopware.State.unregisterModule('swProductDetail');
     },
 

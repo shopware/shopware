@@ -269,6 +269,15 @@ function createWrapper() {
                 }
             },
             'sw-icon': true,
+            'sw-data-grid': {
+                template: `
+                    <div class="sw-data-grid">
+                        <slot name="bulk"></slot>
+                        <slot name="bulk-modals"></slot>
+                    </div>
+                `
+            },
+            'sw-bulk-edit-modal': true,
         }
     });
 }
@@ -399,5 +408,33 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
         await wrapper.find('.sw-product-variant-modal__reset-filter').trigger('click');
 
         expect(wrapper.vm.includeOptions).toEqual([]);
+    });
+
+    it('should be able to turn on bulk edit modal', async () => {
+        await wrapper.setData({
+            showBulkEditModal: false,
+            productVariants: [{
+                id: 'variant1',
+                name: 'variant1',
+            }],
+        });
+        expect(wrapper.find('sw-bulk-edit-modal-stub').exists()).toBe(false);
+
+        await wrapper.find('.sw-product-variant-modal__bulk-edit-action').trigger('click');
+        expect(wrapper.find('sw-bulk-edit-modal-stub').exists()).toBe(true);
+    });
+
+    it('should push to a new route when editing items', async () => {
+        wrapper.vm.$router.push = jest.fn();
+
+        await wrapper.vm.onEditItems();
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith(expect.objectContaining({
+            name: 'sw.bulk.edit.product',
+            params: expect.objectContaining({
+                parentId: '72bfaf5d90214ce592715a9649d8760a',
+            }),
+        }));
+
+        wrapper.vm.$router.push.mockRestore();
     });
 });

@@ -143,4 +143,35 @@ $sw-products-variants-generated-variants-toolbar-border: $color-gray-300;
             @include square(32px);
         }
     }
+
+    &__bulk-edit-modal {
+        .sw-product-variants-overview__variation-link {
+            &:hover {
+                .sw-product-variants-overview__variation-link-icon {
+                    opacity: 1;
+                }
+            }
+        }
+
+        .sw-product-variants-overview__variation-link-icon {
+            @include square(12px);
+
+            opacity: 0;
+            margin-right: 5px;
+            color: $color-shopware-brand-500;
+        }
+
+        .sw-data-grid.is--compact .sw-data-grid__body .sw-data-grid__cell-content {
+            height: auto;
+        }
+
+        .sw-product-variants-media-upload.sw-media-upload-v2,
+        .sw-product-variants-media-upload.sw-media-upload-v2 .sw-media-upload-v2__dropzone {
+            width: 100%;
+        }
+
+        .sw-inheritance-switch {
+            margin-right: 8px;
+        }
+    }
 }

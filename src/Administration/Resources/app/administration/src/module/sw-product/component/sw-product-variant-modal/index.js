@@ -42,6 +42,7 @@ Component.register('sw-product-variant-modal', {
             filterOptions: [],
             includeOptions: [],
             filterWindowOpen: false,
+            showBulkEditModal: false,
         };
     },
 
@@ -669,6 +670,20 @@ Component.register('sw-product-variant-modal', {
 
         toggleFilterMenu() {
             this.filterWindowOpen = !this.filterWindowOpen;
+        },
+
+        toggleBulkEditModal() {
+            this.showBulkEditModal = !this.showBulkEditModal;
+        },
+
+        async onEditItems() {
+            await this.$nextTick();
+            this.$router.push({
+                name: 'sw.bulk.edit.product',
+                params: {
+                    parentId: this.productEntity.id,
+                },
+            });
         },
     },
 });

@@ -1,3 +1,4 @@
+<!-- eslint-disable vuejs-accessibility/click-events-have-key-events -->
 {% block sw_product_variant_modal %}
 <sw-modal
     class="sw-product-variant-modal"
@@ -113,7 +114,6 @@
             :data-source="productVariants"
             :sort-by="sortBy"
             :sort-direction="sortDirection"
-            :show-selection="acl.can('product.deleter')"
             :allow-inline-edit="acl.can('product.editor')"
             show-settings
             @column-sort="onSortColumn"
@@ -123,13 +123,129 @@
 
             {% block sw_product_variant_modal_body_grid_bulk %}
             <template #bulk>
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+                {% block sw_product_variant_modal_body_grid_bulk_edit %}
                 <span
-                    class="link link-danger"
+                    v-if="acl.can('product.editor')"
+                    class="link link-primary sw-product-variant-modal__bulk-edit-action"
+                    @click="toggleBulkEditModal"
+                >
+                    {{ $tc('global.default.bulkEdit') }}
+                </span>
+                {% endblock %}
+
+                {% block sw_product_variant_modal_body_grid_bulk_delete %}
+                <span
+                    v-if="acl.can('product.deleter')"
+                    class="link link-danger sw-product-variant-modal__bulk-delete-action"
                     @click="onClickBulkDelete"
                 >
                     {{ $tc('global.default.delete') }}
                 </span>
+                {% endblock %}
+            </template>
+            {% endblock %}
+
+            {% block sw_product_variant_modal_bulk_edit_modal %}
+            <template #bulk-modals="{ selection }">
+                <sw-bulk-edit-modal
+                    v-if="showBulkEditModal"
+                    class="sw-product-variant-modal__bulk-edit-modal"
+                    :selection="selection"
+                    :bulk-grid-edit-columns="gridColumns"
+                    @edit-items="onEditItems"
+                    @modal-close="toggleBulkEditModal"
+                >
+                    {% block sw_product_variant_modal_bulk_edit_modal_column_name %}
+                    <template #column-name="{ item }">
+                        <sw-media-preview-v2 :source="getItemMedia(item)" />
+                        <router-link :to="{ name: 'sw.product.detail', params: { id: item.id } }">
+                            <span
+                                v-if="item.translated.name"
+                                class="sw-product-variant-modal__variant-name"
+                            >
+                                {{ item.translated.name }}
+                            </span>
+                            <sw-product-variant-info
+                                v-else
+                                class="sw-product-variant-modal__variant-options"
+                                :variations="item.variation"
+                                :show-tooltip="false"
+                                :ommit-parenthesis="true"
+                                seperator=", "
+                            />
+                        </router-link>
+                        <sw-product-variant-info
+                            v-if="item.translated.name"
+                            :variations="item.variation"
+                            :show-tooltip="false"
+                        />
+                    </template>
+                    {% endblock %}
+
+                    {% block sw_product_variant_modal_bulk_edit_modal_column_price %}
+                    <template #column-price="{ item }">
+                        <sw-inheritance-switch
+                            class="sw-product-variant-modal__price-inheritance-switch"
+                            :is-inherited="item.price === null"
+                            disabled
+                        />
+                        <sw-price-preview
+                            :price="item.price ? item.price : []"
+                            :default-price="productEntity.price[0]"
+                            :tax-rate="productEntity.tax"
+                            :currency="currency"
+                        />
+                    </template>
+                    {% endblock %}
+
+                    {% block sw_product_variant_modal_bulk_edit_modal_column_stock %}
+                    <template #column-stock="{ item }">
+                        {{ item.stock }}
+                        <sw-color-badge :variant="item.stock | stockColorVariant" />
+                    </template>
+                    {% endblock %}
+
+                    {% block sw_product_variant_modal_bulk_edit_modal_column_active %}
+                    <template #column-active="{ item }">
+                        <sw-icon
+                            v-if="item.active === true"
+                            class="sw-icon--product-status is--active"
+                            name="small-default-checkmark-line-medium"
+                            small
+                        />
+                        <sw-icon
+                            v-else-if="item.active === false"
+                            class="sw-icon--product-status is--inactive"
+                            name="small-default-x-line-medium"
+                            small
+                        />
+                        <sw-icon
+                            v-else
+                            key="inherit-icon"
+                            name="custom-inherited"
+                            size="16"
+                            multicolor
+                        />
+                    </template>
+                    {% endblock %}
+
+                    {% block sw_product_variant_modal_bulk_edit_modal_column_media %}
+                    <template #column-media="{ item }">
+                        <sw-inheritance-switch
+                            class="sw-product-variant-modal__media-inherited-icon"
+                            :is-inherited="isMediaFieldInherited(item)"
+                            disabled
+                        />
+                        <sw-product-variants-media-upload
+                            :source="item"
+                            :upload-tag="item.id"
+                            :is-inherited="isMediaFieldInherited(item)"
+                            :parent-product="productEntity"
+                            disabled
+                        />
+                    </template>
+                    {% endblock %}
+                </sw-bulk-edit-modal>
             </template>
             {% endblock %}
 
@@ -434,7 +550,6 @@
     {% block sw_product_variant_modal_footer %}
     <template #modal-footer>
         {% block sw_product_variant_modal_footer_visit_main_product %}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <div
             class="sw-product-variant-modal__main-product-link"
             @click="visitProduct(productEntity.id)"

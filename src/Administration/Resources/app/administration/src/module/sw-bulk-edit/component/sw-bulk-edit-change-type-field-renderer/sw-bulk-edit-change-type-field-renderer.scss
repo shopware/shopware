@@ -5,6 +5,22 @@
         color: $color-darkgray-200;
         font-size: $font-size-extra-small;
     }
+
+    &__inheritance-group-field {
+        position: relative;
+    }
+
+    &__inheritance-group-field .sw-inheritance-switch {
+        position: absolute;
+        top: 15px;
+        left: -30px;
+        margin-top: 0;
+        line-height: 0;
+    }
+
+    &__inheritance-group-field.is--select-box-type .sw-inheritance-switch {
+        top: -40px;
+    }
 }
 
 .sw-bulk-edit-change-field__container {

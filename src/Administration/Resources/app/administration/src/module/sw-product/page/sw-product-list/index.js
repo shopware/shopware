@@ -380,7 +380,12 @@ Component.register('sw-product-list', {
         },
 
         onBulkEditItems() {
-            this.$router.push({ name: 'sw.bulk.edit.product' });
+            this.$router.push({
+                name: 'sw.bulk.edit.product',
+                params: {
+                    parentId: 'null',
+                },
+            });
         },
 
         onBulkEditModalOpen() {

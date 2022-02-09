@@ -38,6 +38,7 @@ Component.register('sw-product-variants-overview', {
             includeOptions: [],
             filterWindowOpen: false,
             toBeDeletedVariantId: null,
+            showBulkEditModal: false,
         };
     },
 
@@ -536,6 +537,20 @@ Component.register('sw-product-variants-overview', {
 
         isPriceEditing(value) {
             this.priceEdit = value;
+        },
+
+        toggleBulkEditModal() {
+            this.showBulkEditModal = !this.showBulkEditModal;
+        },
+
+        async onEditItems() {
+            await this.$nextTick();
+            this.$router.push({
+                name: 'sw.bulk.edit.product',
+                params: {
+                    parentId: this.product.id,
+                },
+            });
         },
     },
 });

@@ -59,13 +59,30 @@
                         name="valueFieldWithBoxType"
                         v-bind="{formField, entity, index, isDisplayingValue }"
                     >
-                        <sw-bulk-edit-form-field-renderer
-                            v-if="isDisplayingValue"
-                            v-bind="formField"
-                            :key="`formField-${index}`"
-                            v-model="entity[formField.name]"
-                            @input="onChangeValue($event, formField.name)"
-                        />
+                        <template v-if="formField.canInherit && isDisplayingValue">
+                            <div class="sw-bulk-edit-change-field-renderer__inheritance-group-field is--select-box-type">
+                                <sw-inheritance-switch
+                                    :is-inherited="bulkEditData[formField.name].isInherited"
+                                    @inheritance-restore="onInheritanceRestore(formField)"
+                                    @inheritance-remove="onInheritanceRemove(formField)"
+                                />
+                                <sw-bulk-edit-form-field-renderer
+                                    v-bind="formField"
+                                    :key="`formField-${index}`"
+                                    v-model="entity[formField.name]"
+                                    @input="onChangeValue($event, formField.name)"
+                                />
+                            </div>
+                        </template>
+                        <template v-else>
+                            <sw-bulk-edit-form-field-renderer
+                                v-if="isDisplayingValue"
+                                v-bind="formField"
+                                :key="`formField-${index}`"
+                                v-model="entity[formField.name]"
+                                @input="onChangeValue($event, formField.name)"
+                            />
+                        </template>
                     </slot>
                 </template>
             </sw-bulk-edit-change-type>
@@ -77,12 +94,29 @@
                     name="valueField"
                     v-bind="{formField, entity, index, isDisplayingValue }"
                 >
-                    <sw-bulk-edit-form-field-renderer
-                        v-bind="formField"
-                        :key="`formField-${index}`"
-                        v-model="entity[formField.name]"
-                        @input="onChangeValue($event, formField.name)"
-                    />
+                    <template v-if="formField.canInherit">
+                        <div class="sw-bulk-edit-change-field-renderer__inheritance-group-field">
+                            <sw-inheritance-switch
+                                :is-inherited="bulkEditData[formField.name].isInherited"
+                                @inheritance-restore="onInheritanceRestore(formField)"
+                                @inheritance-remove="onInheritanceRemove(formField)"
+                            />
+                            <sw-bulk-edit-form-field-renderer
+                                v-bind="formField"
+                                :key="`formField-${index}`"
+                                v-model="entity[formField.name]"
+                                @input="onChangeValue($event, formField.name)"
+                            />
+                        </div>
+                    </template>
+                    <template v-else>
+                        <sw-bulk-edit-form-field-renderer
+                            v-bind="formField"
+                            :key="`formField-${index}`"
+                            v-model="entity[formField.name]"
+                            @input="onChangeValue($event, formField.name)"
+                        />
+                    </template>
                 </slot>
             </template>
             {% endblock %}

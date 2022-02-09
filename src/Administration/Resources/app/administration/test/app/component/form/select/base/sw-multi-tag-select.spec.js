@@ -29,7 +29,8 @@ const createMultiDataSelect = (customOptions) => {
             }
         },
         propsData: {
-            value: []
+            value: [],
+            disabled: false,
         }
     };
 
@@ -181,5 +182,15 @@ describe('components/sw-multi-tag-select', () => {
 
         expect(multiDataSelect.vm.searchTerm).toBe('');
         expect(changeSpy).toHaveBeenCalledWith([value]);
+    });
+
+    it('should be disabled correctly', async () => {
+        const multiDataSelect = createMultiDataSelect();
+
+        await multiDataSelect.setProps({ disabled: true });
+        expect(multiDataSelect.find('.sw-select').classes()).toContain('is--disabled');
+
+        await multiDataSelect.setProps({ disabled: false });
+        expect(multiDataSelect.find('.sw-select').classes()).not.toContain('is--disabled');
     });
 });

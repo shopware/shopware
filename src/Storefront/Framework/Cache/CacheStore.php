@@ -121,8 +121,9 @@ class CacheStore implements StoreInterface
         });
 
         if ($response->headers->has(self::TAG_HEADER)) {
-            /** @var array $responseTags */
-            $responseTags = \json_decode($response->headers->get(self::TAG_HEADER));
+            /** @var string $tagHeader */
+            $tagHeader = $response->headers->get(self::TAG_HEADER);
+            $responseTags = \json_decode($tagHeader, true, 512, \JSON_THROW_ON_ERROR);
             $tags = array_merge($responseTags, $tags);
 
             $response->headers->remove(self::TAG_HEADER);

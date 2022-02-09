@@ -447,6 +447,18 @@ All available Hooks that can be used to manipulate the cart.
 
 All available hooks within the Store-API and API
 
+#### cache-invalidation
+
+| <!-- -->               | <!-- -->                                                                                                                                                             |
+|:-----------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Name**               | cache-invalidation                                                                                                                                                      |
+| **Since**              | 6.4.9.0                                                                                                                                                     |
+| **Class**              | `Shopware\Core\Framework\Adapter\Cache\Script\CacheInvalidationHook`                                                                                                                                                   |
+| **Description**        | Triggered whenever an entity is written.<br>                                                                                                                                               |
+| **Available Data**     | event: [`Shopware\Core\Framework\Adapter\Cache\Script\Facade\WrittenEventScriptFacade`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Adapter/Cache/Script/Facade/WrittenEventScriptFacade.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br> |
+| **Available Services** | [cache](./custom-endpoint-script-services-reference.md#CacheInvalidatorFacade)<br>                                                                            |
+| **Stoppable**          | `false`                                                                                                                                                 |
+
 #### api-{hook}
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |

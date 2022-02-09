@@ -529,6 +529,16 @@ base-uri 'self';
             <tag name="messenger.message_handler"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Adapter\Cache\Script\Facade\CacheInvalidatorFacadeHookFactory" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\Script\ScriptCacheInvalidationSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Content\Media\Message\GenerateThumbnailsHandler">
             <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailService"/>
             <argument type="service" id="media.repository"/>

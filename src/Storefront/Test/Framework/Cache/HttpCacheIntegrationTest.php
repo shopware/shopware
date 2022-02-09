@@ -4,10 +4,12 @@ namespace Shopware\Storefront\Test\Framework\Cache;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -152,6 +154,37 @@ class HttpCacheIntegrationTest extends TestCase
 
         $cacheInvalidator = $this->getContainer()->get(CacheInvalidator::class);
         $cacheInvalidator->invalidate(['my-custom-tag'], true);
+
+        $response = $kernel->handle($request);
+        static::assertEquals(sprintf('GET %s: miss, store', $route), $response->headers->get('x-symfony-cache'));
+        static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
+    }
+
+    public function testCacheForAppScriptEndpointCustomCacheTagsWithScriptInvalidation(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures/http-cache-cases');
+
+        $kernel = $this->getCacheKernel();
+
+        $route = '/storefront/script/custom-cache-tags';
+        $request = $this->createRequest(EnvironmentHelper::getVariable('APP_URL') . $route);
+
+        $response = $kernel->handle($request);
+        static::assertEquals(sprintf('GET %s: miss, store', $route), $response->headers->get('x-symfony-cache'));
+        static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
+
+        $response = $kernel->handle($request);
+        static::assertEquals(sprintf('GET %s: fresh', $route), $response->headers->get('x-symfony-cache'));
+        static::assertFalse($response->headers->has(CacheStore::TAG_HEADER));
+
+        $ids = new IdsCollection();
+        $productRepo = $this->getContainer()->get('product.repository');
+        // entity written event will execute the cache invalidation script, which will invalidate our custom tag
+        $productRepo->create([
+            (new ProductBuilder($ids, 'p1'))
+            ->price(100)
+            ->build(),
+        ], $ids->getContext());
 
         $response = $kernel->handle($request);
         static::assertEquals(sprintf('GET %s: miss, store', $route), $response->headers->get('x-symfony-cache'));

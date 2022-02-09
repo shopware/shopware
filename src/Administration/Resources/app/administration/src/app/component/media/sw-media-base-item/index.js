@@ -35,6 +35,8 @@ Shopware.Component.register('sw-media-base-item', {
         showContextMenuButton: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -47,12 +49,16 @@ Shopware.Component.register('sw-media-base-item', {
         editable: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         allowMultiSelect: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -65,12 +71,16 @@ Shopware.Component.register('sw-media-base-item', {
         allowEdit: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         allowDelete: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },

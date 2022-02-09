@@ -45,10 +45,14 @@ Component.register('sw-page', {
     props: {
         showSmartBar: {
             type: Boolean,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         showSearchBar: {
             type: Boolean,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },

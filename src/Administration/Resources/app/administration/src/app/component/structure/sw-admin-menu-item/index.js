@@ -23,6 +23,8 @@ Component.register('sw-admin-menu-item', {
         },
         displayIcon: {
             type: Boolean,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
@@ -33,11 +35,15 @@ Component.register('sw-admin-menu-item', {
         },
         collapsibleText: {
             type: Boolean,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
         sidebarExpanded: {
             type: Boolean,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },

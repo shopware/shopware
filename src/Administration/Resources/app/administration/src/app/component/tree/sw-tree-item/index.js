@@ -50,6 +50,8 @@ Component.register('sw-tree-item', {
 
         disableContextMenu: {
             type: Boolean,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
             },
@@ -82,6 +84,8 @@ Component.register('sw-tree-item', {
         sortable: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
             },
@@ -90,6 +94,8 @@ Component.register('sw-tree-item', {
         markInactive: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
             },
@@ -98,6 +104,8 @@ Component.register('sw-tree-item', {
         shouldFocus: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
             },
@@ -106,6 +114,8 @@ Component.register('sw-tree-item', {
         shouldShowActiveState: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
             },
@@ -122,6 +132,8 @@ Component.register('sw-tree-item', {
         displayCheckbox: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
             },
@@ -130,6 +142,8 @@ Component.register('sw-tree-item', {
         allowNewCategories: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
             },
@@ -138,6 +152,8 @@ Component.register('sw-tree-item', {
         allowDeleteCategories: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
             },
@@ -146,6 +162,8 @@ Component.register('sw-tree-item', {
         allowCreateWithoutPosition: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
             },
@@ -154,6 +172,8 @@ Component.register('sw-tree-item', {
         allowDuplicate: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
             },

@@ -36,6 +36,8 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
         showSettings: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -50,18 +52,24 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
         fullPage: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         allowInlineEdit: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         allowColumnEdit: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -74,6 +82,8 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
         allowEdit: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -86,6 +96,8 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
         allowDelete: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 

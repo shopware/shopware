@@ -26,6 +26,8 @@ Component.register('sw-settings-item', {
         backgroundEnabled: {
             required: false,
             type: Boolean,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },

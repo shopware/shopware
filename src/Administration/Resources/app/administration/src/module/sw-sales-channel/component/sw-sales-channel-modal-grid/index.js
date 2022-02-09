@@ -13,6 +13,8 @@ Component.register('sw-sales-channel-modal-grid', {
         productStreamsExist: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 

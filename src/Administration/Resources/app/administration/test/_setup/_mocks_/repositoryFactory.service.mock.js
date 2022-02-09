@@ -8,6 +8,7 @@ import ErrorResolverError from 'src/core/data/error-resolver.data';
 import createHTTPClient from 'src/core/factory/http.factory';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import MockAdapter from 'axios-mock-adapter';
+// eslint-disable-next-line import/no-unresolved
 import EntitySchema from '../../_mocks_/entity-schema.json';
 
 // Add all entities from entity-schema

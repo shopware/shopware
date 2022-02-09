@@ -159,13 +159,22 @@ a list of identifiers can be provided.",
         });
 
         if (Feature::isActive('FEATURE_NEXT_15815')) {
-            return new JsonResponse($result, Response::HTTP_OK);
+            return $this->createResponse($result, Response::HTTP_OK);
         }
 
         if ($behavior->failOnError() && !$result->isSuccess()) {
-            return new JsonResponse($result, Response::HTTP_BAD_REQUEST);
+            return $this->createResponse($result, Response::HTTP_BAD_REQUEST);
         }
 
-        return new JsonResponse($result, Response::HTTP_OK);
+        return $this->createResponse($result, Response::HTTP_OK);
+    }
+
+    private function createResponse(SyncResult $result, int $statusCode = 200): JsonResponse
+    {
+        $response = new JsonResponse(null, $statusCode);
+        $response->setEncodingOptions(JsonResponse::DEFAULT_ENCODING_OPTIONS | \JSON_INVALID_UTF8_SUBSTITUTE);
+        $response->setData($result);
+
+        return $response;
     }
 }

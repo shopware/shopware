@@ -1,8 +1,11 @@
 <div class="sw-extension-my-extensions-listing">
-    <sw-loader v-if="isLoading" />
+    <sw-skeleton
+        v-if="isLoading"
+        :variant="skeletonVariant"
+    />
 
     <div
-        v-if="!isLoading"
+        v-else
         class="sw-extension-my-extensions-listing__listing-grid"
     >
         <sw-meteor-card

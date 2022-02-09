@@ -24,6 +24,8 @@ Component.register('sw-skeleton', {
                     'tree-item',
                     'tree-item-nested',
                     'media',
+                    'extension-apps',
+                    'extension-themes',
                 ];
 
                 return variants.includes(value);
@@ -42,6 +44,8 @@ Component.register('sw-skeleton', {
                 'sw-skeleton__tree-item': this.variant === 'tree-item',
                 'sw-skeleton__tree-item-nested': this.variant === 'tree-item-nested',
                 'sw-skeleton__media': this.variant === 'media',
+                'sw-skeleton__extension-apps': this.variant === 'extension-apps',
+                'sw-skeleton__extension-themes': this.variant === 'extension-themes',
             };
         },
     },

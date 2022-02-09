@@ -1,7 +1,14 @@
 {% block sw_extension_my_extensions_recommendation %}
-<sw-meteor-card>
-    {% block sw_extension_my_extensions_recommendation_plugin_wizard %}
-    <sw-first-run-wizard-plugins @loading-finish="finishLoading" />
-    {% endblock %}
-</sw-meteor-card>
+<div class="sw-extension-my-extensions__recommendation">
+    <div v-if="isLoading">
+        <sw-skeleton />
+        <sw-skeleton />
+    </div>
+
+    <sw-meteor-card v-show="!isLoading">
+        {% block sw_extension_my_extensions_recommendation_plugin_wizard %}
+        <sw-first-run-wizard-plugins @loading-finished="finishLoading" />
+        {% endblock %}
+    </sw-meteor-card>
+</div>
 {% endblock %}

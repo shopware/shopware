@@ -105,6 +105,14 @@ Component.register('sw-extension-my-extensions-listing', {
                 });
             },
         },
+
+        skeletonVariant() {
+            if (this.isThemeRoute) {
+                return 'extension-themes';
+            }
+
+            return 'extension-apps';
+        },
     },
 
     watch: {

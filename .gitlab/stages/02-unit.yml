@@ -121,6 +121,7 @@ PHP Full:
         APP_ENV: test
         GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
         RUNNER_INSTANCE_TYPE: m5.large
+        ALLOW_FAILURE: "false"
     rules:
         - !reference [.rules, skip]
         - !reference [.rules, run]
@@ -132,6 +133,10 @@ PHP Full:
             - '**/*.{php,xml,yaml,json,js,twig}'
             - 'adr/*'
             - .gitlab/stages/02-unit.yml
+        - if: '$ALLOW_FAILURE == "true" || $CI_PIPELINE_SOURCE == "schedule"'
+          allow_failure: true
+        - if: '$DEPENDENCY_DEV == "true" && $CI_PIPELINE_SOURCE == "schedule"'
+          when: never
     parallel:
         matrix:
             -   MYSQL_IMAGE: mariadb:10.4
@@ -156,14 +161,24 @@ PHP Full:
                 FEATURE_ALL: 'false'
                 ONLY_CORE: 'true'
                 TEST_SUITES: "checkout content framework profiling migration system"
+            -   MYSQL_IMAGE: mariadb:10.5
+                DEV_IMAGE: shopware/development:7.4-composer-2
+                FEATURE_ALL: 'false'
+                DEPENDENCY_DEV: 'true'
+                TEST_SUITES: "checkout content framework profiling migration system"
+                ALLOW_FAILURE: 'true'
     script:
+        - >
+            if [ "$DEPENDENCY_DEV" == "true" ]; then
+               composer config minimum-stability dev
+               composer update --no-interaction --optimize-autoloader
+            fi
         - >
             if [ "$PREFER_LOWEST" == "true" ]; then
                 composer update --prefer-lowest --optimize-autoloader
             fi
         - >
             if [ "$ONLY_CORE" == "true" ]; then
-                apt-get update && apt-get -y install jq
                 sed -i '/Shopware\\Administration/d' ./config/bundles.php
                 sed -i '/ Shopware\\Docs/d' ./config/bundles.php
                 sed -i '/Shopware\\Storefront/d' ./config/bundles.php

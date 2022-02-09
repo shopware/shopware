@@ -5,7 +5,8 @@ describe('Search bar: Check search by frequently used and recently searched',() 
         cy.loginViaApi();
     });
 
-    it('@searchBar search frequently used modules', () => {
+    // NEXT-20024
+    it.skip('@searchBar search frequently used modules', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/increment/user_activity?*`,
             method: 'GET'

@@ -25,7 +25,8 @@ describe('Product: Test variants', () => {
             });
     });
 
-    it('@base @catalogue: add variant to product', () => {
+    // NEXT-20024
+    it.skip('@base @catalogue: add variant to product', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

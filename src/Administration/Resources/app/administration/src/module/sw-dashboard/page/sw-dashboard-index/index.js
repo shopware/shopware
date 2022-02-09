@@ -40,6 +40,8 @@ Component.register('sw-dashboard-index', {
                     yesterday: 1,
                 },
             },
+            /** @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead */
+            isLoading: false,
         };
     },
 
@@ -348,12 +350,14 @@ Component.register('sw-dashboard-index', {
                 return;
             }
 
+            this.isLoading = true;
             this.getHistoryOrderData();
 
             this.todayOrderDataLoaded = false;
             this.fetchTodayData().then((response) => {
                 this.todayOrderData = response;
                 this.todayOrderDataLoaded = true;
+                this.isLoading = false;
             });
         },
 

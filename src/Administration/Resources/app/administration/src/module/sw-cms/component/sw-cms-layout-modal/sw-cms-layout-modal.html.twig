@@ -145,12 +145,6 @@
 
             {% block sw_cms_list_listing_list_data_grid_column_name %}
             <template #column-name="{ item }">
-                <sw-icon
-                    v-if="item.locked"
-                    name="default-lock-closed"
-                    class="sw-cms-list__icon-lock"
-                    size="14"
-                />
                 <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <div @click="selectItem(item.id, item)">
                     {{ item.translated.name }}
@@ -170,7 +164,7 @@
             </template>
             {% endblock %}
 
-            {% block sw_cms_list_listing_list_data_grid_column_created %}
+            {% block sw_cms_list_listing_list_data_grid_column_updated %}
             <template #column-updatedAt="{ item }">
                 {{ item.updatedAt | date({ hour: '2-digit', minute: '2-digit' }) }}
             </template>

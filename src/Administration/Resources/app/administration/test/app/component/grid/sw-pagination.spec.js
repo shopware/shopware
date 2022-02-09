@@ -94,8 +94,8 @@ describe('src/component/grid/sw-pagination', () => {
         const pageButtons = wrapper.findAll('button.sw-pagination__list-button');
         expect(pageButtons.length).toBe(6);
 
-        const seperator = wrapper.findAll('.sw-pagination__list-separator');
-        expect(seperator.length).toBe(1);
+        const separator = wrapper.findAll('.sw-pagination__list-separator');
+        expect(separator.length).toBe(1);
 
         const activeButton = wrapper.findAll('.sw-pagination__list-button.is-active');
         expect(activeButton.length).toBe(1);
@@ -107,8 +107,8 @@ describe('src/component/grid/sw-pagination', () => {
         const allPageButtons = wrapper.findAll('.sw-pagination__list-button');
         expect(allPageButtons.length).toBe(7);
 
-        const seperator = wrapper.findAll('.sw-pagination__list-separator');
-        expect(seperator.length).toBe(1);
+        const separator = wrapper.findAll('.sw-pagination__list-separator');
+        expect(separator.length).toBe(1);
 
         const activePageButton = wrapper.find('.sw-pagination__list-button.is-active');
         expect(activePageButton.exists()).toBe(true);
@@ -120,8 +120,8 @@ describe('src/component/grid/sw-pagination', () => {
         const allPageButtons = wrapper.findAll('.sw-pagination__list-button');
         expect(allPageButtons.length).toBe(7);
 
-        const seperator = wrapper.findAll('.sw-pagination__list-separator');
-        expect(seperator.length).toBe(1);
+        const separator = wrapper.findAll('.sw-pagination__list-separator');
+        expect(separator.length).toBe(1);
 
         const activePageButton = wrapper.find('.sw-pagination__list-button.is-active');
         expect(activePageButton.exists()).toBe(true);
@@ -249,7 +249,7 @@ describe('src/component/grid/sw-pagination', () => {
         expect(range).toEqual([1, 2, 3]);
     });
 
-    it('should be visisble when autoHide is set to false', async () => {
+    it('should be visible when autoHide is set to false', async () => {
         expect(wrapper.props('autoHide')).toBe(false);
         expect(wrapper.exists()).toBe(true);
     });

@@ -15,6 +15,8 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
         },
         localMode: {
             type: Boolean,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         // FIXME: add default value to this property
@@ -26,6 +28,8 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
         allowDelete: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         tooltipDelete: {

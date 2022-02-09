@@ -36,18 +36,24 @@ Component.register('sw-checkbox-field', {
         value: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: null,
         },
 
         inheritedValue: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: null,
         },
 
         ghostValue: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: null,
         },
 

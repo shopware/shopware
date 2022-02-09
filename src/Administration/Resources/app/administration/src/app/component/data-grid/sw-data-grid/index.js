@@ -53,18 +53,24 @@ Component.register('sw-data-grid', {
 
         showSelection: {
             type: Boolean,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
 
         showActions: {
             type: Boolean,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
 
         showHeader: {
             type: Boolean,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
@@ -126,6 +132,8 @@ Component.register('sw-data-grid', {
         compactMode: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -138,6 +146,8 @@ Component.register('sw-data-grid', {
         showPreviews: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 

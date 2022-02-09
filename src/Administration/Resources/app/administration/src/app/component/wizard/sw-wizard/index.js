@@ -31,6 +31,8 @@ Component.register('sw-wizard', {
         showNavigationDots: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default() {
                 return false;
             },
@@ -47,6 +49,8 @@ Component.register('sw-wizard', {
         leftButtonDisabled: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default() {
                 return false;
             },
@@ -55,6 +59,8 @@ Component.register('sw-wizard', {
         rightButtonDisabled: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default() {
                 return false;
             },

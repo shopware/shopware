@@ -93,6 +93,7 @@ module.exports = {
                 'vue/require-default-prop': 'error',
                 'vue/no-mutating-props': ['off'],
                 'vue/component-definition-name-casing': ['error', 'kebab-case'],
+                'vue/no-boolean-default': ['error', 'default-false'],
                 'vue/order-in-components': ['error', {
                     order: [
                         'el',

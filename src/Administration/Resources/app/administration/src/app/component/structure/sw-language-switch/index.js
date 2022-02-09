@@ -26,6 +26,8 @@ Component.register('sw-language-switch', {
         changeGlobalLanguage: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         abortChangeFunction: {
@@ -41,11 +43,15 @@ Component.register('sw-language-switch', {
         savePermission: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         allowEdit: {
             type: Boolean,
             required: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },

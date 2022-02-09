@@ -31,6 +31,7 @@
       "type": {
         "equals": "Is equal to",
         "equalsAny": "Is equal to any of",
+        "equalsAll": "Is equal to all of",
         "contains": "Contains",
         "greaterThan": "Is greater than",
         "lessThan": "Is less than",
@@ -38,6 +39,7 @@
         "lessThanEquals": "Is less than/equal to",
         "notEquals": "Is not equal to",
         "notEqualsAny": "Is not equal to any of",
+        "notEqualsAll": "Is not equal to all of",
         "notContains": "Does not contain",
         "range": "Between",
         "since": "Time since",

@@ -6,6 +6,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -94,6 +95,34 @@ class QueryStringParser
             case 'until':
             case 'since':
                 return self::getFilterByRelativeTime(self::buildFieldName($definition, $query['field']), $query, $path);
+            case 'equalsAll':
+                if (empty($query['field'])) {
+                    throw new InvalidFilterQueryException('Parameter "field" for equalsAny filter is missing.', $path . '/field');
+                }
+
+                if (empty($query['value'])) {
+                    throw new InvalidFilterQueryException('Parameter "value" for equalsAll filter is missing.', $path . '/value');
+                }
+
+                $values = $query['value'];
+                if (\is_string($values)) {
+                    $values = array_filter(explode('|', $values));
+                }
+
+                if (!\is_array($values)) {
+                    $values = [$values];
+                }
+
+                if (empty($values)) {
+                    throw new InvalidFilterQueryException('Parameter "value" for equalsAll filter does not contain any value.', $path . '/value');
+                }
+
+                $filters = [];
+                foreach ($values as $value) {
+                    $filters[] = new AndFilter([new EqualsFilter(self::buildFieldName($definition, $query['field']), $value)]);
+                }
+
+                return new AndFilter($filters);
             case 'equalsAny':
                 if (empty($query['field'])) {
                     throw new InvalidFilterQueryException('Parameter "field" for equalsAny filter is missing.', $path . '/field');

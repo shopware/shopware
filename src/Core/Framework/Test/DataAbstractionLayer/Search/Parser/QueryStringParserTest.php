@@ -7,9 +7,11 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
@@ -208,6 +210,71 @@ class QueryStringParserTest extends TestCase
             [['type' => 'equalsAny', 'field' => 'foo', 'value' => false], true],
             [['type' => 'equalsAny', 'field' => 'foo', 'value' => 0], true],
             [['type' => 'equalsAny', 'field' => 'foo', 'value' => 1], false],
+        ];
+    }
+
+    /**
+     * @dataProvider equalsAllFilterDataProvider
+     */
+    public function testEqualsAllFilter(array $filter, ?Filter $expectedFilter, bool $expectException): void
+    {
+        if ($expectException) {
+            $this->expectException(InvalidFilterQueryException::class);
+        }
+
+        $result = QueryStringParser::fromArray($this->getContainer()->get(ProductDefinition::class), $filter, new SearchRequestException());
+
+        static::assertEquals($expectedFilter, $result);
+    }
+
+    public function equalsAllFilterDataProvider(): \Generator
+    {
+        yield 'With empty value' => [['type' => 'equalsAll', 'field' => 'foo', 'value' => ''], null, true];
+        yield 'With empty field' => [['type' => 'equalsAll', 'field' => '', 'value' => 'bar'], null, true];
+        yield 'With multiple empty values' => [['type' => 'equalsAll', 'field' => 'foo', 'value' => '||||'], null, true];
+
+        yield 'Without value key' => [['type' => 'equalsAll', 'field' => 'foo'], null, true];
+        yield 'Without field key' => [['type' => 'equalsAll', 'value' => 'foo'], null, true];
+
+        yield 'Only one string value' => [
+            ['type' => 'equalsAll', 'field' => 'foo', 'value' => 'bar'],
+            (new AndFilter())
+                ->addQuery((new AndFilter())->addQuery(new EqualsFilter('product.foo', 'bar'))),
+            false,
+        ];
+
+        yield 'With multiple string values' => [
+            ['type' => 'equalsAll', 'field' => 'foo', 'value' => 'abc|def|ghi'],
+            (new AndFilter())
+                ->addQuery((new AndFilter())->addQuery(new EqualsFilter('product.foo', 'abc')))
+                ->addQuery((new AndFilter())->addQuery(new EqualsFilter('product.foo', 'def')))
+                ->addQuery((new AndFilter())->addQuery(new EqualsFilter('product.foo', 'ghi'))),
+            false,
+        ];
+
+        yield 'With false, true and 0 as string values' => [
+            ['type' => 'equalsAll', 'field' => 'foo', 'value' => 'false|true|0'],
+            (new AndFilter())
+                ->addQuery((new AndFilter())->addQuery(new EqualsFilter('product.foo', 'false')))
+                ->addQuery((new AndFilter())->addQuery(new EqualsFilter('product.foo', 'true'))),
+            false,
+        ];
+
+        yield 'With true as bool value' => [
+            ['type' => 'equalsAll', 'field' => 'foo', 'value' => true],
+            (new AndFilter())
+                ->addQuery((new AndFilter())->addQuery(new EqualsFilter('product.foo', true))),
+            false,
+        ];
+
+        yield 'With false as bool value' => [['type' => 'equalsAll', 'field' => 'foo', 'value' => false], null, true];
+        yield 'With 0 as int value' => [['type' => 'equalsAll', 'field' => 'foo', 'value' => 0], null, true];
+
+        yield 'With 1 as int value' => [
+            ['type' => 'equalsAll', 'field' => 'foo', 'value' => 1],
+            (new AndFilter())
+                ->addQuery((new AndFilter())->addQuery(new EqualsFilter('product.foo', 1))),
+            false,
         ];
     }
 

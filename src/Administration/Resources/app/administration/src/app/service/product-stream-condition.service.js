@@ -146,6 +146,15 @@ export default function conditionService() {
             identifier: 'not',
             label: 'sw-product-stream.filter.type.not',
         },
+
+        equalsAll: {
+            identifier: 'equalsAll',
+            label: 'sw-product-stream.filter.type.equalsAll',
+        },
+        notEqualsAll: {
+            identifier: 'notEqualsAll',
+            label: 'sw-product-stream.filter.type.notEqualsAll',
+        },
     };
 
     const operatorSets = {
@@ -183,6 +192,8 @@ export default function conditionService() {
             productFilterTypes.notEquals,
             productFilterTypes.equalsAny,
             productFilterTypes.notEqualsAny,
+            productFilterTypes.equalsAll,
+            productFilterTypes.notEqualsAll,
         ],
 
         int: [
@@ -374,6 +385,10 @@ export default function conditionService() {
                 return productFilterTypes.notContains;
             case 'notContains':
                 return productFilterTypes.contains;
+            case 'notEqualsAll':
+                return productFilterTypes.equalsAll;
+            case 'equalsAll':
+                return productFilterTypes.notEqualsAll;
             default:
                 return productFilterTypes[type] || null;
         }
@@ -384,6 +399,7 @@ export default function conditionService() {
             productFilterTypes.notContains.identifier,
             productFilterTypes.notEqualsAny.identifier,
             productFilterTypes.notEquals.identifier,
+            productFilterTypes.notEqualsAll.identifier,
         ].includes(type);
     }
 

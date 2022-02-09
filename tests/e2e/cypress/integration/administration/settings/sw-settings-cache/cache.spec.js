@@ -17,7 +17,8 @@ describe('Cache module', () => {
         cy.awaitAndCheckNotification('All caches cleared.');
     });
 
-    it('@base @settings: clear cache', () => {
+    // NEXT-20024
+    it.skip('@base @settings: clear cache', () => {
         cy.contains('Caches & Indexes');
 
         cy.get('.sw-card__content .sw-container:first .sw-button').click();

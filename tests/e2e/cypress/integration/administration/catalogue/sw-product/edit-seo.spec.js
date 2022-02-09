@@ -81,7 +81,8 @@ describe('Product: Edit in various ways', () => {
             .should('have.attr', 'href', `${Cypress.config('baseUrl')}/Product-name/RS-333.1`);
     });
 
-    it('@catalogue: check Seo Url Category is inheritance when variant\'s category inherited from parent', () => {
+    // NEXT-20024
+    it.skip('@catalogue: check Seo Url Category is inheritance when variant\'s category inherited from parent', () => {
         const page = new ProductPageObject();
         const categoryPage = new CategoryPageObject();
 

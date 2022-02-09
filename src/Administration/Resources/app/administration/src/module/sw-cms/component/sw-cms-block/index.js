@@ -28,6 +28,18 @@ Component.register('sw-cms-block', {
             required: false,
             default: false,
         },
+
+        hasWarnings: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        hasErrors: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {
@@ -38,7 +50,20 @@ Component.register('sw-cms-block', {
 
     computed: {
         customBlockClass() {
-            return this.block.cssClass;
+            const errorCssClasses = {
+                'has--warning': !this.hasErrors && this.hasWarnings,
+                'has--error': this.hasErrors,
+            };
+
+            if (!this.block.cssClass) {
+                return errorCssClasses;
+            }
+
+            return this.block?.cssClass?.split(' ').reduce((accumulator, className) => {
+                accumulator[className] = true;
+
+                return accumulator;
+            }, errorCssClasses);
         },
 
         blockStyles() {

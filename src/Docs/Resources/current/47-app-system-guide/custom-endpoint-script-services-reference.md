@@ -40,7 +40,7 @@ The `cache` service allows you to invalidate the cache if some entity is updated
         ```twig
         {% set ids = hook.event.getIds('product') %}
 		
-		{% do ids.only('insert').with('description', 'parentId') %}
+		{% set ids = ids.only('insert').with('description', 'parentId') %}
 		{% if ids.empty %}
 		    {% return %}
 		{% endif %}

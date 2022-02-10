@@ -95,12 +95,10 @@ class ScriptStoreApiRoute
             $cacheKey = $cacheKeyHook->getCacheKey();
         }
 
-        if ($cacheKey) {
-            $cachedResponse = $this->readFromCache($cacheKey, $context, $request);
+        $cachedResponse = $this->readFromCache($cacheKey, $context, $request);
 
-            if ($cachedResponse) {
-                return $cachedResponse;
-            }
+        if ($cachedResponse) {
+            return $cachedResponse;
         }
 
         $instance = new StoreApiHook($hook, $request->request->all(), $request->query->all(), $context);
@@ -126,8 +124,12 @@ class ScriptStoreApiRoute
         return $symfonyResponse;
     }
 
-    private function readFromCache(string $cacheKey, SalesChannelContext $context, Request $request): ?Response
+    private function readFromCache(?string $cacheKey, SalesChannelContext $context, Request $request): ?Response
     {
+        if (!$cacheKey) {
+            return null;
+        }
+
         $item = $this->cache->getItem($cacheKey);
 
         try {

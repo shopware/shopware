@@ -23,31 +23,32 @@ class WrittenEventIdCollection implements \IteratorAggregate
     }
 
     /**
-     * `only()` filters the writeResults by the given operation names.
+     * `only()` filters the writeResults by the given operation names and returns a new collection.
      *
      * @param string ...$operations The operations which should be filters, one of `insert`, `update` od `delete`.
      */
     public function only(string ...$operations): self
     {
-        $this->writeResults = array_filter($this->writeResults, function (EntityWriteResult $result) use ($operations): bool {
+        $writeResults = array_filter($this->writeResults, function (EntityWriteResult $result) use ($operations): bool {
             return \in_array($result->getOperation(), $operations, true);
         });
 
-        return $this;
+        return new self($writeResults);
     }
 
     /**
-     * `with()` filters the writeResults by changes to the given properties. At least one of the given properties need to be in the change-set.
+     * `with()` filters the writeResults by changes to the given properties and returns a new collection.
+     * At least one of the given properties need to be in the change-set.
      *
      * @param string ...$properties The properties that should be in the change-set of the writeResult.
      */
     public function with(string ...$properties): self
     {
-        $this->writeResults = array_filter($this->writeResults, function (EntityWriteResult $result) use ($properties): bool {
+        $writeResults = array_filter($this->writeResults, function (EntityWriteResult $result) use ($properties): bool {
             return \count(\array_intersect(array_keys($result->getPayload()), $properties)) > 0;
         });
 
-        return $this;
+        return new self($writeResults);
     }
 
     public function empty(): bool

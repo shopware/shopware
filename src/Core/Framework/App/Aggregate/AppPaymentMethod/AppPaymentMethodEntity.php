@@ -55,6 +55,10 @@ class AppPaymentMethodEntity extends Entity
      */
     protected $finalizeUrl;
 
+    protected ?string $validateUrl;
+
+    protected ?string $captureUrl;
+
     /**
      * @var string|null
      */
@@ -143,6 +147,26 @@ class AppPaymentMethodEntity extends Entity
     public function setFinalizeUrl(?string $finalizeUrl): void
     {
         $this->finalizeUrl = $finalizeUrl;
+    }
+
+    public function getValidateUrl(): ?string
+    {
+        return $this->validateUrl;
+    }
+
+    public function setValidateUrl(?string $validateUrl): void
+    {
+        $this->validateUrl = $validateUrl;
+    }
+
+    public function getCaptureUrl(): ?string
+    {
+        return $this->captureUrl;
+    }
+
+    public function setCaptureUrl(?string $captureUrl): void
+    {
+        $this->captureUrl = $captureUrl;
     }
 
     public function getOriginalMediaId(): ?string

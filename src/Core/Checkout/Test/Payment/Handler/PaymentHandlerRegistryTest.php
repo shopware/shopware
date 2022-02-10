@@ -104,17 +104,17 @@ class PaymentHandlerRegistryTest extends TestCase
             'app async' => [
                 'app\\testPayments_async',
                 AppAsyncPaymentHandler::class,
-                [AsynchronousPaymentHandlerInterface::class],
+                [PreparedPaymentHandlerInterface::class, AsynchronousPaymentHandlerInterface::class],
             ],
             'app sync with payurl' => [
                 'app\\testPayments_syncTracked',
                 AppSyncPaymentHandler::class,
-                [SynchronousPaymentHandlerInterface::class],
+                [PreparedPaymentHandlerInterface::class, SynchronousPaymentHandlerInterface::class],
             ],
             'app sync' => [
                 'app\\testPayments_sync',
                 AppSyncPaymentHandler::class,
-                [SynchronousPaymentHandlerInterface::class],
+                [PreparedPaymentHandlerInterface::class, SynchronousPaymentHandlerInterface::class],
             ],
             'normal async' => [
                 AsyncTestPaymentHandler::class,

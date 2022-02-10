@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Test\Cart\SalesChannel;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
+use Shopware\Core\Checkout\Test\Payment\Handler\V630\PreparedTestPaymentHandler;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
@@ -58,6 +59,9 @@ class CartOrderRouteTest extends TestCase
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->customerRepository = $this->getContainer()->get('customer.repository');
+
+        PreparedTestPaymentHandler::$preOrderPaymentStruct = null;
+        PreparedTestPaymentHandler::$fail = false;
 
         $this->createTestData();
     }
@@ -461,6 +465,35 @@ class CartOrderRouteTest extends TestCase
         TestCase::assertInstanceOf(CheckoutOrderPlacedCriteriaEvent::class, $event);
     }
 
+    public function testPreparedPaymentStructForwarded(): void
+    {
+        $this->createCustomerAndLogin(null, null, PreparedTestPaymentHandler::class);
+        PreparedTestPaymentHandler::$preOrderPaymentStruct = null;
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/checkout/cart/line-item',
+                [
+                    'items' => [
+                        [
+                            'id' => $this->ids->get('p1'),
+                            'type' => 'product',
+                            'referencedId' => $this->ids->get('p1'),
+                        ],
+                    ],
+                ]
+            );
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/checkout/order'
+            );
+
+        static::assertNotNull(PreparedTestPaymentHandler::$preOrderPaymentStruct);
+        static::assertSame(PreparedTestPaymentHandler::TEST_STRUCT_CONTENT, PreparedTestPaymentHandler::$preOrderPaymentStruct->all());
+    }
+
     protected function catchEvent(string $eventName, &$eventResult): void
     {
         $this->addEventListener($this->getContainer()->get('event_dispatcher'), $eventName, static function ($event) use (&$eventResult): void {
@@ -489,11 +522,11 @@ class CartOrderRouteTest extends TestCase
         ], $this->ids->context);
     }
 
-    private function createCustomerAndLogin($email = null, $password = null): void
+    private function createCustomerAndLogin($email = null, $password = null, string $paymentHandler = SyncTestPaymentHandler::class): void
     {
         $email = $email ?? (Uuid::randomHex() . '@example.com');
         $password = $password ?? 'shopware';
-        $this->createCustomer($password, $email);
+        $this->createCustomer($password, $email, $paymentHandler);
 
         $this->login($email, $password);
     }
@@ -517,7 +550,10 @@ class CartOrderRouteTest extends TestCase
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
     }
 
-    private function createCustomer(string $password, ?string $email = null): string
+    /**
+     * @param class-string $paymentHandler
+     */
+    private function createCustomer(string $password, ?string $email = null, string $paymentHandler = SyncTestPaymentHandler::class): string
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -541,7 +577,7 @@ class CartOrderRouteTest extends TestCase
                     'name' => 'Invoice',
                     'active' => true,
                     'description' => 'Default payment method',
-                    'handlerIdentifier' => SyncTestPaymentHandler::class,
+                    'handlerIdentifier' => $paymentHandler,
                     'salesChannels' => [
                         [
                             'id' => $this->ids->get('sales-channel'),

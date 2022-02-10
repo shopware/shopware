@@ -5,6 +5,6 @@ namespace Shopware\Core\Migration;
 /**
  * @deprecated tag:v6.5.0 - Will be deleted. Migrations are now namespaced by major version
  */
-class Migration1638514913RemovedUnusedVarsInMailTemplates extends \Shopware\Core\Migration\V6_4\Migration1638514913RemovedUnusedVarsInMailTemplates
+class Migration1643386819AddPreparedPaymentsToAppPaymentMethod extends \Shopware\Core\Migration\V6_4\Migration1643386819AddPreparedPaymentsToAppPaymentMethod
 {
 }

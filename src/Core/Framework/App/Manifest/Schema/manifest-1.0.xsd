@@ -412,6 +412,8 @@
             <xs:element type="translatableString" name="description" maxOccurs="unbounded" minOccurs="0"/>
             <xs:element type="xs:anyURI" name="pay-url" minOccurs="0"/>
             <xs:element type="xs:anyURI" name="finalize-url" minOccurs="0"/>
+            <xs:element type="xs:anyURI" name="validate-url" minOccurs="0"/>
+            <xs:element type="xs:anyURI" name="capture-url" minOccurs="0"/>
             <xs:element type="xs:string" name="icon" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation xml:lang="en">

@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal only for use by the app-system
  */
-class AppAsyncPaymentHandler extends AbstractAppPaymentHandler implements AsynchronousPaymentHandlerInterface
+class AppAsyncPaymentHandler extends AppPreparedPaymentHandler implements AsynchronousPaymentHandlerInterface
 {
     public function pay(AsyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): RedirectResponse
     {

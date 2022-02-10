@@ -50,6 +50,8 @@ class AppPaymentMethodDefinition extends EntityDefinition
             (new StringField('identifier', 'identifier'))->addFlags(new Required()),
             new StringField('pay_url', 'payUrl'),
             new StringField('finalize_url', 'finalizeUrl'),
+            new StringField('validate_url', 'validateUrl'),
+            new StringField('capture_url', 'captureUrl'),
 
             new FkField('app_id', 'appId', AppDefinition::class),
             new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),

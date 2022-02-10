@@ -1,7 +1,6 @@
 ---
 title: Add payment method handler runtime fields
 issue: NEXT-17157
-flag: FEATURE_NEXT_16769
 author: Lennart Tinkloh
 author_email: l.tinkloh@shopware.com 
 author_github: @lernhart

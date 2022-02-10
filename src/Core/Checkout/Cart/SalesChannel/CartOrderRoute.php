@@ -12,8 +12,10 @@ use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
+use Shopware\Core\Checkout\Payment\PreparedPaymentService;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -29,43 +31,32 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class CartOrderRoute extends AbstractCartOrderRoute
 {
-    /**
-     * @var CartCalculator
-     */
-    private $cartCalculator;
+    private CartCalculator $cartCalculator;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $orderRepository;
+    private EntityRepositoryInterface $orderRepository;
 
-    /**
-     * @var OrderPersisterInterface
-     */
-    private $orderPersister;
+    private OrderPersisterInterface $orderPersister;
 
-    /**
-     * @var CartPersisterInterface
-     */
-    private $cartPersister;
+    private CartPersisterInterface $cartPersister;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
+
+    private PreparedPaymentService $preparedPaymentService;
 
     public function __construct(
         CartCalculator $cartCalculator,
         EntityRepositoryInterface $orderRepository,
         OrderPersisterInterface $orderPersister,
         CartPersisterInterface $cartPersister,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        PreparedPaymentService $preparedPaymentService
     ) {
         $this->cartCalculator = $cartCalculator;
         $this->orderRepository = $orderRepository;
         $this->orderPersister = $orderPersister;
         $this->cartPersister = $cartPersister;
         $this->eventDispatcher = $eventDispatcher;
+        $this->preparedPaymentService = $preparedPaymentService;
     }
 
     public function getDecorated(): AbstractCartOrderRoute
@@ -116,6 +107,8 @@ class CartOrderRoute extends AbstractCartOrderRoute
         $this->addCustomerComment($calculatedCart, $data);
         $this->addAffiliateTracking($calculatedCart, $data);
 
+        $preOrderPayment = $this->preparedPaymentService->handlePreOrderPayment($calculatedCart, $data, $context);
+
         $orderId = $this->orderPersister->persist($calculatedCart, $context);
 
         $criteria = new Criteria([$orderId]);
@@ -127,7 +120,8 @@ class CartOrderRoute extends AbstractCartOrderRoute
             ->addAssociation('transactions.paymentMethod')
             ->addAssociation('lineItems.cover')
             ->addAssociation('currency')
-            ->addAssociation('addresses.country');
+            ->addAssociation('addresses.country')
+            ->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
 
         $this->eventDispatcher->dispatch(new CheckoutOrderPlacedCriteriaEvent($criteria, $context));
 
@@ -147,6 +141,8 @@ class CartOrderRoute extends AbstractCartOrderRoute
         $this->eventDispatcher->dispatch($orderPlacedEvent);
 
         $this->cartPersister->delete($context->getToken(), $context);
+
+        $this->preparedPaymentService->handlePostOrderPayment($orderEntity, $data, $context, $preOrderPayment);
 
         return new CartOrderRouteResponse($orderEntity);
     }

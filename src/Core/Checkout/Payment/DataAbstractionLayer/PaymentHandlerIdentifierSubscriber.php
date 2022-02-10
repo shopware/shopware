@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandler
 use Shopware\Core\Checkout\Payment\PaymentEvents;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
-use Shopware\Core\Framework\Feature;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
@@ -25,9 +24,7 @@ class PaymentHandlerIdentifierSubscriber implements EventSubscriberInterface
     {
         /** @var PaymentMethodEntity $entity */
         foreach ($event->getEntities() as $entity) {
-            if (Feature::isActive('FEATURE_NEXT_16769')) {
-                $this->setPaymentMethodHandlerRuntimeFields($entity);
-            }
+            $this->setPaymentMethodHandlerRuntimeFields($entity);
 
             $explodedHandlerIdentifier = explode('\\', $entity->getHandlerIdentifier());
 

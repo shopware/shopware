@@ -18,7 +18,8 @@ module.exports = {
     coverageDirectory: join(process.env.PROJECT_ROOT, '/build/artifacts/jest'),
 
     collectCoverageFrom: [
-        'src/**/*.js'
+        'src/**/*.js',
+        'src/**/*.ts',
     ],
 
     coverageReporters: [

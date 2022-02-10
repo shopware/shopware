@@ -6,7 +6,7 @@ import { hasOwnProperty, merge } from 'src/core/service/utils/object.utils';
 import types from 'src/core/service/utils/types.utils';
 import MiddlewareHelper from 'src/core/helper/middleware.helper';
 import type { Route, RouteConfig } from 'vue-router';
-import { ComponentConfig } from './component.factory';
+import type { ComponentConfig } from './component.factory';
 
 export default {
     getModuleRoutes,

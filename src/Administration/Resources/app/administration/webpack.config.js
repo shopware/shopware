@@ -199,7 +199,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                             },
                             cache: true,
                             parallel: true,
-                            sourceMap: false,
+                            sourceMap: true,
                         }),
                         new OptimizeCSSAssetsPlugin(),
                     ],
@@ -532,8 +532,9 @@ const coreConfig = {
             : path.resolve(__dirname, '../../public/'),
         filename: isDev ? 'bundles/administration/static/js/[name].js' : 'static/js/[name].js',
         chunkFilename: isDev ? 'bundles/administration/static/js/[name].js' : 'static/js/[name].js',
-        publicPath: isDev ? '/' : `${process.env.APP_URL}/bundles/administration/`,
+        publicPath: isDev ? '/' : `bundles/administration/`,
         globalObject: 'this',
+        jsonpFunction: `webpackJsonpAdministration`
     },
 
     optimization: {

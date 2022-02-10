@@ -10,7 +10,6 @@ import aclService from './_mocks_/acl.service.mock';
 import feature from './_mocks_/feature.service.mock';
 import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
 
-
 // Setup Vue Test Utils configuration
 config.showDeprecationWarnings = true;
 

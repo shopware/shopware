@@ -15,7 +15,7 @@ beforeEach(() => {
     ComponentFactory.markComponentTemplatesAsNotResolved();
 });
 
-describe('core/factory/component.factory.js', () => {
+describe('core/factory/component.factory.ts', () => {
     it(
         'should register a component and it should be registered in the component registry',
         async () => {

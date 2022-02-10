@@ -26,6 +26,7 @@ export default class VueAdapter extends ViewAdapter {
         this.stateFactory = this.applicationFactory.state;
         this.localeFactory = this.applicationFactory.locale;
         this.root = null;
+        this.resolvedComponentConfigs = new Map();
 
         this.vueComponents = {};
     }
@@ -114,8 +115,8 @@ export default class VueAdapter extends ViewAdapter {
         const componentRegistry = this.componentFactory.getComponentRegistry();
         this.componentFactory.resolveComponentTemplates();
 
-        componentRegistry.forEach((component) => {
-            this.createComponent(component.name);
+        [...componentRegistry.keys()].forEach((name) => {
+            this.createComponent(name);
         });
 
         return this.vueComponents;
@@ -147,18 +148,39 @@ export default class VueAdapter extends ViewAdapter {
      * @returns {Vue}
      */
     createComponent(componentName) {
-        const componentConfig = Component.build(componentName);
+        if (Shopware.Feature.isActive('FEATURE_NEXT_19822')) {
+            const vueComponent = Vue.component(componentName, () => this.componentResolver(componentName));
+            this.vueComponents[componentName] = vueComponent;
 
-        if (!componentConfig) {
-            return false;
+            return vueComponent;
+            // eslint-disable-next-line no-else-return
+        } else {
+            const componentConfig = Component.build(componentName);
+
+            if (!componentConfig) {
+                return false;
+            }
+
+            this.resolveMixins(componentConfig);
+
+            const vueComponent = Vue.component(componentName, componentConfig);
+            this.vueComponents[componentName] = vueComponent;
+
+            return vueComponent;
+        }
+    }
+
+    async componentResolver(componentName) {
+        if (!this.resolvedComponentConfigs.has(componentName)) {
+            this.resolvedComponentConfigs.set(componentName, (async () => {
+                const componentConfig = await Component.build(componentName);
+                this.resolveMixins(componentConfig);
+
+                return componentConfig;
+            })());
         }
 
-        this.resolveMixins(componentConfig);
-
-        const vueComponent = Vue.component(componentName, componentConfig);
-        this.vueComponents[componentName] = vueComponent;
-
-        return vueComponent;
+        return this.resolvedComponentConfigs.get(componentName);
     }
 
     /**

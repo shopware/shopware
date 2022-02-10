@@ -61,6 +61,7 @@ describe('Create a new property and select value display type', () => {
 
         // define the new created category to the product
         cy.visit(`${Cypress.env('admin')}#/sw/product/detail`);
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-product-variant-info').should('be.visible');
         cy.get('[placeholder="Wijs categorieën toe ..."]')
             .scrollIntoView()
@@ -82,6 +83,7 @@ describe('Create a new property and select value display type', () => {
 
         // define the product under the home category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get('.sw-skeleton').should('not.exist');
         cy.url().should('include', 'category/index');
         cy.get('.tree-link > .sw-tree-item__label').click();
         cy.get('[title="Producten"]').click();
@@ -91,9 +93,12 @@ describe('Create a new property and select value display type', () => {
         cy.get('.sw-button-process').click();
         cy.wait('@searchCategoryDetail').its('response.statusCode').should('equal', 200);
         cy.get('.sw-category-detail__content-loader').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
 
         // configure properties under product/specifications
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-product-list-grid').should('be.visible');
         cy.url().should('include', 'product/index');
 

@@ -214,60 +214,64 @@
     {% block sw_category_content %}
     <template #content>
 
-        {% block sw_category_content_view %}
-        <sw-category-view
-            v-if="category"
-            ref="categoryView"
-            :is-loading="isLoading"
-            :type="category.type"
-        />
+        <template v-if="isLoading">
+            <sw-skeleton variant="detail-bold" />
+            <sw-skeleton />
+        </template>
+
+        <template v-else>
+            {% block sw_category_content_view %}
+            <sw-category-view
+                v-if="category"
+                ref="categoryView"
+                :is-loading="isLoading"
+                :type="category.type"
+            />
+            {% endblock %}
+
+            {% block sw_category_content_entry_point_overwrite_modal %}
+            <sw-category-entry-point-overwrite-modal
+                v-if="showEntryPointOverwriteModal"
+                :sales-channels="entryPointOverwriteSalesChannels"
+                @cancel="cancelEntryPointOverwrite"
+                @confirm="confirmEntryPointOverwrite"
+            />
+            {% endblock %}
+
+            {% block sw_landing_page_content_view %}
+            <sw-landing-page-view
+                v-if="landingPage"
+                ref="landingPageView"
+                :is-loading="isLoading"
+            />
+            {% endblock %}
+
+            {% block sw_category_content_discard_changes_modal %}
+            <sw-discard-changes-modal
+                v-if="isDisplayingLeavePageWarning"
+                @keep-editing="onLeaveModalClose(nextRoute)"
+                @discard-changes="onLeaveModalConfirm(nextRoute)"
+            />
+            {% endblock %}
+
+            {# @deprecated tag:v6.5.0 - will be removed #}
+            {% block sw_category_content_loader %}{% endblock %}
+
+            {% block sw_category_content_empty %}
+            <sw-empty-state
+                v-if="showEmptyState"
+                :title="$tc('sw-category.general.emptyStateHeadline')"
+            >
+                <template #icon>
+                    <img
+                        :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                        :alt="$tc('sw-category.general.emptyStateHeadline')"
+                    >
+                </template>
+            </sw-empty-state>
         {% endblock %}
 
-        {% block sw_category_content_entry_point_overwrite_modal %}
-        <sw-category-entry-point-overwrite-modal
-            v-if="showEntryPointOverwriteModal"
-            :sales-channels="entryPointOverwriteSalesChannels"
-            @cancel="cancelEntryPointOverwrite"
-            @confirm="confirmEntryPointOverwrite"
-        />
-        {% endblock %}
-
-        {% block sw_landing_page_content_view %}
-        <sw-landing-page-view
-            v-if="landingPage"
-            ref="landingPageView"
-            :is-loading="isLoading"
-        />
-        {% endblock %}
-
-        {% block sw_category_content_discard_changes_modal %}
-        <sw-discard-changes-modal
-            v-if="isDisplayingLeavePageWarning"
-            @keep-editing="onLeaveModalClose(nextRoute)"
-            @discard-changes="onLeaveModalConfirm(nextRoute)"
-        />
-        {% endblock %}
-
-        {% block sw_category_content_loader %}
-        <sw-loader
-            v-if="isLoading"
-            class="sw-category-detail__content-loader"
-        />
-        {% endblock %}
-
-        {% block sw_category_content_empty %}
-        <sw-empty-state
-            v-if="showEmptyState"
-            :title="$tc('sw-category.general.emptyStateHeadline')"
-        >
-            <template #icon>
-                <img
-                    :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
-                    :alt="$tc('sw-category.general.emptyStateHeadline')"
-                >
-            </template>
-        </sw-empty-state>
-        {% endblock %}
+        </template>
     </template>
 
     {% endblock %}

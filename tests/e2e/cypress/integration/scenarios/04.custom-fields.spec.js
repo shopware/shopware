@@ -59,6 +59,7 @@ describe('Creating custom fields and assigning to various models', () => {
 
         cy.get('.sw-button-process').click();
         cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
         cy.wait('@category').its('response.statusCode').should('equal', 200);
 
         // check the existence of the custom field from the product
@@ -135,6 +136,7 @@ describe('Creating custom fields and assigning to various models', () => {
         cy.get('.sw-button-process').click();
         cy.wait('@category').its('response.statusCode').should('equal', 200);
         cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
 
         // create rule builder and define custom field
         cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/create/base`);

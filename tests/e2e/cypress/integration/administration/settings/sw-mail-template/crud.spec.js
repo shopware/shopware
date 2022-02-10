@@ -97,7 +97,7 @@ describe('Mail templates: Test crud privileges', () => {
 
         // wait until result of filtered mail templates has been loaded
         cy.wait('@searchMailTemplate').its('response.statusCode').should('equal', 200);
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
         cy.get(`${page.elements.dataGridRow}--0`).should('be.visible');
 
@@ -131,7 +131,7 @@ describe('Mail templates: Test crud privileges', () => {
         cy.wait('@searchMailTemplate').its('response.statusCode').should('equal', 200);
 
         // verify fields
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get(`#mailTemplateGrid ${page.elements.dataGridRow}--1`).should('not.exist');
         cy.contains(`#mailTemplateGrid ${page.elements.dataGridRow}--0`, 'Custom description')
             .should('be.visible');
@@ -164,6 +164,7 @@ describe('Mail templates: Test crud privileges', () => {
         // wait for filtered mail templates to be loaded
         cy.wait('@searchMailTemplate').its('response.statusCode').should('equal', 200); cy.get(`${page.elements.dataGridRow}--0 ${page.elements.mailTemplateColumnDescription}`)
             .contains('Contact form received');
+        cy.get('.sw-skeleton').should('not.exist');
 
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
@@ -209,6 +210,7 @@ describe('Mail templates: Test crud privileges', () => {
         cy.get(page.elements.smartBarSearch).typeAndCheck('Contact form');
 
         // wait for filtered mail templates to be loaded
+        cy.get('.sw-skeleton').should('not.exist');
         cy.wait('@searchMailTemplate').its('response.statusCode').should('equal', 200); cy.clickContextMenuItem(
             '.sw-mail-template-list-grid__duplicate-action',
             page.elements.contextMenuButton,
@@ -312,6 +314,7 @@ describe('Mail templates: Test crud privileges', () => {
 
         // wait for data loading
         cy.wait('@searchMailTemplate').its('response.statusCode').should('equal', 200);// open email header footer
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get(page.elements.mailHeaderFooterGridList).scrollIntoView();
 
         cy.clickContextMenuItem(
@@ -366,6 +369,7 @@ describe('Mail templates: Test crud privileges', () => {
         // wait for data loading
         cy.wait('@searchMailTemplate').its('response.statusCode').should('equal', 200);// scroll to email header footer
         cy.get('.sw-empty-state__title').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get(page.elements.mailHeaderFooterGridList).scrollIntoView();
 
         cy.clickContextMenuItem(
@@ -413,6 +417,8 @@ describe('Mail templates: Test crud privileges', () => {
         cy.get('.sw-empty-state__title').should('not.exist');
         cy.get(page.elements.mailHeaderFooterGridList).scrollIntoView();
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0`).scrollIntoView();
         cy.clickContextMenuItem(
             '.sw-mail-header-footer-list-grid__duplicate-action',
             page.elements.contextMenuButton,

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Event\WishlistProductAddedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -85,6 +86,12 @@ class AddWishlistProductRouteTest extends TestCase
     public function testAddProductShouldReturnSuccess(): void
     {
         $productData = $this->createProduct($this->context);
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+
+        $listener = static function (WishlistProductAddedEvent $event) use ($productData): void {
+            static::assertSame($productData[0], $event->getProductId());
+        };
+        $dispatcher->addListener(WishlistProductAddedEvent::class, $listener);
 
         $this->browser
             ->request(
@@ -94,6 +101,8 @@ class AddWishlistProductRouteTest extends TestCase
         $response = json_decode($this->browser->getResponse()->getContent(), true);
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
+
+        $dispatcher->removeListener(WishlistProductAddedEvent::class, $listener);
     }
 
     public function testAddProductShouldThrowCustomerWishlistNotActivatedException(): void

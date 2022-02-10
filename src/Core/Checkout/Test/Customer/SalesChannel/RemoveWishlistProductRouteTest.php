@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Event\WishlistProductRemovedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -85,7 +86,14 @@ class RemoveWishlistProductRouteTest extends TestCase
     public function testDeleteProductShouldReturnSuccess(): void
     {
         $productId = $this->createProduct($this->context);
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+
         $this->createCustomerWishlist($this->context, $this->customerId, $productId);
+
+        $listener = static function (WishlistProductRemovedEvent $event) use ($productId): void {
+            static::assertSame($productId, $event->getProductId());
+        };
+        $dispatcher->addListener(WishlistProductRemovedEvent::class, $listener);
 
         $this->browser
             ->request(
@@ -97,6 +105,8 @@ class RemoveWishlistProductRouteTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
+
+        $dispatcher->removeListener(WishlistProductRemovedEvent::class, $listener);
     }
 
     public function testDeleteProductShouldThrowCustomerWishlistNotActivatedException(): void
@@ -170,6 +180,26 @@ class RemoveWishlistProductRouteTest extends TestCase
         static::assertEquals('CHECKOUT__WISHLIST_PRODUCT_NOT_FOUND', $errors['code']);
         static::assertEquals('Not Found', $errors['title']);
         static::assertEquals('Wishlist product with id ' . $productId . ' not found', $errors['detail']);
+    }
+
+    public function testEventDispatchWishlistRemoveAddedEvent(): void
+    {
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $productId = $this->createProduct($this->context);
+        $wishlistData = $this->createCustomerWishlist($this->context, $this->customerId, $productId);
+
+        $listener = static function (WishlistProductRemovedEvent $event) use ($productId, $wishlistData): void {
+            static::assertSame($productId, $event->getProductId());
+            static::assertSame($wishlistData, $event->getWishlistId());
+        };
+        $dispatcher->addListener(WishlistProductRemovedEvent::class, $listener);
+
+        $this->browser
+            ->request(
+                'DELETE',
+                '/store-api/customer/wishlist/delete/' . $productId
+            );
+        $dispatcher->removeListener(WishlistProductRemovedEvent::class, $listener);
     }
 
     private function createProduct(Context $context): string

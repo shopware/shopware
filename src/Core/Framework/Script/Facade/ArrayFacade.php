@@ -6,6 +6,7 @@ namespace Shopware\Core\Framework\Script\Facade;
  * The ArrayFacade acts as a wrapper around an array and allows easier manipulation of arrays inside scripts.
  * An array facade can also be accessed like a "normal" array inside twig.
  * Examples:
+ * {% raw %}
  * ```twig
  * {% do array.push('test') %}
  *
@@ -17,6 +18,7 @@ namespace Shopware\Core\Framework\Script\Facade;
  *
  * {% foreach array as key => value %}
  * ```
+ * {% endraw %}
  *
  * @script-service miscellaneous
  *

@@ -87,11 +87,13 @@ class RemoveWishlistProductRouteTest extends TestCase
     {
         $productId = $this->createProduct($this->context);
         $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $eventWasThrown = false;
 
         $this->createCustomerWishlist($this->context, $this->customerId, $productId);
 
-        $listener = static function (WishlistProductRemovedEvent $event) use ($productId): void {
+        $listener = static function (WishlistProductRemovedEvent $event) use ($productId, &$eventWasThrown): void {
             static::assertSame($productId, $event->getProductId());
+            $eventWasThrown = true;
         };
         $dispatcher->addListener(WishlistProductRemovedEvent::class, $listener);
 
@@ -105,6 +107,7 @@ class RemoveWishlistProductRouteTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
+        static::assertTrue($eventWasThrown);
 
         $dispatcher->removeListener(WishlistProductRemovedEvent::class, $listener);
     }

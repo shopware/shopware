@@ -87,9 +87,11 @@ class AddWishlistProductRouteTest extends TestCase
     {
         $productData = $this->createProduct($this->context);
         $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $eventWasThrown = false;
 
-        $listener = static function (WishlistProductAddedEvent $event) use ($productData): void {
+        $listener = static function (WishlistProductAddedEvent $event) use ($productData, &$eventWasThrown): void {
             static::assertSame($productData[0], $event->getProductId());
+            $eventWasThrown = true;
         };
         $dispatcher->addListener(WishlistProductAddedEvent::class, $listener);
 
@@ -101,6 +103,7 @@ class AddWishlistProductRouteTest extends TestCase
         $response = json_decode($this->browser->getResponse()->getContent(), true);
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
+        static::assertTrue($eventWasThrown);
 
         $dispatcher->removeListener(WishlistProductAddedEvent::class, $listener);
     }

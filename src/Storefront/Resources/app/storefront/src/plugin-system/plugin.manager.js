@@ -275,7 +275,7 @@ class PluginManagerSingleton {
     }
 
     /**
-     * Determs the way to query the elements.
+     * Determines the way to query the elements.
      *
      * [data-*] => querySelectorAll
      * #fooBar => getElementById
@@ -307,7 +307,9 @@ class PluginManagerSingleton {
         } else if (selector.startsWith('#')) {
             const regexEl = /^#([\w-]+)$/.exec(selector);
             if (regexEl) {
-                return [document.getElementById(regexEl[1])];
+                const el = document.getElementById(regexEl[1]);
+
+                return (el) ? [el] : [];
             }
         } else if (/^([\w-]+)$/.exec(selector)) {
             return document.getElementsByTagName(selector);

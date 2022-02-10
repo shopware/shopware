@@ -9,6 +9,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\VarDumper\Cloner\Data;
 
+/**
+ * @deprecated tag:v6.5.0 will be internal
+ */
 class ScriptTraces extends AbstractDataCollector
 {
     protected array $traces = [];
@@ -20,6 +23,11 @@ class ScriptTraces extends AbstractDataCollector
 
     public function init(string $hook): void
     {
+        if (\array_key_exists($hook, $this->traces)) {
+            // don't overwrite existing traces
+            return;
+        }
+
         $this->traces[$hook] = [];
     }
 

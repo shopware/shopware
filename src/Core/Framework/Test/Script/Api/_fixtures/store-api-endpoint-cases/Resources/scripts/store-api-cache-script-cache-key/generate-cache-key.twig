@@ -1,0 +1,4 @@
+{% set cacheKey = hook.query %}
+{% set cacheKey = cacheKey|merge({'script': 'cache-script'}) %}
+
+{% do hook.setCacheKey(cacheKey|md5) %}

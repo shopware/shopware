@@ -2,30 +2,24 @@
 
 namespace Shopware\Core\Framework\Script\Api;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryWriterFacadeHookFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacadeHookFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
-use Shopware\Core\Framework\Script\Execution\Awareness\ScriptResponseAwareTrait;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHookTrait;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 
 /**
- * Triggered when the api endpoint /store-api/script/{hook} is called. Used to execute your logic and provide a response to the request.
+ * Triggered when the api endpoint /store-api/script/{hook} is called. Used to generate a cache key based on the request.
  *
  * @hook-use-case custom_endpoint
  *
  * @since 6.4.9.0
  */
-class StoreApiHook extends Hook implements SalesChannelContextAware, StoppableHook
+class StoreApiGenerateCacheKeyHook extends Hook implements SalesChannelContextAware, StoppableHook
 {
     use StoppableHookTrait;
-    use ScriptResponseAwareTrait;
 
-    public const HOOK_NAME = 'store-api-{hook}';
+    public const HOOK_NAME = 'store-api-{hook}-cache-key';
 
     private array $request;
 
@@ -34,6 +28,8 @@ class StoreApiHook extends Hook implements SalesChannelContextAware, StoppableHo
     private SalesChannelContext $salesChannelContext;
 
     private string $script;
+
+    private ?string $cacheKey;
 
     public function __construct(string $name, array $request, array $query, SalesChannelContext $salesChannelContext)
     {
@@ -60,6 +56,16 @@ class StoreApiHook extends Hook implements SalesChannelContextAware, StoppableHo
         return $this->salesChannelContext;
     }
 
+    public function getCacheKey(): ?string
+    {
+        return $this->cacheKey;
+    }
+
+    public function setCacheKey(string $key): void
+    {
+        $this->cacheKey = $key;
+    }
+
     public function getName(): string
     {
         return \str_replace(
@@ -71,12 +77,7 @@ class StoreApiHook extends Hook implements SalesChannelContextAware, StoppableHo
 
     public static function getServiceIds(): array
     {
-        return [
-            RepositoryFacadeHookFactory::class,
-            SystemConfigFacadeHookFactory::class,
-            SalesChannelRepositoryFacadeHookFactory::class,
-            RepositoryWriterFacadeHookFactory::class,
-            ScriptResponseFactoryFacadeHookFactory::class,
-        ];
+        // No service access allowed for generating the cache key
+        return [];
     }
 }

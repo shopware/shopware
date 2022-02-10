@@ -3,11 +3,14 @@
 namespace Shopware\Core\Framework\Script\Api;
 
 use OpenApi\Annotations as OA;
+use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,14 +21,26 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ScriptStoreApiRoute
 {
+    public const INVALIDATION_STATES_HEADER = 'sw-invalidation-states';
+
     private ScriptExecutor $executor;
 
     private ScriptResponseEncoder $scriptResponseEncoder;
 
-    public function __construct(ScriptExecutor $executor, ScriptResponseEncoder $scriptResponseEncoder)
-    {
+    private TagAwareAdapterInterface $cache;
+
+    private LoggerInterface $logger;
+
+    public function __construct(
+        ScriptExecutor $executor,
+        ScriptResponseEncoder $scriptResponseEncoder,
+        TagAwareAdapterInterface $cache,
+        LoggerInterface $logger
+    ) {
         $this->executor = $executor;
         $this->scriptResponseEncoder = $scriptResponseEncoder;
+        $this->cache = $cache;
+        $this->logger = $logger;
     }
 
     /**
@@ -33,7 +48,7 @@ class ScriptStoreApiRoute
      * @OA\Post(
      *      path="/store-api/script/{hook}",
      *      summary="Access point for different api logics which are provided by apps over script hooks",
-     *      operationId="scriptStoreApiRoute",
+     *      operationId="postScriptStoreApiRoute",
      *      tags={"API","Script","Store API","App"},
      *      @OA\Parameter(
      *          name="hook",
@@ -47,14 +62,48 @@ class ScriptStoreApiRoute
      *          description="Returns different structures of results based on the called script.",
      *     )
      * )
-     * @Route("/store-api/script/{hook}", name="store-api.script_endpoint", methods={"POST"})
+     * @OA\Get(
+     *      path="/store-api/script/{hook}",
+     *      summary="Access point for different api logics which are provided by apps over script hooks",
+     *      operationId="getScriptStoreApiRoute",
+     *      tags={"API","Script","Store API","App"},
+     *      @OA\Parameter(
+     *          name="hook",
+     *          description="Dynamic hook which used to build the hook name",
+     *          @OA\Schema(type="string"),
+     *          in="path",
+     *          required=true
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Returns different structures of results based on the called script.",
+     *     )
+     * )
+     * @Route("/store-api/script/{hook}", name="store-api.script_endpoint", methods={"GET", "POST"})
      */
     public function execute(string $hook, Request $request, SalesChannelContext $context): Response
     {
         //  blog/update =>  blog-update
         $hook = \str_replace('/', '-', $hook);
 
-        $instance = new StoreApiHook($hook, $request->request->all(), $context);
+        $cacheKey = null;
+        if ($request->isMethodCacheable()) {
+            $cacheKeyHook = new StoreApiGenerateCacheKeyHook($hook, $request->request->all(), $request->query->all(), $context);
+
+            $this->executor->execute($cacheKeyHook);
+
+            $cacheKey = $cacheKeyHook->getCacheKey();
+        }
+
+        if ($cacheKey) {
+            $cachedResponse = $this->readFromCache($cacheKey, $context, $request);
+
+            if ($cachedResponse) {
+                return $cachedResponse;
+            }
+        }
+
+        $instance = new StoreApiHook($hook, $request->request->all(), $request->query->all(), $context);
 
         // hook: store-api-{hook}
         $this->executor->execute($instance);
@@ -63,10 +112,65 @@ class ScriptStoreApiRoute
             $request->get('includes', [])
         );
 
-        return $this->scriptResponseEncoder->encodeToSymfonyResponse(
+        $symfonyResponse = $this->scriptResponseEncoder->encodeToSymfonyResponse(
             $instance->getScriptResponse(),
             $fields,
             \str_replace('-', '_', 'store_api_' . $hook . '_response')
         );
+
+        $cacheConfig = $instance->getScriptResponse()->getCache();
+        if ($cacheKey && $cacheConfig->isEnabled()) {
+            $this->storeResponse($cacheKey, $cacheConfig, $symfonyResponse);
+        }
+
+        return $symfonyResponse;
+    }
+
+    private function readFromCache(string $cacheKey, SalesChannelContext $context, Request $request): ?Response
+    {
+        $item = $this->cache->getItem($cacheKey);
+
+        try {
+            if (!$item->isHit() || !$item->get()) {
+                $this->logger->info('cache-miss: ' . $request->getPathInfo());
+
+                return null;
+            }
+
+            /** @var Response $response */
+            $response = CacheCompressor::uncompress($item);
+        } catch (\Throwable $e) {
+            $this->logger->error($e->getMessage());
+
+            return null;
+        }
+
+        $invalidationStates = explode(',', (string) $response->headers->get(self::INVALIDATION_STATES_HEADER));
+        if ($context->hasState(...$invalidationStates)) {
+            $this->logger->info('cache-miss: ' . $request->getPathInfo());
+
+            return null;
+        }
+
+        $response->headers->remove(self::INVALIDATION_STATES_HEADER);
+
+        $this->logger->info('cache-hit: ' . $request->getPathInfo());
+
+        return $response;
+    }
+
+    private function storeResponse(string $cacheKey, ResponseCacheConfiguration $cacheConfig, Response $symfonyResponse): void
+    {
+        $item = $this->cache->getItem($cacheKey);
+
+        // add the header only for the response in cache and remove the header before the response is sent
+        $symfonyResponse->headers->set(self::INVALIDATION_STATES_HEADER, implode(',', $cacheConfig->getInvalidationStates()));
+        $item = CacheCompressor::compress($item, $symfonyResponse);
+        $symfonyResponse->headers->remove(self::INVALIDATION_STATES_HEADER);
+
+        $item->tag($cacheConfig->getCacheTags());
+        $item->expiresAfter($cacheConfig->getMaxAge());
+
+        $this->cache->save($item);
     }
 }

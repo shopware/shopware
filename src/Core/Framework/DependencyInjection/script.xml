@@ -34,6 +34,8 @@
         <service id="Shopware\Core\Framework\Script\Api\ScriptStoreApiRoute" public="true">
             <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
             <argument type="service" id="Shopware\Core\Framework\Script\Api\ScriptResponseEncoder"/>
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\Framework\Script\Api\ScriptApiRoute" public="true">

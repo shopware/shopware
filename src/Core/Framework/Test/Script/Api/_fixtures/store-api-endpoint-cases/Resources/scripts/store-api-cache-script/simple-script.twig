@@ -1,0 +1,7 @@
+{% do debug.dump('some debug information') %}
+
+{% set response = services.response.json({ 'foo': 'bar' }) %}
+{% do response.cache.tag('my-custom-tag') %}
+{% do response.cache.invalidationState('logged-in') %}
+
+{% do hook.setResponse(response) %}

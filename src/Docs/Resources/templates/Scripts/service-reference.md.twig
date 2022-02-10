@@ -38,10 +38,12 @@
 {% for example in method.examples %}
     * {{ example.description|raw }}
 
+        {% verbatim %}{% raw %}{% endverbatim %}
         ```{{ example.extension }}
 {# somehow the rendering breaks if we use two tabs in the replace #}
         {{ example.src|replace({"\n": "\n\t\t"})|raw }}
         ```
+        {% verbatim %}{% endraw %}{% endverbatim %}
 {% endfor %}
 {% endif %}
 {% endfor %}

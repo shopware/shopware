@@ -18,7 +18,7 @@ class MinOrderQuantityError extends Error
         $this->id = $id;
 
         $this->message = sprintf(
-            'Your input quantity does not meet the minimum order quantity of the %s. The quantity was changed to %s',
+            'The quantity of product %s did not meet the minimum order quantity threshold. The quantity has automatically been increased to %s',
             $name,
             $quantity
         );

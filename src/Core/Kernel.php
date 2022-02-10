@@ -4,6 +4,7 @@ namespace Shopware\Core;
 
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\FetchMode;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
@@ -21,6 +22,7 @@ use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Routing\Route;
+use function getenv;
 
 class Kernel extends HttpKernel
 {
@@ -207,13 +209,34 @@ class Kernel extends HttpKernel
     {
         if (!self::$connection) {
             $url = EnvironmentHelper::getVariable('DATABASE_URL', getenv('DATABASE_URL'));
+
+            if ($url === false) {
+                $url = Kernel::PLACEHOLDER_DATABASE_URL;
+            }
+
+            $replicaUrl = EnvironmentHelper::getVariable('DATABASE_REPLICA_0_URL');
+
             $parameters = [
                 'url' => $url,
+                'driver' => 'pdo_mysql',
                 'charset' => 'utf8mb4',
                 'driverOptions' => [
                     \PDO::ATTR_STRINGIFY_FETCHES => true,
                 ],
             ];
+
+            if ($replicaUrl) {
+                $parameters['wrapperClass'] = PrimaryReadReplicaConnection::class;
+                $parameters['primary'] = ['url' => $url];
+                $parameters['replica'] = [
+                    ['url' => $replicaUrl],
+                ];
+
+                $i = 0;
+                while ($replicaUrl = EnvironmentHelper::getVariable('DATABASE_REPLICA_' . (++$i) . '_URL')) {
+                    $parameters['replica'][] = ['url' => $replicaUrl];
+                }
+            }
 
             if ($sslCa = EnvironmentHelper::getVariable('DATABASE_SSL_CA')) {
                 $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_CA] = $sslCa;

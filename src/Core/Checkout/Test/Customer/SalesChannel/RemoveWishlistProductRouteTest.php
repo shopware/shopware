@@ -182,26 +182,6 @@ class RemoveWishlistProductRouteTest extends TestCase
         static::assertEquals('Wishlist product with id ' . $productId . ' not found', $errors['detail']);
     }
 
-    public function testEventDispatchWishlistRemoveAddedEvent(): void
-    {
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
-        $productId = $this->createProduct($this->context);
-        $wishlistData = $this->createCustomerWishlist($this->context, $this->customerId, $productId);
-
-        $listener = static function (WishlistProductRemovedEvent $event) use ($productId, $wishlistData): void {
-            static::assertSame($productId, $event->getProductId());
-            static::assertSame($wishlistData, $event->getWishlistId());
-        };
-        $dispatcher->addListener(WishlistProductRemovedEvent::class, $listener);
-
-        $this->browser
-            ->request(
-                'DELETE',
-                '/store-api/customer/wishlist/delete/' . $productId
-            );
-        $dispatcher->removeListener(WishlistProductRemovedEvent::class, $listener);
-    }
-
     private function createProduct(Context $context): string
     {
         $productId = Uuid::randomHex();

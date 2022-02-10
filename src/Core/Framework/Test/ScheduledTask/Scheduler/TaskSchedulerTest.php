@@ -195,6 +195,7 @@ class TaskSchedulerTest extends TestCase
             /** @var ScheduledTaskEntity $task2Entity */
             $task2Entity = $this->scheduledTaskRepo->search(new Criteria([$taskId2]), $context)->get($taskId2);
             static::assertEquals(ScheduledTaskDefinition::STATUS_SCHEDULED, $task2Entity->getStatus());
+
             throw $exception;
         }
     }

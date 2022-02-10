@@ -43,9 +43,6 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
      */
     private $systemConfigService;
 
-    /**
-     * @var EventDispatcherInterface
-     */
     private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(

@@ -65,6 +65,7 @@
         <form id="confirmOrderForm"
               action="{{ path('frontend.account.edit-order.update-order', { 'orderId': page.order.id }) }}"
               data-form-csrf-handler="true"
+              data-form-submit-loader="true"
               data-form-preserver="true"
               method="post">
 

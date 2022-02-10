@@ -68,6 +68,24 @@
                     :allow-delete="acl.can('sales_channel.deleter')"
                     :is-record-selectable="isProductRemovable"
                 >
+                    <template #selection-content="{ item, isSelected, isRecordSelectable, selectItem, itemIdentifierProperty }">
+                        <slot v-bind="{ item, isSelected, isRecordSelectable, selectItem, itemIdentifierProperty }">
+                            <div class="sw-data-grid__cell-content">
+                                {% block sw_sales_channel_detail_products_listing_select_item_checkbox %}
+                                <sw-checkbox-field
+                                    v-tooltip="{
+                                        message: $tc('sw-sales-channel.detail.products.inheritVariantNotRemovableTooltip'),
+                                        disabled: isRecordSelectable(item),
+                                        showOnDisabledElements: true
+                                    }"
+                                    :disabled="!isRecordSelectable(item)"
+                                    :value="isSelected(item[itemIdentifierProperty])"
+                                    @change="selectItem($event, item)"
+                                />
+                                {% endblock %}
+                            </div>
+                        </slot>
+                    </template>
                     <template #column-name="{ item }">
                         <slot v-bind="{ item }">
                             {% block sw_sales_channel_detail_products_listing_column_name %}

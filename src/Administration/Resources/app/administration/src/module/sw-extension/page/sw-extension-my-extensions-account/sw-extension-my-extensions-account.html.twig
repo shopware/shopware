@@ -1,4 +1,12 @@
-<sw-meteor-card class="sw-extension-my-extensions-account">
+<div v-if="isLoading">
+    <sw-skeleton />
+    <sw-skeleton />
+</div>
+
+<sw-meteor-card
+    v-else
+    class="sw-extension-my-extensions-account"
+>
     <div class="sw-extension-my-extensions-account__wrapper">
         <div class="sw-extension-my-extensions-account__wrapper-illustration">
             <img
@@ -7,7 +15,6 @@
             >
         </div>
         <div class="sw-extension-my-extensions-account__wrapper-content">
-            <sw-loader v-if="isLoading" />
 
             <template v-if="isLoggedIn">
                 <h3>{{ $tc('sw-extension.my-extensions.account.headline') }}</h3>

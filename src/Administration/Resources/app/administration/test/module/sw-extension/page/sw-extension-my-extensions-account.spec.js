@@ -4,6 +4,7 @@ import 'src/app/component/meteor/sw-meteor-card';
 import 'src/app/component/base/sw-button';
 import extensionStore from 'src/module/sw-extension/store/extensions.store';
 import ShopwareExtensionService from 'src/module/sw-extension/service/shopware-extension.service';
+import flushPromises from 'flush-promises';
 
 let isLoggedIn = false;
 
@@ -29,7 +30,8 @@ function createWrapper() {
                 template: `
 <input type="password" :value="value" @input="$emit('input', $event.target.value)" />
 `
-            }
+            },
+            'sw-skeleton': true,
         },
         provide: {
             shopwareExtensionService: new ShopwareExtensionService(),
@@ -121,7 +123,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
 
         // login
         await loginButton.trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // check if layout switches
         loginStatus = wrapper.find('.sw-extension-my-extensions-account__wrapper-content-login-status-id');

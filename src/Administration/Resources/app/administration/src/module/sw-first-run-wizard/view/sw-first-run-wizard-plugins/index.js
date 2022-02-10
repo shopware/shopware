@@ -139,6 +139,7 @@ Component.register('sw-first-run-wizard-plugins', {
                 this.regions = response.items;
             }).finally(() => {
                 this.isLoading = false;
+                this.$emit('loading-finished');
             });
         },
 

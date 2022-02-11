@@ -25,7 +25,7 @@ class HttpKernelTest extends TestCase
         $kernel = $this->getHttpKernel();
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Could not connect to the server as ****** with the password ****** with connection string');
+        $this->expectExceptionMessage('Could not connect to the server as ****** with the password ****** with connection string ******');
 
         $kernel->handle(Request::createFromGlobals());
     }

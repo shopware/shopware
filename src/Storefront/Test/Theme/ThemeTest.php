@@ -166,7 +166,16 @@ class ThemeTest extends TestCase
         /** @var ThemeEntity $baseTheme */
         $baseTheme = $this->themeRepository->search($criteria, $this->context)->first();
 
-        $name = $this->createTheme($baseTheme);
+        $name = $this->createTheme(
+            $baseTheme,
+            [
+                'fields' => [
+                    'some-custom' => [
+                        'editable' => false,
+                    ],
+                ],
+            ]
+        );
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
@@ -187,6 +196,30 @@ class ThemeTest extends TestCase
 
         $theme = $this->themeService->getThemeConfiguration($childTheme->getId(), false, $this->context);
         $themeInheritedConfig = ThemeFixtures::getThemeInheritedConfig($this->faviconId, $this->demostoreLogoId);
+
+        $someCustom = [
+            'name' => 'some-custom',
+            'label' => null,
+            'type' => null,
+            'value' => null,
+            'editable' => false,
+            'block' => null,
+            'section' => null,
+            'order' => null,
+            'sectionOrder' => null,
+            'blockOrder' => null,
+            'extensions' => [],
+            'helpText' => null,
+            'custom' => null,
+            'tab' => null,
+            'tabOrder' => null,
+            'scss' => null,
+            'fullWidth' => null,
+        ];
+
+        $themeInheritedConfig['fields']['some-custom'] = $someCustom;
+        $themeInheritedConfig['currentFields']['some-custom'] = ['value' => null];
+        $themeInheritedConfig['baseThemeFields']['some-custom'] = ['value' => null];
 
         $themeInheritedConfig['currentFields']['sw-color-brand-primary']['value'] = '#ff00ff';
         $themeInheritedConfig['currentFields']['sw-color-brand-secondary']['value'] = '#526e7f';

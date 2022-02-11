@@ -190,7 +190,13 @@ class ThemeService
 
         foreach ($themeConfig['fields'] as $name => &$item) {
             $configFields[$name] = $themeConfigFieldFactory->create($name, $item);
-            if (\is_array($item['value']) && \array_key_exists($name, $configuredTheme['fields'])) {
+
+            if (
+                isset($item['value'])
+                && isset($configuredTheme['fields'])
+                && \is_array($item['value'])
+                && \array_key_exists($name, $configuredTheme['fields'])
+            ) {
                 $configFields[$name]->setValue($configuredTheme['fields'][$name]['value']);
             }
         }

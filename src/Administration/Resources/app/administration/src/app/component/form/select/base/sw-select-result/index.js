@@ -64,10 +64,6 @@ Component.register('sw-select-result', {
         },
 
         hasDescriptionSlot() {
-            if (!this.feature.isActive('FEATURE_NEXT_16800')) {
-                return false;
-            }
-
             return !!this.$slots.description || !!this.$scopedSlots.description;
         },
     },

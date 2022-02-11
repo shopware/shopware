@@ -557,9 +557,7 @@ describe('components/sw-entity-single-select', () => {
         expect(selectionText.text()).toEqual('');
     });
 
-    it('should show description line in results list (with FEATURE_NEXT_16800)', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_16800'];
-
+    it('should show description line in results list', async () => {
         const swEntitySingleSelect = await createEntitySingleSelect({
             scopedSlots: {
                 'result-label-property': `<template>

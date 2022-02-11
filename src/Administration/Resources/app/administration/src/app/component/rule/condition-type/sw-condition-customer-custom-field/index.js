@@ -22,19 +22,15 @@ Component.extend('sw-condition-customer-custom-field', 'sw-condition-base', {
          */
         customFieldCriteria() {
             const criteria = new Criteria();
-            if (this.feature.isActive('FEATURE_NEXT_16800')) {
-                criteria.addAssociation('customFieldSet');
-                criteria.addFilter(Criteria.equals('customFieldSet.relations.entityName', 'customer'));
-                criteria.addSorting(Criteria.sort('customFieldSet.name', 'ASC'));
-            } else {
-                criteria.addFilter(Criteria.equals('customFieldSetId', this.selectedFieldSet));
-            }
+            criteria.addAssociation('customFieldSet');
+            criteria.addFilter(Criteria.equals('customFieldSet.relations.entityName', 'customer'));
+            criteria.addSorting(Criteria.sort('customFieldSet.name', 'ASC'));
             return criteria;
         },
 
         /**
          * Only fetch custom field sets that are related to customer use context
-         * @feature-deprecated (FEATURE_NEXT_16800) tag:v6.5.0 - The computed property "customFieldSetCriteria"
+         * @major-deprecated tag:v6.5.0 - The computed property "customFieldSetCriteria"
          * will be removed because the set is fetched by association of the field instead
          * @returns {Object.Criteria}
          */
@@ -129,10 +125,7 @@ Component.extend('sw-condition-customer-custom-field', 'sw-condition-base', {
         onFieldChange(id) {
             if (this.$refs.selectedField.resultCollection.has(id)) {
                 this.renderedField = this.$refs.selectedField.resultCollection.get(id);
-
-                if (this.feature.isActive('FEATURE_NEXT_16800')) {
-                    this.selectedFieldSet = this.renderedField.customFieldSetId;
-                }
+                this.selectedFieldSet = this.renderedField.customFieldSetId;
             } else {
                 this.renderedField = null;
             }
@@ -143,7 +136,7 @@ Component.extend('sw-condition-customer-custom-field', 'sw-condition-base', {
 
         /**
          * Clear any further field's value if custom field set selection has changed
-         * @feature-deprecated (FEATURE_NEXT_16800) tag:v6.5.0 - The method "onFieldSetChange"
+         * @major-deprecated tag:v6.5.0 - The method "onFieldSetChange"
          * will be removed because the set will instead be determined by the selected field
          */
         onFieldSetChange() {

@@ -114,13 +114,7 @@ describe('src/app/component/form/select/base/sw-select-result/', () => {
         expect(offSpy).toHaveBeenCalledTimes(2);
     });
 
-    it('should show description depending on slot (with FEATURE_NEXT_16800)', async () => {
-        /**
-         * Test without feature flag and re-create wrapper with active feature flag.
-         * Remove the next 3 lines with FEATURE_NEXT_16800
-         */
-        expect(wrapper.find('.sw-select-result__result-item-description').exists()).toBeFalsy();
-        global.activeFeatureFlags = ['FEATURE_NEXT_16800'];
+    it('should show description depending on slot', async () => {
         wrapper = createWrapper();
 
         expect(wrapper.find('.sw-select-result__result-item-description').exists()).toBeFalsy();

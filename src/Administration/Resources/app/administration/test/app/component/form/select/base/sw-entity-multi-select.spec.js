@@ -181,9 +181,7 @@ describe('components/sw-entity-multi-select', () => {
             .toContain(fixture[0].variation[0].option);
     });
 
-    it('should show description line in results list (with FEATURE_NEXT_16800)', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_16800'];
-
+    it('should show description line in results list', async () => {
         const swEntityMultiSelect = await createEntityMultiSelect({
             scopedSlots: {
                 'result-label-property': `<template>

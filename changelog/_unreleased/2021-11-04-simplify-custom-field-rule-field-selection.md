@@ -1,7 +1,6 @@
 ---
 title: Simplify custom field rule field selection
 issue: NEXT-18219
-flag: FEATURE_NEXT_16800
 author: d.neustadt
 author_email: d.neustadt@shopware.com 
 author_github: dneustadt

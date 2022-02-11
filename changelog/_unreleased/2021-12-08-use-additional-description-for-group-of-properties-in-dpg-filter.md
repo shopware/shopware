@@ -1,7 +1,6 @@
 ---
 title: Use additional description for group of properties in DPG filter
 issue: NEXT-19035
-flag: FEATURE_NEXT_16800
 author: d.neustadt
 author_email: d.neustadt@shopware.com 
 author_github: dneustadt

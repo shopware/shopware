@@ -2,16 +2,12 @@
 
 namespace Shopware\Core\Framework\Script\Api;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryWriterFacadeHookFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacadeHookFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
 use Shopware\Core\Framework\Script\Execution\Awareness\ScriptResponseAwareTrait;
-use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
-use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHookTrait;
+use Shopware\Core\Framework\Script\Execution\FunctionHook;
 use Shopware\Core\Framework\Script\Execution\Hook;
+use Shopware\Core\Framework\Script\Execution\InterfaceHook;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 
 /**
  * Triggered when the api endpoint /store-api/script/{hook} is called. Used to execute your logic and provide a response to the request.
@@ -20,9 +16,8 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
  *
  * @since 6.4.9.0
  */
-class StoreApiHook extends Hook implements SalesChannelContextAware, StoppableHook
+class StoreApiHook extends InterfaceHook implements SalesChannelContextAware
 {
-    use StoppableHookTrait;
     use ScriptResponseAwareTrait;
 
     public const HOOK_NAME = 'store-api-{hook}';
@@ -35,6 +30,11 @@ class StoreApiHook extends Hook implements SalesChannelContextAware, StoppableHo
 
     private string $script;
 
+    /**
+     * @var array<string, FunctionHook>
+     */
+    private array $functions;
+
     public function __construct(string $name, array $request, array $query, SalesChannelContext $salesChannelContext)
     {
         $this->request = $request;
@@ -43,6 +43,11 @@ class StoreApiHook extends Hook implements SalesChannelContextAware, StoppableHo
 
         parent::__construct($salesChannelContext->getContext());
         $this->script = $name;
+
+        $this->functions = [
+            StoreApiCacheKeyHook::FUNCTION_NAME => new StoreApiCacheKeyHook($this->getName(), $request, $query, $salesChannelContext),
+            StoreApiResponseHook::FUNCTION_NAME => new StoreApiResponseHook($this->getName(), $request, $query, $salesChannelContext),
+        ];
     }
 
     public function getRequest(): array
@@ -69,14 +74,8 @@ class StoreApiHook extends Hook implements SalesChannelContextAware, StoppableHo
         );
     }
 
-    public static function getServiceIds(): array
+    public function getFunction(string $name): FunctionHook
     {
-        return [
-            RepositoryFacadeHookFactory::class,
-            SystemConfigFacadeHookFactory::class,
-            SalesChannelRepositoryFacadeHookFactory::class,
-            RepositoryWriterFacadeHookFactory::class,
-            ScriptResponseFactoryFacadeHookFactory::class,
-        ];
+        return $this->functions[$name];
     }
 }

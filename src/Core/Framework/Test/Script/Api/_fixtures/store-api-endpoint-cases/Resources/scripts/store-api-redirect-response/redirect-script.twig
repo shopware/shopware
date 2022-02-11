@@ -1,4 +1,6 @@
-{% set productId = hook.request['productId'] %}
+{% block response %}
+    {% set productId = hook.request['productId'] %}
 
-{% set response = services.response.redirect('api.product.detail', { 'path': productId }) %}
-{% do hook.setResponse(response) %}
+    {% set response = services.response.redirect('api.product.detail', { 'path': productId }) %}
+    {% do hook.setResponse(response) %}
+{% endblock %}

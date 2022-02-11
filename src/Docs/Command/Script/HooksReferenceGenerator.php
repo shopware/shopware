@@ -9,6 +9,7 @@ use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 use phpDocumentor\Reflection\DocBlockFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
+use Shopware\Core\Framework\Script\Execution\FunctionHook;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Twig\Environment;
@@ -87,6 +88,10 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
         foreach ($shopwareClasses as $class) {
             if (!class_exists($class)) {
                 // skip not autoloadable test classes
+                continue;
+            }
+
+            if (is_subclass_of($class, FunctionHook::class)) {
                 continue;
             }
 

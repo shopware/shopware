@@ -84,11 +84,14 @@ class ScriptStoreApiRoute
     public function execute(string $hook, Request $request, SalesChannelContext $context): Response
     {
         //  blog/update =>  blog-update
-        $hook = \str_replace('/', '-', $hook);
+        $hookName = \str_replace('/', '-', $hook);
+
+        $hook = new StoreApiHook($hookName, $request->request->all(), $request->query->all(), $context);
 
         $cacheKey = null;
         if ($request->isMethodCacheable()) {
-            $cacheKeyHook = new StoreApiGenerateCacheKeyHook($hook, $request->request->all(), $request->query->all(), $context);
+            /** @var StoreApiCacheKeyHook $cacheKeyHook */
+            $cacheKeyHook = $hook->getFunction(StoreApiCacheKeyHook::FUNCTION_NAME);
 
             $this->executor->execute($cacheKeyHook);
 
@@ -101,22 +104,22 @@ class ScriptStoreApiRoute
             return $cachedResponse;
         }
 
-        $instance = new StoreApiHook($hook, $request->request->all(), $request->query->all(), $context);
-
+        /** @var StoreApiResponseHook $responseHook */
+        $responseHook = $hook->getFunction(StoreApiResponseHook::FUNCTION_NAME);
         // hook: store-api-{hook}
-        $this->executor->execute($instance);
+        $this->executor->execute($responseHook);
 
         $fields = new ResponseFields(
             $request->get('includes', [])
         );
 
         $symfonyResponse = $this->scriptResponseEncoder->encodeToSymfonyResponse(
-            $instance->getScriptResponse(),
+            $responseHook->getScriptResponse(),
             $fields,
-            \str_replace('-', '_', 'store_api_' . $hook . '_response')
+            \str_replace('-', '_', 'store_api_' . $hookName . '_response')
         );
 
-        $cacheConfig = $instance->getScriptResponse()->getCache();
+        $cacheConfig = $responseHook->getScriptResponse()->getCache();
         if ($cacheKey && $cacheConfig->isEnabled()) {
             $this->storeResponse($cacheKey, $cacheConfig, $symfonyResponse);
         }

@@ -471,18 +471,6 @@ All available hooks within the Store-API and API
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[writer](./custom-endpoint-script-services-reference.md#RepositoryWriterFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[response](./custom-endpoint-script-services-reference.md#ScriptResponseFactoryFacade)<br>                                                                            |
 | **Stoppable**          | `true`                                                                                                                                                 |
 
-#### store-api-{hook}-cache-key
-
-| <!-- -->               | <!-- -->                                                                                                                                                             |
-|:-----------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Name**               | store-api-{hook}-cache-key                                                                                                                                                      |
-| **Since**              | 6.4.9.0                                                                                                                                                     |
-| **Class**              | `Shopware\Core\Framework\Script\Api\StoreApiGenerateCacheKeyHook`                                                                                                                                                   |
-| **Description**        | Triggered when the api endpoint /store-api/script/{hook} is called. Used to generate a cache key based on the request.<br>                                                                                                                                               |
-| **Available Data**     | request: `array` <br>query: `array` <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br>script: `string` <br>cacheKey: `string` <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>isPropagationStopped: `bool` <br> |
-| **Available Services** |                                                                             |
-| **Stoppable**          | `true`                                                                                                                                                 |
-
 #### store-api-{hook}
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -491,9 +479,9 @@ All available hooks within the Store-API and API
 | **Since**              | 6.4.9.0                                                                                                                                                     |
 | **Class**              | `Shopware\Core\Framework\Script\Api\StoreApiHook`                                                                                                                                                   |
 | **Description**        | Triggered when the api endpoint /store-api/script/{hook} is called. Used to execute your logic and provide a response to the request.<br>                                                                                                                                               |
-| **Available Data**     | request: `array` <br>query: `array` <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br>script: `string` <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>isPropagationStopped: `bool` <br>scriptResponse: [`Shopware\Core\Framework\Script\Api\ScriptResponse`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Script/Api/ScriptResponse.php) <br> |
-| **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>[writer](./custom-endpoint-script-services-reference.md#RepositoryWriterFacade)<br>[response](./custom-endpoint-script-services-reference.md#ScriptResponseFactoryFacade)<br>                                                                            |
-| **Stoppable**          | `true`                                                                                                                                                 |
+| **Available Data**     | request: `array` <br>query: `array` <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br>script: `string` <br>functions: `array` <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>scriptResponse: [`Shopware\Core\Framework\Script\Api\ScriptResponse`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Script/Api/ScriptResponse.php) <br> |
+| **Available Services** |                                                                             |
+| **Stoppable**          | `false`                                                                                                                                                 |
 
 #### storefront-{hook}
 

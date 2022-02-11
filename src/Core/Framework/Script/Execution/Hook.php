@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Script\Execution;
 
 use Shopware\Core\Framework\Context;
 
+/**
+ * @deprecated tag:v6.5.0 will be internal
+ */
 abstract class Hook
 {
     protected Context $context;

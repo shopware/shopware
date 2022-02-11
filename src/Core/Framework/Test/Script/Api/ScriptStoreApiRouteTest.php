@@ -37,9 +37,9 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
         $traces = $this->getScriptTraces();
-        static::assertArrayHasKey('store-api-simple-script', $traces);
-        static::assertCount(1, $traces['store-api-simple-script']);
-        static::assertSame('some debug information', $traces['store-api-simple-script'][0]['output'][0]);
+        static::assertArrayHasKey('store-api-simple-script::response', $traces);
+        static::assertCount(1, $traces['store-api-simple-script::response']);
+        static::assertSame('some debug information', $traces['store-api-simple-script::response'][0]['output'][0]);
 
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
@@ -145,9 +145,9 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
         $traces = $this->getScriptTraces();
-        static::assertArrayHasKey('store-api-cache-script', $traces);
-        static::assertCount(1, $traces['store-api-cache-script']);
-        static::assertSame('some debug information', $traces['store-api-cache-script'][0]['output'][0]);
+        static::assertArrayHasKey('store-api-cache-script::response', $traces);
+        static::assertCount(1, $traces['store-api-cache-script::response']);
+        static::assertSame('some debug information', $traces['store-api-cache-script::response'][0]['output'][0]);
 
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
@@ -162,9 +162,9 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
         $traces = $this->getScriptTraces();
-        static::assertArrayHasKey('store-api-cache-script', $traces);
+        static::assertArrayHasKey('store-api-cache-script::response', $traces);
         // assert that the response was cached, and thus the script was not called again
-        static::assertCount(1, $traces['store-api-cache-script']);
+        static::assertCount(1, $traces['store-api-cache-script::response']);
 
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
@@ -179,9 +179,9 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
         $traces = $this->getScriptTraces();
-        static::assertArrayHasKey('store-api-cache-script', $traces);
+        static::assertArrayHasKey('store-api-cache-script::response', $traces);
         // assert that when the query param changes the script is executed again
-        static::assertCount(2, $traces['store-api-cache-script']);
+        static::assertCount(2, $traces['store-api-cache-script::response']);
 
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
@@ -199,9 +199,9 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
         $traces = $this->getScriptTraces();
-        static::assertArrayHasKey('store-api-cache-script', $traces);
-        static::assertCount(1, $traces['store-api-cache-script']);
-        static::assertSame('some debug information', $traces['store-api-cache-script'][0]['output'][0]);
+        static::assertArrayHasKey('store-api-cache-script::response', $traces);
+        static::assertCount(1, $traces['store-api-cache-script::response']);
+        static::assertSame('some debug information', $traces['store-api-cache-script::response'][0]['output'][0]);
 
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
@@ -214,9 +214,9 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
         $traces = $this->getScriptTraces();
-        static::assertArrayHasKey('store-api-cache-script', $traces);
+        static::assertArrayHasKey('store-api-cache-script::response', $traces);
         // assert that the response was cached, and thus the script was not called again
-        static::assertCount(1, $traces['store-api-cache-script']);
+        static::assertCount(1, $traces['store-api-cache-script::response']);
 
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
@@ -233,9 +233,9 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
         $traces = $this->getScriptTraces();
-        static::assertArrayHasKey('store-api-cache-script', $traces);
+        static::assertArrayHasKey('store-api-cache-script::response', $traces);
         // assert that when the cache tag was invalidated the script is executed again
-        static::assertCount(2, $traces['store-api-cache-script']);
+        static::assertCount(2, $traces['store-api-cache-script::response']);
 
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
@@ -253,9 +253,9 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
         $traces = $this->getScriptTraces();
-        static::assertArrayHasKey('store-api-cache-script', $traces);
-        static::assertCount(1, $traces['store-api-cache-script']);
-        static::assertSame('some debug information', $traces['store-api-cache-script'][0]['output'][0]);
+        static::assertArrayHasKey('store-api-cache-script::response', $traces);
+        static::assertCount(1, $traces['store-api-cache-script::response']);
+        static::assertSame('some debug information', $traces['store-api-cache-script::response'][0]['output'][0]);
 
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
@@ -268,9 +268,9 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
         $traces = $this->getScriptTraces();
-        static::assertArrayHasKey('store-api-cache-script', $traces);
+        static::assertArrayHasKey('store-api-cache-script::response', $traces);
         // assert that the response was cached, and thus the script was not called again
-        static::assertCount(1, $traces['store-api-cache-script']);
+        static::assertCount(1, $traces['store-api-cache-script::response']);
 
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);
@@ -286,9 +286,9 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
         $traces = $this->getScriptTraces();
-        static::assertArrayHasKey('store-api-cache-script', $traces);
+        static::assertArrayHasKey('store-api-cache-script::response', $traces);
         // assert that when the invalidation state is present the response is not cached
-        static::assertCount(2, $traces['store-api-cache-script']);
+        static::assertCount(2, $traces['store-api-cache-script::response']);
 
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('foo', $response);

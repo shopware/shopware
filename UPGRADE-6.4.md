@@ -2,9 +2,498 @@ UPGRADE FROM 6.3.x.x to 6.4
 =======================
 
 # 6.4.8.0
-## Theme dependencies
-* Added a new association to `ThemeDefinition` and `ThemeEntity` to provide multiple depenencies of themes.
-* Deprecated `childThemes` in `ThemeDefinition` and `ThemeEntity`. Will be removed in `v6.5.0`.
+## Adding search matcher configuration
+When you want to your module appear on the search bar, you can define the  `searchMatcher` in the module’s metadata, otherwise, a default `searchMatcher `will be used as it will check your module’s metadata label if it’s matched with the search term, The search function should return an array of results that will appear on the search bar.
+
+Example usage:
+
+```
+Module.register('sw-module-name', {
+  ...
+  
+  searchMatcher: (regex, labelType, manifest) => {
+    const match = labelType.toLowerCase().match(regex);
+
+    if (!match) {
+      return false;
+    }
+
+    return [
+      {
+        icon: manifest.icon,
+        color: manifest.color,
+        label: labelType,
+        entity: '...',
+        route: '...',
+        privilege: '...',
+      },
+    ];
+  }
+})
+```
+## Adding default search configuration
+* Adding a new js file (**`default-search-configuration.js`**) with the same folder level of the index.js (which is located at `src/Administration/Resources/app/administration/src/module/sw-module-name/index.js`)
+```
+src
+│
+└───sw-module-name
+│   │
+│   └───component
+│   │
+│   └───page
+│   │
+│   └───service
+│   │
+│   └───....
+│   │ 
+│   │   default-search-configuration.js
+│   │   index.js
+
+```
+to determine the list of the ranking fields of the entity with default configuration (score and searchable) and adding two new properties in each module definition (`index.js`),
+- `defaultSearchConfigurations` (mandatory): import from `./default-search-configuration.js`
+- `entityDisplayProperty` (optional, default is `name`): determine the property of the module's entity to show on the `sw-search-bar`
+## Injecting service for search ranking purpose
+* Added `searchRankingService` into `inject` in whichever component you want to implement the search ranking.
+* After that, you need to update your criteria by adding the search query score.
+* We provide 4 open api from `searchRankingService` to handle these functions below:
+    * Using `getSearchFieldsByEntity` to get all search ranking fields of the specific entity
+        ```javascript
+            const searchFields = this.searchRankingService.getSearchFieldsByEntity('product');
+        ```
+    * Using `buildSearchQueriesForEntity` to build a new criteria with the query score based on search ranking fields
+        ```javascript
+            const searchFields = this.searchRankingService.getSearchFieldsByEntity('product');
+            let criteria = this.searchRankingService.buildSearchQueriesForEntity(searchFields, searchTerm, criteria);
+        ```
+    * Using `getUserSearchPreference` to get all search ranking fields from all module (the module has already defined `defaultSearchConfigurations`)
+        ```javascript
+            const userSearchPreference = this.searchRankingService.getUserSearchPreference();
+        ```
+    * Using `buildGlobalSearchQueries` to build a new criteria with the query score based on search ranking fields for composite search purpose
+        ```javascript
+          const searchFields = this.searchRankingService.getSearchFieldsByEntity('product');
+        ```
+## How to use search ranking service for component which already injected mixin `listing.mixin.js`
+* Mixin `listing.mixin.js` already injected `searchRankingService` by default
+* Just need to overwrite the data `searchConfigEntity` in `/src/app/mixin/listing.mixin.js` by assigned the module's entity name
+    * Example, component `/src/module/sw-customer/page/sw-customer-list/index.js` want to implement search ranking service for listing:
+        1. Injected `listing.mixin.js` into mixin
+        2. Added data `searchRankingService: 'customer'` into the component
+## Updated the way to search ranking fields from service `/src/app/service/search-ranking.service.js`
+* Changed method `getSearchFieldsByEntity` and `buildSearchQueriesForEntity` to async function because we will need to fetch the user's search preferences from the server:
+    * Using `getSearchFieldsByEntity` to get all search ranking fields of the specific entity
+        ```javascript
+            const searchFields = await this.searchRankingService.getSearchFieldsByEntity('product');
+        ```
+    * Using `getUserSearchPreference` to get all search ranking fields from all module (the module has already defined `defaultSearchConfigurations`)
+        ```javascript
+            const userSearchPreference = await this.searchRankingService.getUserSearchPreference();
+        ```
+## Added new way to search and upsert configuration just only for current logged-in user
+* Using new service `userConfigService` from `/src/core/service/api/user-config.api.service.js`
+    * Using `search` to get the configurations from list provided keys
+        ```javascript
+            // For specific key
+            const config = await this.userConfigService.search(['key1', 'key2']);
+      
+            // For getting all configurations
+            const config = await this.userConfigService.search();
+        ```
+  * Using `upsert` to update or insert the configurations
+      ```javascript
+          const config = await this.userConfigService.upsert({
+              key1: [value1],
+              key2: [value2]
+          });
+      ```
+## Deprecated composite search api
+
+The composite search api endpoint `api.composite.search` will be deprecated in the next major version. For the replacement we introduce a new endpoint in `Administration`: POST `api/_admin/search`
+
+With this new endpoint you need to define which entities you want to search and its own criteria in the request body
+
+### Before
+
+Request:
+```
+[GET|POST] /api/_search?term=test&limit=25
+```
+
+Response
+```json
+{
+    "data":[
+        {"entity":"landing_page","total":0,"entities":[...]},
+        {"entity":"order","total":0,"entities":[...]},
+        {"entity":"customer","total":0,"entities":[...},
+        {"entity":"product","total":0,"entities":[...]},
+        {"entity":"category","total":0,"entities":[...]},
+        {"entity":"media","total":0,"entities":...]},
+        {"entity":"product_manufacturer","total":0,"entities":[...]},
+        {"entity":"tag","total":0,"entities":[...]},
+        {"entity":"cms_page","total":0,"entities":[...]}
+    ]
+}
+```
+
+### After
+
+Request
+```
+[POST] /api/_admin/search
+
+Body
+
+{
+    "product": {
+        "page": 1,
+        "limit": 25,
+        "term": "test",
+    },
+    "category": {
+        "page": 1,
+        "limit": 25,
+        "query": {...},
+    },
+    "custom_entity": {
+        "page": 1,
+        "limit": 25,
+        "query": {...},
+    },
+}
+```
+
+Response
+```json
+{
+    "data":{
+        "product": {"total":0,"data":[...]},
+        "category": {"total":0,"data":[...]},
+        "custom_entity": {"total":0,"data":...]},
+        // Or if the user do not have the read privileges within their request filter/query/associations...
+        "customer": {
+            "status": "403",
+            "code": "FRAMEWORK__MISSING_PRIVILEGE_ERROR",
+            "title": "Forbidden",
+            "detail": "{'message':'Missing privilege','missingPrivileges':['customer:read']}",
+            "meta": {
+                 "parameters": []
+            }
+        }
+    }
+}
+```
+
+## Deprecated SearchApiService::search in administration
+
+With the same reason, the `SearchApiService::search` in `src/core/service/api/search.api.service.js` will be replaced with `SearchApiService::searchByQuery`
+
+### Usage
+
+```js
+const productCriteria = new Criteria();
+const manufacturerCriteria = new Criteria();
+productCriteria.addQuery(Criteria.contains('name', searchTerm), 5000);
+manufacturerCriteria.addQuery(Criteria.contains('name', searchTerm), 5000);
+
+const queries = { product: productCriteria, product_manufacturer: manufacturerCriteria };
+
+this.searchService.searchQuery(queries).then((response) => {
+    ...
+});
+```
+## Get a list of user configuration from current logged-in user
+### Before
+Request:
+```
+[POST] /api/search/user-config
+
+Body
+{
+   "page":1,
+   "limit":25,
+   "filter":[
+      {
+         "type":"equals",
+         "field":"key",
+         "value":"search.preferences"
+      },
+      {
+         "type":"equals",
+         "field":"userId",
+         "value":"71d4deac6d7b410c982d1f1883960e25"
+      }
+   ],
+   "total-count-mode":1
+}
+```
+Response
+```json
+{
+    "data": [
+        {
+            "id": "c5bf30ddca1449a480a161b1130cf640",
+            "type": "user_config",
+            "attributes": {
+                "userId": "71d4deac6d7b410c982d1f1883960e25",
+                "key": "search.preferences",
+                "value": [
+                    {
+                        "order": {
+                            "tags": {
+                                "name": {
+                                    "_score": 500,
+                                    "_searchable": false
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
+```
+### After
+Request:
+```
+[GET] /api/_info/config-me?keys[]=key1&keys[]=keys2
+```
+Response
+
+Case 1: The key exists
+
+Status code: 200
+```json
+{
+    "data": {
+        "key1" : {
+            "order": {
+                "tags": {
+                    "name": {
+                        "_score": 500,
+                        "_searchable": false
+                    }
+                }
+            }
+        },
+        "key2" : {
+            "product": {
+                "tags": {
+                    "name": {
+                        "_score": 500,
+                        "_searchable": false
+                    }
+                }
+            }
+        }
+    }
+}
+```
+Case 2: The key does not exist
+
+Status code: 404
+
+Case 3: Without sending `keys` parameter, return all configurations of current logged-in user
+
+Request:
+```
+[GET] /api/_info/config-me
+```
+## Mass Update/Insert user configuration for logged-in user
+### Before
+Request:
+```
+[POST] /api/user-config
+
+Body
+
+{
+    "id": "43d2ba68b65e4154a38d9aa2501162e4"
+    "key": "grid.setting.sw-order-list"
+    "userId": "71d4deac6d7b410c982d1f1883960e25",
+    "value": {},
+}
+```
+```
+[PATCH] /api/user-config/43d2ba68b65e4154a38d9aa2501162e4
+
+Body
+
+{
+    "id": "43d2ba68b65e4154a38d9aa2501162e4"
+    "value": {},
+}
+```
+
+### After
+Post an array of the configuration, which key of array is the key of user_config, and value of the array is the value you want to create or update. If the key exists, it will do the update action. Otherwise, it will create a new one with a given key and value
+
+Request:
+```
+[POST] /api/_info/config-me
+
+Body
+
+{
+    "key1": "value1",
+    "key2": "value2" 
+}
+```
+
+Response
+
+Status code: 204
+## New structure of the associationEntitiesConfig
+We have added new properties to the associationEntitiesConfig to provide adding and deleting rule assignments, if wanted.
+The whole structure should look like this:
+```
+{
+    id: 'yourIdToIdentifTheData',
+    notAssignedDataTotal: 0, // Total of not assigned data, this value will be automatically updated
+    allowAdd: true, // Then you have to fill in the addContext
+    entityName: 'yourEntityName',
+    label: 'myNamespace.myLabel',
+    criteria: () => { // The criteria to load the displayed data in the rule assignment
+        const criteria = new Criteria();
+        .....
+        return criteria;
+    },
+    api: () => { // The context to load the data
+        const api = Object.assign({}, Context.api);
+        ...
+        return api;
+    },
+    detailRoute: ...,
+    gridColumns: [ // Definition of the columns in the rule assignment list
+        {
+            property: 'name',
+            label: 'Name',
+            rawData: true,
+            sortable: true,
+            routerLink: 'sw.product.detail.prices',
+            allowEdit: false,
+        },
+        ...
+    ],
+    deleteContext: { // Configuration of the deletion
+        type: 'many-to-many', // Types are many-to-many or one-to-many.
+        entity: 'entityToDelete', // Entity which should be deleted / updated
+        column: 'yourColumn', // Column in the entity to delete / update
+    },
+    addContext: { // Configuration of the addition
+        type: 'many-to-many', // Types are many-to-many or one-to-many
+        entity: 'entityToAdd', // Entity which should be added / updated
+        column: 'yourColumn', // Column in the entity to add / update
+        searchColumn: 'yourColumn', // Column which should be searchable
+        criteria: () => { // Criteria to display in the add modal
+            const criteria = new Criteria();
+            ...
+            return criteria;
+        },
+        gridColumns: [ // Definition of the columns in the add modal
+            {
+                property: 'name',
+                label: 'Name',
+                rawData: true,
+                sortable: true,
+                allowEdit: false,
+            },
+            ...
+        ],
+    },
+},
+```
+
+## Extending the configuration
+
+If you want to add a configuration or modify an existing one, you have to override the `sw-settings-rule-detail-assignments` component like this:
+
+```
+Component.override('sw-settings-rule-detail-assignments', {
+    computed: {
+        associationEntitiesConfig() {
+            const associationEntitiesConfig = this.$super('associationEntitiesConfig');
+            associationEntitiesConfig.push(...);
+            return associationEntitiesConfig;
+        },
+    },
+});
+```
+
+## Example for delete context
+### One-to-many
+```
+deleteContext: {
+    type: 'one-to-many',
+    entity: 'payment_method',
+    column: 'availabilityRuleId',
+},
+```
+
+### Many-to-many
+Important you have to add the association column to the criteria first:
+
+```
+criteria: () => {
+    const criteria = new Criteria();
+    criteria.setLimit(associationLimit);
+    criteria.addFilter(Criteria.equals('orderRules.id', ruleId));
+    criteria.addAssociation('orderRules');
+
+    return criteria;
+},
+```
+
+Then you have to use
+
+```
+deleteContext: {
+    type: 'many-to-many',
+    entity: 'promotion',
+    column: 'orderRules',
+},
+```
+
+### Deletion of extension values
+
+If you want to delete an extension assignment, you have to include the extension path in the column value:
+
+```
+deleteContext: {
+    type: 'many-to-many',
+    entity: 'product',
+    column: 'extensions.swagDynamicAccessRules',
+},
+```
+## AppScripts Feature
+Apps can now include scripts to run synchronous business logic inside the shopware stack.
+Visit the [official documentation](https://developer.shopware.com/docs/guides/plugins/apps) for more information on that feature.
+App manufacturers who add action buttons which provide feedback to the Administration are now able to access the following meta-information:
+
+| Query parameter | Example value | Description |
+|---|---|---|
+| shop-id | KvhpuoEVXWmtjkQa | The ID of the shop where the action button was triggered. |
+| shop-url | https://shopware.com | The URL of the shop where the action button was triggered. |
+| sw-version | 6.4.7.0 | The installed Shopware version of the shop where the action button was triggered. |
+| sw-context-language | 2fbb5fe2e29a4d70aa5854ce7ce3e20b | The language (UUID) of the context (`Context::getLanguageId()`). |
+| sw-user-language | en-GB | The language (ISO code) of the user who triggered the action button. |
+| shopware-shop-signature | `hash_hmac('sha256', $query, $shopSecret)` | The hash of the query, signed with the shop's secret. |
+
+You **must** make sure to verify the authenticity of the incoming request by checking the `shopware-shop-signature`!
+## New `--json` option for plugin list command
+It is now possible to retrieve the plugin information in JSON format to easier parse it,
+e.g. in deployment or other CI processes.
+## Media Resolution in Themes
+Media URLs are now available in the property path `$config[$key]['value']` instead of `$config['fields'][$key]['value'] = $media->getUrl();`, where for example scss expected them to be.
+IPv6 URLs as file uploads are only valid in *[]* notation. See examples below:
+
+* **Valid:** https://[2000:db8::8a2e:370:7334]
+* **Valid:** https://[2000:db8::8a2e:370:7334]:80
+* **Invalid:** https://2000:db8::8a2e:370:7334
+* **Invalid:** https://2000:db8::8a2e:370:7334:80
+The current UPGRADE.md will from now on only contain extended information on non breaking additions. All breaking changes will be explained in the `UPGRADE.md` for the next major version release. At the time of writing this will be the `UPGRADE-6.5.md`.
 
 # 6.4.7.0
 Added a new constructor argument `iterable $updateBy = []` in `Shopware\Core\Content\ImportExport\Struct\Config` which will become required starting from `v6.5.0`.

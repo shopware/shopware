@@ -37,6 +37,7 @@
             {% block sw_single_select_single_selection_inner_input %}
             <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
             <input
+                v-show="isExpanded"
                 ref="swSelectInput"
                 v-model="searchTerm"
                 class="sw-single-select__selection-input"

@@ -5,6 +5,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-19820 - Improve session invalidate](/changelog/release-6-4-8-1/2022-02-01-improve-session-invalidate.md)
 *  [NEXT-19276 - Add filtering to product and promotion codes](/changelog/release-6-4-8-1/2022-02-03-add-filtering-to-product-and-promotion-codes.md)
 *  [NEXT-20091 - Fixed exception on missing theme field value](/changelog/release-6-4-8-1/2022-02-11-fixed-exception-on-missing-theme-value.md)
+*  [NEXT-20106 - Fixed theme config field custom renderer](/changelog/release-6-4-8-1/2022-02-11-fixed-theme-field-custom-renderer.md)
 
 ## 6.4.8.0
 *  [NEXT-12608 - Add Appstore](/changelog/release-6-4-8-0/2021-01-04-add-appstore.md)

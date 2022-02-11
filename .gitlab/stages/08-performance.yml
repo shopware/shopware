@@ -21,8 +21,6 @@ Lighthouse (Administration):
             - 'src/Administration/Resources/app/administration/**/*'
             - .gitlab/stages/02-unit.yml
     script:
-        - export NODE_VERSION=14
-        - !reference [.scripts, install-node, script]
         - APP_ENV=prod bin/console framework:demodata
         - APP_ENV=prod bin/console dal:refresh:index
         - npm --prefix $ADMIN_PATH run lighthouse

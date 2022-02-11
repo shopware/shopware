@@ -43,6 +43,8 @@ Jest (Storefront):
             - 'src/Storefront/Resources/app/storefront/**/*'
             - .gitlab/stages/02-unit.yml
     script:
+        - export NODE_VERSION=12
+        - !reference [.scripts, install-node, script]
         - npm --prefix "$STOREFRONT_PATH" run unit -- --silent
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
     artifacts:

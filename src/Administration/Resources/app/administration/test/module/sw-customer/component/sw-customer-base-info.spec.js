@@ -77,7 +77,7 @@ describe('module/sw-customer/page/sw-customer-base-info', () => {
     });
 
     it('should display the birthday', async () => {
-        expect(wrapper.find('.sw-customer-base__label-birthday').text()).toBe('December 22, 1992');
+        expect(wrapper.find('.sw-customer-base__label-birthday').text()).toBe('22 December 1992');
     });
 
     it('should display the empty birthday snippet placeholder', async () => {
@@ -93,7 +93,7 @@ describe('module/sw-customer/page/sw-customer-base-info', () => {
     });
 
     it('should display the last login date', async () => {
-        expect(wrapper.find('.sw-customer-base__label-last-login').text()).toBe('October 14, 2021, 11:23 AM');
+        expect(wrapper.find('.sw-customer-base__label-last-login').text()).toBe('14 October 2021, 11:23');
     });
 
     it('should display the last login snippet placeholder', async () => {

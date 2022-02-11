@@ -177,8 +177,8 @@
     "xml2js": "0.4.23"
   },
   "engines": {
-    "node": ">=12.21.0",
-    "npm": ">= 6.5.0"
+    "node": "^16.0.0",
+    "npm": "^8.0.0"
   },
   "browserslist": [
     "last 2 versions",

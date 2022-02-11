@@ -19,7 +19,7 @@ Danger:
 ESLint (Administration):
     extends: .base-no-setup
     stage: lint
-    image: node:alpine
+    image: node:lts-alpine
     rules:
         - !reference [.rules, skip]
         - !reference [.rules, run]
@@ -42,7 +42,7 @@ ESLint (Administration):
 ESLint (Storefront):
     extends: .base-no-setup
     stage: lint
-    image: node:alpine
+    image: node:lts-alpine
     rules:
         - !reference [.rules, skip]
         - !reference [.rules, run]
@@ -64,7 +64,7 @@ ESLint (Storefront):
 Stylelint (Administration):
     extends: .base-no-setup
     stage: lint
-    image: node:alpine
+    image: node:lts-alpine
     rules:
         - !reference [.rules, skip]
         - !reference [.rules, run]
@@ -82,7 +82,7 @@ Stylelint (Administration):
 Stylelint (Storefront):
     extends: .base-no-setup
     stage: lint
-    image: node:alpine
+    image: node:lts-alpine
     rules:
         - !reference [.rules, skip]
         - !reference [.rules, run]

@@ -1,6 +1,6 @@
 ---
 title: add wishlist events
-issue:
+issue: NEXT-20092
 author: Marcin Kaczor
 author_email: marcink@codepro.space
 author_github: CodeproSpace

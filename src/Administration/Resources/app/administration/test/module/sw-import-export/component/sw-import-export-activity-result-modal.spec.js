@@ -76,7 +76,7 @@ describe('module/sw-import-export/components/sw-import-export-activity-result-mo
         ['Profile name', 'Default product', 'profile'],
         ['File name', 'Default product_20211108-141453.csv', 'file-name'],
         ['Imported records', '1', 'imported'],
-        ['Date / time', 'November 8, 2021, 02:50 PM', 'date'],
+        ['Date / time', '8 November 2021, 14:50', 'date'],
         ['User', 'admin', 'user'],
         ['Type', 'sw-import-export.activity.detail.importLabel', 'type'],
     ])('should display %s', (_, expectedValue, selector) => {

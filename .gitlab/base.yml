@@ -18,6 +18,7 @@ variables:
     APP_SECRET: devsecret
     SHOPWARE_ES_HOSTS: elasticsearch:9200
     BLUE_GREEN_DEPLOYMENT: 1
+    NODE_VERSION: 16
 
 # for jobs which should run on each MR/Pipeline
 .base:
@@ -34,11 +35,11 @@ variables:
         - !reference [.rules, run]
         - when: always
     before_script:
+        - !reference [.scripts, install-node, script]
         - cp public/.htaccess.dist public/.htaccess
         - composer run setup
-        - chown -R application:application .
         - echo 'LogFormat "[httpd:access] %V:%p %h %l %u %t \"%r\" %>s bytesIn:%I bytesOut:%O reqTime:%{ms}T" dockerlog' > /opt/docker/etc/httpd/conf.d/20-custom-log.conf
-        - /entrypoint supervisord > /dev/null 2>&1 &
+        - SERVICE_PHPFPM_OPTS=--allow-to-run-as-root CONTAINER_UID=root /entrypoint supervisord > /dev/null 2>&1 &
     after_script:
         - !reference [.upload-junit-xml, after_script]
 

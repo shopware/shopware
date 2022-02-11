@@ -7,6 +7,11 @@
         - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
         - export NVM_DIR="$HOME/.nvm"
         - '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'
-        - export NODE_VERSION="${NODE_VERSION:-14}"
+        - export NODE_VERSION="${NODE_VERSION:-16}"
         - nvm install $NODE_VERSION
-        - nvm use $NODE_VERSION
+        - rm /usr/bin/npm
+        - rm /usr/bin/node
+        - ln -s $NVM_DIR/versions/node/v$NODE_VERSION*/bin/node /usr/bin/node
+        - ln -s $NVM_DIR/versions/node/v$NODE_VERSION*/bin/npm /usr/bin/npm
+        - npm config set --global user 0
+        - npm config set --global unsafe-perm true

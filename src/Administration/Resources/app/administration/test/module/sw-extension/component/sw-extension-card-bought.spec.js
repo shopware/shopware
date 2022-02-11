@@ -191,7 +191,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             .attributes().src).toBe('https://example.com');
         expect(wrapper.find('.sw-extension-card-base__meta-info')
             .text().replace(/\s/g, ''))
-            .toBe('sw-extension-store.component.sw-extension-card-base.installedLabelFebruary1,2021,2:30AM');
+            .toBe('sw-extension-store.component.sw-extension-card-base.installedLabel1February2021,02:30');
     });
 
     it('should display a placeholder icon and the rent price', () => {
@@ -232,7 +232,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             .attributes().src).toBe('administration/static/img/theme/default_theme_preview.jpg');
         expect(wrapper.find('.sw-extension-card-base__meta-info')
             .text().replace(/\s/g, ''))
-            .toBe('sw-extension-store.component.sw-extension-card-base.installedLabelFebruary1,2021,2:30AM');
+            .toBe('sw-extension-store.component.sw-extension-card-base.installedLabel1February2021,02:30');
     });
 
     it('should link to the detail page', () => {

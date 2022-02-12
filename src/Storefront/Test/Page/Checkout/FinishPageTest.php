@@ -4,10 +4,12 @@ namespace Shopware\Storefront\Test\Page\Checkout;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPage;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader;
+use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageOrderCriteriaEvent;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -39,6 +41,15 @@ class FinishPageTest extends TestCase
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $orderId = $this->placeRandomOrder($context);
         $request = new Request([], [], ['orderId' => $orderId]);
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $eventWasThrown = false;
+        $criteria = new Criteria([$orderId]);
+
+        $listener = static function (CheckoutFinishPageOrderCriteriaEvent $event) use ($criteria, &$eventWasThrown): void {
+            static::assertSame($criteria->getIds(), $event->getCriteria()->getIds());
+            $eventWasThrown = true;
+        };
+        $dispatcher->addListener(CheckoutFinishPageOrderCriteriaEvent::class, $listener);
 
         /** @var CheckoutFinishPageLoadedEvent $event */
         $event = null;
@@ -49,6 +60,9 @@ class FinishPageTest extends TestCase
         static::assertInstanceOf(CheckoutFinishPage::class, $page);
         static::assertSame(13.04, $page->getOrder()->getPrice()->getNetPrice());
         self::assertPageEvent(CheckoutFinishPageLoadedEvent::class, $event, $context, $request, $page);
+        static::assertTrue($eventWasThrown);
+
+        $dispatcher->removeListener(CheckoutFinishPageOrderCriteriaEvent::class, $listener);
     }
 
     /**

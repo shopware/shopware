@@ -15,13 +15,15 @@ class PromotionLineItemFactory implements LineItemFactoryInterface
 
     public function create(array $data, SalesChannelContext $context): LineItem
     {
-        $uniqueKey = 'promotion-' . $data['referencedId'];
+        $code = $data['referencedId'];
+
+        $uniqueKey = 'promotion-' . $code;
         $item = new LineItem($uniqueKey, LineItem::PROMOTION_LINE_ITEM_TYPE);
         $item->setLabel($uniqueKey);
         $item->setGood(false);
 
         // this is used to pass on the code for later usage
-        $item->setReferencedId($data['referencedId']);
+        $item->setReferencedId($code);
 
         // this is important to avoid any side effects when calculating the cart
         // a percentage of 0,00 will just do nothing

@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -32,36 +33,28 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CartLineItemController extends StorefrontController
 {
-    /**
-     * @var CartService
-     */
-    private $cartService;
+    private CartService $cartService;
 
-    /**
-     * @var PromotionItemBuilder
-     */
-    private $promotionItemBuilder;
+    private PromotionItemBuilder $promotionItemBuilder;
 
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $productRepository;
+    private SalesChannelRepositoryInterface $productRepository;
 
-    /**
-     * @var ProductLineItemFactory
-     */
-    private $productLineItemFactory;
+    private ProductLineItemFactory $productLineItemFactory;
+
+    private HtmlSanitizer $htmlSanitizer;
 
     public function __construct(
         CartService $cartService,
         SalesChannelRepositoryInterface $productRepository,
         PromotionItemBuilder $promotionItemBuilder,
-        ProductLineItemFactory $productLineItemFactory
+        ProductLineItemFactory $productLineItemFactory,
+        HtmlSanitizer $htmlSanitizer
     ) {
         $this->cartService = $cartService;
         $this->productRepository = $productRepository;
         $this->promotionItemBuilder = $promotionItemBuilder;
         $this->productLineItemFactory = $productLineItemFactory;
+        $this->htmlSanitizer = $htmlSanitizer;
     }
 
     /**
@@ -169,7 +162,7 @@ class CartLineItemController extends StorefrontController
      */
     public function addProductByNumber(Request $request, SalesChannelContext $salesChannelContext): Response
     {
-        $number = $request->request->get('number');
+        $number = (string) $request->request->get('number');
 
         if (!$number) {
             throw new MissingRequestParameterException('number');
@@ -183,7 +176,10 @@ class CartLineItemController extends StorefrontController
         $data = $idSearchResult->getIds();
 
         if (empty($data)) {
-            $this->addFlash(self::DANGER, $this->trans('error.productNotFound', ['%number%' => $number]));
+            $this->addFlash(self::DANGER, $this->trans(
+                'error.productNotFound',
+                ['%number%' => $this->htmlSanitizer->sanitize($number, null, true)]
+            ));
 
             return $this->createActionResponse($request);
         }

@@ -22,6 +22,7 @@ use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class PromotionCollector implements CartDataCollectorInterface
@@ -35,12 +36,15 @@ class PromotionCollector implements CartDataCollectorInterface
 
     private PromotionItemBuilder $itemBuilder;
 
+    private HtmlSanitizer $htmlSanitizer;
+
     private array $requiredDalAssociations;
 
-    public function __construct(PromotionGatewayInterface $gateway, PromotionItemBuilder $itemBuilder)
+    public function __construct(PromotionGatewayInterface $gateway, PromotionItemBuilder $itemBuilder, HtmlSanitizer $htmlSanitizer)
     {
         $this->gateway = $gateway;
         $this->itemBuilder = $itemBuilder;
+        $this->htmlSanitizer = $htmlSanitizer;
 
         $this->requiredDalAssociations = [
             'personaRules',
@@ -134,7 +138,8 @@ class PromotionCollector implements CartDataCollectorInterface
         foreach ($allCodes as $code) {
             if (!\in_array($code, $foundCodes, true)) {
                 $cartExtension->removeCode($code);
-                $this->addPromotionNotFoundError($code, $original);
+
+                $this->addPromotionNotFoundError($this->htmlSanitizer->sanitize($code, null, true), $original);
             }
         }
 

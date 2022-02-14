@@ -2,10 +2,6 @@
 
 namespace Shopware\Core\System\Test\CustomEntity;
 
-use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
-use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Field as DAL;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Schema;
@@ -16,6 +12,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Field as DAL;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -57,12 +55,21 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CustomEntityTest extends TestCase
 {
-    private const CATEGORY_TYPE = 'custom-entity-unit-test';
-
     use KernelTestBehaviour;
     use AdminApiTestBehaviour;
     use SalesChannelApiTestBehaviour;
     use AppSystemTestBehaviour;
+    private const CATEGORY_TYPE = 'custom-entity-unit-test';
+
+    private static array $defaults = [
+        'position' => 1,
+        'rating' => 2.2,
+        'title' => 'Test',
+        'content' => 'Test <123>',
+        'display' => true,
+        'payload' => ['foo' => 'Bar'],
+        'email' => 'test@test.com',
+    ];
 
     /**
      * @afterClass
@@ -72,6 +79,17 @@ class CustomEntityTest extends TestCase
         $container = KernelLifecycleManager::bootKernel()->getContainer();
 
         self::cleanUp($container);
+
+        $remove = [
+            'category' => ['customEntityBlogLinksSetNullId', 'customEntityBlogLinksSetNull', 'customEntityBlogLinksRestrictId', 'customEntityBlogLinksRestrict'],
+            'product' => ['customEntityBlogProducts', 'customEntityBlogLinkProductRestrict', 'customEntityBlogLinkProductCascade', 'customEntityBlogLinkProductSetNull', 'customEntityBlogTopSellerCascade', 'customEntityBlogTopSellerRestrict', 'customEntityBlogTopSellerSetNull', 'customEntityBlogInheritedProducts', 'customEntityBlogInheritedTopSeller'],
+        ];
+
+        foreach ($remove as $entity => $fields) {
+            foreach ($fields as $field) {
+                $container->get(DefinitionInstanceRegistry::class)->getByEntityName($entity)->getFields()->remove($field);
+            }
+        }
 
         $criteria = new Criteria();
         $criteria->setLimit(1);
@@ -266,24 +284,19 @@ class CustomEntityTest extends TestCase
 
     private function testInheritance(IdsCollection $ids, ContainerInterface $container): void
     {
-        $defaults = [
-            'position' => 1,
-            'rating' => 2.2,
-            'title' => 'Test',
-            'content' => 'Test <123>',
-            'display' => true,
-            'payload' => ['foo' => 'Bar'],
-            'email' => 'test@test.com',
-        ];
+        $this->testOneToOneInheritance($ids, $container);
+        $this->testManyToManyInheritance($ids, $container);
+        $this->testManyToOneInheritance($ids, $container);
+    }
 
-        $blog1 = \array_merge($defaults, ['id' => $ids->get('inh.blog.1')]);
-        $blog2 = \array_merge($defaults, ['id' => $ids->get('inh.blog.2')]);
+    private function testManyToManyInheritance(IdsCollection $ids, ContainerInterface $container): void
+    {
+        $blog1 = \array_merge(self::$defaults, ['id' => $ids->get('inh.blog.1')]);
+        $blog2 = \array_merge(self::$defaults, ['id' => $ids->get('inh.blog.2')]);
 
         $product = (new ProductBuilder($ids, 'inheritance'))
             ->price(100)
             ->add('customEntityBlogInheritedProducts', [$blog1])
-            ->add('customEntityBlogInheritedTopSeller', [$blog1])
-            ->add('customEntityBlogInheritedLinkProduct', $blog1)
             ->variant(
                 (new ProductBuilder($ids, 'v1'))
                     ->price(100)
@@ -293,8 +306,6 @@ class CustomEntityTest extends TestCase
                 (new ProductBuilder($ids, 'v2'))
                     ->price(100)
                     ->add('customEntityBlogInheritedProducts', [$blog2])
-                    ->add('customEntityBlogInheritedTopSeller', [$blog2])
-                    ->add('customEntityBlogInheritedLinkProduct', $blog2)
                     ->build()
             )
             ->build();
@@ -314,8 +325,6 @@ class CustomEntityTest extends TestCase
 
         $criteria = new Criteria($ids->getList(['v1', 'v2']));
         $criteria->addAssociation('customEntityBlogInheritedProducts');
-        $criteria->addAssociation('customEntityBlogInheritedTopSeller');
-        $criteria->addAssociation('customEntityBlogInheritedLinkProduct');
 
         $products = $container->get('product.repository')->search($criteria, $context);
 
@@ -324,50 +333,158 @@ class CustomEntityTest extends TestCase
 
         static::assertInstanceOf(ProductEntity::class, $v1);
         static::assertTrue($v1->hasExtension('customEntityBlogInheritedProducts'));
-        static::assertTrue($v1->hasExtension('customEntityBlogInheritedTopSeller'));
-        static::assertTrue($v1->hasExtension('customEntityBlogInheritedLinkProduct'));
         static::assertCount(1, $v1->getExtension('customEntityBlogInheritedProducts'));
-        static::assertCount(1, $v1->getExtension('customEntityBlogInheritedTopSeller'));
-        static::assertInstanceOf(ArrayEntity::class, $v1->getExtension('customEntityBlogInheritedLinkProduct'));
         static::assertEquals($blog1['id'], $v1->getExtension('customEntityBlogInheritedProducts')->first()->getId());
-        static::assertEquals($blog1['id'], $v1->getExtension('customEntityBlogInheritedTopSeller')->first()->getId());
-        static::assertEquals($blog1['id'], $v1->getExtension('customEntityBlogInheritedLinkProduct')->getId());
 
         $v2 = $products->get($ids->get('v2'));
         static::assertInstanceOf(ProductEntity::class, $v2);
         static::assertTrue($v2->hasExtension('customEntityBlogInheritedProducts'));
-        static::assertTrue($v2->hasExtension('customEntityBlogInheritedTopSeller'));
-        static::assertTrue($v2->hasExtension('customEntityBlogInheritedLinkProduct'));
         static::assertCount(1, $v2->getExtension('customEntityBlogInheritedProducts'));
-        static::assertCount(1, $v2->getExtension('customEntityBlogInheritedTopSeller'));
-        static::assertInstanceOf(ArrayEntity::class, $v2->getExtension('customEntityBlogInheritedLinkProduct'));
         static::assertEquals($blog2['id'], $v2->getExtension('customEntityBlogInheritedProducts')->first()->getId());
-        static::assertEquals($blog2['id'], $v2->getExtension('customEntityBlogInheritedTopSeller')->first()->getId());
-        static::assertEquals($blog2['id'], $v2->getExtension('customEntityBlogInheritedLinkProduct')->getId());
 
-        $container->get('custom_entity_blog.repository')->delete([['id' => $ids->get('inh.blog.2')]], $context);
+        $event = $container->get('custom_entity_blog.repository')->delete([['id' => $ids->get('inh.blog.2')]], $context);
 
         /** @var EntityWrittenContainerEvent $events */
-
         $criteria = new Criteria($ids->getList(['v2']));
         $criteria->addAssociation('customEntityBlogInheritedProducts');
-        $criteria->addAssociation('customEntityBlogInheritedTopSeller');
-        $criteria->addAssociation('customEntityBlogInheritedLinkProduct');
         $products = $container->get('product.repository')->search($criteria, $context);
 
         $v2 = $products->get($ids->get('v2'));
         static::assertInstanceOf(ProductEntity::class, $v2);
         static::assertTrue($v2->hasExtension('customEntityBlogInheritedProducts'));
-        static::assertTrue($v1->hasExtension('customEntityBlogInheritedTopSeller'));
-        static::assertTrue($v1->hasExtension('customEntityBlogInheritedLinkProduct'));
-
         static::assertCount(1, $v2->getExtension('customEntityBlogInheritedProducts'));
-        static::assertCount(1, $v2->getExtension('customEntityBlogInheritedTopSeller'));
-        static::assertInstanceOf(ArrayEntity::class, $v2->getExtension('customEntityBlogInheritedLinkProduct'));
-
         static::assertEquals($blog1['id'], $v2->getExtension('customEntityBlogInheritedProducts')->first()->getId());
-        static::assertEquals($blog1['id'], $v2->getExtension('customEntityBlogInheritedTopSeller')->first()->getId());
+    }
+
+    private function testOneToOneInheritance(IdsCollection $ids, ContainerInterface $container): void
+    {
+        $blog1 = \array_merge(self::$defaults, ['id' => $ids->get('inh.one-to-one.1')]);
+        $blog2 = \array_merge(self::$defaults, ['id' => $ids->get('inh.one-to-one.2')]);
+
+        $product = (new ProductBuilder($ids, 'inheritance'))
+            ->price(100)
+            ->add('customEntityBlogInheritedLinkProduct', $blog1)
+            ->variant(
+                (new ProductBuilder($ids, 'one-to-one-1'))->price(100)->build()
+            )
+            ->variant(
+                (new ProductBuilder($ids, 'one-to-one-2'))
+                    ->price(100)
+                    ->add('customEntityBlogInheritedLinkProduct', $blog2)
+                    ->build()
+            )
+            ->build();
+
+        $event = $container->get('product.repository')
+            ->upsert([$product], Context::createDefaultContext());
+
+        static::assertNotEmpty($event->getPrimaryKeys('product'));
+        static::assertNotEmpty($event->getPrimaryKeys('custom_entity_blog'));
+
+        static::assertContains($ids->get('inh.one-to-one.1'), $event->getPrimaryKeys('custom_entity_blog'));
+        static::assertContains($ids->get('inh.one-to-one.2'), $event->getPrimaryKeys('custom_entity_blog'));
+
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+
+        $criteria = new Criteria($ids->getList(['one-to-one-1', 'one-to-one-2']));
+        $criteria->addAssociation('customEntityBlogInheritedLinkProduct');
+
+        $products = $container->get('product.repository')->search($criteria, $context);
+
+        static::assertCount(2, $products);
+        $v1 = $products->get($ids->get('one-to-one-1'));
+
+        static::assertInstanceOf(ProductEntity::class, $v1);
+        static::assertTrue($v1->hasExtension('customEntityBlogInheritedLinkProduct'));
+        static::assertInstanceOf(ArrayEntity::class, $v1->getExtension('customEntityBlogInheritedLinkProduct'));
+        static::assertEquals($blog1['id'], $v1->getExtension('customEntityBlogInheritedLinkProduct')->getId());
+
+        $v2 = $products->get($ids->get('one-to-one-2'));
+        static::assertInstanceOf(ProductEntity::class, $v2);
+        static::assertTrue($v2->hasExtension('customEntityBlogInheritedLinkProduct'));
+        static::assertInstanceOf(ArrayEntity::class, $v2->getExtension('customEntityBlogInheritedLinkProduct'));
+        static::assertEquals($blog2['id'], $v2->getExtension('customEntityBlogInheritedLinkProduct')->getId());
+
+        $context->addState('debug');
+        $event = $container->get('custom_entity_blog.repository')->delete([['id' => $ids->get('inh.one-to-one.2')]], $context);
+
+        /** @var EntityWrittenContainerEvent $events */
+        $criteria = new Criteria($ids->getList(['one-to-one-2']));
+        $criteria->addAssociation('customEntityBlogInheritedLinkProduct');
+        $products = $container->get('product.repository')->search($criteria, $context);
+
+        $v2 = $products->get($ids->get('one-to-one-2'));
+        static::assertInstanceOf(ProductEntity::class, $v2);
+        static::assertTrue($v1->hasExtension('customEntityBlogInheritedLinkProduct'));
+        static::assertInstanceOf(ArrayEntity::class, $v2->getExtension('customEntityBlogInheritedLinkProduct'));
         static::assertEquals($blog1['id'], $v2->getExtension('customEntityBlogInheritedLinkProduct')->getId());
+    }
+
+    private function testManyToOneInheritance(IdsCollection $ids, ContainerInterface $container): void
+    {
+        $blog1 = \array_merge(self::$defaults, ['id' => $ids->get('inh.many-to-one.1')]);
+        $blog2 = \array_merge(self::$defaults, ['id' => $ids->get('inh.many-to-one.2')]);
+
+        $product = (new ProductBuilder($ids, 'inheritance'))
+            ->price(100)
+            ->add('customEntityBlogInheritedTopSeller', [$blog1])
+            ->variant(
+                (new ProductBuilder($ids, 'many-to-one-1'))
+                    ->price(100)
+                    ->build()
+            )
+            ->variant(
+                (new ProductBuilder($ids, 'many-to-one-2'))
+                    ->price(100)
+                    ->add('customEntityBlogInheritedTopSeller', [$blog2])
+                    ->build()
+            )
+            ->build();
+
+        $event = $container->get('product.repository')
+            ->upsert([$product], Context::createDefaultContext());
+
+        static::assertNotEmpty($event->getPrimaryKeys('product'));
+        static::assertNotEmpty($event->getPrimaryKeys('custom_entity_blog'));
+
+        static::assertContains($ids->get('inh.many-to-one.1'), $event->getPrimaryKeys('custom_entity_blog'));
+        static::assertContains($ids->get('inh.many-to-one.2'), $event->getPrimaryKeys('custom_entity_blog'));
+
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+
+        $criteria = new Criteria($ids->getList(['many-to-one-1', 'many-to-one-2']));
+        $criteria->addAssociation('customEntityBlogInheritedTopSeller');
+
+        $products = $container->get('product.repository')->search($criteria, $context);
+
+        static::assertCount(2, $products);
+        $v1 = $products->get($ids->get('many-to-one-1'));
+
+        static::assertInstanceOf(ProductEntity::class, $v1);
+        static::assertTrue($v1->hasExtension('customEntityBlogInheritedTopSeller'));
+        static::assertCount(1, $v1->getExtension('customEntityBlogInheritedTopSeller'));
+        static::assertEquals($blog1['id'], $v1->getExtension('customEntityBlogInheritedTopSeller')->first()->getId());
+
+        $v2 = $products->get($ids->get('many-to-one-2'));
+        static::assertInstanceOf(ProductEntity::class, $v2);
+        static::assertTrue($v2->hasExtension('customEntityBlogInheritedTopSeller'));
+        static::assertCount(1, $v2->getExtension('customEntityBlogInheritedTopSeller'));
+        static::assertEquals($blog2['id'], $v2->getExtension('customEntityBlogInheritedTopSeller')->first()->getId());
+
+        $event = $container->get('custom_entity_blog.repository')->delete([['id' => $ids->get('inh.many-to-one.2')]], $context);
+
+        /** @var EntityWrittenContainerEvent $events */
+        $criteria = new Criteria($ids->getList(['many-to-one-2']));
+        $criteria->addAssociation('customEntityBlogInheritedTopSeller');
+        $products = $container->get('product.repository')->search($criteria, $context);
+
+        $v2 = $products->get($ids->get('many-to-one-2'));
+        static::assertInstanceOf(ProductEntity::class, $v2);
+        static::assertTrue($v1->hasExtension('customEntityBlogInheritedTopSeller'));
+        static::assertCount(1, $v2->getExtension('customEntityBlogInheritedTopSeller'));
+        static::assertEquals($blog1['id'], $v2->getExtension('customEntityBlogInheritedTopSeller')->first()->getId());
     }
 
     private static function assertColumns(Schema $schema, string $table, array $columns): void
@@ -413,7 +530,7 @@ class CustomEntityTest extends TestCase
 
                         new ManyToManyField(['name' => 'inherited_products', 'storeApiAware' => true, 'reference' => 'product', 'inherited' => true]),
                         new ManyToOneField(['name' => 'inherited_top_seller', 'storeApiAware' => true, 'reference' => 'product', 'required' => false, 'inherited' => true, 'onDelete' => 'set-null']),
-                        new OneToOneField(['name' => 'inherited_link_product', 'storeApiAware' => true, 'reference' => 'product', 'required' => false, 'inherited' => true, 'onDelete' => 'set-null'])
+                        new OneToOneField(['name' => 'inherited_link_product', 'storeApiAware' => true, 'reference' => 'product', 'required' => false, 'inherited' => true, 'onDelete' => 'set-null']),
                     ],
                 ]),
                 new Entity([
@@ -533,7 +650,7 @@ class CustomEntityTest extends TestCase
         $response = json_decode($client->getResponse()->getContent(), true);
         static::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), print_r($response, true));
 
-        $client->request('POST', '/api/search/custom-entity-blog', [], [], ['HTTP_ACCEPT' => 'application/json',], \json_encode(['ids' => [$ids->get('blog-1')]]));
+        $client->request('POST', '/api/search/custom-entity-blog', [], [], ['HTTP_ACCEPT' => 'application/json'], \json_encode(['ids' => [$ids->get('blog-1')]]));
         $response = json_decode($client->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('data', $response);
@@ -768,7 +885,7 @@ class CustomEntityTest extends TestCase
                 (new OneToManyAssociationField('customEntityBlogTopSellerSetNull', 'custom_entity_blog', 'top_seller_set_null_id'))->addFlags(new DAL\Flag\SetNullOnDelete(), new Extension()),
                 (new ManyToManyAssociationField('customEntityBlogInheritedProducts', 'custom_entity_blog', 'custom_entity_blog_inherited_products', 'product_id', 'custom_entity_blog_id', 'id', 'id'))->addFlags(new DAL\Flag\CascadeDelete(), new Extension(), new DAL\Flag\Inherited()),
                 (new OneToManyAssociationField('customEntityBlogInheritedTopSeller', 'custom_entity_blog', 'inherited_top_seller_id'))->addFlags(new DAL\Flag\SetNullOnDelete(), new DAL\Flag\Inherited(), new Extension()),
-            ]
+            ],
         ];
 
         foreach ($expected as $entity => $properties) {
@@ -831,8 +948,7 @@ class CustomEntityTest extends TestCase
         }
     }
 
-    private function testSwagger(IdsCollection $ids, ContainerInterface $container)
+    private function testSwagger(IdsCollection $ids, ContainerInterface $container): void
     {
-
     }
 }

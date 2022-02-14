@@ -12,8 +12,6 @@ class OneToOneField extends AssociationField
 
     /**
      * @internal
-     * @param \DOMElement $element
-     * @return Field
      */
     public static function fromXml(\DOMElement $element): Field
     {

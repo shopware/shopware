@@ -29,6 +29,16 @@ class Field extends XmlElement
         return $data;
     }
 
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function isStoreApiAware(): bool
+    {
+        return $this->storeApiAware;
+    }
+
     protected static function parse(\DOMElement $element): array
     {
         $values = [];
@@ -50,15 +60,5 @@ class Field extends XmlElement
         }
 
         return $values;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function isStoreApiAware(): bool
-    {
-        return $this->storeApiAware;
     }
 }

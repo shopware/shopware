@@ -146,7 +146,7 @@ class CustomEntitySchemaUpdater
         $onDelete = [
             'set-null' => ['onUpdate' => 'cascade', 'onDelete' => 'set null'],
             'cascade' => ['onUpdate' => 'cascade', 'onDelete' => 'cascade'],
-            'restrict' => ['onUpdate' => 'cascade', 'onDelete' => 'restrict']
+            'restrict' => ['onUpdate' => 'cascade', 'onDelete' => 'restrict'],
         ];
 
         if (!$table->hasColumn('created_at')) {
@@ -275,6 +275,7 @@ class CustomEntitySchemaUpdater
 
                     // add foreign key to reference table
                     $table->addForeignKeyConstraint($reference, [self::id($field['name'])], ['id'], $options);
+
                     break;
 
                 case 'one-to-many':
@@ -298,6 +299,7 @@ class CustomEntitySchemaUpdater
 
                     // add inheritance column which matches the association name: `product.customEntityBlogTopSeller`
                     $this->addInheritanceColumn($schema, $name, $field);
+
                     break;
             }
         }

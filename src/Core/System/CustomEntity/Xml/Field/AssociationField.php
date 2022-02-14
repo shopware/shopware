@@ -5,6 +5,7 @@ namespace Shopware\Core\System\CustomEntity\Xml\Field;
 abstract class AssociationField extends Field
 {
     protected string $reference;
+
     protected bool $inherited = false;
 
     /**

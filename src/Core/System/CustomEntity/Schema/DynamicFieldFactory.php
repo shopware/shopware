@@ -281,6 +281,7 @@ class DynamicFieldFactory
 
                 $association->compile($registry);
                 $reference->getFields()->add($association);
+
                 break;
             case 'one-to-one':
                 // get reference entity definition to create bi-directionally associations

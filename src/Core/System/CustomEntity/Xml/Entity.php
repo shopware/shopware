@@ -36,6 +36,11 @@ class Entity extends XmlElement
         return $data;
     }
 
+    public function getFields(): array
+    {
+        return $this->fields;
+    }
+
     private static function parse(\DOMElement $element): array
     {
         $values = [];
@@ -72,10 +77,5 @@ class Entity extends XmlElement
         $values[self::kebabCaseToCamelCase($child->tagName)] = $child->nodeValue;
 
         return $values;
-    }
-
-    public function getFields(): array
-    {
-        return $this->fields;
     }
 }

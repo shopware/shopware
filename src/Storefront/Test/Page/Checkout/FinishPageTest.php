@@ -45,11 +45,14 @@ class FinishPageTest extends TestCase
         $eventWasThrown = false;
         $criteria = new Criteria([$orderId]);
 
-        $listener = static function (CheckoutFinishPageOrderCriteriaEvent $event) use ($criteria, &$eventWasThrown): void {
-            static::assertSame($criteria->getIds(), $event->getCriteria()->getIds());
-            $eventWasThrown = true;
-        };
-        $dispatcher->addListener(CheckoutFinishPageOrderCriteriaEvent::class, $listener);
+        $this->addEventListener(
+            $dispatcher,
+            CheckoutFinishPageOrderCriteriaEvent::class,
+            static function ($event) use ($criteria, &$eventWasThrown): void {
+                static::assertSame($criteria->getIds(), $event->getCriteria()->getIds());
+                $eventWasThrown = true;
+            }
+        );
 
         /** @var CheckoutFinishPageLoadedEvent $event */
         $event = null;
@@ -61,8 +64,6 @@ class FinishPageTest extends TestCase
         static::assertSame(13.04, $page->getOrder()->getPrice()->getNetPrice());
         self::assertPageEvent(CheckoutFinishPageLoadedEvent::class, $event, $context, $request, $page);
         static::assertTrue($eventWasThrown);
-
-        $dispatcher->removeListener(CheckoutFinishPageOrderCriteriaEvent::class, $listener);
     }
 
     /**

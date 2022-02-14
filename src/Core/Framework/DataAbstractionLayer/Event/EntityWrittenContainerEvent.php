@@ -110,6 +110,24 @@ class EntityWrittenContainerEvent extends NestedEvent
         return new self($context, $events, $errors);
     }
 
+    /**
+     * @internal used for debugging purposes only
+     */
+    public function getList(): array
+    {
+        $list = [];
+
+        foreach ($this->events as $event) {
+            if ($event instanceof EntityWrittenEvent) {
+                $list[$event->getName()] = $event->getIds();
+            } else {
+                $list[] = $event;
+            }
+        }
+
+        return $list;
+    }
+
     public function addEvent(NestedEvent ...$events): void
     {
         foreach ($events as $event) {

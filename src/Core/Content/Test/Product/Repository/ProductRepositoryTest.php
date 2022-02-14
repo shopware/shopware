@@ -3073,6 +3073,28 @@ class ProductRepositoryTest extends TestCase
         static::assertEquals($productProperties, $variantBProperties);
     }
 
+    public function testInheritanceUpdateOnDeleteRelation(): void
+    {
+        $ids = new IdsCollection();
+
+        $product = (new ProductBuilder($ids, 'x1'))->price(100)->category('c1')->build();
+        $this->getContainer()->get('product.repository')->upsert([$product], Context::createDefaultContext());
+
+        $event = $this->getContainer()->get('category.repository')->delete([['id' => $ids->get('c1')]], Context::createDefaultContext());
+
+        $expected = [
+            'category.deleted' => [$ids->get('c1')],
+            'product_category.deleted' => [['productId' => $ids->get('x1'), 'categoryId' => $ids->get('c1')]],
+            'product_category_tree.deleted' => [['productId' => $ids->get('x1'), 'categoryId' => $ids->get('c1')]],
+            'product.written' => [$ids->get('x1')],
+        ];
+
+        foreach ($expected as $key => $value) {
+            static::assertArrayHasKey($key, $event->getList());
+            static::assertEquals($value, $event->getList()[$key]);
+        }
+    }
+
     private function createLanguageContext(array $languages, bool $inheritance)
     {
         return new Context(new SystemSource(), [], Defaults::CURRENCY, $languages, Defaults::LIVE_VERSION, 1.0, $inheritance);

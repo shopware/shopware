@@ -41,15 +41,17 @@ class FinishPageTest extends TestCase
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $orderId = $this->placeRandomOrder($context);
         $request = new Request([], [], ['orderId' => $orderId]);
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
         $eventWasThrown = false;
         $criteria = new Criteria([$orderId]);
 
-        $listener = static function (CheckoutFinishPageOrderCriteriaEvent $event) use ($criteria, &$eventWasThrown): void {
-            static::assertSame($criteria->getIds(), $event->getCriteria()->getIds());
-            $eventWasThrown = true;
-        };
-        $dispatcher->addListener(CheckoutFinishPageOrderCriteriaEvent::class, $listener);
+        $this->addEventListener(
+            $this->getContainer()->get('event_dispatcher'),
+            CheckoutFinishPageOrderCriteriaEvent::class,
+            static function (CheckoutFinishPageOrderCriteriaEvent $event) use ($criteria, &$eventWasThrown): void {
+                static::assertSame($criteria->getIds(), $event->getCriteria()->getIds());
+                $eventWasThrown = true;
+            }
+        );
 
         /** @var CheckoutFinishPageLoadedEvent $event */
         $event = null;
@@ -62,7 +64,7 @@ class FinishPageTest extends TestCase
         self::assertPageEvent(CheckoutFinishPageLoadedEvent::class, $event, $context, $request, $page);
         static::assertTrue($eventWasThrown);
 
-        $dispatcher->removeListener(CheckoutFinishPageOrderCriteriaEvent::class, $listener);
+        $this->resetEventDispatcher();
     }
 
     /**

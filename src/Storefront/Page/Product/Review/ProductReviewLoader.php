@@ -92,9 +92,10 @@ class ProductReviewLoader
         $criteria = new Criteria();
         $criteria->setLimit($limit);
         $criteria->setOffset($offset);
+        $criteria->setTotalCountMode(1);
 
         $sorting = new FieldSorting('createdAt', 'DESC');
-        if ($request->get('sort', 'points') === 'points') {
+        if ($request->get('sort', 'createdAt') === 'points') {
             $sorting = new FieldSorting('points', 'DESC');
         }
 

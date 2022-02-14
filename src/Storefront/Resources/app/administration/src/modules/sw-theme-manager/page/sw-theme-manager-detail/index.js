@@ -574,7 +574,7 @@ Component.register('sw-theme-manager-detail', {
 
             Object.assign(config, config.custom);
             delete config.custom;
-            config.label = null;
+            config.label = '';
             return { type: field.type, config: config };
         },
 

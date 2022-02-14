@@ -349,7 +349,6 @@
                                                                     </template>
 
                                                                     <template v-else-if="themeConfig[fieldName].editable !== false">
-
                                                                         <sw-inherit-wrapper
                                                                                 v-model="currentThemeConfig[fieldName].value"
                                                                                 :ref="`wrapper-${fieldName}`"
@@ -368,7 +367,7 @@
                                                                                 </sw-form-field-renderer>
                                                                             </template>
                                                                         </sw-inherit-wrapper>
-                                                                </template>
+                                                                    </template>
                                                                 </template>
                                                             </div>
                                                         </sw-container>

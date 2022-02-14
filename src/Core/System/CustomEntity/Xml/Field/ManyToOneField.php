@@ -2,18 +2,17 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Field;
 
-use Shopware\Core\System\CustomEntity\Xml\Field\Traits\InheritedTrait;
-use Shopware\Core\System\CustomEntity\Xml\Field\Traits\ReferenceTrait;
 use Shopware\Core\System\CustomEntity\Xml\Field\Traits\RequiredTrait;
 
-class ManyToOneField extends Field
+class ManyToOneField extends AssociationField
 {
     use RequiredTrait;
-    use ReferenceTrait;
-    use InheritedTrait;
 
     protected string $type = 'many-to-one';
 
+    /**
+     * @internal
+     */
     public static function fromXml(\DOMElement $element): Field
     {
         return new self(self::parse($element));

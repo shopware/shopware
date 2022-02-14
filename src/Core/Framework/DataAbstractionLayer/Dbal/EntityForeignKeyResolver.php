@@ -235,11 +235,12 @@ class EntityForeignKeyResolver
 
         if ($class === SetNullOnDelete::class) {
             // add entity prefix for the current association
-            $formatted = [$association->getReferenceDefinition()->getEntityName() . '.' . $association->getReferenceField() => $affected];
-        } else {
-            // add entity prefix for the current association
-            $formatted = [$association->getReferenceDefinition()->getEntityName() => $affected];
+            // stop recursion here, set null of an foreign key has no further impact
+            return [$association->getReferenceDefinition()->getEntityName() . '.' . $association->getReferenceField() => $affected];
         }
+
+        // add entity prefix for the current association
+        $formatted = [$association->getReferenceDefinition()->getEntityName() => $affected];
 
         // Only include entities directly associated with the definition
         if ($restrictDeleteOnlyFirstLevel && $class === RestrictDelete::class) {

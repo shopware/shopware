@@ -8,12 +8,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\EmailField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension as DalExtension;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
@@ -31,6 +37,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\HttpException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
@@ -61,7 +68,7 @@ class DynamicFieldFactory
             return $collection;
         }
 
-        $translations = new TranslationsAssociationField(DynamicTranslationEntityDefinition::class, $entityName . '_id', 'translations', 'id', $entityName . '_translation');
+        $translations = new TranslationsAssociationField($entityName . '_translation', $entityName . '_id', 'translations', 'id');
         $collection->add($translations);
 
         foreach ($translated as &$field) {
@@ -124,8 +131,8 @@ class DynamicFieldFactory
         }
 
         $name = $field['name'];
-        $required = $field['required'] ?? false;
-        $required = $required ? new Required() : null;
+        $required = ($field['required'] ?? false) ? new Required() : null;
+        $inherited = $field['inherited'] ?? false;
         $apiAware = $field['storeApiAware'] ? new ApiAware() : null;
 
         $flags = \array_filter([$required, $apiAware]);
@@ -177,70 +184,203 @@ class DynamicFieldFactory
 
                 break;
             case 'many-to-many':
-                $mapping = [$entityName, $field['reference']];
-                sort($mapping);
 
-                $association = new ManyToManyAssociationField($property, DynamicEntityDefinition::class, DynamicMappingEntityDefinition::class, $entityName . '_id', $field['reference'] . '_id', 'id', 'id', implode('_', $mapping), $field['reference']);
+                // get reference entity definition to create bi-directionally associations
+                $reference = $registry->getByEntityName($field['reference']);
+
+                // build mapping name:   'custom_entity_blog_products'  => use field name instead of reference entity name to allow multiple references to same entity
+                $mappingName = implode('_', [$entityName, $field['name']]);
+
+                // create many-to-many association field for custom entity definition
+                $association = new ManyToManyAssociationField($property, $field['reference'], $mappingName, $entityName . '_id', $field['reference'] . '_id', 'id', 'id');
+
+                // mapping table records can always be deleted
                 $association->addFlags(new CascadeDelete());
-                if ($apiAware) {
-                    $association->addFlags($apiAware);
+
+                // field is maybe flag to be store-api aware
+                self::addFlag($association, $apiAware);
+
+                // check product inheritance and add ReverseInherited(reverse-property-name)
+                if ($reference->isInheritanceAware() && $inherited) {
+                    $association->addFlags(new ReverseInherited(self::kebabCaseToCamelCase($mappingName)));
                 }
 
+                // association for custom entity definition: done
                 $collection->add($association);
 
-                $mapping = DynamicMappingEntityDefinition::create($entityName, $field['reference']);
-                $container->set($mapping->getEntityName(), $mapping);
-                $registry->register($mapping, $mapping->getEntityName());
+                // define mapping entity definition, fields are defined inside the definition class
+                $definition = DynamicMappingEntityDefinition::create($entityName, $field['reference'], $mappingName);
+
+                // register definition in container and definition registry
+                $container->set($definition->getEntityName(), $definition);
+                $registry->register($definition, $definition->getEntityName());
+
+                // define reverse side
+                $property = self::kebabCaseToCamelCase($definition->getEntityName());
+
+                // reverse property schema: #table#_#column# -  custom_entity_blog_products
+                $association = new ManyToManyAssociationField($property, $entityName, $definition->getEntityName(), $field['reference'] . '_id', $entityName . '_id');
+                $association->addFlags(new CascadeDelete());
+
+                // if reference is not a custom entity definition, we need to add the dal extension flag to get the hydrated objects as `entity.extensions` value
+                $extension = str_starts_with($reference->getEntityName(), 'custom_entity_') ? null : new DalExtension();
+                self::addFlag($association, $extension);
+
+                // check for product inheritance use case
+                if ($reference->isInheritanceAware() && $inherited) {
+                    $association->addFlags(new Inherited());
+                }
+
+                $association->compile($registry);
+                $reference->getFields()->addField($association);
 
                 break;
 
             case 'many-to-one':
-                $collection->add(
-                    (new FkField($name . '_id', $property . 'Id', DynamicEntityDefinition::class, 'id', $field['reference']))
-                        ->addFlags(...$flags)
-                );
+                // get reference entity definition to create bi-directionally associations
+                $reference = $registry->getByEntityName($field['reference']);
 
-                $association = new ManyToOneAssociationField($property, $name . '_id', DynamicEntityDefinition::class, 'id', false, $field['reference']);
-                if ($apiAware) {
-                    $association->addFlags($apiAware);
+                // build reverse property name: #table# _ #field#:  custom_entity_blog_top_seller: customEntityBlogTopSeller
+                $reverse = self::kebabCaseToCamelCase($entityName . '_' . $name);
+
+                // build foreign key field for custom entity table: custom_entity_blog_top_seller_id
+                $foreignKey = (new FkField(self::id($name), $property . 'Id', $field['reference'], 'id'))->addFlags(...$flags);
+                $collection->add($foreignKey);
+
+                // now build association field for custom entity definition
+                $association = new ManyToOneAssociationField($property, self::id($name), $field['reference'], 'id', false);
+
+                // add flag for store-api awareness
+                self::addFlag($association, $apiAware);
+
+                // check for product inheritance use case and define reverse inherited flag. Used when joining from custom entity table to product table
+                if ($reference->isInheritanceAware() && $inherited) {
+                    $association->addFlags(new ReverseInherited($reverse));
                 }
                 $collection->add($association);
 
-                $reference = $registry->getByEntityName($field['reference']);
                 if ($reference->isVersionAware()) {
-                    $collection->add(
-                        (new ReferenceVersionField($reference->getClass(), $name . '_version_id', $reference->getEntityName()))->addFlags(new Required()),
-                    );
+                    // if reference is version aware, we need a reference version field inside the custom entity definition
+                    $collection->add((new ReferenceVersionField($reference->getEntityName(), $name . '_version_id'))->addFlags(new Required()));
                 }
 
+                // now define reverse association
+                $association = new OneToManyAssociationField($reverse, $entityName, self::id($name), 'id');
+
+                // in sql we define the on-delete flag on the foreign key, for the DAL we need the flag on the reverse side, so we can check which association are affected when deleting the record (e.g. product)
+                $association->addFlags(self::getOnDeleteFlag($field));
+
+                // if reference is not a custom entity definition, we need to add the dal extension flag to get the hydrated objects as `entity.extensions` value
+                $extension = str_starts_with($reference->getEntityName(), 'custom_entity_') ? null : new DalExtension();
+                self::addFlag($association, $extension);
+
+                // check for product inheritance use case
+                if ($reference->isInheritanceAware() && $inherited) {
+                    $association->addFlags(new Inherited(self::id($field['name'])));
+                }
+
+                $association->compile($registry);
+                $reference->getFields()->add($association);
                 break;
             case 'one-to-one':
-                $collection->add(
-                    (new FkField($name . '_id', $property . 'Id', DynamicEntityDefinition::class, 'id', $field['reference']))
-                        ->addFlags(...$flags)
-                );
+                // get reference entity definition to create bi-directionally associations
+                $reference = $registry->getByEntityName($field['reference']);
 
-                $association = new OneToOneAssociationField($property, $name . '_id', 'id', DynamicEntityDefinition::class, true, $field['reference']);
-                if ($apiAware) {
-                    $association->addFlags($apiAware);
+                // build reverse property name: #table# _ #field#:  custom_entity_blog_top_seller: customEntityBlogTopSeller
+                $reverse = self::kebabCaseToCamelCase($entityName . '_' . $name);
+
+                // build foreign key field for custom entity table: custom_entity_blog_top_seller_id
+                $foreignKey = (new FkField(self::id($name), $property . 'Id', $field['reference'], 'id'))->addFlags(...$flags);
+                $collection->add($foreignKey);
+
+                // now build association field for custom entity definition
+                $association = new OneToOneAssociationField($property, self::id($name), 'id', $field['reference'], false);
+
+                // add flag for store-api awareness
+                self::addFlag($association, $apiAware);
+
+                // check for product inheritance use case and define reverse inherited flag. Used when joining from custom entity table to product table
+                if ($reference->isInheritanceAware() && $inherited) {
+                    $association->addFlags(new ReverseInherited($reverse));
                 }
 
                 $collection->add($association);
+
+                if ($reference->isVersionAware()) {
+                    // if reference is version aware, we need a reference version field inside the custom entity definition
+                    $collection->add((new ReferenceVersionField($reference->getEntityName(), $name . '_version_id'))->addFlags(new Required()));
+                }
+
+                // now define reverse association
+                $association = new OneToOneAssociationField($reverse, 'id', self::id($name), $entityName, false);
+
+                // in sql we define the on-delete flag on the foreign key, for the DAL we need the flag on the reverse side, so we can check which association are affected when deleting the record (e.g. product)
+                $association->addFlags(self::getOnDeleteFlag($field));
+
+                // if reference is not a custom entity definition, we need to add the dal extension flag to get the hydrated objects as `entity.extensions` value
+                $extension = str_starts_with($reference->getEntityName(), 'custom_entity_') ? null : new DalExtension();
+                self::addFlag($association, $extension);
+
+                // check for product inheritance use case
+                if ($reference->isInheritanceAware() && $inherited) {
+                    $association->addFlags(new Inherited(self::id($field['name'])));
+                }
+
+                $association->compile($registry);
+                $reference->getFields()->addField($association);
 
                 break;
             case 'one-to-many':
-                $association = new OneToManyAssociationField($property, DynamicEntityDefinition::class, $entityName . '_id', 'id', $field['reference']);
-                if ($apiAware) {
-                    $association->addFlags($apiAware);
-                }
+                // get reference entity definition to create bi-directionally associations
+                $reference = $registry->getByEntityName($field['reference']);
 
-                if (strpos($field['reference'], 'custom_entity_') === 0) {
-                    $association->addFlags(new CascadeDelete());
-                }
+                // build reverse property name: #table# _ #field#:  custom_entity_blog_comments/customEntityBlogComments
+                $reverse = $entityName . '_' . $name;
 
+                // build association for custom entity table: customEntityComments
+                $association = new OneToManyAssociationField($property, $field['reference'], self::id($reverse), 'id');
+
+                // in sql we define the on-delete flag on the foreign key, for the DAL we need the flag on the reverse side, so we can check which association are affected when deleting the record (e.g. product)
+                $association->addFlags(self::getOnDeleteFlag($field));
+
+                // add flag for store-api awareness
+                self::addFlag($association, $apiAware);
+
+                // check for product inheritance use case and define reverse inherited flag. Used when joining from custom entity table to product table
+                if ($reference->isInheritanceAware() && $inherited) {
+                    $association->addFlags(new ReverseInherited(self::kebabCaseToCamelCase($reverse)));
+                }
                 $collection->add($association);
 
-                self::addReverseForeignKey($registry, $field['reference'], $entityName, $apiAware);
+                // now define the reverse side, starting with the foreign key field: custom_entity_blog_comments_id
+                $fk = new FkField(self::id($reverse), self::kebabCaseToCamelCase(self::id($reverse)), $entityName, 'id');
+
+                // add flag for store-api awareness
+                self::addFlag($fk, $apiAware);
+
+                // if reference is not a custom entity definition, we need to add the dal extension flag to get the hydrated objects as `entity.extensions` value
+                $extension = str_starts_with($reference->getEntityName(), 'custom_entity_') ? null : new DalExtension();
+                self::addFlag($fk, $extension);
+
+                // add required flag, should be set to true for aggregated entities (blog 1:N comments)
+                $required = ($field['reverseRequired'] ?? false) ? new ApiAware() : null;
+                self::addFlag($fk, $required);
+
+                // compile foreign key and add to reference field collection - only compiled fields can be added after the field collection built
+                $fk->compile($registry);
+                $reference->getFields()->add($fk);
+
+                // now build reverse many-to-one association: custom_entity_blog_comments::custom_entity_blog_comments
+                $association = new ManyToOneAssociationField(self::kebabCaseToCamelCase($reverse), self::id($reverse), $entityName, 'id', false);
+                self::addFlag($association, $extension);
+
+                // check for product inheritance use case
+                if ($reference->isInheritanceAware() && $inherited) {
+                    $association->addFlags(new Inherited(self::id($field['name'])));
+                }
+
+                $association->compile($registry);
+                $reference->getFields()->add($association);
 
                 break;
             default:
@@ -253,32 +393,29 @@ class DynamicFieldFactory
         }
     }
 
-    private static function addReverseForeignKey(DefinitionInstanceRegistry $registry, string $referenceEntity, string $entityName, ?ApiAware $apiAware): void
+    private static function addFlag(Field $field, ?Flag $flag): void
     {
-        $reference = $registry->getByEntityName($referenceEntity);
-
-        $fk = new FkField($entityName . '_id', self::kebabCaseToCamelCase($entityName) . 'Id', DynamicEntityDefinition::class, 'id', $entityName);
-        if ($apiAware) {
-            $fk->addFlags($apiAware);
+        if ($flag !== null) {
+            $field->addFlags($flag);
         }
+    }
 
-        $isCustomEntity = strpos($reference->getEntityName(), 'custom_entity_') === 0;
+    private static function id(string $name): string
+    {
+        return $name . '_id';
+    }
 
-        if ($isCustomEntity) {
-            $fk->addFlags(new Required());
-        } else {
-            $fk->addFlags(new DalExtension());
+    private static function getOnDeleteFlag(array $field)
+    {
+        switch ($field['onDelete']) {
+            case 'cascade':
+                return new CascadeDelete();
+            case 'set-null':
+                return new SetNullOnDelete();
+            case 'restrict':
+                return new RestrictDelete();
+            default:
+                throw new HttpException('unknown_on_delete', 400, \sprintf('onDelete property %s are not supported on field %s', $field['onDelete'], $field['name']));
         }
-
-        $fk->compile($registry);
-        $reference->getFields()->add($fk);
-
-        $association = new ManyToOneAssociationField(self::kebabCaseToCamelCase($entityName), $entityName . '_id', DynamicEntityDefinition::class, 'id', false, $entityName);
-        if (!$isCustomEntity) {
-            $association->addFlags(new DalExtension());
-        }
-
-        $association->compile($registry);
-        $reference->getFields()->add($association);
     }
 }

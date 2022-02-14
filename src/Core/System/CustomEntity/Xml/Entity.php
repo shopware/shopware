@@ -14,6 +14,8 @@ class Entity extends XmlElement
 {
     protected string $name;
 
+    protected array $fields = [];
+
     public function __construct(array $data)
     {
         foreach ($data as $property => $value) {
@@ -70,5 +72,10 @@ class Entity extends XmlElement
         $values[self::kebabCaseToCamelCase($child->tagName)] = $child->nodeValue;
 
         return $values;
+    }
+
+    public function getFields(): array
+    {
+        return $this->fields;
     }
 }

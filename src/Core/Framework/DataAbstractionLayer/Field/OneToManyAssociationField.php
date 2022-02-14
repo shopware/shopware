@@ -16,14 +16,12 @@ class OneToManyAssociationField extends AssociationField
         string $propertyName,
         string $referenceClass,
         string $referenceField,
-        string $localField = 'id',
-        ?string $referenceEntity = null
+        string $localField = 'id'
     ) {
         parent::__construct($propertyName);
         $this->localField = $localField;
         $this->referenceField = $referenceField;
         $this->referenceClass = $referenceClass;
-        $this->referenceEntity = $referenceEntity;
     }
 
     public function getLocalField(): string

@@ -24,14 +24,11 @@ class DynamicMappingEntityDefinition extends EntityDefinition
 
     protected string $reference;
 
-    public static function create(string $source, string $reference): DynamicMappingEntityDefinition
+    public static function create(string $source, string $reference, string $name): DynamicMappingEntityDefinition
     {
         $self = new self();
 
-        $parts = [$source, $reference];
-        sort($parts);
-
-        $self->name = implode('_', $parts);
+        $self->name = $name;
         $self->source = $source;
         $self->reference = $reference;
 
@@ -46,27 +43,27 @@ class DynamicMappingEntityDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         $fields = new FieldCollection([
-            (new FkField($this->source . '_id', self::kebabCaseToCamelCase($this->source) . 'Id', DynamicEntityDefinition::class, 'id', $this->source))
+            (new FkField($this->source . '_id', self::kebabCaseToCamelCase($this->source) . 'Id', $this->source, 'id'))
                 ->addFlags(new Required(), new PrimaryKey()),
 
-            (new FkField($this->reference . '_id', self::kebabCaseToCamelCase($this->reference) . 'Id', DynamicEntityDefinition::class, 'id', $this->reference))
+            (new FkField($this->reference . '_id', self::kebabCaseToCamelCase($this->reference) . 'Id', $this->reference, 'id'))
                 ->addFlags(new Required(), new PrimaryKey()),
 
-            (new ManyToOneAssociationField(self::kebabCaseToCamelCase($this->reference), $this->reference . '_id', DynamicEntityDefinition::class, 'id', false, $this->reference)),
-            (new ManyToOneAssociationField(self::kebabCaseToCamelCase($this->source), $this->source . '_id', DynamicEntityDefinition::class, 'id', false, $this->source)),
+            (new ManyToOneAssociationField(self::kebabCaseToCamelCase($this->reference), $this->reference . '_id', $this->reference, 'id', false)),
+            (new ManyToOneAssociationField(self::kebabCaseToCamelCase($this->source), $this->source . '_id', $this->source, 'id', false)),
         ]);
 
         $definition = $this->registry->getByEntityName($this->source);
         if ($definition->isVersionAware()) {
             $fields->add(
-                (new ReferenceVersionField($definition->getClass(), null, $definition->getEntityName()))->addFlags(new PrimaryKey(), new Required()),
+                (new ReferenceVersionField($definition->getEntityName()))->addFlags(new PrimaryKey(), new Required()),
             );
         }
 
         $definition = $this->registry->getByEntityName($this->reference);
         if ($definition->isVersionAware()) {
             $fields->add(
-                (new ReferenceVersionField($definition->getClass(), null, $definition->getEntityName()))->addFlags(new PrimaryKey(), new Required()),
+                (new ReferenceVersionField($definition->getEntityName()))->addFlags(new PrimaryKey(), new Required()),
             );
         }
 

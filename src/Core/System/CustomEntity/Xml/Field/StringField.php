@@ -12,6 +12,9 @@ class StringField extends Field
 
     protected string $type = 'string';
 
+    /**
+     * @internal
+     */
     public static function fromXml(\DOMElement $element): Field
     {
         return new self(self::parse($element));

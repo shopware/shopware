@@ -237,6 +237,7 @@
             <argument>%shopware.app_dir%</argument>
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader"/>
+            <argument type="service" id="Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator"/>
         </service>
 
         <service id="shopware.app_system.guzzle" class="GuzzleHttp\Client" lazy="true">

@@ -12,7 +12,7 @@ class PrimaryKeyNotProvidedException extends ShopwareHttpException
     {
         parent::__construct(
             'Expected primary key field {{ propertyName }} for definition {{ definition }} not provided',
-            ['definition' => $definition->getClass(), 'propertyName' => $field->getPropertyName()]
+            ['definition' => $definition->getEntityName(), 'propertyName' => $field->getPropertyName()]
         );
     }
 

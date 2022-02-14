@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
+ * @internal
  * @RouteScope(scopes={"api"})
  */
 class CustomEntityApiController extends ApiController

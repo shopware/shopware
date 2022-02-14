@@ -13,7 +13,7 @@ class ParentFieldForeignKeyConstraintMissingException extends ShopwareHttpExcept
         parent::__construct(
             'Foreign key property {{ propertyName }} of parent association in definition {{ definition }} expected to be an FkField got %s',
             [
-                'definition' => $definition->getClass(),
+                'definition' => $definition->getEntityName(),
                 'propertyName' => $parentField->getPropertyName(),
                 'propertyClass' => \get_class($parentField),
             ]

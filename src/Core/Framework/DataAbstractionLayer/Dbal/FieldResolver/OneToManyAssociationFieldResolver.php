@@ -68,11 +68,16 @@ class OneToManyAssociationFieldResolver extends AbstractFieldResolver
         $fkVersionId = $context->getDefinition()->getEntityName() . '_version_id';
 
         $reference = $field->getReferenceDefinition();
-        if ($reference->getFields()->getByStorageName($fkVersionId) === null) {
-            $fkVersionId = 'version_id';
+        if ($reference->getFields()->getByStorageName($fkVersionId)) {
+            return ' AND #root#.version_id = #alias#.' . $fkVersionId;
         }
 
-        return ' AND #root#.version_id = #alias#.' . $fkVersionId;
+        $fkVersionId = \substr($field->getReferenceField(), 0, -3) . '_version_id';
+        if ($reference->getFields()->getByStorageName($fkVersionId)) {
+            return ' AND #root#.version_id = #alias#.' . $fkVersionId;
+        }
+
+        return ' AND #root#.version_id = #alias#.version_id';
     }
 
     private function getSourceColumn(FieldResolverContext $context, OneToManyAssociationField $field): string

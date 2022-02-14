@@ -61,10 +61,14 @@ class DefinitionInstanceRegistry
 
     public function get(string $class): EntityDefinition
     {
-        /** @var EntityDefinition $entityDefinition */
-        $entityDefinition = $this->container->get($class);
+        try {
+            $definition = $this->container->get($class);
 
-        return $entityDefinition;
+            /** @var EntityDefinition $definition */
+            return $definition;
+        } catch (ServiceNotFoundException $e) {
+            throw new DefinitionNotFoundException($class);
+        }
     }
 
     public function has(string $name): bool

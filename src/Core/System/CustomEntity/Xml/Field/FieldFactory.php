@@ -20,6 +20,9 @@ class FieldFactory
         'one-to-one' => OneToOneField::class,
     ];
 
+    /**
+     * @internal
+     */
     public static function createFromXml(\DOMElement $element): Field
     {
         $class = self::MAPPING[$element->tagName] ?? null;

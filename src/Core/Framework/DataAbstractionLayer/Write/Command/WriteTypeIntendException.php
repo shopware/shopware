@@ -11,7 +11,7 @@ class WriteTypeIntendException extends ShopwareHttpException
     {
         parent::__construct(
             'Expected command for "{{ definition }}" to be "{{ expectedClass }}". (Got: {{ actualClass }})',
-            ['definition' => $definition->getClass(), 'expectedClass' => $expectedClass, 'actualClass' => $actualClass]
+            ['definition' => $definition->getEntityName(), 'expectedClass' => $expectedClass, 'actualClass' => $actualClass]
         );
     }
 

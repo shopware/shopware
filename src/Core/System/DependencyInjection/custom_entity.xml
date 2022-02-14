@@ -35,6 +35,6 @@
             <tag name="routing.loader"/>
         </service>
 
-
+        <service id="Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator"/>
     </services>
 </container>

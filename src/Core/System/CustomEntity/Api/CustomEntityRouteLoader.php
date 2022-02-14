@@ -6,6 +6,9 @@ use Symfony\Component\Config\Loader\Loader;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 
+/**
+ * @internal
+ */
 class CustomEntityRouteLoader extends Loader
 {
     private bool $isLoaded = false;

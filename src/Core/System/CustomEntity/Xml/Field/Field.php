@@ -5,6 +5,9 @@ namespace Shopware\Core\System\CustomEntity\Xml\Field;
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 use Symfony\Component\Config\Util\XmlUtils;
 
+/**
+ * @internal
+ */
 class Field extends XmlElement
 {
     protected string $name;
@@ -47,5 +50,15 @@ class Field extends XmlElement
         }
 
         return $values;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function isStoreApiAware(): bool
+    {
+        return $this->storeApiAware;
     }
 }

@@ -460,7 +460,7 @@ class EntityDefinitionQueryHelper
                 sprintf(
                     'Missing translated storage aware property %s in %s',
                     $translatedField->getPropertyName(),
-                    $translationDefinition->getClass()
+                    $translationDefinition->getEntityName()
                 )
             );
         }

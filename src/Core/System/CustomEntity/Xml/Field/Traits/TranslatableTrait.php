@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Field\Traits;
 
+/**
+ * @internal
+ */
 trait TranslatableTrait
 {
     protected bool $translatable;

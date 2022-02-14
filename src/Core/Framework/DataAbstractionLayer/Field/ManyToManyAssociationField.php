@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToManyAssociationFieldResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ManyToManyAssociationFieldSerializer;
 
 class ManyToManyAssociationField extends AssociationField
@@ -39,8 +40,6 @@ class ManyToManyAssociationField extends AssociationField
      */
     private $toManyDefinition;
 
-    private ?string $mappingReferenceEntity;
-
     public function __construct(
         string $propertyName,
         string $referenceDefinition,
@@ -48,9 +47,7 @@ class ManyToManyAssociationField extends AssociationField
         string $mappingLocalColumn,
         string $mappingReferenceColumn,
         string $sourceColumn = 'id',
-        string $referenceField = 'id',
-        ?string $mappingReferenceEntity = null,
-        ?string $referenceEntity = null
+        string $referenceField = 'id'
     ) {
         parent::__construct($propertyName);
         $this->toManyDefinitionClass = $referenceDefinition;
@@ -59,9 +56,6 @@ class ManyToManyAssociationField extends AssociationField
         $this->mappingReferenceColumn = $mappingReferenceColumn;
         $this->sourceColumn = $sourceColumn;
         $this->referenceField = $referenceField;
-
-        $this->referenceEntity = $mappingReferenceEntity;
-        $this->mappingReferenceEntity = $referenceEntity;
     }
 
     public function compile(DefinitionInstanceRegistry $registry): void
@@ -72,14 +66,12 @@ class ManyToManyAssociationField extends AssociationField
 
         parent::compile($registry);
 
-        if ($this->mappingReferenceEntity !== null) {
-            $this->toManyDefinition = $registry->getByEntityName($this->mappingReferenceEntity);
-            $this->toManyDefinitionClass = $this->toManyDefinition->getClass();
-        } else {
+        try {
             $this->toManyDefinition = $registry->get($this->toManyDefinitionClass);
-            $this->mappingReferenceEntity = $this->toManyDefinition->getEntityName();
+        } catch (DefinitionNotFoundException $e) {
+            $this->toManyDefinition = $registry->getByEntityName($this->toManyDefinitionClass);
         }
-
+        $this->toManyDefinitionClass = $this->toManyDefinition->getClass();
         $this->mappingDefinition = $this->referenceDefinition;
     }
 

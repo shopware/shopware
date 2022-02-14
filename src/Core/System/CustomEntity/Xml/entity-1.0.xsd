@@ -9,6 +9,14 @@
         </xs:complexType>
     </xs:element>
 
+    <xs:simpleType name="on-delete">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="set-null"/>
+            <xs:enumeration value="cascade"/>
+            <xs:enumeration value="restrict"/>
+        </xs:restriction>
+    </xs:simpleType>
+
     <xs:complexType name="entity">
         <xs:choice>
             <xs:element name="fields" maxOccurs="unbounded" type="field-list" minOccurs="1"/>
@@ -96,6 +104,7 @@
         <xs:attribute type="xs:boolean" name="required" default="false" />
         <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
         <xs:attribute type="xs:boolean" name="inherited" />
+        <xs:attribute type="on-delete" name="on-delete" use="required" />
     </xs:complexType>
 
     <xs:complexType name="field-one-to-many-type">
@@ -103,6 +112,8 @@
         <xs:attribute type="xs:string" name="reference" use="required" />
         <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
         <xs:attribute type="xs:boolean" name="inherited" />
+        <xs:attribute type="xs:boolean" name="reverse-required" default="false" />
+        <xs:attribute type="on-delete" name="on-delete" use="required" />
     </xs:complexType>
 
     <xs:complexType name="field-one-to-one-type">
@@ -111,6 +122,6 @@
         <xs:attribute type="xs:boolean" name="required" default="false" />
         <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
         <xs:attribute type="xs:boolean" name="inherited" />
+        <xs:attribute type="on-delete" name="on-delete" use="required" />
     </xs:complexType>
-
 </xs:schema>

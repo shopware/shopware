@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 
 abstract class AssociationField extends Field
 {
@@ -27,7 +28,7 @@ abstract class AssociationField extends Field
      */
     protected $autoload = false;
 
-    protected ?string $referenceEntity;
+    protected ?string $referenceEntity = null;
 
     public function compile(DefinitionInstanceRegistry $registry): void
     {
@@ -37,12 +38,13 @@ abstract class AssociationField extends Field
 
         parent::compile($registry);
 
-        if ($this->referenceEntity !== null) {
-            $this->referenceDefinition = $registry->getByEntityName($this->referenceEntity);
-            $this->referenceClass = $this->referenceDefinition->getClass();
-        } else {
+        try {
             $this->referenceDefinition = $registry->get($this->referenceClass);
+        } catch (DefinitionNotFoundException $e) {
+            $this->referenceDefinition = $registry->getByEntityName($this->referenceClass);
         }
+        $this->referenceClass = $this->referenceDefinition->getClass();
+        $this->referenceEntity = $this->referenceDefinition->getEntityName();
     }
 
     public function getReferenceDefinition(): EntityDefinition
@@ -63,5 +65,10 @@ abstract class AssociationField extends Field
     final public function getAutoload(): bool
     {
         return $this->autoload;
+    }
+
+    public function getReferenceEntity(): ?string
+    {
+        return $this->referenceEntity;
     }
 }

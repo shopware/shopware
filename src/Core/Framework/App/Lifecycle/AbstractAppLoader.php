@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\App\Lifecycle;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Cms\CmsExtensions;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\System\CustomEntity\Xml\CustomEntitySchema;
+use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
 
 /**
  * @internal
@@ -29,5 +29,5 @@ abstract class AbstractAppLoader
 
     abstract public function getAssetPathForAppPath(string $appPath): string;
 
-    abstract public function getEntities(AppEntity $app): ?CustomEntitySchema;
+    abstract public function getEntities(AppEntity $app): ?CustomEntityXmlSchema;
 }

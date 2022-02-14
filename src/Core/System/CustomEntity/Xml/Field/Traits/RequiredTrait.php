@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Field\Traits;
 
+/**
+ * @internal
+ */
 trait RequiredTrait
 {
-    protected bool $required;
+    protected bool $required = false;
 
     public function isRequired(): bool
     {

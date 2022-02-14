@@ -10,7 +10,11 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
+/**
+ * @internal
+ */
 class CustomEntitySchemaUpdater
 {
     private const COMMENT = 'custom-entity-element';
@@ -95,18 +99,20 @@ class CustomEntitySchemaUpdater
         $table = $this->createTable($schema, $name);
 
         if (!$table->hasColumn('id')) {
+            // Id columns do not need to be defined in the .xml, we do this automatically
             $table->addColumn('id', Types::BINARY, ['length' => 16, 'fixed' => true]);
             $table->setPrimaryKey(['id']);
         }
+
+        // important: we add a `comment` to the table. This allows us to identify the custom entity modifications when run the cleanup
         $table->setComment(self::COMMENT);
 
-        $noneTranslated = array_filter($fields, function (array $field) {
-            $translated = $field['translatable'] ?? false;
-
-            return $translated === false;
+        // we have to add only fields, which are not marked as translated
+        $filtered = array_filter($fields, function (array $field) {
+            return ($field['translatable'] ?? false) === false;
         });
 
-        $this->addColumns($schema, $table, $noneTranslated);
+        $this->addColumns($schema, $table, $filtered);
 
         $binary = ['length' => 16, 'fixed' => true];
 
@@ -136,9 +142,12 @@ class CustomEntitySchemaUpdater
     {
         $name = $table->getName();
         $binary = ['length' => 16, 'fixed' => true];
-        $cascades = ['onUpdate' => 'cascade', 'onDelete' => 'cascade'];
-        $nulls = ['onUpdate' => 'cascade', 'onDelete' => 'set null'];
-        $restrict = ['onUpdate' => 'cascade', 'onDelete' => 'restrict'];
+
+        $onDelete = [
+            'set-null' => ['onUpdate' => 'cascade', 'onDelete' => 'set null'],
+            'cascade' => ['onUpdate' => 'cascade', 'onDelete' => 'cascade'],
+            'restrict' => ['onUpdate' => 'cascade', 'onDelete' => 'restrict']
+        ];
 
         if (!$table->hasColumn('created_at')) {
             $table->addColumn('created_at', Types::DATETIME_MUTABLE, ['notnull' => true]);
@@ -184,83 +193,142 @@ class CustomEntitySchemaUpdater
 
                     break;
                 case 'many-to-many':
+                    // get reference name for foreign key building
                     $referenceName = $field['reference'];
 
-                    $mappingName = [$name, $referenceName];
-                    sort($mappingName);
-                    $mappingName = implode('_', $mappingName);
+                    // build mapping table name: `custom_entity_blog_products`
+                    $mappingName = implode('_', [$name, $field['name']]);
 
+                    // already defined?
                     if ($schema->hasTable($mappingName)) {
                         continue 2;
                     }
 
-                    $reference = $this->createTable($schema, $field['reference']);
-
                     $mapping = $schema->createTable($mappingName);
+
+                    // important: we add a `comment` to the table. This allows us to identify the custom entity modifications when run the cleanup
                     $mapping->setComment(self::COMMENT);
 
                     $mapping->addColumn('created_at', Types::DATETIME_MUTABLE, ['notnull' => true]);
                     $mapping->addColumn('updated_at', Types::DATETIME_MUTABLE, ['notnull' => false]);
 
-                    $mapping->addColumn($name . '_id', Types::BINARY, $binary);
-                    $mapping->addColumn($referenceName . '_id', Types::BINARY, $binary);
+                    // add source id column: `custom_entity_blog_id`
+                    $mapping->addColumn(self::id($name), Types::BINARY, $binary);
+
+                    // add reference id column: `product_id`
+                    $mapping->addColumn(self::id($referenceName), Types::BINARY, $binary);
+
+                    // get reference table for versioning checks
+                    $reference = $this->createTable($schema, $field['reference']);
+
+                    $this->addInheritanceColumn($schema, $name, $field);
 
                     if (!$reference->hasColumn('version_id')) {
-                        $mapping->setPrimaryKey([$name . '_id', $referenceName . '_id']);
-                        $mapping->addForeignKeyConstraint($table, [$name . '_id'], ['id'], $cascades);
-                        $mapping->addForeignKeyConstraint($reference, [$referenceName . '_id'], ['id'], $cascades);
+                        // version aware table needs a compound primary key (id, version_id)
+                        $mapping->setPrimaryKey([self::id($name), self::id($referenceName)]);
+
+                        // add foreign key to source table (custom_entity_blog.id <=> custom_entity_blog_products.custom_entity_blog_id), add cascade delete for both
+                        $mapping->addForeignKeyConstraint($table, [self::id($name)], ['id'], $onDelete['cascade']);
+
+                        // add foreign key to reference table (product.id <=> custom_entity_blog_products.product_id), add cascade delete for both
+                        $mapping->addForeignKeyConstraint($reference, [self::id($referenceName)], ['id'], $onDelete['cascade']);
 
                         break;
                     }
 
                     $mapping->addColumn($referenceName . '_version_id', Types::BINARY, $binary);
-                    $mapping->setPrimaryKey([$name . '_id', $referenceName . '_id', $referenceName . '_version_id']);
-                    $mapping->addForeignKeyConstraint($table, [$name . '_id'], ['id'], $cascades);
-                    $mapping->addForeignKeyConstraint($reference, [$referenceName . '_id', $referenceName . '_version_id'], ['id', 'version_id'], $cascades);
+
+                    //primary key is build with source_id, reference_id, reference_version_id
+                    $mapping->setPrimaryKey([self::id($name), self::id($referenceName), $referenceName . '_version_id']);
+
+                    // add foreign key to source table (custom_entity_blog.id <=> custom_entity_blog_products.custom_entity_blog_id), add cascade delete for both
+                    $mapping->addForeignKeyConstraint($table, [self::id($name)], ['id'], $onDelete['cascade']);
+
+                    // add foreign key to reference table (product.id <=> custom_entity_blog_products.product_id), add cascade delete for both
+                    $mapping->addForeignKeyConstraint($reference, [self::id($referenceName), $referenceName . '_version_id'], ['id', 'version_id'], $onDelete['cascade']);
 
                     break;
                 case 'many-to-one':
                 case 'one-to-one':
-                    if ($table->hasColumn($field['name'] . '_id')) {
+                    if ($table->hasColumn(self::id($field['name']))) {
                         continue 2;
                     }
-                    $table->addColumn($field['name'] . '_id', Types::BINARY, $nullable + $binary);
+                    // first add foreign key column to custom entity table: `top_seller_id`
+                    $table->addColumn(self::id($field['name']), Types::BINARY, $nullable + $binary);
 
-                    $options = $required ? $restrict : $nulls;
+                    // now check for on-delete foreign key configuration (cascade, restrict, set-null)
+                    $options = $onDelete[$field['onDelete']];
 
+                    // we need the reference table for version checks and foreign key constraint creation
                     $reference = $this->createTable($schema, $field['reference']);
 
+                    // add inheritance column which matches the association name: `product.customEntityBlogTopSeller`
+                    $this->addInheritanceColumn($schema, $name, $field);
+
+                    // check for version support and consider version id in foreign key
                     if ($reference->hasColumn('version_id')) {
                         $table->addColumn($field['name'] . '_version_id', Types::BINARY, $nullable + $binary);
-                        $table->addForeignKeyConstraint($reference, [$field['name'] . '_id', $field['name'] . '_version_id'], ['id', 'version_id'], $options);
+                        $table->addForeignKeyConstraint($reference, [self::id($field['name']), $field['name'] . '_version_id'], ['id', 'version_id'], $options);
 
                         break;
                     }
 
-                    $table->addForeignKeyConstraint($reference, [$field['name'] . '_id'], ['id'], $options);
-
+                    // add foreign key to reference table
+                    $table->addForeignKeyConstraint($reference, [self::id($field['name'])], ['id'], $options);
                     break;
+
                 case 'one-to-many':
+                    // for one-to-many association, we don't need to add some columns in the custom entity table
                     $reference = $this->createTable($schema, $field['reference']);
 
-                    if ($reference->hasColumn($name . '_id')) {
+                    $foreignKey = $table->getName() . '_' . self::id($field['name']);
+                    if ($reference->hasColumn($foreignKey)) {
                         continue 2;
                     }
 
-                    $options = $nulls;
-                    if (strpos($reference->getName(), 'custom_entity_') === 0) {
-                        $nullable = [];
-                        $options = $cascades;
-                    }
+                    // now check for on-delete foreign key configuration (cascade, restrict, set-null)
+                    $options = $onDelete[$field['onDelete']];
 
-                    $reference->addColumn($name . '_id', Types::BINARY, $nullable + $binary + ['comment' => self::COMMENT]);
+                    // important: we add a `comment` to the column. This allows us to identify the custom entity modification in sw-core tables when run the cleanup
+                    $reference->addColumn($foreignKey, Types::BINARY, $nullable + $binary + ['comment' => self::COMMENT]);
 
-                    $fk = substr('fk_ce_' . $reference->getName() . '_' . $name . '_id', 0, 64);
-                    $reference->addForeignKeyConstraint($table, [$name . '_id'], ['id'], $options, $fk);
+                    // build foreign key with special naming. This allows us to identify the custom entity modification in sw-core tables when run the cleanup
+                    $fk = substr('fk_ce_' . $reference->getName() . '_' . $foreignKey, 0, 64);
+                    $reference->addForeignKeyConstraint($table, [$foreignKey], ['id'], $options, $fk);
 
+                    // add inheritance column which matches the association name: `product.customEntityBlogTopSeller`
+                    $this->addInheritanceColumn($schema, $name, $field);
                     break;
             }
         }
+    }
+
+    private function addInheritanceColumn(Schema $schema, string $entity, array $field): void
+    {
+        $reference = $this->createTable($schema, $field['reference']);
+
+        if (!$reference->hasColumn('version_id')) {
+            return;
+        }
+
+        $inherited = $field['inherited'] ?? false;
+        if ($inherited === false) {
+            return;
+        }
+
+        $name = self::kebabCaseToCamelCase($entity . '_' . $field['name']);
+
+        $reference->addColumn($name, Types::BINARY, ['notnull' => false, 'default' => null, 'length' => 16, 'fixed' => true, 'comment' => self::COMMENT]);
+    }
+
+    private static function kebabCaseToCamelCase(string $string): string
+    {
+        return (new CamelCaseToSnakeCaseNameConverter())->denormalize(str_replace('-', '_', $string));
+    }
+
+    private static function id(string $name): string
+    {
+        return $name . '_id';
     }
 
     private function createTable(Schema $schema, string $name): Table

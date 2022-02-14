@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ReferenceVersionFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 
@@ -24,15 +25,12 @@ class ReferenceVersionField extends FkField
      */
     protected $storageName;
 
-    private ?string $entityName;
-
-    public function __construct(string $definition, ?string $storageName = null, ?string $entity = null)
+    public function __construct(string $definition, ?string $storageName = null)
     {
         parent::__construct('', '', VersionDefinition::class);
 
         $this->versionReferenceClass = $definition;
         $this->storageName = $storageName;
-        $this->entityName = $entity;
     }
 
     public function compile(DefinitionInstanceRegistry $registry): void
@@ -43,12 +41,13 @@ class ReferenceVersionField extends FkField
 
         parent::compile($registry);
 
-        if ($this->entityName) {
-            $this->versionReferenceDefinition = $registry->getByEntityName($this->entityName);
-            $this->versionReferenceClass = $this->versionReferenceDefinition->getClass();
-        } else {
+        try {
             $this->versionReferenceDefinition = $registry->get($this->versionReferenceClass);
+        } catch (DefinitionNotFoundException $e) {
+            $this->versionReferenceDefinition = $registry->getByEntityName($this->versionReferenceClass);
         }
+        $this->versionReferenceClass = $this->versionReferenceDefinition->getClass();
+
         $entity = $this->versionReferenceDefinition->getEntityName();
         $storageName = $this->storageName ?? ($entity . '_version_id');
 

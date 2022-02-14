@@ -12,6 +12,9 @@ class EmailField extends Field
 
     protected string $type = 'email';
 
+    /**
+     * @internal
+     */
     public static function fromXml(\DOMElement $element): Field
     {
         return new self(self::parse($element));

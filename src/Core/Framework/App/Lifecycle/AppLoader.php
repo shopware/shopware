@@ -6,7 +6,8 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Cms\CmsExtensions as CmsManifest;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\System\CustomEntity\Xml\CustomEntitySchema;
+use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
+use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\Filesystem\Filesystem;
@@ -23,11 +24,14 @@ class AppLoader extends AbstractAppLoader
 
     private string $projectDir;
 
-    public function __construct(string $appDir, string $projectDir, ConfigReader $configReader)
+    private CustomEntityXmlSchemaValidator $customEntityXmlValidator;
+
+    public function __construct(string $appDir, string $projectDir, ConfigReader $configReader, CustomEntityXmlSchemaValidator $customEntityXmlValidator)
     {
         $this->appDir = $appDir;
         $this->configReader = $configReader;
         $this->projectDir = $projectDir;
+        $this->customEntityXmlValidator = $customEntityXmlValidator;
     }
 
     public function getDecorated(): AbstractAppLoader
@@ -119,7 +123,7 @@ class AppLoader extends AbstractAppLoader
         return sprintf('%s/%s/Resources/public', $this->projectDir, $appPath);
     }
 
-    public function getEntities(AppEntity $app): ?CustomEntitySchema
+    public function getEntities(AppEntity $app): ?CustomEntityXmlSchema
     {
         $configPath = sprintf('%s/%s/Resources/entities.xml', $this->projectDir, $app->getPath());
 
@@ -127,6 +131,10 @@ class AppLoader extends AbstractAppLoader
             return null;
         }
 
-        return CustomEntitySchema::createFromXmlFile($configPath);
+        $entities = CustomEntityXmlSchema::createFromXmlFile($configPath);
+
+        $this->customEntityXmlValidator->validate($entities);
+
+        return $entities;
     }
 }

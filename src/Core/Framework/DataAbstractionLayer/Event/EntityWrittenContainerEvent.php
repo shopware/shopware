@@ -117,11 +117,9 @@ class EntityWrittenContainerEvent extends NestedEvent
     {
         $list = [];
 
-        foreach ($this->events as $event) {
+        foreach($this->events as $event) {
             if ($event instanceof EntityWrittenEvent) {
                 $list[$event->getName()] = $event->getIds();
-            } else {
-                $list[] = $event;
             }
         }
 

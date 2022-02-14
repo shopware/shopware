@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FkFieldSerializer;
 
 class FkField extends Field implements StorageAware
@@ -30,15 +31,14 @@ class FkField extends Field implements StorageAware
      */
     protected $referenceField;
 
-    private ?string $referenceEntity;
+    private ?string $referenceEntity = null;
 
-    public function __construct(string $storageName, string $propertyName, string $referenceClass, string $referenceField = 'id', ?string $referenceEntity = null)
+    public function __construct(string $storageName, string $propertyName, string $referenceClass, string $referenceField = 'id')
     {
         $this->referenceClass = $referenceClass;
         $this->storageName = $storageName;
         $this->referenceField = $referenceField;
         parent::__construct($propertyName);
-        $this->referenceEntity = $referenceEntity;
     }
 
     public function compile(DefinitionInstanceRegistry $registry): void
@@ -49,11 +49,13 @@ class FkField extends Field implements StorageAware
 
         parent::compile($registry);
 
-        if ($this->referenceEntity !== null) {
-            $this->referenceDefinition = $registry->getByEntityName($this->referenceEntity);
-        } else {
+        try {
             $this->referenceDefinition = $registry->get($this->referenceClass);
+        } catch (DefinitionNotFoundException $e) {
+            $this->referenceDefinition = $registry->getByEntityName($this->referenceClass);
         }
+
+        $this->referenceEntity = $this->referenceDefinition->getEntityName();
     }
 
     public function getStorageName(): string
@@ -74,6 +76,11 @@ class FkField extends Field implements StorageAware
     public function getExtractPriority(): int
     {
         return self::PRIORITY;
+    }
+
+    public function getReferenceEntity(): ?string
+    {
+        return $this->referenceEntity;
     }
 
     protected function getSerializerClass(): string

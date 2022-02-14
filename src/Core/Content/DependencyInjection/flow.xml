@@ -83,7 +83,6 @@
             <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface" />
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="logger"/>
             <tag name="kernel.event_subscriber" />
             <tag name="flow.action" priority="620" />
         </service>

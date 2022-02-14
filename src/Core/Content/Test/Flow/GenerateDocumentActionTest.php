@@ -11,9 +11,12 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentGenerator\CreditNoteGenerator;
 use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
+use Shopware\Core\Checkout\Document\DocumentGenerator\DocumentGeneratorInterface;
+use Shopware\Core\Checkout\Document\DocumentGenerator\DocumentGeneratorRegistry;
 use Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator;
 use Shopware\Core\Checkout\Document\DocumentGenerator\StornoGenerator;
 use Shopware\Core\Checkout\Document\DocumentService;
@@ -23,6 +26,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\Flow\Dispatching\Action\GenerateDocumentAction;
 use Shopware\Core\Content\Flow\Dispatching\FlowState;
+use Shopware\Core\Content\Flow\Exception\GenerateDocumentActionException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -32,6 +36,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
+use Shopware\Core\Migration\Traits\Translations;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
@@ -43,6 +49,7 @@ class GenerateDocumentActionTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
     use AdminApiTestBehaviour;
+    use ImportTranslationsTrait;
 
     private ?Connection $connection;
 
@@ -124,14 +131,94 @@ class GenerateDocumentActionTest extends TestCase
         }
     }
 
+    /**
+     * @dataProvider genErrorDocumentProvider
+     */
+    public function testGenerateDocumentError(string $documentType, string $documentRangerType): void
+    {
+        $context = Context::createDefaultContext();
+        $customerId = $this->createCustomer($context);
+        $order = $this->createOrder($customerId, $context);
+
+        $event = new OrderStateMachineStateChangeEvent('state_enter.order.state.in_progress', $order, $context);
+        $subscriber = new GenerateDocumentAction(
+            $this->documentService,
+            $this->numberRange,
+            $this->connection,
+        );
+
+        $config = array_filter([
+            'documentType' => $documentType,
+            'documentRangerType' => $documentRangerType,
+        ]);
+
+        static::assertEmpty($this->getDocumentId($order->getId()));
+
+        if ($documentType === CreditNoteGenerator::CREDIT_NOTE) {
+            $this->addCreditItemToVersionedOrder($order->getId(), $context);
+        }
+
+        static::expectException(GenerateDocumentActionException::class);
+        $subscriber->handle(new FlowEvent(GenerateDocumentAction::getName(), new FlowState($event), $config));
+    }
+
+    public function testGenerateCustomDocument(): void
+    {
+        $context = Context::createDefaultContext();
+        $customerId = $this->createCustomer($context);
+        $order = $this->createOrder($customerId, $context);
+
+        $event = new OrderStateMachineStateChangeEvent('state_enter.order.state.in_progress', $order, $context);
+        $subscriber = new GenerateDocumentAction(
+            $this->documentService,
+            $this->numberRange,
+            $this->connection,
+        );
+
+        $config = array_filter([
+            'documentType' => 'customDoc',
+            'documentRangerType' => 'document_example',
+            'custom' => [
+                'invoiceNumber' => '1100',
+            ],
+        ]);
+
+        $this->insertCustomDocument();
+        $this->insertRange();
+
+        $registry = $this->getContainer()->get(DocumentGeneratorRegistry::class);
+        $customDocGenerator = new CustomDoc();
+        $class = new \ReflectionClass($registry);
+        $property = $class->getProperty('documentGenerators');
+        $property->setAccessible(true);
+        $oldValue = $property->getValue($registry);
+        $property->setValue(
+            $registry,
+            [$customDocGenerator]
+        );
+
+        static::assertEmpty($this->getDocumentId($order->getId()));
+
+        $subscriber->handle(new FlowEvent(GenerateDocumentAction::getName(), new FlowState($event), $config));
+        static::assertNotEmpty($this->getDocumentId($order->getId()));
+        $property->setValue(
+            $registry,
+            $oldValue
+        );
+    }
+
     public function genDocumentProvider(): iterable
     {
         yield 'Generate invoice' => ['invoice', 'document_invoice'];
         yield 'Generate multiple doc' => ['invoice', 'document_invoice', false, true];
         yield 'Generate storno with invoice existed' => ['storno', 'document_storno', true];
-        yield 'Generate storno with invoice not exist' => ['storno', 'document_storno'];
         yield 'Generate delivery' => ['delivery_note', 'document_delivery_note'];
         yield 'Generate credit with invoice existed' => ['credit_note', 'document_credit_note', true];
+    }
+
+    public function genErrorDocumentProvider(): iterable
+    {
+        yield 'Generate storno with invoice not exist' => ['storno', 'document_storno'];
         yield 'Generate credit with invoice not exist' => ['credit_note', 'document_credit_note'];
     }
 
@@ -331,5 +418,133 @@ class GenerateDocumentActionTest extends TestCase
         $order = $this->orderRepository->search(new Criteria([$orderId]), $context);
 
         return $order->first();
+    }
+
+    private function insertRange(): void
+    {
+        $numberRangeId = Uuid::randomBytes();
+        $numberRangeTypeId = Uuid::randomBytes();
+
+        $this->insertNumberRange($this->connection, $numberRangeId, $numberRangeTypeId);
+        $this->insertTranslations($this->connection, $numberRangeId, $numberRangeTypeId);
+    }
+
+    private function insertNumberRange(Connection $connection, string $numberRangeId, string $numberRangeTypeId): void
+    {
+        $connection->insert('number_range_type', [
+            'id' => $numberRangeTypeId,
+            'global' => 0,
+            'technical_name' => 'document_example',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $connection->insert('number_range', [
+            'id' => $numberRangeId,
+            'type_id' => $numberRangeTypeId,
+            'global' => 0,
+            'pattern' => '{n}',
+            'start' => 10000,
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $connection->insert('number_range_sales_channel', [
+            'id' => Uuid::randomBytes(),
+            'number_range_id' => $numberRangeId,
+            'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
+            'number_range_type_id' => $numberRangeTypeId,
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+    }
+
+    private function insertTranslations(Connection $connection, string $numberRangeId, string $numberRangeTypeId): void
+    {
+        $numberRangeTranslations = new Translations(
+            [
+                'number_range_id' => $numberRangeId,
+                'name' => 'Beispiel',
+            ],
+            [
+                'number_range_id' => $numberRangeId,
+                'name' => 'Example',
+            ]
+        );
+
+        $numberRangeTypeTranslations = new Translations(
+            [
+                'number_range_type_id' => $numberRangeTypeId,
+                'type_name' => 'Beispiel',
+            ],
+            [
+                'number_range_type_id' => $numberRangeTypeId,
+                'type_name' => 'Example',
+            ]
+        );
+
+        $this->importTranslation(
+            'number_range_translation',
+            $numberRangeTranslations,
+            $connection
+        );
+
+        $this->importTranslation(
+            'number_range_type_translation',
+            $numberRangeTypeTranslations,
+            $connection
+        );
+    }
+
+    private function insertCustomDocument(): void
+    {
+        $documentTypeId = Uuid::randomBytes();
+
+        $this->connection->insert('document_type', [
+            'id' => $documentTypeId,
+            'technical_name' => 'customDoc',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $this->addTranslations($documentTypeId);
+    }
+
+    private function addTranslations(string $documentTypeId): void
+    {
+        $englishName = 'Example document type name';
+        $germanName = 'Beispiel Dokumententyp Name';
+
+        $documentTypeTranslations = new Translations(
+            [
+                'document_type_id' => $documentTypeId,
+                'name' => $germanName,
+            ],
+            [
+                'document_type_id' => $documentTypeId,
+                'name' => $englishName,
+            ]
+        );
+
+        $this->importTranslation(
+            'document_type_translation',
+            $documentTypeTranslations,
+            $this->connection
+        );
+    }
+}
+class CustomDoc implements DocumentGeneratorInterface
+{
+    public const CUSTOM_DOC = 'customDoc';
+
+    public function supports(): string
+    {
+        return self::CUSTOM_DOC;
+    }
+
+    public function generate(OrderEntity $order, DocumentConfiguration $config, Context $context, ?string $templatePath = null): string
+    {
+        return '';
+    }
+
+    public function getFileName(DocumentConfiguration $config): string
+    {
+        return '';
     }
 }

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentGenerator\CreditNoteGenerator;
@@ -12,6 +11,7 @@ use Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator;
 use Shopware\Core\Checkout\Document\DocumentGenerator\StornoGenerator;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Content\Flow\Exception\GenerateDocumentActionException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\OrderAware;
@@ -26,18 +26,14 @@ class GenerateDocumentAction extends FlowAction
 
     private NumberRangeValueGeneratorInterface $valueGenerator;
 
-    private LoggerInterface $logger;
-
     public function __construct(
         DocumentService $documentService,
         NumberRangeValueGeneratorInterface $valueGenerator,
-        Connection $connection,
-        LoggerInterface $logger
+        Connection $connection
     ) {
         $this->documentService = $documentService;
         $this->valueGenerator = $valueGenerator;
         $this->connection = $connection;
-        $this->logger = $logger;
     }
 
     public static function getName(): string
@@ -123,10 +119,6 @@ class GenerateDocumentAction extends FlowAction
             $baseEvent->getOrderId()
         );
 
-        if (empty($customConfig)) {
-            return;
-        }
-
         $eventConfig['custom'] = $customConfig;
 
         $documentConfig = DocumentConfigurationFactory::createConfiguration($eventConfig);
@@ -175,19 +167,11 @@ class GenerateDocumentAction extends FlowAction
         );
 
         if (empty($referencedInvoiceDocument)) {
-            $this->logger->info(
-                'Can not generate ' . $documentType . ' document because no invoice document exists. OrderId: ' . $orderId
-            );
-
-            return [];
+            throw new GenerateDocumentActionException('Cannot generate ' . $documentType . ' document because no invoice document exists. OrderId: ' . $orderId);
         }
 
         if ($documentType === CreditNoteGenerator::CREDIT_NOTE && !$this->hasCreditItem($orderId)) {
-            $this->logger->info(
-                'Can not generate the credit note document because no credit items exist. OrderId: ' . $orderId
-            );
-
-            return [];
+            throw new GenerateDocumentActionException('Cannot generate the credit note document because no credit items exist. OrderId: ' . $orderId);
         }
 
         $documentRefer = json_decode($referencedInvoiceDocument['config'], true);

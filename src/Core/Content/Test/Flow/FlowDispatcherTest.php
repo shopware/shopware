@@ -418,6 +418,7 @@ class FlowDispatcherTest extends TestCase
                     ],
                     'position' => 1,
                     'trueCase' => true,
+                    'appFlowActionId' => null,
                 ],
                 [
                     'id' => Uuid::randomHex(),
@@ -432,6 +433,7 @@ class FlowDispatcherTest extends TestCase
                     ],
                     'position' => 2,
                     'trueCase' => false,
+                    'appFlowActionId' => null,
                 ],
             ], $additionSequence),
         ],

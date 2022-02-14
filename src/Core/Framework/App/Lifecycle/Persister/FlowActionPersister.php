@@ -57,6 +57,7 @@ class FlowActionPersister
             'name' => 'app.' . $action->getMeta()->getName(),
             'iconRaw' => $this->getIcon($action->getMeta()->getIcon(), $flowActions),
             'swIcon' => $action->getMeta()->getSwIcon(),
+            'url' => $action->getMeta()->getUrl(),
             'translations' => $this->toArrayTranslations($action->getMeta()),
             'parameters' => array_map(function ($parameter) {
                 return $parameter->jsonSerialize();
@@ -66,7 +67,7 @@ class FlowActionPersister
             }, $action->getConfig()->getConfig()),
             'headers' => array_map(function ($header) {
                 return $header->jsonSerialize();
-            }, $action->getConfig()->getConfig()),
+            }, $action->getHeaders()->getParameters()),
             'requirements' => array_map(function ($aware) {
                 return $this->awareMappings($aware);
             }, $action->getMeta()->getRequirements()),

@@ -41,6 +41,8 @@ class AppFlowActionEntity extends Entity
 
     protected ?string $swIcon;
 
+    protected string $url;
+
     protected ?AppFlowActionTranslationCollection $translations;
 
     protected ?FlowSequenceCollection $flowSequences = null;
@@ -163,6 +165,16 @@ class AppFlowActionEntity extends Entity
     public function setSwIcon(?string $swIcon): void
     {
         $this->swIcon = $swIcon;
+    }
+
+    public function getUrl(): string
+    {
+        return $this->url;
+    }
+
+    public function setUrl(string $url): void
+    {
+        $this->url = $url;
     }
 
     public function getTranslations(): ?AppFlowActionTranslationCollection

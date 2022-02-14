@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
+use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -54,18 +55,52 @@ class WebhookPersister
         $this->deleteOldWebhooks($existingWebhooks, $context);
     }
 
+    public function updateAppFlowActionWebhooks(array $actions, string $appId, Context $context): void
+    {
+        $existingWebhooks = $this->getExistingWebhooks($appId, $context);
+        $upserts = [];
+
+        foreach ($actions as $action) {
+            $name = 'app.' . $action->getMeta()->getName();
+
+            $webhook = [
+                'name' => $name,
+                'eventName' => AppFlowActionEvent::PREFIX . $name,
+                'url' => $action->getMeta()->getUrl(),
+                'appId' => $appId,
+                'active' => true,
+                'errorCount' => 0,
+            ];
+
+            /** @var WebhookEntity|null $existing */
+            $existing = $existingWebhooks->filterByProperty('name', $name)->first();
+            if ($existing) {
+                $webhook['id'] = $existing->getId();
+                $existingWebhooks->remove($existing->getId());
+            }
+
+            $upserts[] = $webhook;
+        }
+
+        $this->webhookRepository->upsert($upserts, $context);
+
+        $this->deleteOldWebhooks($existingWebhooks, $context);
+    }
+
     private function deleteOldWebhooks(WebhookCollection $toBeRemoved, Context $context): void
     {
         /** @var array<string> $ids */
         $ids = $toBeRemoved->getIds();
 
-        if (!empty($ids)) {
-            $ids = array_map(static function (string $id): array {
-                return ['id' => $id];
-            }, array_values($ids));
-
-            $this->webhookRepository->delete($ids, $context);
+        if (empty($ids)) {
+            return;
         }
+
+        $ids = array_map(static function (string $id): array {
+            return ['id' => $id];
+        }, array_values($ids));
+
+        $this->webhookRepository->delete($ids, $context);
     }
 
     private function getExistingWebhooks(string $appId, Context $context): WebhookCollection

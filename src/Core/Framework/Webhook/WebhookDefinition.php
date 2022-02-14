@@ -59,7 +59,6 @@ class WebhookDefinition extends EntityDefinition
             new BoolField('active', 'active'),
             new FkField('app_id', 'appId', AppDefinition::class),
             new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),
-            new BoolField('normalized', 'normalized'),
         ]);
 
         return $collection;

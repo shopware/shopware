@@ -4,6 +4,11 @@ namespace Shopware\Core\Content\Flow\Indexing;
 
 use Shopware\Core\Content\Flow\Events\FlowIndexerEvent;
 use Shopware\Core\Content\Flow\FlowDefinition;
+use Shopware\Core\Framework\App\Event\AppActivatedEvent;
+use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
+use Shopware\Core\Framework\App\Event\AppDeletedEvent;
+use Shopware\Core\Framework\App\Event\AppInstalledEvent;
+use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
@@ -58,6 +63,11 @@ class FlowIndexer extends EntityIndexer implements EventSubscriberInterface
             PluginPostUpdateEvent::class => 'refreshPlugin',
             PluginPostDeactivateEvent::class => 'refreshPlugin',
             PluginPostUninstallEvent::class => 'refreshPlugin',
+            AppInstalledEvent::class => 'refreshPlugin',
+            AppUpdatedEvent::class => 'refreshPlugin',
+            AppActivatedEvent::class => 'refreshPlugin',
+            AppDeletedEvent::class => 'refreshPlugin',
+            AppDeactivatedEvent::class => 'refreshPlugin',
         ];
     }
 

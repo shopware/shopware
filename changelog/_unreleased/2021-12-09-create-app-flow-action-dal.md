@@ -10,5 +10,4 @@ issue: NEXT-18950
 *  Added new property `flowActions` to `Shopware\Core\Framework\App\AppEntity`.
 *  Added OneToMany association between `language` and `app_flow_action_translation`.
 *  Added new property `appFlowActionTranslations` to `Shopware\Core\System\Language\LanguageEntity`.
-*  Added new property `normalized` to `Shopware\Core\Framework\Webhook\WebhookEntity`.
 *  Added new class `Shopware\Core\Framework\App\FlowAction\AppFlowActionLoadedSubscriber`

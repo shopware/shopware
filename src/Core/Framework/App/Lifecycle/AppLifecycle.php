@@ -280,6 +280,13 @@ class AppLifecycle extends AbstractAppLifecycle
         $flowActions = $this->appLoader->getFlowActions($app);
         if ($flowActions) {
             $this->flowBuilderActionPersister->updateActions($flowActions, $id, $context);
+            $actions = $flowActions->getActions();
+
+            $this->webhookPersister->updateAppFlowActionWebhooks(
+                $actions ? $actions->getActions() : [],
+                $id,
+                $context
+            );
         }
 
         $this->updateConfigurable($app, $manifest, $install, $context);

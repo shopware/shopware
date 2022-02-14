@@ -67,6 +67,7 @@ class AppFlowActionDefinition extends EntityDefinition
             (new BlobField('icon', 'iconRaw')),
             (new StringField('icon', 'icon'))->addFlags(new WriteProtected(), new Runtime()),
             (new StringField('sw_icon', 'swIcon')),
+            (new StringField('url', 'url'))->addFlags(new Required()),
             new TranslatedField('label'),
             new TranslatedField('description'),
             new TranslatedField('customFields'),

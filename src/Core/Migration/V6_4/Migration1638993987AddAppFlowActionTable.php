@@ -19,6 +19,7 @@ class Migration1638993987AddAppFlowActionTable extends MigrationStep
                 `id`                        BINARY(16)      NOT NULL,
                 `app_id`                    BINARY(16)      NOT NULL,
                 `name`                      VARCHAR(255)    NOT NULL,
+                `url`                       VARCHAR(500)    NOT NULL,
                 `parameters`                JSON            NULL,
                 `config`                    JSON            NULL,
                 `headers`                   JSON            NULL,

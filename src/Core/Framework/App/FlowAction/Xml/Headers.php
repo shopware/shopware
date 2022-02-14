@@ -36,8 +36,8 @@ class Headers extends XmlElement
     {
         $values = [];
 
-        foreach ($element->getElementsByTagName('parameter') as $parameter) {
-            $values[] = Parameter::fromXml($parameter);
+        foreach ($element->getElementsByTagName('parameter') as $parameters) {
+            $values[] = Parameter::fromXml($parameters);
         }
 
         return $values;

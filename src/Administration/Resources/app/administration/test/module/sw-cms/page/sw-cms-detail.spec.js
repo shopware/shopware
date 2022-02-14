@@ -6,7 +6,7 @@ import 'src/module/sw-cms/state/cms-page.state';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import 'src/module/sw-cms/page/sw-cms-detail';
 
-function createWrapper(privileges = []) {
+function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
@@ -35,13 +35,6 @@ function createWrapper(privileges = []) {
             }
         },
         provide: {
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
-                }
-            },
             repositoryFactory: {
                 create: () => {
                     return {
@@ -51,7 +44,8 @@ function createWrapper(privileges = []) {
                                 {}
                             ]
                         }),
-                        save: jest.fn(() => Promise.resolve())
+                        save: jest.fn(() => Promise.resolve()),
+                        clone: jest.fn(() => Promise.resolve())
                     };
                 }
             },
@@ -115,9 +109,11 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
     });
 
     it('should enable all fields when acl rights are missing', async () => {
-        const wrapper = createWrapper([
-            'cms.editor'
-        ]);
+        global.activeAclRoles = [
+            'cms.editor',
+        ];
+
+        const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
         await wrapper.setData({
             isLoading: false
@@ -169,9 +165,11 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
     });
 
     it('should not show layout assignment when saving after create wizard', async () => {
-        const wrapper = createWrapper([
-            'cms.editor'
-        ]);
+        global.activeAclRoles = [
+            'cms.editor',
+        ];
+
+        const wrapper = createWrapper();
         const openLayoutAssignmentModalSpy = jest.spyOn(wrapper.vm, 'openLayoutAssignmentModal');
 
         await wrapper.vm.$nextTick();
@@ -219,9 +217,11 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
     });
 
     it('should not show layout assignment when saving and not coming from create wizard', async () => {
-        const wrapper = createWrapper([
-            'cms.editor'
-        ]);
+        global.activeAclRoles = [
+            'cms.editor',
+        ];
+
+        const wrapper = createWrapper();
         const openLayoutAssignmentModalSpy = jest.spyOn(wrapper.vm, 'openLayoutAssignmentModal');
         const SaveSpy = jest.spyOn(wrapper.vm.pageRepository, 'save');
 

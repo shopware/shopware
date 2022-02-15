@@ -46,7 +46,7 @@ describe('Snippets: Visual testing', () => {
         cy.contains('.sw-grid__cell-content a', 'BASE de-DE').click();
 
         // Ensure snapshot consistency
-        cy.get('.sw-data-grid__skeleton').should('not.exist');
+        cy.get('.sw-skeleton__listing').should('not.exist');
         cy.changeElementStyling('.sw-page__smart-bar-amount', 'color : #fff');
 
         // Take Snapshot
@@ -54,7 +54,7 @@ describe('Snippets: Visual testing', () => {
             '.sw-settings-snippet-list__grid');
 
         cy.contains('.sw-data-grid__cell-content a', 'aWonderful.customSnip').click();
-        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-skeleton__detail').should('not.exist');
         cy.takeSnapshot('[Snippets] Detail', '.sw-settings-snippet-detail');
     });
 });

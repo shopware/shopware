@@ -52,7 +52,7 @@ describe('Property: Visual tests', () => {
         cy.get('.sw-property-list__content').should('exist');
 
         // Take snapshot for visual testing
-        cy.get('.sw-data-grid__skeleton').should('not.exist');
+        cy.get('.sw-skeleton__listing').should('not.exist');
 
         // Change color of the element to ensure consistent snapshots
         cy.changeElementStyling('.sw-data-grid__cell--options', 'color: #fff');
@@ -67,6 +67,9 @@ describe('Property: Visual tests', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
+        cy.get('.sw-page__main-content').should('be.visible');
+        cy.get('.sw-skeleton__detail-bold').should('not.exist');
+        cy.get('.sw-skeleton__detail').should('not.exist');
         cy.get(page.elements.cardTitle).contains('Basic information');
 
         // Take snapshot for visual testing

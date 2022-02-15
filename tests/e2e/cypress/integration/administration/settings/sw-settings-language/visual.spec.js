@@ -32,7 +32,8 @@ describe('Language: Visual testing', () => {
         cy.takeSnapshot('[Language] Listing', '.sw-settings-language-list');
 
         cy.contains('.sw-data-grid__cell--name a', 'English').click();
-        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-page__main-content').should('be.visible');
+        cy.get('.sw-skeleton__detail').should('not.exist');
         cy.takeSnapshot('[Language] Details', '.sw-settings-language-detail');
     });
 });

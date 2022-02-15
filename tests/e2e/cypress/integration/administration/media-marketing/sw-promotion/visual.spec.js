@@ -45,7 +45,7 @@ describe('Promotion: Visual tests', () => {
         }).as('patchPromotion');
 
         // Take snapshot for visual testing
-        cy.get('.sw-data-grid__skeleton').should('not.exist');
+        cy.get('.sw-skeleton__listing').should('not.exist');
         cy.takeSnapshot('[Promotion] listing', '.sw-promotion-list');
 
         cy.get('a[href="#/sw/promotion/create"]').click();

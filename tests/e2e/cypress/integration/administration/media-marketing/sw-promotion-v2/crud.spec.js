@@ -187,7 +187,7 @@ describe('Promotion v2: Test crud operations', () => {
         // Verify updated product
         cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
         cy.get('.sw-sidebar-navigation-item[title="Refresh"]').click();
-        cy.get('.sw-data-grid__skeleton').should('not.exist');
+        cy.get('.sw-skeleton__listing').should('not.exist');
         cy.get('.sw-promotion-v2-empty-state-hero').should('be.visible');
     });
 });

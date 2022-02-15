@@ -67,7 +67,7 @@ describe('Product: Visual tests', () => {
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
             .contains('Product with file upload image');
 
-        cy.get('.sw-data-grid__skeleton').should('not.exist');
+        cy.get('.sw-skeleton__listing').should('not.exist');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Product listing`);
     });

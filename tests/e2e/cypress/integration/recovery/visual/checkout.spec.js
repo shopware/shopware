@@ -116,7 +116,7 @@ describe('Checkout: Visual tests', () => {
         cy.login();
         cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
 
-        cy.get('.sw-data-grid__skeleton').should('not.exist');
+        cy.get('.sw-skeleton__listing').should('not.exist');
         cy.prepareAdminForScreenshot();
 
         // Change color of the element to ensure consistent snapshots

@@ -9,6 +9,7 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
+use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageSliderItemStruct;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageSliderStruct;
 use Shopware\Core\Content\Media\Cms\Type\ImageSliderTypeDataResolver;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -91,6 +92,23 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('sliderItems', FieldConfig::SOURCE_MAPPED, 'product.media'));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('image-slider');
+        $slot->setFieldConfig($fieldConfig);
+
+        $collection = $this->imageSliderResolver->collect($slot, $resolverContext);
+
+        static::assertNull($collection);
+    }
+
+    public function testCollectWithDefaultConfig(): void
+    {
+        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('sliderItems', FieldConfig::SOURCE_DEFAULT, 'my_default_media.png'));
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
@@ -208,6 +226,56 @@ class ImageSliderTypeDataResolverTest extends TestCase
         static::assertEquals($imageSliderStruct->getSliderItems()[2]->getMedia()->getId(), 'media1');
         static::assertEquals($imageSliderStruct->getSliderItems()[3]->getMedia()->getId(), 'media3');
         static::assertEquals($imageSliderStruct->getSliderItems()[4]->getMedia()->getId(), 'media4');
+    }
+
+    public function testEnrichWithDefaultConfig(): void
+    {
+        $productMediaCollection = $this->getProductMediaCollection();
+        $resolverContext = $this->getResolverContext($productMediaCollection);
+
+        $this->imageSliderResolver->setCmsDefaultAssetPath(__DIR__ . '/../../fixtures/');
+
+        $medias = [
+            ['fileName' => 'animated.gif'],
+            ['fileName' => 'shopware.jpg'],
+        ];
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('sliderItems', FieldConfig::SOURCE_DEFAULT, $medias));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('image-slider');
+        $slot->setFieldConfig($fieldConfig);
+
+        $result = $this->getEntitySearchResult($productMediaCollection, $resolverContext);
+
+        $this->imageSliderResolver->enrich($slot, $resolverContext, $result);
+        $imageSliderStruct = $slot->getData();
+
+        static::assertInstanceOf(ImageSliderStruct::class, $imageSliderStruct);
+
+        $imageSliderItems = $imageSliderStruct->getSliderItems();
+        static::assertIsArray($imageSliderItems);
+        static::assertNotEmpty($imageSliderItems);
+
+        /** @var ImageSliderItemStruct $firstSliderItem */
+        $firstSliderItem = $imageSliderItems[0];
+
+        /** @var ImageSliderItemStruct $firstSliderItem */
+        $firstSliderItemMedia = $firstSliderItem->getMedia();
+        static::assertEquals('animated.gif', $firstSliderItemMedia->getFileName());
+        static::assertEquals('image/gif', $firstSliderItemMedia->getMimeType());
+        static::assertEquals('gif', $firstSliderItemMedia->getFileExtension());
+
+        /** @var ImageSliderItemStruct $secondSliderItem */
+        $secondSliderItem = $imageSliderItems[1];
+
+        /** @var MediaEntity $secondSliderItem */
+        $secondSliderItemMedia = $secondSliderItem->getMedia();
+        static::assertEquals('shopware.jpg', $secondSliderItemMedia->getFileName());
+        static::assertEquals('image/jpeg', $secondSliderItemMedia->getMimeType());
+        static::assertEquals('jpg', $secondSliderItemMedia->getFileExtension());
     }
 
     protected function getProductMediaCollection(): ProductMediaCollection

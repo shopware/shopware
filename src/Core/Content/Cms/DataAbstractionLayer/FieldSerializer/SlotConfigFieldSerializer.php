@@ -26,6 +26,7 @@ class SlotConfigFieldSerializer extends JsonFieldSerializer
                                     FieldConfig::SOURCE_STATIC,
                                     FieldConfig::SOURCE_MAPPED,
                                     FieldConfig::SOURCE_PRODUCT_STREAM,
+                                    FieldConfig::SOURCE_DEFAULT,
                                 ],
                             ]),
                             new NotBlank(),

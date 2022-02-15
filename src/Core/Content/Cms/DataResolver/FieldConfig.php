@@ -9,6 +9,7 @@ class FieldConfig extends Struct
 {
     public const SOURCE_STATIC = 'static';
     public const SOURCE_MAPPED = 'mapped';
+    public const SOURCE_DEFAULT = 'default';
     public const SOURCE_PRODUCT_STREAM = 'product_stream';
 
     /**
@@ -108,6 +109,11 @@ class FieldConfig extends Struct
     public function isProductStream(): bool
     {
         return $this->source === self::SOURCE_PRODUCT_STREAM;
+    }
+
+    public function isDefault(): bool
+    {
+        return $this->source === self::SOURCE_DEFAULT;
     }
 
     public function getApiAlias(): string

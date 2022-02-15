@@ -24,13 +24,21 @@
                         <div class="image-slider-container"
                              data-base-slider-container="true">
                             {% for image in element.data.sliderItems %}
+                                {% set media = image.media %}
+                                {% if sliderConfig.sliderItems.source == 'default' %}
+                                    {% do media.setUrl(asset("bundles/storefront/assets/default/cms/" ~ media.fileName )) %}
+                                    {% do media.setTranslated({
+                                        'title': ("component.cms.defaultMedia." ~ media.fileName ~ ".title")|trans,
+                                        'alt': ("component.cms.defaultMedia." ~ media.fileName ~ ".alt")|trans,
+                                    }) %}
+                                {% endif %}
 
                                 {% set imageElement %}
                                     <div class="image-slider-item{% if loop.first != true %} is-not-first{% endif %} is-{{ sliderConfig.displayMode.value }}"{% if sliderConfig.minHeight.value and  sliderConfig.displayMode.value == "cover" %} style="min-height: {{ sliderConfig.minHeight.value }}"{% endif %}>
                                         {% set attributes = {
                                             'class': 'img-fluid image-slider-image',
-                                            'alt': (image.media.translated.alt ?: ''),
-                                            'title': (image.media.translated.title ?: '')
+                                            'alt': (media.translated.alt ?: ''),
+                                            'title': (media.translated.title ?: '')
                                         } %}
 
                                         {% if element.config.displayMode.value == 'cover' or element.config.displayMode.value == 'contain' %}
@@ -38,7 +46,7 @@
                                         {% endif %}
 
                                         {% sw_thumbnails 'cms-image-slider-thumbnails' with {
-                                            media: image.media
+                                            media: media
                                         } %}
                                     </div>
                                 {% endset %}

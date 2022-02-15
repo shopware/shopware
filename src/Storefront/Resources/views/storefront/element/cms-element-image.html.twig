@@ -9,14 +9,23 @@
                 {% block element_image_inner %}
                     {% set imageElement %}
                         {% block element_image_container %}
-                            {% if element.data.media.url %}
+                            {% set media = element.data.media %}
+                            {%  if config.media.source == 'default' %}
+                                {% do media.setUrl(asset("bundles/storefront/assets/default/cms/" ~ media.fileName )) %}
+                                {% do media.setTranslated({
+                                    'title': ("component.cms.defaultMedia." ~ media.fileName ~ ".title")|trans,
+                                    'alt': ("component.cms.defaultMedia." ~ media.fileName ~ ".alt")|trans,
+                                }) %}
+                            {% endif %}
+
+                            {% if media.url %}
                                 <div class="cms-image-container is-{{ element.translated.config.displayMode.value }}"
                                     {% if element.translated.config.minHeight.value and element.translated.config.displayMode.value == "cover" %} style="min-height: {{ element.translated.config.minHeight.value }};"{% endif %}>
                                     {% block element_image_media %}
                                         {% set attributes = {
                                             'class': 'cms-image',
-                                            'alt': (element.data.media.translated.alt ?: ''),
-                                            'title': (element.data.media.translated.title ?: '')
+                                            'alt': (media.translated.alt ?: ''),
+                                            'title': (media.translated.title ?: '')
                                         } %}
 
                                         {% if element.translated.config.displayMode.value == 'cover' or element.translated.config.displayMode.value == 'contain' %}

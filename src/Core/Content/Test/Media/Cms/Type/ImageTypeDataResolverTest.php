@@ -267,6 +267,29 @@ class ImageTypeDataResolverTest extends TestCase
         static::assertEmpty($imageStruct->getMedia());
     }
 
+    public function testEnrichWithDefaultConfig(): void
+    {
+        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $result = new ElementDataCollection();
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('media', FieldConfig::SOURCE_DEFAULT, 'shopware.jpg'));
+
+        $slot = new CmsSlotEntity();
+        $slot->setFieldConfig($fieldConfig);
+
+        $this->imageResolver->setCmsDefaultAssetPath(__DIR__ . '/../../fixtures/');
+        $this->imageResolver->enrich($slot, $resolverContext, $result);
+
+        /** @var ImageStruct|null $imageStruct */
+        $imageStruct = $slot->getData();
+        $media = $imageStruct->getMedia();
+
+        static::assertEquals('shopware.jpg', $media->getFileName());
+        static::assertEquals('image/jpeg', $media->getMimeType());
+        static::assertEquals('jpg', $media->getFileExtension());
+    }
+
     public function testMediaWithRemote(): void
     {
         $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());

@@ -10,6 +10,7 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageSliderItemStruct;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageSliderStruct;
+use Shopware\Core\Content\Media\Cms\ImageCmsElementResolver;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
@@ -19,6 +20,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
 {
+    /**
+     * @var string
+     */
+    private $cmsDefaultAssetPath = ImageCmsElementResolver::CMS_DEFAULT_ASSETS_PATH;
+
+    public function setCmsDefaultAssetPath(string $path): void
+    {
+        $this->cmsDefaultAssetPath = $path;
+    }
+
     public function getType(): string
     {
         return 'image-slider';
@@ -27,7 +38,7 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
     public function collect(CmsSlotEntity $slot, ResolverContext $resolverContext): ?CriteriaCollection
     {
         $sliderItemsConfig = $slot->getFieldConfig()->get('sliderItems');
-        if ($sliderItemsConfig === null || $sliderItemsConfig->isMapped()) {
+        if ($sliderItemsConfig === null || $sliderItemsConfig->isMapped() || $sliderItemsConfig->isDefault()) {
             return null;
         }
 
@@ -61,6 +72,12 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
         if ($sliderItemsConfig->isStatic()) {
             foreach ($sliderItemsConfig->getArrayValue() as $sliderItem) {
                 $this->addMedia($slot, $imageSlider, $result, $sliderItem);
+            }
+        }
+
+        if ($sliderItemsConfig->isDefault()) {
+            foreach ($sliderItemsConfig->getArrayValue() as $sliderItem) {
+                $this->addDefaultMedia($imageSlider, $sliderItem);
             }
         }
 
@@ -124,6 +141,31 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
             return;
         }
 
+        $imageSliderItem->setMedia($media);
+        $imageSlider->addSliderItem($imageSliderItem);
+    }
+
+    private function addDefaultMedia(ImageSliderStruct $imageSlider, array $config): void
+    {
+        $filePath = $this->cmsDefaultAssetPath . $config['fileName'];
+
+        if (!file_exists($filePath)) {
+            return;
+        }
+
+        $mimeType = mime_content_type($filePath);
+        $pathInfo = pathinfo($filePath);
+
+        if (!$mimeType || !\array_key_exists('extension', $pathInfo)) {
+            return;
+        }
+
+        $media = new MediaEntity();
+        $media->setFileName($config['fileName']);
+        $media->setMimeType($mimeType);
+        $media->setFileExtension($pathInfo['extension']);
+
+        $imageSliderItem = new ImageSliderItemStruct();
         $imageSliderItem->setMedia($media);
         $imageSlider->addSliderItem($imageSliderItem);
     }

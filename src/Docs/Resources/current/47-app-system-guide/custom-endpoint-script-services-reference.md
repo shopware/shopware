@@ -16,11 +16,14 @@ The `cache` service allows you to invalidate the cache if some entity is updated
 * **Examples:**
     * Invalidate a hard coded tag.
 
+        {% raw %}
         ```twig
         {% do services.cache.invalidate(['my-tag']) %}
         ```
+        {% endraw %}
     * Build tags based on written entities and invalidate those tags.
 
+        {% raw %}
         ```twig
         {% set ids = hook.event.getIds('product_manufacturer') %}
 		
@@ -35,8 +38,10 @@ The `cache` service allows you to invalidate the cache if some entity is updated
 		
 		{% do services.cache.invalidate(tags) %}
         ```
+        {% endraw %}
     * Build tags if products with a specific property is created and invalidate those tags.
 
+        {% raw %}
         ```twig
         {% set ids = hook.event.getIds('product') %}
 		
@@ -52,6 +57,7 @@ The `cache` service allows you to invalidate the cache if some entity is updated
 		
 		{% do services.cache.invalidate(tags) %}
         ```
+        {% endraw %}
 _________
 ## [services.writer (`Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryWriterFacade`)](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/DataAbstractionLayer/Facade/RepositoryWriterFacade.php) {#repositorywriterfacade}
 
@@ -72,18 +78,22 @@ Keep in mind that your app needs to have the correct permissions for the data it
 * **Examples:**
     * Create a new entity.
 
+        {% raw %}
         ```twig
         {% do services.writer.upsert('tax', [
 		    { 'name': 'new Tax', 'taxRate': 99.9 }
 		]) %}
         ```
+        {% endraw %}
     * Update an existing entity.
 
+        {% raw %}
         ```twig
         {% do services.writer.upsert('product', [
 		    { 'id':  hook.productId, 'active': true }
 		]) %}
         ```
+        {% endraw %}
 ### delete()
 
 * The `delete()` method allows you to delete entities from the database.
@@ -98,11 +108,13 @@ Keep in mind that your app needs to have the correct permissions for the data it
 * **Examples:**
     * Delete an entity.
 
+        {% raw %}
         ```twig
         {% do services.writer.delete('product', [
 		    { 'id':  hook.productId }
 		]) %}
         ```
+        {% endraw %}
 ### sync()
 
 * The `sync()` method allows you to execute updates and deletes to multiple entities in one method call.
@@ -116,6 +128,7 @@ Keep in mind that your app needs to have the correct permissions for the data it
 * **Examples:**
     * Update an entity and delete another one with one `sync()` call.
 
+        {% raw %}
         ```twig
         {% set payload = [
 		    {
@@ -136,6 +149,7 @@ Keep in mind that your app needs to have the correct permissions for the data it
 		
 		{% do services.writer.sync(payload) %}
         ```
+        {% endraw %}
 _________
 ## [services.response (`Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade`)](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Script/Api/ScriptResponseFactoryFacade.php) {#scriptresponsefactoryfacade}
 
@@ -158,12 +172,15 @@ The `response` service allows you to create HTTP-Responses.
 * **Examples:**
     * Return hard coded values as JsonResponse.
 
+        {% raw %}
         ```twig
         {% set response = services.response.json({ 'foo': 'bar' }) %}
 		{% do hook.setResponse(response) %}
         ```
+        {% endraw %}
     * Search for products and return them in a JsonResponse.
 
+        {% raw %}
         ```twig
         {# @var services \Shopware\Core\Framework\Script\ServiceStubs #}
 		{% set products = services.repository.search('product', hook.request) %}
@@ -171,6 +188,7 @@ The `response` service allows you to create HTTP-Responses.
 		{% set response = services.response.json({ 'products': products }) %}
 		{% do hook.setResponse(response) %}
         ```
+        {% endraw %}
 ### redirect()
 
 * The `redirect()` method allows you to create a RedirectResponse.
@@ -188,16 +206,20 @@ The `response` service allows you to create HTTP-Responses.
 * **Examples:**
     * Redirect to an Admin-API route.
 
+        {% raw %}
         ```twig
         {% set response = services.response.redirect('api.product.detail', { 'path': productId }) %}
 		{% do hook.setResponse(response) %}
         ```
+        {% endraw %}
     * Redirect to a storefront page.
 
+        {% raw %}
         ```twig
         {% set response = services.response.redirect('frontend.detail.page', { 'productId': productId }) %}
 		{% do hook.setResponse(response) %}
         ```
+        {% endraw %}
 ### render()
 
 * The `render()` method allows you to render a twig view with the parameters you provide and create a StorefrontResponse.
@@ -216,6 +238,7 @@ The `response` service allows you to create HTTP-Responses.
 * **Examples:**
     * Fetch a product, add it to the page and return a rendered response.
 
+        {% raw %}
         ```twig
         {% set product = services.store.search('product', { 'ids': [productId]}).first %}
 		
@@ -225,4 +248,5 @@ The `response` service allows you to create HTTP-Responses.
 		    services.response.render('@MyApp/storefront/page/custom-page/index.html.twig', { 'page': hook.page })
 		) %}
         ```
+        {% endraw %}
 _________

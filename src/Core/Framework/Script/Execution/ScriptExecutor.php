@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Exception\NoHookServiceFactoryException;
 use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
-use Shopware\Core\Framework\Script\Execution\Awareness\OptionalFunctionHook;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
 use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -59,7 +58,7 @@ class ScriptExecutor
         }
 
         $scripts = $this->loader->get($hook->getName());
-        $this->traces->init($hook);
+        $this->traces->initHook($hook);
 
         foreach ($scripts as $script) {
             try {

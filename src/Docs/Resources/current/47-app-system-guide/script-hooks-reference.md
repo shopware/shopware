@@ -15,8 +15,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the CustomerGroupRegistrationPage is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Account/CustomerGroupRegistration/CustomerGroupRegistrationPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### account-guest-login-page-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -27,8 +26,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the AccountGuestLoginPage is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Account\Login\AccountLoginPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Account/Login/AccountLoginPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### account-login-page-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -39,8 +37,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the AccountLoginPage is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Account\Login\AccountLoginPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Account/Login/AccountLoginPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### account-edit-order-page-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -51,8 +48,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the AccountEditOrderPage is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Account\Order\AccountEditOrderPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Account/Order/AccountEditOrderPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### account-order-detail-page-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -63,8 +59,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the AccountOrderDetailPage is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Account\Order\AccountOrderDetailPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Account/Order/AccountOrderDetailPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### account-order-page-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -75,8 +70,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the AccountOrderPage is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Account\Order\AccountOrderPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Account/Order/AccountOrderPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### account-overview-page-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -87,8 +81,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the AccountOverviewPage is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Account\Overview\AccountOverviewPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Account/Overview/AccountOverviewPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### account-payment-method-page-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -99,8 +92,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the AccountPaymentMethodPage is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Account/PaymentMethod/AccountPaymentMethodPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### account-profile-page-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -111,8 +103,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the AccountProfilePage is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Account\Profile\AccountProfilePage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Account/Profile/AccountProfilePage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### account-register-page-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -123,8 +114,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the AccountLoginPage is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Account\Login\AccountLoginPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Account/Login/AccountLoginPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### address-detail-page-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -135,8 +125,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the AddressDetailPage is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Address\Detail\AddressDetailPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Address/Detail/AddressDetailPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### address-book-widget-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -147,8 +136,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the AddressBookWidget is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Address\Listing\AddressListingPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Address/Listing/AddressListingPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### address-listing-page-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -159,8 +147,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the AddressListingPage is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Address\Listing\AddressListingPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Address/Listing/AddressListingPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### checkout-cart-page-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -171,8 +158,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the CheckoutCartPage is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Checkout/Cart/CheckoutCartPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### checkout-confirm-page-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -183,8 +169,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the CheckoutConfirmPage is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Checkout/Confirm/CheckoutConfirmPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### checkout-finish-page-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -195,8 +180,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the CheckoutFinishPage is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Checkout/Finish/CheckoutFinishPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### checkout-info-widget-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -207,8 +191,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the CheckoutInfoWidget is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Checkout/Offcanvas/OffcanvasCartPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### checkout-offcanvas-widget-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -219,8 +202,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the CheckoutOffcanvasWidget is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Checkout/Offcanvas/OffcanvasCartPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### checkout-register-page-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -231,8 +213,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the CheckoutRegisterPage is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Checkout/Register/CheckoutRegisterPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### cms-page-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -243,8 +224,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when a CmsPage is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Core\Content\Cms\CmsPageEntity`](https://github.com/shopware/platform/blob/trunk/src/Core/Content/Cms/CmsPageEntity.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### landing-page-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -255,8 +235,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the LandingPage is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\LandingPage\LandingPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/LandingPage/LandingPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### maintenance-page-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -267,8 +246,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the MaintenancePage is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Maintenance\MaintenancePage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Maintenance/MaintenancePage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### navigation-page-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -279,8 +257,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the NavigationPage is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Navigation\NavigationPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Navigation/NavigationPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### product-page-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -291,8 +268,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the ProductPage is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Product\ProductPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Product/ProductPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### product-quick-view-widget-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -303,8 +279,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the ProductQuickViewWidget is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Product/QuickView/MinimalQuickViewPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### product-reviews-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -315,8 +290,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the ProductReviewsWidget is loaded<br>                                                                                                                                               |
 | **Available Data**     | reviews: [`Shopware\Storefront\Page\Product\Review\ReviewLoaderResult`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Product/Review/ReviewLoaderResult.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### search-page-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -327,8 +301,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the SearchPage is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Search\SearchPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Search/SearchPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### search-widget-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -339,8 +312,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the SearchWidget is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Search\SearchPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Search/SearchPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### sitemap-page-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -351,8 +323,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the SitemapPage is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Sitemap\SitemapPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Sitemap/SitemapPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### suggest-page-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -363,8 +334,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the SuggestPage is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Suggest\SuggestPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Suggest/SuggestPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### guest-wishlist-page-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -375,8 +345,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the GuestWishlistPage is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Wishlist\GuestWishlistPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Wishlist/GuestWishlistPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### wishlist-page-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -387,8 +356,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the WishlistPage is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Wishlist\WishlistPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Wishlist/WishlistPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### wishlist-widget-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -399,8 +367,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the WishlistWidget is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Page\Wishlist\WishlistPage`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Wishlist/WishlistPage.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### menu-offcanvas-pagelet-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -411,8 +378,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the MenuOffcanvasPagelet is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPagelet`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Pagelet/Menu/Offcanvas/MenuOffcanvasPagelet.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### guest-wishlist-pagelet-loaded
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -423,8 +389,7 @@ All available Hooks that can be used to load additional data.
 | **Description**        | Triggered when the GuestWishlistPagelet is loaded<br>                                                                                                                                               |
 | **Available Data**     | page: [`Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPagelet`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Pagelet/Wishlist/GuestWishlistPagelet.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 
 ## Cart Manipulation
 
@@ -440,8 +405,7 @@ All available Hooks that can be used to manipulate the cart.
 | **Description**        | Triggered during the cart calculation process.<br>                                                                                                                                               |
 | **Available Data**     | cart: [`Shopware\Core\Checkout\Cart\Cart`](https://github.com/shopware/platform/blob/trunk/src/Core/Checkout/Cart/Cart.php) <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br> |
 | **Available Services** | [cart](./cart-manipulation-script-services-reference.md#CartFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 
 ## Custom API endpoint
 
@@ -457,8 +421,7 @@ All available hooks within the Store-API and API
 | **Description**        | Triggered whenever an entity is written.<br>                                                                                                                                               |
 | **Available Data**     | event: [`Shopware\Core\Framework\Adapter\Cache\Script\Facade\WrittenEventScriptFacade`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Adapter/Cache/Script/Facade/WrittenEventScriptFacade.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br> |
 | **Available Services** | [cache](./custom-endpoint-script-services-reference.md#CacheInvalidatorFacade)<br>                                                                            |
-| **Stoppable**          | `false`                                                                                                                                                 |
-
+| **Stoppable**          | `false`                                                                                                                                               |
 #### api-{hook}
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -469,20 +432,34 @@ All available hooks within the Store-API and API
 | **Description**        | Triggered when the api endpoint /api/script/{hook} is called<br>                                                                                                                                               |
 | **Available Data**     | request: `array` <br>name: `string` <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>isPropagationStopped: `bool` <br>scriptResponse: [`Shopware\Core\Framework\Script\Api\ScriptResponse`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Script/Api/ScriptResponse.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[writer](./custom-endpoint-script-services-reference.md#RepositoryWriterFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[response](./custom-endpoint-script-services-reference.md#ScriptResponseFactoryFacade)<br>                                                                            |
-| **Stoppable**          | `true`                                                                                                                                                 |
-
+| **Stoppable**          | `true`                                                                                                                                               |
 #### store-api-{hook}
 
-| <!-- -->               | <!-- -->                                                                                                                                                             |
-|:-----------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Name**               | store-api-{hook}                                                                                                                                                      |
-| **Since**              | 6.4.9.0                                                                                                                                                     |
-| **Class**              | `Shopware\Core\Framework\Script\Api\StoreApiHook`                                                                                                                                                   |
-| **Description**        | Triggered when the api endpoint /store-api/script/{hook} is called. Used to execute your logic and provide a response to the request.<br>                                                                                                                                               |
-| **Available Data**     | request: `array` <br>query: `array` <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br>script: `string` <br>functions: `array` <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>scriptResponse: [`Shopware\Core\Framework\Script\Api\ScriptResponse`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Script/Api/ScriptResponse.php) <br> |
-| **Available Services** |                                                                             |
-| **Stoppable**          | `false`                                                                                                                                                 |
+**Interface Hook**
 
+Triggered when the api endpoint /store-api/script/{hook} is called. Used to execute your logic and provide a response to the request.<br>
+##### Function: `cache_key`
+| <!-- -->               | <!-- -->                                                                                                                                                                     |
+|:-----------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Name**               | cache_key                                                                                                                                                           |
+| **Since**              | 6.4.9.0                                                                                                                                                     |
+| **Optional**           | `true`                                                                                                                                                |
+| **Class**              | `Shopware\Core\Framework\Script\Api\StoreApiCacheKeyHook`                                                                                                                                                   |
+| **Description**        | Triggered when the api endpoint /store-api/script/{hook} is called. Used to provide a cache-key based on the request.<br>Needs to be implemented when your store-api route should be cached.                                                                                                                                               |
+| **Available Data**     | request: `array` <br>query: `array` <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br>name: `string` <br>cacheKey: `string` <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>isPropagationStopped: `bool` <br> |
+| **Available Services** |                                                                             |
+| **Stoppable**          | `true`                                                                                                                                               |
+##### Function: `response`
+| <!-- -->               | <!-- -->                                                                                                                                                                     |
+|:-----------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Name**               | response                                                                                                                                                           |
+| **Since**              | 6.4.9.0                                                                                                                                                     |
+| **Optional**           | `false`                                                                                                                                                |
+| **Class**              | `Shopware\Core\Framework\Script\Api\StoreApiResponseHook`                                                                                                                                                   |
+| **Description**        | Triggered when the api endpoint /store-api/script/{hook} is called. Used to provide the HTTP-Response.<br>This function is only called when no response for the provided cache key is cached, or no `cache_key` function implemented.                                                                                                                                               |
+| **Available Data**     | request: `array` <br>query: `array` <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br>name: `string` <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>scriptResponse: [`Shopware\Core\Framework\Script\Api\ScriptResponse`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Script/Api/ScriptResponse.php) <br>isPropagationStopped: `bool` <br> |
+| **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>[writer](./custom-endpoint-script-services-reference.md#RepositoryWriterFacade)<br>[response](./custom-endpoint-script-services-reference.md#ScriptResponseFactoryFacade)<br>                                                                            |
+| **Stoppable**          | `true`                                                                                                                                               |
 #### storefront-{hook}
 
 | <!-- -->               | <!-- -->                                                                                                                                                             |
@@ -493,6 +470,5 @@ All available hooks within the Store-API and API
 | **Description**        | Triggered when the storefront endpoint /storefront/script/{hook} is called<br>                                                                                                                                               |
 | **Available Data**     | request: `array` <br>query: `array` <br>salesChannelContext: [`Shopware\Core\System\SalesChannel\SalesChannelContext`](https://github.com/shopware/platform/blob/trunk/src/Core/System/SalesChannel/SalesChannelContext.php) <br>script: `string` <br>page: [`Shopware\Storefront\Page\Page`](https://github.com/shopware/platform/blob/trunk/src/Storefront/Page/Page.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br>isPropagationStopped: `bool` <br>scriptResponse: [`Shopware\Core\Framework\Script\Api\ScriptResponse`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Script/Api/ScriptResponse.php) <br> |
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>[writer](./custom-endpoint-script-services-reference.md#RepositoryWriterFacade)<br>[response](./custom-endpoint-script-services-reference.md#ScriptResponseFactoryFacade)<br>                                                                            |
-| **Stoppable**          | `true`                                                                                                                                                 |
-
+| **Stoppable**          | `true`                                                                                                                                               |
 

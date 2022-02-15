@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
 use Shopware\Core\Framework\Script\Execution\FunctionHook;
 use Shopware\Core\Framework\Script\Execution\Hook;
+use Shopware\Core\Framework\Script\Execution\InterfaceHook;
+use Shopware\Core\Framework\Script\Execution\OptionalFunctionHook;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
@@ -129,43 +131,15 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
             ],
         ];
 
+        /** @var class-string<Hook> $hook */
         foreach ($hookClassNames as $hook) {
-            /** @var \ReflectionClass<Hook> $reflection */
-            $reflection = new \ReflectionClass($hook);
+            $hookData = $this->getDataForHook($hook);
 
-            if (!$reflection->getDocComment()) {
-                throw new \RuntimeException(sprintf('PhpDoc comment is missing on concrete HookClass `%s', $hook));
-            }
-            $docBlock = $this->docFactory->create($reflection);
-
-            /** @var Generic[] $tags */
-            $tags = $docBlock->getTagsByName('hook-use-case');
-            if (\count($tags) !== 1 || !($description = $tags[0]->getDescription()) || !\in_array($description->render(), self::ALLOWED_USE_CASES, true)) {
-                throw new \RuntimeException(sprintf(
-                    'Hook use case description is missing for hook "%s". All HookClasses need to be tagged with the `@hook-use-case` tag and associated to one of the following use cases: "%s".',
-                    $hook,
-                    implode('", "', self::ALLOWED_USE_CASES),
-                ));
+            if (is_subclass_of($hook, InterfaceHook::class)) {
+                $hookData = $this->addHookFunctionData($hookData, $hook);
             }
 
-            /** @var Since[] $since */
-            $since = $docBlock->getTagsByName('since');
-            if (\count($since) !== 1) {
-                throw new \RuntimeException(sprintf(
-                    '`@since` annotation is missing for hook "%s". All HookClasses need to be tagged with the `@since` annotation with the correct version, in which the hook was introduced.',
-                    $hook,
-                ));
-            }
-
-            $data[$description->render()]['hooks'][] = [
-                'name' => $hook::HOOK_NAME,
-                'class' => $hook,
-                'trigger' => $docBlock->getSummary() . '<br>' . $docBlock->getDescription()->render(),
-                'data' => $this->getAvailableData($reflection),
-                'services' => $this->getAvailableServices($reflection),
-                'since' => $since[0]->getVersion(),
-                'stoppable' => mb_strtolower(var_export($reflection->implementsInterface(StoppableHook::class), true)),
-            ];
+            $data[$hookData['use-case']]['hooks'][] = $hookData;
         }
 
         return $data;
@@ -257,5 +231,71 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
         $group = $this->serviceReferenceGenerator->getGroupForService($reflection);
 
         return sprintf('./%s#%s', ServiceReferenceGenerator::GROUPS[$group], $reflection->getShortName());
+    }
+
+    /**
+     * @param class-string<Hook> $hook
+     */
+    private function getDataForHook(string $hook): array
+    {
+        /** @var \ReflectionClass<Hook> $reflection */
+        $reflection = new \ReflectionClass($hook);
+
+        if (!$reflection->getDocComment()) {
+            throw new \RuntimeException(sprintf('PhpDoc comment is missing on concrete HookClass `%s', $hook));
+        }
+        $docBlock = $this->docFactory->create($reflection);
+
+        /** @var Generic[] $tags */
+        $tags = $docBlock->getTagsByName('hook-use-case');
+        if (\count($tags) !== 1 || !($description = $tags[0]->getDescription()) || !\in_array($description->render(), self::ALLOWED_USE_CASES, true)) {
+            throw new \RuntimeException(sprintf(
+                'Hook use case description is missing for hook "%s". All HookClasses need to be tagged with the `@hook-use-case` tag and associated to one of the following use cases: "%s".',
+                $hook,
+                implode('", "', self::ALLOWED_USE_CASES),
+            ));
+        }
+
+        /** @var Since[] $since */
+        $since = $docBlock->getTagsByName('since');
+        if (\count($since) !== 1) {
+            throw new \RuntimeException(sprintf(
+                '`@since` annotation is missing for hook "%s". All HookClasses need to be tagged with the `@since` annotation with the correct version, in which the hook was introduced.',
+                $hook,
+            ));
+        }
+
+        if ($reflection->hasConstant('FUNCTION_NAME')) {
+            $name = $reflection->getConstant('FUNCTION_NAME');
+        } else {
+            $name = $reflection->getConstant('HOOK_NAME');
+        }
+
+        return [
+            'name' => $name,
+            'use-case' => $description->render(),
+            'class' => $hook,
+            'trigger' => $docBlock->getSummary() . '<br>' . $docBlock->getDescription()->render(),
+            'data' => $this->getAvailableData($reflection),
+            'services' => $this->getAvailableServices($reflection),
+            'since' => $since[0]->getVersion(),
+            'stoppable' => mb_strtolower(var_export($reflection->implementsInterface(StoppableHook::class), true)),
+            'optional' => mb_strtolower(var_export($reflection->implementsInterface(OptionalFunctionHook::class), true)),
+        ];
+    }
+
+    /**
+     * @param class-string<Hook> $hook
+     */
+    private function addHookFunctionData(array $hookData, string $hook): array
+    {
+        $hookData['interfaceHook'] = true;
+        $hookData['interfaceDescription'] = "**Interface Hook**\n\n" . $hookData['trigger'];
+
+        foreach ($hook::FUNCTIONS as $functionName => $functionHook) {
+            $hookData['functions'][$functionName] = $this->getDataForHook($functionHook);
+        }
+
+        return $hookData;
     }
 }

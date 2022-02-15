@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Framework\Script\Api;
 
+use Shopware\Core\Framework\Script\Exception\HookMethodException;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
 use Shopware\Core\Framework\Script\Execution\Awareness\ScriptResponseAwareTrait;
 use Shopware\Core\Framework\Script\Execution\FunctionHook;
-use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\InterfaceHook;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -22,6 +22,11 @@ class StoreApiHook extends InterfaceHook implements SalesChannelContextAware
 
     public const HOOK_NAME = 'store-api-{hook}';
 
+    public const FUNCTIONS = [
+        StoreApiCacheKeyHook::FUNCTION_NAME => StoreApiCacheKeyHook::class,
+        StoreApiResponseHook::FUNCTION_NAME => StoreApiResponseHook::class,
+    ];
+
     private array $request;
 
     private array $query;
@@ -29,11 +34,6 @@ class StoreApiHook extends InterfaceHook implements SalesChannelContextAware
     private SalesChannelContext $salesChannelContext;
 
     private string $script;
-
-    /**
-     * @var array<string, FunctionHook>
-     */
-    private array $functions;
 
     public function __construct(string $name, array $request, array $query, SalesChannelContext $salesChannelContext)
     {
@@ -43,11 +43,6 @@ class StoreApiHook extends InterfaceHook implements SalesChannelContextAware
 
         parent::__construct($salesChannelContext->getContext());
         $this->script = $name;
-
-        $this->functions = [
-            StoreApiCacheKeyHook::FUNCTION_NAME => new StoreApiCacheKeyHook($this->getName(), $request, $query, $salesChannelContext),
-            StoreApiResponseHook::FUNCTION_NAME => new StoreApiResponseHook($this->getName(), $request, $query, $salesChannelContext),
-        ];
     }
 
     public function getRequest(): array
@@ -76,6 +71,12 @@ class StoreApiHook extends InterfaceHook implements SalesChannelContextAware
 
     public function getFunction(string $name): FunctionHook
     {
-        return $this->functions[$name];
+        if (!\array_key_exists($name, self::FUNCTIONS)) {
+            throw HookMethodException::functionDoesNotExistInInterfaceHook(__CLASS__, $name);
+        }
+
+        $functionHook = self::FUNCTIONS[$name];
+
+        return new $functionHook($this->getName(), $this->request, $this->query, $this->salesChannelContext);
     }
 }

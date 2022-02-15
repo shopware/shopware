@@ -2,13 +2,21 @@
 
 namespace Shopware\Core\Framework\Script\Api;
 
-use Shopware\Core\Framework\Script\Execution\Awareness\OptionalFunctionHook;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHookTrait;
 use Shopware\Core\Framework\Script\Execution\FunctionHook;
+use Shopware\Core\Framework\Script\Execution\OptionalFunctionHook;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * Triggered when the api endpoint /store-api/script/{hook} is called. Used to provide a cache-key based on the request.
+ * Needs to be implemented when your store-api route should be cached.
+ *
+ * @hook-use-case custom_endpoint
+ *
+ * @since 6.4.9.0
+ */
 class StoreApiCacheKeyHook extends FunctionHook implements SalesChannelContextAware, StoppableHook, OptionalFunctionHook
 {
     use StoppableHookTrait;

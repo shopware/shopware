@@ -31,6 +31,15 @@ class HookMethodException extends ShopwareHttpException
         ));
     }
 
+    public static function functionDoesNotExistInInterfaceHook(string $class, string $function): self
+    {
+        return new self(sprintf(
+            'Function "%s" does not exist for InterfaceHook "%s".',
+            $function,
+            $class
+        ));
+    }
+
     public function getErrorCode(): string
     {
         return 'FRAMEWORK__HOOK_METHOD_EXCEPTION';

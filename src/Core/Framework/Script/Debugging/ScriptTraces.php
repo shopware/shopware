@@ -23,17 +23,16 @@ class ScriptTraces extends AbstractDataCollector
     }
 
     /**
-     * @deprecated tag:v6.5.0 $hook param will change to only allow `Hook` as input type
-     *
-     * @param Hook|string $hook
+     * @deprecated tag:v6.5.0 will be removed, use `initHook` instead
      */
-    public function init($hook): void
+    public function init(string $hook): void
     {
-        if (\is_string($hook)) {
-            $name = $hook;
-        } else {
-            $name = $this->getHookName($hook);
-        }
+        // dummy implementation to not break
+    }
+
+    public function initHook(Hook $hook): void
+    {
+        $name = $this->getHookName($hook);
 
         if (\array_key_exists($name, $this->traces)) {
             // don't overwrite existing traces

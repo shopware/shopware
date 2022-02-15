@@ -16,6 +16,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
+use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 
@@ -83,7 +85,8 @@ class MoveShopPermanentlyStrategyTest extends TestCase
             new AppLoader(
                 $appDir,
                 $this->getContainer()->getParameter('kernel.project_dir'),
-                $this->getContainer()->get(ConfigReader::class)
+                $this->getContainer()->get(ConfigReader::class),
+                $this->getContainer()->get(CustomEntityXmlSchemaValidator::class)
             ),
             $this->getContainer()->get('app.repository'),
             $registrationsService,
@@ -117,7 +120,8 @@ class MoveShopPermanentlyStrategyTest extends TestCase
             new AppLoader(
                 $appDir,
                 $this->getContainer()->getParameter('kernel.project_dir'),
-                $this->getContainer()->get(ConfigReader::class)
+                $this->getContainer()->get(ConfigReader::class),
+                $this->getContainer()->get(CustomEntityXmlSchemaValidator::class)
             ),
             $this->getContainer()->get('app.repository'),
             $registrationsService,

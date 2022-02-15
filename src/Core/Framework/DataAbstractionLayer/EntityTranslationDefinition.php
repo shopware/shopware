@@ -40,10 +40,7 @@ abstract class EntityTranslationDefinition extends EntityDefinition
             > 0;
     }
 
-    /**
-     * @return string|null
-     */
-    protected function getParentDefinitionClass()
+    protected function getParentDefinitionClass(): ?string
     {
         throw new \RuntimeException('`getParentDefinitionClass` not implemented');
     }

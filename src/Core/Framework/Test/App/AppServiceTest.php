@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\Finder\Finder;
 
@@ -54,7 +55,8 @@ class AppServiceTest extends TestCase
                 new AppLoader(
                     __DIR__ . '/Manifest/_fixtures/test',
                     $this->getContainer()->getParameter('kernel.project_dir'),
-                    $this->getContainer()->get(ConfigReader::class)
+                    $this->getContainer()->get(ConfigReader::class),
+                    $this->getContainer()->get(CustomEntityXmlSchemaValidator::class)
                 )
             ),
             $this->getContainer()->get(AppLifecycle::class)
@@ -252,7 +254,8 @@ class AppServiceTest extends TestCase
                 new AppLoader(
                     __DIR__ . '/Manifest/_fixtures',
                     $this->getContainer()->getParameter('kernel.project_dir'),
-                    $this->getContainer()->get(ConfigReader::class)
+                    $this->getContainer()->get(ConfigReader::class),
+                    $this->getContainer()->get(CustomEntityXmlSchemaValidator::class)
                 )
             ),
             $this->getContainer()->get(AppLifecycle::class)
@@ -287,7 +290,8 @@ class AppServiceTest extends TestCase
                 new AppLoader(
                     $appDir,
                     $this->getContainer()->getParameter('kernel.project_dir'),
-                    $this->getContainer()->get(ConfigReader::class)
+                    $this->getContainer()->get(ConfigReader::class),
+                    $this->getContainer()->get(CustomEntityXmlSchemaValidator::class)
                 )
             ),
             $this->getContainer()->get(AppLifecycle::class)

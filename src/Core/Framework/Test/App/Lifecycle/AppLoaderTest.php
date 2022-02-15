@@ -7,6 +7,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 
 class AppLoaderTest extends TestCase
@@ -140,7 +141,8 @@ class AppLoaderTest extends TestCase
         return new AppLoader(
             $folder,
             $this->getContainer()->getParameter('kernel.project_dir'),
-            $this->getContainer()->get(ConfigReader::class)
+            $this->getContainer()->get(ConfigReader::class),
+            $this->getContainer()->get(CustomEntityXmlSchemaValidator::class)
         );
     }
 }

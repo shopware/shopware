@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -237,15 +238,19 @@ abstract class EntityDefinition
             return $this->parentDefinition;
         }
 
-        if ($this->getParentDefinitionClass() !== null) {
-            return $this->parentDefinition = $this->registry->get($this->getParentDefinitionClass());
+        $parentDefinitionClass = $this->getParentDefinitionClass();
+
+        if ($parentDefinitionClass === null) {
+            return $this->parentDefinition = null;
         }
 
-        if ($this->getParentDefinitionEntity() !== null) {
-            return $this->parentDefinition = $this->registry->getByEntityName($this->getParentDefinitionEntity());
+        try {
+            $this->parentDefinition = $this->registry->get($parentDefinitionClass);
+        } catch (DefinitionNotFoundException $e) {
+            $this->parentDefinition = $this->registry->getByEntityName($parentDefinitionClass);
         }
 
-        return $this->parentDefinition = null;
+        return $this->parentDefinition;
     }
 
     final public function getTranslationDefinition(): ?EntityDefinition
@@ -366,18 +371,7 @@ abstract class EntityDefinition
         return $this->getFields()->getExtensionFields();
     }
 
-    /**
-     * @return string|null
-     */
-    protected function getParentDefinitionClass()
-    {
-        return null;
-    }
-
-    /**
-     * can be used instead of `getParentDefinitionClass`
-     */
-    protected function getParentDefinitionEntity(): ?string
+    protected function getParentDefinitionClass(): ?string
     {
         return null;
     }

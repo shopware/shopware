@@ -83,4 +83,10 @@ DirectoryIndex index.php
   </IfModule>
 </IfModule>
 
+# Uncomment if you use folder protection via .htaccess/.htpasswd in accordance to documentation
+# <RequireAny>
+#    Require expr %{THE_REQUEST} =~ m#.*?\s+\/api.*?#
+#    Require valid-user
+# </RequireAny>
+
 # END Shopware

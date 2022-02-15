@@ -128,61 +128,67 @@ describe('Create a variant product using default customer and buy it via cash on
 
         // Visit storefront and find the product
         cy.visit('/');
-        cy.contains('Home');
-        cy.get('.header-search-input')
-            .should('be.visible')
-            .type('Test Product');
-        cy.contains('.search-suggest-product-name', 'Test Product').click();
 
-        // Add reduced price variant product (Green, S) to shopping cart
-        cy.contains('Green').click({force: true});
-        cy.get('.sw-loader').should('not.exist');
-        cy.get('label[title="S"]').click({force: true});
-        cy.get('.product-detail-price').should('include.text', '8,00');
-        cy.contains('Add to shopping cart').click();
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-        // Off canvas
-        cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
-        cy.get(`${checkoutPage.elements.cartItem}-label`).contains('Test Product');
+            cy.contains('Home');
+            cy.get('.header-search-input')
+                .should('be.visible')
+                .type('Test Product');
+            cy.contains('.search-suggest-product-name', 'Test Product').click();
 
-        // Total: product price
-        cy.get('.col-5.summary-value').contains('8,00');
-        cy.get('a[title="Proceed to checkout"]').should('be.visible').click();
-        cy.url().should('include', '/checkout/register');
+            // Add reduced price variant product (Green, S) to shopping cart
+            cy.contains('Green').click({force: true});
+            cy.get('.sw-loader').should('not.exist');
+            cy.get('label[title="S"]').click({force: true});
+            cy.get('.product-detail-price').should('include.text', '8,00');
+            cy.contains('Add to shopping cart').click();
 
-        // Guest check out
-        cy.get('select#personalSalutation').typeAndSelect(guestCustomer.salutation);
-        cy.get('input#personalFirstName').clearTypeAndCheck(guestCustomer.firstName);
-        cy.get('input#personalLastName').clearTypeAndCheck(guestCustomer.lastName);
-        cy.get('input#personalMail').clearTypeAndCheck(guestCustomer.email);
-        cy.get('input#personalPassword').clearTypeAndCheck(guestCustomer.password);
-        cy.get('input#billingAddressAddressStreet').clearTypeAndCheck(guestCustomer.street);
-        cy.get('input#billingAddressAddressZipcode').clearTypeAndCheck(guestCustomer.zipCode);
-        cy.get('input#billingAddressAddressCity').clearTypeAndCheck(guestCustomer.city);
-        cy.get('select#billingAddressAddressCountry').typeAndSelect(guestCustomer.country);
-        cy.get('.btn.btn-lg.btn-primary').click();
-        cy.wait('@registerCustomer').its('response.statusCode').should('equal', 302);
+            // Off canvas
+            cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(`${lineItemSelector}-label`).contains('Test Product');
 
-        // Verify the variant price
-        cy.get('.confirm-address').contains('Wolf Kurt');
-        cy.get('.cart-item-label').contains('Test Product');
-        cy.get('.cart-item-total-price').scrollIntoView().contains('8,00');
-        cy.get('.col-5.checkout-aside-summary-total').contains('8,00');
+            // Total: product price
+            cy.get('.col-5.summary-value').contains('8,00');
+            cy.get('a[title="Proceed to checkout"]').should('be.visible').click();
+            cy.url().should('include', '/checkout/register');
 
-        // Finish checkout
-        cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
-        cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
-        cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
-        cy.get('#confirmFormSubmit').scrollIntoView().click();
-        cy.get('.finish-header').contains(`Thank you for your order with E2E install test!`);
+            // Guest check out
+            cy.get('select#personalSalutation').typeAndSelect(guestCustomer.salutation);
+            cy.get('input#personalFirstName').clearTypeAndCheck(guestCustomer.firstName);
+            cy.get('input#personalLastName').clearTypeAndCheck(guestCustomer.lastName);
+            cy.get('input#personalMail').clearTypeAndCheck(guestCustomer.email);
+            cy.get('input#personalPassword').clearTypeAndCheck(guestCustomer.password);
+            cy.get('input#billingAddressAddressStreet').clearTypeAndCheck(guestCustomer.street);
+            cy.get('input#billingAddressAddressZipcode').clearTypeAndCheck(guestCustomer.zipCode);
+            cy.get('input#billingAddressAddressCity').clearTypeAndCheck(guestCustomer.city);
+            cy.get('select#billingAddressAddressCountry').typeAndSelect(guestCustomer.country);
+            cy.get('.btn.btn-lg.btn-primary').click();
+            cy.wait('@registerCustomer').its('response.statusCode').should('equal', 302);
 
-        // Verify the order from the storefront
-        cy.visit('/account/login');
-        cy.get('.account-welcome h1').should((element) => {
-            expect(element).to.contain('Overview');
+            // Verify the variant price
+            cy.get('.confirm-address').contains('Wolf Kurt');
+            cy.get(`${lineItemSelector}-label`).contains('Test Product');
+            cy.get(`${lineItemSelector}-total-price`).scrollIntoView().contains('8,00');
+            cy.get('.col-5.checkout-aside-summary-total').contains('8,00');
+
+            // Finish checkout
+            cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
+            cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
+            cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
+            cy.get('#confirmFormSubmit').scrollIntoView().click();
+            cy.get('.finish-header').contains(`Thank you for your order with E2E install test!`);
+
+            // Verify the order from the storefront
+            cy.visit('/account/login');
+            cy.get('.account-welcome h1').should((element) => {
+                expect(element).to.contain('Overview');
+            });
+            cy.get('.account-overview-profile > .card > .card-body').contains('wolf@kurt.com');
+            cy.get('.order-table-header-heading').should('be.visible')
+                .and('include.text', 'Order');
         });
-        cy.get('.account-overview-profile > .card > .card-body').contains('wolf@kurt.com');
-        cy.get('.order-table-header-heading').should('be.visible')
-            .and('include.text', 'Order');
     });
 });

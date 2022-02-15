@@ -39,9 +39,12 @@ describe('Checkout as Guest', () => {
 
         cy.visit('/account/login');
 
-        cy.window().then(() => {
+        cy.window().then((win) => {
             const page = new CheckoutPageObject();
             const accountPage = new AccountPageObject();
+
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
             // Product detail
             cy.get('.header-search-input').should('be.visible');
@@ -53,7 +56,7 @@ describe('Checkout as Guest', () => {
 
             // Off canvas
             cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
-            cy.get(`${page.elements.cartItem}-label`).contains(product.name);
+            cy.get(`${lineItemSelector}-label`).contains(product.name);
 
             // Checkout
             cy.get('.offcanvas-cart-actions .btn-primary').click();

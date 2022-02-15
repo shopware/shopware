@@ -330,7 +330,7 @@
     "removeLineItem": "Remove product",
     "subtotalAmount": "Subtotal",
     "summaryHeader": "Summary",
-    "lineItemContainerHeadline": "Contains",
+    "lineItemContainerHeadline": "Product bundle contains",
     "lineItemContainerChangeLink": "change",
     "lineItemShowMore": "more",
     "lineItemShowLess": "less",

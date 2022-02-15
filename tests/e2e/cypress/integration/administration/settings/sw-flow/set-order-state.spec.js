@@ -67,18 +67,25 @@ describe('Flow builder: set order status testing', () => {
         cy.get('.login-submit [type="submit"]').click();
 
         cy.visit('/');
-        cy.get('.btn-buy').contains('Add to shopping ').click();
-        cy.get('.offcanvas').should('be.visible');
-        cy.get('.cart-item-price').contains('49.98');
 
-        // Checkout
-        cy.get('.offcanvas-cart-actions .btn-primary').click();
-        cy.get('.checkout-confirm-tos-label').click(1, 1);
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-        // Finish checkout
-        cy.get('#confirmFormSubmit').scrollIntoView();
-        cy.get('#confirmFormSubmit').click();
-        cy.get('.finish-ordernumber').contains('Your order number: #10000');
+            cy.get('.btn-buy').contains('Add to shopping ').click();
+            cy.get('.offcanvas').should('be.visible');
+
+            cy.get(`${lineItemSelector}-price`).contains('49.98');
+
+            // Checkout
+            cy.get('.offcanvas-cart-actions .btn-primary').click();
+            cy.get('.checkout-confirm-tos-label').click(1, 1);
+
+            // Finish checkout
+            cy.get('#confirmFormSubmit').scrollIntoView();
+            cy.get('#confirmFormSubmit').click();
+            cy.get('.finish-ordernumber').contains('Your order number: #10000');
+        });
 
         // Clear Storefront cookie
         cy.clearCookies();
@@ -170,7 +177,13 @@ describe('Flow builder: set order status testing', () => {
         cy.visit('/');
         cy.get('.btn-buy').contains('Add to shopping ').click();
         cy.get('.offcanvas').should('be.visible');
-        cy.get('.cart-item-price').contains('49.98');
+
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
+
+            cy.get(`${lineItemSelector}-price`).contains('49.98');
+        });
 
         // Checkout
         cy.get('.offcanvas-cart-actions .btn-primary').click();

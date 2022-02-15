@@ -110,12 +110,17 @@ describe('Create promotion codes to the product and check it at the storefront',
         cy.contains('.search-suggest-product-name', 'Test Product').click();
         cy.get('.product-detail-buy .btn-buy').click();
 
-        // Off canvas verify promotion name and percentage
-        cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
-        cy.get(`${checkoutPage.elements.cartItem}-label`).contains('Test Product');
-        cy.get(`${checkoutPage.elements.cartItem}-promotion`).contains(promoCode);
-        cy.get(`${checkoutPage.elements.cartItem}-promotion ${checkoutPage.elements.cartItem}-price`)
-            .should('include.text', '-6,00');
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
+
+            // Off canvas verify promotion name and percentage
+            cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(`${lineItemSelector}-label`).contains('Test Product');
+            cy.get(`${lineItemSelector}-promotion`).contains(promoCode);
+            cy.get(`${lineItemSelector}-promotion ${lineItemSelector}-price`)
+                .should('include.text', '-6,00');
+        });
     });
 
     it('@package: should create fixed promotion code and check from the storefront', () => {
@@ -207,15 +212,20 @@ describe('Create promotion codes to the product and check it at the storefront',
         cy.contains('.search-suggest-product-name', 'Test Product').click();
         cy.get('.product-detail-buy .btn-buy').click();
 
-        // Off canvas verify promotion name and percentage
-        cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
-        cy.get(`${checkoutPage.elements.cartItem}-label`).contains('Test Product');
-        cy.get('#addPromotionOffcanvasCartInput').clearTypeAndCheck('EK_1907');
-        cy.get('button#addPromotionOffcanvasCart').click();
-        cy.get('.sw-loader').should('not.exist');
-        cy.get(`${checkoutPage.elements.cartItem}-promotion`).contains(promoCode);
-        cy.get(`${checkoutPage.elements.cartItem}-promotion ${checkoutPage.elements.cartItem}-price`)
-            .should('include.text', '-6,00');
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
+
+            // Off canvas verify promotion name and percentage
+            cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(`${lineItemSelector}-label`).contains('Test Product');
+            cy.get('#addPromotionOffcanvasCartInput').clearTypeAndCheck('EK_1907');
+            cy.get('button#addPromotionOffcanvasCart').click();
+            cy.get('.sw-loader').should('not.exist');
+            cy.get(`${lineItemSelector}-promotion`).contains(promoCode);
+            cy.get(`${lineItemSelector}-promotion ${lineItemSelector}-price`)
+                .should('include.text', '-6,00');
+        });
     });
 
     it('@package: should create individual promotion codes and check from the storefront', () => {
@@ -322,15 +332,20 @@ describe('Create promotion codes to the product and check it at the storefront',
             cy.contains('.search-suggest-product-name', 'Test Product').click();
             cy.get('.product-detail-buy .btn-buy').click();
 
-            // Off canvas verify promotion name and percentage
-            cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
-            cy.get(`${checkoutPage.elements.cartItem}-label`).contains('Test Product');
-            cy.get('#addPromotionOffcanvasCartInput').clearTypeAndCheck(individualPromoCode);
-            cy.get('button#addPromotionOffcanvasCart').click();
-            cy.get('.sw-loader').should('not.exist');
-            cy.get(`${checkoutPage.elements.cartItem}-promotion`).contains(promoCode);
-            cy.get(`${checkoutPage.elements.cartItem}-promotion ${checkoutPage.elements.cartItem}-price`)
-                .should('include.text', '-6,00');
+            cy.window().then((win) => {
+                /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+                const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
+
+                // Off canvas verify promotion name and percentage
+                cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
+                cy.get(`${lineItemSelector}-label`).contains('Test Product');
+                cy.get('#addPromotionOffcanvasCartInput').clearTypeAndCheck(individualPromoCode);
+                cy.get('button#addPromotionOffcanvasCart').click();
+                cy.get('.sw-loader').should('not.exist');
+                cy.get(`${lineItemSelector}-promotion`).contains(promoCode);
+                cy.get(`${lineItemSelector}-promotion ${lineItemSelector}-price`)
+                    .should('include.text', '-6,00');
+            });
         });
     });
  });

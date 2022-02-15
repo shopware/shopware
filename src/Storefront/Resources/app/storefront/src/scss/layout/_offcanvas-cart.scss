@@ -108,6 +108,12 @@ Extends the basic offcanvas component with additional cart styles.
     margin: $spacer 0;
 }
 
+@if feature('v6.5.0.0') {
+    .offcanvas-cart-items {
+        border-bottom: 1px solid $border-color;
+    }
+}
+
 .offcanvas-summary-list {
     margin-bottom: 0;
 }

@@ -1,0 +1,22 @@
+{% block component_line_item_label %}
+    {% set label = lineItem.label|trans|sw_sanitize %}
+    {% set label = label !== '' ? label : lineItem.label %}
+
+    {% if productLink %}
+        <a href="{{ seoUrl('frontend.detail.page', { 'productId': lineItem.referencedId }) }}"
+           class="line-item-label"
+           title="{{ label }}"
+            {% if controllerAction is same as('confirmPage') %}
+                data-toggle="modal"
+                data-modal-class="quickview-modal"
+                data-url="{{ path('widgets.quickview.minimal', { 'productId': lineItem.referencedId }) }}"
+            {% endif %}
+        >
+            {{ label|u.truncate(60, '...', false) }}
+        </a>
+    {% else %}
+        <div class="line-item-label">
+            {{ label|u.truncate(60, '...', false) }}
+        </div>
+    {% endif %}
+{% endblock %}

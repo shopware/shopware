@@ -49,22 +49,27 @@ describe('Checkout: Use rounding', () => {
 
         cy.visit('/');
 
-        const page = new CheckoutPageObject();
+        cy.window().then((win) => {
+            const page = new CheckoutPageObject();
 
-        cy.get('.header-search-input')
-            .should('be.visible')
-            .type(product.name);
-        cy.contains('.search-suggest-product-name', product.name).click();
-        cy.get('.product-detail-buy .btn-buy').click();
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-        // Off canvas
-        cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
-        cy.get(`${page.elements.cartItem}-label`).contains(product.name);
+            cy.get('.header-search-input')
+                .should('be.visible')
+                .type(product.name);
+            cy.contains('.search-suggest-product-name', product.name).click();
+            cy.get('.product-detail-buy .btn-buy').click();
 
-        // Checkout
-        cy.get('.offcanvas-cart-actions .btn-primary').click();
+            // Off canvas
+            cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(`${lineItemSelector}-label`).contains(product.name);
 
-        cy.get('.checkout-aside-summary-value.checkout-aside-summary-total-rounded').contains('10.50');
-        cy.get('.checkout-aside-summary-value.checkout-aside-summary-total').contains('10.51');
+            // Checkout
+            cy.get('.offcanvas-cart-actions .btn-primary').click();
+
+            cy.get('.checkout-aside-summary-value.checkout-aside-summary-total-rounded').contains('10.50');
+            cy.get('.checkout-aside-summary-value.checkout-aside-summary-total').contains('10.51');
+        });
     });
 });

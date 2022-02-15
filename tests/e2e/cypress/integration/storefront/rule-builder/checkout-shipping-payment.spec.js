@@ -65,9 +65,14 @@ describe('Checkout rule builder handling for shipping and payment methods', () =
         cy.get('.search-suggest-product-name').click();
         cy.get('.product-detail-buy .btn-buy').click();
 
-        // Off canvas
-        cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
-        cy.get(`${page.elements.cartItem}-label`).contains(product.name);
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
+
+            // Off canvas
+            cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(`${lineItemSelector}-label`).contains(product.name);
+        });
 
         // Go to cart
         cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').click();
@@ -130,9 +135,14 @@ describe('Checkout rule builder handling for shipping and payment methods', () =
         cy.get('.search-suggest-product-name').click();
         cy.get('.product-detail-buy .btn-buy').click();
 
-        // Off canvas
-        cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
-        cy.get(`${page.elements.cartItem}-label`).contains(product.name);
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
+
+            // Off canvas
+            cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(`${lineItemSelector}-label`).contains(product.name);
+        });
 
         // Go to checkout
         cy.get('.offcanvas-cart-actions .btn-primary').click();

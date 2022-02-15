@@ -43,7 +43,12 @@ describe('Product: Edit in various ways', () => {
         cy.get('.btn-buy').should('be.visible');
         cy.get('.btn-buy').click();
         cy.get('.offcanvas').should('be.visible');
-        cy.get('.offcanvas .cart-item-label').contains('1x Product name');
+
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
+            cy.get(`.offcanvas ${lineItemSelector}-label`).contains('Product name');
+        });
     });
 
     it('@base @catalogue: check product with full stock', () => {
@@ -72,10 +77,16 @@ describe('Product: Edit in various ways', () => {
 
         // Put product in cart
         cy.visit('/');
-        cy.get('.btn-buy').should('be.visible');
-        cy.get('.btn-buy').click();
-        cy.get('.offcanvas').should('be.visible');
-        cy.get('.offcanvas .cart-item-label').contains('1x Product name');
+
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
+
+            cy.get('.btn-buy').should('be.visible');
+            cy.get('.btn-buy').click();
+            cy.get('.offcanvas').should('be.visible');
+            cy.get(`.offcanvas ${lineItemSelector}-label`).contains('Product name');
+        });
     });
 
     it('@base @catalogue: check out-of-stock-behavior with clearance', () => {

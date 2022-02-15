@@ -117,23 +117,29 @@ describe('Promotions: Discount for a specific range of products', () => {
 
         // Check from the store front
         cy.visit('/');
-        cy.contains('Home');
-        cy.get('.header-search-input')
-            .should('be.visible')
-            .type('Test Product');
-        cy.contains('.search-suggest-product-name', 'Test Product').click();
-        cy.get('.product-detail-buy .btn-buy').click();
 
-        // Off canvas, verify promo code is not available since 1 product added to card
-        cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
-        cy.get(`${checkoutPage.elements.cartItem}-label`).contains('Test Product');
-        cy.contains(promoCode).should('not.exist');
-        cy.get('.summary-value.summary-total').should('include.text', '60,00');
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-        // Set the product number to 5 and verify promo code is visible and %10 discount is applied to the card
-        cy.get('.cart-item-quantity-container > .custom-select').select('5');
-        cy.contains(promoCode).should('exist');
-        cy.get('.summary-value.summary-total').should('include.text', '270,00');
+            cy.contains('Home');
+            cy.get('.header-search-input')
+                .should('be.visible')
+                .type('Test Product');
+            cy.contains('.search-suggest-product-name', 'Test Product').click();
+            cy.get('.product-detail-buy .btn-buy').click();
+
+            // Off canvas, verify promo code is not available since 1 product added to card
+            cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(`${lineItemSelector}-label`).contains('Test Product');
+            cy.contains(promoCode).should('not.exist');
+            cy.get('.summary-value.summary-total').should('include.text', '60,00');
+
+            // Set the product number to 5 and verify promo code is visible and %10 discount is applied to the card
+            cy.get(`${lineItemSelector}-quantity-container > .custom-select`).select('5');
+            cy.contains(promoCode).should('exist');
+            cy.get('.summary-value.summary-total').should('include.text', '270,00');
+        });
     });
 
     it('@package: should create promotion and apply it for custom products based on price', () => {
@@ -228,23 +234,29 @@ describe('Promotions: Discount for a specific range of products', () => {
 
         // Check from the store front
         cy.visit('/');
-        cy.contains('Home');
-        cy.get('.header-search-input')
-            .should('be.visible')
-            .type('Test Product');
-        cy.contains('.search-suggest-product-name', 'Test Product').click();
-        cy.get('.product-detail-buy .btn-buy').click();
 
-        // Verify promo code is NOT available since the product price is 60€, which is under 100€
-        cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
-        cy.get(`${checkoutPage.elements.cartItem}-label`).contains('Test Product');
-        cy.contains(promoCode).should('not.exist');
-        cy.get('.summary-value.summary-total').should('include.text', '60,00');
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-        // Set the product number to 2 and verify promo code is visible, and %10 discount is applied to the card
-        cy.get('.cart-item-quantity-container > .custom-select').select('2');
-        cy.contains(promoCode).should('exist');
-        cy.get('.summary-value.summary-total').should('include.text', '108,00');
+            cy.contains('Home');
+            cy.get('.header-search-input')
+                .should('be.visible')
+                .type('Test Product');
+            cy.contains('.search-suggest-product-name', 'Test Product').click();
+            cy.get('.product-detail-buy .btn-buy').click();
+
+            // Verify promo code is NOT available since the product price is 60€, which is under 100€
+            cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(`${lineItemSelector}-label`).contains('Test Product');
+            cy.contains(promoCode).should('not.exist');
+            cy.get('.summary-value.summary-total').should('include.text', '60,00');
+
+            // Set the product number to 2 and verify promo code is visible, and %10 discount is applied to the card
+            cy.get(`${lineItemSelector}-quantity-container > .custom-select`).select('2');
+            cy.contains(promoCode).should('exist');
+            cy.get('.summary-value.summary-total').should('include.text', '108,00');
+        });
     });
 
     it('@package: should create promotion and apply to a specific range of products only', () => {
@@ -342,36 +354,42 @@ describe('Promotions: Discount for a specific range of products', () => {
 
         // Login from the storefront as a customer from USA
         cy.visit('/account/login');
-        cy.url().should('include', '/account/login');
-        cy.get('#personalSalutation').select('Mrs.');
-        cy.get('#personalFirstName').typeAndCheckStorefront('Lisa');
-        cy.get('#personalLastName').typeAndCheckStorefront('Hoffmann');
-        cy.get('#personalMail').typeAndCheckStorefront('lisa@hoffmann.com');
-        cy.get('#personalPassword').typeAndCheckStorefront('shopware');
-        cy.get('#billingAddressAddressStreet').typeAndCheckStorefront('Alabama street');
-        cy.get('#billingAddressAddressZipcode').typeAndCheckStorefront('12345');
-        cy.get('#billingAddressAddressCity').typeAndCheckStorefront('New Jersey');
-        cy.get('#billingAddressAddressCountry').select('USA');
-        cy.get('.btn.btn-lg.btn-primary').click();
-        cy.wait('@registerCustomer').its('response.statusCode').should('equal', 302);
 
-        // Check from the store front
-        cy.contains('Home');
-        cy.get('.header-search-input')
-            .should('be.visible')
-            .type('Test Product');
-        cy.contains('.search-suggest-product-name', 'Test Product').click();
-        cy.get('.product-detail-buy .btn-buy').click();
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-        // Verify promo code is applied to to the product, which should reduce the price
-        cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
-        cy.get(`${checkoutPage.elements.cartItem}-label`).contains('Test Product');
-        cy.contains(promoCode).should('exist');
-        cy.get('.summary-value.summary-total').should('include.text', '40,00');
+            cy.url().should('include', '/account/login');
+            cy.get('#personalSalutation').select('Mrs.');
+            cy.get('#personalFirstName').typeAndCheckStorefront('Lisa');
+            cy.get('#personalLastName').typeAndCheckStorefront('Hoffmann');
+            cy.get('#personalMail').typeAndCheckStorefront('lisa@hoffmann.com');
+            cy.get('#personalPassword').typeAndCheckStorefront('shopware');
+            cy.get('#billingAddressAddressStreet').typeAndCheckStorefront('Alabama street');
+            cy.get('#billingAddressAddressZipcode').typeAndCheckStorefront('12345');
+            cy.get('#billingAddressAddressCity').typeAndCheckStorefront('New Jersey');
+            cy.get('#billingAddressAddressCountry').select('USA');
+            cy.get('.btn.btn-lg.btn-primary').click();
+            cy.wait('@registerCustomer').its('response.statusCode').should('equal', 302);
 
-        // Set the product number to 2 and verify promotion is not applied to second product
-        cy.get('.cart-item-quantity-container > .custom-select').select('2');
-        cy.contains(promoCode).should('exist');
-        cy.get('.summary-value.summary-total').should('include.text', '100,00');
+            // Check from the store front
+            cy.contains('Home');
+            cy.get('.header-search-input')
+                .should('be.visible')
+                .type('Test Product');
+            cy.contains('.search-suggest-product-name', 'Test Product').click();
+            cy.get('.product-detail-buy .btn-buy').click();
+
+            // Verify promo code is applied to to the product, which should reduce the price
+            cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(`${lineItemSelector}-label`).contains('Test Product');
+            cy.contains(promoCode).should('exist');
+            cy.get('.summary-value.summary-total').should('include.text', '40,00');
+
+            // Set the product number to 2 and verify promotion is not applied to second product
+            cy.get(`${lineItemSelector}-quantity-container > .custom-select`).select('2');
+            cy.contains(promoCode).should('exist');
+            cy.get('.summary-value.summary-total').should('include.text', '100,00');
+        });
     });
 });

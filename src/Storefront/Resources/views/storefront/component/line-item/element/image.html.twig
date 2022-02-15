@@ -1,0 +1,52 @@
+{% block component_line_item_image %}
+    {% set thumbnail %}
+        {% if lineItem.cover.url %}
+            {% block component_line_item_image_thumbnails %}
+                {% sw_thumbnails 'line-item-img-thumbnails' with {
+                    media: lineItem.cover,
+                    sizes: {
+                        'default': '100px'
+                    },
+                    attributes: {
+                        'class': 'img-fluid line-item-img',
+                        'alt': (lineItem.cover.translated.alt ?: ''),
+                        'title': (lineItem.cover.translated.title ?: '')
+                    }
+                } %}
+            {% endblock %}
+        {% else %}
+            {% if fallbackIcon %}
+                {% block component_line_item_image_fallback_icon %}
+                    <div class="line-item-img line-item-icon">
+                        {% sw_include '@Storefront/storefront/utilities/icon.html.twig' with {
+                            name: fallbackIcon
+                        } %}
+                    </div>
+                {% endblock %}
+            {% else %}
+                {% block component_line_item_image_placeholder %}
+                    {% sw_include '@Storefront/storefront/utilities/icon.html.twig' with {
+                        name: 'placeholder',
+                        size: 'fluid'
+                    } %}
+                {% endblock %}
+            {% endif %}
+        {% endif %}
+    {% endset %}
+
+    {% if productLink %}
+        <a href="{{ seoUrl('frontend.detail.page', { 'productId': lineItem.referencedId }) }}"
+           class="line-item-img-link"
+           title="{{ label }}"
+            {% if controllerAction is same as('confirmPage') %}
+                data-toggle="modal"
+                data-modal-class="quickview-modal"
+                data-url="{{ path('widgets.quickview.minimal', { 'productId': lineItem.referencedId }) }}"
+            {% endif %}
+        >
+            {{ thumbnail }}
+        </a>
+    {% else %}
+        {{ thumbnail }}
+    {% endif %}
+{% endblock %}

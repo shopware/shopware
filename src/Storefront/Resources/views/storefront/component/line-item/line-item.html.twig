@@ -1,0 +1,21 @@
+{% block component_line_item %}
+    {% set PRODUCT_LINE_ITEM_TYPE = constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PRODUCT_LINE_ITEM_TYPE') %}
+    {% set DISCOUNT_LINE_ITEM_TYPE = constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::DISCOUNT_LINE_ITEM') %}
+    {% set CONTAINER_LINE_ITEM_TYPE = constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::CONTAINER_LINE_ITEM') %}
+
+    {% set isDiscount = (not lineItem.good and lineItem.price.totalPrice <= 0) || lineItem.type == DISCOUNT_LINE_ITEM_TYPE %}
+    {% set isProduct = lineItem.type == PRODUCT_LINE_ITEM_TYPE %}
+    {% set isContainer = lineItem.type == CONTAINER_LINE_ITEM_TYPE %}
+
+    {% block component_line_item_type_include %}
+        {% if isProduct %}
+            {% sw_include '@Storefront/storefront/component/line-item/type/product.html.twig' %}
+        {% elseif isDiscount %}
+            {% sw_include '@Storefront/storefront/component/line-item/type/discount.html.twig' %}
+        {% elseif isContainer %}
+            {% sw_include '@Storefront/storefront/component/line-item/type/container.html.twig' %}
+        {% else %}
+            {% sw_include '@Storefront/storefront/component/line-item/type/generic.html.twig' %}
+        {% endif %}
+    {% endblock %}
+{% endblock %}

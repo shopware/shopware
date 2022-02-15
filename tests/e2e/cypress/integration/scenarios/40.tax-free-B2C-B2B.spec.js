@@ -62,34 +62,40 @@ describe('Administration & Storefront: Country settings tax free for B2C and B2B
 
         // Registration B2C
         cy.visit('/account/register');
-        cy.url().should('include', '/account/register');
-        cy.get('#personalSalutation').select('Mr.');
-        cy.get('#personalFirstName').typeAndCheckStorefront('Test');
-        cy.get('#personalLastName').typeAndCheckStorefront('Tester');
-        cy.get('#personalMail').typeAndCheckStorefront('test@tester.com');
-        cy.get('#personalPassword').typeAndCheckStorefront('shopware');
-        cy.get('#billingAddressAddressStreet').typeAndCheckStorefront('Test street');
-        cy.get('#billingAddressAddressZipcode').typeAndCheckStorefront('12345');
-        cy.get('#billingAddressAddressCity').typeAndCheckStorefront('Test city');
-        cy.get('#billingAddressAddressCountry').select('Netherlands');
-        cy.get('.btn.btn-lg.btn-primary').click();
-        cy.wait('@registerCustomer').its('response.statusCode').should('equal', 302);
-        cy.url().should('include', 'account');
 
-        // Add product to cart
-        cy.get('.header-search-input').should('be.visible').type('Product name');
-        cy.contains('.search-suggest-product-name', 'Product name').click();
-        cy.get('.product-detail-buy .btn-buy').click();
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-        // Off canvas
-        cy.get('.offcanvas.is-open').should('be.visible');
-        cy.get('.cart-item-label').contains('Product name');
+            cy.url().should('include', '/account/register');
+            cy.get('#personalSalutation').select('Mr.');
+            cy.get('#personalFirstName').typeAndCheckStorefront('Test');
+            cy.get('#personalLastName').typeAndCheckStorefront('Tester');
+            cy.get('#personalMail').typeAndCheckStorefront('test@tester.com');
+            cy.get('#personalPassword').typeAndCheckStorefront('shopware');
+            cy.get('#billingAddressAddressStreet').typeAndCheckStorefront('Test street');
+            cy.get('#billingAddressAddressZipcode').typeAndCheckStorefront('12345');
+            cy.get('#billingAddressAddressCity').typeAndCheckStorefront('Test city');
+            cy.get('#billingAddressAddressCountry').select('Netherlands');
+            cy.get('.btn.btn-lg.btn-primary').click();
+            cy.wait('@registerCustomer').its('response.statusCode').should('equal', 302);
+            cy.url().should('include', 'account');
 
-        // Go to cart and validate tax free for B2C
-        cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').click();
-        cy.get('.cart-item-details-container [title]').contains('Product name');
-        cy.get('.cart-item-total-price.col-12.col-md-2.col-sm-4').contains('€ 11,00*');
-        cy.get('.header-cart-total').contains('€ 11,00*');
+            // Add product to cart
+            cy.get('.header-search-input').should('be.visible').type('Product name');
+            cy.contains('.search-suggest-product-name', 'Product name').click();
+            cy.get('.product-detail-buy .btn-buy').click();
+
+            // Off canvas
+            cy.get('.offcanvas.is-open').should('be.visible');
+            cy.get(`${lineItemSelector}-label`).contains('Product name');
+
+            // Go to cart and validate tax free for B2C
+            cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').click();
+            cy.get(`${lineItemSelector}-details-container [title]`).contains('Product name');
+            cy.get(`${lineItemSelector}-total-price.col-12.col-md-2.col-sm-4`).contains('€ 11,00*');
+            cy.get('.header-cart-total').contains('€ 11,00*');
+        });
     });
 
     it('@package: should validate tax free with B2B', () => {
@@ -149,34 +155,40 @@ describe('Administration & Storefront: Country settings tax free for B2C and B2B
 
         //Registration B2B
         cy.visit('/account/register');
-        cy.get('#accountType').select('Commercial');
-        cy.get('#personalSalutation').select('Mr.');
-        cy.get('#personalFirstName').typeAndCheckStorefront('Test');
-        cy.get('#personalLastName').typeAndCheckStorefront('Tester');
-        cy.get('#billingAddresscompany').typeAndCheckStorefront('shopware AG');
-        cy.get('#vatIds').typeAndCheckStorefront('DE123456789');
-        cy.get('#personalMail').typeAndCheckStorefront('test@tester.com');
-        cy.get('#personalPassword').typeAndCheckStorefront('shopware');
-        cy.get('#billingAddressAddressStreet').typeAndCheckStorefront('Test street');
-        cy.get('#billingAddressAddressZipcode').typeAndCheckStorefront('12345');
-        cy.get('#billingAddressAddressCity').typeAndCheckStorefront('Test city');
-        cy.get('#billingAddressAddressCountry').select('Netherlands');
-        cy.get('.btn.btn-lg.btn-primary').click();
-        cy.wait('@registerCustomer').its('response.statusCode').should('equal', 302);
 
-        // Add product to cart
-        cy.get('.header-search-input').should('be.visible').type('Product name');
-        cy.contains('.search-suggest-product-name', 'Product name').click();
-        cy.get('.product-detail-buy .btn-buy').click();
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-        // Off canvas
-        cy.get('.offcanvas.is-open').should('be.visible');
-        cy.get('.cart-item-label').contains('Product name');
+            cy.get('#accountType').select('Commercial');
+            cy.get('#personalSalutation').select('Mr.');
+            cy.get('#personalFirstName').typeAndCheckStorefront('Test');
+            cy.get('#personalLastName').typeAndCheckStorefront('Tester');
+            cy.get('#billingAddresscompany').typeAndCheckStorefront('shopware AG');
+            cy.get('#vatIds').typeAndCheckStorefront('DE123456789');
+            cy.get('#personalMail').typeAndCheckStorefront('test@tester.com');
+            cy.get('#personalPassword').typeAndCheckStorefront('shopware');
+            cy.get('#billingAddressAddressStreet').typeAndCheckStorefront('Test street');
+            cy.get('#billingAddressAddressZipcode').typeAndCheckStorefront('12345');
+            cy.get('#billingAddressAddressCity').typeAndCheckStorefront('Test city');
+            cy.get('#billingAddressAddressCountry').select('Netherlands');
+            cy.get('.btn.btn-lg.btn-primary').click();
+            cy.wait('@registerCustomer').its('response.statusCode').should('equal', 302);
 
-        // Go to cart and validate tax free for B2B
-        cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').click();
-        cy.get('.cart-item-details-container [title]').contains('Product name');
-        cy.get('.cart-item-total-price.col-12.col-md-2.col-sm-4').contains('€ 11,00*');
-        cy.get('.header-cart-total').contains('€ 11,00*');
+            // Add product to cart
+            cy.get('.header-search-input').should('be.visible').type('Product name');
+            cy.contains('.search-suggest-product-name', 'Product name').click();
+            cy.get('.product-detail-buy .btn-buy').click();
+
+            // Off canvas
+            cy.get('.offcanvas.is-open').should('be.visible');
+            cy.get(`${lineItemSelector}-label`).contains('Product name');
+
+            // Go to cart and validate tax free for B2B
+            cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').click();
+            cy.get(`${lineItemSelector}-details-container [title]`).contains('Product name');
+            cy.get(`${lineItemSelector}-total-price.col-12.col-md-2.col-sm-4`).contains('€ 11,00*');
+            cy.get('.header-cart-total').contains('€ 11,00*');
+        });
     });
 });

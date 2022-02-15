@@ -74,13 +74,19 @@ describe('Promotion: Test promotion with codes', () => {
 
         // Verify Promotion in Storefront
         cy.visit('/');
-        cy.get('.product-box').should('be.visible');
-        cy.get('.btn-buy').click();
-        cy.get('.offcanvas.is-open').should('be.visible');
-        cy.get('#addPromotionOffcanvasCartInput').type('funicular');
-        cy.get('#addPromotionOffcanvasCart').click();
-        cy.get('.alert-success .icon-checkmark-circle').should('be.visible');
-        cy.get('.cart-item-promotion .cart-item-label').contains('Thunder Tuesday');
+
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
+
+            cy.get('.product-box').should('be.visible');
+            cy.get('.btn-buy').click();
+            cy.get('.offcanvas.is-open').should('be.visible');
+            cy.get('#addPromotionOffcanvasCartInput').type('funicular');
+            cy.get('#addPromotionOffcanvasCart').click();
+            cy.get('.alert-success .icon-checkmark-circle').should('be.visible');
+            cy.get(`${lineItemSelector}-promotion ${lineItemSelector}-label`).contains('Thunder Tuesday');
+        });
     });
 
     it('@base @marketing: use invalid code', () => {
@@ -129,12 +135,18 @@ describe('Promotion: Test promotion with codes', () => {
 
         // Verify Promotion in Storefront
         cy.visit('/');
-        cy.get('.product-box').should('be.visible');
-        cy.get('.btn-buy').click();
-        cy.get('.offcanvas.is-open').should('be.visible');
-        cy.get('#addPromotionOffcanvasCartInput').type('not_funicular');
-        cy.get('#addPromotionOffcanvasCart').click();
-        cy.contains('Promotion with code "not_funicular" could not be found.');
-        cy.get('.cart-item-promotion').should('not.exist');
+
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
+
+            cy.get('.product-box').should('be.visible');
+            cy.get('.btn-buy').click();
+            cy.get('.offcanvas.is-open').should('be.visible');
+            cy.get('#addPromotionOffcanvasCartInput').type('not_funicular');
+            cy.get('#addPromotionOffcanvasCart').click();
+            cy.contains('Promotion with code "not_funicular" could not be found.');
+            cy.get(`${lineItemSelector}-promotion`).should('not.exist');
+        });
     });
 });

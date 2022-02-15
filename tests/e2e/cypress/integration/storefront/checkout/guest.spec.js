@@ -19,65 +19,68 @@ describe(`Checkout as Guest`, () => {
         const page = new CheckoutPageObject();
         const accountPage = new AccountPageObject();
 
-        // Product detail
-        cy.get('.header-search-input').should('be.visible');
-        cy.get('.header-search-input').type(product.name);
-        cy.get('.search-suggest-product-name').contains(product.name);
-        cy.get('.search-suggest-product-price').contains(product.price[0].gross);
-        cy.get('.search-suggest-product-name').click();
-        cy.get('.product-detail-buy .btn-buy').click();
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-        // Off canvas
-        cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
-        cy.get(`${page.elements.cartItem}-label`).contains(product.name);
+            // Product detail
+            cy.get('.header-search-input').should('be.visible');
+            cy.get('.header-search-input').type(product.name);
+            cy.get('.search-suggest-product-name').contains(product.name);
+            cy.get('.search-suggest-product-price').contains(product.price[0].gross);
+            cy.get('.search-suggest-product-name').click();
+            cy.get('.product-detail-buy .btn-buy').click();
 
-        // Checkout
-        cy.get('.offcanvas-cart-actions .btn-primary').click();
+            // Off canvas
+            cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(`${lineItemSelector}-label`).contains(product.name);
 
-        cy.get(accountPage.elements.registerCard).should('be.visible');
+            // Checkout
+            cy.get('.offcanvas-cart-actions .btn-primary').click();
 
-        cy.get('select[name="salutationId"]').select('Mr.');
-        cy.get('input[name="firstName"]').type('John');
-        cy.get('input[name="lastName"]').type('Doe');
+            cy.get(accountPage.elements.registerCard).should('be.visible');
 
-        cy.get(`${accountPage.elements.registerForm} input[name="email"]`).type('john-doe-for-testing@example.com');
+            cy.get('select[name="salutationId"]').select('Mr.');
+            cy.get('input[name="firstName"]').type('John');
+            cy.get('input[name="lastName"]').type('Doe');
 
-        cy.window().then(win => {
+            cy.get(`${accountPage.elements.registerForm} input[name="email"]`).type('john-doe-for-testing@example.com');
+
             if (!win.features['FEATURE_NEXT_16236']) {
                 cy.get('.register-guest-control.custom-checkbox label').scrollIntoView();
                 cy.get('.register-guest-control.custom-checkbox label').click(1, 1);
             }
+
+            cy.get('input[name="billingAddress[street]"]').type('123 Main St');
+            cy.get('input[name="billingAddress[zipcode]"]').type('9876');
+            cy.get('input[name="billingAddress[city]"]').type('Anytown');
+
+            cy.get('select[name="billingAddress[countryId]"]').select('USA');
+            cy.get('select[name="billingAddress[countryStateId]"]').should('be.visible');
+            cy.get('select[name="billingAddress[countryStateId]"]').select('Ohio');
+
+            cy.get(`${accountPage.elements.registerSubmit} [type="submit"]`).click();
+
+            // Checkout
+            cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
+            cy.get('.checkout-confirm-tos-label').scrollIntoView();
+            cy.get('.checkout-confirm-tos-label').click(1, 1);
+            cy.get('.confirm-address').contains('John Doe');
+            cy.get(`${lineItemSelector}-details-container ${lineItemSelector}-label`).contains(product.name);
+            cy.get(`${lineItemSelector}-total-price`).contains(product.price[0].gross);
+
+            // Finish checkout
+            cy.get('#confirmFormSubmit').scrollIntoView();
+            cy.get('#confirmFormSubmit').click();
+            cy.get('.finish-header').contains('Thank you for your order with Demostore!');
+            cy.get('.checkout-aside-summary-total').contains(product.price[0].gross);
+            cy.get('.col-5.checkout-aside-summary-value').contains(product.price[0].gross);
+
+            // Logout
+            cy.get('[title="Back to shop"]').click();
+            cy.get('button#accountWidget').click();
+            cy.contains('[aria-labelledby="accountWidget"]', 'Close guest session').should('be.visible');
         });
-
-        cy.get('input[name="billingAddress[street]"]').type('123 Main St');
-        cy.get('input[name="billingAddress[zipcode]"]').type('9876');
-        cy.get('input[name="billingAddress[city]"]').type('Anytown');
-
-        cy.get('select[name="billingAddress[countryId]"]').select('USA');
-        cy.get('select[name="billingAddress[countryStateId]"]').should('be.visible');
-        cy.get('select[name="billingAddress[countryStateId]"]').select('Ohio');
-
-        cy.get(`${accountPage.elements.registerSubmit} [type="submit"]`).click();
-
-        // Checkout
-        cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
-        cy.get('.checkout-confirm-tos-label').scrollIntoView();
-        cy.get('.checkout-confirm-tos-label').click(1, 1);
-        cy.get('.confirm-address').contains('John Doe');
-        cy.get(`${page.elements.cartItem}-details-container ${page.elements.cartItem}-label`).contains(product.name);
-        cy.get(`${page.elements.cartItem}-total-price`).contains(product.price[0].gross);
-
-        // Finish checkout
-        cy.get('#confirmFormSubmit').scrollIntoView();
-        cy.get('#confirmFormSubmit').click();
-        cy.get('.finish-header').contains('Thank you for your order with Demostore!');
-        cy.get('.checkout-aside-summary-total').contains(product.price[0].gross);
-        cy.get('.col-5.checkout-aside-summary-value').contains(product.price[0].gross);
-
-        // Logout
-        cy.get('[title="Back to shop"]').click();
-        cy.get('button#accountWidget').click();
-        cy.contains('[aria-labelledby="accountWidget"]', 'Close guest session').should('be.visible');
     });
 
     it('@base @checkout @package: Run checkout with account type', () => {
@@ -105,6 +108,9 @@ describe(`Checkout as Guest`, () => {
             const page = new CheckoutPageObject();
             const accountPage = new AccountPageObject();
 
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
+
             // Product detail
             cy.get('.header-search-input').should('be.visible');
             cy.get('.header-search-input').type(product.name);
@@ -115,7 +121,7 @@ describe(`Checkout as Guest`, () => {
 
             // Off canvas
             cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
-            cy.get(`${page.elements.cartItem}-label`).contains(product.name);
+            cy.get(`${lineItemSelector}-label`).contains(product.name);
 
             // Checkout
             cy.get('.offcanvas-cart-actions .btn-primary').click();
@@ -196,8 +202,8 @@ describe(`Checkout as Guest`, () => {
             cy.get('.checkout-confirm-tos-label').scrollIntoView();
             cy.get('.checkout-confirm-tos-label').click(1, 1);
             cy.get('.confirm-address').contains('John Doe');
-            cy.get(`${page.elements.cartItem}-details-container ${page.elements.cartItem}-label`).contains(product.name);
-            cy.get(`${page.elements.cartItem}-total-price`).contains(product.price[0].gross);
+            cy.get(`${lineItemSelector}-details-container ${lineItemSelector}-label`).contains(product.name);
+            cy.get(`${lineItemSelector}-total-price`).contains(product.price[0].gross);
 
             // Finish checkout
             cy.get('#confirmFormSubmit').scrollIntoView();

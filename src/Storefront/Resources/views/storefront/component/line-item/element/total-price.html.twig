@@ -1,0 +1,24 @@
+{% block component_line_item_total_price %}
+    {% block component_line_item_total_price_label %}
+        <div class="line-item-total-price-label">
+            {{ "checkout.cartHeaderTotalPrice"|trans|sw_sanitize }}
+        </div>
+    {% endblock %}
+
+    {% block component_line_item_total_price_value %}
+        <div class="line-item-total-price-value">
+            {# Shipping costs discounts always have a price of 0, which might be confusing, therefore we do not show those #}
+            {% if lineItem.payload.discountScope != 'delivery' %}
+                {{ lineItem.price.totalPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+            {% endif %}
+
+            {% set referencePrice = lineItem.price.referencePrice %}
+            {% if referencePrice is not null and displayMode == 'offcanvas' %}
+                <br />
+                <small class="line-item-reference-price">
+                    ({{ referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ referencePrice.referenceUnit }}&nbsp;{{ referencePrice.unitName }})
+                </small>
+            {% endif %}
+        </div>
+    {% endblock %}
+{% endblock %}

@@ -1,0 +1,20 @@
+{% block component_line_item_delivery_date %}
+    {% set deliveryPosition = null %}
+
+    {% if page.cart.deliveries.count > 0 %}
+        {% set delivery = page.cart.deliveries.first %}
+
+        {% set deliveryPosition = delivery.positions.get(lineItem.id) %}
+    {% endif %}
+
+    {% if deliveryPosition and deliveryPosition.deliveryDate %}
+        {% block component_line_item_delivery_date_inner %}
+            <div class="line-item-delivery-date">
+                {{ "checkout.lineItemDeliveryDate"|trans({
+                    '%earliest%': deliveryPosition.deliveryDate.earliest|format_date('short', locale=app.request.locale),
+                    '%latest%': deliveryPosition.deliveryDate.latest|format_date('short', locale=app.request.locale)
+                })|sw_sanitize }}
+            </div>
+        {% endblock %}
+    {% endif %}
+{% endblock %}

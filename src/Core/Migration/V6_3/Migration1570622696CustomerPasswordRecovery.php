@@ -100,7 +100,7 @@ SQL;
             $connection->insert('mail_template_type_translation', [
                 'mail_template_type_id' => Uuid::fromHexToBytes($mailTemplateTypeId),
                 'language_id' => $deLangId,
-                'name' => 'Benutzer Passwort Wiederherstellung',
+                'name' => 'Kunden Passwort Wiederherstellung',
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
         }

@@ -21,10 +21,16 @@ $sw-condition-color-border-default: $color-gray-300;
         &.is--disabled {
             background-color: $color-gray-100;
         }
+
+        & > * {
+            // all direct children (grid items) should expand to the full height
+            height: 100%;
+        }
     }
 
     .sw-block-field {
         margin: 12px 0 0;
+        height: 100%;
 
         &.sw-field--medium {
             margin: 0;
@@ -42,9 +48,15 @@ $sw-condition-color-border-default: $color-gray-300;
         }
 
         .sw-block-field__block {
+            height: 100%;
+            align-items: flex-start;
             border: none;
             border-radius: 0;
             box-shadow: none;
+        }
+
+        .sw-field__addition {
+            height: 100%;
         }
     }
 

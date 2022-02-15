@@ -198,7 +198,11 @@ class DatabaseConfigLoader extends AbstractConfigLoader
                 ->search($criteria, $context)
                 ->first();
 
-            \assert(\is_string($parentTheme->getTechnicalName()));
+            if (!\is_string($parentTheme->getTechnicalName())) {
+                return $this->extensionRegistry
+                    ->getConfigurations()
+                    ->getByTechnicalName($this->baseTheme);
+            }
 
             return $this->extensionRegistry
                 ->getConfigurations()

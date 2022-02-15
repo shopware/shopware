@@ -138,7 +138,7 @@ describe('Theme: Test sales channel assignment', () => {
             .contains('.sw-select-result', 'Channel No 9')
             .click();
 
-        cy.contains('.sw-button-process__content', 'Save').click();
+        cy.get('.sw_theme_manager_detail__save-action').click();
 
         cy.get('.sw-modal__footer > .sw-button--primary').click();
 
@@ -188,7 +188,7 @@ describe('Theme: Test sales channel assignment', () => {
             .contains('.sw-select-result', 'Storefront')
             .click();
 
-        cy.contains('.sw-button-process__content', 'Save').click();
+        cy.get('.sw_theme_manager_detail__save-action').click();
         cy.get('.sw-alert__message').contains('This Sales Channel is already assigned').should('be.visible');
         cy.get('.sw-alert__message').contains('Shopware default theme (Storefront)').should('be.visible');
     });
@@ -221,7 +221,7 @@ describe('Theme: Test sales channel assignment', () => {
             .contains('.sw-select-result', 'Channel No 9')
             .click();
 
-        cy.contains('.sw-button-process__content', 'Save').click();
+        cy.get('.sw_theme_manager_detail__save-action').click();
 
         cy.get('.sw-modal__footer > .sw-button--primary').click();
 
@@ -237,7 +237,7 @@ describe('Theme: Test sales channel assignment', () => {
         cy.contains('.sw-select-result-list__item-list .sw-select-result', 'Channel No 9')
             .click();
 
-        cy.contains('.sw-button-process__content', 'Save').click();
+        cy.get('.sw_theme_manager_detail__save-action').click();
         cy.get('.sw-alert__message').contains('You have removed a theme assignment').should('be.visible');
         cy.get('.sw-alert__message').contains('New theme (Channel No 9)').should('be.visible');
     });
@@ -270,7 +270,7 @@ describe('Theme: Test sales channel assignment', () => {
             .contains('.sw-select-result', 'Channel No 9')
             .click();
 
-        cy.contains('.sw-button-process__content', 'Save').click();
+        cy.get('.sw_theme_manager_detail__save-action').click();
 
         cy.get('.sw-modal__footer > .sw-button--primary').click();
 
@@ -286,7 +286,7 @@ describe('Theme: Test sales channel assignment', () => {
         cy.contains('.sw-select-result-list__item-list .sw-select-result', 'Channel No 9')
             .click();
 
-        cy.contains('.sw-button-process__content', 'Save').click();
+        cy.get('.sw_theme_manager_detail__save-action').click();
         cy.get('.sw-modal__footer > .sw-button--primary').click();
 
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);

@@ -250,6 +250,7 @@
                                                                 <template v-if="themeConfig[fieldName] && baseThemeConfig[fieldName]">
                                                                     <template v-if="mapSwFieldTypes(field.type) === 'select'">
                                                                         <sw-inherit-wrapper
+                                                                                :class="'sw-field-id-' + fieldName"
                                                                                 v-model="currentThemeConfig[fieldName].value"
                                                                                 :ref="`wrapper-${fieldName}`"
                                                                                 :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
@@ -274,6 +275,7 @@
 
                                                                     <template v-else-if="field.type === 'url'">
                                                                         <sw-inherit-wrapper
+                                                                                :class="'sw-field-id-' + fieldName"
                                                                                 v-model="currentThemeConfig[fieldName].value"
                                                                                 :ref="`wrapper-${fieldName}`"
                                                                                 :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
@@ -302,6 +304,7 @@
                                                                         </sw-upload-listener>
 
                                                                         <sw-inherit-wrapper
+                                                                                :class="'sw-field-id-' + fieldName"
                                                                                 v-model="currentThemeConfig[fieldName].value"
                                                                                 :ref="`wrapper-${fieldName}`"
                                                                                 :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
@@ -327,6 +330,7 @@
 
                                                                     <template v-else-if="mapSwFieldTypes(field.type)">
                                                                         <sw-inherit-wrapper
+                                                                            :class="'sw-field-id-' + fieldName"
                                                                             v-model="currentThemeConfig[fieldName].value"
                                                                             :ref="`wrapper-${fieldName}`"
                                                                             :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
@@ -350,6 +354,7 @@
 
                                                                     <template v-else-if="themeConfig[fieldName].editable !== false">
                                                                         <sw-inherit-wrapper
+                                                                                :class="'sw-field-id-' + fieldName"
                                                                                 v-model="currentThemeConfig[fieldName].value"
                                                                                 :ref="`wrapper-${fieldName}`"
                                                                                 :has-parent="theme.baseConfig?.fields?.[fieldName] == null"

@@ -281,12 +281,14 @@
             <argument type="service" id="customer_wishlist.repository"/>
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\RemoveWishlistProductRoute" public="true">
             <argument type="service" id="customer_wishlist.repository"/>
             <argument type="service" id="customer_wishlist_product.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\DataAbstractionLayer\CustomerWishlistProductExceptionHandler">

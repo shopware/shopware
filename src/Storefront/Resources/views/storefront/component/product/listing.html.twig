@@ -83,7 +83,8 @@
                     {% block element_product_listing_pagination_nav_bottom %}
                         {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
                             entities: searchResult,
-                            criteria: searchResult.criteria
+                            criteria: searchResult.criteria,
+                            'paginationLocation': 'bottom',
                         } %}
                     {% endblock %}
                 {% endif %}

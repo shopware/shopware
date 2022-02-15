@@ -41,6 +41,11 @@ class Entity extends XmlElement
         return $this->fields;
     }
 
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
     private static function parse(\DOMElement $element): array
     {
         $values = [];

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Lifecycle;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppStateService;
@@ -222,9 +223,12 @@ class AppLifecycle extends AbstractAppLifecycle
         }
 
         $this->updateMetadata($metadata, $context);
-        $this->permissionPersister->updatePrivileges($manifest->getPermissions(), $roleId);
 
         $app = $this->loadApp($id, $context);
+
+        $this->updateCustomEntities($app, $id, $manifest);
+
+        $this->permissionPersister->updatePrivileges($manifest->getPermissions(), $roleId);
 
         // If the app has no secret yet, but now specifies setup data we do a registration to get an app secret
         // this mostly happens during install, but may happen in the update case if the app previously worked without an external server
@@ -259,13 +263,6 @@ class AppLifecycle extends AbstractAppLifecycle
         $cmsExtensions = $this->appLoader->getCmsExtensions($app);
         if ($cmsExtensions) {
             $this->cmsBlockPersister->updateCmsBlocks($cmsExtensions, $id, $defaultLocale, $context);
-        }
-
-        $entities = $this->appLoader->getEntities($app);
-        if ($entities !== null) {
-            $this->customEntityPersister->update($entities->toStorage(), $id);
-
-            $this->customEntitySchemaUpdater->update();
         }
 
         $config = $this->appLoader->getConfiguration($app);
@@ -476,6 +473,27 @@ class AppLifecycle extends AbstractAppLifecycle
 
         if (\count($dataUpdate) > 0) {
             $this->aclRoleRepository->update($dataUpdate, $context);
+        }
+    }
+
+    private function updateCustomEntities(AppEntity $app, string $id, Manifest $manifest): void
+    {
+        $entities = $this->appLoader->getEntities($app);
+        if ($entities === null || $entities->getEntities() === null) {
+            return;
+        }
+        $this->customEntityPersister->update($entities->toStorage(), $id);
+        $this->customEntitySchemaUpdater->update();
+
+        foreach ($entities->getEntities()->getEntities() as $entity) {
+            $manifest->addPermissions([
+                $entity->getName() => [
+                    AclRoleDefinition::PRIVILEGE_READ,
+                    AclRoleDefinition::PRIVILEGE_CREATE,
+                    AclRoleDefinition::PRIVILEGE_UPDATE,
+                    AclRoleDefinition::PRIVILEGE_DELETE,
+                ],
+            ]);
         }
     }
 }

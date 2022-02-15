@@ -44,6 +44,13 @@ class Permissions extends XmlElement
         return $this->permissions;
     }
 
+    public function add(array $permissions): void
+    {
+        foreach ($permissions as $resource => $privileges) {
+            $this->permissions[$resource] = $privileges;
+        }
+    }
+
     public function asParsedPrivileges(): array
     {
         return $this->generatePrivileges();

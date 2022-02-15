@@ -146,6 +146,15 @@ class Manifest
         return $this->permissions;
     }
 
+    public function addPermissions(array $permission): void
+    {
+        if ($this->permissions === null) {
+            $this->permissions = Permissions::fromArray([]);
+        }
+
+        $this->permissions->add($permission);
+    }
+
     public function getCustomFields(): ?CustomFields
     {
         return $this->customFields;

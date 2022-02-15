@@ -406,7 +406,7 @@ class DynamicFieldFactory
         return $name . '_id';
     }
 
-    private static function getOnDeleteFlag(array $field)
+    private static function getOnDeleteFlag(array $field): Flag
     {
         switch ($field['onDelete']) {
             case 'cascade':

@@ -8,6 +8,7 @@ use Doctrine\DBAL\Schema\Schema;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -25,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
@@ -110,11 +112,11 @@ class CustomEntityTest extends TestCase
      */
     public function testNoneSchemaChanges(): void
     {
-        self::cleanUp($this->getContainer());
-
         $container = $this->initBlogEntity();
 
         $ids = new IdsCollection();
+
+        $this->getContainer()->get(Connection::class)->beginTransaction();
 
         $this->testStorage($container);
 
@@ -122,7 +124,9 @@ class CustomEntityTest extends TestCase
 
         $this->testPersist();
 
-        $this->testDefinition();
+        $this->testAutoPermissions();
+
+        $this->testDefinition($container);
 
         $this->testRepository($ids, $container);
 
@@ -136,13 +140,13 @@ class CustomEntityTest extends TestCase
 
         $this->testSwagger($ids, $container);
 
+        $this->getContainer()->get(Connection::class)->rollBack();
+
         self::cleanUp($container);
     }
 
     public function testSchemaUpdate(): void
     {
-        self::cleanUp($this->getContainer());
-
         $entities = CustomEntityXmlSchema::createFromXmlFile(__DIR__ . '/_fixtures/custom-entity-test/Resources/install.xml');
 
         $this->getContainer()
@@ -810,7 +814,7 @@ class CustomEntityTest extends TestCase
         $container->get(CustomEntitySchemaUpdater::class)->update();
     }
 
-    private function testDefinition(): void
+    private function testDefinition(ContainerInterface $container): void
     {
         $expected = [
             'category' => [
@@ -889,13 +893,13 @@ class CustomEntityTest extends TestCase
         ];
 
         foreach ($expected as $entity => $properties) {
-            $definition = $this->getContainer()
+            $definition = $container
                 ->get(DefinitionInstanceRegistry::class)
                 ->getByEntityName($entity);
 
             foreach ($properties as $field) {
                 if ($field instanceof DAL\ReferenceVersionField) {
-                    $field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+                    $field->compile($container->get(DefinitionInstanceRegistry::class));
                 }
 
                 $name = $field->getPropertyName();
@@ -950,5 +954,33 @@ class CustomEntityTest extends TestCase
 
     private function testSwagger(IdsCollection $ids, ContainerInterface $container): void
     {
+    }
+
+    private function testAutoPermissions(): void
+    {
+        $criteria = new Criteria();
+        $criteria->addAssociation('aclRole');
+        $criteria->addFilter(new EqualsFilter('name', 'custom-entity-test'));
+
+        $app = $this->getContainer()->get('app.repository')
+            ->search($criteria, Context::createDefaultContext())
+            ->first();
+
+        static::assertInstanceOf(AppEntity::class, $app);
+
+        $expected = [
+            'tax:read',
+            'product:read',
+            'custom_entity_blog:read',
+            'custom_entity_blog:create',
+            'custom_entity_blog:update',
+            'custom_entity_blog:delete',
+            'custom_entity_blog_comment:read',
+            'custom_entity_blog_comment:create',
+            'custom_entity_blog_comment:update',
+            'custom_entity_blog_comment:delete',
+        ];
+
+        static::assertEquals($expected, $app->getAclRole()->getPrivileges());
     }
 }

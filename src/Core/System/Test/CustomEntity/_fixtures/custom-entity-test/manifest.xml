@@ -14,4 +14,11 @@
         <license>MIT</license>
         <privacy>https://test.com/privacy</privacy>
     </meta>
+    <permissions>
+        <read>tax</read>
+        <read>product</read>
+<!--    permissions for own entities are automatically set    -->
+<!--        <read>custom_entity_blog</read>-->
+<!--        <read>custom_entity_blog_comment</read>-->
+    </permissions>
 </manifest>

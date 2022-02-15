@@ -56,4 +56,9 @@ $sw-cms-block-color-warning: $color-pumpkin-spice-500;
     &.has--warning {
         border: 2px solid $sw-cms-block-color-warning;
     }
+
+    &.has--error > .sw-cms-block__config-overlay,
+    &.has--warning > .sw-cms-block__config-overlay {
+        display: none;
+    }
 }

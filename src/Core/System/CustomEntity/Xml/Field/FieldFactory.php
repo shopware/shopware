@@ -14,6 +14,8 @@ class FieldFactory
         'text' => TextField::class,
         'email' => EmailField::class,
         'json' => JsonField::class,
+        'date' => DateField::class,
+        'price' => PriceField::class,
         'many-to-many' => ManyToManyField::class,
         'many-to-one' => ManyToOneField::class,
         'one-to-many' => OneToManyField::class,

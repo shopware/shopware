@@ -38,6 +38,8 @@
             <xs:element name="one-to-one" type="field-one-to-one-type" maxOccurs="unbounded" minOccurs="0"/>
             <xs:element name="json" type="field-json-type" maxOccurs="unbounded" minOccurs="0"/>
             <xs:element name="email" type="field-email-type" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="price" type="field-price-type" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="date" type="field-date-type" maxOccurs="unbounded" minOccurs="0"/>
         </xs:choice>
     </xs:complexType>
 
@@ -85,6 +87,20 @@
     </xs:complexType>
 
     <xs:complexType name="field-email-type">
+        <xs:attribute type="xs:string" name="name" use="required"/>
+        <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
+        <xs:attribute type="xs:boolean" name="required" default="false" />
+        <xs:attribute type="xs:boolean" name="translatable" default="false" />
+    </xs:complexType>
+
+    <xs:complexType name="field-price-type">
+        <xs:attribute type="xs:string" name="name" use="required"/>
+        <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
+        <xs:attribute type="xs:boolean" name="required" default="false" />
+        <xs:attribute type="xs:boolean" name="translatable" default="false" />
+    </xs:complexType>
+
+    <xs:complexType name="field-date-type">
         <xs:attribute type="xs:string" name="name" use="required"/>
         <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
         <xs:attribute type="xs:boolean" name="required" default="false" />

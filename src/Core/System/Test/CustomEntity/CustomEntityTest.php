@@ -8,6 +8,7 @@ use Doctrine\DBAL\Schema\Schema;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -24,6 +25,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -42,6 +45,7 @@ use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\Entities;
 use Shopware\Core\System\CustomEntity\Xml\Entity;
 use Shopware\Core\System\CustomEntity\Xml\Field\BoolField;
+use Shopware\Core\System\CustomEntity\Xml\Field\DateField;
 use Shopware\Core\System\CustomEntity\Xml\Field\EmailField;
 use Shopware\Core\System\CustomEntity\Xml\Field\FloatField;
 use Shopware\Core\System\CustomEntity\Xml\Field\IntField;
@@ -50,6 +54,7 @@ use Shopware\Core\System\CustomEntity\Xml\Field\ManyToManyField;
 use Shopware\Core\System\CustomEntity\Xml\Field\ManyToOneField;
 use Shopware\Core\System\CustomEntity\Xml\Field\OneToManyField;
 use Shopware\Core\System\CustomEntity\Xml\Field\OneToOneField;
+use Shopware\Core\System\CustomEntity\Xml\Field\PriceField;
 use Shopware\Core\System\CustomEntity\Xml\Field\StringField;
 use Shopware\Core\System\CustomEntity\Xml\Field\TextField;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -520,6 +525,8 @@ class CustomEntityTest extends TestCase
                         new BoolField(['name' => 'display', 'storeApiAware' => true, 'translatable' => true]),
                         new JsonField(['name' => 'payload', 'storeApiAware' => false]),
                         new EmailField(['name' => 'email', 'storeApiAware' => false]),
+                        new PriceField(['name' => 'price', 'storeApiAware' => false]),
+                        new DateField(['name' => 'my_date', 'storeApiAware' => false]),
                         new ManyToManyField(['name' => 'products', 'storeApiAware' => true, 'reference' => 'product', 'inherited' => false]),
                         new ManyToOneField(['name' => 'top_seller_restrict', 'storeApiAware' => true, 'reference' => 'product', 'required' => false, 'inherited' => false, 'onDelete' => 'restrict']),
                         new ManyToOneField(['name' => 'top_seller_cascade', 'storeApiAware' => true, 'reference' => 'product', 'required' => true, 'inherited' => false, 'onDelete' => 'cascade']),
@@ -567,6 +574,8 @@ class CustomEntityTest extends TestCase
             ['name' => 'display', 'type' => 'bool', 'translatable' => true, 'storeApiAware' => true, 'required' => false],
             ['name' => 'payload', 'type' => 'json', 'storeApiAware' => false, 'required' => false],
             ['name' => 'email', 'type' => 'email', 'storeApiAware' => false, 'required' => false],
+            ['name' => 'price', 'type' => 'price', 'storeApiAware' => false, 'required' => false],
+            ['name' => 'my_date', 'type' => 'date', 'storeApiAware' => false, 'required' => false],
             ['name' => 'products', 'type' => 'many-to-many', 'reference' => 'product', 'storeApiAware' => true, 'inherited' => false, 'onDelete' => 'cascade'],
             ['name' => 'top_seller_restrict', 'type' => 'many-to-one', 'required' => false, 'reference' => 'product', 'storeApiAware' => true, 'inherited' => false, 'onDelete' => 'restrict'],
             ['name' => 'top_seller_cascade', 'type' => 'many-to-one', 'required' => true, 'reference' => 'product', 'storeApiAware' => true, 'inherited' => false, 'onDelete' => 'cascade'],
@@ -634,6 +643,17 @@ class CustomEntityTest extends TestCase
 
         static::assertCount(1, $blogs);
         $blog = $blogs->first();
+
+        static::assertEquals($ids->get('blog-2'), $blog->get('id'));
+        static::assertEquals(1, $blog->get('position'));
+        static::assertEquals(2.2, $blog->get('rating'));
+        static::assertEquals('blog-2', $blog->get('title'));
+        static::assertEquals('Test &lt;123&gt;', $blog->get('content'));
+        static::assertEquals(true, $blog->get('display'));
+        static::assertEquals(['foo' => 'Bar'], $blog->get('payload'));
+        static::assertEquals('test@test.com', $blog->get('email'));
+        static::assertInstanceOf(\DateTimeImmutable::class, $blog->get('myDate'));
+        static::assertEquals(new PriceCollection([new Price(Defaults::CURRENCY, 10, 10, false)]), $blog->get('price'));
 
         static::assertInstanceOf(ArrayEntity::class, $blog);
         static::assertEquals($ids->get('blog-2'), $blog->getId());
@@ -739,10 +759,14 @@ class CustomEntityTest extends TestCase
             'position' => 1,
             'rating' => 2.2,
             'title' => $key,
-            'content' => 'Test <123>',
+            'content' => 'Test &lt;123&gt;',
             'display' => true,
             'payload' => ['foo' => 'Bar'],
             'email' => 'test@test.com',
+            'myDate' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 10, 'linked' => false,],
+            ],
             'comments' => [
                 ['title' => 'test', 'content' => 'test', 'email' => 'test@test.com'],
                 ['title' => 'test', 'content' => 'test', 'email' => 'test@test.com'],

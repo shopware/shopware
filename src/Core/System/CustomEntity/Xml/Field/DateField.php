@@ -5,14 +5,12 @@ namespace Shopware\Core\System\CustomEntity\Xml\Field;
 use Shopware\Core\System\CustomEntity\Xml\Field\Traits\RequiredTrait;
 use Shopware\Core\System\CustomEntity\Xml\Field\Traits\TranslatableTrait;
 
-class TextField extends Field
+class DateField extends Field
 {
     use TranslatableTrait;
     use RequiredTrait;
 
-    protected bool $allowHtml = false;
-
-    protected string $type = 'text';
+    protected string $type = 'date';
 
     /**
      * @internal
@@ -20,10 +18,5 @@ class TextField extends Field
     public static function fromXml(\DOMElement $element): Field
     {
         return new self(self::parse($element));
-    }
-
-    public function allowHtml(): bool
-    {
-        return $this->allowHtml;
     }
 }

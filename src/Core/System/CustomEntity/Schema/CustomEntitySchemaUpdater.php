@@ -188,7 +188,12 @@ class CustomEntitySchemaUpdater
                     $table->addColumn($field['name'], Types::TEXT, $nullable);
 
                     break;
+                case 'date':
+                    $table->addColumn($field['name'], Types::DATETIME_MUTABLE, $nullable);
+
+                    break;
                 case 'json':
+                case 'price':
                     $table->addColumn($field['name'], Types::JSON, $nullable);
 
                     break;

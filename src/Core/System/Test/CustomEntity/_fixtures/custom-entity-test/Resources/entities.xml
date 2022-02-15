@@ -10,6 +10,9 @@
             <json name="payload" store-api-aware="false" />
             <email name="email"  store-api-aware="false" />
 
+            <price name="price" store-api-aware="false" />
+            <date name="my_date" store-api-aware="false" />
+
             <many-to-many name="products" reference="product" store-api-aware="true" />
 
             <!-- restrict product deletion when the product is set as `top_seller` -->

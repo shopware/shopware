@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\EmailField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -28,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -169,13 +171,29 @@ class DynamicFieldFactory
 
                 break;
             case 'text':
-                $collection->add(
-                    (new LongTextField($name, $property))
-                        ->addFlags(...$flags)
-                        ->addFlags(new AllowHtml(true))
-                );
+                $instance = (new LongTextField($name, $property))
+                    ->addFlags(...$flags);
+
+                if ($field['allowHtml'] ?? false) {
+                    $instance->addFlags(new AllowHtml(true));
+                }
+
+                $collection->add($instance);
 
                 break;
+            case 'price':
+                $collection->add(
+                    (new PriceField($name, $property))
+                        ->addFlags(...$flags)
+                );
+                break;
+            case 'date':
+                $collection->add(
+                    (new DateTimeField($name, $property))
+                        ->addFlags(...$flags)
+                );
+                break;
+
             case 'json':
                 $collection->add(
                     (new JsonField($name, $property))

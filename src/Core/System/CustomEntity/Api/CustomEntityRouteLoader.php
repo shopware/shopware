@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity\Api;
 
+use Shopware\Core\Framework\HttpException;
 use Symfony\Component\Config\Loader\Loader;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
@@ -16,7 +17,7 @@ class CustomEntityRouteLoader extends Loader
     public function load($resource, ?string $type = null): RouteCollection
     {
         if ($this->isLoaded) {
-            throw new \RuntimeException('Do not add the "custom entity api route" loader twice');
+            throw new HttpException('custom_entity_route_loader_already_loaded', 'Do not add the "custom entity api route" loader twice');
         }
 
         $routes = new RouteCollection();

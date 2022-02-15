@@ -332,7 +332,7 @@ abstract class EntityDefinition
     {
         $field = $this->getFields()->get('seoUrls');
 
-        return $field instanceof OneToManyAssociationField && $field->getReferenceClass() === SeoUrlDefinition::class;
+        return $field instanceof OneToManyAssociationField && $field->getReferenceDefinition() instanceof SeoUrlDefinition;
     }
 
     public function since(): ?string

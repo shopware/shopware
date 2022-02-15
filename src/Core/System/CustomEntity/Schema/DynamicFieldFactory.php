@@ -186,12 +186,14 @@ class DynamicFieldFactory
                     (new PriceField($name, $property))
                         ->addFlags(...$flags)
                 );
+
                 break;
             case 'date':
                 $collection->add(
                     (new DateTimeField($name, $property))
                         ->addFlags(...$flags)
                 );
+
                 break;
 
             case 'json':
@@ -434,7 +436,7 @@ class DynamicFieldFactory
             case 'restrict':
                 return new RestrictDelete();
             default:
-                throw new HttpException('unknown_on_delete', 400, \sprintf('onDelete property %s are not supported on field %s', $field['onDelete'], $field['name']));
+                throw new HttpException('unknown_on_delete', \sprintf('onDelete property %s are not supported on field %s', $field['onDelete'], $field['name']));
         }
     }
 }

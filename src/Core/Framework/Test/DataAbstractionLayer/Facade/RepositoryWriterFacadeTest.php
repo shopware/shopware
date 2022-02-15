@@ -48,7 +48,7 @@ class RepositoryWriterFacadeTest extends TestCase
 
         $facade = $this->factory->factory(
             new TestHook('test', $this->context),
-            new Script('test', '', new \DateTimeImmutable(), null)
+            new Script('test', '', new \DateTimeImmutable())
         );
 
         $facade->$method('product', $payload);
@@ -120,7 +120,7 @@ class RepositoryWriterFacadeTest extends TestCase
 
         $facade = $this->factory->factory(
             new TestHook('test', $this->context),
-            new Script('test', '', new \DateTimeImmutable(), null)
+            new Script('test', '', new \DateTimeImmutable())
         );
 
         $facade->sync([

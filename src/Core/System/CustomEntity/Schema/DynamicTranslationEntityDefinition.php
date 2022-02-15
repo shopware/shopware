@@ -33,14 +33,9 @@ class DynamicTranslationEntityDefinition extends EntityTranslationDefinition
         return $this->root . '_translation';
     }
 
-    protected function getParentDefinitionEntity(): string
+    protected function getParentDefinitionClass(): string
     {
         return $this->root;
-    }
-
-    protected function getParentDefinitionClass(): ?string
-    {
-        return null;
     }
 
     protected function defineFields(): FieldCollection

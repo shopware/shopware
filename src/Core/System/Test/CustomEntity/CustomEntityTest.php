@@ -87,14 +87,14 @@ class CustomEntityTest extends TestCase
 
         self::cleanUp($container);
 
-        $remove = [
-            'category' => ['customEntityBlogLinksSetNullId', 'customEntityBlogLinksSetNull', 'customEntityBlogLinksRestrictId', 'customEntityBlogLinksRestrict'],
-            'product' => ['customEntityBlogProducts', 'customEntityBlogLinkProductRestrict', 'customEntityBlogLinkProductCascade', 'customEntityBlogLinkProductSetNull', 'customEntityBlogTopSellerCascade', 'customEntityBlogTopSellerRestrict', 'customEntityBlogTopSellerSetNull', 'customEntityBlogInheritedProducts', 'customEntityBlogInheritedTopSeller'],
-        ];
+        $entities = ['category', 'product'];
+        foreach ($entities as $entity) {
+            $definition = $container->get(DefinitionInstanceRegistry::class)->getByEntityName($entity);
 
-        foreach ($remove as $entity => $fields) {
-            foreach ($fields as $field) {
-                $container->get(DefinitionInstanceRegistry::class)->getByEntityName($entity)->getFields()->remove($field);
+            foreach ($definition->getFields() as $field) {
+                if (\str_starts_with($field->getPropertyName(), 'customEntity')) {
+                    $definition->getFields()->remove($field->getPropertyName());
+                }
             }
         }
 
@@ -649,7 +649,7 @@ class CustomEntityTest extends TestCase
         static::assertEquals(2.2, $blog->get('rating'));
         static::assertEquals('blog-2', $blog->get('title'));
         static::assertEquals('Test &lt;123&gt;', $blog->get('content'));
-        static::assertEquals(true, $blog->get('display'));
+        static::assertTrue($blog->get('display'));
         static::assertEquals(['foo' => 'Bar'], $blog->get('payload'));
         static::assertEquals('test@test.com', $blog->get('email'));
         static::assertInstanceOf(\DateTimeImmutable::class, $blog->get('myDate'));
@@ -765,7 +765,7 @@ class CustomEntityTest extends TestCase
             'email' => 'test@test.com',
             'myDate' => (new \DateTime())->format(Defaults::STORAGE_DATE_FORMAT),
             'price' => [
-                ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 10, 'linked' => false,],
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 10, 'linked' => false],
             ],
             'comments' => [
                 ['title' => 'test', 'content' => 'test', 'email' => 'test@test.com'],

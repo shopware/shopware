@@ -9,6 +9,7 @@ use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use Shopware\Core\Framework\HttpException;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
@@ -60,7 +61,7 @@ class CustomEntitySchemaUpdater
                 $fields = \json_decode($table['fields'], true, 512, \JSON_THROW_ON_ERROR);
 
                 if (\strpos($table['name'], 'custom_entity_') !== 0) {
-                    throw new \RuntimeException(\sprintf('Table %s has to be prefixed with custom_', $table['name']));
+                    throw new HttpException('custom_entity_schema_updater.invalid_table_name', \sprintf('Table %s has to be prefixed with custom_', $table['name']));
                 }
 
                 $this->defineTable($schema, $table['name'], $fields);
@@ -214,9 +215,6 @@ class CustomEntitySchemaUpdater
                     // important: we add a `comment` to the table. This allows us to identify the custom entity modifications when run the cleanup
                     $mapping->setComment(self::COMMENT);
 
-                    $mapping->addColumn('created_at', Types::DATETIME_MUTABLE, ['notnull' => true]);
-                    $mapping->addColumn('updated_at', Types::DATETIME_MUTABLE, ['notnull' => false]);
-
                     // add source id column: `custom_entity_blog_id`
                     $mapping->addColumn(self::id($name), Types::BINARY, $binary);
 
@@ -349,7 +347,7 @@ class CustomEntitySchemaUpdater
     {
         $manager = $this->connection->getSchemaManager();
         if (!$manager instanceof AbstractSchemaManager) {
-            throw new \RuntimeException('Schema manager can not be created');
+            throw new HttpException('custom_entity_schema_updater.schema_manager_not_found', 'The schema manager could not be found.');
         }
 
         return $manager;
@@ -359,7 +357,7 @@ class CustomEntitySchemaUpdater
     {
         $platform = $this->connection->getDatabasePlatform();
         if (!$platform instanceof AbstractPlatform) {
-            throw new \RuntimeException('Database platform can not be detected');
+            throw new HttpException('custom_entity_schema_updater.database_platform_not_found', 'Database platform can not be detected');
         }
 
         return $platform;

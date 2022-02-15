@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework;
 
+use Symfony\Component\HttpFoundation\Response;
+
 class HttpException extends ShopwareHttpException
 {
     private int $status;
@@ -10,8 +12,8 @@ class HttpException extends ShopwareHttpException
 
     public function __construct(
         string $errorCode,
-        int $status,
         string $message,
+        int $status = Response::HTTP_BAD_REQUEST,
         array $parameters = [],
         ?\Throwable $e = null
     ) {

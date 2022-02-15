@@ -80,7 +80,7 @@ class InheritanceUpdater
             $flag = $association->getFlag(Inherited::class);
 
             if (!$flag instanceof Inherited) {
-                throw new HttpException('indexing_exception', 400, \sprintf('Association %s is not marked as inherited', $definition->getEntityName() . '.' . $association->getPropertyName()));
+                throw new HttpException('indexing_exception', \sprintf('Association %s is not marked as inherited', $definition->getEntityName() . '.' . $association->getPropertyName()));
             }
 
             $foreignKey = $flag->getForeignKey() ?: ($definition->getEntityName() . '_id');

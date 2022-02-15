@@ -13,7 +13,7 @@ class CustomEntityXmlSchemaValidator
     public function validate(CustomEntityXmlSchema $schema): void
     {
         if ($schema->getEntities() === null) {
-            throw new HttpException('custom_entity_xml_no_entities_found', 400, 'No entities found in parsed xml file');
+            throw new HttpException('custom_entity_xml_no_entities_found', 'No entities found in parsed xml file');
         }
 
         foreach ($schema->getEntities()->getEntities() as $entity) {
@@ -35,11 +35,11 @@ class CustomEntityXmlSchemaValidator
         }
 
         if ($field->getOnDelete() === 'cascade') {
-            throw new HttpException('custom_entity_cascade_restricted', 400, \sprintf('Cascade delete and referencing core tables are not allowed, field %s', $field->getName()));
+            throw new HttpException('custom_entity_cascade_restricted', \sprintf('Cascade delete and referencing core tables are not allowed, field %s', $field->getName()));
         }
 
         if ($field->isReverseRequired()) {
-            throw new HttpException('custom_entity_required_restricted', 400, \sprintf('Reverse required when referencing core tables is not allowed, field %s', $field->getName()));
+            throw new HttpException('custom_entity_required_restricted', \sprintf('Reverse required when referencing core tables is not allowed, field %s', $field->getName()));
         }
     }
 }

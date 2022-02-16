@@ -48,6 +48,17 @@
 
                 {# @deprecated tag:v6.5.0 - block will removed #}
                 {% block sw_import_export_edit_profile_modal_tabs_field_indicators %}{% endblock %}
+
+                {% block sw_import_export_edit_profile_modal_tabs_field_advanced %}
+                <sw-tabs-item
+                    v-if="profile.type !== 'export' && profile.config.updateEntities !== false"
+                    :title="$tc('sw-import-export.profile.advancedTab')"
+                    :active-tab="active"
+                    name="advanced"
+                >
+                    {{ $tc('sw-import-export.profile.advancedTab') }}
+                </sw-tabs-item>
+                {% endblock %}
             </template>
 
             <template #content="{ active }">
@@ -102,6 +113,23 @@
                         :profile="profile"
                         :system-required-fields="systemRequiredFields"
                         @update-mapping="updateMapping"
+                    />
+                    {% endblock %}
+                    {% endblock %}
+                </template>
+
+                <template v-if="active === 'advanced' && profile.type !== 'export' && profile.config.updateEntities !== false">
+                    {% block sw_import_export_edit_profile_modal_tabs_advanced %}
+
+                    {% block sw_import_export_edit_profile_modal_tabs_advanced_text %}
+                    <p class="sw-import-export-edit-profile-modal__text">
+                        {{ $tc('sw-import-export.profile.advancedDescription') }}
+                    </p>
+                    {% endblock %}
+
+                    {% block sw_import_export_edit_profile_modal_tabs_advanced_identifiers %}
+                    <sw-import-export-edit-profile-modal-identifiers
+                        :profile="profile"
                     />
                     {% endblock %}
                     {% endblock %}

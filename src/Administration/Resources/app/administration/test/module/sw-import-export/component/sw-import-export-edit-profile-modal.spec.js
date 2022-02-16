@@ -82,6 +82,9 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                     getSystemRequiredFields: () => {
                         return systemRequiredFields;
                     }
+                },
+                importExportUpdateByMapping: {
+                    removeUnusedMappings: () => {}
                 }
             }
         });

@@ -1,0 +1,60 @@
+{% block sw_import_export_edit_profile_modal_identifiers %}
+<div class="sw-import-export-edit-profile-modal-identifiers">
+    {% block sw_import_export_edit_profile_modal_identifiers_grid %}
+    <sw-data-grid
+        v-if="identifiers && identifiers.length"
+        :data-source="identifiers"
+        :compact-mode="false"
+        :show-selection="false"
+        :show-actions="false"
+        :columns="identifierColumns"
+        plain-appearance
+        class="sw-import-export-edit-profile-modal-identifiers__grid"
+    >
+
+        {% block sw_import_export_edit_profile_modal_identifiers_grid_entity_name_column %}
+        <template #column-identifierName="{ item }">
+            {{ item.propertyNames.join(', ') }}
+        </template>
+        {% endblock %}
+
+        {% block sw_import_export_edit_profile_modal_identifiers_grid_mapped_column %}
+        <template #column-mapped="{ item }">
+            <sw-single-select
+                v-if="item.relation !== 'many_to_many'"
+                required
+                :value="item.selected"
+                :options="item.options"
+                :disabled="profile.systemDefault"
+                :show-clearable-button="item.selected !== 'id'"
+                @change="onChangeIdentifier($event, item.entityName)"
+            />
+            <sw-import-export-entity-path-select
+                v-else
+                :value="item.selected"
+                :languages="languages"
+                :currencies="currencies"
+                :entity-type="item.entityName"
+                :disabled="profile.systemDefault"
+                :custom-field-sets="customFieldSets"
+                @change="onChangeIdentifier($event, item.entityName)"
+            >
+                <template #before-item-list>
+                    <span></span>
+                </template>
+            </sw-import-export-entity-path-select>
+        </template>
+        {% endblock %}
+    </sw-data-grid>
+    {% endblock %}
+
+    {% block sw_import_export_edit_profile_modal_identifiers_empty_state %}
+    <sw-empty-state
+        v-else
+        class="sw-import-export-edit-profile-modal-identifiers__empty-state"
+        :title="$tc('sw-import-export.profile.mappingEmptyState')"
+        :absolute="false"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

@@ -165,6 +165,8 @@ class EntityWriter implements EntityWriterInterface
 
         $result = $this->factory->build($commandQueue);
 
+        $parents = array_merge($parents, $this->factory->resolveMappings($result));
+
         return $this->factory->addDeleteResults($result, $notFound, $parents);
     }
 

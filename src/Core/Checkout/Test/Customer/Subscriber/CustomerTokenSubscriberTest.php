@@ -39,6 +39,35 @@ class CustomerTokenSubscriberTest extends TestCase
         $this->customerRepository = $this->getContainer()->get('customer.repository');
     }
 
+    public function testCustomerTokenSubscriber(): void
+    {
+        $customerId = $this->createCustomer();
+
+        $this->connection->insert('sales_channel_api_context', [
+            'customer_id' => Uuid::fromHexToBytes($customerId),
+            'token' => 'test',
+            'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
+            'updated_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'payload' => '{"customerId": "1234"}',
+        ]);
+
+        $this->customerRepository->update([
+            [
+                'id' => $customerId,
+                'password' => 'fooo',
+            ],
+        ], Context::createDefaultContext());
+
+        static::assertSame(
+            [
+                'customerId' => null,
+                'billingAddressId' => null,
+                'shippingAddressId' => null,
+            ],
+            json_decode($this->connection->fetchOne('SELECT payload FROM sales_channel_api_context WHERE token = "test"'), true)
+        );
+    }
+
     public function testCustomerTokenSubscriberStorefrontShouldStillBeLoggedIn(): void
     {
         $customerId = $this->createCustomer();

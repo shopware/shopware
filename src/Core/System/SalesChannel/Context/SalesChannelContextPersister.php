@@ -172,7 +172,9 @@ class SalesChannelContextPersister
             ->update('sales_channel_api_context')
             ->set('payload', ':payload')
             ->set('customer_id', 'NULL')
+            ->set('updated_at', ':updatedAt')
             ->where('customer_id = :customerId')
+            ->setParameter('updatedAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT))
             ->setParameter(':payload', json_encode($revokeParams))
             ->setParameter(':customerId', Uuid::fromHexToBytes($customerId));
 

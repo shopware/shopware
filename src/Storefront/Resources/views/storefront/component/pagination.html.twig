@@ -3,7 +3,7 @@
     {% set totalPages = (entities.total / criteria.limit)|round(0, 'ceil') %}
 
     {% set paginationSuffix = '' %}
-    {% if paginationLocation %}
+    {% if feature('v6_5_0_0') and paginationLocation %}
         {% set paginationSuffix = '-' ~ paginationLocation %}
     {% endif %}
 

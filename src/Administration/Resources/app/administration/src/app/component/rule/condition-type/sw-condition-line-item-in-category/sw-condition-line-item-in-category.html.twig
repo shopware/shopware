@@ -17,10 +17,7 @@
         description-position="bottom"
         @change="setCategoryIds"
     >
-        <template
-            v-if="feature.isActive('FEATURE_NEXT_16800')"
-            #result-description-property="{ item }"
-        >
+        <template #result-description-property="{ item }">
             {% block sw_condition_line_item_in_category_field_description %}
             <slot
                 name="result-description-property"

@@ -127,10 +127,7 @@
                     </slot>
                 </template>
 
-                <template
-                    v-if="feature.isActive('FEATURE_NEXT_16800')"
-                    #result-description-property="{ item }"
-                >
+                <template #result-description-property="{ item }">
                     <slot
                         name="result-description-property"
                         v-bind="{ item }"
@@ -193,17 +190,11 @@
                         name="result-label-property"
                         v-bind="{ item, searchTerm, highlightSearchTerm }"
                     >
-                        <template v-if="!feature.isActive('FEATURE_NEXT_16800')">
-                            {{ item.group.translated.name || item.group.name }}:
-                        </template>
                         {{ item.translated.name || item.name }}
                     </slot>
                 </template>
 
-                <template
-                    v-if="feature.isActive('FEATURE_NEXT_16800')"
-                    #result-description-property="{ item, searchTerm, highlightSearchTerm }"
-                >
+                <template #result-description-property="{ item, searchTerm, highlightSearchTerm }">
                     <slot
                         name="result-description-property"
                         v-bind="{ item, searchTerm, highlightSearchTerm }"

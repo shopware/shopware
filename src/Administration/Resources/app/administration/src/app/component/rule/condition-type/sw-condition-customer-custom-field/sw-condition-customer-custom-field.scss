@@ -1,15 +1,6 @@
 .sw-condition-customer-custom-field {
     display: grid;
-    grid-template-columns: auto auto auto 1fr !important;
-
-    /**
-     * @feature-deprecated (FEATURE_NEXT_16800) tag:v6.5.0
-     * remove style for .has--2-col and
-     * use "grid-template-columns: auto auto 1fr !important;" for .sw-condition-customer-custom-field above
-     */
-    &.has--2-col {
-        grid-template-columns: auto auto 1fr !important;
-    }
+    grid-template-columns: auto auto 1fr !important;
 
     .sw-form-field-renderer {
         label,

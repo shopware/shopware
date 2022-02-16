@@ -606,6 +606,11 @@
         "isNewCustomerRule": "New customer",
         "lastNameRule": "Customer surname",
         "isCompanyRule": "Commercial customer",
+        "cartTaxDisplay": {
+          "label": "Tax display",
+          "gross": "Gross",
+          "net": "Net"
+        },
         "isGuestRule": "Guest account",
         "isNewsletterRecipient": "Customer is newsletter recipient",
         "daysSinceLastOrderRule": "Days since last order",

@@ -143,6 +143,12 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         scopes: ['global'],
         group: 'general',
     });
+    ruleConditionService.addCondition('cartTaxDisplay', {
+        component: 'sw-condition-cart-tax-display',
+        label: 'global.sw-condition.condition.cartTaxDisplay.label',
+        scopes: ['checkout'],
+        group: 'general',
+    });
     ruleConditionService.addCondition('customerBillingCountry', {
         component: 'sw-condition-billing-country',
         label: 'global.sw-condition.condition.billingCountryRule',

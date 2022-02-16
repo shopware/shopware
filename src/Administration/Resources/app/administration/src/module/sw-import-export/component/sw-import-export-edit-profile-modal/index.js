@@ -21,6 +21,7 @@ Component.register('sw-import-export-edit-profile-modal', {
         'repositoryFactory',
         'feature',
         'importExportProfileMapping',
+        'importExportUpdateByMapping',
     ],
 
     mixins: [Mixin.getByName('notification')],
@@ -228,6 +229,11 @@ Component.register('sw-import-export-edit-profile-modal', {
                 if (value) {
                     this.loadSystemRequiredFieldsForEntity(value);
                 }
+            },
+        },
+        'profile.mapping': {
+            handler() {
+                this.importExportUpdateByMapping.removeUnusedMappings(this.profile);
             },
         },
     },

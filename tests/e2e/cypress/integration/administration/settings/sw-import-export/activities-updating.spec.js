@@ -89,6 +89,6 @@ describe('Import/Export - Check activities in progress are updating', () => {
             .should('contain', 'Succeeded');
 
         // Notification should be shown announcing export being completed
-        cy.awaitAndCheckNotification('The export "E2E" was completed successfully.');
+        cy.awaitAndCheckNotification('Export "E2E" completed.');
     });
 });

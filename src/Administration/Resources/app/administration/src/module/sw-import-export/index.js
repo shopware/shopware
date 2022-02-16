@@ -1,5 +1,6 @@
 import ImportExportService from './service/importExport.service';
 import ImportExportProfileMappingService from './service/importExportProfileMapping.service';
+import ImportExportProfileUpdateByService from './service/importExportUpdateByMapping.service';
 import './page/sw-import-export';
 import './component/sw-import-export-exporter';
 import './component/sw-import-export-importer';
@@ -9,6 +10,7 @@ import './component/sw-import-export-activity-log-info-modal';
 import './component/sw-import-export-activity-result-modal';
 import './component/sw-import-export-edit-profile-modal';
 import './component/sw-import-export-edit-profile-modal-mapping';
+import './component/sw-import-export-edit-profile-modal-identifiers';
 import './component/sw-import-export-entity-path-select';
 import './component/sw-import-export-edit-profile-field-indicators';
 import './component/sw-import-export-edit-profile-import-settings';
@@ -33,6 +35,10 @@ Shopware.Service().register('importExport', () => {
 
 Shopware.Service().register('importExportProfileMapping', () => {
     return new ImportExportProfileMappingService(Shopware.EntityDefinition);
+});
+
+Shopware.Service().register('importExportUpdateByMapping', () => {
+    return new ImportExportProfileUpdateByService(Shopware.EntityDefinition);
 });
 
 Shopware.Module.register('sw-import-export', {

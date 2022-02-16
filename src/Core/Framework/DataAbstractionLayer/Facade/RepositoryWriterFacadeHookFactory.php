@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
 
+/**
+ * @internal
+ */
 class RepositoryWriterFacadeHookFactory extends HookServiceFactory
 {
     private DefinitionInstanceRegistry $registry;

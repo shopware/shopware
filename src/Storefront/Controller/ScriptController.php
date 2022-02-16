@@ -33,7 +33,7 @@ class ScriptController extends StorefrontController
 
     /**
      * @Since("6.4.9.0")
-     * @Route("/storefront/script/{hook}", name="frontend.script_endpoint", defaults={"XmlHttpRequest"=true}, methods={"GET", "POST"})
+     * @Route("/storefront/script/{hook}", name="frontend.script_endpoint", defaults={"XmlHttpRequest"=true}, methods={"GET", "POST"}, requirements={"hook"=".+"})
      */
     public function execute(string $hook, Request $request, SalesChannelContext $context): Response
     {

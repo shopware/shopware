@@ -40,6 +40,24 @@ class ScriptControllerTest extends TestCase
         static::assertEquals('bar', $body['foo']);
     }
 
+    public function testGetApiEndpointWithSlashInHookName(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps');
+
+        $response = $this->request('GET', '/storefront/script/json/response', []);
+
+        $body = \json_decode($response->getContent(), true);
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
+
+        $traces = $this->getScriptTraces();
+        static::assertArrayHasKey('storefront-json-response', $traces);
+        static::assertCount(1, $traces['storefront-json-response']);
+        static::assertSame('some debug information', $traces['storefront-json-response'][0]['output'][0]);
+
+        static::assertArrayHasKey('foo', $body);
+        static::assertEquals('bar', $body['foo']);
+    }
+
     public function testPostApiEndpoint(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps');

@@ -55,7 +55,7 @@ class ScriptApiRoute
      *          description="Returns different structures of results based on the called script.",
      *     )
      * )
-     * @Route("/api/script/{hook}", name="api.script_endpoint", methods={"POST"})
+     * @Route("/api/script/{hook}", name="api.script_endpoint", methods={"POST"}, requirements={"hook"=".+"})
      */
     public function execute(string $hook, Request $request, Context $context): Response
     {

@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
 class ScriptCacheInvalidationSubscriber implements EventSubscriberInterface
 {
     private ScriptExecutor $scriptExecutor;

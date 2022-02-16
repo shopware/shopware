@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @deprecated tag:v6.5.0 will be internal
+ */
 class SystemConfigFacadeHookFactory extends HookServiceFactory
 {
     private SystemConfigService $systemConfigService;

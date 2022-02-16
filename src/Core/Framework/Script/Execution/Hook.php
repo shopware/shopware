@@ -17,15 +17,11 @@ abstract class Hook
     }
 
     /**
-     * The services returned here must all implement the HookAwareService interface.
+     * The services returned here must all extend the abstract HookServiceFactory.
      * These are then available in the script under the variable `services`.
      */
     abstract public static function getServiceIds(): array;
 
-    /**
-     * The name returned here serves as an accessor in the script for the service.
-     * If e.g. `cart` is returned, the service is available under `services.cart`.
-     */
     abstract public function getName(): string;
 
     public function getContext(): Context

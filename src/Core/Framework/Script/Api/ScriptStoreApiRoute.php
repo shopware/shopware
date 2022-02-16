@@ -79,7 +79,7 @@ class ScriptStoreApiRoute
      *          description="Returns different structures of results based on the called script.",
      *     )
      * )
-     * @Route("/store-api/script/{hook}", name="store-api.script_endpoint", methods={"GET", "POST"})
+     * @Route("/store-api/script/{hook}", name="store-api.script_endpoint", methods={"GET", "POST"}, requirements={"hook"=".+"})
      */
     public function execute(string $hook, Request $request, SalesChannelContext $context): Response
     {

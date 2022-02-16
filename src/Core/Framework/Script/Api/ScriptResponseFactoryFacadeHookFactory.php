@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Storefront\Controller\ScriptController;
 use Symfony\Component\Routing\RouterInterface;
 
+/**
+ * @internal
+ */
 class ScriptResponseFactoryFacadeHookFactory extends HookServiceFactory
 {
     private RouterInterface $router;

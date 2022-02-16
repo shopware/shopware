@@ -47,6 +47,26 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertSame('store_api_simple_script_response', $response['apiAlias']);
     }
 
+    public function testApiEndpointWithSlashInHookName(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures');
+
+        $this->browser->request('POST', '/store-api/script/simple/script');
+
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
+
+        $traces = $this->getScriptTraces();
+        static::assertArrayHasKey('store-api-simple-script::response', $traces);
+        static::assertCount(1, $traces['store-api-simple-script::response']);
+        static::assertSame('some debug information', $traces['store-api-simple-script::response'][0]['output'][0]);
+
+        static::assertArrayHasKey('apiAlias', $response);
+        static::assertArrayHasKey('foo', $response);
+        static::assertEquals('bar', $response['foo']);
+        static::assertSame('store_api_simple_script_response', $response['apiAlias']);
+    }
+
     public function testRepositoryCall(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');

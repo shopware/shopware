@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
 
+/**
+ * @deprecated tag:v6.5.0 will be internal
+ */
 class RepositoryFacadeHookFactory extends HookServiceFactory
 {
     private DefinitionInstanceRegistry $registry;

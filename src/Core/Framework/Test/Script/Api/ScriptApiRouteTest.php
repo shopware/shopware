@@ -39,6 +39,25 @@ class ScriptApiRouteTest extends TestCase
         static::assertEquals('bar', $response['foo']);
     }
 
+    public function testApiEndpointWithSlashInHookName(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures');
+
+        $browser = $this->getBrowser();
+        $browser->request('POST', '/api/script/simple/script');
+
+        $response = \json_decode($browser->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), print_r($response, true));
+
+        $traces = $this->getScriptTraces();
+        static::assertArrayHasKey('api-simple-script', $traces);
+        static::assertCount(1, $traces['api-simple-script']);
+        static::assertSame('some debug information', $traces['api-simple-script'][0]['output'][0]);
+
+        static::assertArrayHasKey('foo', $response);
+        static::assertEquals('bar', $response['foo']);
+    }
+
     public function testRepositoryCall(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');

@@ -294,7 +294,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         $name = $product->getTranslation('name');
 
         // set the label if its empty or the context does not have the permission to overwrite it
-        if ($label !== $name || !$behavior->hasPermission(self::ALLOW_PRODUCT_LABEL_OVERWRITES)) {
+        if ($label === '' || !$behavior->hasPermission(self::ALLOW_PRODUCT_LABEL_OVERWRITES)) {
             $lineItem->setLabel($product->getTranslation('name'));
         }
 

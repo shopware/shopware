@@ -19,16 +19,16 @@ describe('Category: Create several categories', () => {
         cy.log('Check that sorting got applied for list view aswell and switch back to grid view afterwards');
         cy.get('.sw-cms-layout-modal__actions-mode').click();
         cy.get('.sw-data-grid__cell--0 > .sw-data-grid__cell-content .icon--small-arrow-small-up').should('exist');
-        cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--name').contains('Default category layout');
+        cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--name').contains('Default listing layout');
         cy.get('.sw-cms-layout-modal__actions-mode').click();
 
-        cy.log('Select Default category layout, which should still be at the top in the Name, ascending sorting');
-        cy.get('.sw-cms-list-item__info:nth(0) > .sw-cms-list-item__title').contains('Default category layout');
+        cy.log('Select Default listing layout, which should still be at the top in the Name, ascending sorting');
+        cy.get('.sw-cms-list-item__info:nth(0) > .sw-cms-list-item__title').contains('Default listing layout');
         cy.get('.sw-cms-layout-modal__content-checkbox:nth(0)').click();
 
         cy.log('Save selection');
         cy.get('.sw-modal__footer > .sw-button--primary').click();
-        cy.get('.sw-category-layout-card > .sw-card__content .sw-cms-list-item__title').contains('Default category layout');
+        cy.get('.sw-category-layout-card > .sw-card__content .sw-cms-list-item__title').contains('Default listing layout');
     });
 
     it('should be able to assign layouts with the list view ', () => {

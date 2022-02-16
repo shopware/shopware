@@ -96,8 +96,8 @@
                         {% block component_address_address_editor_modal_accordion_action_edit %}
                             <div class="col-12 col-md-4">
                                 <div class="btn btn-outline-primary btn-block address-editor-edit create collapsed"
-                                     data-toggle="collapse"
-                                     data-target="#{{ typePrefix }}address-create-edit">
+                                     {{ dataBsToggleAttr }}="collapse"
+                                     {{ dataBsTargetAttr }}="#{{ typePrefix }}address-create-edit">
                                     {{ "account.addressEditBtn"|trans|sw_sanitize }}
                                 </div>
                             </div>
@@ -107,8 +107,8 @@
                             {% if AvailableAddressCount > 0 %}
                                 <div class="col-12 col-md-4">
                                     <div class="btn btn-outline-primary btn-block address-editor-select"
-                                         data-toggle="collapse"
-                                         data-target="#{{ typePrefix }}address-list">
+                                         {{ dataBsToggleAttr }}="collapse"
+                                         {{ dataBsTargetAttr }}="#{{ typePrefix }}address-list">
                                         {{ "account.selectAddress"|trans|sw_sanitize }}
                                     </div>
                                 </div>
@@ -118,8 +118,8 @@
                         {% block component_address_address_editor_modal_accordion_action_create %}
                             <div class="col-12 col-md-4">
                                 <div class="btn btn-outline-primary btn-block address-editor-create collapsed"
-                                     data-toggle="collapse"
-                                     data-target="#{{ typePrefix }}address-create-new">
+                                     {{ dataBsToggleAttr }}="collapse"
+                                     {{ dataBsTargetAttr }}="#{{ typePrefix }}address-create-new">
                                     {{ "account.addressCreateBtn"|trans|sw_sanitize }}
                                 </div>
                             </div>

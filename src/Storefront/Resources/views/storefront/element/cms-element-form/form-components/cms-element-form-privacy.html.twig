@@ -5,17 +5,17 @@
         <div>{{ "general.privacyTitle"|trans }} {{ "general.required"|trans }}</div>
     {% endblock %}
 
-    <div class="form-text privacy-notice custom-control custom-checkbox">
+    <div class="form-text privacy-notice {{ formCheckboxWrapperClass }}">
         {% block cms_form_privacy_opt_in_input %}
             <input name="privacy"
                    type="checkbox"
-                   class="custom-control-input"
+                   class="{{ formCheckInputClass }}"
                    id="{{ identifierTemplate|format(_key) }}"
                    required>
         {% endblock %}
 
         {% block cms_form_privacy_opt_in_label %}
-            <label for="{{ identifierTemplate|format(_key) }}" class=" custom-control-label">
+            <label for="{{ identifierTemplate|format(_key) }}" class="{{ formCheckLabelClass }}">
                 {# @deprecated tag:v6.5.0 - Translation parameter %url% will be removed, use %privacyUrl% and %tosUrl% instead #}
                 {{ "general.privacyNotice"|trans({
                     '%url%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') }),

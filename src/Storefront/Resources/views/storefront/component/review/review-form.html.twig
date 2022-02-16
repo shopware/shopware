@@ -39,7 +39,7 @@
             {% endif %}
 
             {% block component_review_form_details %}
-                <div class="form-row">
+                <div class="{{ formRowClass }}">
                     {% block component_review_form_rating %}
                         <div class="form-group col-md-4 product-detail-review-form-rating">
                             <label for="#review-form-rating">
@@ -151,8 +151,8 @@
                         {% block component_review_form_cancel %}
                             <a href="#"
                                class="btn btn-outline-secondary product-detail-review-cancel"
-                               data-toggle="collapse"
-                               data-target=".multi-collapse"
+                               {{ dataBsToggleAttr }}="collapse"
+                               {{ dataBsTargetAttr }}=".multi-collapse"
                                aria-expanded="false"
                                aria-controls="review-form review-list">
                                 {{ "detail.reviewFormCancelText"|trans|sw_sanitize }}

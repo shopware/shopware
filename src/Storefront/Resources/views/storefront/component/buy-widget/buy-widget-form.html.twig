@@ -13,12 +13,12 @@
         {% set buyable = product.available and product.childCount <= 0 and product.calculatedMaxPurchase > 0 %}
         {% block buy_widget_buy_container %}
             {% if buyable %}
-                <div class="form-row buy-widget-container">
+                <div class="{{ formRowClass }} buy-widget-container">
                     {% block buy_widget_buy_quantity_container %}
                         <div class="col-4">
                             {% block buy_widget_buy_quantity %}
                                 <select name="lineItems[{{ product.id }}][quantity]"
-                                        class="custom-select product-detail-quantity-select">
+                                        class="{{ formSelectClass }} product-detail-quantity-select">
                                     {% for quantity in range(product.minPurchase, product.calculatedMaxPurchase, product.purchaseSteps) %}
                                         <option value="{{ quantity }}">
                                             {{ quantity }}

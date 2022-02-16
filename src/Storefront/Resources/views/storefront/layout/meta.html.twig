@@ -186,6 +186,9 @@
                 {% endblock %}
             {% endif %}
 
+            {% block layout_head_javascript_jquery %}
+            {% endblock %}
+
             {% block layout_head_javascript_hmr_mode %}
                 {% if isHMRMode %}
                     <script type="text/javascript" src="/_webpack_hot_proxy_/js/vendor-node.js" defer></script>

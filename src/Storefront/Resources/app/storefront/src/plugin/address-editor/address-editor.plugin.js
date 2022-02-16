@@ -5,6 +5,7 @@ import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
 import DomAccess from 'src/helper/dom-access.helper';
 import Iterator from 'src/helper/iterator.helper';
 import PluginManager from 'src/plugin-system/plugin.manager';
+import Feature from 'src/helper/feature.helper';
 
 /**
  * this plugins opens a modal
@@ -144,21 +145,42 @@ export default class AddressEditorPlugin extends Plugin {
      */
     _registerCollapseCallback(pseudoModal) {
         const modal = pseudoModal.getModal();
-        const collapseTriggers = DomAccess.querySelectorAll(modal, '[data-toggle="collapse"]', false);
+
+        /**
+         * @deprecated tag:v6.5.0 - Bootstrap v5 renames `data-toggle` attribute to `data-bs-toggle`
+         * Replace variable `dataBsToggleSelector` with string `[data-bs-toggle="collapse"]`.
+         */
+        const dataBsToggleSelector = Feature.isActive('V6_5_0_0') ? '[data-bs-toggle="collapse"]' : '[data-toggle="collapse"]';
+
+        /**
+         * @deprecated tag:v6.5.0 - Bootstrap v5 renames `data-target` attribute to `data-bs-target`
+         * Replace variable `dataBsTargetAttr` with string `data-bs-target`.
+         */
+        const dataBsTargetAttr = Feature.isActive('V6_5_0_0') ? 'data-bs-target' : 'data-target';
+
+        const collapseTriggers = DomAccess.querySelectorAll(modal, dataBsToggleSelector, false);
 
         if (collapseTriggers) {
             Iterator.iterate(collapseTriggers, collapseTrigger => {
-                const targetSelector = DomAccess.getDataAttribute(collapseTrigger, 'data-target');
+                const targetSelector = DomAccess.getDataAttribute(collapseTrigger, dataBsTargetAttr);
                 const target = DomAccess.querySelector(modal, targetSelector);
                 const parentSelector = DomAccess.getDataAttribute(target, 'data-parent');
                 const parent = DomAccess.querySelector(modal, parentSelector);
-                const $parent = $(parent);
 
-                $parent.on('hidden.bs.collapse', () => {
-                    pseudoModal.updatePosition();
+                /** @deprecated tag:v6.5.0 - Bootstrap v5 uses native HTML elements and events to subscribe to Collapse plugin events */
+                if (Feature.isActive('V6_5_0_0')) {
+                    parent.addEventListener('hidden.bs.collapse', () => {
+                        pseudoModal.updatePosition();
 
-                    this.$emitter.publish('collapseHidden', { pseudoModal });
-                });
+                        this.$emitter.publish('collapseHidden', { pseudoModal });
+                    });
+                } else {
+                    $(parent).on('hidden.bs.collapse', () => {
+                        pseudoModal.updatePosition();
+
+                        this.$emitter.publish('collapseHidden', { pseudoModal });
+                    });
+                }
             });
         }
 

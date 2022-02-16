@@ -5,7 +5,7 @@
           data-form-validation="true">
 
         <div class="form-content">
-        <div class="form-row">
+        <div class="{{ formRowClass }}">
             {% block cms_form_newsletter_select_action %}
                 <div class="form-group col-12">
                     <label class="form-label" for="newsletterAction">
@@ -15,7 +15,7 @@
                     <select name="option"
                             id="newsletterAction"
                             required="required"
-                            class="custom-select"
+                            class="{{ formSelectClass }}"
                             data-form-field-toggle="true"
                             data-form-field-toggle-target=".js-field-toggle-newsletter-additional"
                             data-form-field-toggle-value="subscribe">
@@ -32,7 +32,7 @@
             {% endblock %}
         </div>
 
-        <div class="form-row">
+        <div class="{{ formRowClass }}">
             {% block cms_form_newsletter_input_email %}
                 {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
                     with {
@@ -49,7 +49,7 @@
 
         {% block cms_form_newsletter_additional_fields %}
             <div class="js-field-toggle-newsletter-additional d-none">
-                <div class="form-row">
+                <div class="{{ formRowClass }}">
                     {% block cms_form_newsletter_select_salutation %}
                         {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-select-salutation.html.twig'
                             with { additionalClass: 'col-md-4' }

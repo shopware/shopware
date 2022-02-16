@@ -262,4 +262,3 @@ shopware:
         major: true
         description: "Remove composite search api"
         # issue: NEXT_18762
-

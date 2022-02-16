@@ -61,8 +61,8 @@ describe(`Checkout as Guest`, () => {
 
         // Checkout
         cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
-        cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
-        cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
+        cy.get('.checkout-confirm-tos-label').scrollIntoView();
+        cy.get('.checkout-confirm-tos-label').click(1, 1);
         cy.get('.confirm-address').contains('John Doe');
         cy.get(`${page.elements.cartItem}-details-container ${page.elements.cartItem}-label`).contains(product.name);
         cy.get(`${page.elements.cartItem}-total-price`).contains(product.price[0].gross);
@@ -193,8 +193,8 @@ describe(`Checkout as Guest`, () => {
 
             // Checkout
             cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
-            cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
-            cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
+            cy.get('.checkout-confirm-tos-label').scrollIntoView();
+            cy.get('.checkout-confirm-tos-label').click(1, 1);
             cy.get('.confirm-address').contains('John Doe');
             cy.get(`${page.elements.cartItem}-details-container ${page.elements.cartItem}-label`).contains(product.name);
             cy.get(`${page.elements.cartItem}-total-price`).contains(product.price[0].gross);

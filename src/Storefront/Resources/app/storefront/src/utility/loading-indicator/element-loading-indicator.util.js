@@ -1,6 +1,13 @@
 import LoadingIndicatorUtil from 'src/utility/loading-indicator/loading-indicator.util';
+import Feature from 'src/helper/feature.helper';
 
 const ELEMENT_LOADER_CLASS = 'element-loader-backdrop';
+
+/**
+ * @deprecated tag:v6.5.0 - Bootstrap v5 renames `sr-only` class to `visually-hidden`
+ * @type {string}
+ */
+const VISUALLY_HIDDEN_CLASS = Feature.isActive('V6_5_0_0') ? 'visually-hidden' : 'sr-only';
 
 export default class ElementLoadingIndicatorUtil extends LoadingIndicatorUtil {
 
@@ -59,7 +66,7 @@ export default class ElementLoadingIndicatorUtil extends LoadingIndicatorUtil {
         return `
         <div class="${ELEMENT_LOADER_CLASS}">
             <div class="loader" role="status">
-                <span class="sr-only">Loading...</span>
+                <span class="${VISUALLY_HIDDEN_CLASS}">Loading...</span>
             </div>
         </div>
         `;

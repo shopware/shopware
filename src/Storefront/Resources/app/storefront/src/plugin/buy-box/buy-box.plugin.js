@@ -5,12 +5,17 @@ import PageLoadingIndicatorUtil from 'src/utility/loading-indicator/page-loading
 import ElementReplaceHelper from 'src/helper/element-replace.helper';
 import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
 import DomAccess from 'src/helper/dom-access.helper';
+import Feature from 'src/helper/feature.helper';
 
 export default class BuyBoxPlugin extends Plugin {
 
     static options = {
         elementId: '',
-        modalTriggerSelector: 'a[data-toggle="modal"]',
+        /**
+         * @deprecated tag:v6.5.0 - Bootstrap v5 renames `data-toggle` attribute to `data-bs-toggle`
+         * @see https://getbootstrap.com/docs/5.0/migration/#javascript
+         */
+        modalTriggerSelector: Feature.isActive('V6_5_0_0') ? 'a[data-bs-toggle="modal"]' : 'a[data-toggle="modal"]',
         buyWidgetSelector: '.product-detail-buy',
         urlAttribute: 'data-url',
     };

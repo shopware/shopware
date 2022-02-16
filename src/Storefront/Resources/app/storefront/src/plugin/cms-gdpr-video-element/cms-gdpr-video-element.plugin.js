@@ -2,6 +2,7 @@ import Plugin from 'src/plugin-system/plugin.class';
 import HttpClient from 'src/service/http-client.service';
 import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
 import DomAccess from 'src/helper/dom-access.helper';
+import Feature from 'src/helper/feature.helper';
 
 export default class CmsGdprVideoElement extends Plugin {
     /**
@@ -15,7 +16,11 @@ export default class CmsGdprVideoElement extends Plugin {
         overlayText: null,
         backdropClasses: ['element-loader-backdrop', 'element-loader-backdrop-open'],
         confirmButtonText: null,
-        modalTriggerSelector: '[data-toggle="modal"][data-url]',
+        /**
+         * @deprecated tag:v6.5.0 - Bootstrap v5 renames `data-toggle` attribute to `data-bs-toggle`
+         * @see https://getbootstrap.com/docs/5.0/migration/#javascript
+         */
+        modalTriggerSelector: Feature.isActive('V6_5_0_0') ? '[data-bs-toggle="modal"][data-url]' : '[data-toggle="modal"][data-url]',
         urlAttribute: 'data-url',
     };
 

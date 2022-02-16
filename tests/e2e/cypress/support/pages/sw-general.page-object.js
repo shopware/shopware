@@ -57,8 +57,8 @@ export default {
     manufacturerFilter:
         '#filter-panel-wrapper .filter-multi-select-manufacturer',
     productCard: '.cms-block-product-listing .card-body',
-    filterLabel: '.custom-control-label',
+    filterLabel: '.filter-multi-select-item-label',
 
     // Product detail page
-    productDetailManufacturerLink: '.filter-active',
+    productDetailManufacturerLink: '.product-detail-manufacturer-link',
 }

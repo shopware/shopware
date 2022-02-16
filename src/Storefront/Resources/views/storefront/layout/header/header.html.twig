@@ -39,7 +39,7 @@
 
             {% block layout_header_actions %}
                 <div class="col-12 order-1 col-sm-auto order-sm-2 header-actions-col">
-                    <div class="row no-gutters">
+                    <div class="row {{ gridNoGuttersClass }}">
                         {% block layout_header_navigation_toggle %}
                             <div class="col d-sm-none">
                                 <div class="menu-button">
@@ -62,8 +62,8 @@
                                 <div class="search-toggle">
                                     <button class="btn header-actions-btn search-toggle-btn js-search-toggle-btn collapsed"
                                             type="button"
-                                            data-toggle="collapse"
-                                            data-target="#searchCollapse"
+                                            {{ dataBsToggleAttr }}="collapse"
+                                            {{ dataBsTargetAttr }}="#searchCollapse"
                                             aria-expanded="false"
                                             aria-controls="searchCollapse"
                                             aria-label="{{ "header.searchButton"|trans|striptags }}">

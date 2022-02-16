@@ -109,9 +109,9 @@ describe('Promotion: Test crud operations', () => {
 
         // Finish order
         cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
-        cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
-        cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
-        cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
+        cy.get('.checkout-confirm-tos-label').scrollIntoView();
+        cy.get('.checkout-confirm-tos-label').click(1, 1);
+        cy.get('.checkout-confirm-tos-label').scrollIntoView();
         cy.get('.cart-item-promotion').contains('Funicular prices');
         cy.get('.cart-item-promotion .cart-item-total-price').contains('-€10.00');
         cy.get('.cart-item-promotion .cart-item-tax-price').contains('-€1.60');

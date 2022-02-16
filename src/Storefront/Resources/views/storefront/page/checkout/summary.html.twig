@@ -15,7 +15,7 @@
             {% set total = summary.price.rawTotal %}
         {% endif %}
 
-        <dl class="row checkout-aside-summary-list no-gutters {% if displayRounded %}display-rounded{% endif %}">
+        <dl class="row checkout-aside-summary-list {{ gridNoGuttersClass }} {% if displayRounded %}display-rounded{% endif %}">
             {% block page_checkout_summary_inner %}
 
                 {% sw_include '@Storefront/storefront/page/checkout/summary/summary-position.html.twig' with { 'summary': summary } %}

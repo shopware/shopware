@@ -5,7 +5,7 @@
           data-form-validation="true">
 
         <div class="form-content">
-        <div class="form-row">
+        <div class="{{ formRowClass }}">
             {% block cms_form_contact_select_salutation %}
                 {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-select-salutation.html.twig'
                     with {
@@ -42,7 +42,7 @@
             {% endblock %}
         </div>
 
-        <div class="form-row">
+        <div class="{{ formRowClass }}">
             {% block cms_form_contact_input_email %}
                 {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
                     with {
@@ -70,7 +70,7 @@
             {% endblock %}
         </div>
 
-        <div class="form-row">
+        <div class="{{ formRowClass }}">
             {% block cms_form_contact_input_subject %}
                 {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
                     with {
@@ -84,7 +84,7 @@
             {% endblock %}
         </div>
 
-        <div class="form-row">
+        <div class="{{ formRowClass }}">
             {% block cms_form_contact_comment_textarea %}
                 {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-textarea.html.twig'
                     with {

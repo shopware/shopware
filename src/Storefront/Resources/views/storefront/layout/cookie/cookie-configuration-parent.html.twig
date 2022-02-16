@@ -2,10 +2,10 @@
 {% set identifier = parent.cookie ? parent.cookie : name %}
 
 {% if name is not empty %}
-    <div class="custom-control custom-checkbox">
+    <div class="{{ formCheckboxWrapperClass }}">
         <input
             type="checkbox"
-            class="custom-control-input offcanvas-cookie-parent-input"
+            class="{{ formCheckInputClass }} offcanvas-cookie-parent-input"
             id="cookie_{{  identifier }}"
             {% if parent.isRequired %}
                 checked="checked"

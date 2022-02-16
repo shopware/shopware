@@ -240,6 +240,7 @@
         ],
         "build:js": [
             "@php bin/console bundle:dump",
+            "@php bin/console feature:dump",
             "@build:js:admin",
             "@build:js:storefront"
         ],

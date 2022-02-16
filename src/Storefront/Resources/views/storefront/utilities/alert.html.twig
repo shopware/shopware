@@ -124,7 +124,7 @@ To display a dismissible button set the value of "dismissible" to true.
                     {% if dismissible %}
                         <button type="button"
                                 class="close"
-                                data-dismiss="alert"
+                                {{ dataBsDismissAttr }}="alert"
                                 aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>

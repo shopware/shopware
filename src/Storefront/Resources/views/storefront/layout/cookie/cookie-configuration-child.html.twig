@@ -1,9 +1,9 @@
 {% if child.cookie is not empty and child.hidden is not same as(true) %}
     {% set cookie = child.cookie %}
-    <div class="offcanvas-cookie-entry custom-control custom-checkbox">
+    <div class="offcanvas-cookie-entry {{ formCheckboxWrapperClass }}">
         <input
             type="checkbox"
-            class="custom-control-input"
+            class="{{ formCheckInputClass }}"
             id="cookie_{{ cookie }}"
             {% if isRequired %}
                 checked="checked"

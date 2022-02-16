@@ -21,7 +21,7 @@
             {% if config('core.loginRegistration.showAccountTypeSelection') or prefix == "address" or prefix == "shippingAddress" or hasSelectedBusiness %}
                 <div class="{% if prefix == "shippingAddress" or hasSelectedBusiness %}address-contact-type-company{% elseif prefix == "address" %}js-field-toggle-contact-type-company d-block{% else %}js-field-toggle-contact-type-company d-none{% endif %}">
                     {% block component_address_form_company_fields %}
-                        <div class="form-row">
+                        <div class="{{ formRowClass }}">
                             {% block component_address_form_company_name %}
                                 <div class="form-group col-6">
                                     {% if formViolations.getViolations("/company") is not empty %}
@@ -138,7 +138,7 @@
     {% endblock %}
 
     {% block component_address_form_address_fields %}
-        <div class="form-row">
+        <div class="{{ formRowClass }}">
             {% block component_address_form_street %}
                 <div class="form-group col-md-6">
                     {% if formViolations.getViolations("/street") is not empty %}
@@ -326,7 +326,7 @@
             {% endblock %}
         </div>
 
-        <div class="form-row country-and-state-form-elements" data-country-state-select="true">
+        <div class="{{ formRowClass }} country-and-state-form-elements" data-country-state-select="true">
             {% block component_address_form_country %}
                 <div class="form-group col-md-6">
                     {% set initialCountryId = null %}
@@ -351,7 +351,7 @@
                     {% endblock %}
 
                     {% block component_address_form_country_select %}
-                        <select class="country-select custom-select{% if violationPath %} is-invalid{% endif %}"
+                        <select class="country-select {{ formSelectClass }}{% if violationPath %} is-invalid{% endif %}"
                                 id="{{ idPrefix ~ prefix }}AddressCountry"
                                 name="{{ prefix }}[countryId]"
                                 required="required"
@@ -394,7 +394,7 @@
                     {% endblock %}
 
                     {% block component_address_form_country_state_select %}
-                        <select class="country-state-select custom-select{% if violationPath %} is-invalid{% endif %}"
+                        <select class="country-state-select {{ formSelectClass }}{% if violationPath %} is-invalid{% endif %}"
                                 id="{{ idPrefix ~ prefix }}AddressCountryState"
                                 name="{{ prefix }}[countryStateId]"
                                 data-initial-country-state-id="{{ data.get('countryStateId') }}">
@@ -415,7 +415,7 @@
             {% endblock %}
         </div>
 
-        <div class="form-row">
+        <div class="{{ formRowClass }}">
             {% block component_address_form_phone_number %}
                 {% if config('core.loginRegistration.showPhoneNumberField') %}
                     <div class="form-group col-md-6">

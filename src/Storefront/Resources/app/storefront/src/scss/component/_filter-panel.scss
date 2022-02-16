@@ -221,7 +221,8 @@ This file contains the generic styling for all filter items.
     margin-left: auto;
 }
 
-@include media-breakpoint-down(md) {
+// @deprecated tag:v6.5.0 - Bootstrap v5 uses the breakpoint itself instead of the next breakpoint in `media-breakpoint-down()`, use `lg` instead of `md`.
+@include media-breakpoint-down(if(feature('V6_5_0_0'), lg, md)) {
     .btn.filter-panel-wrapper-toggle {
         display: block;
     }

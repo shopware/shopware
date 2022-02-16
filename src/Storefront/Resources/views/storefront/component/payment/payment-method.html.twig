@@ -2,7 +2,7 @@
     {% block component_payment_method_field %}
         <div class="payment-form-group form-group">
             {% block component_payment_method_control %}
-                <div class="custom-control custom-radio payment-method-radio">
+                <div class="{{ formRadioWrapperClass }} payment-method-radio">
                     {% block component_payment_method_input %}
                         <input type="radio"
                                id="paymentMethod{{ payment.id }}"
@@ -12,11 +12,11 @@
                                {% if page.isPaymentChangeable is defined and not page.isPaymentChangeable %}
                                    disabled="disabled"
                                {% endif %}
-                               class="custom-control-input payment-method-input">
+                               class="{{ formCheckInputClass }} payment-method-input">
                     {% endblock %}
 
                     {% block component_payment_method_label %}
-                        <label class="custom-control-label payment-method-label"
+                        <label class="{{ formCheckLabelClass }} payment-method-label"
                                for="paymentMethod{{ payment.id }}">
                             {% block component_payment_method_image %}
                                 {% if payment.media %}

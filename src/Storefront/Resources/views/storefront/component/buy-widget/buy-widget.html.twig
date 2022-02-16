@@ -117,7 +117,7 @@
                                     <a class="product-detail-tax-link"
                                        href="{{ path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') }) }}"
                                        title="{{ taxText }}"
-                                       data-toggle="modal"
+                                       {{ dataBsToggleAttr }}="modal"
                                        data-url="{{ path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') }) }}">
                                         {{ taxText }}
                                     </a>
@@ -141,7 +141,7 @@
                                     points: product.ratingAverage,
                                     style: 'text-primary'
                                 } %}
-                                <a data-toggle="tab"
+                                <a {{ dataBsToggleAttr }}="tab"
                                    class="product-detail-reviews-link"
                                    data-offcanvas-tabs="true"
                                    data-remote-click="true"

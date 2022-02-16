@@ -45,7 +45,7 @@
             {% endblock %}
 
             {% block page_account_overview_newsletter_content_form_check_control %}
-                <div class="custom-control custom-checkbox">
+                <div class="{{ formCheckboxWrapperClass }}">
                     {% block page_account_overview_newsletter_content_form_input %}
                         {% set subscribe = constant('Shopware\\Core\\Content\\Newsletter\\SalesChannel\\NewsletterSubscribeRoute::OPTION_SUBSCRIBE') %}
                         {% set direct = constant('Shopware\\Core\\Content\\Newsletter\\SalesChannel\\NewsletterSubscribeRoute::OPTION_DIRECT') %}
@@ -60,7 +60,7 @@
                             {% set status = customer.newsletter %}
                         {% endif %}
                         <input type="checkbox"
-                               class="custom-control-input"
+                               class="{{ formCheckInputClass }}"
                                id="newsletterRegister"
                                name="option"
                                autocomplete="off"
@@ -69,7 +69,7 @@
                     {% endblock %}
 
                     {% block page_account_overview_newsletter_content_form_label %}
-                        <label class="form-check-label custom-control-label"
+                        <label class="{{ formCheckLabelClass }} custom-control-label"
                                for="newsletterRegister">
                             {{ "account.newsletterSettings"|trans({'%shopname%': config('core.basicInformation.shopName')})|sw_sanitize }}
                         </label>

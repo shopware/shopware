@@ -1,5 +1,5 @@
 {% block cms_form_submit %}
-    <button type="submit" class="btn btn-primary float-right">
+    <button type="submit" class="btn btn-primary {{ floatEndClass }}">
         {{ ( submitText ? submitText : 'general.formSubmit' )|trans }}
     </button>
 {% endblock %}

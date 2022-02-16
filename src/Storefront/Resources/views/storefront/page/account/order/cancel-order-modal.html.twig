@@ -22,7 +22,7 @@
                                 {% block page_checkout_aside_cancel_order_modal_header_close_button %}
                                     <button class="close"
                                             type="button"
-                                            data-dismiss="modal"
+                                            {{ dataBsDismissAttr }}="modal"
                                             aria-label="Close">
                                         {% sw_icon 'x' %}
                                     </button>
@@ -75,7 +75,7 @@
                                         {% block page_checkout_aside_cancel_order_modal_header_back_button %}
                                             <button class="btn"
                                                     type="button"
-                                                    data-dismiss="modal">
+                                                    {{ dataBsDismissAttr }}="modal">
                                                 {{ "account.editOrderCancelOrderModalFooterButtonBack"|trans|sw_sanitize }}
                                             </button>
                                         {% endblock %}

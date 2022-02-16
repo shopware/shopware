@@ -1,5 +1,10 @@
 .pagination {
     .page-link {
-        line-height: $custom-select-line-height;
+        // @deprecated tag:v6.5.0 - Bootstrap v5 renames variable $custom-select-line-height to $form-select-line-height
+        @if feature('V6_5_0_0') {
+            line-height: $form-select-line-height;
+        } @else {
+            line-height: $custom-select-line-height;
+        }
     }
 }

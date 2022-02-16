@@ -120,8 +120,8 @@ describe('Checkout: Use different taxes in products while checkout', () => {
 
                 // Confirm
                 cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
-                cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
-                cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
+                cy.get('.checkout-confirm-tos-label').scrollIntoView();
+                cy.get('.checkout-confirm-tos-label').click(1, 1);
                 cy.get('.confirm-address').contains('Pep Eroni');
 
                 cy.get(`${page.elements.cartItem}-details-container ${page.elements.cartItem}-label`)

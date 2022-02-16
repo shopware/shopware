@@ -6,10 +6,10 @@
 
         {% block component_privacy_dpi %}
             {% if config('core.loginRegistration.requireDataProtectionCheckbox') == 1 %}
-                <div class="custom-control custom-checkbox data-protection-information">
+                <div class="{{ formCheckboxWrapperClass }} data-protection-information">
                     {% block component_privacy_dpi_checkbox %}
                         <input type="checkbox"
-                               class="custom-control-input {% if formViolations.getViolations('/acceptedDataProtection') is not empty %} is-invalid{% endif %}"
+                               class="{{ formCheckInputClass }} {% if formViolations.getViolations('/acceptedDataProtection') is not empty %} is-invalid{% endif %}"
                                name="acceptedDataProtection"
                                required="required"
                                value="1"

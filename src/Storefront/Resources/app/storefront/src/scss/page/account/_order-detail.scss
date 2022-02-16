@@ -56,7 +56,8 @@
     }
 }
 
-@include media-breakpoint-down(md) {
+// @deprecated tag:v6.5.0 - Bootstrap v5 uses the breakpoint itself instead of the next breakpoint in `media-breakpoint-down()`, use `lg` instead of `md`.
+@include media-breakpoint-down(if(feature('V6_5_0_0'), lg, md)) {
     .order-item,
     .document-item {
         padding-left: 0;
@@ -239,7 +240,8 @@
     }
 }
 
-@include media-breakpoint-down(sm) {
+// @deprecated tag:v6.5.0 - Bootstrap v5 uses the breakpoint itself instead of the next breakpoint in `media-breakpoint-down()`, use `md` instead of `sm`.
+@include media-breakpoint-down(if(feature('V6_5_0_0'), md, sm)) {
     .document-header-date {
         display: none;
     }

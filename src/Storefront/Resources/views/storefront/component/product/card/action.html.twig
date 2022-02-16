@@ -59,21 +59,42 @@
                         {% endblock %}
 
                         {% block page_product_detail_product_buy_button %}
-                            <button class="btn btn-block btn-buy"
-                                    title="{{ "listing.boxAddProduct"|trans|striptags }}">
-                                {{ "listing.boxAddProduct"|trans|sw_sanitize }}
-                            </button>
+                            {# @deprecated tag:v6.5.0 - Bootstrap v5 removes `btn-block` class, use `d-grid` wrapper instead #}
+                            {% if feature('v6.5.0.0') %}
+                                <div class="d-grid">
+                                    <button class="btn btn-buy"
+                                            title="{{ "listing.boxAddProduct"|trans|striptags }}">
+                                        {{ "listing.boxAddProduct"|trans|sw_sanitize }}
+                                    </button>
+                                </div>
+                            {% else %}
+                                <button class="btn btn-block btn-buy"
+                                        title="{{ "listing.boxAddProduct"|trans|striptags }}">
+                                    {{ "listing.boxAddProduct"|trans|sw_sanitize }}
+                                </button>
+                            {% endif %}
                         {% endblock %}
                     {% endblock %}
                 </form>
             {% endblock %}
         {% else %}
             {% block component_product_box_action_detail %}
-                <a href="{{ seoUrl('frontend.detail.page', {'productId': id}) }}"
-                   class="btn btn-block btn-light"
-                   title="{{ "listing.boxProductDetails"|trans|striptags }}">
-                    {{ "listing.boxProductDetails"|trans|sw_sanitize }}
-                </a>
+                {# @deprecated tag:v6.5.0 - Bootstrap v5 removes `btn-block` class, use `d-grid` wrapper instead #}
+                {% if feature('v6.5.0.0') %}
+                    <div class="d-grid">
+                        <a href="{{ seoUrl('frontend.detail.page', {'productId': id}) }}"
+                           class="btn btn-light"
+                           title="{{ "listing.boxProductDetails"|trans|striptags }}">
+                            {{ "listing.boxProductDetails"|trans|sw_sanitize }}
+                        </a>
+                    </div>
+                {% else %}
+                    <a href="{{ seoUrl('frontend.detail.page', {'productId': id}) }}"
+                       class="btn btn-block btn-light"
+                       title="{{ "listing.boxProductDetails"|trans|striptags }}">
+                        {{ "listing.boxProductDetails"|trans|sw_sanitize }}
+                    </a>
+                {% endif %}
             {% endblock %}
         {% endif %}
     </div>

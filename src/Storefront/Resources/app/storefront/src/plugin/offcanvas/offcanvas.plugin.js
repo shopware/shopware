@@ -9,6 +9,13 @@ const OFF_CANVAS_FULLWIDTH_CLASS = 'is-fullwidth';
 const OFF_CANVAS_CLOSE_TRIGGER_CLASS = 'js-offcanvas-close';
 const REMOVE_OFF_CANVAS_DELAY = 350;
 
+/**
+ * @deprecated tag:v6.5.0 - Announcement:
+ * Bootstrap v5 comes with its own OffCanvas component.
+ * This class will be adjusted to use Bootstraps OffCanvas JavaScript implementation.
+ *
+ * @see https://getbootstrap.com/docs/5.1/components/offcanvas
+ */
 class OffCanvasSingleton {
 
     constructor() {

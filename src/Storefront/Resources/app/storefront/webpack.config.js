@@ -19,7 +19,7 @@ const projectRootPath = process.env.PROJECT_ROOT
     : path.resolve('../../../../..');
 
 let themeFiles;
-let features;
+let features = {};
 
 if (isHotMode) {
     const themeFilesConfigPath = path.resolve(projectRootPath, 'var/theme-files.json');
@@ -31,6 +31,12 @@ if (fs.existsSync(featureConfigPath)) {
     features = require(featureConfigPath);
 } else {
     console.error(chalk.red('\n \u{26A0}️  The feature dump file "config_js_features.json" cannot be found. All features will be deactivated. Please execute bin/console feature:dump.  \u{26A0}️\n'));
+}
+
+/** @deprecated tag:v6.5.0 - Remove this warning message. */
+if (features['V6_5_0_0']) {
+    // eslint-disable-next-line no-console
+    console.log(chalk.yellow('\n \u{26A0}️  [Bootstrap v5 Warning] The feature flag V6_5_0_0 is activated and the Storefront is using Bootstrap v5.  \u{26A0}️\n'));
 }
 
 let hostName;
@@ -161,17 +167,24 @@ let webpackConfig = {
                     }
                 ]
             },
-            // Expose jQuery to the global scope for plugins which don't want to use Webpack
-            {
-                test: require.resolve('jquery/dist/jquery.slim'),
-                use: [{
-                    loader: 'expose-loader',
-                    options: 'jQuery'
-                }, {
-                    loader: 'expose-loader',
-                    options: '$'
-                }]
-            },
+            /** @deprecated tag:v6.5.0 - jQuery will be removed. Remove this function. */
+            ...(() => {
+                if (!features['V6_5_0_0']) {
+                    // Expose jQuery to the global scope for plugins which don't want to use Webpack
+                    return [{
+                        test: require.resolve('jquery/dist/jquery.slim'),
+                        use: [{
+                            loader: 'expose-loader',
+                            options: 'jQuery',
+                        }, {
+                            loader: 'expose-loader',
+                            options: '$',
+                        }],
+                    }]
+                }
+
+                return [];
+            })(),
             ...(() => {
                 if (isHotMode) {
                     return [
@@ -303,10 +316,26 @@ let webpackConfig = {
     plugins: [
         new webpack.NoEmitOnErrorsPlugin(),
         new webpack.ProvidePlugin({
-            $: require.resolve('jquery/dist/jquery.slim'),
-            jQuery: require.resolve('jquery/dist/jquery.slim'),
-            'window.jQuery': require.resolve('jquery/dist/jquery.slim'),
-            Popper: ['popper.js', 'default']
+            /**
+             * @deprecated tag:v6.5.0 - jQuery will be removed.
+             *
+             * Keep `bootstrap` from if case.
+             * Remove else case and enclosing function.
+             */
+            ...(() => {
+                if (features['V6_5_0_0']) {
+                    return {
+                        bootstrap: require.resolve('bootstrap5/dist/js/bootstrap'),
+                    }
+                } else {
+                    return {
+                        $: require.resolve('jquery/dist/jquery.slim'),
+                        jQuery: require.resolve('jquery/dist/jquery.slim'),
+                        'window.jQuery': require.resolve('jquery/dist/jquery.slim'),
+                    }
+                }
+            })(),
+            Popper: ['popper.js', 'default'],
         }),
         new WebpackBar({
             name: 'Shopware 6 Storefront'
@@ -341,10 +370,38 @@ let webpackConfig = {
         alias: {
             src: path.resolve(__dirname, 'src'),
             assets: path.resolve(__dirname, 'assets'),
-            jquery: 'jquery/dist/jquery.slim',
             scss: path.resolve(__dirname, 'src/scss'),
-            vendor: path.resolve(__dirname, 'vendor')
-        }
+            vendor: path.resolve(__dirname, 'vendor'),
+
+            /**
+             * @deprecated tag:v6.5.0 - Alias `vendorBootstrap` will be removed.
+             *
+             * Alias is used to import Bootstrap v5 if feature flag V6_5_0_0 is active.
+             * Package `bootstrap5` will be renamed to `bootstrap` and replace Bootstrap v4.
+             */
+            vendorBootstrap: features['V6_5_0_0']
+                ? path.resolve(__dirname, 'vendor/bootstrap5')
+                : path.resolve(__dirname, 'vendor/bootstrap'),
+
+            /**
+             * @deprecated tag:v6.5.0 - Alias `vendorBootstrapJs` will be removed.
+             *
+             * Alias is used to import Bootstrap v5 if feature flag V6_5_0_0 is active.
+             * Package `bootstrap5` will be renamed to `bootstrap` and replace Bootstrap v4.
+             */
+            vendorBootstrapJs: features['V6_5_0_0']
+                ? require.resolve('bootstrap5/dist/js/bootstrap')
+                : require.resolve('bootstrap/dist/js/bootstrap'),
+
+            /** @deprecated tag:v6.5.0 - jQuery will be removed. Remove this function. */
+            ...(() => {
+                if (!features['V6_5_0_0']) {
+                    return {
+                        jquery: 'jquery/dist/jquery.slim',
+                    }
+                }
+            })(),
+        },
     },
     stats: 'minimal',
     target: 'web'

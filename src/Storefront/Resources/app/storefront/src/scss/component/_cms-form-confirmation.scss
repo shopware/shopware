@@ -13,7 +13,8 @@
     padding: 1em 1em 3em;
 }
 
-@include media-breakpoint-down(sm) {
+// @deprecated tag:v6.5.0 - Bootstrap v5 uses the breakpoint itself instead of the next breakpoint in `media-breakpoint-down()`, use `md` instead of `sm`.
+@include media-breakpoint-down(if(feature('V6_5_0_0'), md, sm)) {
     .confirm-message {
         padding: 10% 0;
     }

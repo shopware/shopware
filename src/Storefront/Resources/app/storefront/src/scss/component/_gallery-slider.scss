@@ -226,7 +226,8 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     margin: 0;
 }
 
-@include media-breakpoint-down(xs) {
+// @deprecated tag:v6.5.0 - Bootstrap v5 uses the breakpoint itself instead of the next breakpoint in `media-breakpoint-down()`, use `sm` instead of `xs`.
+@include media-breakpoint-down(if(feature('V6_5_0_0'), sm, xs)) {
     // override inline style on mobile devices
     .gallery-slider-item {
         &.is-cover,
@@ -236,7 +237,8 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     }
 }
 
-@include media-breakpoint-down(sm) {
+// @deprecated tag:v6.5.0 - Bootstrap v5 uses the breakpoint itself instead of the next breakpoint in `media-breakpoint-down()`, use `md` instead of `sm`.
+@include media-breakpoint-down(if(feature('V6_5_0_0'), md, sm)) {
     .gallery-slider-single-image {
         &.is-cover,
         &.is-contain {

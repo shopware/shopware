@@ -173,8 +173,8 @@ describe('Checkout rule builder handling for shipping and payment methods', () =
         cy.contains(changedSnippet).should('not.exist');
 
         // Confirm TOS checkbox
-        cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
-        cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
+        cy.get('.checkout-confirm-tos-label').scrollIntoView();
+        cy.get('.checkout-confirm-tos-label').click(1, 1);
 
         // Change payment to Cash on delivery
         cy.get(`${page.elements.paymentMethodsContainer} .payment-method-label`)

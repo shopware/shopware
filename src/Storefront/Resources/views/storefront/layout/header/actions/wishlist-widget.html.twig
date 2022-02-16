@@ -9,7 +9,7 @@
         pageletPath: path('frontend.wishlist.product.merge.pagelet'),
         tokenPageletPath: sw_csrf('frontend.wishlist.product.merge.pagelet', {'mode': 'token'}),
     } %}
-    <span class="badge badge-primary header-wishlist-badge"
+    <span class="badge {{ bgClass }}-primary header-wishlist-badge"
           id="wishlist-basket"
           data-wishlist-storage="true"
           data-wishlist-storage-options="{{ wishlistStorageOptions|json_encode }}"

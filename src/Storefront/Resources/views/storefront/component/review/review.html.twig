@@ -163,7 +163,7 @@
                                                                     {% endblock %}
 
                                                                     {% block component_review_list_action_sortby_select %}
-                                                                        <select class="custom-select custom-select-sm"
+                                                                        <select class="{{ formSelectClass }} {{ formSelectClass }}-sm"
                                                                                 name="sort"
                                                                                 id="reviewsSortby">
                                                                             <option value="createdAt"{% if reviews.criteria.sorting.0.field == 'createdAt' %} selected{% endif %}>

@@ -99,7 +99,7 @@ describe('Test payment and shipping methods selection', () => {
                 cy.get(`${page.elements.paymentMethodsCollapseContainer}`).should('exist'); // wait for collapse to finish transition
                 cy.get(`${page.elements.paymentMethodsCollapseContainer} > .payment-method`).should('not.be.visible');
                 cy.get(`${page.elements.paymentMethodsCollapseTrigger}`).should('contain', 'Show more');
-        });
+            });
     });
 
     it('@base @confirm @package: should change payment and shipping methods', () => {
@@ -119,8 +119,8 @@ describe('Test payment and shipping methods selection', () => {
         // Go to cart
         cy.get('.offcanvas-cart-actions [href="/checkout/confirm"]').click();
 
-        cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
-        cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
+        cy.get('.checkout-confirm-tos-label').scrollIntoView();
+        cy.get('.checkout-confirm-tos-label').click(1, 1);
 
         cy.get(`${page.elements.paymentMethodsContainer} > :nth-child(3) .payment-method-label`)
             .should('exist')
@@ -162,8 +162,8 @@ describe('Test payment and shipping methods selection', () => {
 
         // Go to cart
         cy.get('.offcanvas-cart-actions [href="/checkout/confirm"]').click();
-        cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
-        cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
+        cy.get('.checkout-confirm-tos-label').scrollIntoView();
+        cy.get('.checkout-confirm-tos-label').click(1, 1);
 
         cy.get(`${page.elements.paymentMethodsContainer} > :nth-child(1) .payment-method-label`)
             .should('exist')
@@ -191,8 +191,8 @@ describe('Test payment and shipping methods selection', () => {
 
         // Go to cart
         cy.get('.offcanvas-cart-actions [href="/checkout/confirm"]').click();
-        cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
-        cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
+        cy.get('.checkout-confirm-tos-label').scrollIntoView();
+        cy.get('.checkout-confirm-tos-label').click(1, 1);
         cy.get(`${page.elements.paymentMethodsContainer} > :nth-child(3) .payment-method-label`)
             .should('exist')
             .contains('Paid in advance');
@@ -207,7 +207,7 @@ describe('Test payment and shipping methods selection', () => {
             .should('contain', 'Paid in advance');
         cy.get('.finish-order-details .checkout-card .card-body p:nth-of-type(2)')
             .should('contain', 'Express');
-   });
+    });
 
     it('@base @confirm @package: should cancel the order', () => {
         cy.authenticate().then((result) => {
@@ -216,7 +216,7 @@ describe('Test payment and shipping methods selection', () => {
                     Authorization: `Bearer ${result.access}`,
                 },
                 method: 'POST',
-                url: `api/_action/system-config/batch`,
+                url: 'api/_action/system-config/batch',
                 body: {
                     null: {
                         'core.cart.enableOrderRefunds': true,
@@ -240,8 +240,8 @@ describe('Test payment and shipping methods selection', () => {
 
         // Go to cart
         cy.get('.offcanvas-cart-actions [href="/checkout/confirm"]').click();
-        cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
-        cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
+        cy.get('.checkout-confirm-tos-label').scrollIntoView();
+        cy.get('.checkout-confirm-tos-label').click(1, 1);
         cy.get(`${page.elements.paymentMethodsContainer} > :nth-child(1) .payment-method-label`)
             .should('exist')
             .contains('Invoice');

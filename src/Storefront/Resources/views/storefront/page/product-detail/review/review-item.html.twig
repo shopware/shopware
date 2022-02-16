@@ -55,7 +55,7 @@
                 {% block page_product_detail_review_item_info_verify %}
                     <div class="col product-detail-review-item-verify">
                         {% if reviewVerifcation == 1 %}
-                            <a data-toggle="tooltip"
+                            <a {{ dataBsToggleAttr }}="tooltip"
                                data-placement="bottom"
                                title="{{ "detail.reviewVerifiedItemTooltip"|trans|striptags }}">
                                 {% sw_icon 'checkmark-circle' style {

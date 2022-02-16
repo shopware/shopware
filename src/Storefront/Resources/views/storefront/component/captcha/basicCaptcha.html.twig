@@ -14,7 +14,7 @@
         }
     } %}
 
-    <div class="form-row basic-captcha"
+    <div class="{{ formRowClass }} basic-captcha"
          data-basic-captcha="true"
          data-basic-captcha-options='{{ basicCaptchaOptions|json_encode }}'>
         <div class="form-group {% if additionalClass %} {{ additionalClass }}{% else %}col-md-6{% endif %} basic-captcha-content">

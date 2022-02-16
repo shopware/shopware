@@ -10,12 +10,12 @@ const selector = {
     formContactComment: '#form-comment',
     formContactDataProtectionCheckbox: '.privacy-notice input[type="checkbox"]',
     formContactButtonSubmit: 'button[type="submit"]',
-    modalButtonDismiss: 'button[data-dismiss="modal"]',
+    modalButtonDismiss: '.modal .close',
     basicCaptcha: '.basic-captcha',
     basicCaptchaImage: '.basic-captcha-content-image',
     basicCaptchaRefreshIcon: '.basic-captcha-content-refresh-icon',
     formBasicCaptcha: '.basic-captcha input[name="shopware_basic_captcha_confirm"]',
-    alertErrors: '.alert.alert-danger.alert-has-icon'
+    alertErrors: '.alert.alert-danger.alert-has-icon',
 }
 
 describe('Basic captcha', () => {

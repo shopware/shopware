@@ -18,6 +18,26 @@ https://getbootstrap.com/docs/4.3/components/buttons/
     @extend .btn-lg;
     @include button-variant($buy-btn-bg, $buy-btn-bg);
     color: $buy-btn-color;
+
+    // @deprecated tag:v6.5.0 - Bootstrap v5 uses more aggressive contrast ratio in text color
+    @if feature('V6_5_0_0') {
+        &:hover,
+        &:focus {
+            color: $buy-btn-color;
+        }
+    }
+}
+
+// @deprecated tag:v6.5.0 - Bootstrap v5 uses more aggressive contrast ratio in text color
+@if feature('V6_5_0_0') {
+    .btn-primary {
+        color: $white;
+
+        &:hover,
+        &:focus {
+            color: $white;
+        }
+    }
 }
 
 .btn,

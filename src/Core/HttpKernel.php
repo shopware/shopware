@@ -4,12 +4,10 @@ namespace Shopware\Core;
 
 use Composer\Autoload\ClassLoader;
 use Composer\InstalledVersions;
-use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\DriverManager;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheIdLoader;
+use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Event\BeforeSendRedirectResponseEvent;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
@@ -107,36 +105,7 @@ class HttpKernel
             return self::$connection;
         }
 
-        $url = EnvironmentHelper::getVariable('DATABASE_URL', getenv('DATABASE_URL'));
-        if ($url === false) {
-            $url = Kernel::PLACEHOLDER_DATABASE_URL;
-        }
-
-        $parameters = [
-            'url' => $url,
-            'charset' => 'utf8mb4',
-            'driverOptions' => [
-                \PDO::ATTR_STRINGIFY_FETCHES => true,
-            ],
-        ];
-
-        if ($sslCa = EnvironmentHelper::getVariable('DATABASE_SSL_CA')) {
-            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_CA] = $sslCa;
-        }
-
-        if ($sslCert = EnvironmentHelper::getVariable('DATABASE_SSL_CERT')) {
-            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_CERT] = $sslCert;
-        }
-
-        if ($sslCertKey = EnvironmentHelper::getVariable('DATABASE_SSL_KEY')) {
-            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_KEY] = $sslCertKey;
-        }
-
-        if (EnvironmentHelper::getVariable('DATABASE_SSL_DONT_VERIFY_SERVER_CERT')) {
-            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
-        }
-
-        self::$connection = DriverManager::getConnection($parameters, new Configuration());
+        self::$connection = MySQLFactory::create();
 
         return self::$connection;
     }

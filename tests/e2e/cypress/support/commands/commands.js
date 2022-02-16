@@ -506,3 +506,136 @@ Cypress.Commands.add('prepareAdminForScreenshot', () => {
     })
     cy.log('Admin successfully prepared for percy usage!')
 });
+
+/**
+ * Creates a product with multiple reviews
+ * @memberOf Cypress.Chainable#
+ * @name createMultipleReviewsFixture
+ * @param {array} additionalReviews - Array with reviews which will be created additionally
+ * @param {Boolean} overwriteReviews - Set to true to only use the reviews passed by `additionalReviews`
+ * @function
+ */
+Cypress.Commands.add('createMultipleReviewsFixture', (additionalReviews = [], overwriteReviews= false) => {
+    // Use a fixed `productId` to assign reviews to product
+    const productId = '83450210115646e7acd1ac896452a5f3';
+    let product = null;
+    let salesChannelId = null;
+
+    const fixtureReviews = [
+        {
+            content: "Exercitationem qui placeat labore similique.",
+            points: 5,
+            title: "Best product ever",
+        },
+        {
+            content: "Lorem ipsum Exercitationem qui placeat labore similique.",
+            points: 2,
+            title: "Meh.",
+        },
+        {
+            content: "Exercitationem qui placeat labore similique.",
+            points: 3,
+            title: "It could be worse.",
+        },
+        {
+            content: "Exercitationem qui placeat labore similique.",
+            points: 1,
+            title: "Not the yellow from the egg.",
+        },
+        {
+            content: "Exercitationem qui placeat labore similique.",
+            points: 5,
+            title: "My life has changed!",
+        },
+        {
+            content: "Exercitationem qui placeat labore similique.",
+            points: 4,
+            title: "Pretty good overall",
+        },
+        {
+            content: "Exercitationem qui placeat labore similique.",
+            points: 5,
+            title: "Best ever",
+        },
+        {
+            content: "Exercitationem qui placeat labore similique.",
+            points: 5,
+            title: "This is not a bought review at all. 5 stars!!!",
+        },
+        {
+            content: "Exercitationem qui placeat labore similique.",
+            points: 5,
+            title: "This is really nice",
+        },
+        {
+            content: "Exercitationem qui placeat labore similique.",
+            points: 1,
+            title: "I want my money back",
+        },
+        {
+            content: "Exercitationem qui placeat labore similique.",
+            points: 3,
+            title: "Average...",
+        },
+        {
+            content: "Exercitationem qui placeat labore similique.",
+            points: 5,
+            title: "Profit!",
+        },
+        ...additionalReviews
+    ];
+
+    const productReviews = overwriteReviews ? additionalReviews : fixtureReviews;
+
+    return cy.createProductFixture({ id: productId }).then(() => {
+        return cy.fixture('product');
+    }).then((result) => {
+        product = result;
+    }).then(() => {
+        // Sales channel id is needed in order to display the reviews
+        return cy.searchViaAdminApi({
+            endpoint: 'sales-channel',
+            data: {
+                field: 'name',
+                value: 'Storefront'
+            }
+        });
+    }).then((response) => {
+        salesChannelId = response.id;
+
+        return cy.authenticate();
+    }).then((result) => {
+        // Create reviews with sync API
+        return cy.request({
+            headers: {
+                Accept: 'application/vnd.api+json',
+                Authorization: `Bearer ${result.access}`,
+                'Content-Type': 'application/json'
+            },
+            method: 'POST',
+            url: '/api/_action/sync',
+            qs: {
+                response: true
+            },
+            body: {
+                'write-product_review': {
+                    entity: 'product_review',
+                    action: 'upsert',
+                    payload: productReviews.map((review) => {
+                        return {
+                            ...review,
+                            ...{
+                                productId: productId,
+                                salesChannelId: salesChannelId,
+                                status: true
+                            }
+                        };
+                    })
+                }
+            }
+        });
+    }).then((reviews) => {
+        // Return created product and reviews for further processing
+        return { product, reviews };
+    });
+});

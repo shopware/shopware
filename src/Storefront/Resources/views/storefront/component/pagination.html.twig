@@ -1,6 +1,7 @@
 {% block component_pagination_nav %}
-    {% set currentPage = ((criteria.offset + 1) / criteria.limit )|round(0, 'ceil') %}
-    {% set totalPages = (entities.total / criteria.limit)|round(0, 'ceil') %}
+    {% set currentPage = ((criteria.offset + 1) / criteria.limit)|round(0, 'ceil') %}
+    {% set totalEntities = total ? total : entities.total %}
+    {% set totalPages = (totalEntities / criteria.limit)|round(0, 'ceil') %}
 
     {% if totalPages > 1 %}
         <nav aria-label="pagination" class="pagination-nav">

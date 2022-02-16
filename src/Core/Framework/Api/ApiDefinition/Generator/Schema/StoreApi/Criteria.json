@@ -122,6 +122,16 @@
         "type": "string",
         "description": "Name of a field"
       }
+    },
+    "total-count-mode": {
+      "description": "Whether the total for the total number of hits should be determined for the search query. 0 = disabled total count, 1 = calculate exact total amount (slow), 2 = calculate only for next page (fast)",
+      "type": "integer",
+      "default": 0,
+      "enum": [
+        0,
+        1,
+        2
+      ]
     }
   }
 }

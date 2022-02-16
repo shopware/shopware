@@ -546,7 +546,11 @@ class EntityReader implements EntityReaderInterface
             $parentId = $entity->get('parentId');
 
             //extract mapping ids for the current entity
+            $mappingIds = [];
+			
+			if($parentId){
             $mappingIds = $mapping[$parentId];
+			}
 
             $structData = $data->getList($mappingIds);
 

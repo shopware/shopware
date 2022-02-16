@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @feature-deprecated tag:v6.5.0 (FEATURE_NEXT_16106) - newsletter field in customer will be remove on version 6.5.0.
+ * @deprecated tag:v6.5.0 - newsletter field in customer will be remove on version 6.5.0.
  * So this subscriber will be removed also on v.6.5.0
  * Please don't use this subscriber for further extensions
  *

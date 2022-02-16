@@ -104,7 +104,6 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
     });
 
     it('should show validation if document multiple type field is empty', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_18083'];
         const wrapper = createWrapper();
         const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');
         await saveButton.trigger('click');
@@ -120,7 +119,6 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
     });
 
     it('should emit process-finish when document multiple type is selected', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_18083'];
         const wrapper = createWrapper();
         wrapper.setData({
             documentTypesSelected: ['invoice', 'delivery_note']

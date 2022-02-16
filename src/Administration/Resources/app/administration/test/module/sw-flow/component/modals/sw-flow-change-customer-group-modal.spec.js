@@ -79,7 +79,6 @@ describe('module/sw-flow/component/sw-flow-change-customer-group-modal', () => {
     });
 
     it('should show validation if customer group field is empty', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_17973'];
         const wrapper = createWrapper();
 
         const saveButton = wrapper.find('.sw-flow-change-customer-group-modal__save-button');

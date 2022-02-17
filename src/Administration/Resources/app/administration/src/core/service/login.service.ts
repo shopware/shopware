@@ -382,7 +382,8 @@ export default function createLoginService(
         }
 
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const path = context.basePath + context.pathInfo!;
+        const path = context.basePath! + context.pathInfo!;
+
         const reversedDomainParts = domain.split('.').reverse();
         let reversedDomain = reversedDomainParts[0];
 

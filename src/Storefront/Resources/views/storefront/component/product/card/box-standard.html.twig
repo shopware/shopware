@@ -11,8 +11,9 @@
                     {% block component_product_box_badges %}
                         {% sw_include '@Storefront/storefront/component/product/card/badges.html.twig' %}
                     {% endblock %}
-
+ 
                     {% block component_product_box_rich_snippets %}
+                        {% deprecated '@deprecated tag:v6.5.0 - Block will be removed completely including the template it references' %}
                         {% sw_include '@Storefront/storefront/component/product/card/meta.html.twig' %}
                     {% endblock %}
 

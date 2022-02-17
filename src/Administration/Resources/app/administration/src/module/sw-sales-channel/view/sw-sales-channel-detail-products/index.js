@@ -51,6 +51,7 @@ Component.register('sw-sales-channel-detail-products', {
             criteria.setTotalCountMode(1);
 
             criteria.addAssociation('visibilities.salesChannel');
+            criteria.addAssociation('options.group');
             criteria.addFilter(
                 Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id),
             );
@@ -69,7 +70,6 @@ Component.register('sw-sales-channel-detail-products', {
                     label: this.$tc('sw-sales-channel.detail.products.columnProductName'),
                     allowResize: true,
                     primary: true,
-                    routerLink: 'sw.product.detail',
                 },
                 {
                     property: 'active',
@@ -106,8 +106,11 @@ Component.register('sw-sales-channel-detail-products', {
                 return Promise.reject();
             }
 
+            const context = Object.assign({}, Context.api);
+            context.inheritance = true;
+
             this.isLoading = true;
-            return this.productRepository.search(this.productCriteria, Context.api)
+            return this.productRepository.search(this.productCriteria, context)
                 .then((products) => {
                     this.products = products;
                     this.total = products.total;
@@ -271,6 +274,14 @@ Component.register('sw-sales-channel-detail-products', {
             }
 
             return this.productVisibilityRepository.saveAll(data, Context.api);
+        },
+
+        isProductRemovable(product) {
+            const relevantVisibility = product.visibilities.find(
+                visibility => visibility.salesChannelId === this.salesChannel.id,
+            );
+
+            return product.parentId !== relevantVisibility.productId;
         },
     },
 });

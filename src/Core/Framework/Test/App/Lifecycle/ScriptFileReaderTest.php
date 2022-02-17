@@ -21,9 +21,17 @@ class ScriptFileReaderTest extends TestCase
     public function testGetScriptPathsForApp(): void
     {
         $scripts = $this->scriptReader->getScriptPathsForApp(__DIR__ . '/../Manifest/_fixtures/test');
+        sort($scripts);
 
         static::assertEquals(
-            ['product-page-loaded/product-page-script.twig'],
+            [
+                'app-activated/activate-script.twig',
+                'app-deactivated/deactivate-script.twig',
+                'app-deleted/delete-script.twig',
+                'app-installed/install-script.twig',
+                'app-updated/update-script.twig',
+                'product-page-loaded/product-page-script.twig',
+            ],
             $scripts
         );
     }

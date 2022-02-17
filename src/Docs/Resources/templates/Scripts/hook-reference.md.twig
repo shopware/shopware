@@ -4,7 +4,7 @@
 {% for useCase in data %}
 ## {{ useCase.title }}
 
-{{ useCase.description }}
+{{ useCase.description|raw }}
 
 {% for hook in useCase.hooks %}
 #### {{ hook.name }}

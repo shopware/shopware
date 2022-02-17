@@ -7,6 +7,8 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
+use Shopware\Core\Framework\App\Event\Hooks\AppActivatedHook;
+use Shopware\Core\Framework\App\Event\Hooks\AppDeactivatedHook;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -14,6 +16,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -72,6 +75,11 @@ class AppStateServiceTest extends TestCase
         };
         $this->eventDispatcher->addListener(AppActivatedEvent::class, $onAppInstalled);
         $this->appStateService->activateApp($appId, $this->context);
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertArrayHasKey(AppActivatedHook::HOOK_NAME, $traces);
+        static::assertEquals('activated', $traces[AppActivatedHook::HOOK_NAME][0]['output'][0]);
+
         static::assertTrue($eventWasReceived);
         $this->eventDispatcher->removeListener(AppActivatedEvent::class, $onAppInstalled);
 
@@ -92,6 +100,11 @@ class AppStateServiceTest extends TestCase
         };
         $this->eventDispatcher->addListener(AppDeactivatedEvent::class, $onAppInstalled);
         $this->appStateService->deactivateApp($appId, $this->context);
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertArrayHasKey(AppDeactivatedHook::HOOK_NAME, $traces);
+        static::assertEquals('deactivated', $traces[AppDeactivatedHook::HOOK_NAME][0]['output'][0]);
+
         static::assertTrue($eventWasReceived);
         $this->eventDispatcher->removeListener(AppDeactivatedEvent::class, $onAppInstalled);
 

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\ScheduledTask\Scheduler;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -211,7 +212,10 @@ class TaskSchedulerTest extends TestCase
         $result = $this->scheduler->getNextExecutionTime();
         static::assertInstanceOf(\DateTime::class, $result);
         // when saving the Date to the DB the microseconds aren't saved, so we can't simply compare the datetime objects
-        static::assertEquals($nextExecutionTime->format(\DATE_ATOM), $result->format(\DATE_ATOM));
+        static::assertEquals(
+            $nextExecutionTime->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            $result->format(Defaults::STORAGE_DATE_TIME_FORMAT)
+        );
     }
 
     public function testGetNextExecutionTimeIgnoresNotScheduledTasks(): void

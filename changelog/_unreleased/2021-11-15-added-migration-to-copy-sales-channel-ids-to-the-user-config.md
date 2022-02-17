@@ -1,7 +1,6 @@
 ---
 title: Added migration to copy sales channel ids to the user config
 issue: NEXT-18558
-flag: FEATURE_NEXT_17421
 author: Martin Krzykawski
 author_email: m.krzykawski@shopware.com 
 ---

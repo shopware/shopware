@@ -19,6 +19,8 @@ import './view/sw-sales-channel-detail-product-comparison';
 import './view/sw-sales-channel-detail-product-comparison-preview';
 import './service/export-template.service';
 import './product-export-templates';
+import './service/domain-link.service';
+import './service/sales-channel-favorites.service';
 import './component/sw-sales-channel-products-assignment-modal';
 import './component/sw-sales-channel-products-assignment-single-products';
 import './component/sw-sales-channel-product-assignment-categories';

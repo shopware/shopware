@@ -1,14 +1,14 @@
 import template from './sw-sales-channel-menu.html.twig';
 import './sw-sales-channel-menu.scss';
 
-const { Component, Defaults, State } = Shopware;
+const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const FlatTree = Shopware.Helper.FlatTreeHelper;
 
 Component.register('sw-sales-channel-menu', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'domainLinkService'],
 
     data() {
         return {
@@ -32,7 +32,11 @@ Component.register('sw-sales-channel-menu', {
             criteria.addSorting(Criteria.sort('sales_channel.name', 'ASC'));
             criteria.addAssociation('type');
             criteria.addAssociation('domains');
-            criteria.setLimit(7);
+            criteria.setLimit(25);
+
+            if (this.salesChannelFavorites.length) {
+                criteria.addFilter(Criteria.equalsAny('id', this.salesChannelFavorites));
+            }
 
             return criteria;
         },
@@ -72,7 +76,22 @@ Component.register('sw-sales-channel-menu', {
                 position: -1, // use last position
             };
         },
+
+        salesChannelFavoritesService() {
+            return Shopware.Service('salesChannelFavorites');
+        },
+
+        salesChannelFavorites() {
+            return this.salesChannelFavoritesService.getFavoriteIds();
+        },
     },
+
+    watch: {
+        salesChannelFavorites() {
+            this.loadEntityData();
+        },
+    },
+
 
     created() {
         this.createdComponent();
@@ -100,6 +119,10 @@ Component.register('sw-sales-channel-menu', {
             this.$root.$off('on-add-sales-channel', this.openSalesChannelModal);
         },
 
+        getDomainLink(salesChannel) {
+            return this.domainLinkService.getDomainLink(salesChannel);
+        },
+
         loadEntityData() {
             this.salesChannelRepository.search(this.salesChannelCriteria).then((response) => {
                 this.salesChannels = response;
@@ -108,32 +131,6 @@ Component.register('sw-sales-channel-menu', {
 
         openSalesChannelModal() {
             this.showModal = true;
-        },
-
-        getDomainLink(salesChannel) {
-            if (salesChannel.type.id !== Defaults.storefrontSalesChannelTypeId) {
-                return null;
-            }
-
-            if (salesChannel.domains.length === 0) {
-                return null;
-            }
-
-            const adminLanguageDomain = salesChannel.domains.find((domain) => {
-                return domain.languageId === State.get('session').languageId;
-            });
-            if (adminLanguageDomain) {
-                return adminLanguageDomain.url;
-            }
-
-            const systemLanguageDomain = salesChannel.domains.find((domain) => {
-                return domain.languageId === Defaults.systemLanguageId;
-            });
-            if (systemLanguageDomain) {
-                return systemLanguageDomain.url;
-            }
-
-            return salesChannel.domains[0].url;
         },
 
         openStorefrontLink(storeFrontLink) {

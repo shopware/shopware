@@ -1,5 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/view/sw-sales-channel-detail-base';
+import 'src/module/sw-sales-channel/service/sales-channel-favorites.service';
 
 const PRODUCT_COMPARISON_TYPE_ID = 'ed535e5722134ac1aa6524f73e26881b';
 const STOREFRONT_SALES_CHANNEL_TYPE_ID = '8a243080f92e4c719546314b577cf82b';
@@ -60,6 +61,11 @@ function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => {
+    beforeEach(() => {
+        Shopware.State.get('session').currentUser = { id: '8fe88c269c214ea68badf7ebe678ab96' };
+        global.repositoryFactoryMock.showError = false;
+    });
+
     it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 

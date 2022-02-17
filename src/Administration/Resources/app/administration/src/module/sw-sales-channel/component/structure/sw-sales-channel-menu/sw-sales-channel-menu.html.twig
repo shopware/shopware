@@ -10,8 +10,10 @@
     {% block sw_sales_channel_menu_headline %}
     <div class="sw-admin-menu__headline">
         {% block sw_sales_channel_menu_headline_text %}
-        <div class="collapsible-text">
-            {{ $tc('sw-sales-channel.general.titleMenuItems') }}
+        <div class="collapsible-text sw-admin-menu__headline_text">
+            <router-link
+                :to="{ name: 'sw.sales.channel.list' }"
+            >{{ $tc('sw-sales-channel.general.titleMenuItems') }}</router-link>
         </div>
         {% endblock %}
 
@@ -91,6 +93,21 @@
             {% endblock %}
         </ul>
         {% endblock %}
+
+        {% block sw_sales_channel_menu_context_button_collapsed %}
+        <sw-context-button
+            class="sw-sales-channel-menu__collapsed-context-menu"
+            icon="default-action-more-vertical"
+        >
+            <sw-context-menu-item
+                class="sw-admin-menu__headline-context-menu-manage-sales-channels"
+                :router-link="{ name: 'sw.sales.channel.list' }"
+            >
+                {{ $tc('sw-sales-channel.general.manageSalesChannels') }}
+            </sw-context-menu-item>
+        </sw-context-button>
+        {% endblock %}
+
     </nav>
     {% endblock %}
 </div>

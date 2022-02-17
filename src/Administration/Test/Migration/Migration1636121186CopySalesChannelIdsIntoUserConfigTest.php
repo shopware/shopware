@@ -9,7 +9,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
@@ -33,8 +32,6 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
 
     public function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17421', $this);
-
         $this->connection = $this->getContainer()
             ->get(Connection::class);
 

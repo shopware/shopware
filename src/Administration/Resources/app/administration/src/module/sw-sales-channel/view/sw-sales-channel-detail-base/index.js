@@ -416,6 +416,10 @@ Component.register('sw-sales-channel-detail-base', {
         serviceCategoryPlaceholder() {
             return this.salesChannel.serviceCategoryId ? '' : this.$tc('sw-category.base.link.categoryPlaceholder');
         },
+
+        salesChannelFavoritesService() {
+            return Shopware.Service('salesChannelFavorites');
+        },
     },
 
     watch: {
@@ -503,6 +507,7 @@ Component.register('sw-sales-channel-detail-base', {
         deleteSalesChannel(salesChannelId) {
             this.salesChannelRepository.delete(salesChannelId, Context.api).then(() => {
                 this.$root.$emit('sales-channel-change');
+                this.salesChannelFavoritesService.refresh();
             });
         },
 
@@ -637,6 +642,10 @@ Component.register('sw-sales-channel-detail-base', {
             };
 
             return this.$tc(snippet, collection.length, data);
+        },
+
+        isFavorite() {
+            return this.salesChannelFavoritesService.isFavorite(this.salesChannel.id);
         },
     },
 });

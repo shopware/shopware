@@ -23,7 +23,7 @@ use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
+use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -43,7 +43,7 @@ class LoginRoute extends AbstractLoginRoute
 
     private LegacyPasswordVerifier $legacyPasswordVerifier;
 
-    private SalesChannelContextRestorer $contextRestorer;
+    private CartRestorer $restorer;
 
     private RequestStack $requestStack;
 
@@ -53,14 +53,14 @@ class LoginRoute extends AbstractLoginRoute
         EventDispatcherInterface $eventDispatcher,
         EntityRepositoryInterface $customerRepository,
         LegacyPasswordVerifier $legacyPasswordVerifier,
-        SalesChannelContextRestorer $contextRestorer,
+        CartRestorer $restorer,
         RequestStack $requestStack,
         RateLimiter $rateLimiter
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->customerRepository = $customerRepository;
         $this->legacyPasswordVerifier = $legacyPasswordVerifier;
-        $this->contextRestorer = $contextRestorer;
+        $this->restorer = $restorer;
         $this->requestStack = $requestStack;
         $this->rateLimiter = $rateLimiter;
     }
@@ -141,7 +141,7 @@ class LoginRoute extends AbstractLoginRoute
             throw new InactiveCustomerException($customer->getId());
         }
 
-        $context = $this->contextRestorer->restore($customer->getId(), $context);
+        $context = $this->restorer->restore($customer->getId(), $context);
         $newToken = $context->getToken();
 
         $this->customerRepository->update([

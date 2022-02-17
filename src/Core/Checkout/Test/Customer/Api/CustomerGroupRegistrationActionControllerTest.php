@@ -23,7 +23,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -298,7 +298,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $result = new CustomerGroupRegistrationActionController(
             $this->customerRepository,
             $dispatcher,
-            $this->getContainer()->get(SalesChannelContextService::class)
+            $this->getContainer()->get(SalesChannelContextRestorer::class)
         );
         $request = new Request();
         // will be remove customerId at version v6.5.0
@@ -324,7 +324,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $result = new CustomerGroupRegistrationActionController(
             $this->customerRepository,
             $dispatcher,
-            $this->getContainer()->get(SalesChannelContextService::class)
+            $this->getContainer()->get(SalesChannelContextRestorer::class)
         );
         $request = new Request();
         // will be remove customerId at version v6.5.0

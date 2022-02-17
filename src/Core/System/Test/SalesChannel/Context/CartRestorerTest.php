@@ -10,18 +10,9 @@ use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Event\CartMergedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Checkout\Cart\Order\OrderConverter;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
-use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
-use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
-use Shopware\Core\Checkout\Cart\RuleLoader;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
-use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
-use Shopware\Core\Checkout\Test\Customer\CustomerBuilder;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -30,14 +21,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestoredEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -45,7 +34,7 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class SalesChannelContextRestorerTest extends TestCase
+class CartRestorerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
@@ -55,9 +44,9 @@ class SalesChannelContextRestorerTest extends TestCase
     private $connection;
 
     /**
-     * @var SalesChannelContextRestorer
+     * @var CartRestorer
      */
-    private $contextRestorer;
+    private $cartRestorer;
 
     /**
      * @var CartService
@@ -109,21 +98,17 @@ class SalesChannelContextRestorerTest extends TestCase
 
         $this->customerId = $this->createCustomer()->getId();
 
-        $this->contextRestorer = new SalesChannelContextRestorer(
+        $this->cartRestorer = new CartRestorer(
             $contextFactory,
+            $this->contextPersister,
+            $this->cartService,
             $cartRuleLoader,
-            $this->getContainer()->get(RuleLoader::class),
-            $this->getContainer()->get(OrderConverter::class),
-            $this->getContainer()->get('order.repository'),
-            $this->connection,
-            $this->getContainer()->get(CartRestorer::class)
+            $this->eventDispatcher
         );
     }
 
     public function testRestore(): void
     {
-        Feature::skipTestIfActive('v6_5_0_0', $this);
-
         $expectedToken = Uuid::randomHex();
         $expectedContext = $this->createSalesChannelContext($expectedToken, []);
 
@@ -133,7 +118,7 @@ class SalesChannelContextRestorerTest extends TestCase
 
         $this->eventDispatcher->addListener(SalesChannelContextRestoredEvent::class, $this->callbackFn);
 
-        $restoredContext = $this->contextRestorer->restore($this->customerId, $currentContext);
+        $restoredContext = $this->cartRestorer->restore($this->customerId, $currentContext);
 
         static::assertSame($expectedContext->getToken(), $restoredContext->getToken());
 
@@ -142,56 +127,8 @@ class SalesChannelContextRestorerTest extends TestCase
         static::assertInstanceOf(SalesChannelContextRestoredEvent::class, $salesChannelRestoredEvent);
     }
 
-    public function testRestoreByOrder(): void
-    {
-        $context = Context::createDefaultContext();
-        $ids = new TestDataCollection();
-        $this->createOrder($ids);
-        $ruleId = Uuid::randomHex();
-        $rule = [
-            'id' => $ruleId,
-            'name' => 'Test rule',
-            'priority' => 1,
-            'conditions' => [
-                ['type' => (new AlwaysValidRule())->getName()],
-            ],
-        ];
-
-        // Create rule after create order
-        $this->getContainer()->get('rule.repository')
-            ->create([$rule], $context);
-
-        $saleChanelContext = $this->contextRestorer->restoreByOrder($ids->create('order'), $context);
-        static::assertTrue(\in_array($ruleId, $saleChanelContext->getRuleIds(), true));
-    }
-
-    public function testRestoreByCustomer(): void
-    {
-        $context = Context::createDefaultContext();
-        $ids = new TestDataCollection();
-        $this->createOrder($ids);
-        $ruleId = Uuid::randomHex();
-        $rule = [
-            'id' => $ruleId,
-            'name' => 'Test rule',
-            'priority' => 1,
-            'conditions' => [
-                ['type' => (new AlwaysValidRule())->getName()],
-            ],
-        ];
-
-        // Create rule after create order
-        $this->getContainer()->get('rule.repository')
-            ->create([$rule], $context);
-
-        $saleChanelContext = $this->contextRestorer->restoreByCustomer($this->createCustomer()->getId(), $context);
-        static::assertTrue(\in_array($ruleId, $saleChanelContext->getRuleIds(), true));
-    }
-
     public function testGuestContextAndCartAreDeleted(): void
     {
-        Feature::skipTestIfActive('v6_5_0_0', $this);
-
         $currentContextToken = Random::getAlphanumericString(32);
 
         $currentContext = $this->createSalesChannelContext($currentContextToken, []);
@@ -206,7 +143,7 @@ class SalesChannelContextRestorerTest extends TestCase
         static::assertTrue($this->cartExists($currentContextToken));
         static::assertTrue($this->contextExists($currentContextToken));
 
-        $newContext = $this->contextRestorer->restore($this->customerId, $currentContext);
+        $newContext = $this->cartRestorer->restore($this->customerId, $currentContext);
 
         static::assertTrue($this->cartExists($newContext->getToken()));
         static::assertTrue($this->contextExists($newContext->getToken()));
@@ -217,8 +154,6 @@ class SalesChannelContextRestorerTest extends TestCase
 
     public function testCartIsRecalculated(): void
     {
-        Feature::skipTestIfActive('v6_5_0_0', $this);
-
         $customerContextToken = Random::getAlphanumericString(32);
 
         $customerContext = $this->createSalesChannelContext($customerContextToken, []);
@@ -245,7 +180,7 @@ class SalesChannelContextRestorerTest extends TestCase
 
         $guestContext = $this->createSalesChannelContext('123123', []);
 
-        $restoreContext = $this->contextRestorer->restore($this->customerId, $guestContext);
+        $restoreContext = $this->cartRestorer->restore($this->customerId, $guestContext);
 
         $restoreCart = $this->cartService->getCart($restoreContext->getToken(), $restoreContext);
 
@@ -256,8 +191,6 @@ class SalesChannelContextRestorerTest extends TestCase
 
     public function testCartIsMergedAndRecalculatedWithTheSavedOne(): void
     {
-        Feature::skipTestIfActive('v6_5_0_0', $this);
-
         $currentContextToken = Random::getAlphanumericString(32);
 
         $currentContext = $this->createSalesChannelContext($currentContextToken, []);
@@ -311,7 +244,7 @@ class SalesChannelContextRestorerTest extends TestCase
 
         $this->eventDispatcher->addListener(CartMergedEvent::class, $this->callbackFn);
 
-        $restoreContext = $this->contextRestorer->restore($this->customerId, $currentContext);
+        $restoreContext = $this->cartRestorer->restore($this->customerId, $currentContext);
 
         $restoreCart = $this->cartService->getCart($restoreContext->getToken(), $restoreContext);
 
@@ -336,7 +269,6 @@ class SalesChannelContextRestorerTest extends TestCase
     public function testCartMergedEventIsFiredWithCustomerCart(): void
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_16824', $this);
-        Feature::skipTestIfActive('v6_5_0_0', $this);
 
         $currentContextToken = Random::getAlphanumericString(32);
 
@@ -373,7 +305,7 @@ class SalesChannelContextRestorerTest extends TestCase
 
         $this->eventDispatcher->addListener(CartMergedEvent::class, $this->callbackFn);
 
-        $restoreContext = $this->contextRestorer->restore($this->customerId, $currentContext);
+        $restoreContext = $this->cartRestorer->restore($this->customerId, $currentContext);
 
         $restoreCart = $this->cartService->getCart($restoreContext->getToken(), $restoreContext);
 
@@ -391,99 +323,6 @@ class SalesChannelContextRestorerTest extends TestCase
         static::assertEquals(1, $p1->getQuantity());
         static::assertNotEmpty($p2 = $restoreCart->getLineItems()->get($productId2));
         static::assertEquals(5, $p2->getQuantity());
-    }
-
-    private function createOrder(TestDataCollection $ids): void
-    {
-        $customer = (new CustomerBuilder($ids, '10000'))
-            ->add('guest', true)
-            ->add('createdAt', new \DateTime('- 25 hours'))->build();
-
-        $data = [
-            'id' => $ids->create('order'),
-            'orderNumber' => Uuid::randomHex(),
-            'billingAddressId' => $ids->create('billing-address'),
-            'currencyId' => Defaults::CURRENCY,
-            'languageId' => Defaults::LANGUAGE_SYSTEM,
-            'salesChannelId' => TestDefaults::SALES_CHANNEL,
-            'orderDateTime' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            'currencyFactor' => 1,
-            'stateId' => $this->getStateId('open', 'order.state'),
-            'price' => new CartPrice(200, 200, 200, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
-            'shippingCosts' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
-            'ruleIds' => [$ids->get('rule')],
-            'orderCustomer' => [
-                'id' => $ids->get('customer'),
-                'salutationId' => $this->getValidSalutationId(),
-                'email' => 'test',
-                'firstName' => 'test',
-                'lastName' => 'test',
-                'customer' => $customer,
-            ],
-            'addresses' => [
-                [
-                    'id' => $ids->create('billing-address'),
-                    'countryId' => $this->getValidCountryId(),
-                    'salutationId' => $this->getValidSalutationId(),
-                    'firstName' => 'asd',
-                    'lastName' => 'asd',
-                    'street' => 'asd',
-                    'zipcode' => 'asd',
-                    'city' => 'asd',
-                ],
-                [
-                    'id' => $ids->create('shipping-address'),
-                    'countryId' => $this->getValidCountryId(),
-                    'salutationId' => $this->getValidSalutationId(),
-                    'firstName' => 'asd',
-                    'lastName' => 'asd',
-                    'street' => 'asd',
-                    'zipcode' => 'asd',
-                    'city' => 'asd',
-                ],
-            ],
-            'lineItems' => [
-                [
-                    'id' => $ids->create('line-item'),
-                    'identifier' => $ids->create('line-item'),
-                    'quantity' => 1,
-                    'label' => 'label',
-                    'type' => LineItem::CUSTOM_LINE_ITEM_TYPE,
-                    'price' => new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                    'priceDefinition' => new QuantityPriceDefinition(200, new TaxRuleCollection(), 2),
-                ],
-            ],
-            'deliveries' => [
-                [
-                    'id' => $ids->create('delivery'),
-                    'shippingOrderAddressId' => $ids->create('shipping-address'),
-                    'shippingMethodId' => $this->getAvailableShippingMethod()->getId(),
-                    'stateId' => $this->getStateId('open', 'order_delivery.state'),
-                    'trackingCodes' => [],
-                    'shippingDateEarliest' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                    'shippingDateLatest' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                    'shippingCosts' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                    'positions' => [
-                        [
-                            'id' => $ids->create('position'),
-                            'orderLineItemId' => $ids->create('line-item'),
-                            'price' => new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                        ],
-                    ],
-                ],
-            ],
-            'transactions' => [
-                [
-                    'id' => $ids->create('transaction'),
-                    'paymentMethodId' => $this->getPrePaymentMethodId(),
-                    'stateId' => $this->getStateId('open', 'order_transaction.state'),
-                    'amount' => new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                ],
-            ],
-        ];
-
-        $this->getContainer()->get('order.repository')
-            ->create([$data], Context::createDefaultContext());
     }
 
     private function getStateId(string $state, string $machine)

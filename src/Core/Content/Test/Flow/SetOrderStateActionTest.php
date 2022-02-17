@@ -273,6 +273,7 @@ class SetOrderStateActionTest extends TestCase
                 'currencyId' => Defaults::CURRENCY,
                 'currencyFactor' => 1,
                 'salesChannelId' => Defaults::SALES_CHANNEL,
+                'orderNumber' => Uuid::randomHex(),
                 'transactions' => [
                     [
                         'id' => Uuid::randomHex(),

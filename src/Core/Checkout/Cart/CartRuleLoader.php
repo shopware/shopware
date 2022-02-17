@@ -79,9 +79,9 @@ class CartRuleLoader
         }
     }
 
-    public function loadByCart(SalesChannelContext $context, Cart $cart, CartBehavior $behaviorContext): RuleLoaderResult
+    public function loadByCart(SalesChannelContext $context, Cart $cart, CartBehavior $behaviorContext, bool $isNew = false): RuleLoaderResult
     {
-        return $this->load($context, $cart, $behaviorContext, false);
+        return $this->load($context, $cart, $behaviorContext, $isNew);
     }
 
     public function reset(): void

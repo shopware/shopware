@@ -19,8 +19,8 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\User\Api\UserRecoveryController;
 use Shopware\Core\System\User\Recovery\UserRecoveryService;
@@ -127,7 +127,7 @@ class RateLimiterTest extends TestCase
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get('customer.repository'),
             $this->getContainer()->get(LegacyPasswordVerifier::class),
-            $this->getContainer()->get(SalesChannelContextRestorer::class),
+            $this->getContainer()->get(CartRestorer::class),
             $this->getContainer()->get('request_stack'),
             $this->mockResetLimiter([
                 RateLimiter::LOGIN_ROUTE => 1,

@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Cart\Rule\CartAmountRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -97,6 +98,44 @@ class OrderStateChangeEventListenerTest extends TestCase
                 ),
                 Context::createDefaultContext()
             );
+    }
+
+    public function testReEvaluateRuleForOrderContext(): void
+    {
+        $ids = new TestDataCollection();
+        $this->createOrder($ids);
+        $ruleId = Uuid::randomHex();
+        $rule = [
+            'id' => $ruleId,
+            'name' => 'Test rule',
+            'priority' => 1,
+            'conditions' => [
+                ['type' => (new AlwaysValidRule())->getName()],
+            ],
+        ];
+
+        // Create rule after create order
+        $this->getContainer()->get('rule.repository')
+            ->create([$rule], Context::createDefaultContext());
+
+        $validator = new RuleValidator();
+        $this->getContainer()
+            ->get('event_dispatcher')
+            ->addListener('state_enter.order.state.in_progress', $validator);
+
+        $this->getContainer()
+            ->get(StateMachineRegistry::class)
+            ->transition(
+                new Transition(
+                    OrderDefinition::ENTITY_NAME,
+                    $ids->get('order'),
+                    StateMachineTransitionActions::ACTION_PROCESS,
+                    'stateId'
+                ),
+                Context::createDefaultContext()
+            );
+
+        static::assertTrue(\in_array($ruleId, $validator->event->getContext()->getRuleIds(), true));
     }
 
     public function testRulesForOrder(): void

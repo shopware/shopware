@@ -2,16 +2,13 @@
 
 namespace Shopware\Core\Checkout\Customer\Subscriber;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Customer\Event\CustomerChangedPaymentMethodEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -19,18 +16,14 @@ class CustomerFlowEventsSubscriber implements EventSubscriberInterface
 {
     private EventDispatcherInterface $dispatcher;
 
-    private Connection $connection;
-
-    private SalesChannelContextServiceInterface $salesChannelContextService;
+    private SalesChannelContextRestorer $restorer;
 
     public function __construct(
-        Connection $connection,
         EventDispatcherInterface $dispatcher,
-        SalesChannelContextServiceInterface $salesChannelContextService
+        SalesChannelContextRestorer $restorer
     ) {
-        $this->connection = $connection;
         $this->dispatcher = $dispatcher;
-        $this->salesChannelContextService = $salesChannelContextService;
+        $this->restorer = $restorer;
     }
 
     /**
@@ -64,33 +57,10 @@ class CustomerFlowEventsSubscriber implements EventSubscriberInterface
         }
     }
 
-    private function getSalesChannelId(string $customerId): string
-    {
-        $salesChannelId = $this->connection->createQueryBuilder()
-            ->select('sales_channel_id')
-            ->from('customer')
-            ->where('id = :id')
-            ->setParameter(':id', Uuid::fromHexToBytes($customerId))
-            ->execute()
-            ->fetchColumn();
-
-        return $salesChannelId ? Uuid::fromBytesToHex($salesChannelId) : '';
-    }
-
     private function dispatchCustomerRegisterEvent(string $customerId, EntityWrittenEvent $event): void
     {
         $context = $event->getContext();
-        $salesChannelContext = $this->salesChannelContextService->get(
-            new SalesChannelContextServiceParameters(
-                $this->getSalesChannelId($customerId),
-                Uuid::randomHex(),
-                $context->getLanguageId(),
-                null,
-                null,
-                $context,
-                $customerId
-            )
-        );
+        $salesChannelContext = $this->restorer->restoreByCustomer($customerId, $context);
 
         if (!$customer = $salesChannelContext->getCustomer()) {
             return;
@@ -107,17 +77,7 @@ class CustomerFlowEventsSubscriber implements EventSubscriberInterface
     private function dispatchCustomerChangePaymentMethodEvent(string $customerId, EntityWrittenEvent $event): void
     {
         $context = $event->getContext();
-        $salesChannelContext = $this->salesChannelContextService->get(
-            new SalesChannelContextServiceParameters(
-                $this->getSalesChannelId($customerId),
-                Uuid::randomHex(),
-                $context->getLanguageId(),
-                null,
-                null,
-                $context,
-                $customerId
-            )
-        );
+        $salesChannelContext = $this->restorer->restoreByCustomer($customerId, $context);
 
         if (!$customer = $salesChannelContext->getCustomer()) {
             return;

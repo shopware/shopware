@@ -184,7 +184,7 @@ function handleErrorStates({ status, errors, error = null, data }) {
                     3,
                     { entityName: $tc(`global.entities.${entityName}`) },
                 )
-                    }${blockingEntities}`,
+                }${blockingEntities}`,
             });
         }
     }

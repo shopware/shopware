@@ -370,7 +370,7 @@ export default function createLoginService(
     /**
      * Clears all bearerAuth cookies associated with all domains (sub and higher-level domains) on this hostname
      */
-    function clearAuthCookieForAllDomains() {
+    function clearAuthCookieForAllDomains(): void {
         let domain;
 
         if (typeof window === 'object') {
@@ -381,12 +381,13 @@ export default function createLoginService(
             domain = url.hostname;
         }
 
-        const path = context.basePath! + context.pathInfo!;
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const path = context.basePath + context.pathInfo!;
         const reversedDomainParts = domain.split('.').reverse();
         let reversedDomain = reversedDomainParts[0];
 
-        for(let i = 1; i < reversedDomainParts.length; i++) {
-            reversedDomain = reversedDomainParts[i] + '.' + reversedDomain;
+        for (let i = 1; i < reversedDomainParts.length; i += 1) {
+            reversedDomain = `${reversedDomainParts[i]}.${reversedDomain}`;
             (new CookieStorage(
                 {
                     path: path,

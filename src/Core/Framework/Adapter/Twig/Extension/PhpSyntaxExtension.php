@@ -91,6 +91,19 @@ class PhpSyntaxExtension extends AbstractExtension
                     FieldVisibility::$isInTwigRenderingContext = false;
                 }
             }),
+            new TwigFilter('md5', /** @param mixed $var */ function ($var) {
+                if (\is_array($var)) {
+                    $var = \json_encode($var, \JSON_THROW_ON_ERROR);
+                }
+
+                if (!\is_string($var)) {
+                    throw new \InvalidArgumentException(
+                        sprintf('The md5 filter expects a string or array as input, %s given', \get_class($var))
+                    );
+                }
+
+                return md5($var);
+            }),
         ];
     }
 

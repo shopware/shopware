@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Script\Debugging;
 
+use Shopware\Core\Framework\Script\Execution\FunctionHook;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Symfony\Bundle\FrameworkBundle\DataCollector\AbstractDataCollector;
@@ -9,6 +10,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\VarDumper\Cloner\Data;
 
+/**
+ * @deprecated tag:v6.5.0 will be internal
+ */
 class ScriptTraces extends AbstractDataCollector
 {
     protected array $traces = [];
@@ -18,9 +22,24 @@ class ScriptTraces extends AbstractDataCollector
         $this->data = $this->traces;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 will be removed, use `initHook` instead
+     */
     public function init(string $hook): void
     {
-        $this->traces[$hook] = [];
+        // dummy implementation to not break
+    }
+
+    public function initHook(Hook $hook): void
+    {
+        $name = $this->getHookName($hook);
+
+        if (\array_key_exists($name, $this->traces)) {
+            // don't overwrite existing traces
+            return;
+        }
+
+        $this->traces[$name] = [];
     }
 
     public function trace(Hook $hook, Script $script, \Closure $execute): void
@@ -104,10 +123,19 @@ class ScriptTraces extends AbstractDataCollector
 
     private function add(Hook $hook, string $name, float $took, Debug $output): void
     {
-        $this->traces[$hook->getName()][] = [
+        $this->traces[$this->getHookName($hook)][] = [
             'name' => $name,
             'took' => $took,
             'output' => $output->all(),
         ];
+    }
+
+    private function getHookName(Hook $hook): string
+    {
+        if (!$hook instanceof FunctionHook) {
+            return $hook->getName();
+        }
+
+        return $hook->getName() . '::' . $hook->getFunctionName();
     }
 }

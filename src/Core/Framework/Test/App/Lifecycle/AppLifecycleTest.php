@@ -32,6 +32,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
 use Shopware\Core\Framework\Script\ScriptEntity;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
@@ -1212,7 +1213,14 @@ class AppLifecycleTest extends TestCase
         static::assertEquals($active, $script->isActive());
 
         $cache = $this->getContainer()->get('cache.object');
-        static::assertFalse($cache->hasItem(ScriptLoader::CACHE_KEY));
+        static::assertTrue($cache->hasItem(ScriptLoader::CACHE_KEY));
+
+        $item = $cache->getItem(ScriptLoader::CACHE_KEY);
+        $cachedScripts = CacheCompressor::uncompress($item);
+        static::assertArrayHasKey('product-page-loaded', $cachedScripts);
+        static::assertCount(1, $cachedScripts['product-page-loaded']);
+        static::assertInstanceOf(Script::class, $cachedScripts['product-page-loaded'][0]);
+        static::assertEquals($script->getName(), $cachedScripts['product-page-loaded'][0]->getName());
     }
 
     private function assertDefaultPaymentMethods(string $appId): void

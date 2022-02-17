@@ -23,6 +23,8 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 trait SalesChannelApiTestBehaviour
 {
+    use BasicTestDataBehaviour;
+
     /**
      * @var array
      */

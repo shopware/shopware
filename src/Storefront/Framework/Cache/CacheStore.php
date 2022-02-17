@@ -17,6 +17,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class CacheStore implements StoreInterface
 {
+    public const TAG_HEADER = 'sw-cache-tags';
+
     private TagAwareAdapterInterface $cache;
 
     private array $locks = [];
@@ -102,11 +104,6 @@ class CacheStore implements StoreInterface
             $response->setContext(null);
         }
 
-        $item = $this->cache->getItem($key);
-
-        $item = CacheCompressor::compress($item, $response);
-        $item->expiresAt($response->getExpires());
-
         $tags = $this->tracer->get('all');
 
         $tags = array_filter($tags, static function (string $tag): bool {
@@ -122,6 +119,20 @@ class CacheStore implements StoreInterface
 
             return true;
         });
+
+        if ($response->headers->has(self::TAG_HEADER)) {
+            /** @var string $tagHeader */
+            $tagHeader = $response->headers->get(self::TAG_HEADER);
+            $responseTags = \json_decode($tagHeader, true, 512, \JSON_THROW_ON_ERROR);
+            $tags = array_merge($responseTags, $tags);
+
+            $response->headers->remove(self::TAG_HEADER);
+        }
+
+        $item = $this->cache->getItem($key);
+
+        $item = CacheCompressor::compress($item, $response);
+        $item->expiresAt($response->getExpires());
 
         $item->tag($tags);
 

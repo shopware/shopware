@@ -11,6 +11,8 @@ use Shopware\Storefront\Page\PageLoadedHook;
  * Triggered when the AccountLoginPage is loaded
  *
  * @hook-use-case data_loading
+ *
+ * @since 6.4.8.0
  */
 class AccountRegisterPageLoadedHook extends PageLoadedHook
 {

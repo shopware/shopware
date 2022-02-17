@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -222,14 +223,24 @@ trait AdminApiTestBehaviour
 
         $connection = $browser->getContainer()->get(Connection::class);
 
-        $connection->insert('integration', [
-            'id' => $id,
-            'write_access' => true,
-            'access_key' => $accessKey,
-            'secret_access_key' => password_hash($secretAccessKey, \PASSWORD_BCRYPT),
-            'label' => 'test integration',
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
+        try {
+            $connection->insert('integration', [
+                'id' => $id,
+                'write_access' => true,
+                'access_key' => $accessKey,
+                'secret_access_key' => password_hash($secretAccessKey, \PASSWORD_BCRYPT),
+                'label' => 'test integration',
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]);
+        } catch (UniqueConstraintViolationException $e) {
+            // update the access keys in case the integration already existed
+            $connection->update('integration', [
+                'access_key' => $accessKey,
+                'secret_access_key' => password_hash($secretAccessKey, \PASSWORD_BCRYPT),
+            ], [
+                'id' => $id,
+            ]);
+        }
 
         $this->apiIntegrations[] = $id;
 

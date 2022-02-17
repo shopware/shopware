@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Exception\NoHookServiceFactoryException;
 use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
+use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
 use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -18,6 +19,8 @@ use Twig\Extension\DebugExtension;
 
 class ScriptExecutor
 {
+    public static bool $isInScriptExecutionContext = false;
+
     private LoggerInterface $logger;
 
     private ScriptLoader $loader;
@@ -47,18 +50,31 @@ class ScriptExecutor
 
     public function execute(Hook $hook): void
     {
-        $scripts = $this->loader->get($hook->getName());
+        if ($hook instanceof InterfaceHook) {
+            throw new \RuntimeException(sprintf(
+                'Tried to execute InterfaceHook "%s", butInterfaceHooks should not be executed, execute the functions of the hook instead',
+                \get_class($hook)
+            ));
+        }
 
-        $this->traces->init($hook->getName());
+        $scripts = $this->loader->get($hook->getName());
+        $this->traces->initHook($hook);
 
         foreach ($scripts as $script) {
             try {
+                static::$isInScriptExecutionContext = true;
                 $this->render($hook, $script);
             } catch (\Throwable $e) {
                 $scriptException = new ScriptExecutionFailedException($hook->getName(), $script->getName(), $e);
                 $this->logger->error($scriptException->getMessage(), ['exception' => $e]);
 
                 throw $scriptException;
+            } finally {
+                static::$isInScriptExecutionContext = false;
+            }
+
+            if ($hook instanceof StoppableHook && $hook->isPropagationStopped()) {
+                break;
             }
         }
     }
@@ -74,7 +90,28 @@ class ScriptExecutor
         $this->traces->trace($hook, $script, function (Debug $debug) use ($twig, $script, $hook): void {
             $twig->addGlobal('debug', $debug);
 
-            $twig->render($script->getName(), ['hook' => $hook]);
+            $template = $twig->load($script->getName());
+
+            if (!$hook instanceof FunctionHook) {
+                $template->render(['hook' => $hook]);
+
+                return;
+            }
+
+            $blockName = $hook->getFunctionName();
+            if ($template->hasBlock($blockName)) {
+                $template->renderBlock($blockName, ['hook' => $hook]);
+
+                return;
+            }
+
+            if (!$hook instanceof OptionalFunctionHook) {
+                throw new \RuntimeException(sprintf(
+                    'Required function "%s" missing in script "%s", please make sure you add the required block in your script.',
+                    $hook->getFunctionName(),
+                    $script->getName()
+                ));
+            }
         });
 
         $this->callAfter($services, $hook, $script);

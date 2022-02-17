@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @deprecated tag:v6.5.0 will be internal
+ */
 class SystemConfigFacadeHookFactory extends HookServiceFactory
 {
     private SystemConfigService $systemConfigService;
@@ -34,6 +37,6 @@ class SystemConfigFacadeHookFactory extends HookServiceFactory
             $salesChannelId = $hook->getSalesChannelContext()->getSalesChannelId();
         }
 
-        return new SystemConfigFacade($this->systemConfigService, $this->connection, $script->getAppId(), $salesChannelId);
+        return new SystemConfigFacade($this->systemConfigService, $this->connection, $script->getScriptAppInformation(), $salesChannelId);
     }
 }

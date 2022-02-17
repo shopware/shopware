@@ -2,11 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-
 class InternalFieldAccessNotAllowedException extends \RuntimeException
 {
-    public function __construct(string $property, Entity $entity)
+    public function __construct(string $property, object $entity)
     {
         parent::__construct(sprintf('Access to property "%s" not allowed on entity "%s".', $property, \get_class($entity)));
     }

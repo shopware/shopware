@@ -78,6 +78,7 @@ class ScriptLoader implements EventSubscriberInterface
                    `script`.`hook` AS hook,
                    IFNULL(`script`.`updated_at`, `script`.`created_at`) AS lastModified,
                    `app`.`name` AS appName,
+                   LOWER(HEX(`app`.`integration_id`)) AS integrationId,
                    `app`.`version` AS appVersion
             FROM `script`
             LEFT JOIN `app` ON `script`.`app_id` = `app`.`id`
@@ -89,6 +90,8 @@ class ScriptLoader implements EventSubscriberInterface
             SELECT LOWER(HEX(`script`.`app_id`)) as `app_id`,
                    `script`.`name` AS name,
                    `script`.`script` AS script,
+                   `app`.`name` AS appName,
+                   LOWER(HEX(`app`.`integration_id`)) AS integrationId,
                    IFNULL(`script`.`updated_at`, `script`.`created_at`) AS lastModified
             FROM `script`
             LEFT JOIN `app` ON `script`.`app_id` = `app`.`id`
@@ -114,11 +117,13 @@ class ScriptLoader implements EventSubscriberInterface
             $cachePrefix = $script['appName'] ? md5($script['appName'] . $script['appVersion']) : EnvironmentHelper::getVariable('INSTANCE_ID', '');
 
             $includes = array_map(function (array $script) use ($appId) {
+                $script['app_id'] = $appId;
+
                 return new Script(
                     $script['name'],
                     $script['script'],
                     new \DateTimeImmutable($script['lastModified']),
-                    $appId
+                    $this->getAppInfo($script)
                 );
             }, $includes);
 
@@ -133,12 +138,25 @@ class ScriptLoader implements EventSubscriberInterface
                 $script['scriptName'],
                 $script['script'],
                 $lastModified,
-                $appId,
+                $this->getAppInfo($script),
                 $options,
                 $includes
             );
         }
 
         return $executableScripts;
+    }
+
+    private function getAppInfo(array $script): ?ScriptAppInformation
+    {
+        if (!$script['app_id'] || !$script['appName'] || !$script['integrationId']) {
+            return null;
+        }
+
+        return new ScriptAppInformation(
+            $script['app_id'],
+            $script['appName'],
+            $script['integrationId']
+        );
     }
 }

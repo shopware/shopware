@@ -93,9 +93,19 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFactory" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Facade\AppContextCreator"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Acl\AclCriteriaValidator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryWriterFacadeHookFactory" public="true">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Facade\AppContextCreator"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Sync\SyncService"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Facade\AppContextCreator">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacadeHookFactory" public="true">

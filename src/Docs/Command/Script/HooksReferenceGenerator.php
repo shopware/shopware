@@ -4,9 +4,15 @@ namespace Shopware\Docs\Command\Script;
 
 use League\ConstructFinder\ConstructFinder;
 use phpDocumentor\Reflection\DocBlock\Tags\Generic;
+use phpDocumentor\Reflection\DocBlock\Tags\Since;
+use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 use phpDocumentor\Reflection\DocBlockFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
+use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
+use Shopware\Core\Framework\Script\Execution\FunctionHook;
 use Shopware\Core\Framework\Script\Execution\Hook;
+use Shopware\Core\Framework\Script\Execution\InterfaceHook;
+use Shopware\Core\Framework\Script\Execution\OptionalFunctionHook;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
@@ -18,10 +24,12 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
 {
     public const USE_CASE_DATA_LOADING = 'data_loading';
     public const USE_CASE_CART_MANIPULATION = 'cart_manipulation';
+    public const USE_CASE_CUSTOM_ENDPOINT = 'custom_endpoint';
 
     public const ALLOWED_USE_CASES = [
         self::USE_CASE_CART_MANIPULATION,
         self::USE_CASE_DATA_LOADING,
+        self::USE_CASE_CUSTOM_ENDPOINT,
     ];
 
     private const TEMPLATE_FILE = __DIR__ . '/../../Resources/templates/Scripts/hook-reference.md.twig';
@@ -85,6 +93,10 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
                 continue;
             }
 
+            if (is_subclass_of($class, FunctionHook::class)) {
+                continue;
+            }
+
             if (is_subclass_of($class, Hook::class) && !(new \ReflectionClass($class))->isAbstract()) {
                 $hookClasses[] = $class;
             }
@@ -112,34 +124,22 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
                 'description' => 'All available Hooks that can be used to manipulate the cart.',
                 'hooks' => [],
             ],
+            self::USE_CASE_CUSTOM_ENDPOINT => [
+                'title' => 'Custom API endpoint',
+                'description' => 'All available hooks within the Store-API and API',
+                'hooks' => [],
+            ],
         ];
 
+        /** @var class-string<Hook> $hook */
         foreach ($hookClassNames as $hook) {
-            /** @var \ReflectionClass<Hook> $reflection */
-            $reflection = new \ReflectionClass($hook);
+            $hookData = $this->getDataForHook($hook);
 
-            if (!$reflection->getDocComment()) {
-                throw new \RuntimeException(sprintf('PhpDoc comment is missing on concrete HookClass `%s', $hook));
-            }
-            $docBlock = $this->docFactory->create($reflection);
-
-            /** @var Generic[] $tags */
-            $tags = $docBlock->getTagsByName('hook-use-case');
-            if (\count($tags) !== 1 || !($description = $tags[0]->getDescription()) || !\in_array($description->render(), self::ALLOWED_USE_CASES, true)) {
-                throw new \RuntimeException(sprintf(
-                    'Hook use case description is missing for hook "%s". All HookClasses need to be tagged with the `@hook-use-case` tag and associated to one of the following use cases: "%s".',
-                    $hook,
-                    implode('", "', self::ALLOWED_USE_CASES),
-                ));
+            if (is_subclass_of($hook, InterfaceHook::class)) {
+                $hookData = $this->addHookFunctionData($hookData, $hook);
             }
 
-            $data[$description->render()]['hooks'][] = [
-                'name' => $hook::HOOK_NAME,
-                'class' => $hook,
-                'trigger' => $docBlock->getSummary() . '<br>' . $docBlock->getDescription()->render(),
-                'data' => $this->getAvailableData($reflection),
-                'services' => $this->getAvailableServices($reflection),
-            ];
+            $data[$hookData['use-case']]['hooks'][] = $hookData;
         }
 
         return $data;
@@ -154,16 +154,25 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
 
         foreach ($reflection->getProperties() as $property) {
             $propertyType = $property->getType();
-            if (!$propertyType instanceof \ReflectionNamedType) {
-                throw new \RuntimeException(sprintf(
-                    'Property "%s" in HookClass "%s" is not typed.',
-                    $property->getName(),
-                    $reflection->getName()
-                ));
-            }
 
-            /** @var class-string<object> $type */
-            $type = $propertyType->getName();
+            if (!$propertyType instanceof \ReflectionNamedType) {
+                $propertyDoc = $this->docFactory->create($property);
+                /** @var Var_[] $varDoc */
+                $varDoc = $propertyDoc->getTagsByName('var');
+
+                if (\count($varDoc) === 0) {
+                    throw new \RuntimeException(sprintf(
+                        'Property "%s" in HookClass "%s" is not typed and has no @var annotation.',
+                        $property->getName(),
+                        $reflection->getName()
+                    ));
+                }
+
+                $varDoc = $varDoc[0];
+                $type = (string) $varDoc->getType();
+            } else {
+                $type = $propertyType->getName();
+            }
 
             $availableData[] = [
                 'name' => $property->getName(),
@@ -222,5 +231,71 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
         $group = $this->serviceReferenceGenerator->getGroupForService($reflection);
 
         return sprintf('./%s#%s', ServiceReferenceGenerator::GROUPS[$group], $reflection->getShortName());
+    }
+
+    /**
+     * @param class-string<Hook> $hook
+     */
+    private function getDataForHook(string $hook): array
+    {
+        /** @var \ReflectionClass<Hook> $reflection */
+        $reflection = new \ReflectionClass($hook);
+
+        if (!$reflection->getDocComment()) {
+            throw new \RuntimeException(sprintf('PhpDoc comment is missing on concrete HookClass `%s', $hook));
+        }
+        $docBlock = $this->docFactory->create($reflection);
+
+        /** @var Generic[] $tags */
+        $tags = $docBlock->getTagsByName('hook-use-case');
+        if (\count($tags) !== 1 || !($description = $tags[0]->getDescription()) || !\in_array($description->render(), self::ALLOWED_USE_CASES, true)) {
+            throw new \RuntimeException(sprintf(
+                'Hook use case description is missing for hook "%s". All HookClasses need to be tagged with the `@hook-use-case` tag and associated to one of the following use cases: "%s".',
+                $hook,
+                implode('", "', self::ALLOWED_USE_CASES),
+            ));
+        }
+
+        /** @var Since[] $since */
+        $since = $docBlock->getTagsByName('since');
+        if (\count($since) !== 1) {
+            throw new \RuntimeException(sprintf(
+                '`@since` annotation is missing for hook "%s". All HookClasses need to be tagged with the `@since` annotation with the correct version, in which the hook was introduced.',
+                $hook,
+            ));
+        }
+
+        if ($reflection->hasConstant('FUNCTION_NAME')) {
+            $name = $reflection->getConstant('FUNCTION_NAME');
+        } else {
+            $name = $reflection->getConstant('HOOK_NAME');
+        }
+
+        return [
+            'name' => $name,
+            'use-case' => $description->render(),
+            'class' => $hook,
+            'trigger' => $docBlock->getSummary() . '<br>' . $docBlock->getDescription()->render(),
+            'data' => $this->getAvailableData($reflection),
+            'services' => $this->getAvailableServices($reflection),
+            'since' => $since[0]->getVersion(),
+            'stoppable' => mb_strtolower(var_export($reflection->implementsInterface(StoppableHook::class), true)),
+            'optional' => mb_strtolower(var_export($reflection->implementsInterface(OptionalFunctionHook::class), true)),
+        ];
+    }
+
+    /**
+     * @param class-string<Hook> $hook
+     */
+    private function addHookFunctionData(array $hookData, string $hook): array
+    {
+        $hookData['interfaceHook'] = true;
+        $hookData['interfaceDescription'] = "**Interface Hook**\n\n" . $hookData['trigger'];
+
+        foreach ($hook::FUNCTIONS as $functionName => $functionHook) {
+            $hookData['functions'][$functionName] = $this->getDataForHook($functionHook);
+        }
+
+        return $hookData;
     }
 }

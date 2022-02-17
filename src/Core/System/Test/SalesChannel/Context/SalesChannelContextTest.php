@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Test\SalesChannel\Context;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -616,6 +617,66 @@ class SalesChannelContextTest extends TestCase
         static::assertNotSame($shippingMethodIdNoExits, $salesChannelContext->getSalesChannel()->getShippingMethodId());
     }
 
+    /**
+     * @dataProvider ensureLoginProvider
+     */
+    public function testEnsureLogin(bool $login, bool $isGuest, bool $allowGuest, bool $shouldThrow): void
+    {
+        $options = [];
+
+        if ($login) {
+            $customerId = Uuid::randomHex();
+            $this->createCustomer($customerId, null, null, [], $isGuest);
+
+            $options[SalesChannelContextService::CUSTOMER_ID] = $customerId;
+        }
+
+        $salesChannelContext = $this->createSalesChannelContext([], $options);
+
+        if ($shouldThrow) {
+            static::expectException(CustomerNotLoggedInException::class);
+        }
+        $salesChannelContext->ensureLoggedIn($allowGuest);
+    }
+
+    public function ensureLoginProvider(): \Generator
+    {
+        yield 'Not logged in' => [
+            false,
+            false,
+            false,
+            true,
+        ];
+
+        yield 'Logged in as guest, but guest not allowed' => [
+            true,
+            true,
+            false,
+            true,
+        ];
+
+        yield 'Logged in as guest and guest is allowed' => [
+            true,
+            true,
+            true,
+            false,
+        ];
+
+        yield 'Logged in and guest is allowed' => [
+            true,
+            false,
+            true,
+            false,
+        ];
+
+        yield 'Logged in and guest is not allowed' => [
+            true,
+            false,
+            false,
+            false,
+        ];
+    }
+
     protected function getValidCountryIds(int $limit): array
     {
         /** @var EntityRepositoryInterface $repository */
@@ -660,9 +721,10 @@ class SalesChannelContextTest extends TestCase
 
     private function createCustomer(
         string $customerId,
-        string $shippingCountryId,
-        string $billingCountryId,
-        ?array $countryState = null
+        ?string $shippingCountryId = null,
+        ?string $billingCountryId = null,
+        ?array $countryState = null,
+        bool $isGuest = false
     ): void {
         $customerRepository = $this->getContainer()->get('customer.repository');
         $salutationId = $this->getValidSalutationId();
@@ -674,7 +736,7 @@ class SalesChannelContextTest extends TestCase
             'city' => 'Schöppingen',
             'zipcode' => '12345',
             'salutationId' => $salutationId,
-            'country' => ['id' => $billingCountryId, 'name' => 'Germany'],
+            'country' => ['id' => $billingCountryId ?? Uuid::randomHex(), 'name' => 'Germany'],
         ];
 
         $shippingAddress = [
@@ -684,7 +746,7 @@ class SalesChannelContextTest extends TestCase
             'city' => 'Schöppingen',
             'zipcode' => '12345',
             'salutationId' => $salutationId,
-            'country' => ['id' => $shippingCountryId, 'name' => 'Germany'],
+            'country' => ['id' => $shippingCountryId ?? Uuid::randomHex(), 'name' => 'Germany'],
         ];
 
         if ($countryState) {
@@ -700,6 +762,7 @@ class SalesChannelContextTest extends TestCase
             'defaultPaymentMethodId' => $this->getAvailablePaymentMethod()->getId(),
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => Uuid::randomHex() . '@example.com',
+            'guest' => $isGuest,
             'password' => '$password',
             'firstName' => 'Max',
             'lastName' => 'Mustermann',

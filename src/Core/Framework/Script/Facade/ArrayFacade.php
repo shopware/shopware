@@ -202,6 +202,16 @@ class ArrayFacade implements \IteratorAggregate, \ArrayAccess, \Countable
         return \count($this->items);
     }
 
+    /**
+     * `all()` function returns all elements of this array.
+     *
+     * @return array Returns all elements of this array.
+     */
+    public function all(): array
+    {
+        return $this->items;
+    }
+
     private function update(): void
     {
         if (!$this->closure) {

@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 
+/**
+ * @deprecated tag:v6.5.0 will be internal
+ */
 class SalesChannelRepositoryFacadeHookFactory extends HookServiceFactory
 {
     private SalesChannelDefinitionInstanceRegistry $registry;

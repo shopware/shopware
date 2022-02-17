@@ -40,28 +40,24 @@ class TaskScheduler
     public function queueScheduledTasks(): void
     {
         $criteria = $this->buildCriteriaForAllScheduledTask();
-        $tasks = $this->scheduledTaskRepository->search($criteria, Context::createDefaultContext())->getEntities();
+        $context = Context::createDefaultContext();
+        $tasks = $this->scheduledTaskRepository->search($criteria, $context)->getEntities();
 
         if (\count($tasks) === 0) {
             return;
         }
 
-        $updatePayload = [];
-        /** @var ScheduledTaskEntity $task */
-        foreach ($tasks as $task) {
-            $updatePayload[] = [
-                'id' => $task->getId(),
-                'status' => ScheduledTaskDefinition::STATUS_QUEUED,
-            ];
-        }
-
-        $this->scheduledTaskRepository->update($updatePayload, Context::createDefaultContext());
-
-        // Tasks **must not** be queued before their state in the database has been updated. Otherwise
+        // Tasks **must not** be queued before their state in the database has been updated. Otherwise,
         // a worker could have already fetched the task and set its state to running before it gets set to
         // queued, thus breaking the task.
         /** @var ScheduledTaskEntity $task */
         foreach ($tasks as $task) {
+            $this->scheduledTaskRepository->update([
+                [
+                    'id' => $task->getId(),
+                    'status' => ScheduledTaskDefinition::STATUS_QUEUED,
+                ],
+            ], $context);
             $this->queueTask($task);
         }
     }

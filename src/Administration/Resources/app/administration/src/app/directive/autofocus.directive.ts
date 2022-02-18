@@ -1,8 +1,7 @@
-const { Directive } = Shopware;
-
-Directive.register('autofocus', {
-    inserted: (el) => {
+Shopware.Directive.register('autofocus', {
+    inserted: (el: HTMLElement) => {
         const inputs = el.getElementsByTagName('input');
+
         if (inputs.length === 0) {
             return;
         }
@@ -10,3 +9,5 @@ Directive.register('autofocus', {
         inputs[0].focus();
     },
 });
+
+export {};

@@ -1,6 +1,4 @@
-const { Filter } = Shopware;
-
-Filter.register('asset', (value) => {
+Shopware.Filter.register('asset', (value: string) => {
     if (!value) {
         return '';
     }
@@ -10,5 +8,9 @@ Filter.register('asset', (value) => {
         value = value.substr(1);
     }
 
-    return `${Shopware.Context.api.assetsPath}${value}`;
+    const assetsPath = Shopware.Context.api.assetsPath || '';
+
+    return `${assetsPath}${value}`;
 });
+
+export {};

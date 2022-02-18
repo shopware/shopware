@@ -1,6 +1,15 @@
 const { Filter, Defaults } = Shopware;
 
-Filter.register('salutation', (entity, fallbackSnippet = '') => {
+type SalutationType = {
+    id: string,
+    salutationKey: string,
+    displayName: string
+};
+
+Filter.register('salutation', (
+    entity: { salutation: SalutationType, title: string, firstName: string, lastName: string, [key: string]: unknown },
+    fallbackSnippet = '',
+): string => {
     if (!entity) {
         return fallbackSnippet;
     }
@@ -20,11 +29,13 @@ Filter.register('salutation', (entity, fallbackSnippet = '') => {
         lastName: entity.lastName || '',
     };
 
-    const fullname = Object.values(params).join(' ').replace(/\s+/g, ' ').trim();
+    const fullName = Object.values(params).join(' ').replace(/\s+/g, ' ').trim();
 
-    if (fullname === '') {
+    if (fullName === '') {
         return fallbackSnippet;
     }
 
-    return fullname;
+    return fullName;
 });
+
+export default {};

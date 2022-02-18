@@ -101,7 +101,7 @@ class ThemeCreateCommand extends Command
 
         $themeConfig = str_replace(
             ['#name#', '#snake-case#'],
-            [$themeName, $snakeCaseName],
+            [$pluginName, $snakeCaseName],
             $this->getThemeConfigTemplate()
         );
 

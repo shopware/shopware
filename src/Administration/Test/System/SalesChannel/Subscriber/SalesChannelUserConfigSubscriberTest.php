@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\SalesChannel\Subscriber;
+namespace Shopware\Administration\Test\System\SalesChannel\Subscriber;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Administration\System\SalesChannel\Subscriber\SalesChannelUserConfigSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Subscriber\SalesChannelUserConfigValidator;
 
-class SalesChannelUserConfigValidatorTest extends TestCase
+class SalesChannelUserConfigSubscriberTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
 
@@ -29,7 +29,7 @@ class SalesChannelUserConfigValidatorTest extends TestCase
             [
                 'id' => $userConfigId,
                 'userId' => $admin->getUserId(),
-                'key' => SalesChannelUserConfigValidator::CONFIG_KEY,
+                'key' => SalesChannelUserConfigSubscriber::CONFIG_KEY,
                 'value' => [$salesChannelId1, $salesChannelId2],
                 'createdAt' => new \DateTime(),
             ],

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\SalesChannel\Subscriber;
+namespace Shopware\Administration\System\SalesChannel\Subscriber;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class SalesChannelUserConfigValidator implements EventSubscriberInterface
+class SalesChannelUserConfigSubscriber implements EventSubscriberInterface
 {
     public const CONFIG_KEY = 'sales-channel-favorites';
 

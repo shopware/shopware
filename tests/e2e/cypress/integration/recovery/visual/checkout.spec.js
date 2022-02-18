@@ -125,6 +125,7 @@ describe('Checkout: Visual tests', () => {
         // Take snapshot for visual testing
         cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Order listing`, '.sw-order-list');
 
+        cy.prepareAdminForScreenshot();
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,

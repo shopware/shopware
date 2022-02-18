@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\App;
 
 use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
+use Shopware\Core\Framework\App\Event\Hooks\AppActivatedHook;
+use Shopware\Core\Framework\App\Event\Hooks\AppDeactivatedHook;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
 use Shopware\Core\Framework\App\Payment\PaymentMethodStateService;
@@ -11,6 +13,7 @@ use Shopware\Core\Framework\App\Template\TemplateStateService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -30,13 +33,16 @@ class AppStateService
 
     private PaymentMethodStateService $paymentMethodStateService;
 
+    private ScriptExecutor $scriptExecutor;
+
     public function __construct(
         EntityRepositoryInterface $appRepo,
         EventDispatcherInterface $eventDispatcher,
         ActiveAppsLoader $activeAppsLoader,
         TemplateStateService $templateStateService,
         ScriptPersister $scriptPersister,
-        PaymentMethodStateService $paymentMethodStateService
+        PaymentMethodStateService $paymentMethodStateService,
+        ScriptExecutor $scriptExecutor
     ) {
         $this->appRepo = $appRepo;
         $this->eventDispatcher = $eventDispatcher;
@@ -44,6 +50,7 @@ class AppStateService
         $this->templateStateService = $templateStateService;
         $this->paymentMethodStateService = $paymentMethodStateService;
         $this->scriptPersister = $scriptPersister;
+        $this->scriptExecutor = $scriptExecutor;
     }
 
     public function activateApp(string $appId, Context $context): void
@@ -66,7 +73,9 @@ class AppStateService
         // manually set active flag to true, so we don't need to re-fetch the app from DB
         $app->setActive(true);
 
-        $this->eventDispatcher->dispatch(new AppActivatedEvent($app, $context));
+        $event = new AppActivatedEvent($app, $context);
+        $this->eventDispatcher->dispatch($event);
+        $this->scriptExecutor->execute(new AppActivatedHook($event));
     }
 
     public function deactivateApp(string $appId, Context $context): void
@@ -83,7 +92,9 @@ class AppStateService
 
         $this->activeAppsLoader->resetActiveApps();
         // throw event before deactivating app in db as theme configs from the app need to be removed beforehand
-        $this->eventDispatcher->dispatch(new AppDeactivatedEvent($app, $context));
+        $event = new AppDeactivatedEvent($app, $context);
+        $this->eventDispatcher->dispatch($event);
+        $this->scriptExecutor->execute(new AppDeactivatedHook($event));
 
         $this->appRepo->update([['id' => $appId, 'active' => false]], $context);
         $this->templateStateService->deactivateAppTemplates($appId, $context);

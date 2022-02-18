@@ -110,6 +110,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\Template\TemplateStateService"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Payment\PaymentMethodStateService"/>
+            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\ActiveAppsLoader">
@@ -190,6 +191,7 @@
             <argument type="service" id="integration.repository"/>
             <argument type="service" id="acl_role.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\Util\AssetService"/>
+            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
             <argument type="string">%kernel.project_dir%</argument>
         </service>
 

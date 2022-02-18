@@ -472,3 +472,63 @@ Triggered when the api endpoint /store-api/script/{hook} is called. Used to exec
 | **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[store](./data-loading-script-services-reference.md#SalesChannelRepositoryFacade)<br>[writer](./custom-endpoint-script-services-reference.md#RepositoryWriterFacade)<br>[response](./custom-endpoint-script-services-reference.md#ScriptResponseFactoryFacade)<br>                                                                            |
 | **Stoppable**          | `true`                                                                                                                                               |
 
+## App Lifecycle
+
+All available hooks that can be used to execute scripts during your app's lifecycle.
+
+#### app-activated
+
+| <!-- -->               | <!-- -->                                                                                                                                                             |
+|:-----------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Name**               | app-activated                                                                                                                                                      |
+| **Since**              | 6.4.9.0                                                                                                                                                     |
+| **Class**              | `Shopware\Core\Framework\App\Event\Hooks\AppActivatedHook`                                                                                                                                                   |
+| **Description**        | Triggered when your app is activated.<br>                                                                                                                                               |
+| **Available Data**     | event: [`Shopware\Core\Framework\App\Event\AppActivatedEvent`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/App/Event/AppActivatedEvent.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br> |
+| **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[writer](./custom-endpoint-script-services-reference.md#RepositoryWriterFacade)<br>                                                                            |
+| **Stoppable**          | `false`                                                                                                                                               |
+#### app-deactivated
+
+| <!-- -->               | <!-- -->                                                                                                                                                             |
+|:-----------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Name**               | app-deactivated                                                                                                                                                      |
+| **Since**              | 6.4.9.0                                                                                                                                                     |
+| **Class**              | `Shopware\Core\Framework\App\Event\Hooks\AppDeactivatedHook`                                                                                                                                                   |
+| **Description**        | Triggered when your app is deactivated.<br>                                                                                                                                               |
+| **Available Data**     | event: [`Shopware\Core\Framework\App\Event\AppDeactivatedEvent`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/App/Event/AppDeactivatedEvent.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br> |
+| **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[writer](./custom-endpoint-script-services-reference.md#RepositoryWriterFacade)<br>                                                                            |
+| **Stoppable**          | `false`                                                                                                                                               |
+#### app-deleted
+
+| <!-- -->               | <!-- -->                                                                                                                                                             |
+|:-----------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Name**               | app-deleted                                                                                                                                                      |
+| **Since**              | 6.4.9.0                                                                                                                                                     |
+| **Class**              | `Shopware\Core\Framework\App\Event\Hooks\AppDeletedHook`                                                                                                                                                   |
+| **Description**        | Triggered when your app is deleted.<br>                                                                                                                                               |
+| **Available Data**     | event: [`Shopware\Core\Framework\App\Event\AppDeletedEvent`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/App/Event/AppDeletedEvent.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br> |
+| **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[writer](./custom-endpoint-script-services-reference.md#RepositoryWriterFacade)<br>                                                                            |
+| **Stoppable**          | `false`                                                                                                                                               |
+#### app-installed
+
+| <!-- -->               | <!-- -->                                                                                                                                                             |
+|:-----------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Name**               | app-installed                                                                                                                                                      |
+| **Since**              | 6.4.9.0                                                                                                                                                     |
+| **Class**              | `Shopware\Core\Framework\App\Event\Hooks\AppInstalledHook`                                                                                                                                                   |
+| **Description**        | Triggered when your app is installed.<br>                                                                                                                                               |
+| **Available Data**     | event: [`Shopware\Core\Framework\App\Event\AppInstalledEvent`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/App/Event/AppInstalledEvent.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br> |
+| **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[writer](./custom-endpoint-script-services-reference.md#RepositoryWriterFacade)<br>                                                                            |
+| **Stoppable**          | `false`                                                                                                                                               |
+#### app-updated
+
+| <!-- -->               | <!-- -->                                                                                                                                                             |
+|:-----------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Name**               | app-updated                                                                                                                                                      |
+| **Since**              | 6.4.9.0                                                                                                                                                     |
+| **Class**              | `Shopware\Core\Framework\App\Event\Hooks\AppUpdatedHook`                                                                                                                                                   |
+| **Description**        | Triggered when your app is updated.<br>                                                                                                                                               |
+| **Available Data**     | event: [`Shopware\Core\Framework\App\Event\AppUpdatedEvent`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/App/Event/AppUpdatedEvent.php) <br>context: [`Shopware\Core\Framework\Context`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/Context.php) <br> |
+| **Available Services** | [repository](./data-loading-script-services-reference.md#RepositoryFacade)<br>[config](./miscellaneous-script-services-reference.md#SystemConfigFacade)<br>[writer](./custom-endpoint-script-services-reference.md#RepositoryWriterFacade)<br>                                                                            |
+| **Stoppable**          | `false`                                                                                                                                               |
+

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Script\Debugging\Debug;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Exception\NoHookServiceFactoryException;
 use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
+use Shopware\Core\Framework\Script\Execution\Awareness\AppSpecificHook;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
 use Symfony\Bridge\Twig\Extension\TranslationExtension;
@@ -61,6 +62,12 @@ class ScriptExecutor
         $this->traces->initHook($hook);
 
         foreach ($scripts as $script) {
+            $scriptAppInfo = $script->getScriptAppInformation();
+            if ($scriptAppInfo && $hook instanceof AppSpecificHook && $hook->getAppId() !== $scriptAppInfo->getAppId()) {
+                // only execute scripts from the app the hook specifies
+                continue;
+            }
+
             try {
                 static::$isInScriptExecutionContext = true;
                 $this->render($hook, $script);

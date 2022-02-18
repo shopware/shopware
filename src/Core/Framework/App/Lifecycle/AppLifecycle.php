@@ -9,6 +9,9 @@ use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
+use Shopware\Core\Framework\App\Event\Hooks\AppDeletedHook;
+use Shopware\Core\Framework\App\Event\Hooks\AppInstalledHook;
+use Shopware\Core\Framework\App\Event\Hooks\AppUpdatedHook;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\InvalidAppConfigurationException;
@@ -32,6 +35,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
+use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
@@ -83,6 +87,8 @@ class AppLifecycle extends AbstractAppLifecycle
 
     private AssetService $assetService;
 
+    private ScriptExecutor $scriptExecutor;
+
     public function __construct(
         EntityRepositoryInterface $appRepository,
         PermissionPersister $permissionPersister,
@@ -103,6 +109,7 @@ class AppLifecycle extends AbstractAppLifecycle
         EntityRepositoryInterface $integrationRepository,
         EntityRepositoryInterface $aclRoleRepository,
         AssetService $assetService,
+        ScriptExecutor $scriptExecutor,
         string $projectDir
     ) {
         $this->appRepository = $appRepository;
@@ -125,6 +132,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->integrationRepository = $integrationRepository;
         $this->aclRoleRepository = $aclRoleRepository;
         $this->assetService = $assetService;
+        $this->scriptExecutor = $scriptExecutor;
     }
 
     public function getDecorated(): AbstractAppLifecycle
@@ -146,9 +154,10 @@ class AppLifecycle extends AbstractAppLifecycle
         $metadata = $this->enrichInstallMetadata($manifest, $metadata, $roleId);
 
         $app = $this->updateApp($manifest, $metadata, $appId, $roleId, $defaultLocale, $context, true);
-        $this->eventDispatcher->dispatch(
-            new AppInstalledEvent($app, $manifest, $context)
-        );
+
+        $event = new AppInstalledEvent($app, $manifest, $context);
+        $this->eventDispatcher->dispatch($event);
+        $this->scriptExecutor->execute(new AppInstalledHook($event));
 
         if ($activate) {
             $this->appStateService->activateApp($appId, $context);
@@ -163,9 +172,9 @@ class AppLifecycle extends AbstractAppLifecycle
         $metadata = $manifest->getMetadata()->toArray($defaultLocale);
         $appEntity = $this->updateApp($manifest, $metadata, $app['id'], $app['roleId'], $defaultLocale, $context, false);
 
-        $this->eventDispatcher->dispatch(
-            new AppUpdatedEvent($appEntity, $manifest, $context)
-        );
+        $event = new AppUpdatedEvent($appEntity, $manifest, $context);
+        $this->eventDispatcher->dispatch($event);
+        $this->scriptExecutor->execute(new AppUpdatedHook($event));
     }
 
     public function delete(string $appName, array $app, Context $context, bool $keepUserData = false): void
@@ -271,9 +280,9 @@ class AppLifecycle extends AbstractAppLifecycle
     private function removeAppAndRole(AppEntity $app, Context $context, bool $keepUserData = false, bool $softDelete = false): void
     {
         // throw event before deleting app from db as it may be delivered via webhook to the deleted app
-        $this->eventDispatcher->dispatch(
-            new AppDeletedEvent($app->getId(), $context, $keepUserData)
-        );
+        $event = new AppDeletedEvent($app->getId(), $context, $keepUserData);
+        $this->eventDispatcher->dispatch($event);
+        $this->scriptExecutor->execute(new AppDeletedHook($event));
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($app, $softDelete, $keepUserData): void {
             if (!$keepUserData) {

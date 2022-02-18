@@ -4,6 +4,8 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import 'src/module/sw-sales-channel/component/structure/sw-sales-channel-menu';
 import 'src/app/component/base/sw-icon';
 import 'src/app/component/structure/sw-admin-menu-item';
+import 'src/module/sw-sales-channel/service/sales-channel-favorites.service';
+import getDomainLink from 'src/module/sw-sales-channel/service/domain-link.service';
 
 const defaultAdminLanguageId = '6a357734-afe4-4f17-a814-fb89ce9724fc';
 
@@ -131,9 +133,14 @@ function createWrapper(salesChannels = [], privileges = []) {
             'sw-icon': { props: ['name'], template: '<div :class="`sw-icon sw-icon--${name}`"></div>' },
             'sw-admin-menu-item': Shopware.Component.build('sw-admin-menu-item'),
             'sw-context-button': true,
-            'sw-context-menu-item': true
+            'sw-context-menu-item': true,
+            'sw-loader': true,
+            'sw-internal-link': true,
         },
         provide: {
+            domainLinkService: {
+                getDomainLink: getDomainLink
+            },
             acl: {
                 can: (privilegeKey) => {
                     if (!privilegeKey) { return true; }
@@ -165,6 +172,9 @@ function createWrapper(salesChannels = [], privileges = []) {
 describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu', () => {
     beforeEach(() => {
         Shopware.State.get('session').languageId = defaultAdminLanguageId;
+        Shopware.State.get('session').currentUser = { id: '8fe88c269c214ea68badf7ebe678ab96' };
+
+        global.repositoryFactoryMock.showError = false;
     });
 
     it('should be a Vue.js component', async () => {
@@ -337,38 +347,29 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         wrapper.destroy();
     });
 
-    it('shows "more" when more than 7 sales channels are available', async () => {
-        const wrapper = createWrapper([
+    it('shows "more" when more than 25 sales channels are available', async () => {
+        const salesChannels = [
             storeFrontWithStandardDomain,
             storefrontWithoutDefaultDomain,
             headlessSalesChannel,
             storefrontWithoutDomains,
-            inactiveStorefront,
-            {
-                id: '1a',
-                translated: { name: '1a' },
+            inactiveStorefront
+        ];
+
+        for (let i = 0; i < 21; i += 1) {
+            salesChannels.push({
+                id: `${i}a`,
+                translated: { name: `${i}a` },
                 type: {
                     id: Shopware.Defaults.apiSalesChannelTypeId,
                     iconName: 'default-shopping-basket'
                 }
-            },
-            {
-                id: '2b',
-                translated: { name: '2b' },
-                type: {
-                    id: Shopware.Defaults.apiSalesChannelTypeId,
-                    iconName: 'default-shopping-basket'
-                }
-            },
-            {
-                id: '3c',
-                translated: { name: '3c' },
-                type: {
-                    id: Shopware.Defaults.apiSalesChannelTypeId,
-                    iconName: 'default-shopping-basket'
-                }
-            }
-        ]);
+            });
+        }
+
+        Shopware.Service('salesChannelFavorites').state.favorites = salesChannels.map((el) => el.id);
+
+        const wrapper = createWrapper(salesChannels);
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
@@ -377,7 +378,6 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         const moreItems = wrapper.find('.sw-admin-menu__sales-channel-more-items');
         expect(moreItems.isVisible()).toBe(true);
         expect(moreItems.text()).toContain('sw-sales-channel.general.titleMenuMoreItems');
-
         wrapper.destroy();
     });
 

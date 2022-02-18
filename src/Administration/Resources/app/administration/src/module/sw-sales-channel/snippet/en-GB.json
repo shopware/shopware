@@ -20,6 +20,7 @@
       "columnType": "Type",
       "columnStatus": "Status",
       "columnCreatedAt": "Created at",
+      "columnFavourite": "My favourites",
       "status": {
         "maintenance": "Maintenance",
         "online": "Online",
@@ -103,6 +104,7 @@
       "buttonCloseDeleteDomainModal": "Cancel",
       "buttonConfirmDeleteDomain": "Delete",
       "customerGroup": "Customer group",
+      "favouriteLabel": "Mark Sales Channel as favourite",
       "navigation": "Navigation",
       "navigationCategoryId": "Entry point main navigation",
       "navigationCategoryDepth": "Navigation levels",

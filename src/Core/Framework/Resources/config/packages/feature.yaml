@@ -217,11 +217,6 @@ shopware:
         major: true
         description: "Fix media resolution in theme"
         # issue: NEXT-19048
-      - name: FEATURE_NEXT_17421
-        default: false
-        major: false
-        description: "Enables merchants to organize their sales channels by sorting and marking them as favourites"
-        # issue: NEXT-17421
       - name: FEATURE_NEXT_17540
         default: false
         major: false

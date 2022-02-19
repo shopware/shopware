@@ -74,6 +74,11 @@ describe('Sales Channel: Test list', () => {
     });
 
     it('@general: Name should be sortable', () => {
+        cy.onlyOnFeature('FEATURE_NEXT_17421');
+
+        cy.log('change Sorting direction from None to ASC');
+        cy.get('.sw-data-grid__cell--0 > .sw-data-grid__cell-content').click('right');
+
         cy.contains('.sw-data-grid__header .sw-data-grid__cell', 'Sales Channel').click('left');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-data-grid__body .sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Headless');

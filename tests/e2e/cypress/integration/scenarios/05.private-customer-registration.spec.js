@@ -82,7 +82,7 @@ describe('Product creation via UI and private customer registration', () => {
         cy.get('a.smart-bar__back-btn').click();
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Product-5');
         cy.get(`.sw-data-grid__row--0 .sw-data-grid__cell--name`).contains('Product-5');
-        cy.get('.sw-data-grid__skeleton').should('not.exist');
+        cy.get('.sw-skeleton__listing').should('not.exist');
 
         // Register as private customer
         cy.visit('/account/login');

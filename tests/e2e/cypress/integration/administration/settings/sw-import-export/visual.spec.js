@@ -53,7 +53,7 @@ describe('Import/Export:  Visual tests', () => {
         cy.get('.sw-page__main-content').should('be.visible');
 
         // Take snapshot for visual testing
-        cy.get('.sw-data-grid__skeleton').should('not.exist');
+        cy.get('.sw-skeleton__listing').should('not.exist');
         cy.contains('.sw-data-grid__row--0', 'Default advanced prices').should('be.visible');
         cy.takeSnapshot('[Import export] Profiles overview',
             '.sw-import-export-view-profiles__listing');
@@ -79,7 +79,7 @@ describe('Import/Export:  Visual tests', () => {
         cy.contains('[href="#/sw/import-export/index/export"]', 'Export').click();
 
         // Take snapshot for visual testing
-        cy.get('.sw-data-grid__skeleton').should('not.exist');
+        cy.get('.sw-skeleton__listing').should('not.exist');
         cy.takeSnapshot('[Import export] Detail, Export overview', '.sw-import-export-view-export');
 
         // Select fixture profile for product entity
@@ -105,7 +105,7 @@ describe('Import/Export:  Visual tests', () => {
 
         // Change color of the element to ensure consistent snapshots
         cy.changeElementStyling('.sw-data-grid__cell--createdAt a', 'color : #fff');
-        cy.get('.sw-data-grid__skeleton').should('not.exist');
+        cy.get('.sw-skeleton__listing').should('not.exist');
 
         // Take snapshot for visual testing
         cy.awaitAndCheckNotification('Export started');
@@ -143,7 +143,7 @@ describe('Import/Export:  Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-import-export-view-import').should('be.visible');
-        cy.get('.sw-data-grid__skeleton').should('not.exist');
+        cy.get('.sw-skeleton__listing').should('not.exist');
         cy.takeSnapshot('[Import export] Detail, Import overview', '.sw-import-export-view-import');
 
         // Upload a fixture CSV file with a single product
@@ -174,7 +174,7 @@ describe('Import/Export:  Visual tests', () => {
         cy.get(`.sw-import-export-activity ${page.elements.dataGridRow}--0`).should('be.visible');
         cy.get(`.sw-import-export-activity ${page.elements.dataGridRow}--0 .sw-data-grid__cell--profileName`)
             .should('contain', 'Default product');
-        cy.get('.sw-data-grid__skeleton').should('not.exist');
+        cy.get('.sw-skeleton__listing').should('not.exist');
 
         // Change color of the element to ensure consistent snapshots
         cy.changeElementStyling('.sw-data-grid__cell--createdAt', 'color : #fff');

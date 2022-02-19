@@ -21,8 +21,8 @@ describe('Sales Channel: Visual tests', () => {
 
         // Open sales channel
         cy.contains('Storefront').click();
-        cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-loader__element').should('not.exist');
+        cy.get('.sw-page__main-content').should('be.visible');
+        cy.get('.sw-skeleton__detail').should('not.exist');
         cy.get('#sw-field--salesChannel-name').should('be.visible');
 
         // Take snapshot for visual testing

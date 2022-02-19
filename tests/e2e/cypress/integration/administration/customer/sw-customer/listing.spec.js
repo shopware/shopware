@@ -125,36 +125,50 @@ describe('Customer: Test pagination and the corosponding URL parameters', () => 
         });
     });
 
-    it('@Customer: check that the url parameters get set', () => {
+    it('@Customer: check that the url parameters get set correctly', () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
 
+        const searchTerm = 'Pep';
+
         // use the search box and check if term gets set (in the function)
-        cy.get('.sw-search-bar__input').typeAndCheckSearchField('Pep');
+        cy.get('.sw-search-bar__input').typeAndCheckSearchField(searchTerm);
+
+        cy.url().should('contain', `term=${searchTerm}`);
+        cy.get('.sw-search-bar__input').should('have.value', searchTerm);
+        cy.url().should('contain', `page=1`);
+        cy.url().should('contain', `limit=25`);
+
+        // When search for a term, none sorting is used
+        cy.get(`.sw-data-grid__cell--4 > .sw-data-grid__cell-content`).get('.icon--small-arrow-small-up').should('not.exist');
+        cy.get(`.sw-data-grid__cell--4 > .sw-data-grid__cell-content`).get('.icon--small-arrow-small-down').should('not.exist');
+
+        cy.log('change Sorting direction from None to ASC');
+        cy.get('.sw-data-grid__cell--4 > .sw-data-grid__cell-content').click('right');
 
         cy.testListing({
-            searchTerm: 'Pep',
+            searchTerm,
             sorting: {
                 text: 'Customer number',
                 propertyName: 'customerNumber',
-                sortDirection: 'DESC',
+                sortDirection: 'ASC',
                 location: 4
             },
             page: 1,
             limit: 25
         });
 
-        cy.log('change Sorting direction from DESC to ASC');
+        cy.log('change Sorting direction from ASC to DESC');
         cy.get('.sw-data-grid__cell--4 > .sw-data-grid__cell-content').click('right');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
         cy.testListing({
-            searchTerm: 'Pep',
+            searchTerm,
             sorting: {
                 text: 'Customer number',
                 propertyName: 'customerNumber',
-                sortDirection: 'ASC',
+                sortDirection: 'DESC',
                 location: 4
             },
             page: 1,
@@ -166,11 +180,11 @@ describe('Customer: Test pagination and the corosponding URL parameters', () => 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
         cy.testListing({
-            searchTerm: 'Pep',
+            searchTerm,
             sorting: {
                 text: 'Customer number',
                 propertyName: 'customerNumber',
-                sortDirection: 'ASC',
+                sortDirection: 'DESC',
                 location: 4
             },
             page: 1,
@@ -182,11 +196,11 @@ describe('Customer: Test pagination and the corosponding URL parameters', () => 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
         cy.testListing({
-            searchTerm: 'Pep',
+            searchTerm,
             sorting: {
                 text: 'Customer number',
                 propertyName: 'customerNumber',
-                sortDirection: 'ASC',
+                sortDirection: 'DESC',
                 location: 4
             },
             page: 2,
@@ -198,7 +212,7 @@ describe('Customer: Test pagination and the corosponding URL parameters', () => 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
         cy.testListing({
-            searchTerm: 'Pep',
+            searchTerm,
             sorting: {
                 text: 'Name',
                 propertyName: 'lastName,firstName',

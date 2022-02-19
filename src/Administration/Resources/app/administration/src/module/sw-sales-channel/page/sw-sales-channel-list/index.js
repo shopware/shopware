@@ -122,6 +122,10 @@ Component.register('sw-sales-channel-list', {
                 return false;
             }
 
+            if (this.freshSearchTerm) {
+                criteria.resetSorting();
+            }
+
             return this.salesChannelRepository.search(criteria)
                 .then(searchResult => {
                     this.salesChannels = searchResult;

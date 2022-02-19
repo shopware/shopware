@@ -103,6 +103,10 @@ Component.register('sw-settings-shipping-list', {
                 return;
             }
 
+            if (this.freshSearchTerm) {
+                criteria.resetSorting();
+            }
+
             this.shippingRepository.search(criteria).then((items) => {
                 this.total = items.total;
                 this.shippingMethods = items;

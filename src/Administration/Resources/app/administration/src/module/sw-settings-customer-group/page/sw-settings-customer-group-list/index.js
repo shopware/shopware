@@ -70,6 +70,10 @@ Component.register('sw-settings-customer-group-list', {
                 return;
             }
 
+            if (this.freshSearchTerm) {
+                criteria.resetSorting();
+            }
+
             this.customerGroupRepository.search(criteria)
                 .then((searchResult) => {
                     this.total = searchResult.total;

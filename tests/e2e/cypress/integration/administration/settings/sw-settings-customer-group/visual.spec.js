@@ -32,7 +32,8 @@ describe('Customer group: Visual testing', () => {
         cy.takeSnapshot('[Customer group] Listing', '.sw-settings-customer-group-list');
 
         cy.contains('.sw-data-grid__cell--name a', 'Standard customer group').click();
-        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-page__main-content').should('be.visible');
+        cy.get('.sw-skeleton__detail').should('not.exist');
         cy.takeSnapshot('[Customer group] Details', '.sw-settings-customer-group-detail');
     });
 });

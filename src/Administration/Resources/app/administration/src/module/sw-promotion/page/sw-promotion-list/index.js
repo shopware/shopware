@@ -50,6 +50,10 @@ Component.register('sw-promotion-list', {
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
+            if (this.freshSearchTerm) {
+                criteria.resetSorting();
+            }
+
             return this.promotionRepository.search(criteria).then((searchResult) => {
                 this.total = searchResult.total;
                 this.promotions = searchResult;

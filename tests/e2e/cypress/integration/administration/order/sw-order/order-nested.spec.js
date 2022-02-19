@@ -103,7 +103,7 @@ describe('Order: Visual tests', () => {
         cy.get(`${page.elements.dataGridRow}--0`).scrollIntoView();
 
         // Take snapshot for visual testing
-        cy.get('.sw-data-grid__skeleton').should('not.exist');
+        cy.get('.sw-skeleton__listing').should('not.exist');
         cy.takeSnapshot('Order listing with nested line items', '.sw-order-line-items-grid__data-grid');
 
         cy.get(`${page.elements.dataGridRow}--0 .sw-order-line-items-grid__item-nested-indicator`).click();

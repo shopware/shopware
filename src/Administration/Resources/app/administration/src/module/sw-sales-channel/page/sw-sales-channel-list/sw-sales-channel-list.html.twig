@@ -55,13 +55,13 @@
     <sw-card-view slot="content">
         {% block sw_sales_channel_list_content_card %}
         <sw-card
+            v-if="entitySearchable && total > 0"
             position-identifier="sw-sales-channel-list"
             :title="$tc('sw-sales-channel.list.title')"
             :subtitle="$tc('sw-sales-channel.list.subTitle')"
         >
             {% block sw_sales_channel_list_grid %}
             <sw-entity-listing
-                v-if="entitySearchable"
                 slot="grid"
                 :is-loading="isLoading"
                 identifier="sw-sales-channel-list"
@@ -70,6 +70,8 @@
                 :items="salesChannels"
                 :full-page="false"
                 :show-selection="false"
+                :sort-by="currentSortBy"
+                :sort-direction="sortDirection"
                 :plain-appearance="true"
                 :show-settings="true"
                 :allow-column-edit="true"
@@ -162,28 +164,28 @@
                 {% endblock %}
             </sw-entity-listing>
             {% endblock %}
-
-            {% block sw_sales_channel_list_empty_state %}
-            <template v-if="!isLoading && !total">
-                <sw-empty-state
-                    v-if="isValidTerm(term)"
-                    :style="{ minHeight: '200px' }"
-                    :title="$tc('sw-empty-state.messageNoResultTitle')"
-                >
-                    <template #default>
-                        {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
-                        <router-link
-                            class="sw-empty-state__description-link"
-                            :to="{ name: 'sw.profile.index.searchPreferences' }"
-                        >
-                            {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
-                        </router-link>
-                        {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
-                    </template>
-                </sw-empty-state>
-            </template>
-            {% endblock %}
         </sw-card>
+        {% endblock %}
+
+        {% block sw_sales_channel_list_empty_state %}
+        <template v-if="!isLoading && !total">
+            <sw-empty-state
+                v-if="isValidTerm(term)"
+                :style="{ minHeight: '200px' }"
+                :title="$tc('sw-empty-state.messageNoResultTitle')"
+            >
+                <template #default>
+                    {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
+                    <router-link
+                        class="sw-empty-state__description-link"
+                        :to="{ name: 'sw.profile.index.searchPreferences' }"
+                    >
+                        {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
+                    </router-link>
+                    {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
+                </template>
+            </sw-empty-state>
+        </template>
         {% endblock %}
     </sw-card-view>
     {% endblock %}

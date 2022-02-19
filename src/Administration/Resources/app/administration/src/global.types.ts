@@ -115,6 +115,21 @@ declare global {
         workerNotification: $TSFixMe,
     }
 
+    interface FilterTypes {
+        asset: (value: string) => string,
+        currency: $TSFixMeFunction,
+        date: (value: string, options: Intl.DateTimeFormatOptions) => string,
+        'file-size': $TSFixMeFunction,
+        'media-name': $TSFixMeFunction,
+        salutation: $TSFixMeFunction,
+        'stock-color-variant': $TSFixMeFunction
+        striphtml: (value: string) => string,
+        'thumbnail-size': $TSFixMeFunction,
+        truncate: $TSFixMeFunction,
+        'unicode-uri': $TSFixMeFunction,
+        [key: string]: ((...args: any[]) => any)|undefined,
+    }
+
     /**
      * Define global state for the Vuex store
      */

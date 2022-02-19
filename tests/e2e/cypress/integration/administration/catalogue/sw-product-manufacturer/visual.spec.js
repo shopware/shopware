@@ -37,12 +37,14 @@ describe('Manufacturer: Visual tests', () => {
         cy.get('.sw-manufacturer-list__content').should('exist');
 
         // Take snapshot for visual testing
-        cy.get('.sw-data-grid__skeleton').should('not.exist');
+        cy.get('.sw-skeleton__listing').should('not.exist');
         cy.takeSnapshot('[Manufacturer] Listing', '.sw-data-grid--full-page');
 
         // Edit base data
         cy.get(`${page.elements.dataGridRow}--0 a`).click();
-        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-page__main-content').should('be.visible');
+        cy.get('.sw-skeleton__detail-bold').should('not.exist');
+        cy.get('.sw-skeleton__detail').should('not.exist');
 
         // Take snapshot for visual testing
         cy.get('.sw-media-upload-v2__header .sw-context-button__button').should('be.visible');

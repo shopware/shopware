@@ -45,17 +45,13 @@ describe('Customer:  Visual test', () => {
         }).as('getData');
 
         cy.get('.sw-customer-list').should('be.visible');
-        cy.clickMainMenuItem({
-            targetPath: '#/sw/customer/index',
-            mainMenuId: 'sw-customer',
-            subMenuId: 'sw-customer-index'
-        });
+
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
         cy.get('.sw-customer-list__content').should('be.visible');
 
         // Take snapshot for visual testing
-        cy.get('.sw-data-grid__skeleton').should('not.exist');
+        cy.get('.sw-skeleton__listing').should('not.exist');
         cy.takeSnapshot('[Customer] Listing', '.sw-customer-list-grid');
 
         // Fill in basic data
@@ -91,6 +87,8 @@ describe('Customer:  Visual test', () => {
         cy.wait('@saveData')
             .its('response.statusCode').should('equal', 204);
         cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
+        cy.get('.sw-skeleton__detail-bold').should('not.exist');
+        cy.get('.sw-skeleton__detail').should('not.exist');
         cy.get('.icon--small-default-checkmark-line-medium').should('not.exist');
 
         // Take snapshot for visual testing
@@ -122,7 +120,7 @@ describe('Customer:  Visual test', () => {
         cy.get('.sw-customer-detail__tab-addresses').click();
 
         // Take snapshot for visual testing
-        cy.get('.sw-data-grid__skeleton').should('not.exist');
+        cy.get('.sw-skeleton__listing').should('not.exist');
         cy.takeSnapshot('[Customer] Detail, address listing', '.sw-customer-detail-addresses');
 
         cy.get('.sw-customer-detail__open-edit-mode-action').click();
@@ -152,7 +150,7 @@ describe('Customer:  Visual test', () => {
 
         cy.contains('.sw-button', 'Edit').click();
         cy.url().should('contain', '?edit=true');
-        cy.get('.sw-loader__element').should('not.exist');
+        cy.get('.sw-loader-element').should('not.exist');
 
         // Take snapshot for visual testing
         cy.takeSnapshot('[Customer] Detail, edit view', '#sw-field--customer-title');

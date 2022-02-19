@@ -54,7 +54,9 @@ describe('Administration: Check module navigation', () => {
         );
         cy.get(':nth-child(1) > :nth-child(1) > dd')
             .should('have.css', 'color', 'rgb(246, 246, 246)');
+
         // Take snapshot
+        cy.get('.sw-loader').should('not.exist');
         cy.takeSnapshot('[Review] Listing', '.sw-card-section--secondary');
     });
 });

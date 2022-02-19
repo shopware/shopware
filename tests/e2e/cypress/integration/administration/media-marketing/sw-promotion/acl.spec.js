@@ -162,7 +162,7 @@ describe('Promotion: Test ACL privileges', () => {
         // Verify updated product
         cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
         cy.get('button[title="Refresh"]').click();
-        cy.get('.sw-data-grid__skeleton').should('not.exist');
+        cy.get('.sw-skeleton__listing').should('not.exist');
         cy.get(page.elements.emptyState).should('be.visible');
     });
 });

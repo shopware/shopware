@@ -9,11 +9,12 @@ describe('Profile: Visual tests', () => {
 
     it('@visual: check appearance of basic profile workflow', () => {
         // Take snapshot for visual testing
-        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-tabs-item').contains(/General|Search preferences/g);
         cy.get('.sw-tabs-item[title="General"]').should('have.class', 'sw-tabs-item--active');
         cy.get('.sw-card__title').contains(/Profile information|Profile image|Password/g);
         cy.get('.sw-media-upload-v2__header .sw-context-button__button').should('be.visible');
+        cy.get('.sw-loader-element').should('not.exist');
         cy.takeSnapshot('[Profile] Detail', '.sw-profile-index-general');
     });
 });

@@ -45,6 +45,7 @@ describe('Dashboard:  Visual tests', () => {
 
         cy.get('#sw-field--statisticDateRanges-value').select('14Days');
         cy.get('.apexcharts-series-markers-wrap').should('be.visible');
+        cy.get('.sw-skeleton__detail').should('not.exist');
 
         // Take snapshot for visual testing
         cy.takeSnapshot('[Dashboard] overview', '.sw-dashboard-index__content');

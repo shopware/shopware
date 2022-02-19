@@ -40,7 +40,7 @@ describe('Product: Visual tests', () => {
             .its('response.statusCode').should('equal', 200);
         cy.get('.sw-product-list__content').should('be.visible');
 
-        cy.get('.sw-data-grid__skeleton').should('not.exist');
+        cy.get('.sw-skeleton__listing').should('not.exist');
         cy.takeSnapshot('[Product] Listing');
 
         cy.get('.sw-data-grid__row--0 .sw-context-button').click();
@@ -49,6 +49,8 @@ describe('Product: Visual tests', () => {
         cy.takeSnapshot('[Product] Listing, context menu open');
 
         cy.get('.sw-entity-listing__context-menu-edit-action').click();
+        cy.get('.sw-skeleton__detail-bold').should('not.exist');
+        cy.get('.sw-skeleton__detail').should('not.exist');
 
         // Edit base data of product
         cy.get('.sw-select-product__select_manufacturer')
@@ -60,21 +62,29 @@ describe('Product: Visual tests', () => {
         const page = new ProductPageObject();
 
         cy.get('.sw-product-list-grid').should('be.visible');
+        cy.get('.sw-skeleton__listing').should('not.exist');
+
         // Edit base data of product
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
+        cy.get('.sw-product-detail-base').should('be.visible');
+        cy.get('.sw-skeleton__detail-bold').should('not.exist');
+        cy.get('.sw-skeleton__detail').should('not.exist');
 
         cy.get('.sw-product-detail__tab-advanced-prices').should('be.visible');
         cy.get('.sw-product-detail__tab-advanced-prices').click();
+        cy.get('.sw-skeleton__detail').should('not.exist');
 
         cy.get('.sw-product-detail-context-prices__empty-state-card').should('be.visible');
         cy.get('.sw-product-detail-context-prices__empty-state-select-rule')
             .click();
         cy.get('.sw-select-result-list__item-list').should('be.visible');
         cy.contains('.sw-select-result', 'All customers').click();
+        cy.get('.sw-product-detail-context-prices__toolbar').should('be.visible');
+        cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader__element').should('not.exist');
         cy.get('#rule').contains('All customers');
 
@@ -90,9 +100,13 @@ describe('Product: Visual tests', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
+        cy.get('.sw-product-detail-base').should('be.visible');
+        cy.get('.sw-skeleton__detail-bold').should('not.exist');
+        cy.get('.sw-skeleton__detail').should('not.exist');
 
         cy.get('.sw-product-detail__tab-specifications').should('be.visible');
         cy.get('.sw-product-detail__tab-specifications').click();
+        cy.get('.sw-skeleton').should('not.exist');
 
         cy.get('.sw-product-properties').should('be.visible');
     });
@@ -119,8 +133,10 @@ describe('Product: Visual tests', () => {
             `${page.elements.dataGridRow}--0`
         );
 
+        cy.get('.sw-product-detail__tab-variants').should('be.visible')
         cy.get('.sw-product-detail__tab-variants').click();
-        cy.get(page.elements.loader).should('not.exist');
+        cy.get('.sw-product-detail-page__tabs').should('be.visible');
+        cy.get('.sw-skeleton__detail').should('not.exist');
         cy.get(`.sw-product-detail-variants__generated-variants-empty-state ${page.elements.ghostButton}`)
             .should('be.visible')
             .click();
@@ -139,6 +155,7 @@ describe('Product: Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-modal').should('not.exist');
+        cy.get('.sw-skeleton__detail').should('not.exist');
         cy.get('.sw-data-grid__row--0').should('be.visible');
         cy.get('.sw-product-variants-media-upload').should('be.visible');
         cy.takeSnapshot('[Product] Variants in admin', '.sw-product-variants-overview');
@@ -188,14 +205,13 @@ describe('Product: Visual tests', () => {
 
         // Open product and add cross selling
 
-
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
         cy.get('.sw-product-list-grid').should('be.visible');
 
         cy.contains('Original product').click();
 
         cy.get('.sw-product-detail__tab-cross-selling').click();
-        cy.get(page.elements.loader).should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
 
         cy.contains(
             `.sw-empty-state ${page.elements.ghostButton}`,

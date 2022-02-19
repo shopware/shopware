@@ -33,7 +33,8 @@ describe('Currency: Visual testing', () => {
         cy.takeSnapshot('[Currency] Listing', '.sw-settings-currency-list-grid');
 
         cy.contains('.sw-data-grid__cell--name a', 'Czech').click();
-        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-page__main-content').should('be.visible');
+        cy.get('.sw-skeleton__detail').should('not.exist');
         cy.takeSnapshot('[Currency] Detail', '.sw-settings-currency-detail');
     });
 });

@@ -20,6 +20,7 @@
       "columnType": "Typ",
       "columnStatus": "Status",
       "columnCreatedAt": "Erstellt am",
+      "columnFavourite": "Meine Favoriten",
       "status": {
         "maintenance": "Wartung",
         "online": "Online",
@@ -103,6 +104,7 @@
       "buttonCloseDeleteDomainModal": "Abbrechen",
       "buttonConfirmDeleteDomain": "Löschen",
       "customerGroup": "Kundengruppe",
+      "favouriteLabel": "Verkaufskanal als Favorit markieren",
       "navigation": "Navigation",
       "navigationCategoryId": "Einstiegspunkt für die Haupt-Navigation",
       "navigationCategoryDepth": "Hauptnavigations-Ebenen",

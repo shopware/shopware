@@ -49,7 +49,6 @@ describe('Sales Channel: Test list', () => {
     });
 
     it('@base @general: open listing page', () => {
-        cy.skipOnFeature('FEATURE_NEXT_17421');
         // check if listing works correctly
         cy.get('.sw-page__smart-bar-amount').contains('6');
 
@@ -69,16 +68,12 @@ describe('Sales Channel: Test list', () => {
         cy.get('.smart-bar__header').contains('Headless');
     });
 
-    it('@general: Should show six sales-channels and columns', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_17421');
-
+    it('@general: Should show six sales-channels and 8 columns', () => {
         cy.get('.sw-data-grid__body .sw-data-grid__row').should('have.length', 6);
-        cy.get('.sw-data-grid__header .sw-data-grid__cell').should('have.length', 6);
+        cy.get('.sw-data-grid__header .sw-data-grid__cell').should('have.length', 8);
     });
 
     it('@general: Name should be sortable', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_17421');
-
         cy.contains('.sw-data-grid__header .sw-data-grid__cell', 'Sales Channel').click('left');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-data-grid__body .sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Headless');
@@ -87,8 +82,6 @@ describe('Sales Channel: Test list', () => {
     });
 
     it('@general: Type should be sortable', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_17421');
-
         cy.contains('.sw-data-grid__header .sw-data-grid__cell', 'Type').click('left');
         cy.get('.sw-skeleton').should('not.exist');
 
@@ -97,31 +90,7 @@ describe('Sales Channel: Test list', () => {
         cy.get('.sw-data-grid__body .sw-data-grid__row--5 .sw-data-grid__cell--type-name').contains('Storefront');
     });
 
-    it('@general: Product count should be sortable', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_17421');
-
-        cy.contains('.sw-data-grid__header .sw-data-grid__cell', 'Products').click('left');
-        cy.get('.sw-skeleton').should('not.exist');
-
-        cy.get('.sw-data-grid__body .sw-data-grid__row--0 .sw-data-grid__cell--product_visibilities').contains('0');
-        cy.get('.sw-data-grid__body .sw-data-grid__row--3 .sw-data-grid__cell--product_visibilities').contains('0');
-        cy.get('.sw-data-grid__body .sw-data-grid__row--5 .sw-data-grid__cell--product_visibilities').contains('3');
-    });
-
-    it('@general: Status should be sortable', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_17421');
-
-        cy.contains('.sw-data-grid__header .sw-data-grid__cell', 'Status').click('left');
-        cy.get('.sw-skeleton').should('not.exist');
-
-        cy.get('.sw-data-grid__body .sw-data-grid__row--0 .sw-data-grid__cell--status').contains('Online');
-        cy.get('.sw-data-grid__body .sw-data-grid__row--3 .sw-data-grid__cell--status').contains('Maintenance');
-        cy.get('.sw-data-grid__body .sw-data-grid__row--5 .sw-data-grid__cell--status').contains('Offline');
-    });
-
     it('@general: Column should be hidable', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_17421');
-
         cy.contains('.sw-data-grid__header .sw-data-grid__cell', 'Status').find('.sw-context-button__button').click();
         cy.get('.sw-skeleton').should('not.exist');
 

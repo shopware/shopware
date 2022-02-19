@@ -4,13 +4,12 @@ namespace Shopware\Core\Checkout\Cart;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Rule\RuleCollection;
-use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\Context;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 
 class CachedRuleLoader extends AbstractRuleLoader
 {
-    public const CACHE_KEY = 'cart-rules';
+    public const CACHE_KEY = 'cart_rules';
 
     private AbstractRuleLoader $decorated;
 
@@ -38,7 +37,7 @@ class CachedRuleLoader extends AbstractRuleLoader
             if ($item->isHit() && $item->get()) {
                 $this->logger->info('cache-hit: ' . self::CACHE_KEY);
 
-                return CacheCompressor::uncompress($item);
+                return $item->get();
             }
         } catch (\Throwable $e) {
             $this->logger->error($e->getMessage());
@@ -48,7 +47,7 @@ class CachedRuleLoader extends AbstractRuleLoader
 
         $rules = $this->getDecorated()->load($context);
 
-        $item = CacheCompressor::compress($item, $rules);
+        $item->set($rules);
         $this->cache->save($item);
 
         return $rules;

@@ -124,5 +124,10 @@
         <service id="Shopware\Administration\Notification\Extension\UserExtension">
             <tag name="shopware.entity.extension"/>
         </service>
+
+        <service id="Shopware\Administration\System\SalesChannel\Subscriber\SalesChannelUserConfigSubscriber">
+            <argument type="service" id="user_config.repository" />
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

@@ -17,6 +17,9 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
+use Shopware\Core\Framework\App\Event\Hooks\AppDeletedHook;
+use Shopware\Core\Framework\App\Event\Hooks\AppInstalledHook;
+use Shopware\Core\Framework\App\Event\Hooks\AppUpdatedHook;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\InvalidAppConfigurationException;
@@ -32,6 +35,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
 use Shopware\Core\Framework\Script\ScriptEntity;
@@ -89,6 +93,10 @@ class AppLifecycleTest extends TestCase
         $this->eventDispatcher->addListener(AppInstalledEvent::class, $onAppInstalled);
 
         $this->appLifecycle->install($manifest, true, $this->context);
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertArrayHasKey(AppInstalledHook::HOOK_NAME, $traces);
+        static::assertEquals('installed', $traces[AppInstalledHook::HOOK_NAME][0]['output'][0]);
 
         static::assertTrue($eventWasReceived);
         $this->eventDispatcher->removeListener(AppInstalledEvent::class, $onAppInstalled);
@@ -161,6 +169,24 @@ class AppLifecycleTest extends TestCase
 
         static::assertCount(1, $apps);
         static::assertEquals('minimal', $apps->first()->getName());
+    }
+
+    public function testInstallOnlyCallsAppLifecycleScriptsForAffectedApps(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+        $this->appLifecycle->install($manifest, true, $this->context);
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertArrayHasKey(AppInstalledHook::HOOK_NAME, $traces);
+        static::assertCount(1, $traces[AppInstalledHook::HOOK_NAME]);
+        static::assertEquals('installed', $traces[AppInstalledHook::HOOK_NAME][0]['output'][0]);
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/minimal/manifest.xml');
+        $this->appLifecycle->install($manifest, true, $this->context);
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertArrayHasKey(AppInstalledHook::HOOK_NAME, $traces);
+        static::assertCount(1, $traces[AppInstalledHook::HOOK_NAME]);
     }
 
     public function testInstallWithoutDescription(): void
@@ -370,6 +396,10 @@ class AppLifecycleTest extends TestCase
 
         $this->appLifecycle->update($manifest, $app, $this->context);
 
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertArrayHasKey(AppUpdatedHook::HOOK_NAME, $traces);
+        static::assertEquals('updated', $traces[AppUpdatedHook::HOOK_NAME][0]['output'][0]);
+
         static::assertTrue($eventWasReceived);
         $this->eventDispatcher->removeListener(AppUpdatedEvent::class, $onAppUpdated);
         /** @var AppCollection $apps */
@@ -521,6 +551,10 @@ class AppLifecycleTest extends TestCase
         $this->eventDispatcher->addListener(AppUpdatedEvent::class, $onAppUpdated);
 
         $this->appLifecycle->update($manifest, $app, $this->context);
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertArrayHasKey(AppUpdatedHook::HOOK_NAME, $traces);
+        static::assertEquals('updated', $traces[AppUpdatedHook::HOOK_NAME][0]['output'][0]);
 
         static::assertTrue($eventWasReceived);
         $this->eventDispatcher->removeListener(AppUpdatedEvent::class, $onAppUpdated);
@@ -800,6 +834,14 @@ class AppLifecycleTest extends TestCase
                 'id' => $roleId,
                 'name' => 'Test',
             ],
+            'scripts' => [
+                [
+                    'name' => 'app-deleted/delete.script.twig',
+                    'hook' => 'app-deleted',
+                    'script' => "{% do debug.dump('deleted') %}",
+                    'active' => true,
+                ],
+            ],
         ]], Context::createDefaultContext());
 
         $app = [
@@ -815,6 +857,10 @@ class AppLifecycleTest extends TestCase
         $this->eventDispatcher->addListener(AppDeletedEvent::class, $onAppDeleted);
 
         $this->appLifecycle->delete('Test', $app, $this->context);
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertArrayHasKey(AppDeletedHook::HOOK_NAME, $traces);
+        static::assertEquals('deleted', $traces[AppDeletedHook::HOOK_NAME][0]['output'][0]);
 
         static::assertTrue($eventWasReceived);
         $this->eventDispatcher->removeListener(AppDeletedEvent::class, $onAppDeleted);
@@ -1198,9 +1244,10 @@ class AppLifecycleTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));
+        $criteria->addSorting(new FieldSorting('name', FieldSorting::DESCENDING));
         $scripts = $scriptRepository->search($criteria, $this->context)->getEntities();
 
-        static::assertCount(1, $scripts);
+        static::assertCount(6, $scripts);
 
         /** @var ScriptEntity $script */
         $script = $scripts->first();

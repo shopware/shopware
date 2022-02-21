@@ -1,5 +1,5 @@
 {
-  "technicalName": "EndToEndTheme",
+  "technicalName": null,
   "name": "E2E Theme",
   "author": "shopware AG",
   "description": null,
@@ -287,17 +287,6 @@
         },
         "order": 300,
         "value": "'Inter', sans-serif",
-        "editable": true
-      },
-      "sw-color-brand-secondary": {
-        "type": "color",
-        "block": "themeColors",
-        "label": {
-          "de-DE": "Sekundärfarbe",
-          "en-GB": "Secondary colour"
-        },
-        "order": 200,
-        "value": "#526e7f",
         "editable": true
       },
       "sw-color-buy-button-text": {

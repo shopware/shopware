@@ -139,6 +139,10 @@ declare global {
      * define global Component
      */
     type VueComponent = ComponentConfig;
+
+    type apiContext = ContextState['api'];
+
+    type appContext = ContextState['app'];
 }
 
 /**

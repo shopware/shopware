@@ -1,6 +1,203 @@
 UPGRADE FROM 6.3.x.x to 6.4
 =======================
 
+# 6.4.9.0
+## Bootstrap v5 preview
+
+We want to update the Storefront to Bootstrap v5 in the next major release of Shopware.
+Because Bootstrap v5 introduces breaking changes when updating from Bootstrap v4, we have implemented the update behind a feature flag.
+This gives you the possibility to test Bootstrap v5 with your apps or themes before the next major release. The current Bootstrap v4 implementation is still the default.
+With the next major release Bootstrap v5 will be the default.
+
+**The Bootstrap v5 preview should not be used in production environments because it is still under development!**
+
+## What happens when updating to Bootstrap v5?
+
+* Dropped jQuery dependency (It can be added manually if needed, see "Still need jQuery?")
+* Dropped Internet Explorer 10 and 11
+* Dropped Microsoft Edge < 16 (Legacy Edge)
+* Dropped Firefox < 60
+* Dropped Safari < 12
+* Dropped iOS Safari < 12
+* Dropped Chrome < 60
+
+You can find a full migration guide on the official Bootstrap website: [Migrating to v5](https://getbootstrap.com/docs/5.1/migration)
+
+## Activate Bootstrap v5
+
+* Activate the next major feature flag `V6_5_0_0` in your .env or .psh.override.yaml
+* Re-build the storefront using `psh.phar storefront:build`
+* During the build process webpack will show a warning that Bootstrap v5 is being used
+* If the Bootstrap v5 resources are not build, please try running `bin/console feature:dump` and try again
+
+## How to consider Bootstrap v5
+
+Because of the breaking changes inside Bootstrap v5 you will find several places with backward-compatibility code in the Shopware platform.
+This code is being used to already provide the Bootstrap v5 implementation while keeping the Bootstrap v4 implementation for backward-compatibility.
+Depending, if you are an app/theme developer or a platform contributor you need to adapt the backward-compatibility for your use case.
+
+* **For platform contributors**: Use feature flag conditions.<br>
+  Please use feature flag conditions with flag `V6_5_0_0` to migrate to Bootstrap v5 functionality while keeping the Bootstrap v4 implementations for backward-compatibility.
+* **For app/plugin/theme developers**: Migrate your code directly to Bootstrap v5.<br>
+  Please migrate your code directly to Bootstrap v5 e.g. by preparing a separate git branch. The feature flag `V6_5_0_0` should only be used to activate Bootstrap v5 during development.
+  Please do not use the feature flag conditions in your app/plugin or theme.
+
+You can find some code examples below which will illustrate this. There are always three examples for the same code snippet:
+
+1. Bootstrap v4 (Current implementation) - How it looks right now
+2. Bootstrap v5 with backward-compatibility (for platform contributors)
+3. Bootstrap v5 next major - How it will look after the release of v6.5.0.0 (for app/plugin/theme developers)
+
+**Please beware that this is only needed for areas which are effected by braking changes from Bootstrap v5. See: [Migrating to v5](https://getbootstrap.com/docs/5.1/migration)**
+
+### HTML/Twig
+
+#### 1. Bootstrap v4 (Current implementation):
+```html
+<button class="collapsed btn"
+        data-toggle="collapse"
+        data-target="#target-selector">
+    Collapse button
+</button>
+
+<a href="#" class="btn btn-block">Default button</a>
+```
+#### 2. Bootstrap v5 with backward-compatibility (for platform contributors):
+
+**Attention:** There are a good amount of attributes and classes which have been renamed inside Bootstrap v5.
+To avoid having too many `{% if %}` conditions in the template we have created global twig variables for attribute renaming.
+
+```html
+{# Use global twig variable `dataBsToggleAttr` to toggle between `data-toggle` and `data-bs-toggle`: #}
+<button class="collapsed btn"
+        {{ dataBsToggleAttr }}="collapse"
+        {{ dataBsTargetAttr }}="#target-selector">
+    Collapse button
+</button>
+
+{# For larger markup changes use regular feature conditions: #}
+
+{# @deprecated tag:v6.5.0 - Bootstrap v5 removes `btn-block` class, use `d-grid` wrapper instead #}
+{% if feature('v6.5.0.0') %}
+    <div class="d-grid">
+        <a href="#" class="btn">Default button</a>
+    </div>
+{% else %}
+    <a href="#" class="btn btn-block">Default button</a>
+{% endif %}
+```
+#### 3. Bootstrap v5 next major (for app/plugin/theme developers):
+```html
+<button class="collapsed btn"
+        data-bs-toggle="collapse"
+        data-bs-target="#target-selector">
+    Collapse button
+</button>
+
+<div class="d-grid">
+    <a href="#" class="btn">Default button</a>
+</div>
+```
+
+### SCSS
+
+#### 1. Bootstrap v4 (Current implementation):
+```scss
+.page-link {
+    line-height: $custom-select-line-height;
+}
+```
+#### 2. Bootstrap v5 with backward-compatibility (for platform contributors):
+
+Attention:
+```scss
+.page-link {
+    // @deprecated tag:v6.5.0 - Bootstrap v5 renames variable $custom-select-line-height to $form-select-line-height
+    @if feature('V6_5_0_0') {
+        line-height: $form-select-line-height;
+    } @else {
+        line-height: $custom-select-line-height;
+    }
+}
+```
+#### 3. Bootstrap v5 next major (for app/plugin/theme developers):
+```scss
+.page-link {
+    line-height: $form-select-line-height;
+}
+```
+
+### JavaScript
+
+#### 1. Bootstrap v4 (Current implementation):
+```js
+$(collapse).collapse('toggle');
+```
+#### 2. Bootstrap v5 with backward-compatibility (for platform contributors):
+```js
+// Use feature.helper to check for feature flags.
+import Feature from 'src/helper/feature.helper';
+
+/** @deprecated tag:v6.5.0 - Bootstrap v5 uses native HTML elements to init Collapse plugin */
+if (Feature.isActive('V6_5_0_0')) {
+    new bootstrap.Collapse(collapse, {
+        toggle: true,
+    });
+} else {
+    $(collapse).collapse('toggle');
+}
+```
+#### 3. Bootstrap v5 next major (for app/plugin/theme developers):
+```js
+new bootstrap.Collapse(collapse, {
+    toggle: true,
+});
+```
+
+## Known issues
+
+Since Bootstrap v5 is still behind the next major feature flag `V6_5_0_0` it is possible that issues occur.
+The following list contains issues that we are aware of. We want to address this issues before the next major version.
+
+* **Styling**<br>
+  There might be smaller styling issues here and there. Mostly spacing or slightly wrong colors.
+* **Bootstrap v5 OffCanvas**<br>
+  Bootstrap v5 ships its own OffCanvas component. Shopware is still using its custom OffCanvas at the moment.
+  It is planned to migrate the Shopware OffCanvas to the Bootstrap OffCanvas.
+* **Modifying SCSS $theme-colors**<br>
+  Currently it is not possible to add or remove custom colors to $theme-colors like it is described in the [Bootstrap documentation](https://getbootstrap.com/docs/5.1/customize/sass/#add-to-map).
+## Allow generating multiple document types at backend
+* Changed `Shopware\Core\Content\Flow\Dispatching\Action\GenerateDocumentAction` to be able to create single document and multiple documents
+
+## Allow selecting multiple document types at generating document action in the flow builder.
+* We are able to select multiple document types in a generated document action in the flow builder.
+* The flow builder is to be able to show the action with the configuration data as a single document or multiple documents.
+* the configuration schema payload in the flow builder for this action will change:
+
+Before:
+```json
+"config": {
+  "documentType": "credit_note",
+  "documentRangerType": "document_credit_note"
+},
+```
+
+After:
+```json
+"config": {
+  "documentTypes": [
+    {
+      "documentType": "credit_note",
+      "documentRangerType": "document_credit_note"
+    },
+    {
+      "documentType": "delivery_note",
+      "documentRangerType": "document_delivery_note"
+    }
+  ]
+},
+```
+
 # 6.4.8.0
 ## Adding search matcher configuration
 When you want to your module appear on the search bar, you can define the  `searchMatcher` in the module’s metadata, otherwise, a default `searchMatcher `will be used as it will check your module’s metadata label if it’s matched with the search term, The search function should return an array of results that will appear on the search bar.

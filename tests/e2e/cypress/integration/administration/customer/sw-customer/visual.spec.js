@@ -11,6 +11,11 @@ let customer = {
 
 describe('Customer:  Visual test', () => {
     beforeEach(() => {
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/customer`,
+            method: 'POST'
+        }).as('getData');
+
         cy.loginViaApi()
             .then(() => {
                 return cy.createCustomerFixture();
@@ -38,11 +43,6 @@ describe('Customer:  Visual test', () => {
             url: `${Cypress.env('apiPath')}/customer`,
             method: 'POST'
         }).as('saveData');
-
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/search/customer`,
-            method: 'POST'
-        }).as('getData');
 
         cy.get('.sw-customer-list').should('be.visible');
 

@@ -30,7 +30,6 @@ describe('Theme: Visual tests', () => {
         cy.get('.sw-theme-list__list').should('be.visible');
 
         cy.get('.sw-theme-list-item')
-            .last()
             .get('.sw-theme-list-item__title')
             .contains('Shopware default theme')
             .click();

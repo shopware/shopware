@@ -47,7 +47,7 @@ describe('Order: Visual tests', () => {
         cy.get('.sw-order-list').should('be.visible');
 
         // Take snapshot for visual testing
-        cy.get('.sw-data-grid__skeleton').should('not.exist');
+        cy.get('.sw-skeleton__listing').should('not.exist');
 
         // Change color of the element to ensure consistent snapshots
         cy.changeElementStyling('.sw-data-grid__cell--orderDateTime', 'color: #fff');
@@ -126,7 +126,7 @@ describe('Order: Visual tests', () => {
         cy.get('.sw-order-list').should('be.visible');
 
         // Take snapshot for visual testing
-        cy.get('.sw-data-grid__skeleton').should('not.exist');
+        cy.get('.sw-skeleton__listing').should('not.exist');
         cy.get('.sw-order-list').should('be.visible');
         cy.contains('.sw-button', 'Add order').click();
 

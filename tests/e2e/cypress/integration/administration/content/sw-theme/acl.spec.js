@@ -42,13 +42,11 @@ describe('Theme: Test ACL privileges', () => {
 
         // Ensure theme name
         cy.get('.sw-theme-list-item')
-            .last()
             .find('.sw-theme-list-item__title')
             .contains('Shopware default theme');
 
         // Click theme actions
         cy.get('.sw-theme-list-item')
-            .last()
             .find('.sw-theme-list-item__options')
             .click({ force: true });
 
@@ -107,7 +105,6 @@ describe('Theme: Test ACL privileges', () => {
 
         // Open theme
         cy.get('.sw-theme-list-item')
-            .last()
             .find('.sw-theme-list-item__title')
             .contains('Shopware default theme')
             .click();
@@ -152,7 +149,6 @@ describe('Theme: Test ACL privileges', () => {
 
         // Click theme actions
         cy.get('.sw-theme-list-item')
-            .last()
             .find('.sw-theme-list-item__options')
             .click({ force: true });
 

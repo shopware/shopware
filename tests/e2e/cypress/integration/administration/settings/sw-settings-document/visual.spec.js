@@ -31,7 +31,8 @@ describe('Documents: Visual testing', () => {
         cy.takeSnapshot('[Documents] Listing', '.sw-settings-document-list-grid');
 
         cy.contains('.sw-document-list__column-name a', 'credit_note').click();
-        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-page__main-content').should('be.visible');
+        cy.get('.sw-skeleton__detail').should('not.exist');
         cy.takeSnapshot('[Documents] Details', '.sw-settings-document-detail');
     });
 });

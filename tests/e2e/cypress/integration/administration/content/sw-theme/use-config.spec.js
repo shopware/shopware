@@ -13,7 +13,6 @@ describe('Theme: Test loading and saving of theme', () => {
 
     it('@base @content: opens and loads theme config', () => {
         cy.get('.sw-theme-list-item')
-            .last()
             .get('.sw-theme-list-item__title')
             .contains('Shopware default theme')
             .click();
@@ -34,7 +33,6 @@ describe('Theme: Test loading and saving of theme', () => {
         }).as('saveData');
 
         cy.get('.sw-theme-list-item')
-            .last()
             .get('.sw-theme-list-item__title')
             .contains('Shopware default theme')
             .click();

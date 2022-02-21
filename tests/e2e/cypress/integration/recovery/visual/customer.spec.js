@@ -50,7 +50,7 @@ describe('Customer:  Visual test', () => {
 
         // Take snapshot for visual testing
         cy.prepareAdminForScreenshot();
-        cy.get('.sw-data-grid__skeleton').should('not.exist');
+        cy.get('.sw-skeleton__listing').should('not.exist');
         cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Customer listing`, '.sw-customer-list-grid');
 
         // Fill in basic data

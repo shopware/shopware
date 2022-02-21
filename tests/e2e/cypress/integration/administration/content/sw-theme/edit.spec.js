@@ -16,7 +16,6 @@ describe('Theme: Test common editing of theme', () => {
         }).as('saveData');
 
         cy.get('.sw-theme-list-item')
-            .last()
             .get('.sw-theme-list-item__title')
             .contains('Shopware default theme')
             .click();
@@ -61,7 +60,6 @@ describe('Theme: Test common editing of theme', () => {
         }).as('saveData');
 
         cy.get('.sw-theme-list-item')
-            .last()
             .get('.sw-theme-list-item__title')
             .contains('Shopware default theme')
             .click();
@@ -88,7 +86,6 @@ describe('Theme: Test common editing of theme', () => {
         }).as('saveData');
 
         cy.get('.sw-theme-list-item')
-            .last()
             .get('.sw-theme-list-item__title')
             .contains('Shopware default theme')
             .click();

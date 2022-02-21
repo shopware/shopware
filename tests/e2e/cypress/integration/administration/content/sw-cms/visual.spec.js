@@ -32,6 +32,7 @@ describe('CMS: Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-cms-list-item--0').should('be.visible');
+        cy.get('.sw-skeleton__gallery').should('not.exist');
         cy.takeSnapshot('[CMS] Listing - Layouts', '.sw-cms-list');
 
         cy.get('.sw-cms-list-item--0').click();

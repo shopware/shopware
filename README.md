@@ -8,6 +8,7 @@
 [![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/shopware/platform.svg)](https://github.com/shopware/platform/pulls)
 [![Slack](https://img.shields.io/badge/chat-on%20slack-%23ECB22E)](https://slack.shopware.com?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Development Template](https://img.shields.io/badge/start%20with-shopware%2Fdevelopment-blue.svg)](https://github.com/shopware/development)
+[![Crowdin](https://badges.crowdin.net/shopware6/localized.svg)](https://translate.shopware.com/project/shopware6)
 
 </div>
 
@@ -30,7 +31,7 @@ If you like Shopware 6, give us a&nbsp;⭐️ &nbsp;on Github
 * 🌎 &nbsp;Discover our [website](https://www.shopware.com/en/)
 * 🧩 &nbsp;Browse more then [1.500 apps](https://store.shopware.com) that are already available
 * 📖 &nbsp;Learn how to [develop apps](https://developer.shopware.com/docs/) and everything else about the tech behind shopware
-* 🉐 &nbsp;[Translate](https://crowdin.com/project/shopware6) Shopware or help by contributing to existing languages
+* 🉐 &nbsp;[Translate](https://translate.shopware.com) Shopware or help by contributing to existing languages
 * 👍 &nbsp;Follow us on [Twitter](https://twitter.com/shopwaredevs) to get updates
 * 🛠 &nbsp;[Report bugs or add feature ideas](https://issues.shopware.com) in our issue tracker
 * 🗨 &nbsp;Help and get helped in our - [Community forum](https://forum.shopware.com/)
@@ -357,7 +358,7 @@ You want to participate in the development of Shopware? There are many ways to c
 -   Submitting pull requests
 -   Reporting issues on the [issue tracker](https://issues.shopware.com/)
 -   Discuss shopware on e.g [Slack](https://slack.shopware.com) or our [forum](https://forum.shopware.com/categories/shopware-6)
-- Write a translation for shopware on [crowdin](https://crowdin.com/project/shopware6)
+- Write a translation for shopware on our [translation platform](https://translate.shopware.com)
 
 You have a question regarding contribution, or you want to contribute in another way?
 

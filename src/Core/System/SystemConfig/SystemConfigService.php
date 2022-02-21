@@ -30,11 +30,6 @@ class SystemConfigService
 
     private EntityRepositoryInterface $systemConfigRepository;
 
-    /**
-     * @var array[]
-     */
-    private array $configs = [];
-
     private ConfigReader $configReader;
 
     private array $keys = ['all' => true];
@@ -73,7 +68,7 @@ class SystemConfigService
             $this->traces[$trace][self::buildName($key)] = true;
         }
 
-        $config = $this->load($salesChannelId);
+        $config = $this->loader->load($salesChannelId);
 
         $parts = explode('.', $key);
 
@@ -138,7 +133,7 @@ class SystemConfigService
      */
     public function all(?string $salesChannelId = null): array
     {
-        return $this->load($salesChannelId);
+        return $this->loader->load($salesChannelId);
     }
 
     /**
@@ -215,9 +210,6 @@ class SystemConfigService
      */
     public function set(string $key, $value, ?string $salesChannelId = null): void
     {
-        // reset internal cache
-        $this->configs = [];
-
         $key = trim($key);
         $this->validate($key, $salesChannelId);
 
@@ -346,19 +338,6 @@ class SystemConfigService
         unset($this->traces[$key]);
 
         return $trace;
-    }
-
-    private function load(?string $salesChannelId): array
-    {
-        $key = $salesChannelId ?? 'global';
-
-        if (isset($this->configs[$key])) {
-            return $this->configs[$key];
-        }
-
-        $this->configs[$key] = $this->loader->load($salesChannelId);
-
-        return $this->configs[$key];
     }
 
     /**

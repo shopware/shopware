@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
-use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\System\SystemConfig\Store\MemoizedSystemConfigStore;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait SystemConfigTestBehaviour
@@ -15,14 +15,9 @@ trait SystemConfigTestBehaviour
      */
     public function resetInternalSystemConfigCache(): void
     {
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
-
-        // reset internal system config cache
-        $reflection = new \ReflectionClass($systemConfigService);
-
-        $property = $reflection->getProperty('configs');
-        $property->setAccessible(true);
-        $property->setValue($systemConfigService, []);
+        /** @var MemoizedSystemConfigStore $store */
+        $store = $this->getContainer()->get(MemoizedSystemConfigStore::class);
+        $store->reset();
     }
 
     abstract protected function getContainer(): ContainerInterface;

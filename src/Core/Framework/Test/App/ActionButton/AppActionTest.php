@@ -70,6 +70,31 @@ class AppActionTest extends TestCase
         );
     }
 
+    public function testRelativeTargetUrlIsValid(): void
+    {
+        $targetUrl = '/api/script/custom-script';
+        $shopUrl = 'https://my-shop.com';
+        $appVersion = '1.0.0';
+        $entity = 'product';
+        $action = 'detail';
+        $shopId = Random::getAlphanumericString(12);
+        $ids = [Uuid::randomHex()];
+
+        $action = new AppAction(
+            $targetUrl,
+            $shopUrl,
+            $appVersion,
+            $entity,
+            $action,
+            $ids,
+            's3cr3t',
+            $shopId,
+            Uuid::randomHex()
+        );
+
+        static::assertEquals('/api/script/custom-script', $action->getTargetUrl());
+    }
+
     public function testInvalidShopUrl(): void
     {
         static::expectException(InvalidArgumentException::class);

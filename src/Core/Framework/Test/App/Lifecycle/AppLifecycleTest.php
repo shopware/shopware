@@ -208,14 +208,12 @@ class AppLifecycleTest extends TestCase
         $this->appLifecycle->install($manifest, true, $this->context);
 
         $criteria = new Criteria();
-        $criteria->addAssociation('actionButtons');
         $criteria->addAssociation('webhooks');
         /** @var AppCollection $apps */
         $apps = $this->appRepository->search($criteria, $this->context)->getEntities();
 
         static::assertCount(1, $apps);
 
-        static::assertCount(0, $apps->first()->getActionButtons());
         static::assertCount(0, $apps->first()->getModules());
         static::assertCount(0, $apps->first()->getWebhooks());
     }

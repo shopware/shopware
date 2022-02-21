@@ -8,6 +8,7 @@ use Opis\JsonSchema\Schema;
 use Opis\JsonSchema\ValidationResult;
 use Opis\JsonSchema\Validator;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Executor;
 use Shopware\Core\Framework\App\Exception\ActionProcessException;
@@ -27,10 +28,7 @@ class ExecutorTest extends TestCase
 
     public const SCHEMA_LOCATION = __DIR__ . '/../../../App/ActionButton/appActionEndpointSchema.json';
 
-    /**
-     * @var Executor
-     */
-    private $executor;
+    private Executor $executor;
 
     public function setUp(): void
     {
@@ -41,7 +39,7 @@ class ExecutorTest extends TestCase
     {
         $action = new AppAction(
             'https://test.com/my-action',
-            getenv('APP_URL'),
+            EnvironmentHelper::getVariable('APP_URL'),
             '1.0.0',
             'product',
             'detail',
@@ -81,7 +79,7 @@ class ExecutorTest extends TestCase
     {
         $action = new AppAction(
             'https://brokenServer.com',
-            getenv('APP_URL'),
+            EnvironmentHelper::getVariable('APP_URL'),
             '1.0.0',
             'product',
             'detail',
@@ -102,7 +100,7 @@ class ExecutorTest extends TestCase
         $targetUrl = 'https://my-server.com';
         $action = new AppAction(
             $targetUrl,
-            getenv('APP_URL'),
+            EnvironmentHelper::getVariable('APP_URL'),
             '1.0.0',
             'product',
             'detail',
@@ -134,7 +132,7 @@ class ExecutorTest extends TestCase
     public function testContentIsCorrect(): void
     {
         $targetUrl = 'https://test.com/my-action';
-        $shopUrl = getenv('APP_URL');
+        $shopUrl = EnvironmentHelper::getVariable('APP_URL');
         $appVersion = '1.0.0';
         $entity = 'product';
         $actionName = 'detail';
@@ -197,7 +195,7 @@ class ExecutorTest extends TestCase
     {
         $action = new AppAction(
             'https://brokenServer.com',
-            getenv('APP_URL'),
+            EnvironmentHelper::getVariable('APP_URL'),
             '1.0.0',
             'product',
             'detail',
@@ -238,7 +236,7 @@ class ExecutorTest extends TestCase
     {
         $action = new AppAction(
             'https://brokenServer.com',
-            getenv('APP_URL'),
+            EnvironmentHelper::getVariable('APP_URL'),
             '1.0.0',
             'product',
             'detail',
@@ -259,7 +257,7 @@ class ExecutorTest extends TestCase
         $appSecret = 's3cr3t';
         $action = new AppAction(
             'https://brokenServer.com',
-            getenv('APP_URL'),
+            EnvironmentHelper::getVariable('APP_URL'),
             '1.0.0',
             'product',
             'detail',
@@ -287,7 +285,7 @@ class ExecutorTest extends TestCase
 
         $action = new AppAction(
             'https://test.com/my-action',
-            getenv('APP_URL'),
+            EnvironmentHelper::getVariable('APP_URL'),
             '1.0.0',
             'product',
             'detail',

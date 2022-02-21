@@ -292,6 +292,9 @@
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Framework\App\ActionButton\Response\ActionButtonResponseFactory"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+            <argument type="service" id="router"/>
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="kernel"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\ActionButton\AppActionLoader">

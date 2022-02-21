@@ -27,7 +27,7 @@ class AppAction
 
     private string $shopUrl;
 
-    private string $appSecret;
+    private ?string $appSecret;
 
     private string $shopId;
 
@@ -43,7 +43,7 @@ class AppAction
         string $entity,
         string $action,
         array $ids,
-        string $appSecret,
+        ?string $appSecret,
         string $shopId,
         string $actionId
     ) {
@@ -79,7 +79,7 @@ class AppAction
         ];
     }
 
-    public function getAppSecret(): string
+    public function getAppSecret(): ?string
     {
         return $this->appSecret;
     }
@@ -122,7 +122,8 @@ class AppAction
 
     private function setTargetUrl(string $targetUrl): void
     {
-        if (!filter_var($targetUrl, \FILTER_VALIDATE_URL)) {
+        // Accept only valid absolute URLs or relative URLs starting with '/'
+        if (!filter_var($targetUrl, \FILTER_VALIDATE_URL) && !str_starts_with($targetUrl, '/')) {
             throw new InvalidArgumentException(sprintf('%s is not a valid url', $targetUrl));
         }
         $this->targetUrl = $targetUrl;
@@ -160,7 +161,7 @@ class AppAction
         $this->shopUrl = $shopUrl;
     }
 
-    private function setAppSecret(string $appSecret): void
+    private function setAppSecret(?string $appSecret): void
     {
         if ($appSecret === '') {
             throw new InvalidArgumentException('app secret must not be empty');

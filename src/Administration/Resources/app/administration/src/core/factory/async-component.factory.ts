@@ -22,6 +22,8 @@ export default {
     registerComponentHelper,
     resolveComponentTemplates,
     markComponentTemplatesAsNotResolved,
+    isSyncComponent,
+    markComponentAsSync,
 };
 
 // @ts-expect-error
@@ -33,19 +35,45 @@ export interface ComponentConfig<V extends Vue = Vue> extends ComponentOptions<V
 
 /**
  * Registry which holds all components
+ * @private
  */
 type AwaitedComponentConfig = () => Promise<ComponentConfig | boolean>;
 const componentRegistry = new Map<string, AwaitedComponentConfig>();
 
 /**
  * Registry which holds all component overrides
+ * @private
  */
 const overrideRegistry = new Map<string, AwaitedComponentConfig[]>();
 
 /**
  * Registry for globally registered helper functions like src/app/service/map-error.service.js
+ * @private
  */
 const componentHelper: { [helperName: string]: unknown } = {};
+
+/**
+ * Contains all components which should be created as a async component
+ * @private
+ */
+const syncComponents = new Set<string>();
+
+/**
+ * Check if the component should be a synchronous component
+ * @private
+ */
+function isSyncComponent(componentName: string): boolean {
+    return syncComponents.has(componentName);
+}
+
+/**
+ * Add a component to the synchronous component list. This
+ * component will be compiled directly on boot.
+ * @public
+ */
+function markComponentAsSync(componentName: string): void {
+    syncComponents.add(componentName);
+}
 
 /**
  * Returns the map with all registered components.
@@ -105,6 +133,7 @@ function registerComponentHelper(name: string, helperFunction: unknown): boolean
  * @public
  */
 /* eslint-disable max-len */
+// function overload to support all vue component object variations
 // @ts-expect-error
 function register<V extends Vue, Data, Methods, Computed, PropNames extends string>(componentName: string, componentConfiguration: ThisTypedComponentOptionsWithArrayProps<V, Data, Methods, Computed, PropNames>): boolean | ComponentConfig;
 function register<V extends Vue, Data, Methods, Computed, PropNames extends string>(componentName: string, componentConfiguration: () => Promise<ThisTypedComponentOptionsWithArrayProps<V, Data, Methods, Computed, PropNames>>): boolean | ComponentConfig;

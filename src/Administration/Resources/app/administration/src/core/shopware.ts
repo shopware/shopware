@@ -127,6 +127,8 @@ class ShopwareClass {
             getComponentRegistry: AsyncComponentFactory.getComponentRegistry,
             getComponentHelper: AsyncComponentFactory.getComponentHelper,
             registerComponentHelper: AsyncComponentFactory.registerComponentHelper,
+            markComponentAsSync: AsyncComponentFactory.markComponentAsSync,
+            isSyncComponent: AsyncComponentFactory.isSyncComponent,
         }
         : {
             register: ComponentFactory.register,

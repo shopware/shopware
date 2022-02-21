@@ -112,8 +112,8 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             }
         });
 
-        const buildComp = await vueAdapter.createComponent('test-component1')();
-        const wrapper = shallowMount(buildComp);
+        const buildComp = (await vueAdapter.createComponent('test-component1'))();
+        const wrapper = shallowMount(await buildComp.component);
 
         expect(wrapper.vm.fooBar).toBeDefined();
         expect(wrapper.vm.bar).toBeDefined();
@@ -161,8 +161,8 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             }
         });
 
-        const buildOverrideComp = await vueAdapter.createComponent('test-component2')();
-        const wrapper = shallowMount(buildOverrideComp);
+        const buildComp = (await vueAdapter.createComponent('test-component2'))();
+        const wrapper = shallowMount(await buildComp.component);
 
         expect(wrapper.vm.fooBar).toBeDefined();
         expect(wrapper.vm.bar).toBeDefined();
@@ -197,8 +197,8 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             }
         });
 
-        const buildComp = await vueAdapter.createComponent('test-component3')();
-        const wrapper = shallowMount(buildComp);
+        const buildComp = (await vueAdapter.createComponent('test-component3'))();
+        const wrapper = shallowMount(await buildComp.component);
 
         expect(wrapper.vm.fooBar).toBeDefined();
         expect(wrapper.vm.bar).toBeDefined();
@@ -241,8 +241,8 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             }
         });
 
-        const buildOverrideComp = await vueAdapter.createComponent('test-component4')();
-        const wrapper = shallowMount(buildOverrideComp);
+        const buildComp = (await vueAdapter.createComponent('test-component4'))();
+        const wrapper = shallowMount(await buildComp.component);
 
         expect(wrapper.vm.fooBar).toBeDefined();
         expect(wrapper.vm.bar).toBeDefined();
@@ -283,8 +283,8 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             }
         });
 
-        const buildComp = await vueAdapter.createComponent('test-component-foobar-with-mixin')();
-        let wrapper = shallowMount(buildComp);
+        const buildComp = (await vueAdapter.createComponent('test-component-foobar-with-mixin'))();
+        let wrapper = shallowMount(await buildComp.component);
 
         expect(wrapper.vm.fooBar).toBeDefined();
         expect(wrapper.vm.bar).toBeDefined();
@@ -293,8 +293,8 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         // add an override to the component
         Shopware.Component.override('test-component-foobar-with-mixin', {});
 
-        const buildOverrideComp = await vueAdapter.createComponent('test-component-foobar-with-mixin')();
-        wrapper = shallowMount(buildOverrideComp);
+        const buildOverrideComp = (await vueAdapter.createComponent('test-component-foobar-with-mixin'))();
+        wrapper = shallowMount(await buildOverrideComp.component);
 
         expect(wrapper.vm.fooBar).toBeDefined();
         expect(wrapper.vm.bar).toBeDefined();
@@ -354,8 +354,8 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             }
         });
 
-        const buildExtendedComponent = await vueAdapter.createComponent('sw-test-component-extended')();
-        const wrapper = shallowMount(buildExtendedComponent);
+        const buildComp = (await vueAdapter.createComponent('sw-test-component-extended'))();
+        const wrapper = shallowMount(await buildComp.component);
 
         expect(wrapper.vm.fooBar).toBeDefined();
         expect(wrapper.vm.bar).toBeDefined();
@@ -394,8 +394,8 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             mixins: ['second-mixin', 'first-mixin']
         });
 
-        const buildExtendedComponent = await vueAdapter.createComponent('base-component')();
-        const wrapper = shallowMount(buildExtendedComponent);
+        const buildComp = (await vueAdapter.createComponent('base-component'))();
+        const wrapper = shallowMount(await buildComp.component);
 
         expect(wrapper.vm.foo).toBeDefined();
         expect(wrapper.vm.bar).toBeDefined();

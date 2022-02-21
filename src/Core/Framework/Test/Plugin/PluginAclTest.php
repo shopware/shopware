@@ -104,6 +104,26 @@ class PluginAclTest extends TestCase
         static::assertSame(['product.viewer', 'product:read', 'swag_demo_data:read'], $enrichedAclRole->getPrivileges());
     }
 
+    public function testAclPluginSubscriberAssociativeArray(): void
+    {
+        $this->activatePlugin(self::PLUGIN_ACL_PRODUCT_VIEWER);
+
+        $aclRoles = [$this->getAclRoleMock('pluginAclTestProductViewer', ['product.viewer', 'product:read'])];
+
+        $event = new EntityLoadedEvent(
+            $this->createMock(AclRoleDefinition::class),
+            $aclRoles,
+            Context::createDefaultContext()
+        );
+
+        $this->pluginAclSubscriber->onAclRoleLoaded($event);
+
+        /** @var AclRoleEntity $enrichedAclRole */
+        $enrichedAclRole = $event->getEntities()[0];
+
+        static::assertSame($enrichedAclRole->getPrivileges(), array_values($enrichedAclRole->getPrivileges()));
+    }
+
     public function testAclPluginOpenToAllDeactivated(): void
     {
         $this->deactivatePlugin(self::PLUGIN_ACL_OPEN_TO_ALL);

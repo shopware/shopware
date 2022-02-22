@@ -49,7 +49,8 @@ describe('Product: Test variants visibilities', () => {
             });
     });
 
-    it('@catalogue: edit visibilities', () => {
+    // NEXT-20024 - Flaky
+    it.skip('@catalogue: edit visibilities', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

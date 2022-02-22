@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\CanNotFindParentStorageFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidParentAssociationException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\ParentFieldForeignKeyConstraintMissingException;
@@ -151,6 +152,12 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
      */
     private function executeCommands(array $commands, WriteContext $context, bool $enableBatch): void
     {
+        $beforeDeleteEvent = BeforeDeleteEvent::create($context, $commands);
+
+        if ($beforeDeleteEvent->filled()) {
+            $this->eventDispatcher->dispatch($beforeDeleteEvent);
+        }
+
         // throws exception on violation and then aborts/rollbacks this transaction
         $event = new PreWriteValidationEvent($context, $commands);
         $this->eventDispatcher->dispatch($event);
@@ -259,6 +266,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
             $mappings->execute();
             $inserts->execute();
+            $beforeDeleteEvent->success();
         } catch (Exception $e) {
             // @internal (flag:FEATURE_NEXT_16640) Keep IF body
             if (Feature::isActive('FEATURE_NEXT_16640')) {
@@ -269,6 +277,8 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 }
                 $context->getExceptions()->add($e);
             }
+
+            $beforeDeleteEvent->error();
 
             throw $e;
         }

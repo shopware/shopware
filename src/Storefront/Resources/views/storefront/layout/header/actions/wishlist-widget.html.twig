@@ -1,7 +1,12 @@
 {% block layout_header_actions_wishlist_widget %}
-    <span class="header-wishlist-icon">
-        {% sw_icon 'heart' %}
-    </span>
+    {% set showCounter = showCounter ?? true %}
+
+    {% if showCounter %}
+        <span class="header-wishlist-icon">
+            {% sw_icon 'heart' %}
+        </span>
+    {% endif %}
+
     {% set wishlistStorageOptions = {
         listPath: path('frontend.wishlist.product.list'),
         mergePath: path('frontend.wishlist.product.merge'),
@@ -9,10 +14,14 @@
         pageletPath: path('frontend.wishlist.product.merge.pagelet'),
         tokenPageletPath: sw_csrf('frontend.wishlist.product.merge.pagelet', {'mode': 'token'}),
     } %}
+
+    {% set wishlistWidgetOptions = { showCounter: showCounter } %}
+
     <span class="badge {{ bgClass }}-primary header-wishlist-badge"
           id="wishlist-basket"
           data-wishlist-storage="true"
           data-wishlist-storage-options="{{ wishlistStorageOptions|json_encode }}"
           data-wishlist-widget="true"
+          data-wishlist-widget-options="{{ wishlistWidgetOptions|json_encode }}"
     ></span>
 {% endblock %}

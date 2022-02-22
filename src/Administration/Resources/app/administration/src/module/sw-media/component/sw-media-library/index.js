@@ -238,7 +238,6 @@ Component.register('sw-media-library', {
                 .addAssociation('tags')
                 .addAssociation('productMedia.product')
                 .addAssociation('categories')
-                .addAssociation('productManufacturers.products')
                 .addAssociation('mailTemplateMedia.mailTemplate')
                 .addAssociation('documentBaseConfigs')
                 .addAssociation('avatarUser')

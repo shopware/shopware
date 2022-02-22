@@ -30,10 +30,19 @@ class AppCookieProvider implements CookieProviderInterface
 
     public function getCookieGroups(): array
     {
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new EqualsFilter('active', true),
+            new NotFilter(
+                NotFilter::CONNECTION_AND,
+                [
+                    new EqualsFilter('app.cookies', null),
+                ]
+            )
+        );
+
         $result = $this->appRepository->search(
-            (new Criteria())->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [
-                new EqualsFilter('app.cookies', null),
-            ])),
+            $criteria,
             Context::createDefaultContext()
         );
 

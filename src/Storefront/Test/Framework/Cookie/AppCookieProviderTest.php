@@ -157,4 +157,16 @@ class AppCookieProviderTest extends TestCase
             ],
         ], $result[0]['entries']);
     }
+
+    public function testItIgnoresDeactivatedApps(): void
+    {
+        $this->baseProvider->expects(static::once())
+            ->method('getCookieGroups')
+            ->willReturn([]);
+
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures/singleCookie', false);
+
+        $result = $this->appCookieProvider->getCookieGroups();
+        static::assertEmpty($result);
+    }
 }

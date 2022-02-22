@@ -110,7 +110,7 @@ class UserController extends AbstractController
             throw new ExpectedUserHttpException();
         }
 
-        $allowedChanges = ['firstName', 'lastName', 'username', 'localeId', 'email', 'avatarMedia', 'avatarId', 'password'];
+        $allowedChanges = ['firstName', 'lastName', 'username', 'localeId', 'email', 'avatarMedia', 'avatarId', 'password', 'timeZone'];
 
         if (!empty(array_diff(array_keys($request->request->all()), $allowedChanges))) {
             throw new MissingPrivilegeException(['user:update']);

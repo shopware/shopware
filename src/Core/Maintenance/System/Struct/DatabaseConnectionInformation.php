@@ -5,6 +5,7 @@ namespace Shopware\Core\Maintenance\System\Struct;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Maintenance\System\Exception\DatabaseSetupException;
+use function is_string;
 
 class DatabaseConnectionInformation extends Struct
 {
@@ -36,6 +37,14 @@ class DatabaseConnectionInformation extends Struct
         $params = parse_url($dsn);
         if ($params === false) {
             throw new DatabaseSetupException('Environment variable \'DATABASE_URL\' does not contain a valid dsn.');
+        }
+
+        foreach ($params as $param => $value) {
+            if (!is_string($value)) {
+                continue;
+            }
+
+            $params[$param] = rawurldecode($value);
         }
 
         $path = $params['path'] ?? '/';

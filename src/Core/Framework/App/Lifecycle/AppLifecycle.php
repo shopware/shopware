@@ -233,7 +233,6 @@ class AppLifecycle extends AbstractAppLifecycle
         // we need a app secret to securely communicate with apps
         // therefore we only install action-buttons, webhooks and modules if we have a secret
         if ($app->getAppSecret()) {
-            $this->actionButtonPersister->updateActions($manifest, $id, $defaultLocale, $context);
             $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($manifest, $id, $defaultLocale): void {
                 $this->webhookPersister->updateWebhooks($manifest, $id, $defaultLocale, $context);
             });
@@ -241,6 +240,7 @@ class AppLifecycle extends AbstractAppLifecycle
             $this->updateModules($manifest, $id, $defaultLocale, $context);
         }
 
+        $this->actionButtonPersister->updateActions($manifest, $id, $defaultLocale, $context);
         $this->templatePersister->updateTemplates($manifest, $id, $context);
         $this->scriptPersister->updateScripts($manifest->getPath(), $id, $context);
         $this->customFieldPersister->updateCustomFields($manifest, $id, $context);

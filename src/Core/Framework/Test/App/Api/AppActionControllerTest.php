@@ -9,6 +9,7 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Test\App\StorefrontPluginRegistryTestBehaviour;
@@ -170,6 +171,42 @@ class AppActionControllerTest extends TestCase
         $this->getBrowser()->request('POST', $url, [], [], [], json_encode($postData));
 
         static::assertEquals(404, $this->getBrowser()->getResponse()->getStatusCode());
+    }
+
+    public function testRunActionWithCustomScriptEndpoint(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures/action-button-script');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new EqualsFilter('entity', 'product'),
+            new EqualsFilter('view', 'list'),
+        );
+
+        $actionId = $this->getContainer()
+            ->get('app_action_button.repository')
+            ->searchIds($criteria, Context::createDefaultContext())
+            ->firstId();
+
+        $this->getBrowser()->request(
+            'POST',
+            '/api/app-system/action-button/run/' . $actionId,
+            [
+                'ids' => [Uuid::randomHex()],
+            ]
+        );
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertEquals(200, $response->getStatusCode());
+
+        $payload = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertEquals([
+            'actionType' => 'notification',
+            'status' => 'success',
+            'message' => 'You selected 1 products.',
+            'extensions' => [],
+        ], $payload);
     }
 
     public function testGetModules(): void

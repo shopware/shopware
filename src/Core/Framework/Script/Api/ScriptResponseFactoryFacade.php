@@ -39,6 +39,7 @@ class ScriptResponseFactoryFacade
      *
      * @example /api-simple-script/simple-script.twig 3 Return hard coded values as JsonResponse.
      * @example /api-repository-test/api-repository-test.twig Search for products and return them in a JsonResponse.
+     * @example /api-action-button/action-button-script.twig Provide a response to a ActionButtons request from the administration.
      */
     public function json(array $data, int $code = Response::HTTP_OK): ScriptResponse
     {

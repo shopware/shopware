@@ -189,6 +189,23 @@ The `response` service allows you to create HTTP-Responses.
 		{% do hook.setResponse(response) %}
         ```
         {% endraw %}
+    * Provide a response to a ActionButtons request from the administration.
+
+        {% raw %}
+        ```twig
+        {% set ids = hook.request.ids %}
+		
+		{% set response = services.response.json({
+		    "actionType": "notification",
+		    "payload": {
+		        "status": "success",
+		        "message": "You selected " ~ ids|length ~ " products."
+		    }
+		}) %}
+		
+		{% do hook.setResponse(response) %}
+        ```
+        {% endraw %}
 ### redirect()
 
 * The `redirect()` method allows you to create a RedirectResponse.

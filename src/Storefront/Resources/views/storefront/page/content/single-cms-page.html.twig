@@ -57,7 +57,7 @@
                             {% if config('core.basicInformation.imprintPage') is not null %}
                                 <a href="{{ path('frontend.maintenance.singlepage',{ id: config('core.basicInformation.imprintPage') }) }}"
                                    title="{{ "general.imprintLink"|trans|sw_sanitize }}"
-                                   class="pl-2 pr-2">
+                                   class="{{ paddingStartClass }}-2 {{ paddingEndClass }}-2">
                                     {{ "general.imprintLink"|trans|sw_sanitize }}
                                 </a>
                             {% endif %}
@@ -65,7 +65,7 @@
                             {% if config('core.basicInformation.privacyPage') is not null %}
                                 <a href="{{ path('frontend.maintenance.singlepage',{ id: config('core.basicInformation.privacyPage') }) }}"
                                    title="{{ "general.privacyLink"|trans|sw_sanitize }}"
-                                   class="pl-2 pr-2">
+                                   class="{{ paddingStartClass }}-2 {{ paddingEndClass }}-2">
                                     {{ "general.privacyLink"|trans|sw_sanitize }}
                                 </a>
                             {% endif %}
@@ -92,11 +92,19 @@
                 {# Register the available viewport breakpoints the window.breakpoints object #}
                 <script>
                     {% set breakpoint = {
-                        'xs': theme_config('breakpoint.sm'),
-                        'sm': theme_config('breakpoint.md'),
-                        'md': theme_config('breakpoint.lg'),
-                        'lg': theme_config('breakpoint.xl')
+                        'xs': theme_config('breakpoint.xs'),
+                        'sm': theme_config('breakpoint.sm'),
+                        'md': theme_config('breakpoint.md'),
+                        'lg': theme_config('breakpoint.lg'),
+                        'xl': theme_config('breakpoint.xl')
                     } %}
+
+                    {# @deprecated tag:v6.5.0 - Bootstrap v5 adds xxl breakpoint #}
+                    {% if feature('v6.5.0.0') %}
+                        {% set breakpoint = breakpoint|merge({
+                            'xxl': theme_config('breakpoint.xxl')
+                        }) %}
+                    {% endif %}
 
                     window.breakpoints = {{ breakpoint|json_encode()|raw }};
                 </script>

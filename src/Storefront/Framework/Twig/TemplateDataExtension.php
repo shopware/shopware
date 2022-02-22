@@ -174,6 +174,30 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
              * @see https://getbootstrap.com/docs/5.0/migration/#badges
              */
             'bgClass' => $isBootstrap5 ? 'bg' : 'badge',
+
+            /**
+             * @deprecated tag:v6.5.0 - Bootstrap v5 renames all `pl-*` utility classes to `ps-*`
+             * @see https://getbootstrap.com/docs/5.0/migration/#utilities
+             */
+            'paddingStartClass' => $isBootstrap5 ? 'ps' : 'pl',
+
+            /**
+             * @deprecated tag:v6.5.0 - Bootstrap v5 renames all `pr-*` utility classes to `pe-*`
+             * @see https://getbootstrap.com/docs/5.0/migration/#utilities
+             */
+            'paddingEndClass' => $isBootstrap5 ? 'pe' : 'pr',
+
+            /**
+             * @deprecated tag:v6.5.0 - Bootstrap v5 renames all `ml-*` utility classes to `ms-*`
+             * @see https://getbootstrap.com/docs/5.0/migration/#utilities
+             */
+            'marginStartClass' => $isBootstrap5 ? 'ms' : 'ml',
+
+            /**
+             * @deprecated tag:v6.5.0 - Bootstrap v5 renames all `mr-*` utility classes to `me-*`
+             * @see https://getbootstrap.com/docs/5.0/migration/#utilities
+             */
+            'marginEndClass' => $isBootstrap5 ? 'me' : 'mr',
         ];
     }
 

@@ -341,6 +341,43 @@ class SalesChannelProxyControllerTest extends TestCase
         static::assertEquals($customerId, $payload['customerId']);
     }
 
+    public function testSwitchCustomerWithPermissions(): void
+    {
+        $salesChannel = $this->createSalesChannel();
+
+        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $customerId = $this->createCustomer($salesChannelContext, 'info@example.com', 'shopware');
+
+        $permissions = [
+            'allowProductPriceOverwrites',
+            'allowProductLabelOverwrites',
+            'skipProductRecalculation',
+            'skipDeliveryPriceRecalculation',
+            'skipDeliveryTaxRecalculation',
+            'skipPromotion',
+            'skipAutomaticPromotions',
+            'skipProductStockValidation',
+            'keepInactiveProduct',
+        ];
+
+        $browser = $this->createCart($salesChannel['id']);
+
+        $browser->request('PATCH', $this->getRootProxyUrl('/switch-customer'), [
+            'salesChannelId' => $salesChannel['id'],
+            'customerId' => $customerId,
+            'permissions' => $permissions,
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+
+        //assert permissions exist in payload
+        $payload = $this->contextPersister->load($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN), $salesChannel['id']);
+        static::assertIsArray($payload);
+        static::assertArrayHasKey('permissions', $payload);
+        static::assertEqualsCanonicalizing(\array_fill_keys($permissions, true), $payload['permissions']);
+    }
+
     public function testModifyShippingCostsWithoutChannelId(): void
     {
         $this->getBrowser()->request('PATCH', $this->getRootProxyUrl('/modify-shipping-costs'), [

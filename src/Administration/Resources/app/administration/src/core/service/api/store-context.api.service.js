@@ -18,6 +18,7 @@ class StoreContextService extends ApiService {
         contextToken,
         additionalParams = {},
         additionalHeaders = {},
+        permissions = ['allowProductPriceOverwrites'],
     ) {
         const route = '_proxy/switch-customer';
         const headers = {
@@ -28,7 +29,7 @@ class StoreContextService extends ApiService {
         return this.httpClient
             .patch(
                 route,
-                { customerId: customerId, salesChannelId: salesChannelId },
+                { customerId: customerId, salesChannelId: salesChannelId, permissions: permissions },
                 { additionalParams, headers },
             );
     }

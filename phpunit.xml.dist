@@ -134,6 +134,7 @@
             </arguments>
         </listener>
         <listener class="JohnKary\PHPUnit\Listener\SpeedTrapListener" />
+        <listener class="Shopware\Core\Framework\Test\TestCaseBase\DatadogListener" />
 
         <!--Enable to see Test structure violations. (Not formatted) -->
         <!--<listener class="Shopware\Core\Framework\Test\TestCaseBase\TestValidityListener" />-->

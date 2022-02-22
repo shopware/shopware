@@ -739,6 +739,7 @@ Component.register('sw-cms-detail', {
 
         pageIsValid() {
             this.validationWarnings = [];
+            Shopware.State.dispatch('error/resetApiErrors');
 
             const valid = [
                 this.missingFieldsValidation(),

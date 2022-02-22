@@ -71,7 +71,7 @@ describe('Add and remove products from saleschannel', () => {
         cy.get('input[name=sw-field--productStream-name]').typeAndCheck('Dynamic Products');
         cy.get('[class="sw-product-stream-value sw-product-stream-value--grow-2"] .sw-entity-single-select__selection').click();
         cy.get('.sw-select-result-list__content').contains('Product name').click();
-        cy.get('.sw-button.sw-button--primary').click();
+        cy.get('.sw-button.sw-button--primary.sw-product-stream-detail__save-action').click();
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-button-process__content').contains('Opslaan').should('be.visible');
 

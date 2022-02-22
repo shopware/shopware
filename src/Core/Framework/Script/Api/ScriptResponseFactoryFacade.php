@@ -22,7 +22,7 @@ class ScriptResponseFactoryFacade
 
     private ?SalesChannelContext $salesChannelContext;
 
-    public function __construct(RouterInterface $router, ?ScriptController $scriptController = null, ?SalesChannelContext $salesChannelContext)
+    public function __construct(RouterInterface $router, ?ScriptController $scriptController, ?SalesChannelContext $salesChannelContext)
     {
         $this->router = $router;
         $this->scriptController = $scriptController;

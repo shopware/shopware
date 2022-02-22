@@ -45,8 +45,19 @@ jobs:
         composer run setup
 
     - name: Run PHPUnit
+      if: matrix.php-version != '8.0'
       run: |
         for TEST_SUITE in $TEST_SUITES; do php -d memory_limit=-1 vendor/bin/phpunit --configuration phpunit.xml.dist --exclude-group needsWebserver --testsuite "$TEST_SUITE"; done
+
+    - name: Run PHPUnit with Pcov
+      if: matrix.php-version == '8.0'
+      run: |
+        for TEST_SUITE in $TEST_SUITES; do php -d memory_limit=-1 -d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|Test|node_modules)~' vendor/bin/phpunit --configuration phpunit.xml.dist --exclude-group needsWebserver --testsuite "$TEST_SUITE" --coverage-cobertura "phpunit.coverage.$TEST_SUITE.xml"; done
+
+    - uses: codecov/codecov-action@v2
+      if: matrix.php-version == '8.0'
+      with:
+        files: ./phpunit.coverage.administration.xml,./phpunit.coverage.storefront.xml,./phpunit.coverage.checkout.xml,./phpunit.coverage.content.xml,./phpunit.framework.administration.xml,./phpunit.coverage.profiling.xml,./phpunit.coverage.migration.xml,./phpunit.coverage.system.xml,./phpunit.coverage.elasticsearch.xml,./phpunit.coverage.docs.xml
   admin:
     runs-on: ubuntu-latest
     name: "Jest Admin"

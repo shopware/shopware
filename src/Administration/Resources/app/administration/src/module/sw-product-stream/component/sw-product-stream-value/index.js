@@ -447,5 +447,13 @@ Component.register('sw-product-stream-value', {
         onSelectCollapsed() {
             this.searchTerm = '';
         },
+
+        getCategoryBreadcrumb(category) {
+            if (!category.breadcrumb || Object.keys(category.breadcrumb).length === 0) {
+                return category.name;
+            }
+
+            return Object.values(category.breadcrumb).join(' / ');
+        },
     },
 });

@@ -159,8 +159,23 @@
                 :entity="definition.entity"
                 :context="context"
                 :disabled="disabled"
+                description-position="bottom"
                 show-clearable-button
-            />
+            >
+                <template #result-description-property="{ item }">
+                    {% block sw_product_stream_value_equals_result_label %}
+                    <slot
+                        v-if="definition.entity === 'category'"
+                        name="result-description-property"
+                        v-bind="{ item }"
+                    >
+                        {% block sw_product_stream_value_equals_result_label_default %}
+                        {{ getCategoryBreadcrumb(item) }}
+                        {% endblock %}
+                    </slot>
+                    {% endblock %}
+                </template>
+            </sw-entity-single-select>
             {% endblock %}
 
             {% block sw_product_stream_value_entity_multi_value %}
@@ -278,10 +293,25 @@
                 v-else-if="isMultiSelectValue"
                 v-model="multiValue"
                 size="medium"
+                description-position="bottom"
                 :repository="repository"
                 :context="context"
                 :disabled="disabled"
-            />
+            >
+                <template #result-description-property="{ item }">
+                    {% block sw_product_stream_value_multi_select_result_label %}
+                    <slot
+                        v-if="definition.entity === 'category'"
+                        name="result-description-property"
+                        v-bind="{ item }"
+                    >
+                        {% block sw_product_stream_value_multi_select_result_label_default %}
+                        {{ getCategoryBreadcrumb(item) }}
+                        {% endblock %}
+                    </slot>
+                    {% endblock %}
+                </template>
+            </sw-entity-multi-id-select>
             {% endblock %}
 
             {% block sw_product_stream_value_entity_no_operator_selected_placeholder %}

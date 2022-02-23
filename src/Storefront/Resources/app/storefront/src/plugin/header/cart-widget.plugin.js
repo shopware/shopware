@@ -13,18 +13,19 @@ export default class CartWidgetPlugin extends Plugin {
         this._client = new HttpClient();
 
         this.insertStoredContent();
-        this.fetch();
     }
 
     /**
      * reads the persisted content
-     * from the session cache an renders it
+     * from the local cache an renders it
      * into the element
      */
     insertStoredContent() {
         const storedContent = Storage.getItem(this.options.cartWidgetStorageKey);
         if (storedContent) {
             this.el.innerHTML = storedContent;
+        } else {
+            this.fetch();
         }
 
         this.$emitter.publish('insertStoredContent');
@@ -32,7 +33,7 @@ export default class CartWidgetPlugin extends Plugin {
 
     /**
      * Fetch the current cart widget template by calling the api
-     * and persist the response to the browser's session storage
+     * and persist the response to the browser's local storage
      */
     fetch() {
         this._client.get(window.router['frontend.checkout.info'], (response) => {

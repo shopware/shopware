@@ -28,7 +28,8 @@ export interface LoginService {
     addOnLoginListener: (listener: () => void) => void,
     getStorageKey: () => string,
     notifyOnLoginListener: () => (void[] | null),
-    verifyUserToken: (password: string) => Promise<string>
+    verifyUserToken: (password: string) => Promise<string>,
+    cookieStorageFactory: () => CookieStorage
 }
 
 export default function createLoginService(
@@ -58,6 +59,7 @@ export default function createLoginService(
         getStorageKey,
         notifyOnLoginListener,
         verifyUserToken,
+        cookieStorageFactory,
     };
 
     /**

@@ -63,6 +63,7 @@ describe('core/service/login.service.js', () => {
         expect(loginService).toHaveProperty('addOnLogoutListener');
         expect(loginService).toHaveProperty('addOnLoginListener');
         expect(loginService).toHaveProperty('notifyOnLoginListener');
+        expect(loginService).toHaveProperty('cookieStorageFactory');
     });
 
     it('should set the bearer authentication with the right expiry', async () => {
@@ -381,5 +382,15 @@ describe('core/service/login.service.js', () => {
 
         expect(clientMock.history.post[1]).toBeDefined();
         expect(JSON.parse(clientMock.history.post[1].data).grant_type).toEqual('refresh_token');
+    });
+
+    it('creates a correct CookieStorage on service creation', async () => {
+        const { loginService } = loginServiceFactory();
+        const cookieStorage = loginService.cookieStorageFactory();
+
+        expect(cookieStorage.path).toBeDefined();
+        expect(cookieStorage.domain).toBe(null);
+        expect(cookieStorage.secure).toBe(false);
+        expect(cookieStorage.sameSite).toBe('Strict');
     });
 });

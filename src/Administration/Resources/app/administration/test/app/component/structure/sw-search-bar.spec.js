@@ -1283,4 +1283,17 @@ describe('src/app/component/structure/sw-search-bar', () => {
             }
         });
     });
+
+    it('should set current search type correctly', async () => {
+        wrapper = await createWrapper({ initialSearchType: 'product' });
+
+        expect(wrapper.vm.isComponentMounted).toBe(true);
+        expect(wrapper.vm.currentSearchType).toBe('product');
+
+        await wrapper.setData({ searchTerm: '' });
+        wrapper.vm.resetSearchType();
+
+        expect(wrapper.vm.isComponentMounted).toBe(false);
+        expect(wrapper.vm.currentSearchType).toBe(null);
+    });
 });

@@ -1,4 +1,4 @@
-"{{ product.categories.first.getBreadCrumb|slice(1)|join(' > ')|raw }}",{#- -#}
+"{{ product.categories.count > 0 ? product.categories.first.getBreadCrumb|slice(1)|join(' > ')|raw ~ '' }}",{#- -#}
 "{{ product.manufacturer.translated.name }}",{#- -#}
 "{{ product.translated.name }}",{#- -#}
 {% set price = product.calculatedPrice %}
@@ -21,7 +21,7 @@
     {{ "detail.soldOut"|trans }}{#- -#}
 {%- endif -%}",{#- -#}
 "{{ product.productNumber }}",{#- -#}
-"{{ product.cover.media.url }}",{#- -#}
+"{{ product.cover ? product.cover.media.url ~ '' }}",{#- -#}
 "{{ product.translated.description|raw|length > 300 ? product.translated.description|raw|slice(0,300) ~ '...' : product.translated.description|raw }}",{#- -#}
 "0.00",{#- Change or add your payment methods -#}
 "0.00",{#- Change or add your payment methods -#}

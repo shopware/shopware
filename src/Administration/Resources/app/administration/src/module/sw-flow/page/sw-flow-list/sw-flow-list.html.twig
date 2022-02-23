@@ -78,8 +78,10 @@
                 @column-sort="onSortColumn"
                 @page-change="onPageChange"
                 @update-records="updateRecords"
+                @selection-change="selectionChange"
             >
                 {% block sw_flow_list_grid_columns %}
+
                 {% block sw_flow_list_grid_columns_active %}
                 <template #column-active="{ item }">
                     {% block sw_flow_list_columns_active_label %}
@@ -134,9 +136,11 @@
                         :title="$tc('global.default.warning')"
                         @modal-close="onCloseDeleteModal"
                     >
+                        {% block sw_flow_list_grid_action_modal_confirm_delete_text %}
                         <p class="sw-flow-list__confirm-delete-text">
                             {{ $tc('sw-flow.list.confirmText') }}
                         </p>
+                        {% endblock %}
 
                         <template #modal-footer>
                             {% block sw_flow_list_grid_action_modal_buttons %}
@@ -156,6 +160,12 @@
                             {% endblock %}
                         </template>
                     </sw-modal>
+                </template>
+                {% endblock %}
+
+                {% block sw_flow_list_grid_bulk_modal_delete_confirm_text %}
+                <template #bulk-modal-delete-confirm-text="{ selectionCount }">
+                    {{ $tc('global.entity-components.deleteMessage', selectionCount, { count: selectionCount }) }}
                 </template>
                 {% endblock %}
             </sw-entity-listing>

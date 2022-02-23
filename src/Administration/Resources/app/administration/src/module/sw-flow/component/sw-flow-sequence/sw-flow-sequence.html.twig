@@ -10,7 +10,7 @@
 
     {% block sw_flow_sequence_condition %}
     <sw-flow-sequence-condition
-        v-else-if="isConditionSequence"
+        v-if="isConditionSequence"
         :disabled="disabled"
         :sequence="sequenceData"
     />
@@ -18,11 +18,13 @@
 
     {% block sw_flow_sequence_action %}
     <sw-flow-sequence-action
-        v-else
+        v-if="isActionSequence"
         :sequence="sequenceData"
         :disabled="disabled"
     />
     {% endblock %}
+
+    {% block sw_flow_sequence_extension %}{% endblock %}
 
     {% block sw_flow_sequence_true_block %}
     <div

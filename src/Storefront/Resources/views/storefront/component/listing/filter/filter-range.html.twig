@@ -110,8 +110,8 @@
                                 {% endblock %}
 
                                 {% block component_filter_range_min_unit %}
+                                    {# @deprecated tag:v6.5.0 - The block `component_filter_range_min_currency_symbol` will be renamed, use block `component_filter_range_min_unit` instead #}
                                     {% block component_filter_range_min_currency_symbol %}
-                                        {% deprecated '@deprecated tag:v6.5.0 - The block `component_filter_range_min_currency_symbol` will be renamed, use block `component_filter_range_min_unit` instead' %}
                                         {# @deprecated tag:v6.5.0 - `filter-range-currency-symbol` will be removed, use `filter-range-unit` instead #}
                                         <span class="filter-range-unit filter-range-currency-symbol">
                                             {{ unit }}
@@ -143,8 +143,8 @@
                                 {% endblock %}
 
                                 {% block component_filter_range_max_unit %}
+                                    {# @deprecated tag:v6.5.0 - The block `component_filter_range_max_currency_symbol` will be renamed, use block `component_filter_range_min_unit` instead #}
                                     {% block component_filter_range_max_currency_symbol %}
-                                        {% deprecated '@deprecated tag:v6.5.0 - The block `component_filter_range_min_currency_symbol` will be renamed, use block `component_filter_range_min_unit` instead' %}
                                         {# @deprecated tag:v6.5.0 - `filter-range-currency-symbol` will be removed, use `filter-range-unit` instead #}
                                         <span class="filter-range-unit filter-range-currency-symbol">
                                             {{ unit }}

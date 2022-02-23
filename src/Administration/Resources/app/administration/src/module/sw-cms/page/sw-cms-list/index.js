@@ -19,6 +19,8 @@ Component.register('sw-cms-list', {
         return {
             pages: [],
             linkedLayouts: [],
+            linkedProductCountMap: {},
+            linkedCategoryCountMap: {},
             isLoading: false,
             cardViewIdentifier: 'grid.cms.sw-cms-list-grid',
             sortBy: 'createdAt',
@@ -98,7 +100,6 @@ Component.register('sw-cms-list', {
         listCriteria() {
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('previewMedia')
-                .addAssociation('products')
                 .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
             if (this.term !== null) {
@@ -110,6 +111,7 @@ Component.register('sw-cms-list', {
             }
 
             this.addLinkedLayoutsAggregation(criteria);
+            this.addAssociationBucketAggregation(criteria);
 
             return criteria;
         },
@@ -195,12 +197,50 @@ Component.register('sw-cms-list', {
                     this.linkedLayouts = searchResult.aggregations.linkedLayouts.entities;
                 }
 
+                if (searchResult.aggregations?.products) {
+                    const productBuckets = searchResult.aggregations.products.buckets;
+
+                    searchResult.map(page => {
+                        this.linkedProductCountMap[page.id] = productBuckets.find(bucket => bucket.key === page.id)
+                            ?.products_count.count ?? 0;
+                    });
+                }
+
+                if (searchResult.aggregations?.categories) {
+                    const categoryBuckets = searchResult.aggregations.categories.buckets;
+
+                    searchResult.map(page => {
+                        this.linkedCategoryCountMap[page.id] = categoryBuckets.find(bucket => bucket.key === page.id)
+                            ?.categories_count.count ?? 0;
+                    });
+                }
+
                 this.isLoading = false;
 
                 return this.pages;
             }).catch(() => {
                 this.isLoading = false;
             });
+        },
+
+        /**
+         * @internal
+         */
+        addAssociationBucketAggregation(criteria) {
+            criteria.addAggregation(Criteria.terms(
+                'products',
+                'id',
+                null,
+                null,
+                Criteria.count('products_count', 'products.id')
+            ));
+            criteria.addAggregation(Criteria.terms(
+                'categories',
+                'id',
+                null,
+                null,
+                Criteria.count('categories_count', 'categories.id')
+            ));
         },
 
         /**
@@ -250,6 +290,12 @@ Component.register('sw-cms-list', {
 
                 return null;
             });
+        },
+
+        canDeletePage(page) {
+            return this.linkedCategoryCountMap[page.id] > 0
+                || this.linkedProductCountMap[page.id] > 0
+                || !this.acl.can('cms.deleter');
         },
 
         onChangeLanguage(languageId) {
@@ -429,12 +475,6 @@ Component.register('sw-cms-list', {
                 message: this.$tc('sw-cms.general.deleteDisabledToolTip'),
                 disabled: !this.layoutIsLinked(page.id),
             };
-        },
-
-        optionContextDeleteDisabled(page) {
-            return page.categories.length > 0 ||
-                (page.products && page.products.length > 0) ||
-                !this.acl.can('cms.deleter');
         },
     },
 });

@@ -63,7 +63,6 @@ describe('core/service/login.service.js', () => {
         expect(loginService).toHaveProperty('addOnLogoutListener');
         expect(loginService).toHaveProperty('addOnLoginListener');
         expect(loginService).toHaveProperty('notifyOnLoginListener');
-        expect(loginService).toHaveProperty('cookieStorageFactory');
     });
 
     it('should set the bearer authentication with the right expiry', async () => {

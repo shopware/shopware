@@ -281,13 +281,6 @@ export default function createLoginService(
         if (typeof document !== 'undefined' && typeof document.cookie !== 'undefined') {
             cookieStorage.removeItem(storageKey);
 
-            // CookieStorage may not remove cookies for higher level domains on a subdomain
-            // and these cookies will be tried for refreshing - leading to a endless reload loop.
-            // Thats why we have to clear all bearerAuth cookies from all domain levels on occurence
-            if (cookieStorage.getItem(storageKey)) {
-                clearAuthCookieForAllDomains();
-            }
-
             // @deprecated tag:v6.5.0 - Was needed for old cookies set without domain
             // eslint-disable-next-line max-len,@typescript-eslint/no-non-null-assertion
             document.cookie = `bearerAuth=deleted; expires=Thu, 18 Dec 2013 12:00:00 UTC;path=${context.basePath! + context.pathInfo!}`;
@@ -360,43 +353,10 @@ export default function createLoginService(
         return new CookieStorage(
             {
                 path: path,
-                domain: domain,
+                domain: null, // as null this will only set cookies for the current domain
                 secure: false, // only allow HTTPs
                 sameSite: 'Strict', // Should be Strict
             },
         );
-    }
-
-    /**
-     * Clears all bearerAuth cookies associated with all domains (sub and higher-level domains) on this hostname
-     */
-    function clearAuthCookieForAllDomains(): void {
-        let domain;
-
-        if (typeof window === 'object') {
-            domain = window.location.hostname;
-        } else {
-            // eslint-disable-next-line no-restricted-globals
-            const url = new URL(self.location.origin);
-            domain = url.hostname;
-        }
-
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const path = context.basePath! + context.pathInfo!;
-
-        const reversedDomainParts = domain.split('.').reverse();
-        let reversedDomain = reversedDomainParts[0];
-
-        for (let i = 1; i < reversedDomainParts.length; i += 1) {
-            reversedDomain = `${reversedDomainParts[i]}.${reversedDomain}`;
-            (new CookieStorage(
-                {
-                    path: path,
-                    domain: reversedDomain,
-                    secure: false, // only allow HTTPs,
-                    sameSite: 'Strict', // Should be Strict
-                },
-            )).removeItem('bearerAuth');
-        }
     }
 }

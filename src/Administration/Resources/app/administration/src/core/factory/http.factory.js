@@ -248,12 +248,12 @@ function refreshTokenInterceptor(client) {
                     originalRequest.url = originalRequest.url.replace(originalRequest.baseURL, '');
                     resolve(Axios(originalRequest));
                 }, (err) => {
-                    Shopware.Service('loginService').logout();
                     if (!Shopware.Application.getApplicationRoot()) {
                         reject(err);
                         window.location.reload();
                         return;
                     }
+                    Shopware.Service('loginService').logout();
                     Shopware.Application.getApplicationRoot().$router.push({ name: 'sw.login.index' });
                     reject(err);
                 });

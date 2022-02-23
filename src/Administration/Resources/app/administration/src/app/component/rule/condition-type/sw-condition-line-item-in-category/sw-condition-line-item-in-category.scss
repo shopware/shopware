@@ -1,0 +1,16 @@
+@import "~scss/variables";
+
+.sw-condition-line-item-in-category__result-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    .sw-condition-line-item-in-category__help-text {
+        margin-left: 8px;
+
+        .sw-icon {
+            margin: 0;
+            color: $color-white;
+        }
+    }
+}

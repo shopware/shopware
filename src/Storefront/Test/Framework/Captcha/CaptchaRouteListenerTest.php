@@ -8,7 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\ErrorController;
@@ -32,8 +31,6 @@ class CaptchaRouteListenerTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
     use StorefrontControllerTestBehaviour;
-
-    use KernelTestBehaviour;
 
     public function testGetSubscribedEventsReturnsCorrectEvents(): void
     {

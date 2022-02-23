@@ -49,13 +49,9 @@ class CaptchaRouteListener implements EventSubscriberInterface
     public function validateCaptcha(ControllerEvent $event): void
     {
         /** @var CaptchaAnnotation|bool $captchaAnnotation */
-        $captchaAnnotation = $event->getRequest()->attributes->get('_captcha', false);
+        $captchaAnnotation = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_CAPTCHA, false);
 
         if ($captchaAnnotation === false) {
-            return;
-        }
-
-        if (!($captchaAnnotation instanceof CaptchaAnnotation)) {
             return;
         }
 

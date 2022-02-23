@@ -38,13 +38,15 @@ class AclAnnotationValidator implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
-        $acl = $request->attributes->get('_acl');
+        $privileges = $request->attributes->get(PlatformRequest::ATTRIBUTE_ACL);
 
-        if (!$acl || !($acl instanceof Acl)) {
+        if (!$privileges) {
             return;
         }
 
-        $privileges = $acl->getValue();
+        if ($privileges instanceof Acl) {
+            $privileges = $privileges->getValue();
+        }
 
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
         if ($context === null) {

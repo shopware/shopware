@@ -21,10 +21,14 @@ class ResponseHeaderListener
 
     public function __invoke(ResponseEvent $event): void
     {
-        /** @var RouteScope|null $routeScope */
-        $routeScope = $event->getRequest()->attributes->get('_routeScope');
+        /** @var RouteScope|array $scopes */
+        $scopes = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
 
-        if ($routeScope === null || !$routeScope->hasScope('storefront')) {
+        if ($scopes instanceof RouteScope) {
+            $scopes = $scopes->getScopes();
+        }
+
+        if (!\in_array(StorefrontRouteScope::ID, $scopes, true)) {
             return;
         }
 

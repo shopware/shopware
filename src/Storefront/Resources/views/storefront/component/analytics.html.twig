@@ -1,32 +1,35 @@
 {% block component_head_analytics %}
-    {% if context.salesChannel.analytics and context.salesChannel.analytics.isActive() %}
-        {% set trackingId = context.salesChannel.analytics.getTrackingId() %}
+    {% block component_head_analytics_gtag %}
+        {% if context.salesChannel.analytics and context.salesChannel.analytics.isActive() %}
+            {% set trackingId = context.salesChannel.analytics.getTrackingId() %}
 
-        <script>
-            window.gtagActive = true;
-            window.gtagURL = 'https://www.googletagmanager.com/gtag/js?id={{ trackingId }}'
-        </script>
+            <script>
+                {% block component_head_analytics_gtag_config %}
+                    window.gtagActive = true;
+                    window.gtagURL = 'https://www.googletagmanager.com/gtag/js?id={{ trackingId }}'
+                    window.controllerName = '{{ controllerName|lower }}';
+                    window.actionName = '{{ controllerAction|lower }}';
+                    window.trackOrders = '{{ context.salesChannel.analytics.isTrackOrders() }}';
+                    window.gtagTrackingId = '{{ trackingId }}';
+                    window.dataLayer = window.dataLayer || [];
+                    window.gtagConfig = {
+                        'anonymize_ip': '{{ context.salesChannel.analytics.isAnonymizeIp() }}',
+                        'cookie_domain': 'none',
+                        'cookie_prefix': '_swag_ga',
+                    };
 
+                    function gtag() { dataLayer.push(arguments); }
+                {% endblock %}
+            </script>
 
-        <script id="sw-google-tag-manager-init" type="javascript/blocked">
-            window.controllerName = '{{ controllerName|lower }}';
-            window.actionName = '{{ controllerAction|lower }}';
-            window.dataLayer = window.dataLayer || [];
-            window.trackOrders = '{{ context.salesChannel.analytics.isTrackOrders() }}';
-
-            function gtag() { dataLayer.push(arguments); }
-
-            {% block component_head_analytics_tag_config %}
-            window.gtagCallback = function gtagCallbackFunction() {
-                gtag('js', new Date());
-
-                gtag('config', '{{ trackingId }}', {
-                    'anonymize_ip': '{{ context.salesChannel.analytics.isAnonymizeIp() }}',
-                    'cookie_domain': 'none',
-                    'cookie_prefix': '_swag_ga',
-                });
-            };
-            {% endblock %}
-        </script>
-    {% endif %}
+            {# @deprecated tag:v6.5.0 - the gtag callback and #sw-google-tag-manager-init will be removed without replacement, since the logic moved into the google analytics plugin #}
+            {% if not feature('v6.5.0.0') %}
+                <script id="sw-google-tag-manager-init" type="javascript/blocked">
+                    {% block component_head_analytics_tag_config %}
+                        window.gtagCallback = function gtagCallbackFunction() {}
+                    {% endblock %}
+                </script>
+            {% endif %}
+        {% endif %}
+    {% endblock %}
 {% endblock %}

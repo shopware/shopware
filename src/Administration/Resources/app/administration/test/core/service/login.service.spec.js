@@ -386,11 +386,11 @@ describe('core/service/login.service.js', () => {
 
     it('creates a correct CookieStorage on service creation', async () => {
         const { loginService } = loginServiceFactory();
-        const cookieStorage = loginService.cookieStorageFactory();
 
-        expect(cookieStorage.path).toBeUndefined();
-        expect(cookieStorage.domain).toBe(null);
-        expect(cookieStorage.secure).toBe(false);
-        expect(cookieStorage.sameSite).toBe('Strict');
+        expect(loginService.cookieStorage).toBeDefined();
+        expect(loginService.cookieStorage).toHaveProperty('path');
+        expect(loginService.cookieStorage).toHaveProperty('domain');
+        expect(loginService.cookieStorage).toHaveProperty('secure');
+        expect(loginService.cookieStorage).toHaveProperty('sameSite');
     });
 });

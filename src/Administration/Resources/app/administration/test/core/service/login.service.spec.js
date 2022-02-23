@@ -388,9 +388,9 @@ describe('core/service/login.service.js', () => {
         const { loginService } = loginServiceFactory();
 
         expect(loginService.cookieStorage).toBeDefined();
-        expect(loginService.cookieStorage).toHaveProperty('path');
-        expect(loginService.cookieStorage).toHaveProperty('domain');
-        expect(loginService.cookieStorage).toHaveProperty('secure');
-        expect(loginService.cookieStorage).toHaveProperty('sameSite');
+        expect(loginService.cookieStorage).toHaveProperty('getItem');
+        expect(loginService.cookieStorage).toHaveProperty('key');
+        expect(loginService.cookieStorage).toHaveProperty('removeItem');
+        expect(loginService.cookieStorage).toHaveProperty('setItem');
     });
 });

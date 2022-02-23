@@ -388,7 +388,7 @@ describe('core/service/login.service.js', () => {
         const { loginService } = loginServiceFactory();
         const cookieStorage = loginService.cookieStorageFactory();
 
-        expect(cookieStorage.path).toBeDefined();
+        expect(cookieStorage.path).toBeUndefined();
         expect(cookieStorage.domain).toBe(null);
         expect(cookieStorage.secure).toBe(false);
         expect(cookieStorage.sameSite).toBe('Strict');

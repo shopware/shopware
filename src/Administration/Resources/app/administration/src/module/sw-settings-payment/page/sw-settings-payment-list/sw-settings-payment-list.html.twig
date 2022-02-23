@@ -80,7 +80,7 @@
                 :allow-inline-edit="acl.can('payment.editor')"
                 :is-loading="isLoading"
                 :disable-data-fetching="true"
-                :sort-by="sortBy"
+                :sort-by="currentSortBy"
                 :sort-direction="sortDirection"
                 @column-sort="onSortColumn"
                 @page-change="onPageChange"

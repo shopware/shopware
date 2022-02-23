@@ -77,6 +77,10 @@ Component.register('sw-manufacturer-list', {
                 return false;
             }
 
+            if (this.freshSearchTerm) {
+                criteria.resetSorting();
+            }
+
             return this.manufacturerRepository.search(criteria)
                 .then(searchResult => {
                     this.manufacturers = searchResult;

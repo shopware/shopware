@@ -85,6 +85,10 @@ Component.register('sw-property-list', {
                 return false;
             }
 
+            if (this.freshSearchTerm) {
+                criteria.resetSorting();
+            }
+
             return this.propertyRepository.search(criteria).then((items) => {
                 this.total = items.total;
                 this.propertyGroup = items;

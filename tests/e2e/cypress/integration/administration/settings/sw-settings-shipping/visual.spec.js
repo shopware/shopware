@@ -29,6 +29,10 @@ describe('Administration: Check module navigation in settings', () => {
             .its('response.statusCode').should('equal', 200);
         cy.get('.sw-settings-shipping-list__content').should('exist');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
+
+        cy.log('change Sorting direction from None to ASC');
+        cy.get('.sw-data-grid__cell--0 > .sw-data-grid__cell-content').click('right');
+
         cy.sortAndCheckListingAscViaColumn('Name', 'Express');
         cy.takeSnapshot('[Shipping] Listing', '.sw-settings-shipping-list');
 

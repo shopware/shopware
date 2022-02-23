@@ -66,6 +66,7 @@
                 :items="shippingMethods"
                 :columns="columns"
                 :repository="shippingRepository"
+                :sort-by="currentSortBy"
                 :sort-direction="sortDirection"
                 :full-page="false"
                 detail-route="sw.settings.shipping.detail"
@@ -75,6 +76,7 @@
                 :allow-edit="acl.can('shipping.editor')"
                 :allow-delete="acl.can('shipping.deleter')"
                 :is-loading="isLoading"
+                @column-sort="onSortColumn"
             >
                 {% block sw_setting_shipping_list_grid_columns %}
                 {% block sw_settings_shipping_list_grid_columns_active %}

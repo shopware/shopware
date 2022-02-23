@@ -86,6 +86,10 @@ Component.register('sw-product-stream-list', {
                 return false;
             }
 
+            if (this.freshSearchTerm) {
+                criteria.resetSorting();
+            }
+
             return this.productStreamRepository.search(criteria).then((items) => {
                 this.total = items.total;
                 this.productStreams = items;

@@ -64,7 +64,7 @@
                 :items="customers"
                 :columns="customerColumns"
                 :repository="customerRepository"
-                :sort-by="sortBy"
+                :sort-by="currentSortBy"
                 :sort-direction="sortDirection"
                 detail-route="sw.customer.detail"
                 :show-selection="acl.can('customer.deleter')"

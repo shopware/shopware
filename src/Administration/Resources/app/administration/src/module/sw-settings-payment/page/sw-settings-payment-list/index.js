@@ -64,6 +64,10 @@ Component.register('sw-settings-payment-list', {
                 return;
             }
 
+            if (this.freshSearchTerm) {
+                criteria.resetSorting();
+            }
+
             this.paymentRepository.search(criteria).then((items) => {
                 this.total = items.total;
                 this.payment = items;

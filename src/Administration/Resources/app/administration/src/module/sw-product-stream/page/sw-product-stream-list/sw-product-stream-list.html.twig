@@ -73,7 +73,7 @@
                 :show-selection="acl.can('product_stream.deleter')"
                 :is-loading="isLoading"
                 :disable-data-fetching="true"
-                :sort-by="sortBy"
+                :sort-by="currentSortBy"
                 :sort-direction="sortDirection"
                 :criteria-limit="limit"
                 :allow-inline-edit="acl.can('product_stream.editor')"

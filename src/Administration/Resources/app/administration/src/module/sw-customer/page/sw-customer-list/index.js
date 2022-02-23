@@ -223,6 +223,10 @@ Component.register('sw-customer-list', {
                 return;
             }
 
+            if (this.freshSearchTerm) {
+                newCriteria.resetSorting();
+            }
+
             try {
                 const items = await this.customerRepository.search(newCriteria);
 

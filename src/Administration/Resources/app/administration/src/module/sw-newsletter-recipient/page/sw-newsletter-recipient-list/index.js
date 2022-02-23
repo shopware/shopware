@@ -89,6 +89,10 @@ Component.register('sw-newsletter-recipient-list', {
                 return;
             }
 
+            if (this.freshSearchTerm) {
+                criteria.resetSorting();
+            }
+
             this.repository = this.repositoryFactory.create('newsletter_recipient');
             this.repository.search(criteria).then((searchResult) => {
                 this.items = searchResult;

@@ -380,6 +380,10 @@ Component.register('sw-order-list', {
                 return;
             }
 
+            if (this.freshSearchTerm) {
+                criteria.resetSorting();
+            }
+
             try {
                 const response = await this.orderRepository.search(criteria);
 

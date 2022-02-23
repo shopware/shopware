@@ -31,6 +31,12 @@ describe('Rule builder: Test crud operations', () => {
 
         cy.get('#sw-field--rule-name').should('have.value', 'All customers');
         cy.get('.sw-condition-type-select .sw-single-select__selection-text').contains('Customer group');
+
+        cy.get('.smart-bar__actions .sw-button--primary')
+            .should('to.have.prop', 'disabled', true);
+
+        cy.get('.smart-bar__actions .sw-settings-rule-detail__button-context-menu')
+            .should('to.have.prop', 'disabled', true);
     });
 
     it('@base @rule: edit rule', () => {
@@ -74,6 +80,15 @@ describe('Rule builder: Test crud operations', () => {
                 });
         });
 
+        cy.get('.smart-bar__actions .sw-button--primary')
+            .should('to.have.prop', 'disabled', false);
+
+        cy.get('.smart-bar__actions .sw-settings-rule-detail__button-context-menu')
+            .should('to.have.prop', 'disabled', false);
+
+        cy.get('.smart-bar__actions .sw-settings-rule-detail__button-context-menu').click()
+        cy.get('.sw-settings-rule-detail__save-duplicate-action').should('to.have.class', 'is--disabled', true);
+
         // Verify rule
         cy.get('button.sw-button').contains('Save').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
@@ -111,7 +126,9 @@ describe('Rule builder: Test crud operations', () => {
         cy.get('button.sw-button').contains('Save').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 400);
 
-        cy.awaitAndCheckNotification('An error occurred while saving rule "".');
+        cy.get('.sw-alert--error .sw-alert__message')
+            .should('be.visible')
+            .contains('An error occurred while saving rule "".');
 
         // fill basic data
         cy.get('.sw-field').contains('.sw-field', 'Name').then((field) => {
@@ -150,6 +167,16 @@ describe('Rule builder: Test crud operations', () => {
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Rule 1st');
         cy.get(page.elements.loader).should('not.exist');
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('Rule 1st');
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name .sw-data-grid__cell-value`).click();
+
+        cy.get('.smart-bar__actions .sw-button--primary')
+            .should('to.have.prop', 'disabled', false);
+
+        cy.get('.smart-bar__actions .sw-settings-rule-detail__button-context-menu')
+            .should('to.have.prop', 'disabled', false);
+
+        cy.get('.smart-bar__actions .sw-settings-rule-detail__button-context-menu').click()
+        cy.get('.sw-settings-rule-detail__save-duplicate-action').should('not.to.have.class', 'is--disabled');
     });
 
     it('@base @rule: delete rule', () => {

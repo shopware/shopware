@@ -24,20 +24,59 @@
         </sw-button>
         {% endblock %}
 
-        {% block sw_settings_rule_detail_actions_save %}
-        <sw-button-process
-            v-model="isSaveSuccessful"
-            v-tooltip.bottom="tooltipSave"
-            class="sw-settings-rule-detail__save-action"
-            :is-loading="isLoading"
-            variant="primary"
-            :disabled="!acl.can('rule.editor')"
-            @click="onSave"
+        <sw-button-group
+            v-tooltip.bottom="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('rule.editor'),
+                showOnDisabledElements: true
+            }"
+            class="sw-settings-rule-detail__save-button-group"
+            :split-button="true"
         >
-            {{ $tc('sw-settings-rule.detail.buttonSave') }}
-        </sw-button-process>
-        {% endblock %}
+            {% block sw_settings_rule_detail_actions_save %}
+            <sw-button-process
+                v-model="isSaveSuccessful"
+                v-tooltip.bottom="tooltipSave"
+                class="sw-settings-rule-detail__save-action"
+                :is-loading="isLoading"
+                variant="primary"
+                :disabled="!acl.can('rule.editor')"
+                @click="onSave"
+            >
+                {{ $tc('sw-settings-rule.detail.buttonSave') }}
+            </sw-button-process>
+            {% endblock %}
 
+            {% block sw_settings_rule_detail_actions_save_context_menu %}
+            <sw-context-button>
+                <template slot="button">
+                    <sw-button
+                        class="sw-settings-rule-detail__button-context-menu"
+                        square
+                        variant="primary"
+                        :disabled="isLoading || !acl.can('rule.editor')"
+                    >
+                        <sw-icon
+                            name="small-arrow-medium-down"
+                            size="16"
+                        />
+                    </sw-button>
+                </template>
+
+                {% block sw_settings_rule_detail_actions_save_context_menu_actions %}
+                {% block sw_settings_rule_detail_actions_duplicate %}
+                <sw-context-menu-item
+                    class="sw-settings-rule-detail__save-duplicate-action"
+                    :disabled="!acl.can('rule.creator') || !acl.can('rule.editor')"
+                    @click="onDuplicate"
+                >
+                    {{ $tc('sw-product.detail.buttonSaveDuplicate') }}
+                </sw-context-menu-item>
+                {% endblock %}
+                {% endblock %}
+            </sw-context-button>
+            {% endblock %}
+        </sw-button-group>
     </template>
     {% endblock %}
 

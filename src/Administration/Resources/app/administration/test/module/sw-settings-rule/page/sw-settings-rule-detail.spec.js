@@ -34,6 +34,10 @@ function createWrapper(privileges = [], isNewRule = false) {
             'sw-tabs-item': true,
             'router-view': true,
             'sw-skeleton': true,
+            'sw-context-menu-item': true,
+            'sw-context-button': true,
+            'sw-button-group': true,
+            'sw-icon': true,
         },
         propsData: {
             ruleId: isNewRule ? null : 'uuid1'

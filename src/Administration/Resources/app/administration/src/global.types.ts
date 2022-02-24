@@ -46,6 +46,10 @@ declare global {
     const Shopware: ShopwareClass;
     interface Window { Shopware: ShopwareClass; }
 
+    const _features_: {
+        [featureName: string]: boolean
+    };
+
     /**
      * Define global container for the bottle.js containers
      */

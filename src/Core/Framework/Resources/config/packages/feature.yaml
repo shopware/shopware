@@ -217,6 +217,11 @@ shopware:
         major: true
         description: "Fix media resolution in theme"
         # issue: NEXT-19048
+      - name: FEATURE_NEXT_19822
+        default: false
+        major: true
+        description: "Enables lazy loading components in the administration"
+        # issue: NEXT-19822
       - name: FEATURE_NEXT_17540
         default: false
         major: false

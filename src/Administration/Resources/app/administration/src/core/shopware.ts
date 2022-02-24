@@ -7,6 +7,7 @@ import Bottle from 'bottlejs';
 
 import ModuleFactory from 'src/core/factory/module.factory';
 import ComponentFactory from 'src/core/factory/component.factory';
+import AsyncComponentFactory from 'src/core/factory/async-component.factory';
 import TemplateFactory from 'src/core/factory/template.factory';
 import EntityFactory from 'src/core/factory/entity.factory';
 import StateFactory from 'src/core/factory/state.factory';
@@ -43,6 +44,11 @@ import ApiServices from 'src/core/service/api';
 import ModuleFilterFactory from 'src/core/data/filter-factory.data';
 import ExtensionApi from './extension-api';
 
+/** Initialize feature flags at the beginning */
+if (window.hasOwnProperty('_features_')) {
+    Feature.init(_features_);
+}
+
 // strict mode was set to false because it was defined wrong previously
 Bottle.config = { strict: false };
 const container = new Bottle();
@@ -51,6 +57,10 @@ const application = new ApplicationBootstrapper(container);
 
 application
     .addFactory('component', () => {
+        if (Shopware.Feature.isActive('FEATURE_NEXT_19822')) {
+            return AsyncComponentFactory;
+        }
+
         return ComponentFactory;
     })
     .addFactory('template', () => {
@@ -107,16 +117,29 @@ class ShopwareClass {
         getModuleByEntityName: ModuleFactory.getModuleByEntityName,
     };
 
-    public Component = {
-        register: ComponentFactory.register,
-        extend: ComponentFactory.extend,
-        override: ComponentFactory.override,
-        build: ComponentFactory.build,
-        getTemplate: ComponentFactory.getComponentTemplate,
-        getComponentRegistry: ComponentFactory.getComponentRegistry,
-        getComponentHelper: ComponentFactory.getComponentHelper,
-        registerComponentHelper: ComponentFactory.registerComponentHelper,
-    };
+    public Component = Feature.isActive('FEATURE_NEXT_19822')
+        ? {
+            register: AsyncComponentFactory.register,
+            extend: AsyncComponentFactory.extend,
+            override: AsyncComponentFactory.override,
+            build: AsyncComponentFactory.build,
+            getTemplate: AsyncComponentFactory.getComponentTemplate,
+            getComponentRegistry: AsyncComponentFactory.getComponentRegistry,
+            getComponentHelper: AsyncComponentFactory.getComponentHelper,
+            registerComponentHelper: AsyncComponentFactory.registerComponentHelper,
+            markComponentAsSync: AsyncComponentFactory.markComponentAsSync,
+            isSyncComponent: AsyncComponentFactory.isSyncComponent,
+        }
+        : {
+            register: ComponentFactory.register,
+            extend: ComponentFactory.extend,
+            override: ComponentFactory.override,
+            build: ComponentFactory.build,
+            getTemplate: ComponentFactory.getComponentTemplate,
+            getComponentRegistry: ComponentFactory.getComponentRegistry,
+            getComponentHelper: ComponentFactory.getComponentHelper,
+            registerComponentHelper: ComponentFactory.registerComponentHelper,
+        };
 
     public Template = {
         register: TemplateFactory.registerComponentTemplate,

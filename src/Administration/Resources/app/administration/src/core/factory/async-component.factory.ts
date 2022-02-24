@@ -1,7 +1,3 @@
-/**
- * @module core/factory/component
- * @deprecated tag:v6.5.0 - will be replaced by async-component.factory.ts
- */
 import { warn } from 'src/core/service/utils/debug.utils';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
 import TemplateFactory from 'src/core/factory/template.factory';
@@ -22,9 +18,12 @@ export default {
     getComponentRegistry,
     getOverrideRegistry,
     getComponentHelper,
+    _clearComponentHelper,
     registerComponentHelper,
     resolveComponentTemplates,
     markComponentTemplatesAsNotResolved,
+    isSyncComponent,
+    markComponentAsSync,
 };
 
 // @ts-expect-error
@@ -35,48 +34,83 @@ export interface ComponentConfig<V extends Vue = Vue> extends ComponentOptions<V
 }
 
 /**
- * Indicates if the templates of the components are resolved.
- */
-let templatesResolved = false;
-
-/**
  * Registry which holds all components
+ * @private
  */
-const componentRegistry = new Map<string, ComponentConfig>();
+type AwaitedComponentConfig = () => Promise<ComponentConfig | boolean>;
+const componentRegistry = new Map<string, AwaitedComponentConfig>();
 
 /**
  * Registry which holds all component overrides
+ * @private
  */
-const overrideRegistry = new Map<string, ComponentConfig[]>();
+const overrideRegistry = new Map<string, AwaitedComponentConfig[]>();
 
 /**
  * Registry for globally registered helper functions like src/app/service/map-error.service.js
+ * @private
  */
 const componentHelper: { [helperName: string]: unknown } = {};
 
 /**
- * Returns the map with all registered components.
+ * Contains all components which should be created as a async component
+ * @private
  */
-function getComponentRegistry(): Map<string, ComponentConfig> {
+const syncComponents = new Set<string>();
+
+/**
+ * Check if the component should be a synchronous component
+ * @private
+ */
+function isSyncComponent(componentName: string): boolean {
+    return syncComponents.has(componentName);
+}
+
+/**
+ * Add a component to the synchronous component list. This
+ * component will be compiled directly on boot.
+ * @public
+ */
+function markComponentAsSync(componentName: string): void {
+    syncComponents.add(componentName);
+}
+
+/**
+ * Returns the map with all registered components.
+ * @private
+ */
+function getComponentRegistry(): Map<string, AwaitedComponentConfig> {
     return componentRegistry;
 }
 
 /**
  * Returns the map with all registered component overrides.
+ * @private
  */
-function getOverrideRegistry(): Map<string, ComponentConfig[]> {
+function getOverrideRegistry(): Map<string, AwaitedComponentConfig[]> {
     return overrideRegistry;
 }
 
 /**
  * Returns the map of component helper functions
+ * @public
  */
 function getComponentHelper(): { [helperName: string]: unknown } {
     return componentHelper;
 }
 
 /**
+ * @private
+ */
+function _clearComponentHelper(): void {
+    Object.keys(componentHelper).forEach((key) => {
+        delete componentHelper[key];
+    });
+}
+
+/**
  * Register a new component helper function
+ * @public
  */
 function registerComponentHelper(name: string, helperFunction: unknown): boolean {
     if (!name || !name.length) {
@@ -96,15 +130,17 @@ function registerComponentHelper(name: string, helperFunction: unknown): boolean
 
 /**
  * Register a new component.
+ * @public
  */
 /* eslint-disable max-len */
+// function overload to support all vue component object variations
 // @ts-expect-error
 function register<V extends Vue, Data, Methods, Computed, PropNames extends string>(componentName: string, componentConfiguration: ThisTypedComponentOptionsWithArrayProps<V, Data, Methods, Computed, PropNames>): boolean | ComponentConfig;
+function register<V extends Vue, Data, Methods, Computed, PropNames extends string>(componentName: string, componentConfiguration: () => Promise<ThisTypedComponentOptionsWithArrayProps<V, Data, Methods, Computed, PropNames>>): boolean | ComponentConfig;
 function register<V extends Vue, Data, Methods, Computed, Props>(componentName: string, componentConfiguration: ThisTypedComponentOptionsWithRecordProps<V, Data, Methods, Computed, Props>): boolean | ComponentConfig;
-function register(componentName: string, componentConfiguration: ComponentConfig<Vue>): boolean | ComponentConfig {
-    /* eslint-enable max-len */
-    const config = componentConfiguration;
-
+function register<V extends Vue, Data, Methods, Computed, Props>(componentName: string, componentConfiguration: () => Promise<ThisTypedComponentOptionsWithRecordProps<V, Data, Methods, Computed, Props>>): boolean | ComponentConfig;
+function register(componentName: string, componentConfiguration: ComponentConfig<Vue> | (() => Promise<ComponentConfig<Vue>>)): boolean | (() => Promise<ComponentConfig|boolean>) {
+/* eslint-enable max-len */
     if (!componentName || !componentName.length) {
         warn(
             'ComponentFactory',
@@ -118,134 +154,228 @@ function register(componentName: string, componentConfiguration: ComponentConfig
         warn(
             'ComponentFactory',
             `The component "${componentName}" is already registered. Please select a unique name for your component.`,
-            config,
+            componentConfiguration,
         );
         return false;
     }
 
-    config.name = componentName;
+    const configurationResolveMethod = async (): Promise<false | ComponentConfig<Vue>> => {
+        const awaitedConfig = typeof componentConfiguration === 'function'
+            ? componentConfiguration
+            : (): Promise<ComponentConfig> => Promise.resolve(componentConfiguration);
 
-    if (config.template) {
+        let awaitedConfigResult = await awaitedConfig();
+
         /**
-         * Register the main template of the component.
+         * Check if the resulted config is a ES module. Then we need to use the default
+         * value of it.
          */
-        TemplateFactory.registerComponentTemplate(componentName, config.template);
+        if (awaitedConfigResult.hasOwnProperty('default')) {
+            // @ts-expect-error
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            awaitedConfigResult = awaitedConfigResult.default;
+        }
+        const config = { ...awaitedConfigResult };
 
-        /**
-         * Delete the template string from the component config.
-         * The complete rendered template including all overrides will be added later.
-         */
-        delete config.template;
-    } else if (!config.functional && typeof config.render !== 'function') {
-        warn(
-            'ComponentFactory',
-            `The component "${config.name}" needs a template to be functional.`,
-            'Please add a "template" property to your component definition',
-            config,
-        );
-        return false;
-    }
+        config.name = componentName;
 
-    componentRegistry.set(componentName, config);
+        if (config.template) {
+            /**
+             * Register the main template of the component.
+             */
+            TemplateFactory.registerComponentTemplate(componentName, config.template);
 
-    return config;
+            /**
+             * Delete the template string from the component config.
+             * The complete rendered template including all overrides will be added later.
+             */
+            delete config.template;
+        } else if (!config.functional && typeof config.render !== 'function') {
+            warn(
+                'ComponentFactory',
+                `The component "${config.name}" needs a template to be functional.`,
+                'Please add a "template" property to your component definition',
+                config,
+            );
+            return false;
+        }
+
+        return config;
+    };
+
+    componentRegistry.set(componentName, configurationResolveMethod);
+
+    return configurationResolveMethod;
 }
 
 /**
  * Create a new component extending from another existing component.
+ * @public
  */
 function extend(
     componentName: string,
     extendComponentName: string,
-    componentConfiguration: ComponentConfig = { name: '' },
-): ComponentConfig {
-    const config = componentConfiguration;
+    componentConfiguration: ComponentConfig | (() => Promise<ComponentConfig>) = { name: '' },
+): () => Promise<ComponentConfig> {
+    let config: ComponentConfig;
 
-    if (config.template) {
+    const configurationResolveMethod = async (): Promise<ComponentConfig> => {
+        if (config) {
+            return config;
+        }
+
+        const awaitedConfig = typeof componentConfiguration === 'function'
+            ? componentConfiguration
+            : (): Promise<ComponentConfig> => Promise.resolve(componentConfiguration);
+
+        let awaitedConfigResult = await awaitedConfig();
+
         /**
-         * Register the main template of the component based on the extended component.
+         * Check if the resulted config is a ES module. Then we need to use the default
+         * value of it.
          */
-        TemplateFactory.extendComponentTemplate(componentName, extendComponentName, config.template);
+        if (awaitedConfigResult.hasOwnProperty('default')) {
+            // @ts-expect-error
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            awaitedConfigResult = awaitedConfigResult.default;
+        }
 
-        /**
-         * Delete the template string from the component config.
-         * The complete rendered template including all overrides will be added later.
-         */
-        delete config.template;
-    } else {
-        TemplateFactory.extendComponentTemplate(componentName, extendComponentName);
-    }
+        config = { ...awaitedConfigResult };
 
-    config.name = componentName;
-    config.extends = extendComponentName;
+        if (config.template) {
+            /**
+             * Register the main template of the component based on the extended component.
+             */
+            TemplateFactory.extendComponentTemplate(componentName, extendComponentName, config.template);
 
-    componentRegistry.set(componentName, config);
+            /**
+             * Delete the template string from the component config.
+             * The complete rendered template including all overrides will be added later.
+             */
+            delete config.template;
+        } else {
+            TemplateFactory.extendComponentTemplate(componentName, extendComponentName);
+        }
 
-    return config;
+        config.name = componentName;
+        config.extends = extendComponentName;
+
+        return config;
+    };
+
+    componentRegistry.set(componentName, configurationResolveMethod);
+
+    return configurationResolveMethod;
 }
 
 /**
  * Override an existing component including its config and template.
+ * @public
  */
-function override(componentName: string, componentConfiguration: ComponentConfig, overrideIndex = null): ComponentConfig {
-    const config = componentConfiguration;
+function override(
+    componentName: string,
+    componentConfiguration: ComponentConfig|(() => Promise<ComponentConfig>),
+    overrideIndex = null,
+): () => Promise<ComponentConfig> {
+    let config: ComponentConfig;
+    const configResolveMethod = async (): Promise<ComponentConfig> => {
+        if (config) {
+            return config;
+        }
 
-    config.name = componentName;
+        const awaitedConfig = typeof componentConfiguration === 'function'
+            ? componentConfiguration
+            : (): Promise<ComponentConfig> => Promise.resolve(componentConfiguration);
 
-    if (config.template) {
+        config = await awaitedConfig();
+
         /**
-         * Register a template override for the existing component template.
+         * Check if the resulted config is a ES module. Then we need to use the default
+         * value of it.
          */
-        TemplateFactory.registerTemplateOverride(componentName, config.template, overrideIndex);
+        if (config.hasOwnProperty('default')) {
+            // @ts-expect-error
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            config = config.default;
+        }
 
-        /**
-         * Delete the template string from the component config.
-         * The complete rendered template including all overrides will be added later.
-         */
-        delete config.template;
-    }
+        config.name = componentName;
+
+        if (config.template) {
+            /**
+             * Register a template override for the existing component template.
+             */
+            TemplateFactory.registerTemplateOverride(componentName, config.template, overrideIndex);
+
+            /**
+             * Delete the template string from the component config.
+             * The complete rendered template including all overrides will be added later.
+             */
+            delete config.template;
+        }
+
+        return config;
+    };
 
     const overrides = overrideRegistry.get(componentName) || [];
 
     if (overrideIndex !== null && overrideIndex >= 0 && overrides.length > 0) {
-        overrides.splice(overrideIndex, 0, config);
+        overrides.splice(overrideIndex, 0, configResolveMethod);
     } else {
-        overrides.push(config);
+        overrides.push(configResolveMethod);
     }
 
     overrideRegistry.set(componentName, overrides);
 
-    return config;
+    return configResolveMethod;
 }
 
 /**
  * Returns the complete rendered template of the component.
+ * @private
  */
-function getComponentTemplate(componentName: string): string | null {
-    if (!templatesResolved) {
-        resolveComponentTemplates();
-    }
+async function getComponentTemplate(componentName: string): Promise<string | null> {
+    await initComponent(componentName);
+
     return TemplateFactory.getRenderedTemplate(componentName);
+}
+
+async function initComponent(componentName: string): Promise<void> {
+    const asyncComponent = componentRegistry.get(componentName);
+    const asyncOverrideComponent = overrideRegistry.get(componentName);
+
+    if (asyncComponent) {
+        await asyncComponent();
+    }
+
+    if (asyncOverrideComponent) {
+        await Promise.all(asyncOverrideComponent.map(c => c()));
+    }
 }
 
 /**
  * Returns the complete component including extension and overrides.
+ * @private
  */
-function build(componentName: string, skipTemplate = false): ComponentConfig | boolean {
-    if (!templatesResolved) {
-        resolveComponentTemplates();
-    }
+async function build(componentName: string, skipTemplate = false): Promise<ComponentConfig | boolean> {
+    const awaitedConfig = componentRegistry.get(componentName);
 
-    let config = componentRegistry.get(componentName);
-
-    if (!config) {
+    if (!awaitedConfig) {
         throw new Error(
             `The component registry has not found a component with the name "${componentName}".`,
         );
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    config = Object.create(config);
+    const resultConfig: ComponentConfig|boolean = await awaitedConfig();
+    if (typeof resultConfig === 'boolean') {
+        throw new Error(
+            `The component registry could not build the component with the name "${componentName}".`,
+        );
+    }
+
+    // let config: ComponentConfig = Object.create(resultConfig) as ComponentConfig;
+    let config: ComponentConfig = { ...resultConfig } as ComponentConfig;
 
     if (!config) {
         throw new Error(
@@ -257,7 +387,7 @@ function build(componentName: string, skipTemplate = false): ComponentConfig | b
         let extendComp: ComponentConfig | undefined;
 
         if (typeof config.extends === 'string') {
-            const buildedComp = build(config.extends, true);
+            const buildedComp = await build(config.extends, true);
 
             if (typeof buildedComp !== 'boolean') {
                 extendComp = buildedComp;
@@ -275,12 +405,12 @@ function build(componentName: string, skipTemplate = false): ComponentConfig | b
         // clone the override configuration to prevent side-effects to the config
         const overrides = cloneDeep(overrideRegistry.get(componentName));
 
-        const convertedOverrides = convertOverrides(overrides);
+        const convertedOverrides = await convertOverrides(overrides);
 
         convertedOverrides.forEach((overrideComp) => {
             overrideComp.extends = config;
             overrideComp._isOverride = true;
-            config = overrideComp;
+            config = { ...overrideComp };
         });
     }
 
@@ -311,7 +441,7 @@ function build(componentName: string, skipTemplate = false): ComponentConfig | b
     /**
      * Get the final template result including all overrides or extensions.
      */
-    const componentTemplate = getComponentTemplate(componentName);
+    const componentTemplate = await getComponentTemplate(componentName);
     if (config && typeof componentTemplate === 'string') {
         config.template = componentTemplate;
     }
@@ -326,10 +456,14 @@ function build(componentName: string, skipTemplate = false): ComponentConfig | b
 /**
  * Reorganizes the structure of the given overrides.
  */
-function convertOverrides(overrides: ComponentConfig[] | undefined): ComponentConfig[] {
-    if (!overrides) {
+async function convertOverrides(awaitedOverrides: AwaitedComponentConfig[] | undefined): Promise<ComponentConfig[]> {
+    if (!awaitedOverrides) {
         return [];
     }
+
+    const overrides = await Promise.all(awaitedOverrides.map((awaitedOverride) => {
+        return awaitedOverride();
+    }));
 
     // eslint-disable-next-line max-len
     /* eslint-disable @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment */
@@ -652,19 +786,19 @@ function isNotEmptyObject(obj: $TSFixMe): boolean {
 
 /**
  * Resolves the component templates using the template factory.
+ * @private
  */
 function resolveComponentTemplates(): boolean {
     TemplateFactory.resolveTemplates();
-    templatesResolved = true;
     return true;
 }
 
 /**
  * Helper method which clears the normalized templates and marks
  * the indicator as `false`, so another resolve run is possible
+ * @private
  */
 function markComponentTemplatesAsNotResolved(): boolean {
     TemplateFactory.getNormalizedTemplateRegistry().clear();
-    templatesResolved = false;
     return true;
 }

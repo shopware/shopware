@@ -1,6 +1,7 @@
 // eslint-disable
 /**
- * @module core/factory/template
+ * @module core/factory/async-template
+ * @private
  */
 import Twig from 'twig';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
@@ -122,6 +123,7 @@ const normalizedTemplateRegistry = new Map();
 /**
  * Registers the main template for the defined component.
  *
+ * @private
  * @param {string} componentName
  * @param {string} componentTemplate
  * @returns {boolean}
@@ -145,6 +147,7 @@ function registerComponentTemplate(componentName, componentTemplate = null) {
  * If the component comes with an own template extension
  * it will also be registered as an override of the extended template.
  *
+ * @private
  * @param {String} componentName
  * @param {String} extendComponentName
  * @param {String|null} [templateExtension=null]
@@ -176,6 +179,7 @@ function extendComponentTemplate(
  * Registers an override of a component template.
  * The override can be registered before the main template is defined.
  *
+ * @private
  * @param {String} componentName
  * @param {String|null} [templateOverride=null]
  * @param {Number|null} [overrideIndex=0]
@@ -199,55 +203,56 @@ function registerTemplateOverride(
     return true;
 }
 
+function registerNormalizedTemplate(item) {
+    let templateDefinition = resolveExtendsComponent(item);
+
+    // extended component was not found
+    if (!templateDefinition) {
+        normalizedTemplateRegistry.delete(item.name);
+        return;
+    }
+
+    templateDefinition = {
+        ...templateDefinition,
+        html: '',
+    };
+
+    const hasOverridesInExtensionChain = (component) => {
+        if (!component.extend) {
+            return false;
+        }
+
+        return component.extend.overrides.length > 0 || hasOverridesInExtensionChain(component.extend);
+    };
+    if (hasOverridesInExtensionChain(templateDefinition) && Shopware.Feature.isActive('FEATURE_NEXT_17978')) {
+        // If this component extends (transitively) a component that is overwritten, resolve that extended component
+        // with all its overrides first, before resolving this component with it.
+        registerNormalizedTemplate(templateRegistry.get(templateDefinition.extend.name));
+    }
+
+    // Extend with overrides
+    const resolvedtokens = resolveExtendTokens(templateDefinition.template.tokens, templateDefinition);
+    templateDefinition.template.tokens = resolvedtokens;
+
+    // Write back built template to the registry
+    normalizedTemplateRegistry.set(templateDefinition.name, templateDefinition);
+
+    // Apply overrides
+    templateDefinition = applyTemplateOverrides(templateDefinition.name);
+    templateDefinition.html = templateDefinition.html.replace(parentRegExp, '');
+
+    // Final template will be written to the registry
+    normalizedTemplateRegistry.set(templateDefinition.name, templateDefinition);
+}
+
 /**
  * Resolves the templates, builds the extend chain, applies overrides, replaces all remaining parent placeholders
  * and updates the item in the registry.
  *
+ * @private
  * @returns {Map<String, Object>}
  */
 function resolveTemplates() {
-    const registerNormalizedTemplate = (item) => {
-        let templateDefinition = resolveExtendsComponent(item);
-
-        // extended component was not found
-        if (!templateDefinition) {
-            normalizedTemplateRegistry.delete(item.name);
-            return;
-        }
-
-        templateDefinition = {
-            ...templateDefinition,
-            html: '',
-        };
-
-        const hasOverridesInExtensionChain = (component) => {
-            if (!component.extend) {
-                return false;
-            }
-
-            return component.extend.overrides.length > 0 || hasOverridesInExtensionChain(component.extend);
-        };
-        if (hasOverridesInExtensionChain(templateDefinition) && Shopware.Feature.isActive('FEATURE_NEXT_17978')) {
-            // If this component extends (transitively) a component that is overwritten, resolve that extended component
-            // with all its overrides first, before resolving this component with it.
-            registerNormalizedTemplate(templateRegistry.get(templateDefinition.extend.name));
-        }
-
-        // Extend with overrides
-        const resolvedtokens = resolveExtendTokens(templateDefinition.template.tokens, templateDefinition);
-        templateDefinition.template.tokens = resolvedtokens;
-
-        // Write back built template to the registry
-        normalizedTemplateRegistry.set(templateDefinition.name, templateDefinition);
-
-        // Apply overrides
-        templateDefinition = applyTemplateOverrides(templateDefinition.name);
-        templateDefinition.html = templateDefinition.html.replace(parentRegExp, '');
-
-        // Final template will be written to the registry
-        normalizedTemplateRegistry.set(templateDefinition.name, templateDefinition);
-    };
-
     const componentTemplates = Array.from(templateRegistry.values());
     componentTemplates.forEach(registerNormalizedTemplate);
 
@@ -521,6 +526,7 @@ function buildTwigTemplateInstance(name, template) {
 
 /**
  * Clears the twig cache
+ * @private
  * @returns {void}
  */
 function clearTwigCache() {
@@ -530,6 +536,7 @@ function clearTwigCache() {
 /**
  * Returns the twig cache
  *
+ * @private
  * @returns {Object}
  */
 function getTwigCache() {
@@ -539,6 +546,7 @@ function getTwigCache() {
 /**
  * Disables the twig cache
  *
+ * @private
  * @returns {void}
  */
 function disableTwigCache() {
@@ -548,6 +556,7 @@ function disableTwigCache() {
 /**
  * Get the complete template registry.
  *
+ * @private
  * @returns {Map}
  */
 function getTemplateRegistry() {
@@ -558,6 +567,7 @@ function getTemplateRegistry() {
  * Get the complete template registry which got normalized including
  * twig templates and the pre-rendered markup
  *
+ * @private
  * @returns {Map}
  */
 function getNormalizedTemplateRegistry() {
@@ -567,6 +577,7 @@ function getNormalizedTemplateRegistry() {
 /**
  * Get all template overrides which are registered for a component.
  *
+ * @private
  * @param componentName
  * @returns {Array}
  */
@@ -583,15 +594,35 @@ function getTemplateOverrides(componentName) {
 /**
  * Returns the rendered markup for the component template including all template overrides.
  *
+ * @private
  * @param componentName
  * @returns {null|string}
  */
 function getRenderedTemplate(componentName) {
-    const componentTemplate = normalizedTemplateRegistry.get(componentName);
+    if (Shopware.Feature.isActive('FEATURE_NEXT_19822')) {
+        const component = templateRegistry.get(componentName);
 
-    if (!componentTemplate) {
-        return null;
+        if (!component) {
+            return null;
+        }
+
+        registerNormalizedTemplate(component);
+
+        const componentTemplate = normalizedTemplateRegistry.get(componentName);
+
+        if (!componentTemplate) {
+            return null;
+        }
+
+        return componentTemplate.html;
+        // eslint-disable-next-line no-else-return
+    } else {
+        const componentTemplate = normalizedTemplateRegistry.get(componentName);
+
+        if (!componentTemplate) {
+            return null;
+        }
+
+        return componentTemplate.html;
     }
-
-    return componentTemplate.html;
 }

@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
-use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -119,9 +118,6 @@ class SalesChannelProxyController extends AbstractController
     /**
      * @Since("6.2.0.0")
      * @Route("/api/_proxy/store-api/{salesChannelId}/{_path}", name="api.proxy.store-api", requirements={"_path" = ".*"})
-     *
-     * @throws InvalidSalesChannelIdException
-     * @throws InconsistentCriteriaIdsException
      */
     public function proxy(string $_path, string $salesChannelId, Request $request, Context $context): Response
     {
@@ -137,9 +133,6 @@ class SalesChannelProxyController extends AbstractController
     /**
      * @Since("6.3.4.0")
      * @Route("/api/_proxy-order/{salesChannelId}", name="api.proxy-order.create")
-     *
-     * @throws InvalidSalesChannelIdException
-     * @throws InconsistentCriteriaIdsException
      */
     public function proxyCreateOrder(string $salesChannelId, Request $request, Context $context, RequestDataBag $data): Response
     {
@@ -167,12 +160,7 @@ class SalesChannelProxyController extends AbstractController
 
     /**
      * @Since("6.2.0.0")
-     * @Route("/api/_proxy/switch-customer", name="api.proxy.switch-customer", methods={"PATCH"})
-     * @Acl({"api_proxy_switch-customer"})
-     *
-     * @throws InconsistentCriteriaIdsException
-     * @throws InvalidSalesChannelIdException
-     * @throws MissingRequestParameterException
+     * @Route("/api/_proxy/switch-customer", name="api.proxy.switch-customer", methods={"PATCH"}, defaults={"_acl"={"api_proxy_switch-customer"}})
      */
     public function assignCustomer(Request $request, Context $context): Response
     {
@@ -206,10 +194,6 @@ class SalesChannelProxyController extends AbstractController
     /**
      * @Since("6.2.0.0")
      * @Route("/api/_proxy/modify-shipping-costs", name="api.proxy.modify-shipping-costs", methods={"PATCH"})
-     *
-     * @throws InconsistentCriteriaIdsException
-     * @throws InvalidSalesChannelIdException
-     * @throws MissingRequestParameterException
      */
     public function modifyShippingCosts(Request $request, Context $context): JsonResponse
     {

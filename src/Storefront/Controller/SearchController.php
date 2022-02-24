@@ -97,8 +97,6 @@ class SearchController extends StorefrontController
      *
      * @RouteScope(scopes={"storefront"})
      * @Route("/widgets/search", name="widgets.search.pagelet.v2", methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true})
-     *
-     * @throws MissingRequestParameterException
      */
     public function ajax(Request $request, SalesChannelContext $context): Response
     {
@@ -122,8 +120,6 @@ class SearchController extends StorefrontController
      *
      * @RouteScope(scopes={"storefront"})
      * @Route("/widgets/search/filter", name="widgets.search.filter", methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true})
-     *
-     * @throws MissingRequestParameterException
      */
     public function filter(Request $request, SalesChannelContext $context): Response
     {

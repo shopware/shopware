@@ -55,8 +55,6 @@ class SystemConfigController extends AbstractController
     /**
      * @Since("6.0.0.0")
      * @Route("/api/_action/system-config/schema", name="api.action.core.system-config", methods={"GET"})
-     *
-     * @throws MissingRequestParameterException
      */
     public function getConfiguration(Request $request, Context $context): JsonResponse
     {

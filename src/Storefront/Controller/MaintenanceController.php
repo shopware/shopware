@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -94,9 +93,6 @@ class MaintenanceController extends StorefrontController
      *
      * @HttpCache()
      * @Route("/maintenance/singlepage/{id}", name="frontend.maintenance.singlepage", methods={"GET"}, defaults={"allow_maintenance"=true})
-     *
-     * @throws MissingRequestParameterException
-     * @throws PageNotFoundException
      */
     public function renderSinglePage(string $id, Request $request, SalesChannelContext $salesChannelContext): Response
     {

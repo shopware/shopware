@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\MailTemplate\Api;
 use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\MailTemplate\Service\AttachmentLoader;
-use Shopware\Core\Framework\Adapter\Twig\Exception\StringTemplateRenderingException;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
@@ -228,8 +227,6 @@ Take a look at the `salesChannel` entity for possible values. For example `{{ sa
      *     )
      * )
      * @Route("/api/_action/mail-template/validate", name="api.action.mail_template.validate", methods={"POST"})
-     *
-     * @throws StringTemplateRenderingException
      */
     public function validate(RequestDataBag $post, Context $context): JsonResponse
     {

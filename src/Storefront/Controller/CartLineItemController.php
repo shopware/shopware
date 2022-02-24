@@ -4,17 +4,13 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCartAddedInformationError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -163,9 +159,6 @@ class CartLineItemController extends StorefrontController
     /**
      * @Since("6.0.0.0")
      * @Route("/checkout/product/add-by-number", name="frontend.checkout.product.add-by-number", methods={"POST"})
-     *
-     * @throws InconsistentCriteriaIdsException
-     * @throws MissingRequestParameterException
      */
     public function addProductByNumber(Request $request, SalesChannelContext $context): Response
     {
@@ -225,11 +218,6 @@ class CartLineItemController extends StorefrontController
      *         'type' => 'otherType'
      *     ]
      * ]
-     *
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MissingRequestParameterException
-     * @throws MixedLineItemTypeException
      */
     public function addLineItems(Cart $cart, RequestDataBag $requestDataBag, Request $request, SalesChannelContext $context): Response
     {

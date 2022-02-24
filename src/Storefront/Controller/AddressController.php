@@ -83,8 +83,6 @@ class AddressController extends StorefrontController
      * @LoginRequired()
      * @Route("/account/address", name="frontend.account.address.page", options={"seo"="false"}, methods={"GET"})
      * @NoStore
-     *
-     * @throws CustomerNotLoggedInException
      */
     public function accountAddressOverview(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
@@ -100,8 +98,6 @@ class AddressController extends StorefrontController
      * @LoginRequired()
      * @Route("/account/address/create", name="frontend.account.address.create.page", options={"seo"="false"}, methods={"GET"})
      * @NoStore
-     *
-     * @throws CustomerNotLoggedInException
      */
     public function accountCreateAddress(Request $request, RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
     {
@@ -120,8 +116,6 @@ class AddressController extends StorefrontController
      * @LoginRequired()
      * @Route("/account/address/{addressId}", name="frontend.account.address.edit.page", options={"seo"="false"}, methods={"GET"})
      * @NoStore
-     *
-     * @throws CustomerNotLoggedInException
      */
     public function accountEditAddress(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
@@ -136,9 +130,6 @@ class AddressController extends StorefrontController
      * @Since("6.0.0.0")
      * @LoginRequired()
      * @Route("/account/address/default-{type}/{addressId}", name="frontend.account.address.set-default-address", methods={"POST"})
-     *
-     * @throws CustomerNotLoggedInException
-     * @throws InvalidUuidException
      */
     public function switchDefaultAddress(string $type, string $addressId, SalesChannelContext $context, CustomerEntity $customer): RedirectResponse
     {
@@ -169,8 +160,6 @@ class AddressController extends StorefrontController
      * @Since("6.0.0.0")
      * @LoginRequired()
      * @Route("/account/address/delete/{addressId}", name="frontend.account.address.delete", options={"seo"="false"}, methods={"POST"})
-     *
-     * @throws CustomerNotLoggedInException
      */
     public function deleteAddress(string $addressId, SalesChannelContext $context, CustomerEntity $customer): Response
     {
@@ -194,8 +183,6 @@ class AddressController extends StorefrontController
      * @LoginRequired()
      * @Route("/account/address/create", name="frontend.account.address.create", options={"seo"="false"}, methods={"POST"})
      * @Route("/account/address/{addressId}", name="frontend.account.address.edit.save", options={"seo"="false"}, methods={"POST"})
-     *
-     * @throws CustomerNotLoggedInException
      */
     public function saveAddress(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
     {

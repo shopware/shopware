@@ -28,8 +28,6 @@ class VerificationHashController extends AbstractController
     /**
      * @Since("6.3.4.1")
      * @Route("/sw-domain-hash.html", name="api.verification-hash.load", methods={"GET"}, defaults={"auth_required"=false})
-     *
-     * @throws VerificationHashNotConfiguredException
      */
     public function load(): Response
     {

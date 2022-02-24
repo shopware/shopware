@@ -158,10 +158,6 @@ class AdministrationController extends AbstractController
      * @RouteScope(scopes={"administration"})
      * @Route("/api/_admin/reset-excluded-search-term", name="api.admin.reset-excluded-search-term", methods={"POST"})
      * @Acl({"system_config:update", "system_config:create", "system_config:delete"})
-     *
-     * @throws LanguageNotFoundException|\Doctrine\DBAL\DBALException
-     *
-     * @return JsonResponse
      */
     public function resetExcludedSearchTerm(Context $context)
     {
@@ -206,8 +202,6 @@ class AdministrationController extends AbstractController
      * @Since("6.4.0.1")
      * @RouteScope(scopes={"administration"})
      * @Route("/api/_admin/check-customer-email-valid", name="api.admin.check-customer-email-valid", methods={"POST"})
-     *
-     * @throws \InvalidArgumentException|ConstraintViolationException
      */
     public function checkCustomerEmailValid(Request $request, Context $context): JsonResponse
     {
@@ -255,8 +249,6 @@ class AdministrationController extends AbstractController
      * @Since("6.4.2.0")
      * @RouteScope(scopes={"administration"})
      * @Route("/api/_admin/sanitize-html", name="api.admin.sanitize-html", methods={"POST"})
-     *
-     * @throws \InvalidArgumentException
      */
     public function sanitizeHtml(Request $request, Context $context): JsonResponse
     {

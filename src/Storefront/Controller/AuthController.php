@@ -13,7 +13,6 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
-use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -22,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -210,10 +208,6 @@ class AuthController extends StorefrontController
     /**
      * @Since("6.1.0.0")
      * @Route("/account/recover", name="frontend.account.recover.page", methods={"GET"})
-     *
-     * @throws CategoryNotFoundException
-     * @throws InconsistentCriteriaIdsException
-     * @throws MissingRequestParameterException
      */
     public function recoverAccountForm(Request $request, SalesChannelContext $context): Response
     {
@@ -255,10 +249,6 @@ class AuthController extends StorefrontController
     /**
      * @Since("6.1.0.0")
      * @Route("/account/recover/password", name="frontend.account.recover.password.page", methods={"GET"})
-     *
-     * @throws CategoryNotFoundException
-     * @throws InconsistentCriteriaIdsException
-     * @throws MissingRequestParameterException
      */
     public function resetPasswordForm(Request $request, SalesChannelContext $context): Response
     {
@@ -300,8 +290,6 @@ class AuthController extends StorefrontController
     /**
      * @Since("6.1.0.0")
      * @Route("/account/recover/password", name="frontend.account.recover.password.reset", methods={"POST"})
-     *
-     * @throws InconsistentCriteriaIdsException
      */
     public function resetPassword(RequestDataBag $data, SalesChannelContext $context): Response
     {

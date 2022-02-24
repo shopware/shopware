@@ -28,8 +28,6 @@ class ProductActionController extends AbstractController
     /**
      * @Since("6.0.0.0")
      * @Route("/api/_action/product/{productId}/combinations", name="api.action.product.combinations", methods={"GET"})
-     *
-     * @return JsonResponse
      */
     public function getCombinations(string $productId, Context $context)
     {

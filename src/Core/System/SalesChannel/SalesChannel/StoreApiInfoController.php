@@ -43,8 +43,6 @@ class StoreApiInfoController
     /**
      * @Since("6.2.0.0")
      * @Route("/store-api/_info/openapi3.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="store-api.info.openapi3", methods={"GET"})
-     *
-     * @throws \Exception
      */
     public function info(Request $request): JsonResponse
     {

@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePaymentMethodRoute;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
@@ -42,8 +41,6 @@ class AccountPaymentController extends StorefrontController
      * @LoginRequired()
      * @Route("/account/payment", name="frontend.account.payment.page", options={"seo"="false"}, methods={"GET"})
      * @NoStore
-     *
-     * @throws CustomerNotLoggedInException
      */
     public function paymentOverview(Request $request, SalesChannelContext $context): Response
     {

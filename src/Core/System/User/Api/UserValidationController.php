@@ -31,8 +31,6 @@ class UserValidationController extends AbstractController
     /**
      * @Since("6.0.0.0")
      * @Route("api/_action/user/check-email-unique", name="api.action.check-email-unique", methods={"POST"})
-     *
-     * @throws MissingRequestParameterException
      */
     public function isEmailUnique(Request $request, Context $context): JsonResponse
     {
@@ -55,8 +53,6 @@ class UserValidationController extends AbstractController
     /**
      * @Since("6.0.0.0")
      * @Route("api/_action/user/check-username-unique", name="api.action.check-username-unique", methods={"POST"})
-     *
-     * @throws MissingRequestParameterException
      */
     public function isUsernameUnique(Request $request, Context $context): JsonResponse
     {

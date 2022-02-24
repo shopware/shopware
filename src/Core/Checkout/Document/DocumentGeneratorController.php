@@ -3,8 +3,6 @@
 namespace Shopware\Core\Checkout\Document;
 
 use OpenApi\Annotations as OA;
-use Shopware\Core\Checkout\Document\Exception\InvalidDocumentGeneratorTypeException;
-use Shopware\Core\Checkout\Document\Exception\InvalidFileGeneratorTypeException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -104,9 +102,6 @@ class DocumentGeneratorController extends AbstractController
      * )
      *
      * @Route("/api/_action/order/{orderId}/document/{documentTypeName}", name="api.action.document.invoice", methods={"POST"})
-     *
-     * @throws InvalidDocumentGeneratorTypeException
-     * @throws InvalidFileGeneratorTypeException
      */
     public function createDocument(Request $request, string $orderId, string $documentTypeName, Context $context): JsonResponse
     {

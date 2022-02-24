@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\OrderPaymentMethodNotChangeable;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
@@ -105,8 +104,6 @@ class AccountOrderController extends StorefrontController
      * @LoginRequired(allowGuest=true)
      * @Route("/account/order", name="frontend.account.order.page", options={"seo"="false"}, methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true})
      * @NoStore
-     *
-     * @throws CustomerNotLoggedInException
      */
     public function orderOverview(Request $request, SalesChannelContext $context): Response
     {
@@ -148,8 +145,6 @@ class AccountOrderController extends StorefrontController
      * @Since("6.2.0.0")
      * @Route("/account/order/{deepLinkCode}", name="frontend.account.order.single.page", options={"seo"="false"}, methods={"GET", "POST"})
      * @NoStore
-     *
-     * @throws CustomerNotLoggedInException
      */
     public function orderSingleOverview(Request $request, SalesChannelContext $context): Response
     {

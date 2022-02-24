@@ -215,8 +215,6 @@ class ApiController extends AbstractController
      * @Route("/api/_action/clone/{entity}/{id}", name="api.clone", methods={"POST"}, requirements={
      *     "version"="\d+", "entity"="[a-zA-Z-]+", "id"="[0-9a-f]{32}"
      * })
-     *
-     * @throws DefinitionNotFoundException
      */
     public function clone(Context $context, string $entity, string $id, Request $request): JsonResponse
     {
@@ -256,9 +254,6 @@ class ApiController extends AbstractController
      * @Route("/api/_action/version/{entity}/{id}", name="api.createVersion", methods={"POST"},
      *     requirements={"version"="\d+", "entity"="[a-zA-Z-]+", "id"="[0-9a-f]{32}"
      * })
-     *
-     * @throws InvalidUuidException
-     * @throws InvalidVersionNameException
      */
     public function createVersion(Request $request, Context $context, string $entity, string $id): Response
     {
@@ -298,8 +293,6 @@ class ApiController extends AbstractController
      * @Route("/api/_action/version/merge/{entity}/{versionId}", name="api.mergeVersion", methods={"POST"},
      *     requirements={"version"="\d+", "entity"="[a-zA-Z-]+", "versionId"="[0-9a-f]{32}"
      * })
-     *
-     * @throws InvalidUuidException
      */
     public function mergeVersion(Context $context, string $entity, string $versionId): JsonResponse
     {
@@ -325,10 +318,6 @@ class ApiController extends AbstractController
      * @Route("/api/_action/version/{versionId}/{entity}/{entityId}", name="api.deleteVersion", methods={"POST"},
      *     requirements={"version"="\d+", "entity"="[a-zA-Z-]+", "id"="[0-9a-f]{32}"
      * })
-     *
-     * @throws InvalidUuidException
-     * @throws InvalidVersionNameException
-     * @throws LiveVersionDeleteException
      */
     public function deleteVersion(Context $context, string $entity, string $entityId, string $versionId): JsonResponse
     {

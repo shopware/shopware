@@ -2,25 +2,14 @@
 
 namespace Shopware\Core\Checkout\Cart\Order\Api;
 
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
-use Shopware\Core\Checkout\Cart\Exception\MissingOrderRelationException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
-use Shopware\Core\Checkout\Cart\Exception\OrderRecalculationException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\RecalculationService;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartResponse;
-use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
-use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
-use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
-use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
@@ -49,17 +38,6 @@ class OrderRecalculationController extends AbstractController
     /**
      * @Since("6.0.0.0")
      * @Route("/api/_action/order/{orderId}/recalculate", name="api.action.order.recalculate", methods={"POST"})
-     *
-     * @throws CustomerNotLoggedInException
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
-     * @throws InvalidOrderException
-     * @throws OrderRecalculationException
-     * @throws DeliveryWithoutAddressException
-     * @throws EmptyCartException
-     * @throws InconsistentCriteriaIdsException
      */
     public function recalculateOrder(string $orderId, Context $context): Response
     {
@@ -71,17 +49,6 @@ class OrderRecalculationController extends AbstractController
     /**
      * @Since("6.0.0.0")
      * @Route("/api/_action/order/{orderId}/product/{productId}", name="api.action.order.add-product", methods={"POST"})
-     *
-     * @throws DeliveryWithoutAddressException
-     * @throws InconsistentCriteriaIdsException
-     * @throws InvalidOrderException
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
-     * @throws OrderRecalculationException
-     * @throws ProductNotFoundException
-     * @throws MissingOrderRelationException
      */
     public function addProductToOrder(string $orderId, string $productId, Request $request, Context $context): Response
     {
@@ -139,16 +106,6 @@ class OrderRecalculationController extends AbstractController
     /**
      * @Since("6.0.0.0")
      * @Route("/api/_action/order/{orderId}/lineItem", name="api.action.order.add-line-item", methods={"POST"})
-     *
-     * @throws DeliveryWithoutAddressException
-     * @throws InvalidOrderException
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws LineItemNotStackableException
-     * @throws MixedLineItemTypeException
-     * @throws OrderRecalculationException
-     * @throws InconsistentCriteriaIdsException
-     * @throws MissingOrderRelationException
      */
     public function addCustomLineItemToOrder(string $orderId, Request $request, Context $context): Response
     {
@@ -195,9 +152,6 @@ class OrderRecalculationController extends AbstractController
     /**
      * @Since("6.0.0.0")
      * @Route("/api/_action/order-address/{orderAddressId}/customer-address/{customerAddressId}", name="api.action.order.replace-order-address", methods={"POST"})
-     *
-     * @throws OrderRecalculationException
-     * @throws InconsistentCriteriaIdsException
      */
     public function replaceOrderAddressWithCustomerAddress(string $orderAddressId, string $customerAddressId, Context $context): JsonResponse
     {

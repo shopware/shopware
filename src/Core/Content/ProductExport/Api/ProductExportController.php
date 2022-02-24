@@ -5,9 +5,6 @@ namespace Shopware\Core\Content\ProductExport\Api;
 use Monolog\Logger;
 use Shopware\Core\Content\ProductExport\Error\Error;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
-use Shopware\Core\Content\ProductExport\Exception\RenderFooterException;
-use Shopware\Core\Content\ProductExport\Exception\RenderHeaderException;
-use Shopware\Core\Content\ProductExport\Exception\RenderProductException;
 use Shopware\Core\Content\ProductExport\Exception\SalesChannelDomainNotFoundException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Service\ProductExportGeneratorInterface;
@@ -51,10 +48,6 @@ class ProductExportController extends AbstractController
      * @Since("6.1.0.0")
      * @Route("/api/_action/product-export/validate", name="api.action.product_export.validate",
      *                                                           methods={"POST"})
-     *
-     * @throws RenderHeaderException
-     * @throws RenderProductException
-     * @throws RenderFooterException
      */
     public function validate(RequestDataBag $dataBag, Context $context): JsonResponse
     {
@@ -89,10 +82,6 @@ class ProductExportController extends AbstractController
     /**
      * @Since("6.1.0.0")
      * @Route("/api/_action/product-export/preview", name="api.action.product_export.preview", methods={"POST"})
-     *
-     * @throws RenderHeaderException
-     * @throws RenderProductException
-     * @throws RenderFooterException
      */
     public function preview(RequestDataBag $dataBag, Context $context): JsonResponse
     {

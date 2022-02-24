@@ -82,11 +82,6 @@ class OrderRoute extends AbstractOrderRoute
      *     )
      * )
      * @Route(path="/store-api/order", name="store-api.order", methods={"GET", "POST"})
-     *
-     * @throws CustomerNotLoggedInException
-     * @throws GuestNotAuthenticatedException
-     * @throws WrongGuestCredentialsException
-     * @throws CustomerAuthThrottledException
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): OrderRouteResponse
     {

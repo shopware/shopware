@@ -13,6 +13,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Content\Test\TestNavigationSeoUrlRoute;
 use Shopware\Core\Content\Test\TestProductSeoUrlRoute;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
@@ -60,7 +61,8 @@ class SeoUrlGeneratorTest extends TestCase
             $this->getContainer()->get(DefinitionInstanceRegistry::class),
             $this->getContainer()->get('router.default'),
             $this->getContainer()->get('request_stack'),
-            $this->getContainer()->get('shopware.seo_url.twig')
+            $this->getContainer()->get('shopware.seo_url.twig'),
+            $this->getContainer()->get(TwigVariableParser::class)
         );
 
         $this->seoUrlRouteRegistry = $this->getContainer()->get(SeoUrlRouteRegistry::class);
@@ -192,6 +194,71 @@ class SeoUrlGeneratorTest extends TestCase
 
         // name = parent | number = green
         static::assertEquals('parent/green', $urls[$ids->get('green')]);
+    }
+
+    public function testTemplateWithMultipleVariantOptions(): void
+    {
+        $ids = new IdsCollection();
+
+        $product = (new ProductBuilder($ids, 'parent'))
+            ->price(100)
+            ->visibility($this->salesChannelId)
+            ->variant(
+                (new ProductBuilder($ids, 'redProduct'))
+                    ->name('tshirt')
+                    ->option('red', 'color')
+                    ->build()
+            )
+            ->variant(
+                (new ProductBuilder($ids, 'greenProduct'))
+                    ->name('tshirt')
+                    ->option('green', 'color', 1)
+                    ->option('xl', 'size', 2)
+                    ->build()
+            );
+
+        $this->getContainer()->get('product.repository')
+            ->create([$product->build()], Context::createDefaultContext());
+
+        $productIds = $ids->getList(['parent', 'redProduct', 'greenProduct']);
+        $template = '{{ product.translated.name|lower }}{% if product.options %}{% for var in product.options|sort((a,b)=> a.position <=> b.position) %}-{{ var.name }}{% endfor %}{% endif %}';
+        $route = $this->seoUrlRouteRegistry->findByRouteName(TestProductSeoUrlRoute::ROUTE_NAME);
+
+        $result = $this->seoUrlGenerator->generate($productIds, $template, $route, Context::createDefaultContext(), $this->salesChannelContext->getSalesChannel());
+
+        static::assertFalse(!$result->current());
+
+        $expected = ['parent', 'tshirt-red', 'tshirt-green-xl'];
+        foreach ($result as $index => $seoUrl) {
+            static::assertEquals($expected[$index], $seoUrl->seoPathInfo);
+        }
+    }
+
+    public function testTemplateWithMultipleAssociations(): void
+    {
+        $ids = new IdsCollection();
+
+        $product = (new ProductBuilder($ids, 'product'))
+            ->price(100)
+            ->visibility($this->salesChannelId)
+            ->manufacturer('shopware')
+            ->category('test category');
+
+        $this->getContainer()->get('product.repository')
+            ->create([$product->build()], Context::createDefaultContext());
+
+        $productIds = $ids->getList(['product']);
+        $template = '{% if product.categories %}{% for var in product.categories %}{{ var.translated.name }}-{% endfor %}{% endif %}{{ product.manufacturer.translated.name }}-{{ product.translated.name|lower }}';
+        $route = $this->seoUrlRouteRegistry->findByRouteName(TestProductSeoUrlRoute::ROUTE_NAME);
+
+        $result = $this->seoUrlGenerator->generate($productIds, $template, $route, Context::createDefaultContext(), $this->salesChannelContext->getSalesChannel());
+
+        static::assertFalse(!$result->current());
+
+        $expected = ['test-category-shopware-product'];
+        foreach ($result as $index => $seoUrl) {
+            static::assertEquals($expected[$index], $seoUrl->seoPathInfo);
+        }
     }
 
     private function createBreadcrumbData(): void

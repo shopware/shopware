@@ -27,4 +27,11 @@
             }
         }
     }
+
+    .sw-skeleton__detail:not(:last-child),
+    .sw-skeleton {
+        margin-top: 56px;
+        margin-bottom: 26px;
+        background-color: transparent;
+    }
 }

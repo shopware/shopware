@@ -1,27 +1,22 @@
 {% block sw_product_detail_variants %}
-<div v-if="!propertyGroupsLoaded">
-    <sw-skeleton />
-    <sw-skeleton />
-</div>
-
-<div
-    v-else
-    class="sw-product-detail-variants"
->
+<div class="sw-product-detail-variants">
 
     {% block sw_product_detail_variants_sw_card_generated_variants %}
     <sw-card
         class="sw-product-detail-variants__generated-variants"
         position-identifier="sw-product-detail-variants-generated-variants"
+        :class="{'is--loading': isLoading}"
         :title="$tc('sw-product.variations.generatedVariationCardTitle')"
         large
     >
+        <template v-if="isLoading">
+            <sw-skeleton />
+        </template>
 
         {% block sw_product_detail_variants_sw_card_generated_variants_overview %}
-        {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
         <sw-product-variants-overview
             v-if="productEntityLoaded"
-            v-show="variantListHasContent"
+            v-show="variantListHasContent && !isLoading"
             ref="generatedVariants"
             :groups="groups"
             :selected-groups="selectedGroups"
@@ -32,7 +27,7 @@
         {% endblock %}
 
         {% block sw_product_detail_variants_sw_card_empty_state %}
-        <template v-if="!variantListHasContent">
+        <template v-if="!variantListHasContent && !isLoading">
             <div class="sw-product-detail-variants__generated-variants-empty-state">
 
                 {% block sw_product_detail_variants_sw_card_empty_state_variant %}

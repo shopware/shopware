@@ -8,8 +8,20 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
  */
 class Runtime extends Flag
 {
+    private array $dependsOn;
+
+    public function __construct(array $dependsOn = [])
+    {
+        $this->dependsOn = $dependsOn;
+    }
+
     public function parse(): \Generator
     {
         yield 'runtime' => true;
+    }
+
+    public function getDepends(): array
+    {
+        return $this->dependsOn;
     }
 }

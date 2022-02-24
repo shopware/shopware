@@ -7,11 +7,16 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
+use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -32,16 +37,20 @@ class SeoUrlGenerator
 
     private RequestStack $requestStack;
 
+    private TwigVariableParser $twigVariableParser;
+
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
         RouterInterface $router,
         RequestStack $requestStack,
-        Environment $environment
+        Environment $environment,
+        TwigVariableParser $twigVariableParser
     ) {
         $this->definitionRegistry = $definitionRegistry;
         $this->router = $router;
         $this->requestStack = $requestStack;
         $this->twig = $environment;
+        $this->twigVariableParser = $twigVariableParser;
     }
 
     /**
@@ -55,6 +64,9 @@ class SeoUrlGenerator
         $config = $route->getConfig();
 
         $repository = $this->definitionRegistry->getRepository($config->getDefinition()->getEntityName());
+
+        $associations = $this->getAssociations($template, $repository->getDefinition());
+        $criteria->addAssociations($associations);
 
         $criteria->setLimit(50);
 
@@ -150,5 +162,34 @@ class SeoUrlGenerator
         }
 
         return mb_substr($subject, mb_strlen($prefix));
+    }
+
+    private function getAssociations(string $template, EntityDefinition $definition): array
+    {
+        try {
+            $variables = $this->twigVariableParser->parse($template);
+        } catch (\Exception $e) {
+            $e = new InvalidTemplateException($e->getMessage());
+
+            throw $e;
+        }
+
+        $associations = [];
+        foreach ($variables as $variable) {
+            $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $variable, true);
+
+            /** @var Field|null $lastField */
+            $lastField = end($fields);
+
+            $runtime = new Runtime();
+
+            if ($lastField && $lastField->getFlag(Runtime::class)) {
+                $associations = array_merge($associations, $runtime->getDepends());
+            }
+
+            $associations[] = EntityDefinitionQueryHelper::getAssociationPath($variable, $definition);
+        }
+
+        return array_filter(array_unique($associations));
     }
 }

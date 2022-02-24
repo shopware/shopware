@@ -47,7 +47,6 @@ class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
         /** @var SalesChannelEntity|null $salesChannel */
         $salesChannel = \func_num_args() === 2 ? func_get_arg(1) : null;
 
-        $criteria->addAssociation('manufacturer');
         $criteria->addAssociation('mainCategories.category');
         $criteria->addAssociation('categories');
 

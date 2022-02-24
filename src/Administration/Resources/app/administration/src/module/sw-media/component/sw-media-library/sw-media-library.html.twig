@@ -36,33 +36,6 @@
         ref="scrollContainer"
         class="sw-media-library__scroll-container"
     >
-        {% block sw_media_library_empty_state %}
-        <sw-empty-state
-            v-if="!isLoading && (selectableItems.length === 0 || (isValidTerm(term) && selectableItems.length === 0))"
-            :title="$tc('sw-empty-state.messageNoResultTitle')"
-        >
-            <template slot="icon">
-                <img
-                    :src="'/administration/static/img/empty-states/media-empty-state.svg' | asset"
-                    :alt="$tc('sw-empty-state.messageNoResultSubline')"
-                >
-            </template>
-
-            <template #default>
-                <template>
-                    {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
-                    <router-link
-                        class="sw-empty-state__description-link"
-                        :to="{ name: 'sw.profile.index.searchPreferences' }"
-                    >
-                        {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
-                    </router-link>
-                    {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
-                </template>
-            </template>
-        </sw-empty-state>
-        {% endblock %}
-
         <div class="sw-media-library__scroll-content">
 
             {% block sw_media_library_media_grid %}
@@ -136,6 +109,34 @@
             </sw-media-grid>
             {% endblock %}
         </div>
+
+        {% block sw_media_library_empty_state %}
+        <sw-empty-state
+            v-if="!isLoading && (selectableItems.length === 0 || (isValidTerm(term) && selectableItems.length === 0))"
+            :title="$tc('sw-empty-state.messageNoResultTitle')"
+        >
+            <template slot="icon">
+                <img
+                    :src="'/administration/static/img/empty-states/media-empty-state.svg' | asset"
+                    :alt="$tc('sw-empty-state.messageNoResultSubline')"
+                >
+            </template>
+
+            <template #default>
+                <template>
+                    {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
+                    <router-link
+                        class="sw-empty-state__description-link"
+                        :to="{ name: 'sw.profile.index.searchPreferences' }"
+                    >
+                        {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
+                    </router-link>
+                    {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
+                </template>
+            </template>
+        </sw-empty-state>
+        {% endblock %}
+
     </div>
     {% endblock %}
 

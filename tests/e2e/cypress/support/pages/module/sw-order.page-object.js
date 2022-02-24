@@ -125,6 +125,7 @@ export default class OrderPageObject {
         cy.get(this.elements.smartBarHeader).click();
 
         if (scope === 'select') {
+            cy.get(stateColor).first().scrollIntoView();
             cy.get(stateColor).should('be.visible');
         }
     }

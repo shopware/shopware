@@ -66,7 +66,7 @@ Component.register('sw-grid-row', {
         },
 
         onInlineEditStart() {
-            if (!this.allowInlineEdit || this.$device.getViewportWidth() < 800) {
+            if (!this.allowInlineEdit || this.$device.getViewportWidth() < 960) {
                 return;
             }
 

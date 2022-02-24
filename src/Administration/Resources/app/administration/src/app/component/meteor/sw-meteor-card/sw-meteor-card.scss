@@ -19,7 +19,7 @@ $sw-meteor-card-background: rgba(235, 235, 235, 0.1);
             grid-gap: 20px;
             align-items: center;
 
-            @media screen and (max-width: 800px) {
+            @media screen and (max-width: $content-width) {
                 padding: 15px;
             }
 
@@ -35,7 +35,7 @@ $sw-meteor-card-background: rgba(235, 235, 235, 0.1);
             border-top: 1px solid $color-gray-300;
             border-bottom: 1px solid $color-gray-300;
 
-            @media screen and (max-width: 800px) {
+            @media screen and (max-width: 960px) {
                 padding: 15px;
             }
         }
@@ -148,7 +148,7 @@ $sw-meteor-card-background: rgba(235, 235, 235, 0.1);
     .sw-meteor-card__content-wrapper {
         padding: 24px 32px;
 
-        @media screen and (max-width: 800px) {
+        @media screen and (max-width: 960px) {
             padding: 15px;
         }
     }
@@ -161,7 +161,7 @@ $sw-meteor-card-background: rgba(235, 235, 235, 0.1);
         line-height: 22px;
         font-size: $font-size-small;
 
-        @media screen and (max-width: 800px) {
+        @media screen and (max-width: 960px) {
             padding: 15px;
         }
     }
@@ -178,7 +178,7 @@ $sw-meteor-card-background: rgba(235, 235, 235, 0.1);
         border-bottom: none;
         margin-bottom: 0;
 
-        @media screen and (max-width: 800px) {
+        @media screen and (max-width: 960px) {
             padding: 0 15px;
         }
 
@@ -207,7 +207,7 @@ $sw-meteor-card-background: rgba(235, 235, 235, 0.1);
             border-color: transparent;
             font-size: $font-size-small;
 
-            @media screen and (max-width: 800px) {
+            @media screen and (max-width: 960px) {
                 padding: 15px 0 10px 0;
             }
 

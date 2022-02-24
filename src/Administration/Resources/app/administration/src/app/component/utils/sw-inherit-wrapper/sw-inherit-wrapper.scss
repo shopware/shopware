@@ -36,6 +36,10 @@
             top: -1px;
             margin-right: 4px;
         }
+
+        &.sw-card__title__inherited {
+            color: $color-module-purple-900;
+        }
     }
 
     .sw-card__inherited .sw-card__content {

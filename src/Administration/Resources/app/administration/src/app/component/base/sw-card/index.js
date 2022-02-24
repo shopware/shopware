@@ -59,7 +59,13 @@ Component.register('sw-card', {
                 || !!this.$slots.subtitle
                 || !!this.$scopedSlots.subtitle
                 || !!this.$slots.toolbar
-                || !!this.$scopedSlots.toolbar;
+                || !!(typeof this.$scopedSlots.toolbar === 'function' && this.$scopedSlots.toolbar())
+                || !!this.$slots.avatar
+                || !!this.$scopedSlots.avatar;
+        },
+
+        hasAvatar() {
+            return !!this.$slots.avatar || !!this.$scopedSlots.avatar;
         },
     },
 
@@ -71,6 +77,9 @@ Component.register('sw-card', {
                 'sw-card--hero': !!this.hero,
                 'sw-card--large': this.large,
                 'has--header': !!this.showHeader,
+                'has--title': !!this.title || !!this.$slots.title || !!this.$scopedSlots.title,
+                'has--subtitle': !!this.subtitle || !!this.$slots.subtitle || !!this.$scopedSlots.subtitle,
+                'has--toolbar': !!this.toolbar || !!this.$slots.toolbar || !!this.$scopedSlots.toolbar,
             };
 
             if (!this.$refs.swIgnoreClass) {

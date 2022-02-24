@@ -222,7 +222,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
     });
 
     // NEXT-19333 - The delete request fails sometimes
-    it.skip('@rule: assign business events to rule via assignment tab, verify assignment and delete assignment', () => {
+    it('@rule: assign business events to rule via assignment tab, verify assignment and delete assignment', () => {
         const page = new RulePageObject();
 
         // Switch to assignments tab
@@ -237,12 +237,27 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
         cy.get('.sw-settings-rule-add-assignment-modal .sw-data-grid__select-all input').click();
         cy.get(`.sw-settings-rule-add-assignment-modal ${page.elements.primaryButton}`).click();
 
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/event-action/**`,
+            method: 'DELETE'
+        }).as('deleteEvents');
+
+        // pagination should be there
+        cy.get('.sw-pagination__list').should('exist');
+
         // Remove all events
         cy.get('.sw-settings-rule-detail-assignments__card-event_action').find(`${page.elements.dataGridRow}`).should('have.length', 6);
         cy.get(`.sw-settings-rule-detail-assignments__card-event_action .sw-data-grid__select-all input`).click();
         cy.get('.sw-data-grid__bulk-selected .link-danger').click();
         cy.get('.sw-button--danger').click();
         cy.get('.sw-settings-rule-detail-assignments__card-event_action').find(`${page.elements.dataGridRow}`).should('have.length', 6);
+
+        // wait is needed here for the delete requests to finish! otherwise, it trys to delete the same things which results in 404 responses
+        // simulate with "fast 3G" network throttling
+        cy.wait('@deleteEvents')
+            .its('response.statusCode').should('equal', 204);
+        // pagination should not be there anymore (wait for it to be the case before making the next bunch of delete requests)
+        cy.get('.sw-pagination__list').should('not.exist');
 
         cy.get(`.sw-settings-rule-detail-assignments__card-event_action .sw-data-grid__select-all input`).click();
         cy.get('.sw-data-grid__bulk-selected .link-danger').click();

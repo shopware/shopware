@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Script\Api;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHookTrait;
-use Shopware\Core\Framework\Script\Execution\FunctionHook;
 use Shopware\Core\Framework\Script\Execution\OptionalFunctionHook;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -17,7 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  *
  * @since 6.4.9.0
  */
-class StoreApiCacheKeyHook extends FunctionHook implements SalesChannelContextAware, StoppableHook, OptionalFunctionHook
+class StoreApiCacheKeyHook extends OptionalFunctionHook implements SalesChannelContextAware, StoppableHook
 {
     use StoppableHookTrait;
 

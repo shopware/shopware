@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\Execution\Awareness\AppSpecificHook;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
+use Shopware\Core\Framework\Script\ServiceStubs;
 use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -97,6 +98,10 @@ class ScriptExecutor
         $this->traces->trace($hook, $script, function (Debug $debug) use ($twig, $script, $hook): void {
             $twig->addGlobal('debug', $debug);
 
+            if ($hook instanceof DeprecatedHook) {
+                ScriptTraces::addDeprecationNotice($hook->getDeprecationNotice());
+            }
+
             $template = $twig->load($script->getName());
 
             if (!$hook instanceof FunctionHook) {
@@ -116,6 +121,16 @@ class ScriptExecutor
                 throw new \RuntimeException(sprintf(
                     'Required function "%s" missing in script "%s", please make sure you add the required block in your script.',
                     $hook->getFunctionName(),
+                    $script->getName()
+                ));
+            }
+
+            $requiredFromVersion = $hook->willBeRequiredInVersion();
+            if ($requiredFromVersion) {
+                ScriptTraces::addDeprecationNotice(sprintf(
+                    'Function "%s" will be required from %s onward, but is not implemented in script "%s", please make sure you add the block in your script.',
+                    $hook->getFunctionName(),
+                    $requiredFromVersion,
                     $script->getName()
                 ));
             }
@@ -141,9 +156,10 @@ class ScriptExecutor
         return $twig;
     }
 
-    private function initServices(Hook $hook, Script $script): array
+    private function initServices(Hook $hook, Script $script): ServiceStubs
     {
-        $services = [];
+        $services = new ServiceStubs($hook->getName());
+        $deprecatedServices = $hook->getDeprecatedServices();
         foreach ($hook->getServiceIds() as $serviceId) {
             if (!$this->container->has($serviceId)) {
                 throw new ServiceNotFoundException($serviceId, 'Hook: ' . $hook->getName());
@@ -154,13 +170,13 @@ class ScriptExecutor
                 throw new NoHookServiceFactoryException($serviceId);
             }
 
-            $services[$service->getName()] = $service->factory($hook, $script);
+            $services->add($service->getName(), $service->factory($hook, $script), $deprecatedServices[$serviceId] ?? null);
         }
 
         return $services;
     }
 
-    private function callAfter(array $services, Hook $hook, Script $script): void
+    private function callAfter(ServiceStubs $services, Hook $hook, Script $script): void
     {
         foreach ($hook->getServiceIds() as $serviceId) {
             if (!$this->container->has($serviceId)) {
@@ -172,7 +188,7 @@ class ScriptExecutor
                 throw new NoHookServiceFactoryException($serviceId);
             }
 
-            $service = $services[$factory->getName()];
+            $service = $services->get($factory->getName());
 
             $factory->after($service, $hook, $script);
         }

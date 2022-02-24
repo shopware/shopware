@@ -24,6 +24,16 @@ abstract class Hook
 
     abstract public function getName(): string;
 
+    /**
+     * If a service will be removed from a hook, return the serviceId as array key and the corresponding deprecation method as the value.
+     *
+     * @return array<string, string> The deprecated service name as array key, with the deprecation message as value.
+     */
+    public static function getDeprecatedServices(): array
+    {
+        return [];
+    }
+
     public function getContext(): Context
     {
         return $this->context;

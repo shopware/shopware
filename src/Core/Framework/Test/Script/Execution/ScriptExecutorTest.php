@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\Script\Execution;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFactory;
 use Shopware\Core\Framework\Script\Exception\NoHookServiceFactoryException;
 use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
@@ -116,6 +117,66 @@ class ScriptExecutorTest extends TestCase
             'first-script' => 'called',
             'second-script' => 'called',
         ], $object->all());
+    }
+
+    public function testExecuteDeprecatedHookTriggersDeprecation(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures');
+
+        $object = new ArrayStruct();
+
+        $context = Context::createDefaultContext();
+        $this->executor->execute(new DeprecatedTestHook('simple-function-case', $context, ['object' => $object]));
+
+        static::assertTrue($object->has('foo'));
+        static::assertEquals('bar', $object->get('foo'));
+
+        $traces = $this->getScriptTraces();
+        static::assertArrayHasKey('simple-function-case', $traces);
+        static::assertCount(1, $traces['simple-function-case'][0]['deprecations']);
+        static::assertEquals([
+            DeprecatedTestHook::getDeprecationNotice() => 1,
+        ], $traces['simple-function-case'][0]['deprecations']);
+    }
+
+    public function testAccessDeprecatedServiceOfHookTriggersDeprecation(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures');
+
+        $context = Context::createDefaultContext();
+        $this->executor->execute(new TestHook(
+            'simple-service-script',
+            $context,
+            [],
+            [RepositoryFacadeHookFactory::class],
+            [RepositoryFacadeHookFactory::class => 'The `repository` service is deprecated for testing purposes.']
+        ));
+
+        $traces = $this->getScriptTraces();
+        static::assertArrayHasKey('simple-service-script', $traces);
+        static::assertArrayHasKey('The `repository` service is deprecated for testing purposes.', $traces['simple-service-script'][0]['deprecations']);
+        static::assertEquals(2, $traces['simple-service-script'][0]['deprecations']['The `repository` service is deprecated for testing purposes.']);
+    }
+
+    public function testNotImplementingAFunctionThatWillBeRequiredTriggersException(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures');
+
+        $object = new ArrayStruct();
+
+        $context = Context::createDefaultContext();
+        $this->executor->execute(new FunctionWillBeRequiredTestHook(
+            'simple-function-case',
+            $context,
+            ['object' => $object],
+        ));
+
+        $traces = $this->getScriptTraces();
+        static::assertArrayHasKey('simple-function-case::test', $traces);
+        static::assertCount(1, $traces['simple-function-case::test'][0]['deprecations']);
+        static::assertEquals([
+            'Function "test" will be required from v6.5.0.0 onward, but is not implemented in script "simple-function-case/simple-function-case.twig", please make sure you add the block in your script.' => 1,
+        ], $traces['simple-function-case::test'][0]['deprecations']);
     }
 
     public function executeProvider()

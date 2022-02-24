@@ -287,7 +287,7 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
             'services' => $this->getAvailableServices($reflection),
             'since' => $since[0]->getVersion(),
             'stoppable' => mb_strtolower(var_export($reflection->implementsInterface(StoppableHook::class), true)),
-            'optional' => mb_strtolower(var_export($reflection->implementsInterface(OptionalFunctionHook::class), true)),
+            'optional' => mb_strtolower(var_export(is_subclass_of($hook, OptionalFunctionHook::class), true)),
         ];
     }
 

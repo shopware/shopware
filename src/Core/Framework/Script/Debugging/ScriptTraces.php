@@ -17,6 +17,13 @@ class ScriptTraces extends AbstractDataCollector
 {
     protected array $traces = [];
 
+    protected static array $deprecationNotices = [];
+
+    public static function addDeprecationNotice(string $deprecationNotice): void
+    {
+        static::$deprecationNotices[] = $deprecationNotice;
+    }
+
     public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
     {
         $this->data = $this->traces;
@@ -48,14 +55,17 @@ class ScriptTraces extends AbstractDataCollector
 
         $debug = new Debug();
 
+        static::$deprecationNotices = [];
         $execute($debug);
+        $deprecations = static::$deprecationNotices;
+        static::$deprecationNotices = [];
 
         $took = round(microtime(true) - $time, 3);
 
         $name = explode('/', $script->getName());
         $name = array_pop($name);
 
-        $this->add($hook, $name, $took, $debug);
+        $this->add($hook, $name, $took, $debug, $deprecations);
     }
 
     public function getHookCount(): int
@@ -103,9 +113,23 @@ class ScriptTraces extends AbstractDataCollector
         return $count;
     }
 
+    public function getDeprecationCount(): int
+    {
+        $count = 0;
+        foreach ($this->data as $scripts) {
+            foreach ($scripts as $script) {
+                foreach ($script['deprecations'] as $deprecationCount) {
+                    $count += $deprecationCount;
+                }
+            }
+        }
+
+        return $count;
+    }
+
     public static function getTemplate(): ?string
     {
-        return 'storefront/profiling/script_traces.html.twig';
+        return '@Profiling/Collector/script_traces.html.twig';
     }
 
     /**
@@ -121,12 +145,16 @@ class ScriptTraces extends AbstractDataCollector
         return $this->traces;
     }
 
-    private function add(Hook $hook, string $name, float $took, Debug $output): void
+    private function add(Hook $hook, string $name, float $took, Debug $output, array $deprecations): void
     {
+        $deprecations = array_count_values($deprecations);
+        arsort($deprecations);
+
         $this->traces[$this->getHookName($hook)][] = [
             'name' => $name,
             'took' => $took,
             'output' => $output->all(),
+            'deprecations' => $deprecations,
         ];
     }
 

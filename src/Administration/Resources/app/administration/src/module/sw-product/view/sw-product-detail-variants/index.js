@@ -19,7 +19,7 @@ Component.register('sw-product-detail-variants', {
             isLoading: true,
             productEntity: {},
             configuratorSettingsRepository: {},
-            groups: null,
+            groups: [],
             productEntityLoaded: false,
             propertiesAvailable: true,
             showAddPropertiesModal: false,
@@ -71,20 +71,15 @@ Component.register('sw-product-detail-variants', {
                 return groupIds.indexOf(group.id) >= 0;
             });
         },
-
-        propertyGroupsLoaded() {
-            return this.groups !== null;
-        },
     },
 
     watch: {
         isStoreLoading: {
-            handler(value) {
-                if (value === false) {
+            handler() {
+                if (this.isStoreLoading === false) {
                     this.loadData();
                 }
             },
-            immediate: true,
         },
 
         contextLanguageId: {
@@ -98,21 +93,26 @@ Component.register('sw-product-detail-variants', {
         this.createdComponent();
     },
 
+    mounted() {
+        this.mountedComponent();
+    },
+
     methods: {
         createdComponent() {
             this.checkIfPropertiesExists();
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - will be removed without replacement
-         */
-        mountedComponent() {},
+        mountedComponent() {
+            this.loadData();
+        },
 
         loadData() {
-            this.loadOptions()
-                .then(() => {
-                    return this.loadGroups();
-                });
+            if (!this.isStoreLoading) {
+                this.loadOptions()
+                    .then(() => {
+                        return this.loadGroups();
+                    });
+            }
         },
 
         loadOptions() {
@@ -150,10 +150,6 @@ Component.register('sw-product-detail-variants', {
             // Reset filter
             this.$refs.generatedVariants.includeOptions = [];
             this.$refs.generatedVariants.filterWindowOpen = false;
-
-            this.productEntity = {};
-            this.productEntityLoaded = false;
-            this.groups = [];
 
             // get new filter options
             this.loadOptions()

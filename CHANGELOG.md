@@ -94,6 +94,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-20151 - Added new route events](/changelog/release-6-4-9-0/2022-02-16-added-new-route-events.md)
 *  [NEXT-20149 - Remove cache compress/uncompress from CachedRuleLoader](/changelog/release-6-4-9-0/2022-02-16-remove-cache-compress-uncompress-from-cachedruleloader.md)
 *  [NEXT-19855 - Add app lifecycle scripts](/changelog/release-6-4-9-0/2022-02-17-add-app-lifecycle-scripts.md)
+*  [NEXT-20167 - Fix wishlists on checkout pages](/changelog/release-6-4-9-0/2022-02-22-fix-wishlists-on-checkout-pages.md)
 
 ## 6.4.8.1
 *  [NEXT-19820 - Improve session invalidate](/changelog/release-6-4-8-1/2022-02-01-improve-session-invalidate.md)

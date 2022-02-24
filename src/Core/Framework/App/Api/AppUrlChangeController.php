@@ -21,7 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  *
- * @RouteScope(scopes={"api"})
+ * @Route(defaults={"_routeScope"={"api"}})
  */
 class AppUrlChangeController extends AbstractController
 {

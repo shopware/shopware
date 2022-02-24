@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"api"})
+ * @Route(defaults={"_routeScope"={"api"}})
  */
 class CacheController extends AbstractController
 {
@@ -74,8 +74,7 @@ class CacheController extends AbstractController
      *         )
      *     )
      * )
-     * @Route("/api/_action/cache_info", name="api.action.cache.info", methods={"GET"})
-     * @Acl({"system:cache:info"})
+     * @Route("/api/_action/cache_info", name="api.action.cache.info", methods={"GET"}, defaults={"_acl"={"system:cache:info"}})
      */
     public function info(): JsonResponse
     {
@@ -108,8 +107,7 @@ class CacheController extends AbstractController
      *         description="Returns a no content response indicating that the indexing progress startet."
      *     )
      * )
-     * @Route("/api/_action/index", name="api.action.cache.index", methods={"POST"})
-     * @Acl({"api_action_cache_index"})
+     * @Route("/api/_action/index", name="api.action.cache.index", methods={"POST"}, defaults={"_acl"={"api_action_cache_index"}})
      */
     public function index(RequestDataBag $dataBag): Response
     {
@@ -134,8 +132,7 @@ class CacheController extends AbstractController
      *         description="Returns a no content response indicating that the cache has been cleared and generation of new cache has started."
      *     )
      * )
-     * @Route("/api/_action/cache_warmup", name="api.action.cache.delete_and_warmup", methods={"DELETE"})
-     * @Acl({"system:clear:cache"})
+     * @Route("/api/_action/cache_warmup", name="api.action.cache.delete_and_warmup", methods={"DELETE"}, defaults={"_acl"={"system:clear:cache"}})
      */
     public function clearCacheAndScheduleWarmUp(): Response
     {
@@ -161,8 +158,7 @@ class CacheController extends AbstractController
      *         description="Returns a no content response indicating that the cache has been cleared."
      *     )
      * )
-     * @Route("/api/_action/cache", name="api.action.cache.delete", methods={"DELETE"})
-     * @Acl({"system:clear:cache"})
+     * @Route("/api/_action/cache", name="api.action.cache.delete", methods={"DELETE"}, defaults={"_acl"={"system:clear:cache"}})
      */
     public function clearCache(): Response
     {
@@ -184,8 +180,7 @@ class CacheController extends AbstractController
      *         description="Returns a no content response indicating that the cleanup finished."
      *     )
      * )
-     * @Route("/api/_action/cleanup", name="api.action.cache.cleanup", methods={"DELETE"})
-     * @Acl({"system:clear:cache"})
+     * @Route("/api/_action/cleanup", name="api.action.cache.cleanup", methods={"DELETE"}, defaults={"_acl"={"system:clear:cache"}})
      */
     public function clearOldCacheFolders(): Response
     {
@@ -207,8 +202,7 @@ class CacheController extends AbstractController
      *         description="Returns a no content response indicating that the container cache is cleared."
      *     )
      * )
-     * @Route("/api/_action/container_cache", name="api.action.container-cache.delete", methods={"DELETE"})
-     * @Acl({"system:clear:cache"})
+     * @Route("/api/_action/container_cache", name="api.action.container-cache.delete", methods={"DELETE"}, defaults={"_acl"={"system:clear:cache"}})
      */
     public function clearContainerCache(): Response
     {

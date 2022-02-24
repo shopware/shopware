@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @internal (flag:FEATURE_NEXT_12345)
  *
- * @RouteScope(scopes={"store-api"})
+ * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class StoreApiTestRoute extends AbstractStoreApiTestRoute
 {
@@ -40,8 +40,7 @@ class StoreApiTestRoute extends AbstractStoreApiTestRoute
      *          description="Success"
      *     )
      * )
-     * @LoginRequired()
-     * @Route("/store-api/v{version}/testinternal", name="store-api.test.internal", methods={"GET", "POST"})
+     * @Route("/store-api/v{version}/testinternal", name="store-api.test.internal", methods={"GET", "POST"}, defaults={"_loginRequired"=true})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): Response
     {

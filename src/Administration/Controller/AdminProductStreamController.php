@@ -44,8 +44,7 @@ class AdminProductStreamController extends AbstractController
 
     /**
      * @Since("6.4.6.1")
-     * @RouteScope(scopes={"administration"})
-     * @Route("/api/_admin/product-stream-preview/{salesChannelId}", name="api.admin.product-stream-preview", methods={"POST"})
+     * @Route("/api/_admin/product-stream-preview/{salesChannelId}", name="api.admin.product-stream-preview", methods={"POST"}, defaults={"_routeScope"={"administration"}})
      */
     public function productStreamPreview(string $salesChannelId, Request $request, Context $context): JsonResponse
     {

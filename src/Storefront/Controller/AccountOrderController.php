@@ -43,7 +43,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"storefront"})
+ * @Route(defaults={"_routeScope"={"storefront"}})
  */
 class AccountOrderController extends StorefrontController
 {
@@ -101,7 +101,7 @@ class AccountOrderController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @LoginRequired(allowGuest=true)
+     * @Route("/account/order", name="frontend.account.order.page", options={"seo"="false"}, methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true, "_loginRequired"=true, "_loginRequiredAllowGuest"=true})
      * @Route("/account/order", name="frontend.account.order.page", options={"seo"="false"}, methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true})
      * @NoStore
      */
@@ -169,8 +169,7 @@ class AccountOrderController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @LoginRequired()
-     * @Route("/widgets/account/order/detail/{id}", name="widgets.account.order.detail", options={"seo"="false"}, methods={"GET"}, defaults={"XmlHttpRequest"=true})
+     * @Route("/widgets/account/order/detail/{id}", name="widgets.account.order.detail", options={"seo"="false"}, methods={"GET"}, defaults={"XmlHttpRequest"=true, "_loginRequired"=true})
      */
     public function ajaxOrderDetail(Request $request, SalesChannelContext $context): Response
     {
@@ -191,7 +190,7 @@ class AccountOrderController extends StorefrontController
 
     /**
      * @Since("6.2.0.0")
-     * @LoginRequired(allowGuest=true)
+     * @Route("/account/order/edit/{orderId}", name="frontend.account.edit-order.page", methods={"GET"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
      * @Route("/account/order/edit/{orderId}", name="frontend.account.edit-order.page", methods={"GET"})
      * @NoStore
      */

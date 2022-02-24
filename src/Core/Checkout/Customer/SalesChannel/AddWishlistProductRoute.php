@@ -25,7 +25,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"store-api"})
+ * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
 {
@@ -64,34 +64,38 @@ class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
     }
 
     /**
-     * @Since("6.3.4.0")
-     * @OA\Post(
-     *      path="/customer/wishlist/add/{productId}",
-     *      summary="Add a product to a wishlist",
-     *      description="Adds a product to a customers wishlist.
+    * @Since("6.3.4.0")
+    * @OA\Post(
+    *      path="/customer/wishlist/add/{productId}",
+    *      summary="Add a product to a wishlist",
+    *      description="Adds a product to a customers wishlist.
 
-**Important constraints**
+    **Important constraints**
 
-* Anonymous (not logged-in) customers can not have wishlists.
-* The wishlist feature has to be activated.",
-     *      operationId="addProductOnWishlist",
-     *      tags={"Store API", "Wishlist"},
-     *      @OA\Parameter(
-     *        name="productId",
-     *        in="path",
-     *        description="Identifier of the product to be added.",
-     *        @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
-     *        required=true
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Returns a success response.",
-     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
-     *     )
-     * )
-     * @LoginRequired()
-     * @Route("/store-api/customer/wishlist/add/{productId}", name="store-api.customer.wishlist.add", methods={"POST"})
-     */
+    * Anonymous (not logged-in) customers can not have wishlists.
+    * The wishlist feature has to be activated.",
+    *      operationId="addProductOnWishlist",
+    *      tags={"Store API", "Wishlist"},
+    *      @OA\Parameter(
+    *        name="productId",
+    *        in="path",
+    *        description="Identifier of the product to be added.",
+    *        @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
+    *        required=true
+    *      ),
+    *      @OA\Response(
+    *          response="200",
+    *          description="Returns a success response.",
+    *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
+    *     )
+    * )
+    **Important constraints**
+    * Anonymous (not logged-in) customers can not have wishlists.
+    * The wishlist feature has to be activated.",
+    *      operationId="addProductOnWishlist",
+    *      tags={"Store API", "Wishlist"},
+     * @Route("/store-api/customer/wishlist/add/{productId}", name="store-api.customer.wishlist.add", methods={"POST"}, defaults={"_loginRequired"=true})
+    */
     public function add(string $productId, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannel()->getId())) {

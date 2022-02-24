@@ -35,7 +35,6 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouterInterface;
-use function in_array;
 
 class StorefrontSubscriber implements EventSubscriberInterface
 {
@@ -275,7 +274,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             $scope = $scope->getScopes();
         }
 
-        if (!in_array(StorefrontRouteScope::ID, $scope, true)) {
+        if (!\in_array(StorefrontRouteScope::ID, $scope, true)) {
             return;
         }
 

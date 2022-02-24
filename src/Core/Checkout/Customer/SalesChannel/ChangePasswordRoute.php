@@ -32,8 +32,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @RouteScope(scopes={"store-api"})
- * @ContextTokenRequired()
+ * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=true})
  */
 class ChangePasswordRoute extends AbstractChangePasswordRoute
 {
@@ -110,8 +109,7 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
      *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
-     * @LoginRequired()
-     * @Route(path="/store-api/account/change-password", name="store-api.account.change-password", methods={"POST"})
+     * @Route(path="/store-api/account/change-password", name="store-api.account.change-password", methods={"POST"}, defaults={"_loginRequired"=true})
      */
     public function change(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): ContextTokenResponse
     {

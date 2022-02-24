@@ -11,14 +11,13 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"api"})
+ * @Route(defaults={"_routeScope"={"api"}})
  */
 class AccessKeyController extends AbstractController
 {
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/access-key/intergration", name="api.action.access-key.integration", methods={"GET"})
-     * @Acl({"api_action_access-key_integration"})
+     * @Route("/api/_action/access-key/intergration", name="api.action.access-key.integration", methods={"GET"}, defaults={"_acl"={"api_action_access-key_integration"}})
      */
     public function generateIntegrationKey(): JsonResponse
     {

@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"storefront"})
+ * @Route(defaults={"_routeScope"={"storefront"}})
  */
 class AccountProfileController extends StorefrontController
 {
@@ -62,7 +62,7 @@ class AccountProfileController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @LoginRequired()
+     * @Route("/account", name="frontend.account.home.page", methods={"GET"}, defaults={"_loginRequired"=true})
      * @Route("/account", name="frontend.account.home.page", methods={"GET"})
      * @NoStore
      */
@@ -77,7 +77,7 @@ class AccountProfileController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @LoginRequired()
+     * @Route("/account/profile", name="frontend.account.profile.page", methods={"GET"}, defaults={"_loginRequired"=true})
      * @Route("/account/profile", name="frontend.account.profile.page", methods={"GET"})
      * @NoStore
      */
@@ -96,8 +96,7 @@ class AccountProfileController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @LoginRequired()
-     * @Route("/account/profile", name="frontend.account.profile.save", methods={"POST"})
+     * @Route("/account/profile", name="frontend.account.profile.save", methods={"POST"}, defaults={"_loginRequired"=true})
      */
     public function saveProfile(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
     {
@@ -117,8 +116,7 @@ class AccountProfileController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @LoginRequired()
-     * @Route("/account/profile/email", name="frontend.account.profile.email.save", methods={"POST"})
+     * @Route("/account/profile/email", name="frontend.account.profile.email.save", methods={"POST"}, defaults={"_loginRequired"=true})
      */
     public function saveEmail(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
     {
@@ -140,8 +138,7 @@ class AccountProfileController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @LoginRequired()
-     * @Route("/account/profile/password", name="frontend.account.profile.password.save", methods={"POST"})
+     * @Route("/account/profile/password", name="frontend.account.profile.password.save", methods={"POST"}, defaults={"_loginRequired"=true})
      */
     public function savePassword(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
     {
@@ -160,8 +157,7 @@ class AccountProfileController extends StorefrontController
 
     /**
      * @Since("6.3.3.0")
-     * @LoginRequired()
-     * @Route("/account/profile/delete", name="frontend.account.profile.delete", methods={"POST"})
+     * @Route("/account/profile/delete", name="frontend.account.profile.delete", methods={"POST"}, defaults={"_loginRequired"=true})
      */
     public function deleteProfile(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {

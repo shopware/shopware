@@ -39,8 +39,7 @@ class UserConfigController extends AbstractController
 
     /**
      * @Since("6.4.5.0")
-     * @RouteScope(scopes={"administration"})
-     * @Route("/api/_info/config-me", name="api.config_me.get", defaults={"auth_required"=true}, methods={"GET"})
+     * @Route("/api/_info/config-me", name="api.config_me.get", defaults={"auth_required"=true, "_routeScope"={"administration"}}, methods={"GET"})
      */
     public function getConfigMe(Context $context, Request $request): Response
     {
@@ -56,8 +55,7 @@ class UserConfigController extends AbstractController
 
     /**
      * @Since("6.4.5.0")
-     * @RouteScope(scopes={"administration"})
-     * @Route("/api/_info/config-me", name="api.config_me.update", defaults={"auth_required"=true}, methods={"POST"})
+     * @Route("/api/_info/config-me", name="api.config_me.update", defaults={"auth_required"=true, "_routeScope"={"administration"}}, methods={"POST"})
      */
     public function updateConfigMe(Context $context, Request $request): Response
     {

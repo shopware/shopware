@@ -25,7 +25,7 @@ use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"storefront"})
+ * @Route(defaults={"_routeScope"={"storefront"}})
  */
 class CmsController extends StorefrontController
 {
@@ -136,8 +136,7 @@ class CmsController extends StorefrontController
      *
      * Route to load the listing filters
      *
-     * @RouteScope(scopes={"storefront"})
-     * @Route("/widgets/cms/navigation/{navigationId}/filter", name="frontend.cms.navigation.filter", methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true})
+     * @Route("/widgets/cms/navigation/{navigationId}/filter", name="frontend.cms.navigation.filter", methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true, "_routeScope"={"storefront"}})
      */
     public function filter(string $navigationId, Request $request, SalesChannelContext $context): Response
     {
@@ -174,8 +173,7 @@ class CmsController extends StorefrontController
      * Route to load the cms element buy box product config which assigned to the provided product id.
      * Product id is required to load the slot config for the buy box
      *
-     * @RouteScope(scopes={"storefront"})
-     * @Route("/widgets/cms/buybox/{productId}/switch", name="frontend.cms.buybox.switch", methods={"GET"}, defaults={"productId"=null, "XmlHttpRequest"=true})
+     * @Route("/widgets/cms/buybox/{productId}/switch", name="frontend.cms.buybox.switch", methods={"GET"}, defaults={"productId"=null, "XmlHttpRequest"=true, "_routeScope"={"storefront"}})
      */
     public function switchBuyBoxVariant(string $productId, Request $request, SalesChannelContext $context): Response
     {

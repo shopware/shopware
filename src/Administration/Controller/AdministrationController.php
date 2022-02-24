@@ -94,8 +94,7 @@ class AdministrationController extends AbstractController
 
     /**
      * @Since("6.3.3.0")
-     * @RouteScope(scopes={"administration"})
-     * @Route("/%shopware_administration.path_name%", defaults={"auth_required"=false}, name="administration.index", methods={"GET"})
+     * @Route("/%shopware_administration.path_name%", defaults={"auth_required"=false, "_routeScope"={"administration"}}, name="administration.index", methods={"GET"})
      */
     public function index(Request $request, Context $context): Response
     {
@@ -119,8 +118,7 @@ class AdministrationController extends AbstractController
 
     /**
      * @Since("6.1.0.0")
-     * @RouteScope(scopes={"administration"})
-     * @Route("/api/_admin/snippets", name="api.admin.snippets", methods={"GET"})
+     * @Route("/api/_admin/snippets", name="api.admin.snippets", methods={"GET"}, defaults={"_routeScope"={"administration"}})
      */
     public function snippets(Request $request): Response
     {
@@ -136,8 +134,7 @@ class AdministrationController extends AbstractController
 
     /**
      * @Since("6.3.1.0")
-     * @RouteScope(scopes={"administration"})
-     * @Route("/api/_admin/known-ips", name="api.admin.known-ips", methods={"GET"})
+     * @Route("/api/_admin/known-ips", name="api.admin.known-ips", methods={"GET"}, defaults={"_routeScope"={"administration"}})
      */
     public function knownIps(Request $request): Response
     {
@@ -155,9 +152,7 @@ class AdministrationController extends AbstractController
 
     /**
      * @Since("6.4.0.1")
-     * @RouteScope(scopes={"administration"})
-     * @Route("/api/_admin/reset-excluded-search-term", name="api.admin.reset-excluded-search-term", methods={"POST"})
-     * @Acl({"system_config:update", "system_config:create", "system_config:delete"})
+     * @Route("/api/_admin/reset-excluded-search-term", name="api.admin.reset-excluded-search-term", methods={"POST"}, defaults={"_routeScope"={"administration"}, "_acl"={"system_config:update", "system_config:create", "system_config:delete"}})
      */
     public function resetExcludedSearchTerm(Context $context)
     {
@@ -200,8 +195,7 @@ class AdministrationController extends AbstractController
 
     /**
      * @Since("6.4.0.1")
-     * @RouteScope(scopes={"administration"})
-     * @Route("/api/_admin/check-customer-email-valid", name="api.admin.check-customer-email-valid", methods={"POST"})
+     * @Route("/api/_admin/check-customer-email-valid", name="api.admin.check-customer-email-valid", methods={"POST"}, defaults={"_routeScope"={"administration"}})
      */
     public function checkCustomerEmailValid(Request $request, Context $context): JsonResponse
     {
@@ -247,8 +241,7 @@ class AdministrationController extends AbstractController
 
     /**
      * @Since("6.4.2.0")
-     * @RouteScope(scopes={"administration"})
-     * @Route("/api/_admin/sanitize-html", name="api.admin.sanitize-html", methods={"POST"})
+     * @Route("/api/_admin/sanitize-html", name="api.admin.sanitize-html", methods={"POST"}, defaults={"_routeScope"={"administration"}})
      */
     public function sanitizeHtml(Request $request, Context $context): JsonResponse
     {

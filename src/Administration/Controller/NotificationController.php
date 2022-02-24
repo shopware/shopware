@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"api"})
+ * @Route(defaults={"_routeScope"={"api"}})
  */
 class NotificationController extends AbstractController
 {
@@ -40,8 +40,7 @@ class NotificationController extends AbstractController
 
     /**
      * @Since("6.4.7.0")
-     * @Route("/api/notification", name="api.notification", methods={"POST"})
-     * @Acl({"notification:create"})
+     * @Route("/api/notification", name="api.notification", methods={"POST"}, defaults={"_acl"={"notification:create"}})
      */
     public function saveNotification(Request $request, Context $context): Response
     {

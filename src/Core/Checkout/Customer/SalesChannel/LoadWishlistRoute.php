@@ -29,7 +29,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"store-api"})
+ * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class LoadWishlistRoute extends AbstractLoadWishlistRoute
 {
@@ -71,29 +71,33 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
     }
 
     /**
-     * @Since("6.3.4.0")
-     * @Entity("product")
-     * @OA\Post(
-     *      path="/customer/wishlist",
-     *      summary="Fetch a wishlist",
-     *      description="Fetch a customer's wishlist. Products on the wishlist can be filtered using a criteria object.
+    * @Since("6.3.4.0")
+    * @Entity("product")
+    * @OA\Post(
+    *      path="/customer/wishlist",
+    *      summary="Fetch a wishlist",
+    *      description="Fetch a customer's wishlist. Products on the wishlist can be filtered using a criteria object.
 
-**Important constraints**
+    **Important constraints**
 
-* Anonymous (not logged-in) customers can not have wishlists.
-* The wishlist feature has to be activated.",
-     *      operationId="readCustomerWishlist",
-     *      tags={"Store API", "Wishlist"},
-     *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\Response(
-     *          response="200",
-     *          description="",
-     *          @OA\JsonContent(ref="#/components/schemas/WishlistLoadRouteResponse")
-     *     )
-     * )
-     * @LoginRequired()
-     * @Route("/store-api/customer/wishlist", name="store-api.customer.wishlist.load", methods={"GET", "POST"})
-     */
+    * Anonymous (not logged-in) customers can not have wishlists.
+    * The wishlist feature has to be activated.",
+    *      operationId="readCustomerWishlist",
+    *      tags={"Store API", "Wishlist"},
+    *      @OA\Parameter(name="Api-Basic-Parameters"),
+    *      @OA\Response(
+    *          response="200",
+    *          description="",
+    *          @OA\JsonContent(ref="#/components/schemas/WishlistLoadRouteResponse")
+    *     )
+    * )
+    **Important constraints**
+    * Anonymous (not logged-in) customers can not have wishlists.
+    * The wishlist feature has to be activated.",
+    *      operationId="readCustomerWishlist",
+    *      tags={"Store API", "Wishlist"},
+     * @Route("/store-api/customer/wishlist", name="store-api.customer.wishlist.load", methods={"GET", "POST"}, defaults={"_loginRequired"=true})
+    */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): LoadWishlistRouteResponse
     {
         if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannel()->getId())) {

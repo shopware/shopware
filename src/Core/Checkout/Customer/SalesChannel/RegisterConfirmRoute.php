@@ -29,7 +29,7 @@ use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @RouteScope(scopes={"store-api"})
+ * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
 {

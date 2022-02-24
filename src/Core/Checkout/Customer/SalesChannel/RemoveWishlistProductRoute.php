@@ -24,7 +24,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"store-api"})
+ * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
 {
@@ -63,39 +63,43 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
     }
 
     /**
-     * @Since("6.3.4.0")
-     * @OA\Delete(
-     *      path="/customer/wishlist/delete/{productId}",
-     *      summary="Remove a product from a wishlist",
-     *      description="Removes a product from a customer's wishlist.
+    * @Since("6.3.4.0")
+    * @OA\Delete(
+    *      path="/customer/wishlist/delete/{productId}",
+    *      summary="Remove a product from a wishlist",
+    *      description="Removes a product from a customer's wishlist.
 
-**Important constraints**
+    **Important constraints**
 
-* Anonymous (not logged-in) customers can not have wishlists.
-* The wishlist feature has to be activated.",
-     *      operationId="deleteProductOnWishlist",
-     *      tags={"Store API", "Wishlist"},
-     *      @OA\Parameter(
-     *        name="productId",
-     *        in="path",
-     *        description="The identifier of the product to be removed from the wishlist.",
-     *        @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
-     *        required=true
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          description="Returns a success response indicating a successful removal.",
-     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
-     *     ),
-     *     @OA\Response(
-     *          response="404",
-     *          description="The removal of the product failed. Probably because the product could not be found on the wishlist.",
-     *          @OA\JsonContent(ref="#/components/schemas/failure")
-     *     ),
-     * )
-     * @LoginRequired()
-     * @Route("/store-api/customer/wishlist/delete/{productId}", name="store-api.customer.wishlist.delete", methods={"DELETE"})
-     */
+    * Anonymous (not logged-in) customers can not have wishlists.
+    * The wishlist feature has to be activated.",
+    *      operationId="deleteProductOnWishlist",
+    *      tags={"Store API", "Wishlist"},
+    *      @OA\Parameter(
+    *        name="productId",
+    *        in="path",
+    *        description="The identifier of the product to be removed from the wishlist.",
+    *        @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
+    *        required=true
+    *      ),
+    *      @OA\Response(
+    *          response="200",
+    *          description="Returns a success response indicating a successful removal.",
+    *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
+    *     ),
+    *     @OA\Response(
+    *          response="404",
+    *          description="The removal of the product failed. Probably because the product could not be found on the wishlist.",
+    *          @OA\JsonContent(ref="#/components/schemas/failure")
+    *     ),
+    * )
+    **Important constraints**
+    * Anonymous (not logged-in) customers can not have wishlists.
+    * The wishlist feature has to be activated.",
+    *      operationId="deleteProductOnWishlist",
+    *      tags={"Store API", "Wishlist"},
+     * @Route("/store-api/customer/wishlist/delete/{productId}", name="store-api.customer.wishlist.delete", methods={"DELETE"}, defaults={"_loginRequired"=true})
+    */
     public function delete(string $productId, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannel()->getId())) {

@@ -28,7 +28,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @RouteScope(scopes={"store-api"})
+ * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class CartOrderRoute extends AbstractCartOrderRoute
 {
@@ -101,8 +101,7 @@ If you are using the [prepared payment flow](https://developer.shopware.com/docs
      *          @OA\JsonContent(ref="#/components/schemas/Order")
      *     )
      * )
-     * @LoginRequired(allowGuest=true)
-     * @Route("/store-api/checkout/order", name="store-api.checkout.cart.order", methods={"POST"})
+     * @Route("/store-api/checkout/order", name="store-api.checkout.cart.order", methods={"POST"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
      */
     public function order(Cart $cart, SalesChannelContext $context, RequestDataBag $data): CartOrderRouteResponse
     {

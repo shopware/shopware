@@ -39,7 +39,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"store-api"})
+ * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
 {
@@ -113,8 +113,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
      *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
-     * @LoginRequired(allowGuest=true)
-     * @Route(path="/store-api/order/payment", name="store-api.order.set-payment", methods={"POST"})
+     * @Route(path="/store-api/order/payment", name="store-api.order.set-payment", methods={"POST"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
      */
     public function setPayment(Request $request, SalesChannelContext $context): SetPaymentOrderRouteResponse
     {

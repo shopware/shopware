@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"api"})
+ * @Route(defaults={"_routeScope"={"api"}})
  */
 class IntegrationController extends AbstractController
 {
@@ -34,8 +34,7 @@ class IntegrationController extends AbstractController
 
     /**
      * @Since("6.4.1.0")
-     * @Route("/api/integration", name="api.integration.create", methods={"POST"})
-     * @Acl({"integration:create"})
+     * @Route("/api/integration", name="api.integration.create", methods={"POST"}, defaults={"_acl"={"integration:create"}})
      */
     public function upsertIntegration(?string $integrationId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {
@@ -71,8 +70,7 @@ class IntegrationController extends AbstractController
 
     /**
      * @Since("6.4.1.0")
-     * @Route("/api/integration/{integrationId}", name="api.integration.update", methods={"PATCH"})
-     * @Acl({"integration:update"})
+     * @Route("/api/integration/{integrationId}", name="api.integration.update", methods={"PATCH"}, defaults={"_acl"={"integration:update"}})
      */
     public function updateIntegration(?string $integrationId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {

@@ -20,7 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @deprecated tag:v6.5.0 - Use PromotionCodeService instead
- * @RouteScope(scopes={"api"})
+ * @Route(defaults={"_routeScope"={"api"}})
  */
 class PromotionActionController extends AbstractController
 {
@@ -54,8 +54,7 @@ class PromotionActionController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/promotion/{promotionId}/codes/individual", name="api.action.promotion.codes", methods={"GET"})
-     * @Acl({"promotion.viewer"})
+     * @Route("/api/_action/promotion/{promotionId}/codes/individual", name="api.action.promotion.codes", methods={"GET"}, defaults={"_acl"={"promotion.viewer"}})
      */
     public function getIndividualCodes(string $promotionId, Context $context): JsonResponse
     {
@@ -64,8 +63,7 @@ class PromotionActionController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/promotion/{promotionId}/codes/individual", name="api.action.promotion.codes.remove", methods={"DELETE"})
-     * @Acl({"promotion.deleter"})
+     * @Route("/api/_action/promotion/{promotionId}/codes/individual", name="api.action.promotion.codes.remove", methods={"DELETE"}, defaults={"_acl"={"promotion.deleter"}})
      */
     public function deleteIndividualCodes(string $promotionId, Context $context): Response
     {
@@ -76,8 +74,7 @@ class PromotionActionController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/promotion/setgroup/packager", name="api.action.promotion.setgroup.packager", methods={"GET"})
-     * @Acl({"promotion.viewer"})
+     * @Route("/api/_action/promotion/setgroup/packager", name="api.action.promotion.setgroup.packager", methods={"GET"}, defaults={"_acl"={"promotion.viewer"}})
      */
     public function getSetGroupPackagers(): JsonResponse
     {
@@ -93,8 +90,7 @@ class PromotionActionController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/promotion/setgroup/sorter", name="api.action.promotion.setgroup.sorter", methods={"GET"})
-     * @Acl({"promotion.viewer"})
+     * @Route("/api/_action/promotion/setgroup/sorter", name="api.action.promotion.setgroup.sorter", methods={"GET"}, defaults={"_acl"={"promotion.viewer"}})
      */
     public function getSetGroupSorters(): JsonResponse
     {
@@ -110,8 +106,7 @@ class PromotionActionController extends AbstractController
 
     /**
      * @Since("6.3.4.0")
-     * @Route("/api/_action/promotion/discount/picker", name="api.action.promotion.discount.picker", methods={"GET"})
-     * @Acl({"promotion.viewer"})
+     * @Route("/api/_action/promotion/discount/picker", name="api.action.promotion.discount.picker", methods={"GET"}, defaults={"_acl"={"promotion.viewer"}})
      */
     public function getDiscountFilterPickers(): JsonResponse
     {

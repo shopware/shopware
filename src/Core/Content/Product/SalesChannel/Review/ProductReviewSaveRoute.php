@@ -30,7 +30,7 @@ use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * @RouteScope(scopes={"store-api"})
+ * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
 {
@@ -118,8 +118,7 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
      *          description="Success response indicating the review was saved successfuly."
      *     )
      * )
-     * @LoginRequired()
-     * @Route("/store-api/product/{productId}/review", name="store-api.product-review.save", methods={"POST"})
+     * @Route("/store-api/product/{productId}/review", name="store-api.product-review.save", methods={"POST"}, defaults={"_loginRequired"=true})
      */
     public function save(string $productId, RequestDataBag $data, SalesChannelContext $context): NoContentResponse
     {

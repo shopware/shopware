@@ -41,7 +41,7 @@ use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * @RouteScope(scopes={"storefront"})
+ * @Route(defaults={"_routeScope"={"storefront"}})
  */
 class RegisterController extends StorefrontController
 {
@@ -178,8 +178,7 @@ class RegisterController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/account/register", name="frontend.account.register.save", methods={"POST"})
-     * @Captcha
+     * @Route("/account/register", name="frontend.account.register.save", methods={"POST"}, defaults={"_captcha"=true})
      */
     public function register(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {

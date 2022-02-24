@@ -20,7 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @RouteScope(scopes={"store-api"})
+ * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class LogoutRoute extends AbstractLogoutRoute
 {
@@ -80,8 +80,7 @@ class LogoutRoute extends AbstractLogoutRoute
      *          ref="#/components/responses/403"
      *     )
      * )
-     * @LoginRequired(allowGuest=true)
-     * @Route(path="/store-api/account/logout", name="store-api.account.logout", methods={"POST"})
+     * @Route(path="/store-api/account/logout", name="store-api.account.logout", methods={"POST"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
      */
     public function logout(SalesChannelContext $context, RequestDataBag $data): ContextTokenResponse
     {

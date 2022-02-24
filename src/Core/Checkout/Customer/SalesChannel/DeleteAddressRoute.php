@@ -16,7 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"store-api"})
+ * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class DeleteAddressRoute extends AbstractDeleteAddressRoute
 {
@@ -38,38 +38,42 @@ class DeleteAddressRoute extends AbstractDeleteAddressRoute
     }
 
     /**
-     * @Since("6.3.2.0")
-     * @OA\Delete(
-     *      path="/account/address/{addressId}",
-     *      summary="Delete an address of a customer",
-     *      description="Delete an address of customer.
+    * @Since("6.3.2.0")
+    * @OA\Delete(
+    *      path="/account/address/{addressId}",
+    *      summary="Delete an address of a customer",
+    *      description="Delete an address of customer.
 
-Only addresses which are not set as default addresses for shipping or billing can be deleted. You can check the current default addresses of your customer using the profile information endpoint and change them using the default address endpoint.
+    Only addresses which are not set as default addresses for shipping or billing can be deleted. You can check the current default addresses of your customer using the profile information endpoint and change them using the default address endpoint.
 
-     **A customer must have at least one address (which can be used for shipping and billing).**
+    **A customer must have at least one address (which can be used for shipping and billing).**
 
-An automatic fallback is not applied.",
-     *      operationId="deleteCustomerAddress",
-     *      tags={"Store API", "Address"},
-     *      @OA\Parameter(
-     *        name="addressId",
-     *        in="path",
-     *        description="ID of the address to be deleted.",
-     *        @OA\Schema(type="string"),
-     *        required=true
-     *      ),
-     *      @OA\Response(
-     *          response="204",
-     *          description="No Content response, when the address has been deleted"
-     *     ),
-     *      @OA\Response(
-     *          response="400",
-     *          description="Response containing a list of errors, most likely due to the address being in use"
-     *     )
-     * )
-     * @LoginRequired(allowGuest=true)
-     * @Route(path="/store-api/account/address/{addressId}", name="store-api.account.address.delete", methods={"DELETE"})
-     */
+    An automatic fallback is not applied.",
+    *      operationId="deleteCustomerAddress",
+    *      tags={"Store API", "Address"},
+    *      @OA\Parameter(
+    *        name="addressId",
+    *        in="path",
+    *        description="ID of the address to be deleted.",
+    *        @OA\Schema(type="string"),
+    *        required=true
+    *      ),
+    *      @OA\Response(
+    *          response="204",
+    *          description="No Content response, when the address has been deleted"
+    *     ),
+    *      @OA\Response(
+    *          response="400",
+    *          description="Response containing a list of errors, most likely due to the address being in use"
+    *     )
+    * )
+    Only addresses which are not set as default addresses for shipping or billing can be deleted. You can check the current default addresses of your customer using the profile information endpoint and change them using the default address endpoint.
+    **A customer must have at least one address (which can be used for shipping and billing).**
+    An automatic fallback is not applied.",
+    *      operationId="deleteCustomerAddress",
+    *      tags={"Store API", "Address"},
+     * @Route(path="/store-api/account/address/{addressId}", name="store-api.account.address.delete", methods={"DELETE"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
+    */
     public function delete(string $addressId, SalesChannelContext $context, CustomerEntity $customer): NoContentResponse
     {
         $this->validateAddress($addressId, $context, $customer);

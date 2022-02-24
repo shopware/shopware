@@ -27,7 +27,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @RouteScope(scopes={"store-api"})
+ * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class UpsertAddressRoute extends AbstractUpsertAddressRoute
 {
@@ -112,7 +112,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
      *          @OA\JsonContent(ref="#/components/schemas/CustomerAddress")
      *     )
      * )
-     * @LoginRequired(allowGuest=true)
+     * @Route(path="/store-api/account/address", name="store-api.account.address.create", methods={"POST"}, defaults={"addressId"=null, "_loginRequired"=true, "_loginRequiredAllowGuest"=true})
      * @Route(path="/store-api/account/address", name="store-api.account.address.create", methods={"POST"}, defaults={"addressId": null})
      * @Route(path="/store-api/account/address/{addressId}", name="store-api.account.address.update", methods={"PATCH"})
      */

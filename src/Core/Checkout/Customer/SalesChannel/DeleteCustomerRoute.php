@@ -14,7 +14,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"store-api"})
+ * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class DeleteCustomerRoute extends AbstractDeleteCustomerRoute
 {
@@ -44,8 +44,7 @@ class DeleteCustomerRoute extends AbstractDeleteCustomerRoute
      *          description="Returns a no content response indicating a successful removal of the customer profile",
      *     )
      * )
-     * @LoginRequired(allowGuest=true)
-     * @Route("/store-api/account/customer", name="store-api.account.customer.delete", methods={"DELETE"})
+     * @Route("/store-api/account/customer", name="store-api.account.customer.delete", methods={"DELETE"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
      */
     public function delete(SalesChannelContext $context, CustomerEntity $customer): NoContentResponse
     {

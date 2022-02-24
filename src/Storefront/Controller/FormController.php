@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"storefront"})
+ * @Route(defaults={"_routeScope"={"storefront"}})
  */
 class FormController extends StorefrontController
 {
@@ -52,8 +52,7 @@ class FormController extends StorefrontController
 
     /**
      * @Since("6.1.0.0")
-     * @Route("/form/contact", name="frontend.form.contact.send", methods={"POST"}, defaults={"XmlHttpRequest"=true})
-     * @Captcha
+     * @Route("/form/contact", name="frontend.form.contact.send", methods={"POST"}, defaults={"XmlHttpRequest"=true, "_captcha"=true})
      */
     public function sendContactForm(RequestDataBag $data, SalesChannelContext $context): JsonResponse
     {
@@ -99,8 +98,7 @@ class FormController extends StorefrontController
 
     /**
      * @Since("6.1.0.0")
-     * @Route("/form/newsletter", name="frontend.form.newsletter.register.handle", methods={"POST"}, defaults={"XmlHttpRequest"=true})
-     * @Captcha
+     * @Route("/form/newsletter", name="frontend.form.newsletter.register.handle", methods={"POST"}, defaults={"XmlHttpRequest"=true, "_captcha"=true})
      */
     public function handleNewsletter(Request $request, RequestDataBag $data, SalesChannelContext $context): JsonResponse
     {

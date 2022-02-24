@@ -19,7 +19,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @RouteScope(scopes={"store-api"})
+ * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class ListAddressRoute extends AbstractListAddressRoute
 {
@@ -60,8 +60,7 @@ class ListAddressRoute extends AbstractListAddressRoute
      *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/CustomerAddress"))
      *     )
      * )
-     * @LoginRequired(allowGuest=true)
-     * @Route(path="/store-api/account/list-address", name="store-api.account.address.list.get", methods={"GET", "POST"})
+     * @Route(path="/store-api/account/list-address", name="store-api.account.address.list.get", methods={"GET", "POST"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
      */
     public function load(Criteria $criteria, SalesChannelContext $context, CustomerEntity $customer): ListAddressRouteResponse
     {

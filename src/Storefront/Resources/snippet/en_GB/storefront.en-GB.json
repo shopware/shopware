@@ -74,8 +74,9 @@
     }
   },
   "account": {
-    "externalPaymentCanceled": "We received your order, but the payment was aborted. Please change your payment method or try again",
-    "externalPaymentFailure": "We received your order, but we were not able to process your payment, please change the payment method or try again",
+    "externalPaymentCanceled": "We have received your order, but the payment was aborted. Please change your payment method or try again.",
+    "externalPaymentExpired": "We have received your order, but the payment process has expired. Please try again.",
+    "externalPaymentFailure": "We have received your order, but we were not able to process your payment, please change the payment method or try again.",
     "confirmationIsAlreadyDone": "Either the email address has already been confirmed or the URL is invalid.",
     "doubleOptInMailConfirmationSuccessfully": "Thank you for confirming your email address! You can now complete your order.",
     "doubleOptInRegistrationSuccessfully": "Thank you for signing up! Your account has been successfully unlocked.",

@@ -12,6 +12,11 @@
             type: 'danger',
             content: 'account.externalPaymentCanceled'|trans|sw_sanitize
         } %}
+    {% elseif page.errorCode == 'CHECKOUT__PAYMENT_TOKEN_EXPIRED' %}
+        {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+            type: 'danger',
+            content: 'account.externalPaymentExpired'|trans|sw_sanitize
+        } %}
     {% elseif page.errorCode is not null %}
         {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
             type: 'danger',

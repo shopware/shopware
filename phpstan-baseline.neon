@@ -351,13 +351,8 @@ parameters:
 			path: src/Core/Checkout/Payment/PaymentService.php
 
 		-
-			message: "#^Parameter \\#1 \\$token of class Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Exception\\\\TokenExpiredException constructor expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/PaymentService.php
-
-		-
 			message: "#^Parameter \\#1 \\$tokenId of method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Cart\\\\Token\\\\TokenFactoryInterfaceV2\\:\\:invalidateToken\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
+			count: 2
 			path: src/Core/Checkout/Payment/PaymentService.php
 
 		-

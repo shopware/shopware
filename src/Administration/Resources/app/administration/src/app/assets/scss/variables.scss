@@ -224,7 +224,11 @@ $font-weight-bold: 700;
  * 7. Miscellaneous
  * ------------------------------------ */
 
+$border-radius-sm: 6px;
 $border-radius-default: 4px;
+$border-radius-md: 6px;
+$border-radius-lg: 8px;
+$border-radius-xl: 8px;
 $border-radius-pill: 100vh;
 $transparent-background-url: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAACVBMVEX39/f////+/v66RnnUAAAAM0lEQVQIHQXBwQ3AMAgEMC95SPRPpQxENuiete2HCqZRhWlkcV4kIIPb6MUWZpEHN+j9ARNGDXV0xoICAAAAAElFTkSuQmCC');
 $asset-base-url: '/administration/static/';

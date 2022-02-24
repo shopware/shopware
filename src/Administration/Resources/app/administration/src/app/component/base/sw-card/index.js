@@ -50,6 +50,19 @@ Component.register('sw-card', {
         },
     },
 
+    computed: {
+        showHeader() {
+            return !!this.title
+                || !!this.$slots.title
+                || !!this.$scopedSlots.title
+                || !!this.subtitle
+                || !!this.$slots.subtitle
+                || !!this.$scopedSlots.subtitle
+                || !!this.$slots.toolbar
+                || !!this.$scopedSlots.toolbar;
+        },
+    },
+
     methods: {
         cardClasses() {
             const classes = {
@@ -57,7 +70,7 @@ Component.register('sw-card', {
                 'sw-card--grid': !!this.$slots.grid || !!this.$scopedSlots.grid,
                 'sw-card--hero': !!this.hero,
                 'sw-card--large': this.large,
-                'has--header': !!this.$slots.toolbar || !!this.$scopedSlots.toolbar,
+                'has--header': !!this.showHeader,
             };
 
             if (!this.$refs.swIgnoreClass) {

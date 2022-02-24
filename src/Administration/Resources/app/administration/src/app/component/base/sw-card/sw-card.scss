@@ -1,3 +1,4 @@
+@import "~scss/mixins";
 @import "~scss/variables";
 
 .sw-card {
@@ -5,6 +6,7 @@
     margin: 0 auto 40px auto;
     position: relative;
     color: $color-darkgray-200;
+    @include drop-shadow-default();
 
     &__context-menu {
         position: absolute;
@@ -48,35 +50,29 @@
         }
     }
 
+    .sw-card__header {
+        background-color: $color-white;
+        padding: 24px;
+        border-radius: $border-radius-lg $border-radius-lg 0 0;
+        border-bottom: 1px solid $color-gray-300;
+    }
+
     .sw-card__title,
     .sw-card__subtitle {
-        margin-bottom: 12px;
         color: $color-darkgray-200;
-
-        @media screen and (min-width: 1580px) {
-            width: 200px;
-            position: absolute;
-            left: -240px;
-            text-align: right;
-        }
     }
 
     .sw-card__title {
+        color: $color-darkgray-800;
         font-size: $font-size-large;
+        font-weight: $font-weight-semi-bold;
         line-height: 24px;
-
-        @media screen and (min-width: 1580px) {
-            top: 0;
-        }
     }
 
     .sw-card__subtitle {
+        color: $color-darkgray-50;
         font-size: $font-size-small;
         line-height: 20px;
-
-        @media screen and (min-width: 1580px) {
-            top: 40px;
-        }
     }
 
     .sw-card__toolbar {
@@ -88,7 +84,7 @@
     &.has--header {
         .sw-card__content {
             border-top: none;
-            border-radius: 0 0 $border-radius-default $border-radius-default;
+            border-radius: 0 0 $border-radius-lg $border-radius-lg;
         }
     }
 
@@ -96,8 +92,7 @@
         padding: 30px;
         background: $color-white;
         background-clip: padding-box;
-        border-radius: $border-radius-default;
-        border: 1px solid $color-gray-300;
+        border-radius: $border-radius-lg;
         position: relative;
 
         @media screen and (max-width: 800px) {
@@ -188,13 +183,13 @@
 
 .sw-card.sw-card--tabs {
     .sw-card__content {
-        border-radius: 0 0 $border-radius-default $border-radius-default;
+        border-radius: 0 0 $border-radius-lg $border-radius-lg;
         border-top: none;
     }
 
     & > .sw-tabs {
         border: 1px solid $color-gray-300;
-        border-radius: $border-radius-default $border-radius-default 0 0;
+        border-radius: $border-radius-lg $border-radius-lg 0 0;
         border-bottom: none;
         margin-bottom: 0;
 

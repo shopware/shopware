@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ReferenceVersionFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 
@@ -41,11 +40,7 @@ class ReferenceVersionField extends FkField
 
         parent::compile($registry);
 
-        try {
-            $this->versionReferenceDefinition = $registry->get($this->versionReferenceClass);
-        } catch (DefinitionNotFoundException $e) {
-            $this->versionReferenceDefinition = $registry->getByEntityName($this->versionReferenceClass);
-        }
+        $this->versionReferenceDefinition = $registry->getByClassOrEntityName($this->versionReferenceClass);
         $this->versionReferenceClass = $this->versionReferenceDefinition->getClass();
 
         $entity = $this->versionReferenceDefinition->getEntityName();

@@ -8,7 +8,6 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppService;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator;
-use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -16,13 +15,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
-use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\Finder\Finder;
 
 class AppServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use AppSystemTestBehaviour;
 
     /**
      * @var AppService
@@ -52,12 +50,7 @@ class AppServiceTest extends TestCase
         $this->appService = new AppService(
             new AppLifecycleIterator(
                 $this->appRepository,
-                new AppLoader(
-                    __DIR__ . '/Manifest/_fixtures/test',
-                    $this->getContainer()->getParameter('kernel.project_dir'),
-                    $this->getContainer()->get(ConfigReader::class),
-                    $this->getContainer()->get(CustomEntityXmlSchemaValidator::class)
-                )
+                $this->getAppLoader(__DIR__ . '/Manifest/_fixtures/test')
             ),
             $this->getContainer()->get(AppLifecycle::class)
         );
@@ -251,12 +244,7 @@ class AppServiceTest extends TestCase
         $appService = new AppService(
             new AppLifecycleIterator(
                 $this->appRepository,
-                new AppLoader(
-                    __DIR__ . '/Manifest/_fixtures',
-                    $this->getContainer()->getParameter('kernel.project_dir'),
-                    $this->getContainer()->get(ConfigReader::class),
-                    $this->getContainer()->get(CustomEntityXmlSchemaValidator::class)
-                )
+                $this->getAppLoader(__DIR__ . '/Manifest/_fixtures')
             ),
             $this->getContainer()->get(AppLifecycle::class)
         );
@@ -287,12 +275,7 @@ class AppServiceTest extends TestCase
         $appService = new AppService(
             new AppLifecycleIterator(
                 $this->appRepository,
-                new AppLoader(
-                    $appDir,
-                    $this->getContainer()->getParameter('kernel.project_dir'),
-                    $this->getContainer()->get(ConfigReader::class),
-                    $this->getContainer()->get(CustomEntityXmlSchemaValidator::class)
-                )
+                $this->getAppLoader($appDir)
             ),
             $this->getContainer()->get(AppLifecycle::class)
         );

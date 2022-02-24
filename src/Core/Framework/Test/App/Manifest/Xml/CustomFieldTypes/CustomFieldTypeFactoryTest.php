@@ -3,10 +3,10 @@
 namespace Shopware\Core\Framework\Test\App\Manifest\Xml\CustomFieldTypes;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\Exception\CustomFieldTypeNotFoundException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldSet;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\CustomFieldTypeFactory;
-use Shopware\Core\System\CustomEntity\Exception\CustomFieldTypeNotFoundException;
 
 class CustomFieldTypeFactoryTest extends TestCase
 {

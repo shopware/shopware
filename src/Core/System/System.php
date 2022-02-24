@@ -3,6 +3,7 @@
 namespace Shopware\Core\System;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\System\DependencyInjection\CompilerPass\RedisNumberRangeIncrementerCompilerPass;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -66,11 +67,12 @@ class System extends Bundle
             return;
         }
 
-        if (!$connection->getSchemaManager()->tablesExist('custom_entity')) {
+        try {
+            $entities = $connection->fetchAllAssociative('SELECT name, fields FROM custom_entity');
+        } catch (Exception $e) {
+            // kernel booted without database connection, or booted for migration and custom entity table not created yet
             return;
         }
-
-        $entities = $connection->fetchAllAssociative('SELECT name, fields FROM custom_entity');
 
         $definitions = [];
         foreach ($entities as $entity) {

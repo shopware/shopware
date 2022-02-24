@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToManyAssociationFieldResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ManyToManyAssociationFieldSerializer;
 
 class ManyToManyAssociationField extends AssociationField
@@ -66,11 +65,7 @@ class ManyToManyAssociationField extends AssociationField
 
         parent::compile($registry);
 
-        try {
-            $this->toManyDefinition = $registry->get($this->toManyDefinitionClass);
-        } catch (DefinitionNotFoundException $e) {
-            $this->toManyDefinition = $registry->getByEntityName($this->toManyDefinitionClass);
-        }
+        $this->toManyDefinition = $registry->getByClassOrEntityName($this->toManyDefinitionClass);
         $this->toManyDefinitionClass = $this->toManyDefinition->getClass();
         $this->mappingDefinition = $this->referenceDefinition;
     }

@@ -97,7 +97,6 @@
         <xs:attribute type="xs:string" name="name" use="required"/>
         <xs:attribute type="xs:boolean" name="store-api-aware" use="required" />
         <xs:attribute type="xs:boolean" name="required" default="false" />
-        <xs:attribute type="xs:boolean" name="translatable" default="false" />
     </xs:complexType>
 
     <xs:complexType name="field-date-type">

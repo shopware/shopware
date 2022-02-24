@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -244,11 +243,7 @@ abstract class EntityDefinition
             return $this->parentDefinition = null;
         }
 
-        try {
-            $this->parentDefinition = $this->registry->get($parentDefinitionClass);
-        } catch (DefinitionNotFoundException $e) {
-            $this->parentDefinition = $this->registry->getByEntityName($parentDefinitionClass);
-        }
+        $this->parentDefinition = $this->registry->getByClassOrEntityName($parentDefinitionClass);
 
         return $this->parentDefinition;
     }

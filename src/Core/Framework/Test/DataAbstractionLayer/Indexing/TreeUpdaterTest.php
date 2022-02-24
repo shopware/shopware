@@ -98,11 +98,15 @@ class TreeUpdaterTest extends TestCase
         }
 
         $definition = new TestTreeDefinition();
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
-        $registry->method('getByEntityName')->willReturn($definition);
-        $definition->compile($registry);
+        $this->getContainer()
+            ->get(DefinitionInstanceRegistry::class)
+            ->register($definition);
 
-        $treeUpdater = new TreeUpdater($registry, $this->getContainer()->get(Connection::class));
+        $treeUpdater = new TreeUpdater(
+            $this->getContainer()->get(DefinitionInstanceRegistry::class),
+            $this->getContainer()->get(Connection::class)
+        );
+
         $context = Context::createDefaultContext();
 
         $treeUpdater->batchUpdate($ids->getList(['r', 'a', 'b', 'aa', 'ab']), 'test_tree', $context);

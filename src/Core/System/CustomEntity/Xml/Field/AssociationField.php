@@ -4,6 +4,10 @@ namespace Shopware\Core\System\CustomEntity\Xml\Field;
 
 abstract class AssociationField extends Field
 {
+    public const SET_NULL = 'set-null';
+    public const CASCADE = 'cascade';
+    public const RESTRICT = 'restrict';
+
     protected string $reference;
 
     protected bool $inherited = false;

@@ -16,17 +16,22 @@ trait AppSystemTestBehaviour
 {
     abstract protected function getContainer(): ContainerInterface;
 
+    protected function getAppLoader(string $appDir): AppLoader
+    {
+        return new AppLoader(
+            $appDir,
+            $this->getContainer()->getParameter('kernel.project_dir'),
+            $this->getContainer()->get(ConfigReader::class),
+            $this->getContainer()->get(CustomEntityXmlSchemaValidator::class)
+        );
+    }
+
     protected function loadAppsFromDir(string $appDir, bool $activateApps = true): void
     {
         $appService = new AppService(
             new AppLifecycleIterator(
                 $this->getContainer()->get('app.repository'),
-                new AppLoader(
-                    $appDir,
-                    $this->getContainer()->getParameter('kernel.project_dir'),
-                    $this->getContainer()->get(ConfigReader::class),
-                    $this->getContainer()->get(CustomEntityXmlSchemaValidator::class)
-                )
+                $this->getAppLoader($appDir),
             ),
             $this->getContainer()->get(AppLifecycle::class)
         );

@@ -3,11 +3,9 @@
 namespace Shopware\Core\System\CustomEntity\Xml\Field;
 
 use Shopware\Core\System\CustomEntity\Xml\Field\Traits\RequiredTrait;
-use Shopware\Core\System\CustomEntity\Xml\Field\Traits\TranslatableTrait;
 
 class PriceField extends Field
 {
-    use TranslatableTrait;
     use RequiredTrait;
 
     protected string $type = 'price';

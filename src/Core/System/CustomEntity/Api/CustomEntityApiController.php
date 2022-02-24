@@ -6,7 +6,6 @@ use Shopware\Core\Framework\Api\Controller\ApiController;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -16,13 +15,6 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class CustomEntityApiController extends ApiController
 {
-    public function clone(Context $context, string $entity, string $id, Request $request): JsonResponse
-    {
-        $entity = 'custom-entity-' . $entity;
-
-        return parent::clone($context, $entity, $id, $request);
-    }
-
     public function detail(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
         $entityName = 'custom-entity-' . $entityName;

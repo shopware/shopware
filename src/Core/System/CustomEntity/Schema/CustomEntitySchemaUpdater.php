@@ -37,30 +37,12 @@ class CustomEntitySchemaUpdater
 
             $schema = $this->getSchemaManager()->createSchema();
 
-            foreach ($schema->getTables() as $table) {
-                if ($table->getComment() === self::COMMENT) {
-                    $schema->dropTable($table->getName());
-
-                    continue;
-                }
-
-                foreach ($table->getForeignKeys() as $foreignKey) {
-                    if (\strpos($foreignKey->getName(), 'fk_ce_') === 0) {
-                        $table->removeForeignKey($foreignKey->getName());
-                    }
-                }
-
-                foreach ($table->getColumns() as $column) {
-                    if ($column->getComment() === self::COMMENT) {
-                        $table->dropColumn($column->getName());
-                    }
-                }
-            }
+            $this->cleanup($schema);
 
             foreach ($tables as $table) {
                 $fields = \json_decode($table['fields'], true, 512, \JSON_THROW_ON_ERROR);
 
-                if (\strpos($table['name'], 'custom_entity_') !== 0) {
+                if (!\str_starts_with($table['name'], 'custom_entity_')) {
                     throw new HttpException('custom_entity_schema_updater.invalid_table_name', \sprintf('Table %s has to be prefixed with custom_', $table['name']));
                 }
 
@@ -86,10 +68,10 @@ class CustomEntitySchemaUpdater
     {
         $from = $this->getSchemaManager()->createSchema();
 
-        $diff = (new Comparator())
-            ->compare($from, $to);
+        $queries = (new Comparator())
+            ->compare($from, $to)
+            ->toSql($this->getPlatform());
 
-        $queries = $diff->toSql($this->getPlatform());
         foreach ($queries as $query) {
             $this->connection->executeStatement($query);
         }
@@ -99,11 +81,9 @@ class CustomEntitySchemaUpdater
     {
         $table = $this->createTable($schema, $name);
 
-        if (!$table->hasColumn('id')) {
-            // Id columns do not need to be defined in the .xml, we do this automatically
-            $table->addColumn('id', Types::BINARY, ['length' => 16, 'fixed' => true]);
-            $table->setPrimaryKey(['id']);
-        }
+        // Id columns do not need to be defined in the .xml, we do this automatically
+        $table->addColumn('id', Types::BINARY, ['length' => 16, 'fixed' => true]);
+        $table->setPrimaryKey(['id']);
 
         // important: we add a `comment` to the table. This allows us to identify the custom entity modifications when run the cleanup
         $table->setComment(self::COMMENT);
@@ -150,19 +130,11 @@ class CustomEntitySchemaUpdater
             'restrict' => ['onUpdate' => 'cascade', 'onDelete' => 'restrict'],
         ];
 
-        if (!$table->hasColumn('created_at')) {
-            $table->addColumn('created_at', Types::DATETIME_MUTABLE, ['notnull' => true]);
-        }
+        $table->addColumn('created_at', Types::DATETIME_MUTABLE, ['notnull' => true]);
 
-        if (!$table->hasColumn('updated_at')) {
-            $table->addColumn('updated_at', Types::DATETIME_MUTABLE, ['notnull' => false]);
-        }
+        $table->addColumn('updated_at', Types::DATETIME_MUTABLE, ['notnull' => false]);
 
         foreach ($fields as $field) {
-            if ($table->hasColumn($field['name'])) {
-                continue;
-            }
-
             $required = $field['required'] ?? false;
 
             $nullable = $required ? [] : ['notnull' => false, 'default' => null];
@@ -253,9 +225,6 @@ class CustomEntitySchemaUpdater
                     break;
                 case 'many-to-one':
                 case 'one-to-one':
-                    if ($table->hasColumn(self::id($field['name']))) {
-                        continue 2;
-                    }
                     // first add foreign key column to custom entity table: `top_seller_id`
                     $table->addColumn(self::id($field['name']), Types::BINARY, $nullable + $binary);
 
@@ -361,5 +330,28 @@ class CustomEntitySchemaUpdater
         }
 
         return $platform;
+    }
+
+    private function cleanup(Schema $schema): void
+    {
+        foreach ($schema->getTables() as $table) {
+            if ($table->getComment() === self::COMMENT) {
+                $schema->dropTable($table->getName());
+
+                continue;
+            }
+
+            foreach ($table->getForeignKeys() as $foreignKey) {
+                if (\str_starts_with($foreignKey->getName(), 'fk_ce_')) {
+                    $table->removeForeignKey($foreignKey->getName());
+                }
+            }
+
+            foreach ($table->getColumns() as $column) {
+                if ($column->getComment() === self::COMMENT) {
+                    $table->dropColumn($column->getName());
+                }
+            }
+        }
     }
 }

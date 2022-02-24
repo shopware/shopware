@@ -308,6 +308,8 @@
     "currency_translation.updatedAt",
     "currency_translation.currencyId",
     "currency_translation.languageId",
+    "custom_entity.createdAt",
+    "custom_entity.updatedAt",
     "locale.id",
     "locale.code",
     "locale.name",

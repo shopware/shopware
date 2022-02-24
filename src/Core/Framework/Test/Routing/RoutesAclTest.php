@@ -15,11 +15,11 @@ class RoutesAclTest extends TestCase
     use KernelTestBehaviour;
 
     /**
-     * blacklist routes for explizit overwrite
+     * blacklist routes for explicit overwrite
      *
      * @var array
      */
-    private $blacklist = [];
+    private $blocklist = [];
 
     public function testRoutesAcls(): void
     {
@@ -28,7 +28,7 @@ class RoutesAclTest extends TestCase
 
         $routes = $this->getContainer()->get('router')->getRouteCollection();
         foreach ($routes as $route) {
-            if (\in_array($route->getPath(), $this->blacklist, true)) {
+            if (\in_array($route->getPath(), $this->blocklist, true)) {
                 continue;
             }
             if (!\is_array($route->getOption('parentDefaults'))) {

@@ -8,19 +8,18 @@ use Shopware\Core\Framework\App\Command\AppPrinter;
 use Shopware\Core\Framework\App\Command\RefreshAppCommand;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator;
-use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator;
-use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\Console\Tester\CommandTester;
 
 class RefreshAppCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use AppSystemTestBehaviour;
 
     /**
      * @var EntityRepositoryInterface
@@ -271,12 +270,7 @@ class RefreshAppCommandTest extends TestCase
             new AppService(
                 new AppLifecycleIterator(
                     $this->getContainer()->get('app.repository'),
-                    new AppLoader(
-                        $appFolder,
-                        $this->getContainer()->getParameter('kernel.project_dir'),
-                        $this->getContainer()->get(ConfigReader::class),
-                        $this->getContainer()->get(CustomEntityXmlSchemaValidator::class)
-                    )
+                    $this->getAppLoader($appFolder)
                 ),
                 $this->getContainer()->get(AppLifecycle::class)
             ),

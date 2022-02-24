@@ -71,6 +71,18 @@ class DefinitionInstanceRegistry
         }
     }
 
+    /**
+     * Shorthand to get the definition instance by class and use provided key as entity name as fallback
+     */
+    public function getByClassOrEntityName(string $key): EntityDefinition
+    {
+        try {
+            return $this->get($key);
+        } catch (DefinitionNotFoundException $e) {
+            return $this->getByEntityName($key);
+        }
+    }
+
     public function has(string $name): bool
     {
         return isset($this->definitions[$name]);

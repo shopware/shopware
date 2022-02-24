@@ -40,6 +40,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\HttpException;
+use Shopware\Core\System\CustomEntity\Xml\Field\AssociationField;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
@@ -429,11 +430,11 @@ class DynamicFieldFactory
     private static function getOnDeleteFlag(array $field): Flag
     {
         switch ($field['onDelete']) {
-            case 'cascade':
+            case AssociationField::CASCADE:
                 return new CascadeDelete();
-            case 'set-null':
+            case AssociationField::SET_NULL:
                 return new SetNullOnDelete();
-            case 'restrict':
+            case AssociationField::RESTRICT:
                 return new RestrictDelete();
             default:
                 throw new HttpException('unknown_on_delete', \sprintf('onDelete property %s are not supported on field %s', $field['onDelete'], $field['name']));

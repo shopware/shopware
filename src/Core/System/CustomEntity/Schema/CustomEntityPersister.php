@@ -5,7 +5,6 @@ namespace Shopware\Core\System\CustomEntity\Schema;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
-use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -24,12 +23,8 @@ class CustomEntityPersister
     {
         $names = array_column($entities, 'name');
 
-        if (\count($names) !== \count(array_filter($names))) {
-            throw new HttpException('custom_entity_persister.empty_name', 'Some of the entities has no configured name');
-        }
-
         $existings = $this->connection->fetchAllAssociativeIndexed(
-            'SELECT name, LOWER(HEX(id)) as id, created_at FROM custom_entity WHERE `name` IN (:names)',
+            'SELECT `name`, LOWER(HEX(id)) as id, created_at FROM custom_entity WHERE `name` IN (:names)',
             ['names' => $names],
             ['names' => Connection::PARAM_STR_ARRAY]
         );

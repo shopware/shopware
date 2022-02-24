@@ -25,7 +25,8 @@ class Migration1639122665AddCustomEntities extends MigrationStep
               PRIMARY KEY (`id`),
               KEY `app_id` (`app_id`),
               UNIQUE `name` (`name`),
-              CONSTRAINT `fk.custom_entity.app_id` FOREIGN KEY (`app_id`) REFERENCES `app` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+              CONSTRAINT `fk.custom_entity.app_id` FOREIGN KEY (`app_id`) REFERENCES `app` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+              CONSTRAINT `json.custom_entity.fields` CHECK (JSON_VALID(`fields`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

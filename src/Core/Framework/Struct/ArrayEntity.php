@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Struct;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
+use Shopware\Core\Framework\Feature;
 
 class ArrayEntity extends Entity implements \ArrayAccess
 {
@@ -144,7 +145,9 @@ class ArrayEntity extends Entity implements \ArrayAccess
     {
         $vars = parent::getVars();
 
-        unset($vars['data']);
+        if (Feature::isActive('v6.5.0.0')) {
+            unset($vars['data']);
+        }
 
         return array_merge($vars, $this->data);
     }

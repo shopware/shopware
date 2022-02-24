@@ -15,7 +15,7 @@ describe('WishlistWidgetPlugin tests', () => {
         window.wishlistEnabled = true;
 
         // mock search plugin
-        const mockElement = document.createElement('div');
+        document.body.innerHTML = '<div class="wishlist-widget"></div>';
 
         window.PluginManager = {
             getPluginInstancesFromElement: () => {
@@ -33,6 +33,8 @@ describe('WishlistWidgetPlugin tests', () => {
                 };
             },
         };
+
+        const mockElement = document.querySelector('.wishlist-widget');
 
         wishlistWidgetPlugin = new WishlistWidgetPlugin(mockElement);
     });
@@ -67,6 +69,23 @@ describe('WishlistWidgetPlugin tests', () => {
         expect(wishlistWidgetPlugin._wishlistStorage.getCurrentCounter).toHaveBeenCalled();
         expect(wishlistWidgetPlugin._reInitWishlistButton).toHaveBeenCalled();
     });
+
+    test('Wishlist widget should render counter by default', () => {
+        wishlistWidgetPlugin._wishlistStorage.getCurrentCounter = jest.fn().mockReturnValueOnce(5);
+        wishlistWidgetPlugin._wishlistStorage.$emitter.publish('Wishlist/onProductsLoaded');
+
+        expect(document.body.querySelector('.wishlist-widget').innerHTML).toBe('5');
+    });
+
+    test('Wishlist widget should not render counter when deactivated via option', () => {
+        wishlistWidgetPlugin.options.showCounter = false;
+
+        wishlistWidgetPlugin._wishlistStorage.getCurrentCounter = jest.fn().mockReturnValueOnce(5);
+        wishlistWidgetPlugin._wishlistStorage.$emitter.publish('Wishlist/onProductsLoaded');
+
+        expect(document.body.querySelector('.wishlist-widget').innerHTML).toBe('');
+    });
+
 });
 
 

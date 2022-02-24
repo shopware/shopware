@@ -267,4 +267,80 @@ describe('Test payment and shipping methods selection', () => {
         cy.get('[action] .btn-primary').click();
         cy.get('.order-item-status-badge-cancelled').should('be.visible').contains('Cancelled');
     });
+
+    it('@base @confirm: should have a working wishlist', () => {
+        cy.intercept({
+            url: `**/wishlist/add/**`,
+            method: 'POST'
+        }).as('wishlistAdd');
+
+        cy.intercept({
+            url: `**/wishlist/remove/**`,
+            method: 'POST'
+        }).as('wishlistRemove');
+
+        cy.authenticate().then((result) => {
+            const requestConfig = {
+                headers: {
+                    Authorization: `Bearer ${result.access}`,
+                },
+                method: 'POST',
+                url: `api/_action/system-config/batch`,
+                body: {
+                    null: {
+                        'core.cart.wishlistEnabled': true,
+                    },
+                },
+            };
+
+            return cy.request(requestConfig);
+        });
+
+        const page = new CheckoutPageObject();
+
+        // add product to cart
+        cy.get('.header-search-input')
+            .should('be.visible')
+            .type(product.name);
+        cy.contains('.search-suggest-product-name', product.name).click();
+        cy.get('.product-detail-buy .btn-buy').click();
+
+        // Off canvas
+        cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
+        cy.get(`${page.elements.cartItem}-label`).contains(product.name);
+
+        // Go to cart
+        cy.get('.offcanvas-cart-actions [href="/checkout/confirm"]').click();
+
+        cy.get(`${page.elements.cartItem} .product-wishlist-action`).scrollIntoView();
+        cy.get(`${page.elements.cartItem} .product-wishlist-action .text-wishlist-not-added`)
+            .should('be.visible')
+            .contains('Add to wishlist');
+
+        cy.get(`${page.elements.cartItem} .product-wishlist-action`)
+            .should('be.visible')
+            .click();
+
+        cy.wait('@wishlistAdd').its('response.statusCode').should('equal', 200);
+
+        cy.get(`${page.elements.cartItem} .product-wishlist-action .text-wishlist-remove`)
+            .should('be.visible')
+            .contains('Remove from wishlist');
+
+        cy.get(`${page.elements.cartItem} .product-wishlist-action`).click();
+
+        cy.wait('@wishlistRemove').its('response.statusCode').should('equal', 200);
+
+        cy.get(`${page.elements.cartItem} .product-wishlist-action .text-wishlist-not-added`)
+            .should('be.visible')
+            .contains('Add to wishlist');
+
+        cy.get(`${page.elements.cartItem} .product-wishlist-action`).click();
+
+        cy.wait('@wishlistAdd').its('response.statusCode').should('equal', 200);
+
+        cy.visit('/wishlist');
+
+        cy.get('.product-name').contains(product.name);
+    });
 });

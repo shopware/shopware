@@ -27,6 +27,14 @@
                                 </a>
                             </div>
                         {% endblock %}
+
+                        {% if config('core.cart.wishlistEnabled') %}
+                            {% block layout_header_minimal_wishlist %}
+                                {% sw_include '@Storefront/storefront/layout/header/actions/wishlist-widget.html.twig' with {
+                                    showCounter: false
+                                } %}
+                            {% endblock %}
+                        {% endif %}
                     </div>
                 {% endblock %}
             </div>

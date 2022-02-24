@@ -69,6 +69,11 @@ class MediaFolderEntity extends Entity
      */
     protected $defaultFolderId;
 
+    /**
+     * @var string|null
+     */
+    protected $path;
+
     public function getName(): string
     {
         return $this->name;
@@ -177,5 +182,15 @@ class MediaFolderEntity extends Entity
     public function setDefaultFolderId(?string $defaultFolderId): void
     {
         $this->defaultFolderId = $defaultFolderId;
+    }
+
+    public function getPath(): ?string
+    {
+        return $this->path;
+    }
+
+    public function setPath(string $path): void
+    {
+        $this->path = $path;
     }
 }

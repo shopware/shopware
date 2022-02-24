@@ -12,12 +12,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class MediaFolderIndexer extends EntityIndexer
 {
     public const CHILD_COUNT_UPDATER = 'media_folder.child-count';
+    public const TREE_UPDATER = 'media_folder.tree';
 
     private IteratorFactory $iteratorFactory;
 
@@ -29,18 +31,22 @@ class MediaFolderIndexer extends EntityIndexer
 
     private ChildCountUpdater $childCountUpdater;
 
+    private TreeUpdater $treeUpdater;
+
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,
-        ChildCountUpdater $childCountUpdater
+        ChildCountUpdater $childCountUpdater,
+        TreeUpdater $treeUpdater
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->folderRepository = $repository;
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
         $this->childCountUpdater = $childCountUpdater;
+        $this->treeUpdater = $treeUpdater;
     }
 
     public function getName(): string
@@ -69,20 +75,38 @@ class MediaFolderIndexer extends EntityIndexer
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
     {
         $updates = $event->getPrimaryKeys(MediaFolderDefinition::ENTITY_NAME);
+        $mediaFolderEvent = $event->getEventByEntityName(MediaFolderDefinition::ENTITY_NAME);
 
-        if (empty($updates)) {
+        if (empty($updates) || !$mediaFolderEvent) {
             return null;
         }
 
         $updates = array_merge($updates, $this->fetchChildren($updates));
+
+        $idsWithChangedParentIds = [];
+        foreach ($mediaFolderEvent->getWriteResults() as $result) {
+            $payload = $result->getPayload();
+            if (\array_key_exists('parentId', $payload)) {
+                $idsWithChangedParentIds[] = $payload['id'];
+            }
+        }
+
+        if ($idsWithChangedParentIds !== []) {
+            $this->treeUpdater->batchUpdate(
+                $idsWithChangedParentIds,
+                MediaFolderDefinition::ENTITY_NAME,
+                $event->getContext()
+            );
+        }
 
         return new MediaIndexingMessage(array_values($updates), null, $event->getContext());
     }
 
     public function handle(EntityIndexingMessage $message): void
     {
-        $ids = $message->getData();
+        $context = $message->getContext();
 
+        $ids = $message->getData();
         $ids = array_filter(array_unique($ids));
 
         if (empty($ids)) {
@@ -125,6 +149,10 @@ class MediaFolderIndexer extends EntityIndexer
             $this->childCountUpdater->update(MediaFolderDefinition::ENTITY_NAME, $ids, $message->getContext());
         }
 
+        if (!empty($children) && $message->allow(self::TREE_UPDATER)) {
+            $this->treeUpdater->batchUpdate($children, MediaFolderDefinition::ENTITY_NAME, $context);
+        }
+
         $this->eventDispatcher->dispatch(new MediaFolderIndexerEvent($ids, $message->getContext(), $message->getSkip()));
     }
 
@@ -132,6 +160,7 @@ class MediaFolderIndexer extends EntityIndexer
     {
         return [
             self::CHILD_COUNT_UPDATER,
+            self::TREE_UPDATER,
         ];
     }
 

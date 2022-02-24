@@ -327,7 +327,13 @@ class TreeUpdater
             }
 
             $sql .= implode(',', $sets);
-            $sql .= ' WHERE `id` = :id AND `version_id` = :version';
+            $sql .= ' WHERE `id` = :id';
+
+            if ($definition->getField('version_id')) {
+                $sql .= ' AND `version_id` = :version';
+            }
+
+            $sql .= ';';
 
             $this->updateEntityStatement = $this->connection->prepare($sql);
         }
@@ -338,8 +344,12 @@ class TreeUpdater
 
         $update = [
             'id' => $entity['id'],
-            'version' => Uuid::fromHexToBytes($context->getVersionId()),
         ];
+
+        if ($definition->getField('version_id')) {
+            $update['version'] = Uuid::fromHexToBytes($context->getVersionId());
+        }
+
         if ($pathField !== null) {
             $update['path'] = $entity['path'];
         }

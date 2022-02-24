@@ -460,20 +460,30 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         ];
 
         const wrapper = createWrapper();
+        const pages = [{
+            id: '1a',
+            sections: [],
+            categories: [],
+            products: [{ id: 'abc' }],
+            translated: {
+                name: 'CMS Page 1'
+            },
+        }];
+
+        pages.aggregations = {
+            products: {
+                buckets: [{
+                    key: '1a',
+                    productCount: {
+                        count: 1
+                    }
+                }]
+            }
+        };
 
         await wrapper.setData({
             isLoading: false,
-            pages: [
-                {
-                    id: '1a',
-                    sections: [],
-                    categories: [],
-                    products: [{}],
-                    translated: {
-                        name: 'CMS Page 1'
-                    }
-                }
-            ]
+            pages
         });
 
         await wrapper.find('.sw-cms-list-item--0 .sw-context-button__button').trigger('click');

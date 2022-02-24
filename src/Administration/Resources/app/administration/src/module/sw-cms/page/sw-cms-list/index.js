@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-cms-list', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'feature'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -98,8 +98,14 @@ Component.register('sw-cms-list', {
         listCriteria() {
             const criteria = new Criteria(this.page, this.limit);
             criteria.addAssociation('previewMedia')
-                .addAssociation('products')
                 .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
+
+            /**
+             * @deprecated tag:v6.5.0 - Association will be removed
+             */
+            if (!this.feature.isActive('V6_5_0_0')) {
+                criteria.addAssociation('products');
+            }
 
             if (this.term !== null) {
                 criteria.setTerm(this.term);
@@ -110,8 +116,17 @@ Component.register('sw-cms-list', {
             }
 
             this.addLinkedLayoutsAggregation(criteria);
+            this.addPageAggregations(criteria);
 
             return criteria;
+        },
+
+        associatedCategoryBuckets() {
+            return this.pages.aggregations?.categories?.buckets || [];
+        },
+
+        associatedProductBuckets() {
+            return this.pages.aggregations?.products?.buckets || [];
         },
 
         /**
@@ -217,8 +232,24 @@ Component.register('sw-cms-list', {
             criteria.addAggregation(linkedLayoutsFilter);
         },
 
+        addPageAggregations(criteria) {
+            return criteria.addAggregation(Criteria.terms(
+                'products',
+                'id',
+                null,
+                null,
+                Criteria.count('productCount', 'products.id'),
+            )).addAggregation(Criteria.terms(
+                'categories',
+                'id',
+                null,
+                null,
+                Criteria.count('categoryCount', 'categories.id'),
+            ));
+        },
+
         /**
-         * Determines whether a given CMS layout ("page") is in use already.
+         * Determines whether a given CMS layout ("page") is already in use.
          */
         layoutIsLinked(pageId) {
             return this.linkedLayouts.some(page => page.id === pageId);
@@ -431,9 +462,21 @@ Component.register('sw-cms-list', {
             };
         },
 
+        getPageCategoryCount(page) {
+            return Object.values(this.associatedCategoryBuckets).find((bucket) => {
+                return bucket.key === page.id;
+            })?.categoryCount?.count || 0;
+        },
+
+        getPageProductCount(page) {
+            return Object.values(this.associatedProductBuckets).find((bucket) => {
+                return bucket.key === page.id;
+            })?.productCount?.count || 0;
+        },
+
         optionContextDeleteDisabled(page) {
-            return page.categories.length > 0 ||
-                (page.products && page.products.length > 0) ||
+            return this.getPageCategoryCount(page) > 0 ||
+                this.getPageProductCount(page) > 0 ||
                 !this.acl.can('cms.deleter');
         },
     },

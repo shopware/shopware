@@ -34,14 +34,14 @@ class NewsletterController extends StorefrontController
     /**
      * @var EntityRepositoryInterface
      *
-     * @deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16106) $customerRepository is no longer used and will be removed
+     * @deprecated tag:v6.5.0 - $customerRepository is no longer used and will be removed
      */
     private $customerRepository;
 
     /**
      * @var AbstractNewsletterSubscribeRoute
      *
-     * @deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16106) $newsletterSubscribeRoute is no longer used and will be removed
+     * @deprecated tag:v6.5.0 - $newsletterSubscribeRoute is no longer used and will be removed
      */
     private $newsletterSubscribeRoute;
 
@@ -53,7 +53,7 @@ class NewsletterController extends StorefrontController
     /**
      * @var AbstractNewsletterUnsubscribeRoute
      *
-     * @deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16106) $newsletterUnsubscribeRoute is no longer used and will be removed
+     * @deprecated tag:v6.5.0 - $newsletterUnsubscribeRoute is no longer used and will be removed
      */
     private $newsletterUnsubscribeRoute;
 
@@ -68,12 +68,12 @@ class NewsletterController extends StorefrontController
         NewsletterAccountPageletLoader $newsletterAccountPageletLoader
     ) {
         $this->newsletterConfirmRegisterPageLoader = $newsletterConfirmRegisterPageLoader;
-        /* @feature-deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16106) remove next line */
+        /* @deprecated tag:v6.5.0 - remove next line */
         $this->customerRepository = $customerRepository;
-        /* @feature-deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16106) remove next line */
+        /* @deprecated tag:v6.5.0 - remove next line */
         $this->newsletterSubscribeRoute = $newsletterSubscribeRoute;
         $this->newsletterConfirmRoute = $newsletterConfirmRoute;
-        /* @feature-deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16106) remove next line */
+        /* @deprecated tag:v6.5.0 - remove next line */
         $this->newsletterUnsubscribeRoute = $newsletterUnsubscribeRoute;
         $this->newsletterAccountPageletLoader = $newsletterAccountPageletLoader;
     }

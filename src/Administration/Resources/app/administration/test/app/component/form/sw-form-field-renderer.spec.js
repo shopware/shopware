@@ -27,7 +27,6 @@ function createWrapper(additionalOptions = {}) {
 describe('components/form/sw-form-field-renderer', () => {
     beforeAll(() => {
         global.repositoryFactoryMock.showError = false;
-        global.activeFeatureFlags = ['FEATURE_NEXT_17973'];
     });
 
     it('should be a Vue.js component', async () => {

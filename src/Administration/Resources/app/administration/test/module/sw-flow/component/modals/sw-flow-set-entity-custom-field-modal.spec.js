@@ -160,8 +160,6 @@ function createWrapper(customField = customNormalField) {
 
 describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () => {
     beforeAll(() => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_17973'];
-
         Shopware.Service().register('flowBuilderService', () => {
             return {
                 mapActionType: () => {},

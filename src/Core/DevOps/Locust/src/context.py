@@ -18,7 +18,8 @@ class Context:
 
     def __init__(self):
         self.env = self.__get_env()
-        self.token = self.__get_token()
+        self.url = self.env['url']
+        self.token = self.get_token()
         self.aggregate = self.env['aggregate']
         self.wait = self.env['wait']
         self.keywords = self.__initKeywords()
@@ -47,7 +48,7 @@ class Context:
     def __initKeywords(self):
         return self.__get_json_file('/../fixtures/keywords.json')
 
-    def __get_token(self):
+    def get_token(self):
         response = requests.post(self.env['url'] + '/api/oauth/token', data=self.env['oauth'])
 
         if response.status_code == 200:

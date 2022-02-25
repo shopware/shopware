@@ -9,12 +9,20 @@
 
 {% endif %}
 
+{% if service.deprecated %}
+**Deprecated:** {{ service.deprecated|raw }}
+
+{% endif %}
 {{ service.summary|raw }}
 {{ service.description|raw }}
 
 {% for method in service.methods %}
 ### {{ method.title }}
 
+{% if method.deprecated %}
+**Deprecated:** {{ method.deprecated|raw }}
+
+{% endif %}
 * {{ method.summary|raw }}
 
     {{ method.description|replace({"\n": "\n\t"})|raw }}

@@ -80,6 +80,16 @@ describe('Rule builder: Test duplication of rule', () => {
             cy.wait('@duplicateData')
                 .its('response.statusCode').should('equal', 200);
             cy.url().should('not.contain', originalId);
+
+            cy.get('input[name=sw-field--rule-name]').should('have.value', 'Duplication RuleBuilder Copy');
+
+            // Click save and duplicate
+            cy.clickContextMenuItem(
+                '.sw-settings-rule-detail__save-duplicate-action',
+                '.sw-settings-rule-detail__save-button-group .sw-context-button'
+            );
+
+            cy.get('input[name=sw-field--rule-name]').should('have.value', 'Duplication RuleBuilder Copy Copy');
         });
     });
 });

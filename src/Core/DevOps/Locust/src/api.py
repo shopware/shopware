@@ -8,8 +8,7 @@ from locust.exception import RescheduleTask
 class Api:
     context: None
 
-    def __init__(self, client, context):
-        self.client = client
+    def __init__(self, context):
         self.context = context
         self.headers = {
             'Accept': 'application/json',
@@ -55,7 +54,7 @@ class Api:
             'product.stock',
         ])
 
-        self._sync(operations, headers, '_api-stock-update')
+        self._sync(operations, headers)
 
     def update_prices(self):
         updates = []
@@ -78,28 +77,15 @@ class Api:
             'product.cheapest-price',
         ])
 
-        self._sync(operations, headers, '_api-price-update')
+        self._sync(operations, headers)
 
-    def _sync(self, operations, headers, name):
-        with self.client.post('/api/_action/sync', json=operations, headers=headers, name=name, catch_response=True) as response:
-            if response.status_code in [200, 204]:
-                response.success()
-                return
+    def _sync(self, operations, headers):
+        response = requests.post(self.context.url + '/api/_action/sync', json=operations, headers=headers)
 
-            content = response.json()
-            if 'errors' not in content:
-                return
+        if response.status_code in [200, 204]:
+            return
 
-            if 0 not in content['errors']:
-                return
-
-            if 'detail' not in content['errors'][0]:
-                return
-
-            message = content['errors'][0]['detail']
-
-            if 'Deadlock found when' in message:
-                raise RescheduleTask()
+        raise ValueError('Sync error: ' + str(response.status_code) + ' ' + response.text)
 
     def __define_updaters(self, excludes):
         skips = []

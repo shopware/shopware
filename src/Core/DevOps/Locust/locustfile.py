@@ -1,54 +1,25 @@
 import os
 import sys
-import uuid
 from locust import FastHttpUser, task, between, constant
 from bs4 import BeautifulSoup
+import threading
 
 sys.path.append(os.path.dirname(__file__) + '/src')
 from storefront import Storefront
 from context import Context
+from erp import ERP
 from api import Api
 
 context = Context()
 
-class Admin(FastHttpUser):
-    id = None
-    weight = 1
-    wait_time = between(5, 10)
+def run_erp():
+    erp = ERP(context)
+    erp.run()
 
-    @task
-    def stock_updates(self):
-        # fixed_count locust config is broken
-        if (not self.allowed()):
-            return
-
-        api = Api(self.client, context)
-        api.update_stock()
-
-    @task
-    def price_updates(self):
-        # fixed_count locust config is broken
-        if (not self.allowed()):
-            return
-
-        api = Api(self.client, context)
-        api.update_prices()
-
-    def allowed(self):
-        if (self.id == None):
-            self.id = str(uuid.uuid4())
-
-        if (self.id in context.admin_ids):
-            return True
-
-        if (len(context.admin_ids) < context.max_api_users):
-            context.admin_ids.append(self.id)
-            return True
-
-        return False
+timer = threading.Timer(5.0, run_erp)
+timer.start()
 
 class Customer(FastHttpUser):
-    weight=100
     wait_time = between(2, 10)
 
     @task(4)

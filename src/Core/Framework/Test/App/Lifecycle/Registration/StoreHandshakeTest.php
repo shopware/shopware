@@ -2,9 +2,14 @@
 
 namespace Shopware\Core\Framework\Test\App\Lifecycle\Registration;
 
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\Exception\AppLicenseCouldNotBeVerifiedException;
 use Shopware\Core\Framework\App\Lifecycle\Registration\StoreHandshake;
 use Shopware\Core\Framework\Store\Services\StoreClient;
+use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Kernel;
@@ -12,6 +17,7 @@ use Shopware\Core\Kernel;
 class StoreHandshakeTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use StoreClientBehaviour;
 
     public function testUrlContainsAllNecessaryElements(): void
     {
@@ -66,5 +72,29 @@ class StoreHandshakeTest extends TestCase
         $handshake = new StoreHandshake($shopUrl, $appEndpoint, $appName, $shopId, $storeClientMock, Kernel::SHOPWARE_FALLBACK_VERSION);
 
         static::assertEquals('1234', $handshake->fetchAppProof());
+    }
+
+    public function testThrowsIfSbpRespondsWithUnauthorized(): void
+    {
+        $storeClient = $this->createMock(StoreClient::class);
+        $storeClient->method('signPayloadWithAppSecret')
+            ->willThrowException(new ClientException(
+                '',
+                new Request('POST', 'app_generate_signature'),
+                new Response(401, [], json_encode(['code' => 'ShopwarePlatformException-1']))
+            ));
+
+        $handshake = new StoreHandshake(
+            'http://shop.url',
+            'http://app.url',
+            'TestApp',
+            'my-shop-id',
+            $storeClient,
+            Kernel::SHOPWARE_FALLBACK_VERSION
+        );
+
+        static::expectException(AppLicenseCouldNotBeVerifiedException::class);
+
+        $handshake->assembleRequest();
     }
 }

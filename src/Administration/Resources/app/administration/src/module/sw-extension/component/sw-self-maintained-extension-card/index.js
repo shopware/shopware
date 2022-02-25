@@ -121,4 +121,3 @@ Component.extend('sw-self-maintained-extension-card', 'sw-extension-card-base', 
         },
     },
 });
-

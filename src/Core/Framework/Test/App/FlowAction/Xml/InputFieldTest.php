@@ -13,7 +13,7 @@ class InputFieldTest extends TestCase
         $flowActions = FlowAction::createFromXmlFile(__DIR__ . '/../_fixtures/valid/flowActionWithFlowActions.xml');
         static::assertCount(1, $flowActions->getActions()->getActions());
         $config = $flowActions->getActions()->getActions()[0]->getConfig()->getConfig();
-        static::assertCount(5, $config);
+        static::assertCount(4, $config);
         /**
          * @var InputField $firstInputField
          */

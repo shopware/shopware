@@ -139,13 +139,7 @@ Component.register('sw-flow-detail', {
         },
 
         ...mapState('swFlowState', ['flow']),
-        ...mapGetters('swFlowState', [
-            'sequences',
-            'mailTemplateIds',
-            'customFieldSetIds',
-            'customFieldIds',
-            'appFlowActionEntitiesIds',
-        ]),
+        ...mapGetters('swFlowState', ['sequences', 'mailTemplateIds', 'customFieldSetIds', 'customFieldIds']),
         ...mapPropertyErrors('flow', ['name', 'eventName']),
     },
 
@@ -383,33 +377,6 @@ Component.register('sw-flow-detail', {
                     Shopware.State.commit('swFlowState/setCustomFields', data);
                 }));
             }
-
-            const hasAppFlowActions = this.sequences.some(
-                sequence => sequence.actionName?.slice(0, 4) === 'app.',
-            );
-
-            if (!hasAppFlowActions) {
-                return Promise.all(promises);
-            }
-
-            this.appFlowActionEntitiesIds.forEach((item) => {
-                Object.values(item).forEach((value) => {
-                    if (typeof value !== 'object' || value.entity === undefined) {
-                        return;
-                    }
-
-                    const ids = (typeof value.value === 'string') ? [value.value] : value.value;
-                    const criteria = new Criteria(1, ids.length);
-                    criteria.setIds(ids);
-                    // eslint-disable-next-line max-len
-                    promises.push(this.repositoryFactory.create(value.entity).search(criteria, Shopware.Context.api).then((data) => {
-                        Shopware.State.commit('swFlowState/setAppFlowActionEntities', {
-                            entity: value.entity,
-                            value: data,
-                        });
-                    }));
-                });
-            });
 
             return Promise.all(promises);
         },

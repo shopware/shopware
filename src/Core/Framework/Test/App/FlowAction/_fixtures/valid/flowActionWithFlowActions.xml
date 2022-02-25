@@ -71,12 +71,6 @@
                     </option>
                 </options>
             </input-field>
-            <component name="sw-entity-single-select">
-                <name>exampleProduct</name>
-                <entity>product</entity>
-                <label>Component label</label>
-                <label lang="de-DE">Component label DE</label>
-            </component>
         </config>
     </flow-action>
 </flow-actions>

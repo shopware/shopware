@@ -11,6 +11,6 @@ class ConfigTest extends TestCase
     {
         $flowActions = FlowAction::createFromXmlFile(__DIR__ . '/../_fixtures/valid/flowActionWithFlowActions.xml');
         static::assertCount(1, $flowActions->getActions()->getActions());
-        static::assertCount(5, $flowActions->getActions()->getActions()[0]->getConfig()->getConfig());
+        static::assertCount(4, $flowActions->getActions()->getActions()[0]->getConfig()->getConfig());
     }
 }

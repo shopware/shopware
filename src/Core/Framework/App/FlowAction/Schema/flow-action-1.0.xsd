@@ -68,27 +68,8 @@
     <xs:complexType name="config">
         <xs:choice minOccurs="1" maxOccurs="unbounded">
             <xs:element name="input-field" type="input-field" maxOccurs="unbounded"/>
-            <xs:element name="component" type="component" maxOccurs="unbounded"/>
         </xs:choice>
     </xs:complexType>
-    <xs:complexType name="component">
-        <xs:sequence>
-            <xs:element name="name" type="name"/>
-            <xs:element name="entity" type="entity"/>
-            <xs:element name="label" type="translatableString" maxOccurs="unbounded"/>
-            <xs:element name="required" type="xs:boolean" minOccurs="0" default="false"/>
-        </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required"/>
-    </xs:complexType>
-    <xs:simpleType name="entity">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="product"/>
-            <xs:enumeration value="order"/>
-            <xs:enumeration value="category"/>
-            <xs:enumeration value="promotion"/>
-            <xs:enumeration value="customer"/>
-        </xs:restriction>
-    </xs:simpleType>
     <xs:complexType name="option-collection">
         <xs:sequence>
             <xs:element name="option" type="option" maxOccurs="unbounded"/>

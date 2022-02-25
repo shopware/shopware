@@ -3853,9 +3853,4 @@ parameters:
 		-
 			message: "#^Argument of an invalid type DOMNamedNodeMap\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 1
-			path: src/Core/Framework/App/FlowAction/Xml/Component.php
-
-		-
-			message: "#^Argument of an invalid type DOMNamedNodeMap\\|null supplied for foreach, only iterables are supported\\.$#"
-			count: 1
 			path: src/Core/Framework/App/FlowAction/Xml/Parameter.php

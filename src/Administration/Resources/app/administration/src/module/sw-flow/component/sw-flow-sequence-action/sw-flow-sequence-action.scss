@@ -80,6 +80,11 @@
             margin-bottom: 0;
         }
 
+        img {
+            width: 12px;
+            height: 12px;
+        }
+
         &.is--stop-flow {
             h3 {
                 color: $color-crimson-500;
@@ -207,6 +212,12 @@
             .sw-select-result__result-item-text,
             .sw-icon {
                 color: $color-gray-900;
+            }
+
+            img {
+                width: 12px;
+                height: 12px;
+                margin-right: 8px;
             }
 
             &.is--stop-flow {

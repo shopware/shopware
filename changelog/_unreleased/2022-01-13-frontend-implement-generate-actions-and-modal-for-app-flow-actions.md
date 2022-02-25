@@ -8,4 +8,3 @@ issue: NEXT-18949
 * Added the `emitUpdate` method in `src/app/component/form/sw-form-field-renderer/index.js` to emit more `update` event.
 * Changed the `emitChange` method in `src/app/component/form/sw-form-field-renderer/index.js` to emit more `update` event.
 * Changed the `getDataForActionDescription` method in `src/module/sw-flow/page/sw-flow-detail/index.js` to render the description for app flow action sequence.
-* Added the `setAppFlowActions` and `appFlowActionEntitiesIds` methods in `src/module/sw-flow/state/flow.state.js` add more state for app flow action.

@@ -22,7 +22,6 @@ export default {
         customerGroups: [],
         /* @internal (flag:FEATURE_NEXT_18215) */
         restrictedRules: [],
-        appFlowActionEntities: {},
     },
 
     mutations: {
@@ -97,10 +96,6 @@ export default {
 
         setMailTemplates(state, mailTemplates) {
             state.mailTemplates = mailTemplates;
-        },
-
-        setAppFlowActionEntities(state, appFlowActionsState) {
-            state.appFlowActionEntities[appFlowActionsState.entity] = appFlowActionsState.value;
         },
 
         removeCurrentFlow(state) {
@@ -205,12 +200,6 @@ export default {
                     || item.actionName === ACTION.SET_ORDER_CUSTOM_FIELD
                     || item.actionName === ACTION.SET_CUSTOMER_GROUP_CUSTOM_FIELD)
                 .map(item => item.config?.customFieldId);
-        },
-
-        appFlowActionEntitiesIds(state) {
-            return state.flow.sequences
-                .filter(item => item.actionName?.slice(0, 4) === 'app.')
-                .map(item => item.config);
         },
     },
 

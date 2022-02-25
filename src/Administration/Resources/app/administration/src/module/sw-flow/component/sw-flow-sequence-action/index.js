@@ -39,7 +39,6 @@ Component.register('sw-flow-sequence-action', {
             currentSequence: {},
             appFlowActions: [],
             isAppAction: false,
-            appActionEntities: {},
         };
     },
 
@@ -74,6 +73,7 @@ Component.register('sw-flow-sequence-action', {
                 appActions = [...appActions, {
                     value: appFlowAction.name,
                     icon: appFlowAction.swIcon,
+                    iconRaw: appFlowAction.icon,
                     label: appFlowAction.label || appFlowAction.translated?.label,
                 }];
             });
@@ -157,7 +157,6 @@ Component.register('sw-flow-sequence-action', {
                 'customFieldSets',
                 'customFields',
                 'triggerEvent',
-                'appFlowActionEntities',
             ]),
         ...mapGetters('swFlowState', ['availableActions']),
     },
@@ -225,45 +224,6 @@ Component.register('sw-flow-sequence-action', {
             }
 
             this.onCloseModal();
-        },
-
-        getAppFlowActionEntity(config, actionName) {
-            const appAction = this.getSelectedAppFlowAction(actionName);
-            if (appAction === undefined) {
-                return null;
-            }
-
-            appAction.config.forEach((actionConfig) => {
-                if (!config[actionConfig.name]) {
-                    return;
-                }
-
-                this.appActionEntities[actionConfig.name] = {
-                    entity: actionConfig.entity,
-                    value: config[actionConfig.name],
-                };
-            });
-
-            return this.getAppActionFlowValues();
-        },
-
-        async getAppActionFlowValues() {
-            if (Object.keys(this.appActionEntities).length <= 0) {
-                return;
-            }
-
-            await Object.values(this.appActionEntities).forEach((actionEntity) => {
-                if (actionEntity.entity === undefined) {
-                    return;
-                }
-
-                const ids = (typeof actionEntity.value === 'string') ? [actionEntity.value] : actionEntity.value;
-                const criteria = new Criteria(1, ids.length);
-                criteria.setIds(ids);
-                this.repositoryFactory.create(actionEntity.entity).search(criteria, Shopware.Context.api).then(res => {
-                    this.$set(this.entities, actionEntity.entity, res);
-                });
-            });
         },
 
         onCloseModal() {
@@ -393,6 +353,7 @@ Component.register('sw-flow-sequence-action', {
                 return {
                     label: appAction.label || appAction.translated?.label,
                     icon: appAction.swIcon,
+                    iconRaw: appAction.icon,
                     value: appAction.name,
                 };
             }
@@ -595,48 +556,11 @@ Component.register('sw-flow-sequence-action', {
             return description;
         },
 
-        convertLabel(res, entity) {
-            if (res === undefined) {
-                return null;
-            }
-
-            if (entity === 'customer') {
-                return `${res?.firstName} ${res?.lastName}`;
-            }
-
-            if (entity === 'order') {
-                return res.orderNumber;
-            }
-
-            return res.name;
-        },
-
         getAppFlowActionDescription(config, actionName) {
             const cloneConfig = { ...config };
             let descriptions = '';
 
-            Object.entries(cloneConfig).forEach(([fieldName, optionsSelected]) => {
-                const entityCollections = this.appFlowActionEntities[optionsSelected.entity];
-
-                if (entityCollections !== undefined && entityCollections !== null) {
-                    let optionsSelectedPreview = [];
-                    if (typeof optionsSelected.value === 'string') {
-                        const itemSelected = entityCollections.find(item => item.id === optionsSelected.value);
-                        optionsSelectedPreview =
-                            [...optionsSelectedPreview, this.convertLabel(itemSelected, optionsSelected.entity)];
-                    }
-
-                    if (typeof optionsSelected.value === 'object') {
-                        optionsSelected.value.forEach((option) => {
-                            const itemSelected = entityCollections.find(item => item.id === option);
-                            optionsSelectedPreview =
-                                [...optionsSelectedPreview, this.convertLabel(itemSelected, optionsSelected.entity)];
-                        });
-                    }
-
-                    cloneConfig[fieldName] = optionsSelectedPreview;
-                }
-
+            Object.entries(cloneConfig).forEach(([fieldName]) => {
                 if (typeof cloneConfig[fieldName] === 'object' && cloneConfig[fieldName].length > 1) {
                     let html = '';
                     cloneConfig[fieldName].forEach((val) => {
@@ -688,7 +612,7 @@ Component.register('sw-flow-sequence-action', {
             }
 
             if (['colorpicker'].includes(config.type)) {
-                return `<span class="sw-color-badge is--default" style="background: ${val};"></span>`;
+                return `<span class="sw-color-badge is--default" style="background: ${val};"></span> ${val}`;
             }
 
             return val;

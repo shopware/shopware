@@ -68,16 +68,7 @@ function createWrapper() {
                                 },
                             ],
                             required: true,
-                        },
-                        {
-                            name: 'exampleCustomer',
-                            label: {
-                                deDE: 'Example Customer',
-                                enGB: 'Example Customer',
-                            },
-                            entity: 'customer',
-                            componentName: 'sw-entity-single-select',
-                        },
+                        }
                     ],
                 }
             }
@@ -116,7 +107,7 @@ describe('module/sw-flow/component/sw-flow-tag-modal', () => {
         await wrapper.vm.$nextTick();
 
         const fields = wrapper.findAll('.sw-form-field-renderer');
-        expect(fields.length).toEqual(2);
+        expect(fields.length).toEqual(1);
     });
 
     it('should show error if these fields are invalid', async () => {
@@ -140,11 +131,7 @@ describe('module/sw-flow/component/sw-flow-tag-modal', () => {
         const saveButton = wrapper.find('.sw-flow-app-action-modal__save-button');
         await saveButton.trigger('click');
         expect(wrapper.emitted()['process-finish'][0][0].config).toEqual({
-            content: [1],
-            exampleCustomer: {
-                entity: 'customer',
-                value: null
-            }
+            content: [1]
         });
     });
 });

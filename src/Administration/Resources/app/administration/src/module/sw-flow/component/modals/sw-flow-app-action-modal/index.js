@@ -1,16 +1,11 @@
 import template from './sw-flow-app-action-modal.html.twig';
 
-const { Criteria } = Shopware.Data;
 const { Component, Mixin, Classes: { ShopwareError } } = Shopware;
-const { mapState } = Component.getComponentHelper();
 
 Component.register('sw-flow-app-action-modal', {
     template,
 
-    inject: [
-        'acl',
-        'repositoryFactory',
-    ],
+    inject: ['acl'],
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -26,7 +21,6 @@ Component.register('sw-flow-app-action-modal', {
 
     data() {
         return {
-            isLoading: false,
             config: {},
             fields: [],
             errors: {},
@@ -37,7 +31,6 @@ Component.register('sw-flow-app-action-modal', {
         actionLabel() {
             return this.sequence?.propsAppFlowAction?.translated?.label || this.sequence?.propsAppFlowAction?.label;
         },
-        ...mapState('swFlowState', ['appFlowActionEntities']),
     },
 
     created() {
@@ -60,45 +53,8 @@ Component.register('sw-flow-app-action-modal', {
             }
         },
 
-        async onChange(event, field) {
-            const val = event.value;
-            this.handleValid(field, val);
-
-            if (field?.entity === undefined) {
-                return;
-            }
-
-            let data = null;
-            let value = [event.field];
-            if (event.field === null) {
-                value = await this.fetchEntities(field.entity, event.value);
-            }
-
-            if (!value) {
-                return;
-            }
-
-            data = {
-                entity: field.entity,
-                value,
-            };
-
-            Shopware.State.commit('swFlowState/setAppFlowActionEntities', data);
-        },
-
-        fetchEntities(entity, ids = []) {
-            this.appFlowActionEntities[entity]?.getIds().forEach(id => {
-                ids = [...ids, id];
-            });
-
-            if (ids.length === 0) {
-                return null;
-            }
-
-            const criteria = new Criteria(1, ids.length);
-            criteria.setIds(ids);
-
-            return this.repositoryFactory.create(entity).search(criteria, Shopware.Context.api);
+        onChange(event, field) {
+            this.handleValid(field, event);
         },
 
         isValid() {
@@ -147,15 +103,6 @@ Component.register('sw-flow-app-action-modal', {
         buildConfig() {
             const data = {};
             this.fields.forEach(field => {
-                if (field.entity !== undefined && this.config[field.name]?.length !== 0) {
-                    data[field.name] = {
-                        entity: field.entity,
-                        value: this.config[field.name],
-                    };
-
-                    return;
-                }
-
                 if (this.config[field.name]?.length !== 0 && this.config[field.name] !== null) {
                     data[field.name] = this.config[field.name];
                 }
@@ -222,49 +169,9 @@ Component.register('sw-flow-app-action-modal', {
             if (['single-select', 'multi-select'].includes(field.type)) {
                 config.componentName = `sw-${field.type}`;
                 config.options = field.options;
-
-                return config;
-            }
-
-            if (field.componentName) {
-                config.componentName = field.componentName;
-            }
-
-            if (field.componentName && field.entity) {
-                config.entity = field.entity;
-                config.labelProperty = this.convertLabelProperty(field.entity);
-                config.labelCallback = (item) => this.convertLabelCallback(config.entity, item);
-            }
-
-            if (['sw-entity-multi-select', 'sw-entity-multi-id-select'].includes(field.componentName)) {
-                if (this.config[field.name] === null) {
-                    this.config[field.name] = [];
-                }
-
-                config.componentName = 'sw-entity-multi-id-select';
             }
 
             return config;
-        },
-
-        convertLabelProperty(entity) {
-            if (entity === 'order') {
-                return 'orderNumber';
-            }
-
-            return 'name';
-        },
-
-        convertLabelCallback(entity, item) {
-            if (entity === 'customer') {
-                return `${item?.firstName || ''} ${item?.lastName || ''}`;
-            }
-
-            if (['category', 'promotion'].includes(entity)) {
-                return `${item?.translated?.name || item?.name || ''}`;
-            }
-
-            return '';
         },
 
         helpText(field) {

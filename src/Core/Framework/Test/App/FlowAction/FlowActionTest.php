@@ -33,7 +33,7 @@ class FlowActionTest extends TestCase
     public function testCreateFromXmlFlowActionConfigMissingRequiredChild(): void
     {
         static::expectException(XmlParsingException::class);
-        static::expectExceptionMessage("Message: [ERROR 1871] Element 'config': Missing child element(s). Expected is one of ( input-field, component ).");
+        static::expectExceptionMessage("Message: [ERROR 1871] Element 'config': Missing child element(s). Expected is ( input-field ).");
         FlowAction::createFromXmlFile(__DIR__ . '/_fixtures/invalid/flowActionConfigWithoutRequiredChild.xml');
     }
 

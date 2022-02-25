@@ -10,7 +10,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 class Config extends XmlElement
 {
     /**
-     * @var InputField[]|Component[]
+     * @var InputField[]
      */
     protected array $config;
 
@@ -20,7 +20,7 @@ class Config extends XmlElement
     }
 
     /**
-     * @return InputField[]|Component[]
+     * @return InputField[]
      */
     public function getConfig(): array
     {
@@ -38,10 +38,6 @@ class Config extends XmlElement
 
         foreach ($element->getElementsByTagName('input-field') as $parameter) {
             $values[] = InputField::fromXml($parameter);
-        }
-
-        foreach ($element->getElementsByTagName('component') as $parameter) {
-            $values[] = Component::fromXml($parameter);
         }
 
         return $values;

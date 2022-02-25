@@ -89,11 +89,6 @@ class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
     *     )
     * )
-    **Important constraints**
-    * Anonymous (not logged-in) customers can not have wishlists.
-    * The wishlist feature has to be activated.",
-    *      operationId="addProductOnWishlist",
-    *      tags={"Store API", "Wishlist"},
      * @Route("/store-api/customer/wishlist/add/{productId}", name="store-api.customer.wishlist.add", methods={"POST"}, defaults={"_loginRequired"=true})
     */
     public function add(string $productId, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse

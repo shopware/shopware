@@ -113,8 +113,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
      *     )
      * )
      * @Route(path="/store-api/account/address", name="store-api.account.address.create", methods={"POST"}, defaults={"addressId"=null, "_loginRequired"=true, "_loginRequiredAllowGuest"=true})
-     * @Route(path="/store-api/account/address", name="store-api.account.address.create", methods={"POST"}, defaults={"addressId": null})
-     * @Route(path="/store-api/account/address/{addressId}", name="store-api.account.address.update", methods={"PATCH"})
+     * @Route(path="/store-api/account/address/{addressId}", name="store-api.account.address.update", methods={"PATCH"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
      */
     public function upsert(?string $addressId, RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): UpsertAddressRouteResponse
     {

@@ -64,7 +64,6 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
     *          @OA\JsonContent(ref="#/components/schemas/StateMachineState")
     *     )
     * )
-    example: More information about the state machine can be found in the corresponding guide: [Using the state machine](https://developer.shopware.com/docs/guides/plugins/plugins/checkout/order/using-the-state-machine)",
      * @Route(path="/store-api/order/state/cancel", name="store-api.order.state.cancel", methods={"POST"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
     */
     public function cancel(Request $request, SalesChannelContext $context): CancelOrderRouteResponse

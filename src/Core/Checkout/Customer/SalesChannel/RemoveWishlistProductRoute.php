@@ -93,11 +93,6 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
     *          @OA\JsonContent(ref="#/components/schemas/failure")
     *     ),
     * )
-    **Important constraints**
-    * Anonymous (not logged-in) customers can not have wishlists.
-    * The wishlist feature has to be activated.",
-    *      operationId="deleteProductOnWishlist",
-    *      tags={"Store API", "Wishlist"},
      * @Route("/store-api/customer/wishlist/delete/{productId}", name="store-api.customer.wishlist.delete", methods={"DELETE"}, defaults={"_loginRequired"=true})
     */
     public function delete(string $productId, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse

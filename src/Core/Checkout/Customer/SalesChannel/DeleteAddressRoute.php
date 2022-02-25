@@ -67,11 +67,6 @@ class DeleteAddressRoute extends AbstractDeleteAddressRoute
     *          description="Response containing a list of errors, most likely due to the address being in use"
     *     )
     * )
-    Only addresses which are not set as default addresses for shipping or billing can be deleted. You can check the current default addresses of your customer using the profile information endpoint and change them using the default address endpoint.
-    **A customer must have at least one address (which can be used for shipping and billing).**
-    An automatic fallback is not applied.",
-    *      operationId="deleteCustomerAddress",
-    *      tags={"Store API", "Address"},
      * @Route(path="/store-api/account/address/{addressId}", name="store-api.account.address.delete", methods={"DELETE"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
     */
     public function delete(string $addressId, SalesChannelContext $context, CustomerEntity $customer): NoContentResponse

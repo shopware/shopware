@@ -39,15 +39,11 @@ public function myAction()
 Symfony passes then the defaults to the attribute bag of the Request object and we can check the attributes in the request cycle of the http kernel.
 
 Following annotations will be replaced:
-- `@LoginRequired` -> `_sw_login_required`
-- `@Acl` -> `_sw_acl`
-- `@ContextTokenRequired` -> `_sw_context_token_required`
-- `@Entity` -> `_sw_entity`
-- `@RouteScope` -> `_sw_route_scope`
-- `@Since` -> `_sw_since`
-- `@HttpCache` -> `_sw_http_cache`
-- `@Captcha` -> `_sw_captcha`
-- `@NoStore` -> `_sw_http_cache_no_store`
+- `@Captcha` -> `_captcha`
+- `@LoginRequired` -> `_loginRequired`
+- `@Acl` -> `_acl`
+- `@ContextTokenRequired` -> `_contextTokenRequired`
+- `@RouteScope` -> `_routeScope`
 
 
 Extensions can still decorate the controller if it has an abstract class or use events like `KernelEvents::REQUEST` or `KernelEvents::RESPONSE` to execute code before or after the actual controller.

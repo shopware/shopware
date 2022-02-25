@@ -180,7 +180,7 @@ class ApiController extends AbstractController
      *          ref="#/components/responses/401"
      *      )
      * )
-     * @Route("/api/_search", name="api.composite.search", methods={"GET","POST"}, requirements={"version"="\d+"})
+     * @Route("/api/_search", name="api.composite.search", methods={"GET","POST"})
      *
      * @deprecated tag:v6.5.0 - Will be removed in the next major
      */

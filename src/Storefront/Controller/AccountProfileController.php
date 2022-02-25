@@ -63,7 +63,6 @@ class AccountProfileController extends StorefrontController
     /**
      * @Since("6.0.0.0")
      * @Route("/account", name="frontend.account.home.page", methods={"GET"}, defaults={"_loginRequired"=true})
-     * @Route("/account", name="frontend.account.home.page", methods={"GET"})
      * @NoStore
      */
     public function index(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
@@ -78,7 +77,6 @@ class AccountProfileController extends StorefrontController
     /**
      * @Since("6.0.0.0")
      * @Route("/account/profile", name="frontend.account.profile.page", methods={"GET"}, defaults={"_loginRequired"=true})
-     * @Route("/account/profile", name="frontend.account.profile.page", methods={"GET"})
      * @NoStore
      */
     public function profileOverview(Request $request, SalesChannelContext $context): Response

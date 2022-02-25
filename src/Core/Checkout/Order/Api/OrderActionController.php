@@ -90,19 +90,7 @@ class OrderActionController extends AbstractController
     *     ),
     *     @OA\Parameter(
     *         name="transition",
-    *         description="The `action_name` of the `state_machine_transition`. For example `process` if the order state should change from open to in progress.
-
-    Note: If you choose a transition that is not available, you will get an error that lists possible transitions for the current state.",
-    *         @OA\Schema(type="string"),
-    *         in="path",
-    *         required=true
-    *     ),
-    *     @OA\Response(
-    *         response="200",
-    *         description="Todo: Use ref of `state_machine_transition` here"
-    *     )
-    * )
-    Note: If you choose a transition that is not available, you will get an error that lists possible transitions for the current state.",
+    *         description="The `action_name` of the `state_machine_transition`. For example `process` if the order state should change from open to in progress.Note: If you choose a transition that is not available, you will get an error that lists possible transitions for the current state.",
     *         @OA\Schema(type="string"),
     *         in="path",
     *         required=true

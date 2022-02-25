@@ -107,12 +107,6 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
     *     )
     * )
-    **Important constraints**
-    * Anonymous (not logged-in) customers can not have wishlists.
-    * A customer can only have a single wishlist.
-    * The wishlist feature has to be activated.",
-    *      operationId="mergeProductOnWishlist",
-    *      tags={"Store API", "Wishlist"},
      * @Route("/store-api/customer/wishlist/merge", name="store-api.customer.wishlist.merge", methods={"POST"}, defaults={"_loginRequired"=true})
     */
     public function merge(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse

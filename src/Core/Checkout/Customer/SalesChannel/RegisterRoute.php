@@ -115,9 +115,7 @@ class RegisterRoute extends AbstractRegisterRoute
      * @OA\Post(
      *      path="/account/register",
      *      summary="Register a customer",
-     *      description="Registers a customer. Used both for normal customers and guest customers.
-
-See the Guide ""Register a customer"" for more information on customer registration.",
+     *      description="Registers a customer. Used both for normal customers and guest customers.See the Guide ""Register a customer"" for more information on customer registration.",
      *      operationId="register",
      *      tags={"Store API", "Login & Registration"},
      *      @OA\RequestBody(

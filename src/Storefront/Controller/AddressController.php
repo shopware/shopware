@@ -81,7 +81,6 @@ class AddressController extends StorefrontController
     /**
      * @Since("6.0.0.0")
      * @Route("/account/address", name="frontend.account.address.page", options={"seo"="false"}, methods={"GET"}, defaults={"_loginRequired"=true})
-     * @Route("/account/address", name="frontend.account.address.page", options={"seo"="false"}, methods={"GET"})
      * @NoStore
      */
     public function accountAddressOverview(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
@@ -96,7 +95,6 @@ class AddressController extends StorefrontController
     /**
      * @Since("6.0.0.0")
      * @Route("/account/address/create", name="frontend.account.address.create.page", options={"seo"="false"}, methods={"GET"}, defaults={"_loginRequired"=true})
-     * @Route("/account/address/create", name="frontend.account.address.create.page", options={"seo"="false"}, methods={"GET"})
      * @NoStore
      */
     public function accountCreateAddress(Request $request, RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
@@ -114,7 +112,6 @@ class AddressController extends StorefrontController
     /**
      * @Since("6.0.0.0")
      * @Route("/account/address/{addressId}", name="frontend.account.address.edit.page", options={"seo"="false"}, methods={"GET"}, defaults={"_loginRequired"=true})
-     * @Route("/account/address/{addressId}", name="frontend.account.address.edit.page", options={"seo"="false"}, methods={"GET"})
      * @NoStore
      */
     public function accountEditAddress(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
@@ -179,8 +176,7 @@ class AddressController extends StorefrontController
     /**
      * @Since("6.0.0.0")
      * @Route("/account/address/create", name="frontend.account.address.create", options={"seo"="false"}, methods={"POST"}, defaults={"_loginRequired"=true})
-     * @Route("/account/address/create", name="frontend.account.address.create", options={"seo"="false"}, methods={"POST"})
-     * @Route("/account/address/{addressId}", name="frontend.account.address.edit.save", options={"seo"="false"}, methods={"POST"})
+     * @Route("/account/address/{addressId}", name="frontend.account.address.edit.save", options={"seo"="false"}, methods={"POST"}, defaults={"_loginRequired"=true})
      */
     public function saveAddress(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
     {

@@ -91,11 +91,6 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
     *          @OA\JsonContent(ref="#/components/schemas/WishlistLoadRouteResponse")
     *     )
     * )
-    **Important constraints**
-    * Anonymous (not logged-in) customers can not have wishlists.
-    * The wishlist feature has to be activated.",
-    *      operationId="readCustomerWishlist",
-    *      tags={"Store API", "Wishlist"},
      * @Route("/store-api/customer/wishlist", name="store-api.customer.wishlist.load", methods={"GET", "POST"}, defaults={"_loginRequired"=true})
     */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): LoadWishlistRouteResponse

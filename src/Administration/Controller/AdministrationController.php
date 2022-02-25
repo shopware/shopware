@@ -18,8 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Routing\Annotation\Acl;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
@@ -38,6 +36,9 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @Route(defaults={"_routeScope"={"administration"}})
+ */
 class AdministrationController extends AbstractController
 {
     private TemplateFinder $finder;
@@ -94,7 +95,7 @@ class AdministrationController extends AbstractController
 
     /**
      * @Since("6.3.3.0")
-     * @Route("/%shopware_administration.path_name%", defaults={"auth_required"=false, "_routeScope"={"administration"}}, name="administration.index", methods={"GET"})
+     * @Route("/%shopware_administration.path_name%", defaults={"auth_required"=false}, name="administration.index", methods={"GET"})
      */
     public function index(Request $request, Context $context): Response
     {
@@ -118,7 +119,7 @@ class AdministrationController extends AbstractController
 
     /**
      * @Since("6.1.0.0")
-     * @Route("/api/_admin/snippets", name="api.admin.snippets", methods={"GET"}, defaults={"_routeScope"={"administration"}})
+     * @Route("/api/_admin/snippets", name="api.admin.snippets", methods={"GET"})
      */
     public function snippets(Request $request): Response
     {
@@ -134,7 +135,7 @@ class AdministrationController extends AbstractController
 
     /**
      * @Since("6.3.1.0")
-     * @Route("/api/_admin/known-ips", name="api.admin.known-ips", methods={"GET"}, defaults={"_routeScope"={"administration"}})
+     * @Route("/api/_admin/known-ips", name="api.admin.known-ips", methods={"GET"})
      */
     public function knownIps(Request $request): Response
     {
@@ -151,8 +152,12 @@ class AdministrationController extends AbstractController
     }
 
     /**
+     * @deprecated tag:v6.5.0 - native return type JsonResponse will be added
+     *
      * @Since("6.4.0.1")
-     * @Route("/api/_admin/reset-excluded-search-term", name="api.admin.reset-excluded-search-term", methods={"POST"}, defaults={"_routeScope"={"administration"}, "_acl"={"system_config:update", "system_config:create", "system_config:delete"}})
+     * @Route("/api/_admin/reset-excluded-search-term", name="api.admin.reset-excluded-search-term", methods={"POST"}, defaults={"_acl"={"system_config:update", "system_config:create", "system_config:delete"}})
+     *
+     * @return JsonResponse
      */
     public function resetExcludedSearchTerm(Context $context)
     {
@@ -195,7 +200,7 @@ class AdministrationController extends AbstractController
 
     /**
      * @Since("6.4.0.1")
-     * @Route("/api/_admin/check-customer-email-valid", name="api.admin.check-customer-email-valid", methods={"POST"}, defaults={"_routeScope"={"administration"}})
+     * @Route("/api/_admin/check-customer-email-valid", name="api.admin.check-customer-email-valid", methods={"POST"})
      */
     public function checkCustomerEmailValid(Request $request, Context $context): JsonResponse
     {
@@ -241,7 +246,7 @@ class AdministrationController extends AbstractController
 
     /**
      * @Since("6.4.2.0")
-     * @Route("/api/_admin/sanitize-html", name="api.admin.sanitize-html", methods={"POST"}, defaults={"_routeScope"={"administration"}})
+     * @Route("/api/_admin/sanitize-html", name="api.admin.sanitize-html", methods={"POST"})
      */
     public function sanitizeHtml(Request $request, Context $context): JsonResponse
     {
@@ -258,7 +263,7 @@ class AdministrationController extends AbstractController
             );
         }
 
-        list($entityName, $propertyName) = explode('.', $field);
+        [$entityName, $propertyName] = explode('.', $field);
         $property = $this->definitionInstanceRegistry->getByEntityName($entityName)->getField($propertyName);
 
         if ($property === null) {

@@ -7,14 +7,17 @@ use Shopware\Core\Framework\Api\Acl\Event\AclGetAdditionalPrivilegesEvent;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\RouterInterface;
+use function array_merge;
 
 /**
  * @Route(defaults={"_routeScope"={"api"}})
@@ -43,7 +46,12 @@ class AclController extends AbstractController
      */
     public function getPrivileges(): JsonResponse
     {
-        $privileges = $this->getFromAnnotations();
+        if (Feature::isActive('v6_5_0_0')) {
+            $privileges = $this->getFromRoutes();
+        } else {
+            $privileges = array_merge($this->getFromAnnotations(), $this->getFromRoutes());
+        }
+
         $privileges = array_unique(array_merge($privileges, $this->getFromDefinitions()));
 
         return new JsonResponse($privileges);
@@ -55,7 +63,12 @@ class AclController extends AbstractController
      */
     public function getAdditionalPrivileges(Context $context): JsonResponse
     {
-        $privileges = $this->getFromAnnotations();
+        if (Feature::isActive('v6_5_0_0')) {
+            $privileges = $this->getFromRoutes();
+        } else {
+            $privileges = array_merge($this->getFromAnnotations(), $this->getFromRoutes());
+        }
+
         $definitionPrivileges = $this->getFromDefinitions();
         $privileges = array_diff(array_unique($privileges), $definitionPrivileges);
 
@@ -67,6 +80,9 @@ class AclController extends AbstractController
         return new JsonResponse($privileges);
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Use getFromRoutes instead
+     */
     private function getFromAnnotations(): array
     {
         $privileges = [];
@@ -114,5 +130,18 @@ class AclController extends AbstractController
         }
 
         return $privileges;
+    }
+
+    private function getFromRoutes(): array
+    {
+        $permissions = [];
+
+        foreach ($this->router->getRouteCollection()->all() as $route) {
+            if ($acl = $route->getDefault(PlatformRequest::ATTRIBUTE_ACL)) {
+                $permissions[] = $acl;
+            }
+        }
+
+        return array_merge(...$permissions);
     }
 }

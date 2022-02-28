@@ -7,6 +7,7 @@
     margin-right: -1em;
     padding-right: 1em;
     max-width: 95%;
+    // @deprecated tag:v6.5.0 - Bootstrap v5 will discontinue IE11 support. display polyfill will be removed.
     display: block; // IE11 Fallback to two lines
     /* stylelint-disable */
     display: -webkit-box;

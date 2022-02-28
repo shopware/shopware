@@ -2,6 +2,9 @@
 IE11 fixes
 ==================================================
 Contains specific browser fixes which are only applied in IE.
+
+@deprecated tag:v6.5.0 - Bootstrap v5 will discontinue IE11 support. _ie11-fixes.scss will be removed.
+@see https://getbootstrap.com/docs/5.0/migration/#browser-support
 */
 
 html.is-ie {

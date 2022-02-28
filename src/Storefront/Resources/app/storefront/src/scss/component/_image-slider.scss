@@ -29,6 +29,7 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
 
             .image-slider-image {
                 object-fit: cover;
+                // @deprecated tag:v6.5.0 - Bootstrap v5 will discontinue IE11 support. font-family polyfill will be removed.
                 font-family: 'object-fit: cover;'; // IE polyfill
                 height: 100%;
                 position: absolute;

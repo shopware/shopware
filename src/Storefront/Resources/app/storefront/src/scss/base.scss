@@ -30,6 +30,7 @@ https://sass-guidelin.es/#the-7-1-pattern
  * ---------- */
 @import 'base/base';
 @import 'base/reboot';
+// @deprecated tag:v6.5.0 - Bootstrap v5 will discontinue IE11 support. _ie11-fixes.scss will be removed.
 @import 'base/ie11-fixes';
 
 /*

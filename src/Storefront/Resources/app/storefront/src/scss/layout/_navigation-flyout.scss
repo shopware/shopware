@@ -44,6 +44,7 @@ Custom styling for navigation flyout which opens on hover over the main navigati
 
 .navigation-flyout-teaser-image {
     object-fit: cover;
+    // @deprecated tag:v6.5.0 - Bootstrap v5 will discontinue IE11 support. font-family polyfill will be removed.
     font-family: 'object-fit: cover;'; // IE polyfill
     display: block;
     max-width: 100%;

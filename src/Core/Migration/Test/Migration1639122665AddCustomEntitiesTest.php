@@ -29,4 +29,16 @@ class Migration1639122665AddCustomEntitiesTest extends TestCase
 
         static::assertNull($e);
     }
+
+    public function testTablesIsPresent(): void
+    {
+        $columns = array_column($this->getContainer()->get(Connection::class)->fetchAllAssociative('SHOW COLUMNS FROM custom_entity'), 'Field');
+
+        static::assertContains('id', $columns);
+        static::assertContains('name', $columns);
+        static::assertContains('fields', $columns);
+        static::assertContains('app_id', $columns);
+        static::assertContains('created_at', $columns);
+        static::assertContains('updated_at', $columns);
+    }
 }

@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
  * @internal The use of this class is reserved for the custom_entity feature
@@ -49,10 +48,5 @@ class DynamicEntityDefinition extends EntityDefinition
         );
 
         return $collection;
-    }
-
-    protected static function kebabCaseToCamelCase(string $string): string
-    {
-        return (new CamelCaseToSnakeCaseNameConverter())->denormalize(str_replace('-', '_', $string));
     }
 }

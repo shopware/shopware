@@ -5,7 +5,6 @@ namespace Shopware\Core\System\CustomEntity\Schema;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
  * @internal Used for custom entities
@@ -41,10 +40,5 @@ class DynamicTranslationEntityDefinition extends EntityTranslationDefinition
     protected function defineFields(): FieldCollection
     {
         return DynamicFieldFactory::create($this->container, $this->getEntityName(), $this->fieldDefinitions);
-    }
-
-    protected static function kebabCaseToCamelCase(string $string): string
-    {
-        return (new CamelCaseToSnakeCaseNameConverter())->denormalize(str_replace('-', '_', $string));
     }
 }

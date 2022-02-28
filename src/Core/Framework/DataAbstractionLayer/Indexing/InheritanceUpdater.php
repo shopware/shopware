@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class InheritanceUpdater
@@ -80,7 +79,7 @@ class InheritanceUpdater
             $flag = $association->getFlag(Inherited::class);
 
             if (!$flag instanceof Inherited) {
-                throw new HttpException('indexing_exception', \sprintf('Association %s is not marked as inherited', $definition->getEntityName() . '.' . $association->getPropertyName()));
+                throw new \RuntimeException(\sprintf('Association %s is not marked as inherited', $definition->getEntityName() . '.' . $association->getPropertyName()));
             }
 
             $foreignKey = $flag->getForeignKey() ?: ($definition->getEntityName() . '_id');

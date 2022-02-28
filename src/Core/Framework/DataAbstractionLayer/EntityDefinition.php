@@ -67,7 +67,7 @@ abstract class EntityDefinition
 
     final public function getClass(): string
     {
-        return $this->className;
+        return static::class;
     }
 
     final public function isInstanceOf(EntityDefinition $other): bool

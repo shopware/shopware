@@ -452,7 +452,6 @@ PHP;
     private function addApiRoutes(RoutingConfigurator $routes): void
     {
         $routes->import('.', 'api');
-        $routes->import('.', 'custom-entity');
     }
 
     private function addBundleRoutes(RoutingConfigurator $routes): void

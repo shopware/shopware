@@ -5,6 +5,10 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+        <service id="Shopware\Core\System\CustomEntity\CustomEntityRegistrar" public="true">
+            <argument type="service" id="service_container"/>
+        </service>
+
         <service id="Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
@@ -29,10 +33,6 @@
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
-        </service>
-
-        <service id="Shopware\Core\System\CustomEntity\Api\CustomEntityRouteLoader">
-            <tag name="routing.loader"/>
         </service>
 
         <service id="Shopware\Core\System\CustomEntity\Xml\CustomEntityXmlSchemaValidator"/>

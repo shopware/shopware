@@ -15,7 +15,7 @@ class RoutesAclTest extends TestCase
     use KernelTestBehaviour;
 
     /**
-     * blacklist routes for explicit overwrite
+     * blocklist routes for explicit overwrite
      *
      * @var array
      */

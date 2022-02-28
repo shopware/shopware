@@ -54,8 +54,20 @@ class IdleFeatureFlagTest extends TestCase
     {
         //init FeatureConfig
         $registeredFlags = array_keys(Feature::getAll());
+        $platformDir = null;
         $projectDir = $this->getContainer()->get('kernel')->getProjectDir();
-        $platformDir = $projectDir . (file_exists($projectDir . '/vendor/shopware/platform') ? '/vendor/shopware/platform/src' : '/src');
+
+        foreach (['/vendor/shopware/platform/src', '/vendor/shopware', '/src'] as $dir) {
+            if (file_exists($projectDir . $dir)) {
+                $platformDir = $projectDir . $dir;
+
+                break;
+            }
+        }
+
+        if ($platformDir === null) {
+            static::markTestSkipped('Test skipped because the platform directory was not found.');
+        }
 
         // Find the right files to check
         $finder = new Finder();

@@ -104,7 +104,7 @@ Component.register('sw-entity-multi-id-select', {
                 this.collection = collection;
             }
 
-            if (this.ids.length <= 0) {
+            if (!this.ids || this.ids.length <= 0) {
                 this.collection = collection;
                 return Promise.resolve(this.collection);
             }

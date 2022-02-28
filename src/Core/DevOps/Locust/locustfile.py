@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 from locust import FastHttpUser, task, between, constant
 from bs4 import BeautifulSoup
 import threading
@@ -131,13 +132,13 @@ class Customer(FastHttpUser):
         page = page.logout()
 
 def stock_updates():
-    api = new Api(context)
+    api = Api(context)
     while True:
         api.update_stock()
         time.sleep(5)
 
 def price_updates():
-    api = new Api(context)
+    api = Api(context)
     while True:
         api.update_prices()
         time.sleep(5)

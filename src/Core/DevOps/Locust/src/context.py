@@ -63,7 +63,11 @@ class Context:
         return self.__get_json_file('/../fixtures/sales_channel.json')
 
     def __get_env(self):
-        return self.__get_json_file('/../env.json')
+        env = self.__get_json_file('/../env.json')
+        dist = self.__get_json_file('/../env.dist.json')
+
+        dist.update(env)
+        return dist
 
     def __column(self, matrix, i):
         all = []

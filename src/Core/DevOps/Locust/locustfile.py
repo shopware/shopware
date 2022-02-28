@@ -7,17 +7,9 @@ import threading
 sys.path.append(os.path.dirname(__file__) + '/src')
 from storefront import Storefront
 from context import Context
-from erp import ERP
 from api import Api
 
 context = Context()
-
-def run_erp():
-    erp = ERP(context)
-    erp.run()
-
-timer = threading.Timer(5.0, run_erp)
-timer.start()
 
 class Customer(FastHttpUser):
     wait_time = between(2, 10)
@@ -137,3 +129,22 @@ class Customer(FastHttpUser):
 
         page = page.instant_order()
         page = page.logout()
+
+def stock_updates():
+    api = new Api(context)
+    while True:
+        api.update_stock()
+        time.sleep(5)
+
+def price_updates():
+    api = new Api(context)
+    while True:
+        api.update_prices()
+        time.sleep(5)
+
+stocks = threading.Timer(5.0, stock_updates)
+stocks.start()
+
+prices = threading.Timer(5.0, price_updates)
+prices.start()
+

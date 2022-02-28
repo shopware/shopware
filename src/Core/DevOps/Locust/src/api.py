@@ -37,6 +37,15 @@ class Api:
         if self.context.indexing_behavior:
             self.headers['indexing-behavior'] = self.context.indexing_behavior
 
+    def __get_headers():
+        return  {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'single-operation': 'true',
+            'Authorization': 'Bearer ' + self.context.token,
+            'indexing-skip': []
+        }
+
     def update_stock(self):
         updates = []
 
@@ -79,10 +88,15 @@ class Api:
 
         self._sync(operations, headers)
 
+
     def _sync(self, operations, headers):
         response = requests.post(self.context.url + '/api/_action/sync', json=operations, headers=headers)
 
         if response.status_code in [200, 204]:
+            return
+
+        if response.status_code == 401:
+            self.context.refresh_token()
             return
 
         raise ValueError('Sync error: ' + str(response.status_code) + ' ' + response.text)

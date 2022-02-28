@@ -48,6 +48,9 @@ class Context:
     def __initKeywords(self):
         return self.__get_json_file('/../fixtures/keywords.json')
 
+    def refresh_token(self):
+        self.token = self.get_token()
+
     def get_token(self):
         response = requests.post(self.env['url'] + '/api/oauth/token', data=self.env['oauth'])
 

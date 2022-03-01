@@ -145,6 +145,7 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
             'phoneNumber' => $data->get('phoneNumber'),
             'additionalAddressLine1' => $data->get('additionalAddressLine1'),
             'additionalAddressLine2' => $data->get('additionalAddressLine2'),
+            'customFields' => $data->get('customFields')->all(),
         ];
 
         $mappingEvent = new DataMappingEvent($data, $addressData, $context->getContext());

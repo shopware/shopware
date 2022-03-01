@@ -65,6 +65,7 @@
                 :criteria="productCriteria"
                 :context="context"
                 :disabled="disabled"
+                advanced-selection-component="sw-advanced-selection-product"
             >
                 <template #selection-label-property="{ item }">
                     <slot
@@ -226,6 +227,7 @@
                 :criteria="productCriteria"
                 :context="context"
                 :disabled="disabled"
+                advanced-selection-component="sw-advanced-selection-product"
             >
                 <template #selection-label-property="{ item }">
                     <slot
@@ -296,6 +298,7 @@
                 :repository="repository"
                 :context="context"
                 :disabled="disabled"
+                :advanced-selection-component="definition.entity === 'product' ? 'sw-advanced-selection-product' : ''"
             >
                 <template #result-description-property="{ item }">
                     {% block sw_product_stream_value_multi_select_result_label %}

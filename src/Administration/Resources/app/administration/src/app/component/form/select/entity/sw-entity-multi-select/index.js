@@ -104,6 +104,13 @@ Component.register('sw-entity-multi-select', {
                 return ['bottom', 'right'].includes(value);
             },
         },
+        advancedSelectionComponent: {
+            type: String,
+            required: false,
+            default() {
+                return '';
+            },
+        },
     },
 
     data() {
@@ -114,6 +121,7 @@ Component.register('sw-entity-multi-select', {
             isLoading: false,
             currentCollection: null,
             resultCollection: null,
+            isAdvancedSelectionModalVisible: false,
         };
     },
 
@@ -145,6 +153,10 @@ Component.register('sw-entity-multi-select', {
             }
 
             return Math.max(0, this.totalValuesCount - this.limit);
+        },
+
+        isAdvancedSelectionActive() {
+            return this.advancedSelectionComponent && Component.getComponentRegistry().has(this.advancedSelectionComponent);
         },
     },
 
@@ -351,6 +363,27 @@ Component.register('sw-entity-multi-select', {
             }
 
             return this.selectionDisablingMethod(selection);
+        },
+
+        openAdvancedSelectionModal() {
+            this.isAdvancedSelectionModalVisible = true;
+        },
+
+        closeAdvancedSelectionModal() {
+            this.isAdvancedSelectionModalVisible = false;
+        },
+
+        onAdvancedSelectionSubmit(selectedItems) {
+            const newCollection = this.createEmptyCollection();
+
+            selectedItems.forEach((item) => {
+                newCollection.add(item);
+            });
+
+            this.emitChanges(newCollection);
+
+            this.$refs.selectionList.focus();
+            this.$refs.selectionList.select();
         },
     },
 });

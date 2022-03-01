@@ -510,6 +510,17 @@
         "you": "You"
       }
     },
+    "sw-entity-advanced-selection-modal": {
+      "link": "Use advanced selection",
+      "title": "Advanced selection: {entity}",
+      "searchPlaceholder": "Search...",
+      "filter": "Filter",
+      "resetFilters": "Reset filters",
+      "applySelection": "Apply selection",
+      "entity": {
+        "product": "Products"
+      }
+    },
     "sw-entity-multi-select": {
       "messageNoResults": "No results found for \"{term}\"."
     },
@@ -1244,6 +1255,7 @@
   },
   "sw-empty-state": {
     "messageNoResultTitle": "Nothing found",
+    "messageNoResultSublineSimple": "Edit your filters or search terms to find results.",
     "messageNoResultSubline": "Edit your filters or your search terms to find results. Please also check the configuration of your search.",
     "messageNoResultSublineBefore": "Edit your filters or your search terms to find results. Please also check",
     "messageNoResultSublineLink": "the configuration",

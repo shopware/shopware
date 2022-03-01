@@ -1,0 +1,153 @@
+{% block sw_advanced_selection_product %}
+{# TODO - NEXT-20791 : remove store-key property. Filters should not be stored somewhere #}
+<sw-entity-advanced-selection-modal
+    entity-name="product"
+    :entity-display-text="$tc('global.sw-entity-advanced-selection-modal.entity.product')"
+    store-key="advancedSelection.product"
+    :entity-context="productContext"
+    :entity-columns="productColumns"
+    :entity-filters="productFilters"
+    :entity-associations="productAssociations"
+    empty-image-path="/administration/static/img/empty-states/products-empty-state.svg"
+    v-bind="$attrs"
+    @selection-submit="$emit('selection-submit', $event)"
+    @modal-close="$emit('modal-close', $event)"
+>
+    {% block sw_advanced_selection_product_list_grid_columns_name_preview %}
+    <template #preview-name="{ item }">
+        <sw-media-preview-v2 :source="item.cover ? item.cover.media : null" />
+    </template>
+    {% endblock %}
+
+    {% block sw_advanced_selection_product_list_grid_columns_name %}
+    <template #column-name="{ item }">
+        {% block sw_advanced_selection_product_list_grid_columns_name_content %}
+        <sw-product-variant-info
+            :variations="item.variation"
+        >
+            <span>
+                {{ item.translated.name || item.name }}
+            </span>
+        </sw-product-variant-info>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_advanced_selection_product_list_grid_columns_active %}
+    <template #column-active="{ item }">
+        {% block sw_advanced_selection_product_list_grid_columns_active_content %}
+        <sw-icon
+            v-if="item.active"
+            name="small-default-checkmark-line-medium"
+            small
+            class="is--active"
+        />
+        <sw-icon
+            v-else
+            name="small-default-x-line-medium"
+            small
+            class="is--inactive"
+        />
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_advanced_selection_product_list_grid_columns_price %}
+    <template
+        v-for="currency in currencies"
+        #[`column-price-${currency.isoCode}`]="{ item }"
+    >
+        {{ getCurrencyPriceByCurrencyId(currency.id, item.price).gross | currency(currency.isoCode) }}
+    </template>
+    {% endblock %}
+
+    {% block sw_advanced_selection_product_list_grid_columns_stock %}
+    <template #column-stock="{ item, compact }">
+        {% block sw_advanced_selection_product_list_grid_columns_stock_content %}
+        {{ item.stock }}
+        <sw-color-badge :variant="item.stock | stockColorVariant" />
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_advanced_selection_product_list_grid_columns_release_date %}
+    <template #column-releaseDate="{ item }">
+        {% block sw_advanced_selection_product_list_grid_columns_release_date_content %}
+        <template v-if="item.releaseDate">
+            {{ item.releaseDate | date }}
+        </template>
+        <template v-else>
+            -
+        </template>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_advanced_selection_product_list_grid_columns_visibilities %}
+    <template #column-visibilities="{ item }">
+        <span class="sw-data-grid__cell-value">
+            <template v-if="item.visibilities.length > 0">
+                <sw-label
+                    v-for="visibility in item.visibilities"
+                    :key="visibility.id"
+                    size="medium"
+                >
+                    {% block sw_advanced_selection_product_list_grid_columns_visibilities_content %}
+                    {{ visibility.salesChannel.translated.name || visibility.salesChannel.name }}
+                    {% endblock %}
+                </sw-label>
+            </template>
+            <template v-else>
+                -
+            </template>
+        </span>
+    </template>
+    {% endblock %}
+
+    {% block sw_advanced_selection_product_list_grid_columns_categories %}
+    <template #column-categories="{ item }">
+        <span class="sw-data-grid__cell-value">
+            <template v-if="item.categories.length > 0">
+                <sw-label
+                    v-for="category in item.categories"
+                    :key="category.id"
+                    v-tooltip="{
+                        message: getCategoryBreadcrumb(category),
+                        width: 300
+                    }"
+                    size="medium"
+                >
+                    {% block sw_advanced_selection_product_list_grid_columns_categories_content %}
+                    {{ category.translated.name || category.name }}
+                    {% endblock %}
+                </sw-label>
+            </template>
+            <template v-else>
+                -
+            </template>
+        </span>
+    </template>
+    {% endblock %}
+
+    {% block sw_advanced_selection_product_list_grid_columns_tags %}
+    <template #column-tags="{ item }">
+        <span class="sw-data-grid__cell-value">
+            <template v-if="item.tags.length > 0">
+                <sw-label
+                    v-for="tag in item.tags"
+                    :key="tag.id"
+                    size="medium"
+                >
+                    {% block sw_advanced_selection_product_list_grid_columns_tags_content %}
+                    {{ tag.name }}
+                    {% endblock %}
+                </sw-label>
+            </template>
+            <template v-else>
+                -
+            </template>
+        </span>
+    </template>
+    {% endblock %}
+</sw-entity-advanced-selection-modal>
+{% endblock %}

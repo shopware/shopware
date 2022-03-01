@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppService;
 use Shopware\Core\Framework\App\Command\AppPrinter;
 use Shopware\Core\Framework\App\Command\RefreshAppCommand;
+use Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
@@ -21,10 +22,7 @@ class RefreshAppCommandTest extends TestCase
     use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $appRepository;
+    private EntityRepositoryInterface $appRepository;
 
     public function setUp(): void
     {
@@ -90,6 +88,7 @@ class RefreshAppCommandTest extends TestCase
         static::assertMatchesRegularExpression('/.*product\s+write, delete\s+\n.*/', $display);
         static::assertMatchesRegularExpression('/.*category\s+write\s+\n.*/', $display);
         static::assertMatchesRegularExpression('/.*order\s+read\s+\n.*/', $display);
+        static::assertMatchesRegularExpression('/.*user_change_me\s+\n.*/', $display);
 
         // header app list
         static::assertMatchesRegularExpression('/.*App\s+Label\s+Version\s+Author\s+\n.*/', $display);
@@ -114,6 +113,7 @@ class RefreshAppCommandTest extends TestCase
         static::assertMatchesRegularExpression('/.*product\s+write, delete\s+\n.*/', $display);
         static::assertMatchesRegularExpression('/.*category\s+write\s+\n.*/', $display);
         static::assertMatchesRegularExpression('/.*order\s+read\s+\n.*/', $display);
+        static::assertMatchesRegularExpression('/.*user_change_me\s+\n.*/', $display);
 
         static::assertStringContainsString('Aborting due to user input.', $commandTester->getDisplay());
     }
@@ -195,6 +195,7 @@ class RefreshAppCommandTest extends TestCase
         static::assertMatchesRegularExpression('/.*product\s+write, delete\s+\n.*/', $display);
         static::assertMatchesRegularExpression('/.*category\s+write\s+\n.*/', $display);
         static::assertMatchesRegularExpression('/.*order\s+read\s+\n.*/', $display);
+        static::assertMatchesRegularExpression('/.*user_change_me\s+\n.*/', $display);
 
         // header app list
         static::assertMatchesRegularExpression('/.*App\s+Label\s+Version\s+Author\s+\n.*/', $display);
@@ -318,7 +319,9 @@ class RefreshAppCommandTest extends TestCase
                 $this->getContainer()->get(AppLifecycle::class)
             ),
             new AppPrinter($this->appRepository),
-            $this->getContainer()->get(ManifestValidator::class)
+            $this->getContainer()->get(ManifestValidator::class),
+            $this->getContainer()->get(AppConfirmationDeltaProvider::class),
+            $this->getContainer()->get('app.repository'),
         );
     }
 }

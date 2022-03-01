@@ -154,6 +154,7 @@
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="theme.repository" on-invalid="null"/>
             <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\AbstractExtensionStoreLicensesService" class="Shopware\Core\Framework\Store\Services\ExtensionStoreLicensesService">

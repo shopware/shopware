@@ -68,6 +68,7 @@ class InstallAppCommandTest extends TestCase
         static::assertMatchesRegularExpression('/.*product\s+write, delete\s+\n.*/', $display);
         static::assertMatchesRegularExpression('/.*category\s+write\s+\n.*/', $display);
         static::assertMatchesRegularExpression('/.*order\s+read\s+\n.*/', $display);
+        static::assertMatchesRegularExpression('/.*user_change_me\s+\n.*/', $display);
 
         static::assertStringContainsString('[OK] App withPermissions has been successfully installed.', $display);
     }
@@ -107,6 +108,7 @@ class InstallAppCommandTest extends TestCase
         static::assertMatchesRegularExpression('/.*product\s+write, delete\s+\n.*/', $display);
         static::assertMatchesRegularExpression('/.*category\s+write\s+\n.*/', $display);
         static::assertMatchesRegularExpression('/.*order\s+read\s+\n.*/', $display);
+        static::assertMatchesRegularExpression('/.*user_change_me\s+\n.*/', $display);
 
         static::assertStringContainsString('Aborting due to user input.', $commandTester->getDisplay());
     }

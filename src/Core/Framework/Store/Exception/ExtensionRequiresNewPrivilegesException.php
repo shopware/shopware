@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Store\Exception;
 
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @deprecated tag:v6.5.0 - Will be replaced with \Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirmationException
+ */
 class ExtensionRequiresNewPrivilegesException extends ShopwareHttpException
 {
     public static function fromPrivilegeList(string $appName, array $privileges): self

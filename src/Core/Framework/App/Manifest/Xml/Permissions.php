@@ -5,10 +5,18 @@ namespace Shopware\Core\Framework\App\Manifest\Xml;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal only for use by the app-system
  */
 class Permissions extends XmlElement
 {
+    /**
+     * CRUD permissions in the format
+     * [
+     *      ['customer' => ['read', 'update']],
+     *      ['sales_channel' => ['read', 'delete']],
+     *      ['category' => ['read']],
+     * ]
+     */
     protected array $permissions;
 
     protected array $additionalPrivileges;
@@ -26,7 +34,7 @@ class Permissions extends XmlElement
     }
 
     /**
-     * @param array $permissions permissions as array indexed by resource
+     * @param array $permissions CRUD permissions as array indexed by resource
      * @param string[] $additionalPrivileges additional non-CRUD privileges as flat list
      */
     public static function fromArray(array $permissions, array $additionalPrivileges = []): self
@@ -54,6 +62,16 @@ class Permissions extends XmlElement
         return $this->additionalPrivileges;
     }
 
+    /**
+     * Applies CRUD privilege dependencies (e.g. "update" requires "read") and formats the permissions to
+     * [
+     *     'customer:read',
+     *     'customer:update',
+     *     'sales_channel:read',
+     *     'sales_channel:delete',
+     *     'category:read',
+     * ]
+     */
     public function asParsedPrivileges(): array
     {
         return $this->generatePrivileges();

@@ -40,6 +40,7 @@ class SystemInstallCommand extends Command
             ->addOption('shop-email', null, InputOption::VALUE_REQUIRED, 'Shop email address')
             ->addOption('shop-locale', null, InputOption::VALUE_REQUIRED, 'Default language locale of the shop')
             ->addOption('shop-currency', null, InputOption::VALUE_REQUIRED, 'Iso code for the default currency of the shop')
+            ->addOption('skip-jwt-keys-generation', null, InputOption::VALUE_NONE, 'Skips generation of jwt private and public key')
         ;
     }
 
@@ -61,10 +62,6 @@ class SystemInstallCommand extends Command
         $this->initializeDatabase($output, $input);
 
         $commands = [
-            [
-                'command' => 'system:generate-jwt',
-                'allowedToFail' => true,
-            ],
             [
                 'command' => 'database:migrate',
                 'identifier' => 'core',
@@ -94,6 +91,16 @@ class SystemInstallCommand extends Command
                 'command' => 'plugin:refresh',
             ],
         ];
+
+        if (!$input->getOption('skip-jwt-keys-generation')) {
+            array_unshift(
+                $commands,
+                [
+                    'command' => 'system:generate-jwt',
+                    'allowedToFail' => true,
+                ]
+            );
+        }
 
         /** @var Application $application */
         $application = $this->getApplication();

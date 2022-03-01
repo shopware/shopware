@@ -196,7 +196,7 @@ describe('Category: Create several categories', () => {
             .click();
 
         cy.get('.sw-category-detail__tab-cms').scrollIntoView().should('be.visible').click();
-        cy.get('.sw-category-layout-card__desc-headline').contains('Default category layout');
+        cy.get('.sw-category-layout-card__desc-headline').contains('Default listing layout');
         cy.get('.sw-category-layout-card__desc-subheadline').contains('Listing page');
     });
 });

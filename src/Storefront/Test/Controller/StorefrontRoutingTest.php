@@ -28,7 +28,7 @@ class StorefrontRoutingTest extends TestCase
         static::assertInstanceOf(StorefrontResponse::class, $response);
         static::assertInstanceOf(NavigationPage::class, $response->getData()['page']);
         static::assertInstanceOf(CmsPageEntity::class, $response->getData()['page']->getCmsPage());
-        static::assertSame('Default category layout', $response->getData()['page']->getCmsPage()->getName());
+        static::assertSame('Default listing layout', $response->getData()['page']->getCmsPage()->getName());
         static::assertSame(200, $response->getStatusCode());
     }
 

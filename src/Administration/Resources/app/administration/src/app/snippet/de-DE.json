@@ -568,6 +568,7 @@
     },
     "sw-condition": {
       "operator": {
+        "placeholder": "Operator auswählen...",
         "lowerThanEquals": "Kleiner/gleich",
         "equals": "Gleich",
         "greaterThanEquals": "Größer/gleich",

@@ -568,6 +568,7 @@
     },
     "sw-condition": {
       "operator": {
+        "placeholder": "Select operator...",
         "lowerThanEquals": "Is lower than / equal to",
         "equals": "Is equal to",
         "greaterThanEquals": "Is greater than / equal to",

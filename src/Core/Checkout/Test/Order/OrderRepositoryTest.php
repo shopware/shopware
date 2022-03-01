@@ -124,6 +124,27 @@ class OrderRepositoryTest extends TestCase
         static::assertSame(0, $order->count());
     }
 
+    /**
+     * Regression from NEXT-20340
+     */
+    public function testDeleteOrderWithoutCustomer(): void
+    {
+        $orderId = Uuid::randomHex();
+        $defaultContext = Context::createDefaultContext();
+        $orderData = $this->getOrderData($orderId, $defaultContext);
+
+        unset($orderData[0]['orderCustomer']['customer']);
+
+        $this->orderRepository->create($orderData, $defaultContext);
+
+        $this->orderRepository->delete([['id' => $orderId]], $defaultContext);
+
+        $criteria = new Criteria([$orderId]);
+        $order = $this->orderRepository->searchIds($criteria, $defaultContext);
+
+        static::assertEmpty($order->getIds());
+    }
+
     public function testDeleteOrder(): void
     {
         $token = Uuid::randomHex();

@@ -12,7 +12,8 @@ class DatabaseConnectionInformationTest extends TestCase
      */
     public function testItDecodesSpecialCharsInDbPasswordsFromEnv(): void
     {
-        $_ENV['DATABASE_URL'] = 'mysql://user:ultra%3Fsecure%23@mysql:3306/test_db';
+        unset($_SERVER['DATABASE_URL'], $_ENV['DATABASE_URL']);
+        putenv('DATABASE_URL=mysql://user:ultra%3Fsecure%23@mysql:3306/test_db');
         $dbConnectionInformation = DatabaseConnectionInformation::fromEnv();
 
         static::assertEquals('ultra?secure#', $dbConnectionInformation->getPassword());

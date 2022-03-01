@@ -25,7 +25,6 @@ import NativeEventEmitter from 'src/helper/emitter.helper';
 /*
 import utils
  */
-import AjaxModalExtensionUtil from 'src/utility/modal-extension/ajax-modal-extension.util';
 import TimezoneUtil from 'src/utility/timezone/timezone.util';
 import TooltipUtil from 'src/utility/tooltip/tooltip.util';
 
@@ -97,7 +96,7 @@ import BuyBoxPlugin from 'src/plugin/buy-box/buy-box.plugin';
 import GuestWishlistPagePlugin from 'src/plugin/wishlist/guest-wishlist-page.plugin';
 import FadingPlugin from 'src/plugin/fading/fading.plugin';
 import BasicCaptchaPlugin from 'src/plugin/captcha/basic-captcha.plugin';
-import UrlModalPlugin from 'src/plugin/url-modal/url-modal.plugin';
+import AjaxModalPlugin from 'src/plugin/ajax-modal/ajax-modal.plugin';
 
 window.eventEmitter = new NativeEventEmitter();
 
@@ -171,7 +170,10 @@ PluginManager.register('CmsGdprVideoElement', CmsGdprVideoElement, '[data-cms-gd
 PluginManager.register('BuyBox', BuyBoxPlugin, '[data-buy-box]');
 PluginManager.register('Fading', FadingPlugin, '[data-fading]');
 PluginManager.register('BasicCaptcha', BasicCaptchaPlugin, '[data-basic-captcha]');
-PluginManager.register('UrlModal', UrlModalPlugin, '[data-toggle="modal"][data-url]');
+
+/** @deprecated tag:v6.5.0 - Bootstrap v5 renames `data-toggle` attribute to `data-bs-toggle` */
+const modalDataAttr = Feature.isActive('V6_5_0_0') ? 'data-bs-toggle="modal"' : 'data-toggle="modal"';
+PluginManager.register('AjaxModal', AjaxModalPlugin, `[${modalDataAttr}][data-url]`);
 
 if (window.wishlistEnabled) {
     if (window.customerLoggedInState) {

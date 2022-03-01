@@ -2,10 +2,10 @@ import DomAccess from 'src/helper/dom-access.helper';
 import Feature from 'src/helper/feature.helper';
 import { REMOVE_BACKDROP_DELAY } from 'src/utility/backdrop/backdrop.util';
 
-const PSEUDO_MODAL_CLASS = 'js-pseudo-modal';
-const PSEUDO_MODAL_TEMPLATE_CLASS = 'js-pseudo-modal-template';
-const PSEUDO_MODAL_TEMPLATE_CONTENT_CLASS = 'js-pseudo-modal-template-content-element';
-const PSEUDO_MODAL_TEMPLATE_TITLE_CLASS = 'js-pseudo-modal-template-title-element';
+export const PSEUDO_MODAL_CLASS = 'js-pseudo-modal';
+export const PSEUDO_MODAL_TEMPLATE_CLASS = 'js-pseudo-modal-template';
+export const PSEUDO_MODAL_TEMPLATE_CONTENT_CLASS = 'js-pseudo-modal-template-content-element';
+export const PSEUDO_MODAL_TEMPLATE_TITLE_CLASS = 'js-pseudo-modal-template-title-element';
 
 export default class PseudoModalUtil {
     constructor(

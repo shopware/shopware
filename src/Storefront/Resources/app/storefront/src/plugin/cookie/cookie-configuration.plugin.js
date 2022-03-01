@@ -432,7 +432,7 @@ export default class CookieConfiguration extends Plugin {
         if (!loadIntoMemory) {
             this._handleAcceptAll();
             this.closeOffCanvas();
-                
+
             return;
         }
 

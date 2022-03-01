@@ -20,7 +20,7 @@ export default class SearchWidgetPlugin extends Plugin {
         searchWidgetCollapseClass: 'collapsed',
 
         searchWidgetDelay: 250,
-        searchWidgetMinChars: 3,
+        searchWidgetMinChars: 1,
     };
 
     init() {

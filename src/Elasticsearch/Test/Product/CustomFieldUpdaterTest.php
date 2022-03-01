@@ -93,11 +93,11 @@ class CustomFieldUpdaterTest extends TestCase
         static::assertSame('long', $properties['test_newly_created_field']['type']);
 
         static::assertArrayHasKey('test_newly_created_field_text', $properties);
-        static::assertSame('keyword', $properties['test_newly_created_field_text']['type']);
+        static::assertSame('text', $properties['test_newly_created_field_text']['type']);
     }
 
     /**
-     * @depends testCreateIndices
+     * @depends testCreateCustomFields
      */
     public function testRelationWillBeSetLaterOn(): void
     {
@@ -146,7 +146,11 @@ class CustomFieldUpdaterTest extends TestCase
         static::assertSame('long', $properties['test_later_created_field']['type']);
 
         static::assertArrayHasKey('test_later_created_field_text', $properties);
-        static::assertSame('keyword', $properties['test_later_created_field_text']['type']);
+        static::assertSame('text', $properties['test_later_created_field_text']['type']);
+
+        $this->client->indices()->delete(['index' => '_all']);
+        $this->client->indices()->refresh(['index' => '_all']);
+        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM elasticsearch_index_task');
     }
 
     protected function getDiContainer(): ContainerInterface

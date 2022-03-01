@@ -15,23 +15,7 @@ ___
 *
 ___
 # Storefront
-*
-___
-# Upgrade Information
-## Topic 1
-### Topic 1a
-### Topic 1b
-## Topic 2
-___
-# Next Major Version Changes
-## Breaking Change 1:
-* Do this
-## Breaking Change 2:
-change
-```
-static
-```
-to
-```
-self
-```
+* Added element for previous given price in the following components:
+  * `src/Storefront/Resources/views/storefront/component/buy-widget/buy-widget-price.html.twig`
+  * `src/Storefront/Resources/views/storefront/component/product/block-price.html.twig`
+  * `src/Storefront/Resources/views/storefront/page/product-detail/buy-widget-price.html.twig`

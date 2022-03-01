@@ -36,7 +36,8 @@
     "sortingLabel": "Sortierung",
     "next": "Nächstes",
     "previous": "Vorheriges",
-    "formSubmit": "Absenden"
+    "formSubmit": "Absenden",
+    "listPricePreviously": "vorher %price%"
   },
   "header": {
     "logoLink": "Zur Startseite wechseln",

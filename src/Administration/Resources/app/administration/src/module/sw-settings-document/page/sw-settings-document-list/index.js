@@ -56,4 +56,12 @@ Component.register('sw-settings-document-list', {
             return criteria;
         },
     },
+
+    methods: {
+        onChangeLanguage(languageId) {
+            Shopware.State.commit('context/setApiLanguageId', languageId);
+
+            this.getList();
+        },
+    },
 });

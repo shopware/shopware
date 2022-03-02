@@ -12,6 +12,7 @@ const stubs = {
     'sw-app-actions': true,
     'sw-notification-center': true,
     'sw-search-bar': true,
+    'sw-language-switch': true,
     'sw-page': Shopware.Component.build('sw-page'),
     'sw-button': Shopware.Component.build('sw-button'),
     'sw-button-process': Shopware.Component.build('sw-button-process'),

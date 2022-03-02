@@ -52,6 +52,10 @@
     </template>
     {% endblock %}
 
+    <template #language-switch>
+        <sw-language-switch @on-change="onChangeLanguage" />
+    </template>
+
     <template #content>
         {% block sw_customer_list_content %}
         <div class="sw-customer-list__content">

@@ -250,6 +250,19 @@ Component.register('sw-customer-detail', {
             this.editMode = true;
         },
 
+        abortOnLanguageChange() {
+            return this.customerRepository.hasChanges(this.customer);
+        },
+
+        saveOnLanguageChange() {
+            return this.onSave();
+        },
+
+        onChangeLanguage(languageId) {
+            Shopware.State.commit('context/setApiLanguageId', languageId);
+            this.createdComponent();
+        },
+
         async validPassword(customer) {
             const config = await this.systemConfigApiService.getValues('core.register');
 

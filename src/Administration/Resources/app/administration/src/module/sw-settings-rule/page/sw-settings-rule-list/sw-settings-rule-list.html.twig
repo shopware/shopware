@@ -56,6 +56,12 @@
     </template>
     {% endblock %}
 
+    <template slot="language-switch">
+        <sw-language-switch
+            @on-change="onChangeLanguage"
+        />
+    </template>
+
     {% block sw_settings_rule_list_content %}
     <template slot="content">
         {% block sw_settings_rule_list_content_card %}

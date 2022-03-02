@@ -56,6 +56,11 @@ Component.register('sw-settings-rule-list', {
             });
         },
 
+        onChangeLanguage(languageId) {
+            Shopware.State.commit('context/setApiLanguageId', languageId);
+            this.getList();
+        },
+
         onDuplicate(referenceRule) {
             const behaviour = {
                 overwrites: {

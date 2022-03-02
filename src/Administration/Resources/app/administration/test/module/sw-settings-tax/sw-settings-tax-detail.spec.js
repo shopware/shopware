@@ -61,6 +61,7 @@ function createWrapper(privileges = [], isShopwareDefaultTax = true) {
                 `
             },
             'sw-card-view': true,
+            'sw-language-switch': true,
             'sw-card': true,
             'sw-container': true,
             'sw-button': true,

@@ -38,6 +38,14 @@
     </template>
     {% endblock %}
 
+    {% block sw_order_create_language_switch %}
+    <template #language-switch>
+        <sw-language-switch
+            disabled
+        />
+    </template>
+    {% endblock %}
+
     {% block sw_order_create_content %}
     <template #content>
         {% block sw_order_create_content_view %}

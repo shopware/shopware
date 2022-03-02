@@ -481,6 +481,7 @@
             <argument>%shopware.http.cache.default_ttl%</argument>
             <argument>%shopware.http.cache.enabled%</argument>
             <argument type="service" id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver"/>
+            <argument>%storefront.reverse_proxy.enabled%</argument>
 
             <tag name="kernel.event_subscriber"/>
         </service>

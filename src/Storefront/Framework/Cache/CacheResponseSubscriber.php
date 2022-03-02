@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Framework\Cache;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
+use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -32,6 +33,8 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         'api.acl.privileges.get',
     ];
 
+    private bool $reverseProxyEnabled;
+
     private CartService $cartService;
 
     private int $defaultTtl;
@@ -44,12 +47,14 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         CartService $cartService,
         int $defaultTtl,
         bool $httpCacheEnabled,
-        MaintenanceModeResolver $maintenanceModeResolver
+        MaintenanceModeResolver $maintenanceModeResolver,
+        bool $reverseProxyEnabled
     ) {
         $this->cartService = $cartService;
         $this->defaultTtl = $defaultTtl;
         $this->httpCacheEnabled = $httpCacheEnabled;
         $this->maintenanceResolver = $maintenanceModeResolver;
+        $this->reverseProxyEnabled = $reverseProxyEnabled;
     }
 
     /**
@@ -62,6 +67,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             KernelEvents::RESPONSE => [
                 ['setResponseCache', -1500],
             ],
+            BeforeSendResponseEvent::class => 'updateCacheControlForBrowser',
         ];
     }
 
@@ -138,6 +144,31 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             self::INVALIDATION_STATES_HEADER,
             implode(',', $cache->getStates())
         );
+    }
+
+    /**
+     * In the default HttpCache implementation the reverse proxy cache is implemented too in PHP and triggered before the response is send to the client. We don't need to send the "real" cache-control headers to the end client (browser/cloudflare).
+     * If a external reverse proxy cache is used we still need to provide the actual cache-control, so the external system can cache the system correctly and set the cache-control again to
+     */
+    public function updateCacheControlForBrowser(BeforeSendResponseEvent $event): void
+    {
+        if ($this->reverseProxyEnabled) {
+            return;
+        }
+
+        $response = $event->getResponse();
+
+        $noStore = $response->headers->getCacheControlDirective('no-store');
+
+        // We don't want that the client will cache the website, if no reverse proxy is configured
+        $response->headers->remove('cache-control');
+        $response->setPrivate();
+
+        if ($noStore) {
+            $response->headers->addCacheControlDirective('no-store');
+        } else {
+            $response->headers->addCacheControlDirective('no-cache');
+        }
     }
 
     private function hasInvalidationState(HttpCache $cache, array $states): bool

@@ -63,16 +63,14 @@ class ResponseHeaderListenerTest extends TestCase
     /**
      * @dataProvider dataProviderRevalidateRoutes
      */
-    public function testRevalidateHeaderPresent(string $route): void
+    public function testNoStoreHeaderPresent(string $route): void
     {
         $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel(), false);
         $browser->request('GET', $_SERVER['APP_URL'] . $route);
         $response = $browser->getResponse();
 
-        static::assertTrue($response->headers->hasCacheControlDirective('must-revalidate'));
         static::assertTrue($response->headers->hasCacheControlDirective('no-store'));
-        static::assertTrue($response->headers->hasCacheControlDirective('no-cache'));
-        static::assertSame(0, $response->getMaxAge());
+        static::assertLessThanOrEqual(0, $response->getMaxAge());
     }
 
     public function dataProviderRevalidateRoutes(): iterable

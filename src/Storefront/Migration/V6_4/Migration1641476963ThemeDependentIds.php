@@ -31,7 +31,7 @@ class Migration1641476963ThemeDependentIds extends MigrationStep
     public function update(Connection $connection): void
     {
         $connection->executeUpdate('
-            CREATE TABLE `theme_child` (
+            CREATE TABLE IF NOT EXISTS `theme_child` (
               `parent_id` BINARY(16) NOT NULL,
               `child_id` BINARY(16) NOT NULL,
               PRIMARY KEY (`parent_id`, `child_id`),

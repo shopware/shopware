@@ -146,6 +146,6 @@ def price_updates():
 stocks = threading.Timer(5.0, stock_updates)
 stocks.start()
 
-prices = threading.Timer(5.0, price_updates)
+prices = threading.Timer(6.0, price_updates)
 prices.start()
 

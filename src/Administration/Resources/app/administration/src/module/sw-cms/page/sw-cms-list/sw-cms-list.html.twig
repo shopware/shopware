@@ -285,7 +285,7 @@
 
                                 {% block sw_cms_list_listing_list_data_grid_column_assignments %}
                                 <template #column-assignments="{ item }">
-                                    {{ item.categories.length + item.products.length }}
+                                    {{ getPageCategoryCount(item) + getPageProductCount(item) }}
                                 </template>
                                 {% endblock %}
 
@@ -329,11 +329,7 @@
                                         v-tooltip="deleteDisabledToolTip(item)"
                                         variant="danger"
                                         class="sw-cms-list__context-menu-item-delete"
-                                        :disabled="
-                                            item.categories.length > 0 ||
-                                                (item.products && item.products.length > 0) ||
-                                                !acl.can('cms.deleter')
-                                        "
+                                        :disabled="optionContextDeleteDisabled(item)"
                                         @click="onDeleteCmsPage(item)"
                                     >
                                         {{ $tc('sw-cms.components.cmsListItem.delete') }}

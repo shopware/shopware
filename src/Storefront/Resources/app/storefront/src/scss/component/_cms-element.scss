@@ -20,11 +20,13 @@ General styling for cms elements
 
         &.is-cover {
             object-fit: contain;
+            // @deprecated tag:v6.5.0 - Bootstrap v5 will discontinue IE11 support. font-family polyfill will be removed.
             font-family: 'object-fit: contain;'; // IE polyfill
             height: 100%;
 
             .cms-image {
                 object-fit: cover;
+                // @deprecated tag:v6.5.0 - Bootstrap v5 will discontinue IE11 support. font-family polyfill will be removed.
                 font-family: 'object-fit: cover;'; // IE polyfill
                 height: 100%;
                 position: absolute;
@@ -81,6 +83,7 @@ General styling for cms elements
 
     &__placeholder img {
         object-fit: cover;
+        // @deprecated tag:v6.5.0 - Bootstrap v5 will discontinue IE11 support. font-family polyfill will be removed.
         font-family: 'object-fit: cover;'; // IE polyfill
         height: 100%;
         width: 100%;
@@ -129,6 +132,7 @@ General styling for cms elements
 
     &__placeholder img {
         object-fit: cover;
+        // @deprecated tag:v6.5.0 - Bootstrap v5 will discontinue IE11 support. font-family polyfill will be removed.
         font-family: 'object-fit: cover;'; // IE polyfill
         height: 100%;
         width: 100%;

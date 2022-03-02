@@ -61,16 +61,19 @@ $box-image-height-img: 332px;
 
     &.is-cover {
         object-fit: cover;
+        // @deprecated tag:v6.5.0 - Bootstrap v5 will discontinue IE11 support. font-family polyfill will be removed.
         font-family: 'object-fit: cover;'; // IE polyfill
     }
 
     &.is-contain {
         object-fit: contain;
+        // @deprecated tag:v6.5.0 - Bootstrap v5 will discontinue IE11 support. font-family polyfill will be removed.
         font-family: 'object-fit: contain;'; // IE polyfill
     }
 
     &.is-standard {
         object-fit: scale-down;
+        // @deprecated tag:v6.5.0 - Bootstrap v5 will discontinue IE11 support. font-family polyfill will be removed.
         font-family: 'object-fit: scale-down;'; // IE polyfill
     }
 }
@@ -89,6 +92,7 @@ $box-image-height-img: 332px;
 // See for further information: https://github.com/postcss/autoprefixer/issues/1141#issuecomment-430938342
 .product-name {
     color: $headings-color;
+    // @deprecated tag:v6.5.0 - Bootstrap v5 will discontinue IE11 support. display polyfill will be removed.
     display: block; // IE11 Fallback to two lines
     display: -webkit-box;
     -webkit-box-orient: vertical;
@@ -226,6 +230,7 @@ $box-image-height-img: 332px;
         .product-image.is-standard {
             height: 100%;
             object-fit: cover;
+            // @deprecated tag:v6.5.0 - Bootstrap v5 will discontinue IE11 support. font-family polyfill will be removed.
             font-family: 'object-fit: cover;'; // IE polyfill
         }
     }

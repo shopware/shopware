@@ -1062,6 +1062,7 @@ class SalesChannelProxyControllerTest extends TestCase
             static::assertSame('credit', $cart['lineItems'][1]['type']);
 
             $orderPrivileges = [
+                'api_proxy_switch-customer',
                 'order:create',
                 'order_customer:create',
                 'order_address:create',
@@ -1075,7 +1076,7 @@ class SalesChannelProxyControllerTest extends TestCase
             foreach ([true, false] as $testOrderOnly) {
                 TestUser::createNewTestUser(
                     $browser->getContainer()->get(Connection::class),
-                    $testOrderOnly ? $orderPrivileges : [CreditOrderLineItemListener::ACL_ORDER_CREATE_DISCOUNT_PRIVILEGE],
+                    $testOrderOnly ? $orderPrivileges : ['api_proxy_switch-customer', CreditOrderLineItemListener::ACL_ORDER_CREATE_DISCOUNT_PRIVILEGE],
                 )->authorizeBrowser($browser);
                 $browser->request('POST', $this->getCreateOrderApiUrl($salesChannelContext->getSalesChannel()->getId()));
 

@@ -14,11 +14,19 @@ class TestHook extends Hook
 
     private static array $serviceIds;
 
-    public function __construct(string $name, Context $context, array $data = [], array $serviceIds = [])
-    {
+    private static array $deprecatedServices;
+
+    public function __construct(
+        string $name,
+        Context $context,
+        array $data = [],
+        array $serviceIds = [],
+        array $deprecatedServices = []
+    ) {
         parent::__construct($context);
         $this->name = $name;
         self::$serviceIds = $serviceIds;
+        self::$deprecatedServices = $deprecatedServices;
 
         foreach ($data as $key => $value) {
             $this->$key = $value;
@@ -28,6 +36,11 @@ class TestHook extends Hook
     public static function getServiceIds(): array
     {
         return self::$serviceIds;
+    }
+
+    public static function getDeprecatedServices(): array
+    {
+        return self::$deprecatedServices;
     }
 
     public function getName(): string

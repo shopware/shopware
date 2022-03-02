@@ -7,6 +7,10 @@ namespace Shopware\Core\Framework\Script\Execution;
  *
  * @internal
  */
-interface OptionalFunctionHook
+abstract class OptionalFunctionHook extends FunctionHook
 {
+    public static function willBeRequiredInVersion(): ?string
+    {
+        return null;
+    }
 }

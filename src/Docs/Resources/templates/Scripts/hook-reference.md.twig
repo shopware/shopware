@@ -9,16 +9,20 @@
 {% for hook in useCase.hooks %}
 #### {{ hook.name }}
 
+{% if hook.deprecation %}
+{{ hook.deprecation|raw }}
+
+{% endif %}
 {% if not hook.interfaceHook %}
-| <!-- -->               | <!-- -->                                                                                                                                                             |
-|:-----------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Name**               | {{ hook.name }}                                                                                                                                                      |
-| **Since**              | {{ hook.since }}                                                                                                                                                     |
-| **Class**              | `{{ hook.class }}`                                                                                                                                                   |
-| **Description**        | {{ hook.trigger|raw }}                                                                                                                                               |
-| **Available Data**     | {% for data in hook.data %}{{ data.name }}: {% if data.link is not null %}[`{{ data.type }}`]({{ data.link }}){% else %}`{{ data.type }}`{% endif %} <br>{% endfor%} |
-| **Available Services** | {% for service in hook.services %}[{{ service.name }}]({{ service.link }})<br>{% endfor%}                                                                            |
-| **Stoppable**          | `{{ hook.stoppable }}`                                                                                                                                               |
+| <!-- -->               | <!-- -->                                |
+|:-----------------------|:----------------------------------------|
+| **Name**               | {{ hook.name }}                         |
+| **Since**              | {{ hook.since }}                        |
+| **Class**              | `{{ hook.class }}`                      |
+| **Description**        | {{ hook.trigger|raw }}                  |
+| **Available Data**     | {{ _self.data_list(hook.data) }}        |
+| **Available Services** | {{ _self.service_list(hook.services) }} |
+| **Stoppable**          | `{{ hook.stoppable }}`                  |
 
 {% else %}
 {{ hook.interfaceDescription|raw }}
@@ -26,18 +30,42 @@
 {% for functionName, functionHook in hook.functions %}
 ##### Function: `{{ functionName }}`
 
-| <!-- -->               | <!-- -->                                                                                                                                                                     |
-|:-----------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Name**               | {{ functionName }}                                                                                                                                                           |
-| **Since**              | {{ functionHook.since }}                                                                                                                                                     |
-| **Optional**           | `{{ functionHook.optional }}`                                                                                                                                                |
-| **Class**              | `{{ functionHook.class }}`                                                                                                                                                   |
-| **Description**        | {{ functionHook.trigger|raw }}                                                                                                                                               |
-| **Available Data**     | {% for data in functionHook.data %}{{ data.name }}: {% if data.link is not null %}[`{{ data.type }}`]({{ data.link }}){% else %}`{{ data.type }}`{% endif %} <br>{% endfor%} |
-| **Available Services** | {% for service in functionHook.services %}[{{ service.name }}]({{ service.link }})<br>{% endfor%}                                                                            |
-| **Stoppable**          | `{{ functionHook.stoppable }}`                                                                                                                                               |
+{% if functionHook.deprecation %}
+{{ functionHook.deprecation|raw }}
+
+{% endif %}
+| <!-- -->               | <!-- -->                                        |
+|:-----------------------|:------------------------------------------------|
+| **Name**               | {{ functionName }}                              |
+| **Since**              | {{ functionHook.since }}                        |
+| **Optional**           | `{{ functionHook.optional }}`                   |
+| **Class**              | `{{ functionHook.class }}`                      |
+| **Description**        | {{ functionHook.trigger|raw }}                  |
+| **Available Data**     | {{ _self.data_list(functionHook.data) }}        |
+| **Available Services** | {{ _self.service_list(functionHook.services) }} |
+| **Stoppable**          | `{{ functionHook.stoppable }}`                  |
 
 {% endfor %}
 {% endif %}
 {% endfor %}
 {% endfor %}
+
+{%- macro service_list(services) -%}
+    {%- for service in services -%}
+        {%- if service.deprecated -%}
+            [~~{{ service.name }}~~]({{ service.link }}) (**Deprecated:** {{ service.deprecated }})<br>
+        {%- else -%}
+            [{{ service.name }}]({{ service.link }})<br>
+        {%- endif -%}
+    {%- endfor -%}
+{%- endmacro -%}
+
+{%- macro data_list(dataElements) -%}
+    {%- for data in dataElements -%}
+        {%- if data.link is not null -%}
+            {{ data.name }}: [`{{ data.type }}`]({{ data.link }})<br>
+        {%- else -%}
+            {{ data.name }}: `{{ data.type }}`<br>
+{%- endif -%}
+{%- endfor -%}
+{%- endmacro -%}

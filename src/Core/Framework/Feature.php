@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 
 class Feature
 {
@@ -101,8 +102,11 @@ class Feature
      */
     public static function triggerDeprecated(string $flag, string $sinceVersion, string $removeVersion, string $message, ...$args): void
     {
+        $message = 'Deprecated tag:' . $removeVersion . '(flag:' . $flag . '). ' . $message;
+
         if (self::isActive($flag) || !self::has($flag)) {
-            trigger_deprecation('shopware/core', $sinceVersion, 'Deprecated tag:' . $removeVersion . '(flag:' . $flag . '). ' . $message, $args);
+            ScriptTraces::addDeprecationNotice(sprintf($message, ...$args));
+            trigger_deprecation('shopware/core', $sinceVersion, $message, $args);
         }
     }
 
@@ -111,6 +115,8 @@ class Feature
         if (self::isActive($flag) === $state || !self::has($flag)) {
             throw new \RuntimeException($message);
         }
+
+        ScriptTraces::addDeprecationNotice($message);
     }
 
     public static function has(string $flag): bool

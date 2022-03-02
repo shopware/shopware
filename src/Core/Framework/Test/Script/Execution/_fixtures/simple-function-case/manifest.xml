@@ -14,4 +14,7 @@
         <license>MIT</license>
         <privacy>https://test.com/privacy</privacy>
     </meta>
+    <permissions>
+        <read>tax</read>
+    </permissions>
 </manifest>

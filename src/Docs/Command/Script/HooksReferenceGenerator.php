@@ -9,6 +9,7 @@ use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 use phpDocumentor\Reflection\DocBlockFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
+use Shopware\Core\Framework\Script\Execution\DeprecatedHook;
 use Shopware\Core\Framework\Script\Execution\FunctionHook;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\InterfaceHook;
@@ -197,6 +198,7 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
     private function getAvailableServices(\ReflectionClass $reflection): array
     {
         $serviceIds = $reflection->getMethod('getServiceIds')->invoke(null);
+        $deprecatedServices = $reflection->getMethod('getDeprecatedServices')->invoke(null);
         $services = [];
 
         foreach ($serviceIds as $serviceId) {
@@ -222,6 +224,7 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
                 'name' => $name,
                 'returnType' => $type,
                 'link' => $this->getServiceLink($type),
+                'deprecated' => $deprecatedServices[$serviceId] ?? null,
             ];
         }
 
@@ -278,6 +281,22 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
             $name = $reflection->getConstant('HOOK_NAME');
         }
 
+        $deprecationNotice = '';
+        if ($reflection->implementsInterface(DeprecatedHook::class)) {
+            $deprecationNotice .= '**Deprecated:** ' . $reflection->getMethod('getDeprecationNotice')->invoke(null);
+        }
+
+        if (is_subclass_of($hook, OptionalFunctionHook::class)) {
+            $requiredInVersion = $hook::willBeRequiredInVersion();
+            if ($requiredInVersion) {
+                $deprecationNotice .= sprintf(
+                    '**Attention:** Function "%s" will be required from %s onward.',
+                    $name,
+                    $requiredInVersion
+                );
+            }
+        }
+
         return [
             'name' => $name,
             'use-case' => $description->render(),
@@ -287,7 +306,8 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
             'services' => $this->getAvailableServices($reflection),
             'since' => $since[0]->getVersion(),
             'stoppable' => mb_strtolower(var_export($reflection->implementsInterface(StoppableHook::class), true)),
-            'optional' => mb_strtolower(var_export($reflection->implementsInterface(OptionalFunctionHook::class), true)),
+            'optional' => mb_strtolower(var_export(is_subclass_of($hook, OptionalFunctionHook::class), true)),
+            'deprecation' => $deprecationNotice,
         ];
     }
 

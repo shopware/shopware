@@ -4,6 +4,7 @@ namespace Shopware\Docs\Command\Script;
 
 use League\ConstructFinder\ConstructFinder;
 use phpDocumentor\Reflection\DocBlock;
+use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use phpDocumentor\Reflection\DocBlock\Tags\Example;
 use phpDocumentor\Reflection\DocBlock\Tags\Generic;
 use phpDocumentor\Reflection\DocBlock\Tags\Method;
@@ -217,6 +218,9 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
                 continue;
             }
 
+            /** @var Deprecated|null $deprecated */
+            $deprecated = $docBlock->getTagsByName('deprecated')[0] ?? null;
+
             $group = $this->getGroupForService($reflection);
 
             $data[$group]['services'][] = [
@@ -225,6 +229,7 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
                 // add fragment-marker to easily link to specific classes, see https://stackoverflow.com/a/54335742/10064036
                 // as `{#` indicates a twig comment, we can't add it inside the template
                 'marker' => '{#' . strtolower($reflection->getShortName()) . '}',
+                'deprecated' => $deprecated ? (string) $deprecated : null,
                 'summary' => $docBlock->getSummary(),
                 'description' => $docBlock->getDescription()->render(),
                 'methods' => $this->getMethods($reflection, $scriptServices),
@@ -270,10 +275,14 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
                 continue;
             }
 
+            /** @var Deprecated|null $deprecated */
+            $deprecated = $docBlock->getTagsByName('deprecated')[0] ?? null;
+
             $methods[] = [
                 'title' => $method->getName() . '()',
                 'summary' => $docBlock->getSummary(),
                 'description' => $docBlock->getDescription()->render(),
+                'deprecated' => $deprecated ? (string) $deprecated : null,
                 'arguments' => $this->parseArguments($method, $docBlock, $scriptServices),
                 'return' => $this->parseReturn($method, $docBlock, $scriptServices),
                 'examples' => $this->parseExamples($method, $docBlock),

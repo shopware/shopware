@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Event\FlowLogEvent;
 use Shopware\Core\Framework\Feature;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -51,6 +52,11 @@ class FlowDispatcher implements EventDispatcherInterface
 
         if (!$event instanceof FlowEventAware) {
             return $event;
+        }
+
+        if (Feature::isActive('v6.5.0.0')) {
+            $flowLogEvent = new FlowLogEvent(FlowLogEvent::NAME, $event);
+            $this->dispatcher->dispatch($flowLogEvent, $flowLogEvent->getName());
         }
 
         if (Feature::isActive('FEATURE_NEXT_17858')) {

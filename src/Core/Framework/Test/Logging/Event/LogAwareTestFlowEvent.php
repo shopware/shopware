@@ -3,15 +3,12 @@
 namespace Shopware\Core\Framework\Test\Logging\Event;
 
 use Monolog\Logger;
-use Shopware\Core\Framework\Log\LogAwareBusinessEventInterface;
-use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
+use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
+use Shopware\Core\Framework\Log\LogAware;
 
-/**
- * @deprecated tag:v6.5.0 - Class is deprecated, use LogAwareTestFlowEvent instead.
- */
-class LogAwareTestBusinessEvent extends TestBusinessEvent implements LogAwareBusinessEventInterface
+class LogAwareTestFlowEvent extends TestFlowBusinessEvent implements LogAware
 {
-    public const EVENT_NAME = 'test.business_event.log_aware';
+    public const EVENT_NAME = 'test.flow_event.log_aware';
 
     public function getName(): string
     {

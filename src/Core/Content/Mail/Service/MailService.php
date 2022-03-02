@@ -2,10 +2,11 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
-use Psr\Log\LoggerInterface;
+use Monolog\Logger;
 use Shopware\Core\Content\MailTemplate\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
@@ -68,11 +69,6 @@ class MailService extends AbstractMailService
     private $eventDispatcher;
 
     /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
      * @var UrlGeneratorInterface
      */
     private $urlGenerator;
@@ -92,7 +88,6 @@ class MailService extends AbstractMailService
         EntityRepositoryInterface $salesChannelRepository,
         SystemConfigService $systemConfigService,
         EventDispatcherInterface $eventDispatcher,
-        LoggerInterface $logger,
         UrlGeneratorInterface $urlGenerator
     ) {
         $this->dataValidator = $dataValidator;
@@ -104,7 +99,6 @@ class MailService extends AbstractMailService
         $this->salesChannelRepository = $salesChannelRepository;
         $this->systemConfigService = $systemConfigService;
         $this->eventDispatcher = $eventDispatcher;
-        $this->logger = $logger;
         $this->urlGenerator = $urlGenerator;
     }
 
@@ -146,7 +140,7 @@ class MailService extends AbstractMailService
             $salesChannel = $templateData['salesChannel'];
         }
 
-        $senderEmail = $this->getSender($data, $salesChannelId);
+        $senderEmail = $this->getSender($data, $salesChannelId, $context);
 
         $contents = $this->buildContents($data, $salesChannel);
         if ($this->isTestMode($data)) {
@@ -166,7 +160,10 @@ class MailService extends AbstractMailService
                 $contents[$index] = $this->templateRenderer->render($template, $templateData, $context);
             }
         } catch (\Throwable $e) {
-            $this->logger->error(
+            $event = new MailErrorEvent(
+                $context,
+                Logger::ERROR,
+                null,
                 "Could not render Mail-Template with error message:\n"
                 . $e->getMessage() . "\n"
                 . 'Error Code:' . $e->getCode() . "\n"
@@ -175,6 +172,7 @@ class MailService extends AbstractMailService
                 . "Template data: \n"
                 . json_encode($templateData) . "\n"
             );
+            $this->eventDispatcher->dispatch($event);
 
             return null;
         }
@@ -197,13 +195,17 @@ class MailService extends AbstractMailService
         );
 
         if ($mail->getBody()->toString() === '') {
-            $this->logger->error(
+            $event = new MailErrorEvent(
+                $context,
+                Logger::ERROR,
+                null,
                 "message is null:\n"
                 . 'Data:'
                 . json_encode($data) . "\n"
                 . "Template data: \n"
                 . json_encode($templateData) . "\n"
             );
+            $this->eventDispatcher->dispatch($event);
 
             return null;
         }
@@ -223,7 +225,7 @@ class MailService extends AbstractMailService
         return $mail;
     }
 
-    private function getSender(array $data, ?string $salesChannelId): ?string
+    private function getSender(array $data, ?string $salesChannelId, Context $context): ?string
     {
         $senderEmail = $data['senderEmail'] ?? null;
 
@@ -236,7 +238,13 @@ class MailService extends AbstractMailService
         }
 
         if ($senderEmail === null || trim($senderEmail) === '') {
-            $this->logger->error('senderMail not configured for salesChannel: ' . $salesChannelId . '. Please check system_config \'core.basicInformation.email\'');
+            $event = new MailErrorEvent(
+                $context,
+                Logger::ERROR,
+                null,
+                'senderMail not configured for salesChannel: ' . $salesChannelId . '. Please check system_config \'core.basicInformation.email\''
+            );
+            $this->eventDispatcher->dispatch($event);
 
             return null;
         }

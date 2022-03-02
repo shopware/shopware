@@ -188,7 +188,10 @@
     "sw-list-price-field": {
       "labelListPriceGross": "Streichpreis (Brutto)",
       "helpTextListPriceGross": "Streichpreise weisen auf ein preisreduziertes Produkt hin. Der Streichpreis zeigt den ursprünglichen Preis als durchgestrichenen, roten Text an. Der gültige Preis wird daneben in der Standardtextfarbe dargestellt.",
-      "labelListPriceNet": "Streichpreis (Netto)"
+      "labelListPriceNet": "Streichpreis (Netto)",
+      "labelRegulationPriceGross": "Günstigster Preis (30 Tage, Brutto)",
+      "helpTextRegulationPriceGross": "Dieses Feld musst Du ausfüllen, wenn Du in der EU mit Preisermäßigungen in Deinem Shop werben möchtest. Diese Angaben sollen von Kunden in der EU überprüft werden können. Bei Preisermäßigungen muss deshalb neben der Preisermäßigung auf den aktuellen Preis auch der niedrigste Preis der Ware in den letzten 30 Tagen vor der Preisermäßigung angegeben werden. Das ist in Art. 6 a der Richtlinie 98/6/EG vorgeschrieben.",
+      "labelRegulationPriceNet": "Günstigster Preis (30 Tage, Netto)"
     },
     "sw-text-editor": {
       "labelTextLength": "{count} Zeichen | {count} Zeichen"

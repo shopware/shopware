@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 
@@ -64,7 +65,8 @@ class NetPriceCalculator
             $taxRules,
             $definition->getQuantity(),
             $reference,
-            $this->calculateListPrice($unitPrice, $definition, $config)
+            $this->calculateListPrice($unitPrice, $definition, $config),
+            $this->calculateRegulationPrice($definition, $config)
         );
     }
 
@@ -80,6 +82,20 @@ class NetPriceCalculator
         }
 
         return ListPrice::createFromUnitPrice($unitPrice, $listPrice);
+    }
+
+    private function calculateRegulationPrice(QuantityPriceDefinition $definition, CashRoundingConfig $config): ?RegulationPrice
+    {
+        $regulationPrice = $definition->getListPrice();
+        if (!$regulationPrice) {
+            return null;
+        }
+
+        if (!$definition->isCalculated()) {
+            $regulationPrice = $this->round($regulationPrice, $config);
+        }
+
+        return new RegulationPrice($regulationPrice);
     }
 
     private function calculateReferencePrice(float $price, ?ReferencePriceDefinition $definition, CashRoundingConfig $config): ?ReferencePrice

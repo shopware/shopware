@@ -21,6 +21,9 @@ class CalculatedPriceField extends JsonField
                 new FloatField('discount', 'discount'),
                 new FloatField('percentage', 'percentage'),
             ]),
+            new JsonField('regulationPrice', 'regulationPrice', [
+                new FloatField('price', 'price'),
+            ]),
         ];
 
         parent::__construct($storageName, $propertyName, $propertyMapping);

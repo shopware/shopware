@@ -245,8 +245,19 @@ Component.register('sw-product-stream-value', {
             set(value) { this.actualCondition.parameters.operator = this.getParameterName(value); },
         },
 
-        isEmptyValue() {
-            return this.filterType === 'equals';
+        emptyValue: {
+            get() {
+                return this.condition.type !== null ? this.filterType === 'equals' : null;
+            },
+            set(value) {
+                if (value === undefined || value === null) {
+                    this.$emit('empty-change', { type: null });
+
+                    return;
+                }
+
+                this.$emit('empty-change', { type: value ? 'equals' : 'notEquals' });
+            },
         },
 
         stringValue: {
@@ -434,10 +445,6 @@ Component.register('sw-product-stream-value', {
 
         setBooleanValue(value) {
             this.$emit('boolean-change', { type: +value ? 'equals' : 'notEquals', value });
-        },
-
-        setEmptyValue(value) {
-            this.$emit('empty-change', { type: value ? 'equals' : 'notEquals' });
         },
 
         setSearchTerm(value) {

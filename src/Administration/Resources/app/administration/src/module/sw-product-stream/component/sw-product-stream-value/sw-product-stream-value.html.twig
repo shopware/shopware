@@ -27,13 +27,12 @@
     <template v-else-if="fieldType === 'empty'">
         {% block sw_product_stream_value_empty_value %}
         <sw-single-select
+            v-model="emptyValue"
             class="sw-product-stream-value__select"
             size="medium"
             :options="reversedEmptyOptions"
-            :value="isEmptyValue"
             :disabled="disabled"
             show-clearable-button
-            @change="setEmptyValue"
         />
         {% endblock %}
     </template>

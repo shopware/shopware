@@ -1,3 +1,4 @@
+/* stylelint-disable max-nesting-depth */
 @import "~scss/variables";
 
 $sw-search-bar-border-color: $color-gray-300;
@@ -43,7 +44,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
 
     .sw-search-bar__container {
         padding: 15px 0;
-        max-width: 800px;
+        max-width: $content-width;
         margin: 0 auto;
         position: relative;
 

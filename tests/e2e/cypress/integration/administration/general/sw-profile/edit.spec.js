@@ -4,16 +4,31 @@ describe('Profile module', () => {
     beforeEach(() => {
         cy.loginViaApi()
             .then(() => {
+                cy.intercept({
+                    url: `${Cypress.env('apiPath')}/_info/config`,
+                    method: 'GET'
+                }).as('infoCall');
+
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/profile/index`);
+
+                cy.wait('@infoCall');
+
+                cy.get('.smart-bar__header').contains('Your profile');
+                cy.get('.sw-card__title').contains('Profile information');
+                cy.get('#sw-field--user-username').should('be.visible');
+                cy.get('.sw-loader').should('not.exist');
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 
     it('@base @general: profile change email', () => {
-        cy.get('#sw-field--email')
-            .should('be.visible')
-            .click()
-            .clear()
-            .type('changed@shopware.com');
+        cy.get('#sw-field--email').should('be.visible');
+        cy.get('#sw-field--email').scrollIntoView();
+        cy.get('#sw-field--email').realHover();
+        cy.get('#sw-field--email').click();
+        cy.get('#sw-field--email').clear();
+        cy.get('#sw-field--email').type('changed@shopware.com');
 
         cy.get('.sw-profile__save-action')
             .should('be.visible')

@@ -35,8 +35,26 @@ describe('Country: Test can setting VAT id field required', () => {
 
         cy.get('.sw-admin-menu__item--sw-settings').click();
         cy.get('#sw-settings-country').click();
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.smart-bar__header').contains('Countries');
+
+        // // should wait for search result
+        cy.intercept({
+            method: 'POST',
+            url: '/api/search/country',
+        }).as('searchCountries');
+
+        // find a country with the name is "Germany"
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Germany');
-        cy.get(`${settingPage.elements.dataGridRow}--0 ${settingPage.elements.countryColumnName}`).click();
+        cy.get('input.sw-search-bar__input').type('{esc}');
+
+        // choose "Germany"
+        cy.get(`${settingPage.elements.dataGridRow}--0 ${settingPage.elements.countryColumnName} a`).should('be.visible');
+        cy.get(`${settingPage.elements.dataGridRow}--0 ${settingPage.elements.countryColumnName} a`).click();
+
+        cy.wait('@searchCountries');
         cy.get('.sw-settings-country-general__vat-id-required .sw-field--switch__input').click();
         cy.get(settingPage.elements.countrySaveAction).click();
 

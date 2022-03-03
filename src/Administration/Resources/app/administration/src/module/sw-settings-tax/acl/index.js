@@ -5,6 +5,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
     roles: {
         viewer: {
             privileges: [
+                'system_config:read',
                 'tax:read',
                 'tax_rule:read',
                 'tax_rule_type:read',
@@ -17,6 +18,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
         },
         editor: {
             privileges: [
+                'system_config:update',
                 'tax:update',
                 'tax_rule:read',
                 'tax_rule:create',

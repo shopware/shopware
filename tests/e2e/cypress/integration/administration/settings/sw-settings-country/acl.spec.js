@@ -203,11 +203,25 @@ describe('Country: Test acl privileges', () => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
         });
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.smart-bar__header').contains('Countries');
+
+        // // should wait for search result
+        cy.intercept({
+            method: 'POST',
+            url: '/api/search/country',
+        }).as('searchCountries');
+
         // find a country with the name is "Germany"
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Germany');
+        cy.get('input.sw-search-bar__input').type('{esc}');
+
+        cy.wait('@searchCountries');
 
         // choose "Germany"
-        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).click();
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName} a`).should('be.visible');
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName} a`).click();
 
         // choose "state tab"
         cy.get('.sw-settings-country__state-tab').click();
@@ -239,11 +253,25 @@ describe('Country: Test acl privileges', () => {
             method: 'PATCH'
         }).as('saveCountryState');
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.smart-bar__header').contains('Countries');
+
+        // // should wait for search result
+        cy.intercept({
+            method: 'POST',
+            url: '/api/search/country',
+        }).as('searchCountries');
+
         // find a country with the name is "Germany"
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Germany');
+        cy.get('input.sw-search-bar__input').type('{esc}');
+
+        cy.wait('@searchCountries');
 
         // choose "Germany"
-        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).click();
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName} a`).should('be.visible');
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName} a`).click();
 
         // choose "state tab"
         cy.get('.sw-settings-country__state-tab').click();
@@ -324,11 +352,25 @@ describe('Country: Test acl privileges', () => {
             method: 'POST'
         }).as('saveCountryState');
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.smart-bar__header').contains('Countries');
+
+        // // should wait for search result
+        cy.intercept({
+            method: 'POST',
+            url: '/api/search/country',
+        }).as('searchCountries');
+
         // find a country with the name is "Germany"
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Germany');
+        cy.get('input.sw-search-bar__input').type('{esc}');
+
+        cy.wait('@searchCountries');
 
         // choose "Germany"
-        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).click();
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName} a`).should('be.visible');
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName} a`).click();
 
         // choose "state tab"
         cy.get('.sw-settings-country__state-tab').click();
@@ -408,12 +450,25 @@ describe('Country: Test acl privileges', () => {
 
         cy.wait('@searchLanguage').its('response.statusCode').should('equals', 200);
 
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.smart-bar__header').contains('Countries');
+
+        // // should wait for search result
+        cy.intercept({
+            method: 'POST',
+            url: '/api/search/country',
+        }).as('searchCountries');
+
         // find a country with the name is "Germany"
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Vietnam');
-        cy.wait('@searchCountry').its('response.statusCode').should('equals', 200);
+        cy.get('input.sw-search-bar__input').type('{esc}');
+
+        cy.wait('@searchCountries');
 
         // choose "Germany"
-        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).click();
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName} a`).should('be.visible');
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName} a`).click();
 
         // choose "state tab"
         cy.get('.sw-settings-country__state-tab').click();

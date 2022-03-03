@@ -3,7 +3,7 @@
 .sw-inheritance-warning {
     display: flex;
     padding: 20px;
-    max-width: 800px;
+    max-width: $content-width;
     margin: 0 auto 20px auto;
     background-color: $color-module-purple-50;
     border: 1px solid $color-module-purple-900;

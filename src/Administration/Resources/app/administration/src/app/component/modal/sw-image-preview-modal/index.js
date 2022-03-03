@@ -102,6 +102,8 @@ Component.register('sw-image-preview-modal', {
         },
 
         mountedComponent() {
+            document.querySelector('body').appendChild(this.$el);
+
             this.$el.addEventListener('wheel', this.onMouseWheel);
 
             this.getActiveImage().then(() => {
@@ -113,6 +115,15 @@ Component.register('sw-image-preview-modal', {
             this.getActiveImage().then(() => {
                 this.setActionButtonState();
             });
+        },
+
+        beforeDestroyComponent() {
+            if (this.$parent?.$el !== this.$el) {
+                // move DOM element back to vDOM parent so that Vue can remove the DOM entry on changes
+                this.$parent.$el.appendChild(this.$el);
+            } else {
+                this.$el.remove();
+            }
         },
 
         destroyedComponent() {
@@ -215,7 +226,7 @@ Component.register('sw-image-preview-modal', {
         },
 
         onMouseWheel(event) {
-            const zoomAmount = event.wheelDelta / 800;
+            const zoomAmount = event.wheelDelta / 960;
 
             if (this.scale + zoomAmount > this.maxZoomValue) {
                 this.scale = this.maxZoomValue;

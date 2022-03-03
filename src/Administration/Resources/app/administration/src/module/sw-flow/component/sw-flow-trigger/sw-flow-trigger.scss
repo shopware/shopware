@@ -129,7 +129,7 @@ $sw-flow-trigger-transition-results: all ease-in-out 0.2s;
         opacity: 0;
     }
 
-    @media screen and (max-height: 800px) {
+    @media screen and (max-height: $content-width) {
         &__search-results {
             max-height: 400px;
         }

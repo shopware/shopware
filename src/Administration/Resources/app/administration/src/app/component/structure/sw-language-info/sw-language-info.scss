@@ -6,7 +6,7 @@ $sw-language-info-color-language: $color-shopware-brand-500;
 
 .sw-language-info {
     padding: 0;
-    max-width: 800px;
+    max-width: $content-width;
     margin: 0 auto 20px auto;
     height: 36px;
     color: $sw-language-info-color-text;

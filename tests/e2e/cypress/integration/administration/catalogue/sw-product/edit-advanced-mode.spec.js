@@ -181,10 +181,14 @@ describe('Product: Mode advanced settings at product detail', () => {
 
         cy.get('.sw-product-properties').should('be.visible');
 
-        cy.get('.sw-product-detail-specification__essential-characteristics').should('be.visible');
+        cy.get('.sw-product-detail-specification__essential-characteristics')
+            .scrollIntoView()
+            .should('be.visible');
 
         packagingItemClassName.forEach(item => {
-            cy.get(item).should('be.visible');
+            cy.get(item)
+                .scrollIntoView()
+                .should('be.visible');
         });
 
         cy.get('.sw-product-detail-specification__essential-characteristics').scrollIntoView()

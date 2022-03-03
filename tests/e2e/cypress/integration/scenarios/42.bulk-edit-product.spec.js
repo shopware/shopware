@@ -109,7 +109,7 @@ describe('Bulk Edit - Products', () => {
             `${page.elements.dataGridRow}--0`
         );
         cy.get('.sw-text-editor__content-editor').should('include.text', 'Bulk edit test');
-        cy.get('.sw-product-detail-base__deliverability > .sw-card__title').scrollIntoView();
+        cy.get('.sw-product-detail-base__deliverability .sw-card__title').scrollIntoView();
         cy.get('#sw-field--product-restock-time').should('have.value', '30');
         cy.get('.sw-product-deliverability__min-purchase [type]').should('have.value', '10');
         cy.get('.sw-product-category-form__visibility_field').contains('E2E install test');
@@ -131,7 +131,7 @@ describe('Bulk Edit - Products', () => {
             `${page.elements.dataGridRow}--1`
         );
         cy.get('.sw-text-editor__content-editor').should('include.text', 'Bulk edit test');
-        cy.get('.sw-product-detail-base__deliverability > .sw-card__title').scrollIntoView();
+        cy.get('.sw-product-detail-base__deliverability .sw-card__title').scrollIntoView();
         cy.get('#sw-field--product-restock-time').should('have.value', '30');
         cy.get('.sw-product-deliverability__min-purchase [type]').should('have.value', '10');
         cy.get('.sw-product-category-form__visibility_field').contains('E2E install test');

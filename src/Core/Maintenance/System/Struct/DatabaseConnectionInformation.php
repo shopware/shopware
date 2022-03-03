@@ -38,7 +38,15 @@ class DatabaseConnectionInformation extends Struct
             throw new DatabaseSetupException('Environment variable \'DATABASE_URL\' does not contain a valid dsn.');
         }
 
-        $path = $params['path'] ?? '/';
+        foreach ($params as $param => $value) {
+            if (!\is_string($value)) {
+                continue;
+            }
+
+            $params[$param] = rawurldecode($value);
+        }
+
+        $path = (string) ($params['path'] ?? '/');
         $dbName = substr($path, 1);
         if (!isset($params['scheme']) || !isset($params['host']) || trim($dbName) === '') {
             throw new DatabaseSetupException('Environment variable \'DATABASE_URL\' does not contain a valid dsn.');

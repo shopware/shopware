@@ -268,6 +268,8 @@ class SystemConfigService
 
     public function saveConfig(array $config, string $prefix, bool $override): void
     {
+        $relevantSettings = $this->getDomain($prefix);
+
         foreach ($config as $card) {
             foreach ($card['elements'] as $element) {
                 $key = $prefix . $element['name'];
@@ -276,7 +278,7 @@ class SystemConfigService
                 }
 
                 $value = XmlReader::phpize($element['defaultValue']);
-                if ($override || $this->get($key) === null) {
+                if ($override || !isset($relevantSettings[$key]) || $relevantSettings[$key] === null) {
                     $this->set($key, $value);
                 }
             }

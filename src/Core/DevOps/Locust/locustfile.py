@@ -74,7 +74,7 @@ class Customer(FastHttpUser):
     def short_time_buyer(self):
         page = Storefront(self.client, context)
         page = page.register()       #instead of login, we register
-        page = page.go_to_account_orders()
+        page = page.browse_account()
 
         page = page.go_to_listing()
         page = page.view_products(2)
@@ -87,8 +87,7 @@ class Customer(FastHttpUser):
     def long_time_buyer(self):
         page = Storefront(self.client, context)
         page = page.register()      #instead of login, we register
-        page = page.go_to_account()
-        page = page.go_to_account_orders()
+        page = page.browse_account()
 
         # search products over listings
         page = page.go_to_listing()

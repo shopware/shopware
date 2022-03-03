@@ -55,16 +55,28 @@ class Storefront:
         self.client.post('/checkout/order', name=self.__build_name('order'), context={'tos': 'on'})
         return self.go_to_home()
 
-    def go_to_account(self):
-        return Storefront(self.client, self.context, '/checkout/confirm', self, {}, self.__build_name('account-page'))
-
     def logout(self):
         self.client.get('/account/logout', name=self.__build_name('logout'))
 
         return self.go_to_home()
 
+    def go_to_account(self):
+        return Storefront(self.client, self.context, '/account', self, {}, self.__build_name('account-page'))
+
+    def go_to_account_addresses(self):
+        return Storefront(self.client, self.context, '/account/address', self, {}, self.__build_name('account-addresses-page'))
+
+    def go_to_account_profile(self):
+        return Storefront(self.client, self.context, '/account/profile', self, {}, self.__build_name('account-profile-page'))
+
     def go_to_account_orders(self):
         return Storefront(self.client, self.context, '/account/order', self, {}, self.__build_name('account-orders-page'))
+
+    def go_to_account_create_address_form(self):
+        return Storefront(self.client, self.context, '/account/address/create', self, {}, self.__build_name('account-create-address-page'))
+
+    def go_to_account_payment(self):
+        return Storefront(self.client, self.context, '/account/payment', self, {}, self.__build_name('account-payment-page'))
 
     def register(self, guest = 0):
         register = {
@@ -161,6 +173,16 @@ class Storefront:
             self.refresh()
 
         return self
+
+    def browse_account(self):
+        page = self.go_to_account()
+        self.go_to_account_addresses()
+        self.go_to_account_profile()
+        self.go_to_account_orders()
+        self.go_to_account_create_address_form()
+        self.go_to_account_payment()
+
+        return page
 
     def add_products_to_cart(self, count = 2):
        for x in range(count):

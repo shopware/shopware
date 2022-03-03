@@ -32,7 +32,7 @@ public function myAction()
 ### After
 
 ```php
-@Route("/store-api/product", name="store-api.product.search", methods={"GET", "POST"}, defaults={"_sw_login_required"=true})
+@Route("/store-api/product", name="store-api.product.search", methods={"GET", "POST"}, defaults={"loginRequired"=true})
 public function myAction()
 ```
 

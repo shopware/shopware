@@ -46,7 +46,7 @@ class AclController extends AbstractController
      */
     public function getPrivileges(): JsonResponse
     {
-        if (Feature::isActive('v6_5_0_0')) {
+        if (Feature::isActive('v6.5.0.0')) {
             $privileges = $this->getFromRoutes();
         } else {
             $privileges = array_merge($this->getFromAnnotations(), $this->getFromRoutes());
@@ -63,7 +63,7 @@ class AclController extends AbstractController
      */
     public function getAdditionalPrivileges(Context $context): JsonResponse
     {
-        if (Feature::isActive('v6_5_0_0')) {
+        if (Feature::isActive('v6.5.0.0')) {
             $privileges = $this->getFromRoutes();
         } else {
             $privileges = array_merge($this->getFromAnnotations(), $this->getFromRoutes());

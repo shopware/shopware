@@ -132,9 +132,9 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
 
     private function contextTokenRequired(Request $request): bool
     {
-//        if (Feature::isActive('v6_5_0_0')) {
-//            return $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED, false);
-//        }
+        if (Feature::isActive('v6.5.0.0')) {
+            return $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED, false);
+        }
 
         if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED)) {
             return false;
@@ -152,19 +152,21 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
 
     private function validateLogin(Request $request, SalesChannelContext $context): void
     {
-//        if (Feature::isActive('v6_5_0_0')) {
-//            if (!$request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED)) {
-//                return;
-//            }
-//
-//            if ($context->getCustomer() === null) {
-//                throw new CustomerNotLoggedInException();
-//            }
-//
-//            if ($request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST) === false && $context->getCustomer()->getGuest()) {
-//                throw new CustomerNotLoggedInException();
-//            }
-//        }
+        if (Feature::isActive('v6.5.0.0')) {
+            if (!$request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED)) {
+                return;
+            }
+
+            if ($context->getCustomer() === null) {
+                throw new CustomerNotLoggedInException();
+            }
+
+            if ($request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST, false) === false && $context->getCustomer()->getGuest()) {
+                throw new CustomerNotLoggedInException();
+            }
+
+            return;
+        }
 
         /** @var LoginRequired|bool|null $loginRequired */
         $loginRequired = $request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED);

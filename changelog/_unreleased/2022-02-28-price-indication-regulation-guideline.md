@@ -33,3 +33,6 @@ ___
   * `src/Storefront/Resources/views/storefront/component/buy-widget/buy-widget-price.html.twig`
   * `src/Storefront/Resources/views/storefront/component/product/block-price.html.twig`
   * `src/Storefront/Resources/views/storefront/page/product-detail/buy-widget-price.html.twig`
+* Added element for previous given price in the following components:
+  * `platform/src/Storefront/Resources/views/storefront/component/product/card/price-unit.html.twig`
+  * `platform/src/Storefront/Resources/views/storefront/layout/header/search-suggest.html.twig`

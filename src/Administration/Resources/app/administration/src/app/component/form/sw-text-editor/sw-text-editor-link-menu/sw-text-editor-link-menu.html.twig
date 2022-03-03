@@ -1,0 +1,104 @@
+{% block sw_text_editor_toolbar_button_link_menu_content %}
+<div class="sw-text-editor-toolbar-button__link-menu">
+    <div class="sw-text-editor-toolbar-button__link-menu__content">
+        <sw-select-field
+            v-model="linkCategory"
+            label="Type"
+            require
+        >
+            <option value="link">
+                {{ $tc('sw-text-editor-toolbar.link.placeholder') }}
+            </option>
+            <option value="detail">
+                {{ $tc('sw-text-editor-toolbar.link.labelProduct') }}
+            </option>
+            <option value="category">
+                {{ $tc('sw-text-editor-toolbar.link.labelCategory') }}
+            </option>
+            <option value="email">
+                {{ $tc('sw-text-editor-toolbar.link.labelEmail') }}
+            </option>
+            <option value="phone">
+                {{ $tc('sw-text-editor-toolbar.link.labelPhoneNumber') }}
+            </option>
+        </sw-select-field>
+        <sw-field
+            v-if="linkCategory === 'link'"
+            v-model="linkTarget"
+            type="text"
+            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
+            :placeholder="$tc('sw-text-editor-toolbar.link.placeholder')"
+        />
+        <sw-field
+            v-else-if="linkCategory === 'phone'"
+            v-model="linkTarget"
+            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
+            :placeholder="$tc('sw-text-editor-toolbar.link.placeholderPhoneNumber')"
+        />
+        <sw-field
+            v-else-if="linkCategory === 'email'"
+            v-model="linkTarget"
+            type="email"
+            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
+            :placeholder="$tc('sw-text-editor-toolbar.link.placeholderEmail')"
+        />
+        <sw-entity-single-select
+            v-else-if="linkCategory === 'detail'"
+            v-model="linkTarget"
+            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
+            :criteria="entityFilter"
+            :placeholder="$tc('sw-text-editor-toolbar.link.placeholderProduct')"
+            entity="product"
+            show-clearable-button
+        />
+        <sw-category-tree-field
+            v-else-if="linkCategory === 'category'"
+            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
+            :criteria="entityFilter"
+            :placeholder="$tc('sw-text-editor-toolbar.link.placeholderCategory')"
+            :single-select="true"
+            :categories-collection="categoryCollection"
+            @selection-add="replaceCategorySelection"
+            @selection-remove="removeCategorySelection"
+        />
+        <sw-switch-field
+            v-if="!(linkCategory === 'phone' || linkCategory === 'email')"
+            v-model="opensNewTab"
+            class="sw-text-editor-toolbar-button__link-menu-switch sw-text-editor-toolbar-button__link-menu-new-tab"
+            :label="$tc('sw-text-editor-toolbar.link.openInNewTab')"
+            no-margin-top
+        />
+        <sw-switch-field
+            v-model="displayAsButton"
+            class="sw-text-editor-toolbar-button__link-menu-switch sw-text-editor-toolbar-button__link-menu-display-button"
+            :label="$tc('sw-text-editor-toolbar.link.displayAsButton')"
+            no-margin-top
+        />
+    </div>
+    <div class="sw-text-editor-toolbar-button__link-menu-buttons">
+        {% block sw_text_editor_toolbar_button_link_menu_buttons %}
+        {% block sw_text_editor_toolbar_button_link_menu_button_remove %}
+        <sw-button
+            size="small"
+            variant="ghost-danger"
+            class="sw-text-editor-toolbar-button__link-menu-buttons-button-remove"
+            @click="removeLink"
+        >
+            {{ $tc('global.default.remove') }}
+        </sw-button>
+        {% endblock %}
+
+        {% block sw_text_editor_toolbar_button_link_menu_button_insert %}
+        <sw-button
+            size="small"
+            variant="primary"
+            class="sw-text-editor-toolbar-button__link-menu-buttons-button-insert"
+            @click="setLink"
+        >
+            {{ $tc('global.default.add') }}
+        </sw-button>
+    {% endblock %}
+    {% endblock %}
+    </div>
+</div>
+{% endblock %}

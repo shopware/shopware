@@ -198,6 +198,10 @@ Component.register('sw-text-editor-toolbar', {
                 source = source.parentNode;
             }
 
+            if (path.some(element => element.classList?.contains('sw-popover__wrapper'))) {
+                return;
+            }
+
             if (!path.includes(this.$el)) {
                 if (!this.isInlineEdit && this.selection) {
                     this.setActiveTags();
@@ -409,7 +413,7 @@ Component.register('sw-text-editor-toolbar', {
 
             this.keepSelection(true);
 
-            if (button.value && (!button.displayAsButton || button.buttonVariant.length > 0)) {
+            if (button.value) {
                 if (!this.selection || this.selection.rangeCount < 1) {
                     button.expanded = false;
                     return;
@@ -417,9 +421,9 @@ Component.register('sw-text-editor-toolbar', {
 
                 this.$emit(
                     'on-set-link',
-                    this.prepareLink(button.value),
+                    button.value,
                     target,
-                    button.displayAsButton ? button.buttonVariant : '',
+                    button.displayAsButton,
                 );
                 this.range = document.getSelection().getRangeAt(0);
                 this.range.setStart(this.range.startContainer, 0);
@@ -427,6 +431,7 @@ Component.register('sw-text-editor-toolbar', {
             }
         },
 
+        /** @deprecated tag:v6.5.0 - Will be handled by sw-text-editor-link-menus */
         prepareLink(link) {
             link = link.trim();
 
@@ -437,6 +442,7 @@ Component.register('sw-text-editor-toolbar', {
             return link;
         },
 
+        /** @deprecated tag:v6.5.0 - Will be handled by sw-text-editor-link-menus */
         addProtocol(link) {
             if (/(^(\w+):\/\/)|(mailto:)|(fax:)|(tel:)/.test(link)) {
                 return link;

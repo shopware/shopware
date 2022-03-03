@@ -2,6 +2,7 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/app/component/form/sw-text-editor';
 import 'src/app/component/form/sw-text-editor/sw-text-editor-toolbar';
 import 'src/app/component/form/sw-text-editor/sw-text-editor-toolbar-button';
+import 'src/app/component/form/sw-text-editor/sw-text-editor-link-menu';
 import 'src/app/component/form/sw-field';
 import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
@@ -28,24 +29,23 @@ function createWrapper(allowInlineDataMapping = true) {
         },
         localVue,
         stubs: {
-            'sw-text-editor-toolbar': Shopware.Component.build('sw-text-editor-toolbar'),
             'sw-text-editor-toolbar-button': Shopware.Component.build('sw-text-editor-toolbar-button'),
-            'sw-icon': { template: '<div class="sw-icon"></div>' },
-            'sw-field': Shopware.Component.build('sw-field'),
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
-            'sw-switch-field': Shopware.Component.build('sw-switch-field'),
-            'sw-field-error': true,
+            'sw-text-editor-link-menu': Shopware.Component.build('sw-text-editor-link-menu'),
             'sw-compact-colorpicker': Shopware.Component.build('sw-compact-colorpicker'),
+            'sw-text-editor-toolbar': Shopware.Component.build('sw-text-editor-toolbar'),
+            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
+            'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
+            'sw-code-editor': { template: '<div id="sw-code-editor"></div>' },
+            'sw-switch-field': Shopware.Component.build('sw-switch-field'),
+            'sw-block-field': Shopware.Component.build('sw-block-field'),
             'sw-colorpicker': Shopware.Component.build('sw-colorpicker'),
+            'sw-text-field': Shopware.Component.build('sw-text-field'),
+            'sw-base-field': Shopware.Component.build('sw-base-field'),
             'sw-container': Shopware.Component.build('sw-container'),
+            'sw-icon': { template: '<div class="sw-icon"></div>' },
             'sw-button': Shopware.Component.build('sw-button'),
-            'sw-code-editor': {
-                template: '<div id="sw-code-editor"></div>'
-            }
+            'sw-field': Shopware.Component.build('sw-field'),
+            'sw-field-error': true,
         },
         data() {
             return {

@@ -910,7 +910,16 @@
       "buttonVariantPrimarySmall": "Primary (small)",
       "buttonVariantSecondarySmall": "Secondary (small)",
       "placeholder": "Enter URL...",
-      "linkTo": "Link to"
+      "linkTo": "Link to",
+      "labelLink": "Link",
+      "labelProduct": "Product",
+      "labelCategory":"Category",
+      "labelEmail": "E-Mail-Address",
+      "labelPhoneNumber": "Phone number",
+      "placeholderPhoneNumber": "Insert phone number...",
+      "placeholderEmail": "Insert Email Address...",
+      "placeholderProduct": "Find and select a product...",
+      "placeholderCategory": "Find and select a category..."
     },
     "table": {
       "addHeading": "Add table heading",

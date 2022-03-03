@@ -241,25 +241,6 @@ Component.register('sw-text-editor', {
                         expanded: false,
                         newTab: false,
                         displayAsButton: false,
-                        buttonVariant: '',
-                        buttonVariantList: [
-                            {
-                                id: 'primary',
-                                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantPrimary'),
-                            },
-                            {
-                                id: 'secondary',
-                                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantSecondary'),
-                            },
-                            {
-                                id: 'primary-sm',
-                                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantPrimarySmall'),
-                            },
-                            {
-                                id: 'secondary-sm',
-                                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantSecondarySmall'),
-                            },
-                        ],
                         value: '',
                         tag: 'a',
                     },
@@ -471,6 +452,10 @@ Component.register('sw-text-editor', {
             }
 
             const path = this.getPath(event);
+
+            if (path.some(element => element.classList?.contains('sw-popover__wrapper'))) {
+                return;
+            }
 
             if ((event.type === 'keydown' || event.type === 'mousedown') &&
                 !path.includes(this.$el) && !path.includes(this.toolbar)) {

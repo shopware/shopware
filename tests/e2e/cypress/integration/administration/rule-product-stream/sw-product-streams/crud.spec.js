@@ -147,5 +147,17 @@ describe('Dynamic product group: Test crud operations', () => {
         // Verify that filters of original have been cloned as well
         cy.get('.sw-product-stream-field-select .sw-single-select__selection-text').should('contain', 'Active');
         cy.get('.sw-product-stream-value .sw-single-select__selection-text').should('contain', 'Yes');
+
+        // Modify name before save and duplicate
+        cy.get('input[name=sw-field--productStream-name]').clearTypeAndCheck('Testing before clone');
+
+        // Click save and duplicate
+        cy.clickContextMenuItem(
+            '.sw-product-stream-detail__save-duplicate-action',
+            '.sw-product-stream-detail__save-button-group .sw-context-button'
+        );
+
+        // Verify product stream name has been appended
+        cy.get('input[name=sw-field--productStream-name]').should('have.value', 'Testing before clone Copy');
     });
 });

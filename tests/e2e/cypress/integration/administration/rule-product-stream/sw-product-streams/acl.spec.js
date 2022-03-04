@@ -34,15 +34,19 @@ describe('Dynamic product group: Test ACL privileges', () => {
         // go to detail page
         cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name a').click();
 
-        // check if save button is disabled
-        cy.get('.smart-bar__actions .sw-button--primary')
-            .should('to.have.prop', 'disabled', true);
-
         // check if input fields are disabled
         cy.get('#sw-field--productStream-name')
             .should('to.have.prop', 'disabled', true)
             .invoke('val')
             .then(content => cy.expect(content).to.contain('1st Productstream'));
+
+        // check if save button is disabled
+        cy.get('.smart-bar__actions .sw-button--primary')
+            .should('to.have.prop', 'disabled', true);
+
+        // check if smart bar context menu is disabled
+        cy.get('.smart-bar__actions .sw-product-stream-detail__button-context-menu')
+            .should('to.have.prop', 'disabled', true);
 
         cy.get('#sw-field--productStream-description')
             .should('to.have.prop', 'disabled', true)

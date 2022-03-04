@@ -223,13 +223,40 @@ Component.register('sw-product-stream-detail', {
             });
         },
 
+        onDuplicate() {
+            return this.onSave().then(() => {
+                const behavior = {
+                    cloneChildren: true,
+                    overwrites: {
+                        // eslint-disable-next-line max-len
+                        name: `${this.productStream.name || this.productStream.translated.name} ${this.$tc('global.default.copy')}`,
+                    },
+                };
+
+                this.isLoading = true;
+
+                return this.productStreamRepository.clone(this.productStream.id, Shopware.Context.api, behavior)
+                    .then((clone) => {
+                        const route = { name: 'sw.product.stream.detail', params: { id: clone.id } };
+
+                        this.$router.push(route);
+                    }).catch(() => {
+                        this.isLoading = false;
+
+                        this.createNotificationError({
+                            message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                        });
+                    });
+            });
+        },
+
         onSave() {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
             if (this.productStream.isNew()) {
                 this.productStream.filters = this.productStreamFiltersTree;
-                this.saveProductStream()
+                return this.saveProductStream()
                     .then(() => {
                         this.$router.push({ name: 'sw.product.stream.detail', params: { id: this.productStream.id } });
                         this.isSaveSuccessful = true;
@@ -238,11 +265,9 @@ Component.register('sw-product-stream-detail', {
                         this.showErrorNotification();
                         this.isLoading = false;
                     });
-
-                return;
             }
 
-            this.productStreamRepository.save(this.productStream, Context.api)
+            return this.productStreamRepository.save(this.productStream, Context.api)
                 .then(this.syncProductStreamFilters)
                 .then(() => {
                     return this.loadEntityData(this.productStream.id);

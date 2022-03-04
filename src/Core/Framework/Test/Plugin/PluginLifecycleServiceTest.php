@@ -617,6 +617,8 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertSame(0, $this->getMigrationTestKeyCount());
 
         $plugin = $this->getPlugin($context);
+        $this->systemConfigService->set($plugin->getName() . '.config.intField', 5);
+        $this->systemConfigService->delete($plugin->getName() . '.config.textField');
 
         $this->pluginLifecycleService->updatePlugin($plugin, $context);
 
@@ -624,6 +626,11 @@ class PluginLifecycleServiceTest extends TestCase
 
         static::assertNotNull($pluginUpdated->getUpgradedAt());
         static::assertSame(SwagTest::PLUGIN_VERSION, $pluginUpdated->getVersion());
+
+        // modified config will not be changed, missing config should be reset to default
+        $settings = $this->systemConfigService->getDomain($plugin->getName() . '.config');
+        static::assertSame(5, $settings[$plugin->getName() . '.config.intField']);
+        static::assertSame('string', $settings[$plugin->getName() . '.config.textField']);
 
         static::assertSame(1, $this->getMigrationTestKeyCount());
     }

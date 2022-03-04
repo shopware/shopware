@@ -506,6 +506,11 @@
             <argument type="service" id="shopware.cache.reverse_proxy.redis"/>
         </service>
 
+        <service id="Shopware\Storefront\Framework\Cache\ReverseProxy\ReverseProxyCacheClearer">
+            <argument type="service" id="Shopware\Storefront\Framework\Cache\ReverseProxy\AbstractReverseProxyGateway"/>
+            <tag name="kernel.cache_clearer"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer">
             <argument type="service" id="sales_channel_domain.repository"/>
             <argument type="service" id="messenger.bus.shopware"/>

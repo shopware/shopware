@@ -20,7 +20,7 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
         });
     });
 
-    it.skip('@package @rule: should use rule builder with the shipping method', () => {
+    it('@package @rule: should use rule builder with the shipping method', () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/rule`,
             method: 'POST'
@@ -66,13 +66,19 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
                     cy.get('.sw-select-result-list-popover-wrapper').should('be.visible');
                     cy.get('.sw-select-result-list-popover-wrapper').contains('Is one of').click();
                 });
-            cy.get('.sw-entity-multi-select .sw-select__selection').type('Netherlands');
-            cy.get('.sw-highlight-text__highlight').contains('Netherlands').click();
+
+            cy.get('.sw-entity-multi-select')
+                .typeMultiSelectAndCheck('Netherlands', {
+                    searchTerm: 'Netherlands'
+                });
         });
 
         // Verify rule
         cy.get('button.sw-button').contains('Save').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
+        // wait for ending loading state
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
 
         // Create shipping method
         cy.visit(`${Cypress.env('admin')}#/sw/settings/shipping/index`);
@@ -110,7 +116,11 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
                 cy.get('.sw-sales-channel-detail__select-shipping-methods .sw-select-selection-list__input').should('be.visible')
                     .type('Shipping to Netherlands');
                 cy.wait('@getShippingMethod').its('response.statusCode').should('equal', 200);
-                cy.get('.sw-select-result-list__item-list li').contains('Shipping to Netherlands').click();
+                // wait for ending loading state
+                cy.get('.sw-loader').should('not.exist');
+                cy.get('.sw-skeleton').should('not.exist');
+                // now it should be safe to select the element in the flyout
+                cy.contains('.sw-select-result-list__item-list li', 'Shipping to Netherlands').click();
                 cy.wait('@getShippingMethod').its('response.statusCode').should('equal', 200);
             }
         });
@@ -193,13 +203,18 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
                     cy.get('.sw-select-result-list-popover-wrapper').should('be.visible');
                     cy.get('.sw-select-result-list-popover-wrapper').contains('Is one of').click();
                 });
-            cy.get('.sw-entity-multi-select .sw-select__selection').type('US-Dollar');
-            cy.get('.sw-highlight-text__highlight').contains('US-Dollar').click();
+            cy.get('.sw-entity-multi-select')
+                .typeMultiSelectAndCheck('US-Dollar', {
+                    searchTerm: 'US-Dollar'
+                });
         });
 
         // Verify rule
         cy.get('button.sw-button').contains('Save').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
+        // wait for ending loading state
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
 
         // Select the rule as Dollar currency
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);

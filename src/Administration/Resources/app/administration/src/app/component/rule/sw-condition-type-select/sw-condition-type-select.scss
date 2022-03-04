@@ -32,7 +32,8 @@
         }
 
         .sw-single-select__selection,
-        .sw-single-select__selection-text.is--placeholder {
+        .sw-single-select__selection-text.is--placeholder,
+        .sw-select__select-indicator {
             color: $color-white;
         }
     }
@@ -46,7 +47,8 @@
             background-color: $color-gray-900;
         }
 
-        .sw-single-select__single-selection {
+        .sw-single-select__single-selection,
+        .sw-select__select-indicator {
             color: $color-white;
         }
 

@@ -47,6 +47,7 @@ class Configuration implements ConfigurationInterface
                         ->integerNode('max_parallel_invalidations')->defaultValue(2)->end()
                         ->scalarNode('redis_url')->end()
                         ->scalarNode('ban_method')->defaultValue('BAN')->end()
+                        ->arrayNode('purge_all_urls')->defaultValue(['/'])->scalarPrototype()->end()->end()
                     ->end()
                 ->end()
                 ->arrayNode('http_cache')

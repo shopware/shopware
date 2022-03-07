@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 use Symfony\Component\Cache\CacheItem;
 
 /**
+ * @deprecated tag:v6.5.0 - Use \Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor instead
  * @template TCachedContent
  */
 class CacheCompressor

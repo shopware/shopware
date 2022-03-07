@@ -9,6 +9,7 @@ use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpCache\StoreInterface;
+use function array_values;
 
 /**
  * @template TCachedContent
@@ -70,7 +71,7 @@ class ReverseProxyCache implements StoreInterface
 
         $response->headers->set(CacheResponseSubscriber::INVALIDATION_STATES_HEADER, \implode(',', $states));
 
-        $this->gateway->tag($tags, $request->attributes->get(RequestTransformer::ORIGINAL_REQUEST_URI));
+        $this->gateway->tag(array_values($tags), $request->attributes->get(RequestTransformer::ORIGINAL_REQUEST_URI));
 
         return '';
     }

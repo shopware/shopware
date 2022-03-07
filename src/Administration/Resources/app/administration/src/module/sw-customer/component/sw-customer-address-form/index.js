@@ -34,6 +34,7 @@ Component.register('sw-customer-address-form', {
     data() {
         return {
             country: null,
+            states: [],
         };
     },
 
@@ -47,6 +48,10 @@ Component.register('sw-customer-address-form', {
 
         countryRepository() {
             return this.repositoryFactory.create('country');
+        },
+
+        countryStateRepository() {
+            return this.repositoryFactory.create('country_state');
         },
 
         ...mapPropertyErrors('address', [
@@ -64,11 +69,7 @@ Component.register('sw-customer-address-form', {
             'countryId',
             'phoneNumber',
             'vatId',
-        ]),
-
-        ...mapPropertyErrors('address', [
             'countryStateId',
-            'countryId',
             'salutationId',
             'city',
             'street',
@@ -112,6 +113,10 @@ Component.register('sw-customer-address-form', {
 
             return criteria;
         },
+
+        hasStates() {
+            return this.states.length > 0;
+        },
     },
 
     watch: {
@@ -122,13 +127,14 @@ Component.register('sw-customer-address-form', {
                     this.address.countryStateId = null;
                 }
 
-                if (this.countryId === null) {
+                if (!this.countryId) {
                     this.country = null;
                     return Promise.resolve();
                 }
 
                 return this.countryRepository.get(this.countryId).then((country) => {
                     this.country = country;
+                    this.getCountryStates();
                 });
             },
         },
@@ -139,6 +145,18 @@ Component.register('sw-customer-address-form', {
             }
 
             this.customer.company = newVal;
+        },
+    },
+
+    methods: {
+        getCountryStates() {
+            if (!this.country) {
+                return Promise.resolve();
+            }
+
+            return this.countryStateRepository.search(this.stateCriteria).then((response) => {
+                this.states = response;
+            });
         },
     },
 });

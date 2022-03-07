@@ -39,7 +39,6 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
             <argument type="service" id="event_dispatcher"/>
             <argument>%shopware.cache.invalidation.navigation_route%</argument>
-            <argument type="service" id="logger" />
         </service>
 
         <service id="Shopware\Core\Content\Category\SalesChannel\TreeBuildingNavigationRoute" decorates="Shopware\Core\Content\Category\SalesChannel\NavigationRoute" decoration-priority="-2000" public="true">
@@ -53,7 +52,6 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
             <argument type="service" id="event_dispatcher"/>
             <argument>%shopware.cache.invalidation.category_route%</argument>
-            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\Content\Category\SalesChannel\CategoryRoute" public="true">

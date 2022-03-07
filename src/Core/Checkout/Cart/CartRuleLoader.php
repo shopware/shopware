@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
@@ -34,7 +34,7 @@ class CartRuleLoader implements ResetInterface
 
     private LoggerInterface $logger;
 
-    private TagAwareAdapterInterface $cache;
+    private CacheInterface $cache;
 
     private AbstractRuleLoader $ruleLoader;
 
@@ -50,7 +50,7 @@ class CartRuleLoader implements ResetInterface
         CartPersisterInterface $cartPersister,
         Processor $processor,
         LoggerInterface $logger,
-        TagAwareAdapterInterface $cache,
+        CacheInterface $cache,
         AbstractRuleLoader $loader,
         TaxDetector $taxDetector,
         Connection $connection,
@@ -93,7 +93,7 @@ class CartRuleLoader implements ResetInterface
     public function invalidate(): void
     {
         $this->reset();
-        $this->cache->deleteItem(CachedRuleLoader::CACHE_KEY);
+        $this->cache->delete(CachedRuleLoader::CACHE_KEY);
     }
 
     private function load(SalesChannelContext $context, Cart $cart, CartBehavior $behaviorContext, bool $new): RuleLoaderResult

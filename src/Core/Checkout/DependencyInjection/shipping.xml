@@ -36,7 +36,6 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
             <argument type="service" id="event_dispatcher"/>
             <argument>%shopware.cache.invalidation.shipping_method_route%</argument>
-            <argument type="service" id="logger" />
         </service>
 
         <service id="Shopware\Core\Checkout\Shipping\Validator\ShippingMethodValidator">

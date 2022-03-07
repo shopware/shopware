@@ -62,7 +62,6 @@
         <service id="Shopware\Core\Content\Seo\CachedSeoResolver" public="true" decorates="Shopware\Core\Content\Seo\SeoResolver" decoration-priority="-1000">
             <argument type="service" id="Shopware\Core\Content\Seo\CachedSeoResolver.inner"/>
             <argument type="service" id="cache.object"/>
-            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\Content\Seo\SeoResolver" public="true">

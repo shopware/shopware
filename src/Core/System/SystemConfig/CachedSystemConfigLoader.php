@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\System\SystemConfig;
 
-use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
-use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
+use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class CachedSystemConfigLoader extends AbstractSystemConfigLoader
 {
@@ -12,15 +12,12 @@ class CachedSystemConfigLoader extends AbstractSystemConfigLoader
 
     private AbstractSystemConfigLoader $decorated;
 
-    private TagAwareAdapterInterface $cache;
+    private CacheInterface $cache;
 
-    private LoggerInterface $logger;
-
-    public function __construct(AbstractSystemConfigLoader $decorated, TagAwareAdapterInterface $cache, LoggerInterface $logger)
+    public function __construct(AbstractSystemConfigLoader $decorated, CacheInterface $cache)
     {
         $this->decorated = $decorated;
         $this->cache = $cache;
-        $this->logger = $logger;
     }
 
     public function getDecorated(): AbstractSystemConfigLoader
@@ -32,27 +29,14 @@ class CachedSystemConfigLoader extends AbstractSystemConfigLoader
     {
         $key = 'system-config-' . $salesChannelId;
 
-        $item = $this->cache->getItem($key);
+        $value = $this->cache->get($key, function (ItemInterface $item) use ($salesChannelId) {
+            $config = $this->getDecorated()->load($salesChannelId);
 
-        try {
-            if ($item->isHit() && $item->get()) {
-                $this->logger->info('cache-hit: ' . $key);
+            $item->tag([self::CACHE_TAG]);
 
-                return CacheCompressor::uncompress($item);
-            }
-        } catch (\Throwable $e) {
-            $this->logger->error($e->getMessage());
-        }
+            return CacheValueCompressor::compress($config);
+        });
 
-        $this->logger->info('cache-miss: ' . $key);
-
-        $config = $this->getDecorated()->load($salesChannelId);
-
-        $item = CacheCompressor::compress($item, $config);
-        $item->tag([self::CACHE_TAG]);
-
-        $this->cache->save($item);
-
-        return $config;
+        return CacheValueCompressor::uncompress($value);
     }
 }

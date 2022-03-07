@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Adapter\Translation;
 
 use Doctrine\DBAL\Exception\ConnectionException;
-use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -19,6 +18,7 @@ use Symfony\Component\Translation\Formatter\MessageFormatterInterface;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 use Symfony\Component\Translation\Translator as SymfonyTranslator;
 use Symfony\Component\Translation\TranslatorBagInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Translation\LocaleAwareInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Contracts\Translation\TranslatorTrait;
@@ -34,7 +34,7 @@ class Translator extends AbstractTranslator
 
     private RequestStack $requestStack;
 
-    private CacheItemPoolInterface $cache;
+    private CacheInterface $cache;
 
     private array $isCustomized = [];
 
@@ -61,7 +61,7 @@ class Translator extends AbstractTranslator
     public function __construct(
         TranslatorInterface $translator,
         RequestStack $requestStack,
-        CacheItemPoolInterface $cache,
+        CacheInterface $cache,
         MessageFormatterInterface $formatter,
         SnippetService $snippetService,
         string $environment,
@@ -297,17 +297,11 @@ class Translator extends AbstractTranslator
 
     private function loadSnippets(MessageCatalogueInterface $catalog, string $snippetSetId, ?string $fallbackLocale): array
     {
-        $cacheItem = $this->cache->getItem('translation.catalog.' . $snippetSetId);
-        if ($cacheItem->isHit()) {
-            return $cacheItem->get();
-        }
+        $key = 'translation.catalog.' . $snippetSetId;
 
-        $snippets = $this->snippetService->getStorefrontSnippets($catalog, $snippetSetId, $fallbackLocale);
-
-        $cacheItem->set($snippets);
-        $this->cache->save($cacheItem);
-
-        return $snippets;
+        return $this->cache->get($key, function () use ($catalog, $snippetSetId, $fallbackLocale) {
+            return $this->snippetService->getStorefrontSnippets($catalog, $snippetSetId, $fallbackLocale);
+        });
     }
 
     private function getFallbackLocale(): string

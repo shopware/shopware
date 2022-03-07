@@ -112,7 +112,6 @@ class CachedSitemapRouteTest extends TestCase
             $this->getContainer()->get(CacheTracer::class),
             $this->getContainer()->get('event_dispatcher'),
             [],
-            $this->getContainer()->get('logger'),
             $config
         );
 

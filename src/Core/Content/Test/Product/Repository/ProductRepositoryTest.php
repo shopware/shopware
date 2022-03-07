@@ -32,6 +32,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -47,6 +48,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class ProductRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use QueueTestBehaviour;
 
     public const TEST_LANGUAGE_ID = 'cc72c24b82684d72a4ce91054da264bf';
     public const TEST_LOCALE_ID = 'cf735c44dc7b4428bb3870fe4ffea2df';
@@ -247,6 +249,8 @@ class ProductRepositoryTest extends TestCase
         static::assertCount(2, $ids);
         static::assertContains($parentId, $ids);
         static::assertContains($secondVariantId, $ids);
+
+        $this->runWorker();
 
         $product = $this->repository
             ->search(new Criteria([$parentId]), $this->context)

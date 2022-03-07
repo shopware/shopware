@@ -52,7 +52,6 @@
         <service id="Shopware\Core\System\SystemConfig\CachedSystemConfigLoader" decorates="Shopware\Core\System\SystemConfig\SystemConfigLoader" decoration-priority="-1000">
             <argument type="service" id="Shopware\Core\System\SystemConfig\CachedSystemConfigLoader.inner"/>
             <argument type="service" id="cache.object"/>
-            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\System\SystemConfig\MemoizedSystemConfigLoader" decorates="Shopware\Core\System\SystemConfig\SystemConfigLoader" decoration-priority="-2000">

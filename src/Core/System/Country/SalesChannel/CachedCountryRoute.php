@@ -3,9 +3,8 @@
 namespace Shopware\Core\System\Country\SalesChannel;
 
 use OpenApi\Annotations as OA;
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
-use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
+use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -16,9 +15,10 @@ use Shopware\Core\System\Country\Event\CountryRouteCacheKeyEvent;
 use Shopware\Core\System\Country\Event\CountryRouteCacheTagsEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
-use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -30,7 +30,7 @@ class CachedCountryRoute extends AbstractCountryRoute
 
     private AbstractCountryRoute $decorated;
 
-    private TagAwareAdapterInterface $cache;
+    private CacheInterface $cache;
 
     private EntityCacheKeyGenerator $generator;
 
@@ -43,19 +43,16 @@ class CachedCountryRoute extends AbstractCountryRoute
 
     private EventDispatcherInterface $dispatcher;
 
-    private LoggerInterface $logger;
-
     /**
      * @param AbstractCacheTracer<CountryRouteResponse> $tracer
      */
     public function __construct(
         AbstractCountryRoute $decorated,
-        TagAwareAdapterInterface $cache,
+        CacheInterface $cache,
         EntityCacheKeyGenerator $generator,
         AbstractCacheTracer $tracer,
         EventDispatcherInterface $dispatcher,
-        array $states,
-        LoggerInterface $logger
+        array $states
     ) {
         $this->decorated = $decorated;
         $this->cache = $cache;
@@ -63,7 +60,6 @@ class CachedCountryRoute extends AbstractCountryRoute
         $this->tracer = $tracer;
         $this->states = $states;
         $this->dispatcher = $dispatcher;
-        $this->logger = $logger;
     }
 
     public static function buildName(string $id): string
@@ -109,39 +105,24 @@ class CachedCountryRoute extends AbstractCountryRoute
     public function load(Request $request, Criteria $criteria, SalesChannelContext $context): CountryRouteResponse
     {
         if ($context->hasState(...$this->states)) {
-            $this->logger->info('cache-miss: ' . self::buildName($context->getSalesChannelId()));
-
             return $this->getDecorated()->load($request, $criteria, $context);
         }
 
-        $item = $this->cache->getItem(
-            $this->generateKey($request, $context, $criteria)
-        );
+        $key = $this->generateKey($request, $context, $criteria);
 
-        try {
-            if ($item->isHit() && $item->get()) {
-                $this->logger->info('cache-hit: ' . self::buildName($context->getSalesChannelId()));
+        $value = $this->cache->get($key, function (ItemInterface $item) use ($request, $context, $criteria) {
+            $name = self::buildName($context->getSalesChannelId());
 
-                return CacheCompressor::uncompress($item);
-            }
-        } catch (\Throwable $e) {
-            $this->logger->error($e->getMessage());
-        }
+            $response = $this->tracer->trace($name, function () use ($request, $context, $criteria) {
+                return $this->getDecorated()->load($request, $criteria, $context);
+            });
 
-        $this->logger->info('cache-miss: ' . self::buildName($context->getSalesChannelId()));
+            $item->tag($this->generateTags($request, $response, $context, $criteria));
 
-        $name = self::buildName($context->getSalesChannelId());
-        $response = $this->tracer->trace($name, function () use ($request, $context, $criteria) {
-            return $this->getDecorated()->load($request, $criteria, $context);
+            return CacheValueCompressor::compress($response);
         });
 
-        $item = CacheCompressor::compress($item, $response);
-
-        $item->tag($this->generateTags($request, $response, $context, $criteria));
-
-        $this->cache->save($item);
-
-        return $response;
+        return CacheValueCompressor::uncompress($value);
     }
 
     private function generateKey(Request $request, SalesChannelContext $context, Criteria $criteria): string

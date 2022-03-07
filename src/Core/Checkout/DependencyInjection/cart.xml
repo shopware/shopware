@@ -265,7 +265,6 @@
         <service id="Shopware\Core\Checkout\Cart\CachedRuleLoader" decorates="Shopware\Core\Checkout\Cart\RuleLoader" decoration-priority="-1000">
             <argument type="service" id="Shopware\Core\Checkout\Cart\CachedRuleLoader.inner"/>
             <argument type="service" id="cache.object"/>
-            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\RuleLoader">

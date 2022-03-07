@@ -3,21 +3,21 @@
 namespace Shopware\Core\Content\Sitemap\SalesChannel;
 
 use OpenApi\Annotations as OA;
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Sitemap\Event\SitemapRouteCacheKeyEvent;
 use Shopware\Core\Content\Sitemap\Event\SitemapRouteCacheTagsEvent;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporterInterface;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
-use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
+use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -29,7 +29,7 @@ class CachedSitemapRoute extends AbstractSitemapRoute
 
     private AbstractSitemapRoute $decorated;
 
-    private TagAwareAdapterInterface $cache;
+    private CacheInterface $cache;
 
     private EntityCacheKeyGenerator $generator;
 
@@ -42,8 +42,6 @@ class CachedSitemapRoute extends AbstractSitemapRoute
 
     private EventDispatcherInterface $dispatcher;
 
-    private LoggerInterface $logger;
-
     private SystemConfigService $config;
 
     /**
@@ -51,12 +49,11 @@ class CachedSitemapRoute extends AbstractSitemapRoute
      */
     public function __construct(
         AbstractSitemapRoute $decorated,
-        TagAwareAdapterInterface $cache,
+        CacheInterface $cache,
         EntityCacheKeyGenerator $generator,
         AbstractCacheTracer $tracer,
         EventDispatcherInterface $dispatcher,
         array $states,
-        LoggerInterface $logger,
         SystemConfigService $config
     ) {
         $this->decorated = $decorated;
@@ -65,7 +62,6 @@ class CachedSitemapRoute extends AbstractSitemapRoute
         $this->tracer = $tracer;
         $this->states = $states;
         $this->dispatcher = $dispatcher;
-        $this->logger = $logger;
         $this->config = $config;
     }
 
@@ -98,46 +94,29 @@ class CachedSitemapRoute extends AbstractSitemapRoute
     public function load(Request $request, SalesChannelContext $context): SitemapRouteResponse
     {
         if ($context->hasState(...$this->states)) {
-            $this->logger->info('cache-miss: ' . self::buildName($context->getSalesChannelId()));
-
             return $this->getDecorated()->load($request, $context);
         }
 
         $strategy = $this->config->getInt('core.sitemap.sitemapRefreshStrategy');
         if ($strategy === SitemapExporterInterface::STRATEGY_LIVE) {
-            $this->logger->info('cache-miss: ' . self::buildName($context->getSalesChannelId()));
-
             return $this->getDecorated()->load($request, $context);
         }
 
-        $item = $this->cache->getItem(
-            $this->generateKey($request, $context)
-        );
+        $key = $this->generateKey($request, $context);
 
-        try {
-            if ($item->isHit() && $item->get()) {
-                $this->logger->info('cache-hit: ' . self::buildName($context->getSalesChannelId()));
+        $value = $this->cache->get($key, function (ItemInterface $item) use ($request, $context) {
+            $name = self::buildName($context->getSalesChannelId());
 
-                return CacheCompressor::uncompress($item);
-            }
-        } catch (\Throwable $e) {
-            $this->logger->error($e->getMessage());
-        }
+            $response = $this->tracer->trace($name, function () use ($request, $context) {
+                return $this->getDecorated()->load($request, $context);
+            });
 
-        $this->logger->info('cache-miss: ' . self::buildName($context->getSalesChannelId()));
+            $item->tag($this->generateTags($response, $request, $context));
 
-        $name = self::buildName($context->getSalesChannelId());
-        $response = $this->tracer->trace($name, function () use ($request, $context) {
-            return $this->getDecorated()->load($request, $context);
+            return CacheValueCompressor::compress($response);
         });
 
-        $item = CacheCompressor::compress($item, $response);
-
-        $item->tag($this->generateTags($response, $request, $context));
-
-        $this->cache->save($item);
-
-        return $response;
+        return CacheValueCompressor::uncompress($value);
     }
 
     private function generateKey(Request $request, SalesChannelContext $context): string

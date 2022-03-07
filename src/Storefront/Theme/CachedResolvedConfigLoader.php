@@ -2,24 +2,21 @@
 
 namespace Shopware\Storefront\Theme;
 
-use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
+use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class CachedResolvedConfigLoader extends AbstractResolvedConfigLoader
 {
     private AbstractResolvedConfigLoader $decorated;
 
-    private TagAwareAdapterInterface $cache;
+    private CacheInterface $cache;
 
-    private LoggerInterface $logger;
-
-    public function __construct(AbstractResolvedConfigLoader $decorated, TagAwareAdapterInterface $cache, LoggerInterface $logger)
+    public function __construct(AbstractResolvedConfigLoader $decorated, CacheInterface $cache)
     {
         $this->decorated = $decorated;
         $this->cache = $cache;
-        $this->logger = $logger;
     }
 
     public function getDecorated(): AbstractResolvedConfigLoader
@@ -31,34 +28,17 @@ class CachedResolvedConfigLoader extends AbstractResolvedConfigLoader
     {
         $name = self::buildName($themeId);
 
-        $key = md5(implode('-', [
-            $name,
-            $context->getSalesChannelId(),
-            $context->getDomainId(),
-        ]));
+        $key = md5(implode('-', [$name, $context->getSalesChannelId(), $context->getDomainId()]));
 
-        $item = $this->cache->getItem($key);
+        $value = $this->cache->get($key, function (ItemInterface $item) use ($name, $themeId, $context) {
+            $config = $this->getDecorated()->load($themeId, $context);
 
-        try {
-            if ($item->isHit() && $item->get()) {
-                $this->logger->info('cache-hit: ' . $name);
+            $item->tag([$name]);
 
-                return CacheCompressor::uncompress($item);
-            }
-        } catch (\Throwable $e) {
-            $this->logger->error($e->getMessage());
-        }
+            return CacheValueCompressor::compress($config);
+        });
 
-        $this->logger->info('cache-miss: ' . $name);
-
-        $config = $this->getDecorated()->load($themeId, $context);
-
-        $item = CacheCompressor::compress($item, $config);
-        $item->tag([$name]);
-
-        $this->cache->save($item);
-
-        return $config;
+        return CacheValueCompressor::uncompress($value);
     }
 
     public static function buildName(string $themeId): string

@@ -3,11 +3,10 @@
 namespace Shopware\Core\Checkout\Shipping\SalesChannel;
 
 use OpenApi\Annotations as OA;
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Shipping\Event\ShippingMethodRouteCacheKeyEvent;
 use Shopware\Core\Checkout\Shipping\Event\ShippingMethodRouteCacheTagsEvent;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
-use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
+use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -16,9 +15,10 @@ use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
-use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -30,7 +30,7 @@ class CachedShippingMethodRoute extends AbstractShippingMethodRoute
 
     private AbstractShippingMethodRoute $decorated;
 
-    private TagAwareAdapterInterface $cache;
+    private CacheInterface $cache;
 
     private EntityCacheKeyGenerator $generator;
 
@@ -43,19 +43,16 @@ class CachedShippingMethodRoute extends AbstractShippingMethodRoute
 
     private EventDispatcherInterface $dispatcher;
 
-    private LoggerInterface $logger;
-
     /**
      * @param AbstractCacheTracer<ShippingMethodRouteResponse> $tracer
      */
     public function __construct(
         AbstractShippingMethodRoute $decorated,
-        TagAwareAdapterInterface $cache,
+        CacheInterface $cache,
         EntityCacheKeyGenerator $generator,
         AbstractCacheTracer $tracer,
         EventDispatcherInterface $dispatcher,
-        array $states,
-        LoggerInterface $logger
+        array $states
     ) {
         $this->decorated = $decorated;
         $this->cache = $cache;
@@ -63,7 +60,6 @@ class CachedShippingMethodRoute extends AbstractShippingMethodRoute
         $this->tracer = $tracer;
         $this->states = $states;
         $this->dispatcher = $dispatcher;
-        $this->logger = $logger;
     }
 
     public function getDecorated(): AbstractShippingMethodRoute
@@ -113,41 +109,25 @@ class CachedShippingMethodRoute extends AbstractShippingMethodRoute
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ShippingMethodRouteResponse
     {
-        $name = self::buildName($context->getSalesChannelId());
-
         if ($context->hasState(...$this->states)) {
-            $this->logger->info('cache-miss: ' . $name);
-
             return $this->getDecorated()->load($request, $context, $criteria);
         }
 
-        $item = $this->cache->getItem(
-            $this->generateKey($request, $context, $criteria)
-        );
+        $key = $this->generateKey($request, $context, $criteria);
 
-        try {
-            if ($item->isHit() && $item->get()) {
-                $this->logger->info('cache-hit: ' . $name);
+        $value = $this->cache->get($key, function (ItemInterface $item) use ($request, $context, $criteria) {
+            $name = self::buildName($context->getSalesChannelId());
 
-                return CacheCompressor::uncompress($item);
-            }
-        } catch (\Throwable $e) {
-            $this->logger->error($e->getMessage());
-        }
+            $response = $this->tracer->trace($name, function () use ($request, $context, $criteria) {
+                return $this->getDecorated()->load($request, $context, $criteria);
+            });
 
-        $this->logger->info('cache-miss: ' . $name);
+            $item->tag($this->generateTags($request, $response, $context, $criteria));
 
-        $response = $this->tracer->trace($name, function () use ($request, $context, $criteria) {
-            return $this->getDecorated()->load($request, $context, $criteria);
+            return CacheValueCompressor::compress($response);
         });
 
-        $item = CacheCompressor::compress($item, $response);
-
-        $item->tag($this->generateTags($request, $response, $context, $criteria));
-
-        $this->cache->save($item);
-
-        return $response;
+        return CacheValueCompressor::uncompress($value);
     }
 
     public static function buildName(string $salesChannelId): string

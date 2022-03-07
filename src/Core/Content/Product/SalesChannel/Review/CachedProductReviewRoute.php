@@ -3,12 +3,11 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
 use OpenApi\Annotations as OA;
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\Events\ProductDetailRouteCacheKeyEvent;
 use Shopware\Core\Content\Product\Events\ProductDetailRouteCacheTagsEvent;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
-use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
+use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -16,9 +15,10 @@ use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -30,7 +30,7 @@ class CachedProductReviewRoute extends AbstractProductReviewRoute
 
     private AbstractProductReviewRoute $decorated;
 
-    private TagAwareAdapterInterface $cache;
+    private CacheInterface $cache;
 
     private EntityCacheKeyGenerator $generator;
 
@@ -43,19 +43,16 @@ class CachedProductReviewRoute extends AbstractProductReviewRoute
 
     private EventDispatcherInterface $dispatcher;
 
-    private LoggerInterface $logger;
-
     /**
      * @param AbstractCacheTracer<ProductReviewRouteResponse> $tracer
      */
     public function __construct(
         AbstractProductReviewRoute $decorated,
-        TagAwareAdapterInterface $cache,
+        CacheInterface $cache,
         EntityCacheKeyGenerator $generator,
         AbstractCacheTracer $tracer,
         EventDispatcherInterface $dispatcher,
-        array $states,
-        LoggerInterface $logger
+        array $states
     ) {
         $this->decorated = $decorated;
         $this->cache = $cache;
@@ -65,7 +62,6 @@ class CachedProductReviewRoute extends AbstractProductReviewRoute
         $states[] = CacheStateSubscriber::STATE_LOGGED_IN;
         $this->states = array_unique($states);
         $this->dispatcher = $dispatcher;
-        $this->logger = $logger;
     }
 
     public function getDecorated(): AbstractProductReviewRoute
@@ -113,39 +109,23 @@ class CachedProductReviewRoute extends AbstractProductReviewRoute
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductReviewRouteResponse
     {
         if ($context->hasState(...$this->states)) {
-            $this->logger->info('cache-miss: ' . self::buildName($productId));
-
             return $this->getDecorated()->load($productId, $request, $context, $criteria);
         }
 
-        $item = $this->cache->getItem(
-            $this->generateKey($productId, $request, $context, $criteria)
-        );
+        $key = $this->generateKey($productId, $request, $context, $criteria);
 
-        try {
-            if ($item->isHit() && $item->get()) {
-                $this->logger->info('cache-hit: ' . self::buildName($productId));
+        $value = $this->cache->get($key, function (ItemInterface $item) use ($productId, $request, $context, $criteria) {
+            $name = self::buildName($productId);
+            $response = $this->tracer->trace($name, function () use ($productId, $request, $context, $criteria) {
+                return $this->getDecorated()->load($productId, $request, $context, $criteria);
+            });
 
-                return CacheCompressor::uncompress($item);
-            }
-        } catch (\Throwable $e) {
-            $this->logger->error($e->getMessage());
-        }
+            $item->tag($this->generateTags($productId, $request, $response, $context, $criteria));
 
-        $this->logger->info('cache-miss: ' . self::buildName($productId));
-
-        $name = self::buildName($productId);
-        $response = $this->tracer->trace($name, function () use ($productId, $request, $context, $criteria) {
-            return $this->getDecorated()->load($productId, $request, $context, $criteria);
+            return CacheValueCompressor::compress($response);
         });
 
-        $item = CacheCompressor::compress($item, $response);
-
-        $item->tag($this->generateTags($productId, $request, $response, $context, $criteria));
-
-        $this->cache->save($item);
-
-        return $response;
+        return CacheValueCompressor::uncompress($value);
     }
 
     public static function buildName(string $productId): string

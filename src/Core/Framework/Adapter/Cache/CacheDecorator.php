@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Psr\Cache\CacheItemInterface;
-use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Contracts\Cache\CacheTrait;
@@ -14,7 +13,7 @@ class CacheDecorator implements TagAwareAdapterInterface, TagAwareCacheInterface
     use CacheTrait;
 
     /**
-     * @var TagAwareAdapter
+     * @var TagAwareCacheInterface&TagAwareAdapterInterface
      */
     private $decorated;
 

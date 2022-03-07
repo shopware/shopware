@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Framework\Routing;
 
-use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
-use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
+use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class CachedDomainLoader extends AbstractDomainLoader
 {
@@ -12,15 +12,12 @@ class CachedDomainLoader extends AbstractDomainLoader
 
     private AbstractDomainLoader $decorated;
 
-    private TagAwareAdapterInterface $cache;
+    private CacheInterface $cache;
 
-    private LoggerInterface $logger;
-
-    public function __construct(AbstractDomainLoader $decorated, TagAwareAdapterInterface $cache, LoggerInterface $logger)
+    public function __construct(AbstractDomainLoader $decorated, CacheInterface $cache)
     {
         $this->decorated = $decorated;
         $this->cache = $cache;
-        $this->logger = $logger;
     }
 
     public function getDecorated(): AbstractDomainLoader
@@ -30,26 +27,12 @@ class CachedDomainLoader extends AbstractDomainLoader
 
     public function load(): array
     {
-        $item = $this->cache->getItem(self::CACHE_KEY);
+        $value = $this->cache->get(self::CACHE_KEY, function (ItemInterface $item) {
+            return CacheValueCompressor::compress(
+                $this->getDecorated()->load()
+            );
+        });
 
-        try {
-            if ($item->isHit() && $item->get()) {
-                $this->logger->info('cache-hit: ' . self::CACHE_KEY);
-
-                return CacheCompressor::uncompress($item);
-            }
-        } catch (\Throwable $e) {
-            $this->logger->error($e->getMessage());
-        }
-
-        $this->logger->info('cache-miss: ' . self::CACHE_KEY);
-
-        $domains = $this->getDecorated()->load();
-
-        $item = CacheCompressor::compress($item, $domains);
-
-        $this->cache->save($item);
-
-        return $domains;
+        return CacheValueCompressor::uncompress($value);
     }
 }

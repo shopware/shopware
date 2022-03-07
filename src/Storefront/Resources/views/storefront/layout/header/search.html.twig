@@ -1,3 +1,7 @@
+{% set searchWidgetOptions = {
+    searchWidgetMinChars: page.header.activeLanguage.productSearchConfig.minSearchLength ?: 3
+} %}
+
 {% block layout_header_search %}
     <div class="collapse"
          id="searchCollapse">
@@ -5,6 +9,7 @@
             <form action="{{ path('frontend.search.page') }}"
                   method="get"
                   data-search-form="true"
+                  data-search-widget-options='{{ searchWidgetOptions|json_encode }}'
                   data-url="{{ path('frontend.search.suggest') }}?search="
                   class="header-search-form">
                 {% block layout_header_search_input_group %}

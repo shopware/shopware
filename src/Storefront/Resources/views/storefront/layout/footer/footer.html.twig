@@ -4,7 +4,8 @@
         {% block layout_footer_navigation %}
             <div id="footerColumns"
                  class="row footer-columns"
-                 data-collapse-footer="true">
+                 data-collapse-footer="true"
+                 role="list">
                 {% block layout_footer_navigation_hotline %}
                     <div class="col-md-4 footer-column js-footer-column">
                         {% block layout_footer_navigation_hotline_headline %}
@@ -12,7 +13,8 @@
                                  id="collapseFooterHotlineTitle"
                                  {{ dataBsTargetAttr }}="#collapseFooterHotline"
                                  aria-expanded="true"
-                                 aria-controls="collapseFooterHotline">
+                                 aria-controls="collapseFooterHotline"
+                                 role="listitem">
                                 {{ 'footer.serviceHotlineHeadline'|trans|sw_sanitize }}
                                 {% block layout_footer_navigation_hotline_icons %}
                                     <div class="footer-column-toggle">

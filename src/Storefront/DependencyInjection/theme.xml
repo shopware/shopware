@@ -216,6 +216,11 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Storefront\Theme\Command\ThemePrepareIconsCommand">
+
+            <tag name="console.command"/>
+        </service>
+
         <!-- Subscriber -->
         <service id="Shopware\Storefront\Theme\Subscriber\PluginLifecycleSubscriber">
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>

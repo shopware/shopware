@@ -3,7 +3,12 @@
         {% set size = 'xs' %}
     {% endif %}
 
-    <span class="product-review-point">
+    {# @deprecated tag:v6.5.0 - span will be a div #}
+    {% if feature('v6.5.0.0') %}
+        <div class="product-review-point">
+    {% else %}
+        <span class="product-review-point">
+    {% endif %}
         {% if type == 'half' %}
             <div class="point-container">
                 <div class="point-rating point-partial-placeholder">
@@ -26,5 +31,10 @@
                 </div>
             </div>
         {% endif %}
-    </span>
+    {# @deprecated tag:v6.5.0 - span will be a div #}
+    {% if feature('v6.5.0.0') %}
+        </div>
+    {% else %}
+        </span>
+        {% endif %}
 {% endblock %}

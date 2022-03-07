@@ -21,11 +21,11 @@
             {% endblock %}
 
             {% block component_filter_rating_select_list_item_label_text %}
-                <span class="filter-rating-select-item-label-text">
-                    {{ 'listing.filterRatingAndMore'|trans({ '%points%': points, '%maxPoints%': maxPoints })|sw_sanitize }}
-                </span>
+                    <span class="filter-rating-select-item-label-text">
+                        {{ 'listing.filterRatingAndMore'|trans({ '%points%': points, '%maxPoints%': maxPoints })|sw_sanitize }}
+                    </span>
             {% endblock %}
-        </label>
+            </label>
     {% endblock %}
 
     {% block component_filter_rating_select_list_item_checkmark %}

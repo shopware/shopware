@@ -78,9 +78,11 @@
         {% endblock %}
 
         {% block layout_head_apple %}
+            {% if theme_config('sw-logo-share') %}
             <link rel="apple-touch-icon"
                   sizes="180x180"
                   href="{{ theme_config('sw-logo-share') }}">
+            {% endif %}
         {% endblock %}
 
         {% block layout_head_android %}

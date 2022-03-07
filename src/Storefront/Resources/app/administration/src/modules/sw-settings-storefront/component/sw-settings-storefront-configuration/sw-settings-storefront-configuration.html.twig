@@ -1,0 +1,14 @@
+{% block sw_settings_storefront %}
+<div class="sw-settings-storefront-configuration">
+    {% block sw_settings_storefront_settings_icon_cache %}
+    <sw-switch-field
+        v-model="storefrontSettings['core.storefrontSettings.iconCache']"
+        :label="$tc('sw-settings-storefront.configuration.iconCache')"
+        v-tooltip.top="{
+                        message: $tc('sw-settings-storefront.configuration.iconCacheToolTip'),
+                        showOnDisabledElements: true
+                    }"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

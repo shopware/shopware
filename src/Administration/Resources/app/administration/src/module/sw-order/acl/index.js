@@ -92,7 +92,7 @@ Shopware.Service('privileges')
                     'order_delivery_position:create',
                     'mail_template_type:update',
                     'customer:update',
-                    'api_proxy-switch-customer',
+                    'api_proxy_switch-customer',
                 ],
                 dependencies: [
                     'order.viewer',

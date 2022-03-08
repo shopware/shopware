@@ -88,9 +88,7 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
             return;
         }
 
-        $ids = array_merge($event->getIds(), $this->getProductChildren($event->getIds()));
-
-        $this->seoUrlUpdater->update(ProductPageSeoUrlRoute::ROUTE_NAME, $ids);
+        $this->seoUrlUpdater->update(ProductPageSeoUrlRoute::ROUTE_NAME, $event->getIds());
     }
 
     public function updateLandingPageUrls(LandingPageIndexerEvent $event): void
@@ -100,17 +98,6 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
         }
 
         $this->seoUrlUpdater->update(LandingPageSeoUrlRoute::ROUTE_NAME, $event->getIds());
-    }
-
-    private function getProductChildren(array $ids): array
-    {
-        $childrenIds = $this->connection->fetchAll(
-            'SELECT DISTINCT LOWER(HEX(id)) as id FROM product WHERE parent_id IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
-        );
-
-        return array_column($childrenIds, 'id');
     }
 
     private function getCategoryChildren(array $ids): array

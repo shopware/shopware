@@ -138,7 +138,7 @@ Component.register('sw-product-detail-context-prices', {
                     allowResize: true,
                     primary: false,
                     rawData: false,
-                    width: '250px',
+                    width: '270px',
                     multiLine: true,
                 };
             });
@@ -168,7 +168,7 @@ Component.register('sw-product-detail-context-prices', {
                     label: 'sw-product.advancedPrices.columnType',
                     visible: true,
                     allowResize: true,
-                    width: '95px',
+                    width: '250px',
                     multiLine: true,
                 },
             ];

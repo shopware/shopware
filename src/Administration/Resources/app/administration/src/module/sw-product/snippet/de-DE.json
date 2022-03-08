@@ -288,7 +288,8 @@
       "advancedPricesNotInherited": "Du kannst jetzt benutzerdefinierte Preisregeln für diese Variante verwenden.",
       "advancedListPricePriceLabel": "Preis",
       "advancedListPriceLabel": "Streichpreis",
-      "advancedPriceDisabledTooltip": "Der Start-Wert der ersten Preisstaffel muss den Wert 1 haben."
+      "advancedPriceDisabledTooltip": "Der Start-Wert der ersten Preisstaffel muss den Wert 1 haben.",
+      "labelRegulationPrice": "Günstigster Preis (letzte 30 Tage)"
     },
     "properties": {
       "cardTitleProperties": "Eigenschaften",

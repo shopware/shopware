@@ -288,7 +288,8 @@
       "advancedPricesNotInherited": "You can now use custom pricing rules for this variant.",
       "advancedListPricePriceLabel": "Price",
       "advancedListPriceLabel": "List price",
-      "advancedPriceDisabledTooltip": "The start value of the first listing price has to be 1."
+      "advancedPriceDisabledTooltip": "The start value of the first listing price has to be 1.",
+      "labelRegulationPrice": "Cheapest price (last 30 days)"
     },
     "properties": {
       "cardTitleProperties": "Available properties",

@@ -1147,7 +1147,8 @@
   "sw-maintain-currencies-modal": {
     "title": "Currency dependent pricing",
     "columnPrice": "Prices (gross / net)",
-    "columnListPriceHeader": "List prices (gross / net)"
+    "columnListPriceHeader": "List prices (gross / net)",
+    "columnReferencePriceHeader": "Cheapest price (last 30 days, gross / net)"
   },
   "sw-privileges": {
     "tooltip": {

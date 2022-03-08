@@ -135,6 +135,10 @@ class ProductIndexer extends EntityIndexer
         $message = new ProductIndexingMessage(array_values($updates), null, $event->getContext());
         $message->addSkip(self::INHERITANCE_UPDATER, self::STOCK_UPDATER);
 
+        // @deprecated tag:v6.5.0 - remove this function call and simply use the `$updates` property instead
+        // @deprecated tag:v6.5.0 - with next major, we will only dispatch an update event of the updated variant and not for the parent too. This would cause an indexing process of all variants
+        $updates = $event->getPrimaryKeysWithPayload(ProductDefinition::ENTITY_NAME);
+
         $delayed = \array_unique(\array_filter(\array_merge(
             $this->getParentIds($updates),
             $this->getChildrenIds($updates)

@@ -130,11 +130,9 @@ class ProductIndexer extends EntityIndexer
         }
 
         $this->inheritanceUpdater->update(ProductDefinition::ENTITY_NAME, $updates, $event->getContext());
-
         $this->stockUpdater->update($updates, $event->getContext());
 
         $message = new ProductIndexingMessage(array_values($updates), null, $event->getContext());
-
         $message->addSkip(self::INHERITANCE_UPDATER, self::STOCK_UPDATER);
 
         $delayed = \array_unique(\array_filter(\array_merge(
@@ -142,10 +140,10 @@ class ProductIndexer extends EntityIndexer
             $this->getChildrenIds($updates)
         )));
 
-        if (!empty($delayed)) {
-            $this->messageBus->dispatch(
-                new ProductIndexingMessage(array_values($delayed), null, $event->getContext())
-            );
+        foreach (\array_chunk($delayed, 50) as $chunk) {
+            $child = new ProductIndexingMessage($chunk, null, $event->getContext());
+            $child->setIndexer($this->getName());
+            $this->messageBus->dispatch($child);
         }
 
         return $message;
@@ -163,8 +161,7 @@ class ProductIndexer extends EntityIndexer
 
     public function handle(EntityIndexingMessage $message): void
     {
-        $ids = $message->getData();
-        $ids = array_unique(array_filter($ids));
+        $ids = array_unique(array_filter($message->getData()));
 
         if (empty($ids)) {
             return;
@@ -218,7 +215,7 @@ class ProductIndexer extends EntityIndexer
             $this->connection->executeStatement(
                 'UPDATE product SET updated_at = :now WHERE id IN (:ids)',
                 [
-                    'ids' => Uuid::fromHexToBytesList(\array_merge($ids, $parentIds)),
+                    'ids' => Uuid::fromHexToBytesList($ids),
                     'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)
                 ],
                 ['ids' => Connection::PARAM_STR_ARRAY]
@@ -280,7 +277,7 @@ class ProductIndexer extends EntityIndexer
     private function filterParents(array $ids): array
     {
         return $this->connection->fetchFirstColumn(
-            'SELECT LOWER(HEX(`id`)) FROM product parent INNER JOIN product child ON parent.id = child.parent_id WHERE `id` IN (:ids)',
+            'SELECT DISTINCT LOWER(HEX(`parent`.`id`)) FROM product parent INNER JOIN product child ON parent.id = child.parent_id WHERE parent.`id` IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );

@@ -36,8 +36,6 @@ class SearchKeywordUpdater implements ResetInterface
 
     private ProductSearchKeywordAnalyzerInterface $analyzer;
 
-    private EntityRepositoryInterface $productSearchConfigFieldRepository;
-
     /**
      * @var array[]
      */
@@ -47,14 +45,12 @@ class SearchKeywordUpdater implements ResetInterface
         Connection $connection,
         EntityRepositoryInterface $languageRepository,
         EntityRepositoryInterface $productRepository,
-        ProductSearchKeywordAnalyzerInterface $analyzer,
-        EntityRepositoryInterface $productSearchConfigFieldRepository
+        ProductSearchKeywordAnalyzerInterface $analyzer
     ) {
         $this->connection = $connection;
         $this->languageRepository = $languageRepository;
         $this->productRepository = $productRepository;
         $this->analyzer = $analyzer;
-        $this->productSearchConfigFieldRepository = $productSearchConfigFieldRepository;
     }
 
     public function update(array $ids, Context $context): void

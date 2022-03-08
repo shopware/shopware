@@ -362,7 +362,6 @@
             <argument type="service" id="language.repository"/>
             <argument type="service" id="product.repository"/>
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer"/>
-            <argument type="service" id="product_search_config_field.repository"/>
 
             <tag name="kernel.reset" method="reset"/>
         </service>

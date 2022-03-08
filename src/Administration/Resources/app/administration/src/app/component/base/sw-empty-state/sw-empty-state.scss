@@ -39,6 +39,7 @@
     }
 
     &__description-link {
+        display: inline-block;
         cursor: pointer;
         color: rgb(24, 158, 255);
         text-decoration: underline;

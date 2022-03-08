@@ -60,6 +60,20 @@ Component.register('sw-customer-base-info', {
 
             return criteria;
         },
+
+        orderCriteria() {
+            const criteria = new Criteria(1, 1);
+            criteria.addAggregation(Criteria.filter('exceptCancelledOrder', [
+                Criteria.not(
+                    'AND', [
+                        Criteria.equals('stateMachineState.technicalName', 'cancelled'),
+                    ],
+                ),
+            ], Criteria.sum('orderAmount', 'amountTotal')));
+            criteria.addFilter(Criteria.equals('order.orderCustomer.customerId', this.$route.params.id));
+
+            return criteria;
+        },
     },
 
     watch: {
@@ -79,10 +93,7 @@ Component.register('sw-customer-base-info', {
 
     methods: {
         createdComponent() {
-            const criteria = new Criteria(1, 1);
-            criteria.addAggregation(Criteria.sum('orderAmount', 'amountTotal'));
-            criteria.addFilter(Criteria.equals('order.orderCustomer.customerId', this.$route.params.id));
-            this.orderRepository.search(criteria).then((response) => {
+            this.orderRepository.search(this.orderCriteria).then((response) => {
                 this.orderCount = response.total;
                 this.orderAmount = response.aggregations.orderAmount.sum;
             });

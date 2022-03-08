@@ -28,25 +28,13 @@ class EntityTemplateLoaderTest extends TestCase
         {% endblock %}
     ';
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $templateRepository;
+    private EntityRepositoryInterface $templateRepository;
 
-    /**
-     * @var EntityTemplateLoader
-     */
-    private $templateLoader;
+    private EntityTemplateLoader $templateLoader;
 
-    /**
-     * @var string
-     */
-    private $template1Id;
+    private string $template1Id;
 
-    /**
-     * @var string
-     */
-    private $template2Id;
+    private string $template2Id;
 
     public function setUp(): void
     {
@@ -56,15 +44,10 @@ class EntityTemplateLoaderTest extends TestCase
         $this->template2Id = Uuid::randomHex();
     }
 
-    public function tearDown(): void
-    {
-        $this->templateLoader->clearInternalCache();
-    }
-
     public function testGetSubscribedEvents(): void
     {
         static::assertEquals(
-            ['app_template.written' => 'clearInternalCache'],
+            ['app_template.written' => 'reset'],
             EntityTemplateLoader::getSubscribedEvents()
         );
     }

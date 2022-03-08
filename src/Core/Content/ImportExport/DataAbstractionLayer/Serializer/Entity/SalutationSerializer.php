@@ -10,8 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\Salutation\SalutationEntity;
+use Symfony\Contracts\Service\ResetInterface;
 
-class SalutationSerializer extends EntitySerializer
+class SalutationSerializer extends EntitySerializer implements ResetInterface
 {
     private EntityRepositoryInterface $salutationRepository;
 
@@ -56,6 +57,11 @@ class SalutationSerializer extends EntitySerializer
     public function supports(string $entity): bool
     {
         return $entity === SalutationDefinition::ENTITY_NAME;
+    }
+
+    public function reset(): void
+    {
+        $this->cacheSalutations = [];
     }
 
     private function getSalutationId(string $salutationKey): ?string

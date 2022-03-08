@@ -25,7 +25,6 @@ class AppStateServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
-    use StorefrontPluginRegistryTestBehaviour;
 
     private EntityRepository $appRepository;
 

@@ -20,8 +20,9 @@ use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
-class CartRuleLoader
+class CartRuleLoader implements ResetInterface
 {
     private const MAX_ITERATION = 7;
 
@@ -87,6 +88,11 @@ class CartRuleLoader
     public function reset(): void
     {
         $this->rules = null;
+    }
+
+    public function invalidate(): void
+    {
+        $this->reset();
         $this->cache->deleteItem(CachedRuleLoader::CACHE_KEY);
     }
 

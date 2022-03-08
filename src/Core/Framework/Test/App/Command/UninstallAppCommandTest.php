@@ -6,14 +6,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Command\UninstallAppCommand;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Test\App\StorefrontPluginRegistryTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 
 class UninstallAppCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use StorefrontPluginRegistryTestBehaviour;
 
     /**
      * @var EntityRepositoryInterface

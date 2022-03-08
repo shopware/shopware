@@ -78,7 +78,6 @@ class ProductSearchRouteTest extends TestCase
      */
     public function testIndexing(): array
     {
-        $this->resetSearchKeywordUpdaterConfig();
         $this->createNavigationCategory();
 
         $browser = $this->createCustomSalesChannelBrowser([
@@ -825,26 +824,6 @@ class ProductSearchRouteTest extends TestCase
         );
 
         return $this->productSearchConfigRepository->searchIds($criteria, $this->ids->context)->firstId();
-    }
-
-    private function resetSearchKeywordUpdaterConfig(): void
-    {
-        $class = new \ReflectionClass($this->searchKeywordUpdater);
-        if ($class->hasProperty('decorated')) {
-            $property = $class->getProperty('decorated');
-            $property->setAccessible(true);
-            $searchKeywordUpdaterInner = $property->getValue($this->searchKeywordUpdater);
-        } else {
-            $searchKeywordUpdaterInner = $this->searchKeywordUpdater;
-        }
-
-        $class = new \ReflectionClass($searchKeywordUpdaterInner);
-        $property = $class->getProperty('config');
-        $property->setAccessible(true);
-        $property->setValue(
-            $searchKeywordUpdaterInner,
-            []
-        );
     }
 
     private function createGermanSalesChannelDomain(): void

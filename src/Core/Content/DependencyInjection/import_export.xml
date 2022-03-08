@@ -146,18 +146,21 @@
             <argument type="service" id="salutation.repository"/>
 
             <tag name="shopware.import_export.entity_serializer" priority="-400"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\CountrySerializer">
             <argument type="service" id="country.repository"/>
 
             <tag name="shopware.import_export.entity_serializer" priority="-400"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\LanguageSerializer">
             <argument type="service" id="language.repository"/>
 
             <tag name="shopware.import_export.entity_serializer" priority="-400"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\CustomerSerializer">
@@ -166,6 +169,7 @@
             <argument type="service" id="sales_channel.repository"/>
 
             <tag name="shopware.import_export.entity_serializer" priority="-400"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\PromotionIndividualCodeSerializer">
@@ -173,6 +177,7 @@
             <argument type="service" id="promotion.repository"/>
 
             <tag name="shopware.import_export.entity_serializer" priority="-400"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\ProductSerializer">

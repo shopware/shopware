@@ -70,7 +70,6 @@ class ProductRepositoryTest extends TestCase
         $this->context = Context::createDefaultContext();
 
         $this->searchKeywordUpdater = $this->getContainer()->get(SearchKeywordUpdater::class);
-        $this->resetSearchKeywordUpdaterConfig();
     }
 
     public function testWritePrice(): void
@@ -3131,26 +3130,6 @@ class ProductRepositoryTest extends TestCase
                 ],
             ],
             Context::createDefaultContext()
-        );
-    }
-
-    private function resetSearchKeywordUpdaterConfig(): void
-    {
-        $class = new \ReflectionClass($this->searchKeywordUpdater);
-        if ($class->hasProperty('decorated')) {
-            $property = $class->getProperty('decorated');
-            $property->setAccessible(true);
-            $searchKeywordUpdaterInner = $property->getValue($this->searchKeywordUpdater);
-        } else {
-            $searchKeywordUpdaterInner = $this->searchKeywordUpdater;
-        }
-
-        $class = new \ReflectionClass($searchKeywordUpdaterInner);
-        $property = $class->getProperty('config');
-        $property->setAccessible(true);
-        $property->setValue(
-            $searchKeywordUpdaterInner,
-            []
         );
     }
 }

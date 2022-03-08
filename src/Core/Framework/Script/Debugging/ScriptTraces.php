@@ -9,11 +9,12 @@ use Symfony\Bundle\FrameworkBundle\DataCollector\AbstractDataCollector;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\VarDumper\Cloner\Data;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @deprecated tag:v6.5.0 will be internal
  */
-class ScriptTraces extends AbstractDataCollector
+class ScriptTraces extends AbstractDataCollector implements ResetInterface
 {
     protected array $traces = [];
 
@@ -143,6 +144,12 @@ class ScriptTraces extends AbstractDataCollector
     public function getTraces(): array
     {
         return $this->traces;
+    }
+
+    public function reset(): void
+    {
+        parent::reset();
+        $this->traces = [];
     }
 
     private function add(Hook $hook, string $name, float $took, Debug $output, array $deprecations): void

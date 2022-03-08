@@ -8,11 +8,12 @@ use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @Decoratable
  */
-class StorefrontPluginRegistry implements StorefrontPluginRegistryInterface
+class StorefrontPluginRegistry implements StorefrontPluginRegistryInterface, ResetInterface
 {
     public const BASE_THEME_NAME = 'Storefront';
 
@@ -46,6 +47,11 @@ class StorefrontPluginRegistry implements StorefrontPluginRegistryInterface
         $this->addAppConfigs();
 
         return $this->pluginConfigurations;
+    }
+
+    public function reset(): void
+    {
+        $this->pluginConfigurations = null;
     }
 
     private function addPluginConfigs(): void

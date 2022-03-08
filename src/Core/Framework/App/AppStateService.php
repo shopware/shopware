@@ -69,7 +69,7 @@ class AppStateService
         $this->templateStateService->activateAppTemplates($appId, $context);
         $this->scriptPersister->activateAppScripts($appId, $context);
         $this->paymentMethodStateService->activatePaymentMethods($appId, $context);
-        $this->activeAppsLoader->resetActiveApps();
+        $this->activeAppsLoader->reset();
         // manually set active flag to true, so we don't need to re-fetch the app from DB
         $app->setActive(true);
 
@@ -90,7 +90,7 @@ class AppStateService
             return;
         }
 
-        $this->activeAppsLoader->resetActiveApps();
+        $this->activeAppsLoader->reset();
         // throw event before deactivating app in db as theme configs from the app need to be removed beforehand
         $event = new AppDeactivatedEvent($app, $context);
         $this->eventDispatcher->dispatch($event);

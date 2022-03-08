@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
-use Shopware\Core\Framework\Test\App\StorefrontPluginRegistryTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -27,7 +26,6 @@ class StorefrontSubscriberTest extends TestCase
     use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
     use SalesChannelApiTestBehaviour;
-    use StorefrontPluginRegistryTestBehaviour;
 
     /**
      * @var SalesChannelContext

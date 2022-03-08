@@ -79,4 +79,9 @@ class ArrayIncrementer extends AbstractIncrementer
 
         return $mapped;
     }
+
+    public function resetAll(): void
+    {
+        $this->logs = [];
+    }
 }

@@ -326,6 +326,8 @@ base-uri 'self';
             <argument>%kernel.cache_dir%</argument>
             <argument type="service"
                       id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder"/>
+
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder">
@@ -395,6 +397,7 @@ base-uri 'self';
 
             <tag name="twig.loader"/>
             <tag name="kernel.event_subscriber"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\AppTemplateIterator"

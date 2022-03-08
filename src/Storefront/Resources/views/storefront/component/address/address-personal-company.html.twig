@@ -11,6 +11,8 @@
                                 {% set violationPath = "/company" %}
                             {% elseif formViolations.getViolations("/#{prefix}/company") is not empty %}
                                 {% set violationPath = "/#{prefix}/company" %}
+                            {% else %}
+                                {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "address.companyNameLabel"|trans|sw_sanitize }) %}
                             {% endif %}
 
                             {% block component_address_form_company_name_label %}
@@ -27,6 +29,8 @@
                                        placeholder="{{ "address.companyNamePlaceholder"|trans|striptags }}"
                                        name="{{ prefix }}[company]"
                                        value="{{ address.get('company') }}"
+                                       data-form-validation-required
+                                       {% if requiredMessage is defined and accountTypeRequired %}data-form-validation-required-message="{{ requiredMessage }}"{% endif %}
                                        {% if accountTypeRequired %}required="required"{% endif %}>
                             {% endblock %}
 

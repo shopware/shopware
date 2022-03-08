@@ -1,30 +1,33 @@
+import { AxiosInstance } from 'axios';
 import Repository from './repository.data';
+import EntityHydrator from './entity-hydrator.data';
+import ChangesetGenerator from './changeset-generator.data';
+import EntityFactory from './entity-factory.data';
+import ErrorResolver from './error-resolver.data';
 
 export default class RepositoryFactory {
-    private hydrator: $TSFixMe;
+    private hydrator: EntityHydrator;
 
-    private changesetGenerator: $TSFixMe;
+    private changesetGenerator: ChangesetGenerator;
 
-    private entityFactory: $TSFixMe;
+    private entityFactory: EntityFactory;
 
-    private httpClient: $TSFixMe;
+    private httpClient: AxiosInstance;
 
-    private errorResolver: $TSFixMe;
+    private errorResolver: ErrorResolver;
 
     constructor(
-        hydrator: $TSFixMe,
-        changesetGenerator: $TSFixMe,
-        entityFactory: $TSFixMe,
-        httpClient: $TSFixMe,
-        errorResolver: $TSFixMe,
+        hydrator: EntityHydrator,
+        changesetGenerator: ChangesetGenerator,
+        entityFactory: EntityFactory,
+        httpClient: AxiosInstance,
+        errorResolver: ErrorResolver,
     ) {
-        /* eslint-disable @typescript-eslint/no-unsafe-assignment */
         this.hydrator = hydrator;
         this.changesetGenerator = changesetGenerator;
         this.entityFactory = entityFactory;
         this.httpClient = httpClient;
         this.errorResolver = errorResolver;
-        /* eslint-enable @typescript-eslint/no-unsafe-assignment */
     }
 
     /**

@@ -10,7 +10,7 @@ export default class EntityFactory {
      * Returns null for unknown entities.
      *
      * @param {String} entityName
-     * @param {String} id
+     * @param {String|null} id
      * @param {Object} context
      * @returns {Entity|null}
      */

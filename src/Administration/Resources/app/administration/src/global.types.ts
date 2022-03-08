@@ -41,6 +41,12 @@ declare global {
     type $TSFixMeFunction = (...args: any[]) => any;
 
     /**
+     * Dangerous "unknown" types which are specific enough but do not provide type safety.
+     * You should avoid using these.
+     */
+    type $TSDangerUnknownObject = {[key: string|symbol]: unknown};
+
+    /**
      * Make the Shopware object globally available
      */
     const Shopware: ShopwareClass;

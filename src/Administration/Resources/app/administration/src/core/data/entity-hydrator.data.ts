@@ -1,4 +1,5 @@
 import types from 'src/core/service/utils/types.utils';
+import { AxiosResponse } from 'axios';
 import Entity from './entity.data';
 import Criteria from './criteria.data';
 import EntityCollection from './entity-collection.data';
@@ -35,21 +36,6 @@ type data = {
     aggregations: [],
 }
 
-type response = {
-    data: data,
-    status: string,
-    statusText: string,
-    headers: {
-        [header: string]: string,
-    },
-    config: {
-        [header: string]: string,
-    },
-    request: {
-        [header: string]: string,
-    }
-}
-
 type field = {
     entity: string,
 }
@@ -78,7 +64,7 @@ export default class EntityHydrator {
     hydrateSearchResult(
         route: string,
         entityName: string,
-        response: response,
+        response: AxiosResponse<data>,
         context: apiContext,
         criteria: Criteria,
     ): EntityCollection {
@@ -262,7 +248,7 @@ export default class EntityHydrator {
         response: data,
     ): EntityCollection {
         const associationCriteria = this.getAssociationCriteria(criteria, property);
-        const apiResourcePath = context.apiResourcePath as string;
+        const apiResourcePath = context?.apiResourcePath as string ?? '';
 
         const url = value.links.related.substr(
             value.links.related.indexOf(apiResourcePath)

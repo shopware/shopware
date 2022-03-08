@@ -194,6 +194,19 @@ class PriceFieldSerializer extends AbstractFieldSerializer
                             ])
                         ),
                     ],
+                    'regulationPrice' => [
+                        new Optional(
+                            new Collection([
+                                'allowExtraFields' => true,
+                                'allowMissingFields' => false,
+                                'fields' => [
+                                    'gross' => [new NotBlank(), new Type(['numeric'])],
+                                    'net' => [new NotBlank(), new Type('numeric')],
+                                    'linked' => [new Type('boolean')],
+                                ],
+                            ])
+                        ),
+                    ],
                 ],
             ]),
         ];

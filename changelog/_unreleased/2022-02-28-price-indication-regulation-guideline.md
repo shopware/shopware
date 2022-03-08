@@ -22,11 +22,14 @@ ___
 * Added property `hideRegulationPrices` in `src/app/component/form/sw-list-price-field/index.js`
 * Added computed `regulationPrice`, `defaultRegulationPricePrice`, `regulationPriceHelpText` in `src/app/component/form/sw-list-price-field/index.js`
 * Added method `regulationPriceChanged` in `src/app/component/form/sw-list-price-field/index.js`
+* Changed `src/module/sw-bulk-edit/page/sw-bulk-edit-product/index.js` to support regulation prices 
 * Added block `sw_list_price_field_regulation_price` in `src/app/component/form/sw-list-price-field/sw-list-price-field.html.twig`
 * Changed method `removePriceInheritation` in `src/module/sw-product/component/sw-product-price-form/index.js`
 * Added snippet `global.sw-list-price-field.labelRegulationPriceGross`
 * Added snippet `global.sw-list-price-field.helpTextRegulationPriceGross`
 * Added snippet `global.sw-list-price-field.labelRegulationPriceNet`
+* Added snippet `sw-bulk-edit.product.prices.purchasePrices.changeLabel`
+* Added snippet `sw-bulk-edit.product.prices.purchasePrices.placeholderPurchasePrices`
 ___
 # Storefront
 * Added element for previous given price in the following components:

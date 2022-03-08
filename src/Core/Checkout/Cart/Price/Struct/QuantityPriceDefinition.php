@@ -49,6 +49,11 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
      */
     protected $listPrice;
 
+    /**
+     * @var float|null
+     */
+    protected $regulationPrice;
+
     public function __construct(float $price, TaxRuleCollection $taxRules, int $quantity = 1)
     {
         $this->price = FloatComparator::cast($price);
@@ -101,6 +106,7 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
 
         $self->setIsCalculated(\array_key_exists('isCalculated', $data) ? $data['isCalculated'] : false);
         $self->setListPrice(isset($data['listPrice']) ? (float) $data['listPrice'] : null);
+        $self->setRegulationPrice(isset($data['regulationPrice']) ? (float) $data['regulationPrice'] : null);
 
         return $self;
     }
@@ -146,6 +152,17 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
     {
         $listPrice = $listPrice ? FloatComparator::cast($listPrice) : null;
         $this->listPrice = $listPrice;
+    }
+
+    public function getRegulationPrice(): ?float
+    {
+        return $this->regulationPrice ? FloatComparator::cast($this->regulationPrice) : null;
+    }
+
+    public function setRegulationPrice(?float $regulationPrice): void
+    {
+        $regulationPrice = $regulationPrice ? FloatComparator::cast($regulationPrice) : null;
+        $this->regulationPrice = $regulationPrice;
     }
 
     public function getApiAlias(): string

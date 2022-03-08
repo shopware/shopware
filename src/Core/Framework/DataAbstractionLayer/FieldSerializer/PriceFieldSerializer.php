@@ -125,7 +125,7 @@ class PriceFieldSerializer extends AbstractFieldSerializer
         $collection = new PriceCollection();
 
         foreach ($value as $row) {
-            if (!isset($row['listPrice']) || !isset($row['listPrice']['gross'])) {
+            if ((!isset($row['listPrice']) || !isset($row['listPrice']['gross'])) && (!isset($row['regulationPrice']) || !isset($row['regulationPrice']['gross']))) {
                 $collection->add(
                     new Price($row['currencyId'], (float) $row['net'], (float) $row['gross'], (bool) $row['linked'])
                 );
@@ -133,7 +133,26 @@ class PriceFieldSerializer extends AbstractFieldSerializer
                 continue;
             }
 
-            $data = $row['listPrice'];
+            $listPrice = $regulationPrice = null;
+            if (isset($row['listPrice']) && isset($row['listPrice']['gross'])) {
+                $data = $row['listPrice'];
+                $listPrice = new Price(
+                    $row['currencyId'],
+                    (float) $data['net'],
+                    (float) $data['gross'],
+                    (bool) $data['linked'],
+                );
+            }
+
+            if (isset($row['regulationPrice']) && isset($row['regulationPrice']['gross'])) {
+                $data = $row['regulationPrice'];
+                $regulationPrice = new Price(
+                    $row['currencyId'],
+                    (float) $data['net'],
+                    (float) $data['gross'],
+                    (bool) $data['linked'],
+                );
+            }
 
             $collection->add(
                 new Price(
@@ -141,13 +160,9 @@ class PriceFieldSerializer extends AbstractFieldSerializer
                     (float) $row['net'],
                     (float) $row['gross'],
                     (bool) $row['linked'],
-                    new Price(
-                        $row['currencyId'],
-                        (float) $data['net'],
-                        (float) $data['gross'],
-                        (bool) $data['linked'],
-                    ),
-                    $row['percentage'] ?? null
+                    $listPrice,
+                    $row['percentage'] ?? null,
+                    $regulationPrice
                 )
             );
         }

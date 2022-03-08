@@ -41,6 +41,7 @@ class PriceSerializerTest extends TestCase
                 'listPrice' => null,
                 'net' => 10.0,
                 'percentage' => null,
+                'regulationPrice' => null,
             ],
             'DEFAULT' => [
                 'currencyId' => Defaults::CURRENCY,
@@ -50,6 +51,7 @@ class PriceSerializerTest extends TestCase
                 'listPrice' => null,
                 'net' => 10.0,
                 'percentage' => null,
+                'regulationPrice' => null,
             ],
         ];
         static::assertNull($this->first($priceSerializer->serialize($config, $priceField, [])));
@@ -67,6 +69,7 @@ class PriceSerializerTest extends TestCase
                 'listPrice' => null,
                 'net' => 10.0,
                 'percentage' => null,
+                'regulationPrice' => null,
             ],
         ];
         static::assertEmpty($priceSerializer->deserialize($config, $priceField, ''));
@@ -99,9 +102,11 @@ class PriceSerializerTest extends TestCase
                     'listPrice' => null,
                     'net' => 11.0,
                     'percentage' => null,
+                    'regulationPrice' => null,
                 ],
                 'net' => 10.0,
                 'percentage' => null,
+                'regulationPrice' => null,
             ],
             'DEFAULT' => [
                 'currencyId' => Defaults::CURRENCY,
@@ -116,9 +121,11 @@ class PriceSerializerTest extends TestCase
                     'listPrice' => null,
                     'net' => 11.0,
                     'percentage' => null,
+                    'regulationPrice' => null,
                 ],
                 'net' => 10.0,
                 'percentage' => null,
+                'regulationPrice' => null,
             ],
         ];
         static::assertNull($this->first($priceSerializer->serialize($config, $priceField, [])));
@@ -143,9 +150,11 @@ class PriceSerializerTest extends TestCase
                     'listPrice' => null,
                     'net' => 11.0,
                     'percentage' => null,
+                    'regulationPrice' => null,
                 ],
                 'net' => 10.0,
                 'percentage' => null,
+                'regulationPrice' => null,
             ],
         ];
         static::assertEmpty($priceSerializer->deserialize($config, $priceField, ''));

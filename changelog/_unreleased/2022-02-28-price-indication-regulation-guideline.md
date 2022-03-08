@@ -6,13 +6,27 @@ author_email: r.schwering@shopware.com
 author_github: leichteckig
 ---
 # Core
-*
+* Added new class `Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice`
+* Added property `regulationPrice` in `Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice`
+* Added property `regulationPrice` in `Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition`
+* Added property `regulationPrice` in `Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price`
+* Added method `Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator::calculateRegulationPrice()`
+* Added method `Shopware\Core\Checkout\Cart\Price\NetPriceCalculator::calculateRegulationPrice()`
+* Added method `Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator::getRegulationPrice()`
+* Changed `Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer` to decode the regulationPrice
 ___
 # API
 *
 ___
 # Administration
-*
+* Added property `hideRegulationPrices` in `src/app/component/form/sw-list-price-field/index.js`
+* Added computed `regulationPrice`, `defaultRegulationPricePrice`, `regulationPriceHelpText` in `src/app/component/form/sw-list-price-field/index.js`
+* Added method `regulationPriceChanged` in `src/app/component/form/sw-list-price-field/index.js`
+* Added block `sw_list_price_field_regulation_price` in `src/app/component/form/sw-list-price-field/sw-list-price-field.html.twig`
+* Changed method `removePriceInheritation` in `src/module/sw-product/component/sw-product-price-form/index.js`
+* Added snippet `global.sw-list-price-field.labelRegulationPriceGross`
+* Added snippet `global.sw-list-price-field.helpTextRegulationPriceGross`
+* Added snippet `global.sw-list-price-field.labelRegulationPriceNet`
 ___
 # Storefront
 * Added element for previous given price in the following components:

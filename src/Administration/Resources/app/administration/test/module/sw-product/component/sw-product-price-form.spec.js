@@ -26,6 +26,12 @@ const parentProductData = {
             gross: 200,
             net: 168.07,
         },
+        regulationPrice: {
+            currencyId: '1',
+            linked: true,
+            gross: 100,
+            net: 93.45,
+        }
     }]
 };
 
@@ -216,6 +222,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
             purchasePrices: parentProductData.purchasePrices
         });
         expect(wrapper.vm.prices.price[0].listPrice.gross).toEqual(200);
+        expect(wrapper.vm.prices.price[0].regulationPrice.gross).toEqual(100);
     });
 
     // eslint-disable-next-line max-len

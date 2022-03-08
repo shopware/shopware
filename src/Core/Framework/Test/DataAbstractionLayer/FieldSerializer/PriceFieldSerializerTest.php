@@ -174,6 +174,27 @@ class PriceFieldSerializerTest extends TestCase
         static::assertSame($json, $data);
     }
 
+    public function testSerializeWithRegulationPrice(): void
+    {
+        $data = $this->encode([
+            Defaults::CURRENCY => [
+                'net' => '5',
+                'gross' => '5',
+                'currencyId' => Defaults::CURRENCY,
+                'linked' => true,
+                'regulationPrice' => [
+                    'net' => '20',
+                    'gross' => '20',
+                    'currencyId' => Defaults::CURRENCY,
+                    'linked' => true,
+                ],
+            ],
+        ]);
+
+        $json = '{"cb7d2554b0ce847cd82f3ac9bd1c0dfca":{"net":5.0,"gross":5.0,"currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true,"regulationPrice":{"net":"20","gross":"20","currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true}}}';
+        static::assertSame($json, $data);
+    }
+
     public function testSerializeWithZeroNetListPrice(): void
     {
         $data = $this->encode([
@@ -259,7 +280,7 @@ class PriceFieldSerializerTest extends TestCase
 
     public function testDecodeIsBackwardCompatible(): void
     {
-        $json = '{"cb7d2554b0ce847cd82f3ac9bd1c0dfca":{"net":5.0,"gross":5.0,"currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true,"listPrice":{"net":"10","gross":"10","currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true}}}';
+        $json = '{"cb7d2554b0ce847cd82f3ac9bd1c0dfca":{"net":5.0,"gross":5.0,"currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true,"listPrice":{"net":"10","gross":"10","currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true},"regulationPrice":{"net":"10","gross":"10","currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true}}}';
 
         $field = new PriceField('test', 'test');
 
@@ -271,6 +292,9 @@ class PriceFieldSerializerTest extends TestCase
         static::assertSame(5.0, $price->getGross());
         static::assertSame(10.0, $price->getListPrice()->getNet());
         static::assertSame(10.0, $price->getListPrice()->getGross());
+        static::assertSame(10.0, $price->getRegulationPrice()->getNet());
+        static::assertSame(10.0, $price->getRegulationPrice()->getGross());
+
         static::assertNull($price->getPercentage());
     }
 

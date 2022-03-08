@@ -67,5 +67,29 @@
         />
         {% endblock %}
     </div>
+
+    <div class="sw-list-price-field__regulation-price">
+        {% block sw_list_price_field_regulation_price %}
+        <sw-price-field
+            v-if="!hideRegulationPrices && showSettingPrice"
+            :price="regulationPrice"
+            :default-price="defaultRegulationPrice"
+            :tax-rate="taxRate"
+            :disabled="disabled"
+            allow-empty
+            :gross-label="$tc('global.sw-list-price-field.labelRegulationPriceGross')"
+            :gross-help-text="regulationPriceHelpText"
+            :net-label="$tc('global.sw-list-price-field.labelRegulationPriceNet')"
+            :compact="compact"
+            :disable-suffix="disableSuffix"
+            :label="label"
+            :enable-inheritance="enableInheritance"
+            :inherited="isInherited"
+            class="sw-list-price-field__regulation-price-field"
+            :currency="currency"
+            @change="regulationPriceChanged"
+        />
+        {% endblock %}
+    </div>
 </div>
 {% endblock %}

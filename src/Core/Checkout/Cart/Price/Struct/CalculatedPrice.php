@@ -44,6 +44,11 @@ class CalculatedPrice extends Struct
      */
     protected $listPrice;
 
+    /**
+     * @var RegulationPrice|null
+     */
+    protected $regulationPrice;
+
     public function __construct(
         float $unitPrice,
         float $totalPrice,
@@ -51,7 +56,8 @@ class CalculatedPrice extends Struct
         TaxRuleCollection $taxRules,
         int $quantity = 1,
         ?ReferencePrice $referencePrice = null,
-        ?ListPrice $listPrice = null
+        ?ListPrice $listPrice = null,
+        ?RegulationPrice $regulationPrice = null
     ) {
         $this->unitPrice = FloatComparator::cast($unitPrice);
         $this->totalPrice = FloatComparator::cast($totalPrice);
@@ -60,6 +66,7 @@ class CalculatedPrice extends Struct
         $this->quantity = $quantity;
         $this->referencePrice = $referencePrice;
         $this->listPrice = $listPrice;
+        $this->regulationPrice = $regulationPrice;
     }
 
     public function getTotalPrice(): float
@@ -95,6 +102,11 @@ class CalculatedPrice extends Struct
     public function getListPrice(): ?ListPrice
     {
         return $this->listPrice;
+    }
+
+    public function getRegulationPrice(): ?RegulationPrice
+    {
+        return $this->regulationPrice;
     }
 
     public function getApiAlias(): string

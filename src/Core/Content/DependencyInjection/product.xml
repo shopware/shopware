@@ -326,6 +326,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater"/>
             <tag name="shopware.entity_indexer" priority="100"/>
+            <argument type="service" id="messenger.bus.shopware"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater">

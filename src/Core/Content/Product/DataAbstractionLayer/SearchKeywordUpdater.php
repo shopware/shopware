@@ -96,10 +96,7 @@ class SearchKeywordUpdater implements ResetInterface
      */
     private function updateLanguage(array $ids, Context $context, array $existingProducts): array
     {
-        $configFields = [];
-        if ($this->productSearchConfigFieldRepository !== null) {
-            $configFields = $this->getConfigFields($context->getLanguageId());
-        }
+        $configFields = $this->getConfigFields($context->getLanguageId());
 
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
         $languageId = Uuid::fromHexToBytes($context->getLanguageId());

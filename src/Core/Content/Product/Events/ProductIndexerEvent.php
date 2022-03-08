@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\Events;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Feature;
 
 class ProductIndexerEvent extends NestedEvent implements ProductChangedEventInterface
 {
@@ -33,8 +34,12 @@ class ProductIndexerEvent extends NestedEvent implements ProductChangedEventInte
     {
         $this->context = $context;
         $this->ids = $ids;
-        $this->childrenIds = $childrenIds;
-        $this->parentIds = $parentIds;
+
+        if (!Feature::isActive('v6.5.0.0')) {
+            $this->childrenIds = $childrenIds;
+            $this->parentIds = $parentIds;
+        }
+
         $this->skip = $skip;
     }
 
@@ -50,11 +55,13 @@ class ProductIndexerEvent extends NestedEvent implements ProductChangedEventInte
 
     public function getChildrenIds(): array
     {
+        Feature::throwException('v6.5.0.0', 'ProductIndexerEvent::getChildrenIds() is deprecated');
         return $this->childrenIds;
     }
 
     public function getParentIds(): array
     {
+        Feature::throwException('v6.5.0.0', 'ProductIndexerEvent::getChildrenIds() is deprecated');
         return $this->parentIds;
     }
 

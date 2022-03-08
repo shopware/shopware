@@ -473,6 +473,20 @@ Component.register('sw-settings-document-detail', {
             });
         },
 
+        abortOnLanguageChange() {
+            return this.documentBaseConfigRepository.hasChanges(this.documentConfig);
+        },
+
+        saveOnLanguageChange() {
+            return this.onSave();
+        },
+
+        onChangeLanguage(languageId) {
+            Shopware.State.commit('context/setApiLanguageId', languageId);
+
+            return this.loadEntityData();
+        },
+
         saveFinish() {
             if (this.documentConfig.isNew()) {
                 this.$router.replace({ name: 'sw.settings.document.detail', params: { id: this.documentConfig.id } });
@@ -485,7 +499,7 @@ Component.register('sw-settings-document-detail', {
             this.isLoading = true;
             this.onChangeSalesChannel();
 
-            this.documentBaseConfigRepository.save(this.documentConfig).then(() => {
+            return this.documentBaseConfigRepository.save(this.documentConfig).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
             }).catch(() => {

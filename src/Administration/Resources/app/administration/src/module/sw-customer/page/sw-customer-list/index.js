@@ -190,7 +190,7 @@ Component.register('sw-customer-list', {
 
     methods: {
         createdComponent() {
-            this.loadFilterValues();
+            return this.loadFilterValues();
         },
 
         onInlineEditSave(promise, customer) {
@@ -253,6 +253,11 @@ Component.register('sw-customer-list', {
             return this.customerRepository.delete(id).then(() => {
                 this.getList();
             });
+        },
+
+        async onChangeLanguage() {
+            await this.createdComponent();
+            await this.getList();
         },
 
         getCustomerColumns() {

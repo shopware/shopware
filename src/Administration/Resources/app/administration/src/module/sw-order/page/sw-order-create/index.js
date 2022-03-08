@@ -60,11 +60,22 @@ Component.register('sw-order-create', {
         State.registerModule('swOrder', swOrderState);
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     beforeDestroy() {
         this.unregisterModule();
     },
 
     methods: {
+        createdComponent() {
+            // set language to system language
+            if (!Shopware.State.getters['context/isSystemDefaultLanguage']) {
+                Shopware.State.commit('context/resetLanguageToDefault');
+            }
+        },
+
         unregisterModule() {
             State.unregisterModule('swOrder');
         },

@@ -55,6 +55,14 @@
     </template>
     {% endblock %}
 
+    <template #language-switch>
+        <sw-language-switch
+            :abort-change-function="abortOnLanguageChange"
+            :save-changes-function="saveOnLanguageChange"
+            @on-change="onChangeLanguage"
+        />
+    </template>
+
     {% block sw_customer_detail_content %}
     <template #content>
         <sw-card-view>

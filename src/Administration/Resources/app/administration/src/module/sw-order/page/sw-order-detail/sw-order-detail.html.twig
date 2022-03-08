@@ -33,11 +33,11 @@
     {% endblock %}
 
     {% block sw_order_detail_language_switch %}
-    <!-- eslint-disable vue/valid-v-slot -->
-    <sw-language-switch
-        #language-switch
-        @on-change="onChangeLanguage"
-    />
+    <template #language-switch>
+        <sw-language-switch
+            @on-change="onChangeLanguage"
+        />
+    </template>
     {% endblock %}
 
     {% block sw_order_detail_actions %}

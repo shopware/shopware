@@ -91,6 +91,7 @@ function createWrapper(privileges = []) {
                     </div>
                 `
             },
+            'sw-language-switch': true,
             'sw-context-menu-item': true,
             'sw-search-bar': true,
             'sw-icon': true,

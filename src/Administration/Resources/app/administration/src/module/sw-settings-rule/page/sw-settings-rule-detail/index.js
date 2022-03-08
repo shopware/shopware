@@ -208,6 +208,23 @@ Component.register('sw-settings-rule-detail', {
                 });
         },
 
+        abortOnLanguageChange() {
+            return this.ruleRepository.hasChanges(this.rule);
+        },
+
+        saveOnLanguageChange() {
+            return this.onSave();
+        },
+
+        onChangeLanguage(languageId) {
+            Shopware.State.commit('context/setApiLanguageId', languageId);
+
+            this.isLoading = true;
+            this.loadEntityData(this.ruleId).then(() => {
+                this.isLoading = false;
+            });
+        },
+
         saveRule() {
             return this.ruleRepository.save(this.rule, Context.api);
         },

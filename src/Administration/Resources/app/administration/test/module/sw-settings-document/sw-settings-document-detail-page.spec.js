@@ -94,6 +94,7 @@ const createWrapper = (customOptions, privileges = []) => {
             'sw-card': true,
             'sw-container': true,
             'sw-form-field-renderer': true,
+            'sw-language-switch': true,
             'sw-checkbox-field': {
                 template: `
                     <div class="sw-field--checkbox">

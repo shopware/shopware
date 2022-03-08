@@ -68,6 +68,11 @@ Component.register('sw-settings-tax-list', {
             });
         },
 
+        onChangeLanguage(languageId) {
+            Shopware.State.commit('context/setApiLanguageId', languageId);
+            this.getList();
+        },
+
         async onInlineEditSave(promise, tax) {
             promise.then(() => {
                 if (this.selectedDefaultTaxRateId === this.defaultTaxRateId) {

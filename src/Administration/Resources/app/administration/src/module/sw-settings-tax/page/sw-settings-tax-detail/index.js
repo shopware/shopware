@@ -202,6 +202,19 @@ Component.register('sw-settings-tax-detail', {
             this.$router.push({ name: 'sw.settings.tax.index' });
         },
 
+        abortOnLanguageChange() {
+            return this.taxRepository.hasChanges(this.tax);
+        },
+
+        saveOnLanguageChange() {
+            return this.onSave();
+        },
+
+        onChangeLanguage(languageId) {
+            Shopware.State.commit('context/setApiLanguageId', languageId);
+            this.createdComponent();
+        },
+
         changeName(name) {
             this.tax.name = name;
         },

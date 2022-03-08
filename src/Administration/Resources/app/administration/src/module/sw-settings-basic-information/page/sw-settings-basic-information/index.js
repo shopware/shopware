@@ -46,5 +46,20 @@ Component.register('sw-settings-basic-information', {
         onLoadingChanged(loading) {
             this.isLoading = loading;
         },
+
+        abortOnLanguageChange() {
+            // We don't know if there are changes. So show the warning everytime.
+            return true;
+        },
+
+        saveOnLanguageChange() {
+            return this.onSave();
+        },
+
+        onChangeLanguage(languageId) {
+            Shopware.State.commit('context/setApiLanguageId', languageId);
+
+            this.$refs.systemConfig.createdComponent();
+        },
     },
 });

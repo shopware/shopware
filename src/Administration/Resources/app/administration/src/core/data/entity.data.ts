@@ -1,6 +1,7 @@
 import { cloneDeep } from 'src/core/service/utils/object.utils';
+import BaseEntity from '@shopware-ag/admin-extension-sdk/es/data/_internals/BaseEntity';
 
-export default class Entity {
+export default class Entity extends BaseEntity {
     id: string;
 
     _origin: unknown;
@@ -14,6 +15,8 @@ export default class Entity {
     _isNew: boolean;
 
     constructor(id: string, entityName: string, data: {[key: string]: unknown}) {
+        super();
+
         this.id = id;
         this._origin = cloneDeep(data);
         this._entityName = entityName;

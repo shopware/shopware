@@ -1,7 +1,8 @@
+import BaseEntityCollection from '@shopware-ag/admin-extension-sdk/es/data/_internals/BaseEntityCollection';
 import Criteria from './criteria.data';
 import Entity from './entity.data';
 
-export default class EntityCollection extends Array<Entity> {
+export default class EntityCollection extends BaseEntityCollection {
     entity: string;
 
     source: string;

@@ -197,8 +197,10 @@
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer" on-invalid="null"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
+            <tag name="container.service_subscriber" />
+            <tag name="controller.service_arguments" />
             <call method="setContainer">
-                <argument type="service" id="service_container"/>
+                <argument type="service" id="Psr\Container\ContainerInterface" />
             </call>
         </service>
 

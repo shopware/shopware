@@ -98,7 +98,7 @@ class CacheControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($response->getContent(), true));
-        static::assertSame('{"environment":"test","httpCache":false,"cacheAdapter":"CacheDecorator"}', $response->getContent());
+        static::assertSame('{"environment":"test","httpCache":true,"cacheAdapter":"CacheDecorator"}', $response->getContent());
     }
 
     public function testCacheIndexEndpoint(): void

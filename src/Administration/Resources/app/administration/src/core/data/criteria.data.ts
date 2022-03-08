@@ -450,6 +450,14 @@ export default class Criteria {
         return criteria;
     }
 
+    getLimit(): number {
+        return this.limit ?? 0;
+    }
+
+    getPage(): number {
+        return this.page ?? 0;
+    }
+
     hasAssociation(property: string): boolean {
         return this.associations.some((assocation) => {
             return assocation.association === property;

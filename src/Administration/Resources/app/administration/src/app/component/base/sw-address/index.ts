@@ -1,7 +1,29 @@
+import type { PropType } from 'vue';
+import type { Route } from 'vue-router';
 import template from './sw-address.html.twig';
 import './sw-address.scss';
 
 const { Component } = Shopware;
+
+interface Country {
+    name: string,
+}
+
+interface CountryState {
+    name: string,
+}
+
+interface Address {
+    salutation: $TSFixMe,
+    title: string,
+    firstName: string,
+    lastName: string,
+    street: string,
+    zipcode: string,
+    city: string,
+    country: Country,
+    countryState: CountryState,
+}
 
 /**
  * @public
@@ -25,8 +47,8 @@ Component.register('sw-address', {
 
     props: {
         address: {
-            type: Object,
-            default() {
+            type: Object as PropType<Address>,
+            default(): Address {
                 return {
                     salutation: '',
                     title: '',
@@ -58,14 +80,14 @@ Component.register('sw-address', {
         },
 
         editLink: {
-            type: Object,
+            type: Object as PropType<Route | null>,
             required: false,
             default: null,
         },
     },
 
     computed: {
-        addressClasses() {
+        addressClasses(): Record<string, boolean | string> {
             return {
                 'sw-address--headline': this.headline,
             };

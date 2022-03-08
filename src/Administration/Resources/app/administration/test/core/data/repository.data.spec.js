@@ -43,7 +43,7 @@ function createRepositoryData() {
     );
 }
 
-describe('repository.data.js', () => {
+describe('repository.data.ts', () => {
     beforeEach(() => {
         clientMock.resetHistory();
     });

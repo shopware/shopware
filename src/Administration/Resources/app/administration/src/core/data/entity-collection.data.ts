@@ -1,10 +1,51 @@
 import Criteria from './criteria.data';
+import Entity from './entity.data';
 
-export default class EntityCollection extends Array {
-    constructor(source, entity, context, criteria = null, entities = [], total = null, aggregations = null) {
+export default class EntityCollection extends Array<Entity> {
+    entity: string;
+
+    source: string;
+
+    context: apiContext;
+
+    criteria: Criteria|null;
+
+    aggregations: string[]|null;
+
+    total: number|null;
+
+    first: () => Entity|null;
+
+    last: () => Entity|null;
+
+    remove: (id: string) => boolean;
+
+    has: (id: string) => boolean;
+
+    get: (id: string) => Entity|null;
+
+    getAt: (index: number) => Entity|null;
+
+    getIds: () => string[];
+
+    add: (e: Entity) => void;
+
+    addAt: (e: Entity, indexAt: number) => void;
+
+    moveItem: (oldIndex: number, newIndex: number) => Entity|null;
+
+    constructor(
+        source: string,
+        entityName: string,
+        context: apiContext,
+        criteria: Criteria|null = null,
+        entities: Entity[] = [],
+        total: number|null = null,
+        aggregations: string[]|null = null,
+    ) {
         super();
 
-        this.entity = entity;
+        this.entity = entityName;
         this.source = source;
         this.context = context;
         this.criteria = criteria;
@@ -16,9 +57,8 @@ export default class EntityCollection extends Array {
         /**
          * Returns the first item of the collection.
          * Returns null if the collection is empty
-         * @returns {Object}
          */
-        this.first = function firstEntityOfCollection() {
+        this.first = function firstEntityOfCollection(): Entity|null {
             if (this.length <= 0) {
                 return null;
             }
@@ -29,9 +69,8 @@ export default class EntityCollection extends Array {
         /**
          * Returns the last item of the collection.
          * Returns null if the collection is empty.
-         * @return {Object}
          */
-        this.last = function lastEntityOfCollection() {
+        this.last = function lastEntityOfCollection(): Entity|null {
             if (this.length <= 0) {
                 return null;
             }
@@ -42,10 +81,8 @@ export default class EntityCollection extends Array {
         /**
          * Removes an entity from the collection. The entity is identified by the provided id
          * Returns true if the entity removed, false if the entity wasn't found
-         * @param {string} id
-         * @returns {boolean}
          */
-        this.remove = function removeEntityFromCollection(id) {
+        this.remove = function removeEntityFromCollection(id): boolean {
             const itemIndex = this.findIndex(i => i.id === id);
 
             if (itemIndex < 0) {
@@ -58,19 +95,15 @@ export default class EntityCollection extends Array {
 
         /**
          * Checks if the provided id is inside the collection
-         * @param {string} id
-         * @returns {boolean}
          */
-        this.has = function hasEntityInCollection(id) {
+        this.has = function hasEntityInCollection(id: string): boolean {
             return this.some(i => i.id === id);
         };
 
         /**
          * Returns the entity for the provided id, null if the entity is not inside the collection
-         * @param {String} id
-         * @returns {Object|null}
          */
-        this.get = function getEntityByIdOfCollection(id) {
+        this.get = function getEntityByIdOfCollection(id: string): Entity|null {
             const item = this.find(i => i.id === id);
 
             if (typeof item !== 'undefined') {
@@ -81,10 +114,8 @@ export default class EntityCollection extends Array {
 
         /**
          * Returns the entity at the given index position.
-         * @param {Number} index
-         * @return {Object|null}
          */
-        this.getAt = function getEntityAtIndexOfCollection(index) {
+        this.getAt = function getEntityAtIndexOfCollection(index: number): Entity|null {
             const item = this[index];
 
             if (typeof item !== 'undefined') {
@@ -95,27 +126,22 @@ export default class EntityCollection extends Array {
 
         /**
          * Returns all ids of the internal entities
-         * @returns {String[]}
          */
-        this.getIds = function getEntityIdsOfCollection() {
+        this.getIds = function getEntityIdsOfCollection(): string[] {
             return this.map(i => i.id);
         };
 
         /**
          * Adds a new item to the collection
-         * @param {Entity} e
-         * @returns {number}
          */
-        this.add = function addEntityToCollection(e) {
+        this.add = function addEntityToCollection(e: Entity): void {
             this.push(e);
         };
 
         /**
          * Adds an entity to the collection at the given position.
-         * @param {Entity} e
-         * @param {Number} insertIndex
          */
-        this.addAt = function addEntityAtIndexOfCollection(e, insertIndex) {
+        this.addAt = function addEntityAtIndexOfCollection(e: Entity, insertIndex: number): void {
             if (typeof insertIndex === 'undefined') {
                 this.add(e);
                 return;
@@ -126,11 +152,15 @@ export default class EntityCollection extends Array {
 
         /**
          * Move an item of the collection from an old index to a new index position.
-         * @param {Number} oldIndex
-         * @param {Number} newIndex
-         * @return {Object}
          */
-        this.moveItem = function moveEntityToNewIndexInCollection(oldIndex, newIndex = this.length) {
+        this.moveItem = function moveEntityToNewIndexInCollection(
+            oldIndex: number,
+            newIndex: number|null = null,
+        ): Entity|null {
+            if (newIndex === null) {
+                newIndex = this.length;
+            }
+
             if (oldIndex < 0 || oldIndex >= this.length) {
                 return null;
             }
@@ -159,12 +189,14 @@ export default class EntityCollection extends Array {
 
         /**
          * Filters an EntityCollection and preserves its type. Resets criteria and total since it would mismatch.
-         * @param {function} callback
-         * @param {Object} scope
-         * @return {Object}
          */
-        this.filter = function filterEntityCollection(callback, scope) {
-            const filtered = Object.getPrototypeOf(this).filter.call(this, callback, scope);
+        // @ts-expect-error
+        this.filter = function filterEntityCollection(
+            callback: (e: Entity, index: number) => boolean,
+            scope: unknown,
+        ): EntityCollection {
+            const filtered = (Object.getPrototypeOf(this) as EntityCollection)
+                .filter.call(this, callback, scope);
             return new EntityCollection(
                 this.source,
                 this.entity,
@@ -179,15 +211,13 @@ export default class EntityCollection extends Array {
 
     /**
      * Returns a new collection from given one with
-     * @param collection
-     * @returns {EntityCollection}
      */
-    static fromCollection(collection) {
+    static fromCollection(collection: EntityCollection): EntityCollection {
         return new EntityCollection(
             collection.source,
             collection.entity,
             collection.context,
-            Criteria.fromCriteria(collection.criteria),
+            collection.criteria === null ? collection.criteria : Criteria.fromCriteria(collection.criteria),
             collection,
             collection.total,
             collection.aggregations,

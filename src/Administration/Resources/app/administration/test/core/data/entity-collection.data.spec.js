@@ -35,7 +35,7 @@ function getCollection() {
     );
 }
 
-describe('entity-collection.data.js', () => {
+describe('entity-collection.data.ts', () => {
     it('is an array', async () => {
         const ArrayPrototype = Object.getPrototypeOf([]);
         const collection = getCollection();

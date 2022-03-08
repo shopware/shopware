@@ -53,7 +53,7 @@ export function currency(val: number, sign: string, decimalPlaces: number, addit
  * @param {Object} options
  * @returns {string}
  */
-export function date(val: string, options = {}): string {
+export function date(val: string, options: Intl.DateTimeFormatOptions = {}): string {
     // should return an empty string when no date is given
     if (!val) {
         return '';

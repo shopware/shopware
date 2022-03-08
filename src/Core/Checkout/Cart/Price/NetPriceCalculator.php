@@ -86,7 +86,7 @@ class NetPriceCalculator
 
     private function calculateRegulationPrice(QuantityPriceDefinition $definition, CashRoundingConfig $config): ?RegulationPrice
     {
-        $regulationPrice = $definition->getListPrice();
+        $regulationPrice = $definition->getRegulationPrice();
         if (!$regulationPrice) {
             return null;
         }

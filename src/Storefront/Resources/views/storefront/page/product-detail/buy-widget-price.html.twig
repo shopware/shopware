@@ -113,7 +113,9 @@
                             {% endif %}
 
                             <span class="list-price-percentage">{{ "detail.listPricePercentage"|trans({'%price%': listPrice.percentage })|sw_sanitize }}</span>
-                            <span class="list-price-percentage">{{ "general.listPricePreviously"|trans({'%price%': price.regulationPrice.price|currency }) }}{{ "general.star"|trans|sw_sanitize }}</span>
+                            {% if price.regulationPrice is not null %}
+                                <span class="list-price-percentage">{{ "general.listPricePreviously"|trans({'%price%': price.regulationPrice.price|currency }) }}{{ "general.star"|trans|sw_sanitize }}</span>
+                            {% endif %}
                         </span>
                     {% endblock %}
                 {% endblock %}

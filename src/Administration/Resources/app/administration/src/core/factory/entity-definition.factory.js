@@ -44,7 +44,7 @@ function get(entityName) {
 }
 
 /**
- * takes a plain schema object and converts it to an shopware Entitydefinition
+ * takes a plain schema object and converts it to a shopware EntityDefinition
  * @param entityName
  * @param schema
  */

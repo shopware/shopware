@@ -127,6 +127,7 @@ Component.register('sw-cms-mapping-field', {
                 Object.keys(this.mappingTypes).forEach((type) => {
                     if (type === this.valueTypes || this.valueTypes.includes(type)) {
                         types = [...types, ...this.mappingTypes[type]];
+                        types.sort();
                     }
                 });
             }

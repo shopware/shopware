@@ -46,7 +46,7 @@ class ProductIndexerEvent extends NestedEvent implements ProductChangedEventInte
         $this->skip = $skip;
     }
 
-    public static function create($ids, Context $context, array $skip): self
+    public static function create(array $ids, Context $context, array $skip): self
     {
         // @deprecated tag:v6.5.0 - `$parentIds` and `$childrenIds` will be removed, remove parameters
         return new self($ids, [], [], $context, $skip);
@@ -68,6 +68,7 @@ class ProductIndexerEvent extends NestedEvent implements ProductChangedEventInte
     public function getChildrenIds(): array
     {
         Feature::throwException('v6.5.0.0', '`$parentIds` and `$childrenIds` will be removed. The children and parents are no longer indexed at the same time');
+
         return $this->childrenIds;
     }
 
@@ -77,6 +78,7 @@ class ProductIndexerEvent extends NestedEvent implements ProductChangedEventInte
     public function getParentIds(): array
     {
         Feature::throwException('v6.5.0.0', '`$parentIds` and `$childrenIds` will be removed. The children and parents are no longer indexed at the same time');
+
         return $this->parentIds;
     }
 

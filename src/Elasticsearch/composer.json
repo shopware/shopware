@@ -42,6 +42,6 @@
         "symfony/messenger": "~5.4.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "~9.5.6"
+        "phpunit/phpunit": "~9.5.17"
     }
 }

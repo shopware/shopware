@@ -60,6 +60,7 @@
             <dd v-else>
                 <sw-entity-single-select
                     v-model="customer.defaultPaymentMethodId"
+                    class="sw-customer-base-info__payment-select"
                     entity="payment_method"
                     label-property="distinguishableName"
                     size="small"
@@ -109,7 +110,10 @@
             {% endblock %}
 
             {% block sw_customer_base_metadata_language_content %}
-            <dd v-if="!customerEditMode">
+            <dd
+                v-if="!customerEditMode"
+                class="sw-customer-base__label-language"
+            >
                 {{ customerLanguageName }}
             </dd>
             {% endblock %}
@@ -118,6 +122,7 @@
             <dd v-else>
                 <sw-entity-single-select
                     v-model="customer.languageId"
+                    class="sw-customer-base-info__language-select"
                     entity="language"
                     :criteria="languageCriteria"
                     size="small"

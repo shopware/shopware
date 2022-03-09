@@ -48,7 +48,7 @@
                 {% set price = real %}
                 {% set isListPrice = price.listPrice.percentage > 0 %}
 
-                <div class="product-cheapest-price{% if isListPrice and not displayFrom %} with-list-price{% endif %}">
+                <div class="product-cheapest-price{% if isListPrice and price.regulationPrice.price and not displayFrom %} with-list-price{% endif %}">
                     {% if cheapest.unitPrice != real.unitPrice %}
                         <div>{{ "listing.cheapestPriceLabel"|trans|sw_sanitize }}<span class="product-cheapest-price-price"> {{ cheapest.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}</span></div>
                     {% endif %}
@@ -75,7 +75,9 @@
 
                             <span class="list-price-percentage">{{ "detail.listPricePercentage"|trans({'%price%': price.listPrice.percentage })|sw_sanitize }}</span>
 
-                            {% if price.regulationPrice.price %}<span class="list-price-percentage">{{ "general.listPricePreviously"|trans({'%price%': price.regulationPrice.price|currency }) }}{{ "general.star"|trans|sw_sanitize }}</span>{% endif %}
+                            {% if price.regulationPrice.price %}
+                                <span class="list-price-percentage">{{ "general.listPricePreviously"|trans({'%price%': price.regulationPrice.price|currency }) }}{{ "general.star"|trans|sw_sanitize }}</span>
+                            {% endif %}
                         </span>
                     {% endif %}
                 </span>

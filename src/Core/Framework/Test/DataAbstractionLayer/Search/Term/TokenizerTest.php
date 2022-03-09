@@ -20,8 +20,12 @@ class TokenizerTest extends TestCase
     {
         return [
             [
+                '    ',
+                []
+            ],
+            [
                 'shopware AG',
-                ['shopware'],
+                ['shopware', 'ag'],
             ],
             [
                 'Österreicher Essen',

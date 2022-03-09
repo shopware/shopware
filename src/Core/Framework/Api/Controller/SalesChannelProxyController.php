@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
+use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -167,6 +168,7 @@ class SalesChannelProxyController extends AbstractController
     /**
      * @Since("6.2.0.0")
      * @Route("/api/_proxy/switch-customer", name="api.proxy.switch-customer", methods={"PATCH"})
+     * @Acl({"api_proxy_switch-customer"})
      *
      * @throws InconsistentCriteriaIdsException
      * @throws InvalidSalesChannelIdException

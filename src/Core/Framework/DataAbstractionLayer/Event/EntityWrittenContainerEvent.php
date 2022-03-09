@@ -152,14 +152,6 @@ class EntityWrittenContainerEvent extends NestedEvent
         });
     }
 
-
-    public function getWrites(string $entity): array
-    {
-        return $this->findPrimaryKeys($entity, function (EntityWriteResult $result) {
-            return $result->getOperation() !== EntityWriteResult::OPERATION_DELETE;
-        });
-    }
-
     public function getPrimaryKeysWithPayload(string $entity): array
     {
         return $this->findPrimaryKeys($entity, function (EntityWriteResult $result) {
@@ -222,5 +214,4 @@ class EntityWrittenContainerEvent extends NestedEvent
 
         return $ids;
     }
-
 }

@@ -122,7 +122,7 @@ class ProductIndexer extends EntityIndexer
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
     {
-        $updates = $event->getWrites(ProductDefinition::ENTITY_NAME);
+        $updates = $event->getPrimaryKeys(ProductDefinition::ENTITY_NAME);
 
         if (empty($updates)) {
             return null;
@@ -170,7 +170,7 @@ class ProductIndexer extends EntityIndexer
             return;
         }
 
-        $parentIds = $this->filterParents($ids);
+        $parentIds = $this->filterVariants($ids);
 
         $context = $message->getContext();
 
@@ -263,22 +263,25 @@ class ProductIndexer extends EntityIndexer
      */
     private function getParentIds(array $ids): array
     {
-        $parentIds = $this->connection->fetchAll(
-            'SELECT DISTINCT LOWER(HEX(IFNULL(product.parent_id, id))) as id FROM product WHERE id IN (:ids)',
+        $parentIds = $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT LOWER(HEX(product.parent_id)) as id FROM product WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        return array_unique(array_filter(array_column($parentIds, 'id')));
+        return array_unique(array_filter($parentIds));
     }
 
     /**
      * @return array|mixed[]
      */
-    private function filterParents(array $ids): array
+    private function filterVariants(array $ids): array
     {
         return $this->connection->fetchFirstColumn(
-            'SELECT DISTINCT LOWER(HEX(`parent`.`id`)) FROM product parent INNER JOIN product child ON parent.id = child.parent_id WHERE parent.`id` IN (:ids)',
+            'SELECT DISTINCT LOWER(HEX(`id`)) 
+             FROM product 
+             WHERE `id` IN (:ids)
+             AND `parent_id` IS NULL',
             ['ids' => Uuid::fromHexToBytesList($ids)],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );

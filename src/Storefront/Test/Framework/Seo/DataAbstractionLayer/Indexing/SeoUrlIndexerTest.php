@@ -503,6 +503,8 @@ class SeoUrlIndexerTest extends TestCase
         $this->productRepository->update([$update], Context::createDefaultContext());
         $this->runWorker();
 
+        $this->runWorker();
+
         $criteria = new Criteria([$parentId, $child1Id, $child2Id]);
         $criteria->addAssociation('seoUrls');
         $products = $this->productRepository->search($criteria, Context::createDefaultContext());

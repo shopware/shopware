@@ -9,12 +9,14 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class InheritanceIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use QueueTestBehaviour;
 
     public function testManyToOneInheritanceUpdates(): void
     {
@@ -65,6 +67,8 @@ class InheritanceIndexerTest extends TestCase
                 ],
             ], $ids->context);
 
+        $this->runWorker();
+
         $this->assertManufacturerInheritance($ids->get('parent'), $ids->get('manufacturer'), $ids->get('manufacturer'));
         $this->assertManufacturerInheritance($ids->get('variant-1'), $ids->get('manufacturer-2'), $ids->get('manufacturer-2'));
         $this->assertManufacturerInheritance($ids->get('variant-2'), null, $ids->get('manufacturer'));
@@ -77,6 +81,7 @@ class InheritanceIndexerTest extends TestCase
                     'manufacturer' => ['id' => $ids->create('manufacturer-3'), 'name' => 'test'],
                 ],
             ], $ids->context);
+        $this->runWorker();
 
         $this->assertManufacturerInheritance($ids->get('parent'), $ids->get('manufacturer-3'), $ids->get('manufacturer-3'));
         $this->assertManufacturerInheritance($ids->get('variant-1'), $ids->get('manufacturer-2'), $ids->get('manufacturer-2'));
@@ -87,6 +92,7 @@ class InheritanceIndexerTest extends TestCase
             ->update([
                 ['id' => $ids->get('variant-1'), 'manufacturerId' => null],
             ], $ids->context);
+        $this->runWorker();
 
         $this->assertManufacturerInheritance($ids->get('parent'), $ids->get('manufacturer-3'), $ids->get('manufacturer-3'));
         $this->assertManufacturerInheritance($ids->get('variant-1'), null, $ids->get('manufacturer-3'));

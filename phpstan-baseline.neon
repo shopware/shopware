@@ -3879,16 +3879,3 @@ parameters:
 			message: "#^Parameter \\#1 \\$theme of method Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeInheritanceBuilder\\:\\:getThemeInheritance\\(\\) expects string, int\\|string\\|null given\\.$#"
 			count: 1
 			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilder.php
-		-
-			message: "#^Property PhpParser\\\\Node\\\\Stmt\\\\ClassLike\\:\\:\\$namespacedName \\(PhpParser\\\\Node\\\\Name\\) in isset\\(\\) is not nullable\\.$#"
-			count: 1
-			path: src/Core/DevOps/StaticAnalyze/PHPStan/Rules/Decoratable/DecoratableImplementsInterfaceRule.php
-
-		-
-			message: "#^Property PhpParser\\\\Node\\\\Stmt\\\\ClassLike\\:\\:\\$namespacedName \\(PhpParser\\\\Node\\\\Name\\) in isset\\(\\) is not nullable\\.$#"
-			count: 1
-			path: src/Core/DevOps/StaticAnalyze/PHPStan/Rules/Decoratable/DecoratableNotDirectlyDependetRule.php
-		-
-			message: "#^Cannot cast PhpParser\\\\Node\\\\ComplexType\\|PhpParser\\\\Node\\\\Identifier\\|PhpParser\\\\Node\\\\Name\\|null to string\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Command/DumpClassSchemaCommand.php

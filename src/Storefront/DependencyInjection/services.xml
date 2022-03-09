@@ -459,6 +459,7 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
             <argument type="service" id="Shopware\Storefront\Framework\Cache\HttpCacheKeyGenerator"/>
             <argument type="service" id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver"/>
+            <argument>%session.storage.options%</argument>
         </service>
 
         <service id="Shopware\Storefront\Framework\Cache\HttpCacheKeyGenerator">
@@ -481,6 +482,7 @@
             <argument>%shopware.http.cache.default_ttl%</argument>
             <argument>%shopware.http.cache.enabled%</argument>
             <argument type="service" id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver"/>
+            <argument>%storefront.reverse_proxy.enabled%</argument>
 
             <tag name="kernel.event_subscriber"/>
         </service>

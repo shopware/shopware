@@ -108,6 +108,8 @@ PHP analysis:
         - !reference [.rules, run]
         - changes:
               - phpstan.neon.dist
+              - composer.json
+              - phpstan-baseline.neon
               - psalm.xml
               - .bc-exclude.php
               - 'changelog/**/*.md'

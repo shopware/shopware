@@ -1,6 +1,11 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/2020-08-03-Implement-New-Changelog.md).
 
+## 6.4.8.2
+* [NEXT-20309 - Fix cache control](/changelog/release-6-4-8-2/2022-03-01-fix-cache-control.md)
+* [NEXT-20348 - Remove session from cache](/changelog/release-6-4-8-2/2022-03-02-remove-session-from-cache.md)
+* [NEXT-20305 - Secure proxy route to switch customer with ACL](/changelog/release-6-4-8-2/2022-03-02-secure-proxy-routes-with-acl.md)
+
 ## 6.4.8.1
 *  [NEXT-19820 - Improve session invalidate](/changelog/release-6-4-8-1/2022-02-01-improve-session-invalidate.md)
 *  [NEXT-19276 - Add filtering to product and promotion codes](/changelog/release-6-4-8-1/2022-02-03-add-filtering-to-product-and-promotion-codes.md)

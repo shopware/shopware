@@ -222,7 +222,8 @@
         "api_action_container-cache_delete": "Container-Cache löschen",
         "api_info_me": "Eigene API-Userinfo lesen",
         "api_info_ping": "API-Token erneuern",
-        "system:clear:cache": "Cache leeren"
+        "system:clear:cache": "Cache leeren",
+        "api_proxy_switch-customer": "Im Namen eines Kunden handeln"
       },
       "app": {
         "label": "Apps",

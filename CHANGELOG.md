@@ -98,6 +98,8 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-20340 - Fix delete of orders without customer_id](/changelog/release-6-4-9-0/2022-02-28-fix-delete-of-orders-without-customer_id.md)
 
 ## 6.4.8.2
+* [NEXT-20309 - Fix cache control](/changelog/release-6-4-8-2/2022-03-01-fix-cache-control.md)
+* [NEXT-20348 - Remove session from cache](/changelog/release-6-4-8-2/2022-03-02-remove-session-from-cache.md)
 * [NEXT-20305 - Secure proxy route to switch customer with ACL](/changelog/release-6-4-8-2/2022-03-02-secure-proxy-routes-with-acl.md)
 
 ## 6.4.8.1

@@ -198,6 +198,11 @@ After:
 },
 ```
 
+# 6.4.8.2
+## Proxy route to switch customer requires ACL privilege
+If you want to use the route `api.proxy.switch-customer` you **MUST** have the privilege `api_proxy_switch-customer`.
+
+
 # 6.4.8.0
 ## Adding search matcher configuration
 When you want to your module appear on the search bar, you can define the  `searchMatcher` in the module’s metadata, otherwise, a default `searchMatcher `will be used as it will check your module’s metadata label if it’s matched with the search term, The search function should return an array of results that will appear on the search bar.

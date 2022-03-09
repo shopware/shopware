@@ -12,7 +12,7 @@ class TokenizerTest extends TestCase
      */
     public function testInterpreter(string $term, array $expected): void
     {
-        $tokens = (new Tokenizer())->tokenize($term);
+        $tokens = (new Tokenizer(2))->tokenize($term);
         static::assertSame($expected, $tokens);
     }
 
@@ -20,8 +20,16 @@ class TokenizerTest extends TestCase
     {
         return [
             [
+                '    ',
+                [],
+            ],
+            [
                 'shopware AG',
-                ['shopware'],
+                ['shopware', 'ag'],
+            ],
+            [
+                'test a thing',
+                ['test', 'thing'],
             ],
             [
                 'Österreicher Essen',

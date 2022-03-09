@@ -7,6 +7,9 @@
     <parameters>
         <parameter key="env(SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED)">0</parameter>
         <parameter key="shopware.dbal.time_zone_support_enabled">%env(bool:SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED)%</parameter>
+
+        <parameter key="env(SHOPWARE_DBAL_TOKEN_MINIMUM_LENGTH)">3</parameter>
+        <parameter key="shopware.dbal.token_minimum_length">%env(int:SHOPWARE_DBAL_TOKEN_MINIMUM_LENGTH)%</parameter>
     </parameters>
 
     <services>
@@ -55,7 +58,9 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer">
+            <argument>%shopware.dbal.token_minimum_length%</argument>
+        </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>

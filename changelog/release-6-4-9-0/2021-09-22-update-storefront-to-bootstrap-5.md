@@ -125,14 +125,17 @@ Depending, if you are an app/theme developer or a platform contributor you need 
 
 * **For platform contributors**: Use feature flag conditions.<br>
   Please use feature flag conditions with flag `V6_5_0_0` to migrate to Bootstrap v5 functionality while keeping the Bootstrap v4 implementations for backward-compatibility.
-* **For app/plugin/theme developers**: Migrate your code directly to Bootstrap v5.<br>
-  Please migrate your code directly to Bootstrap v5 e.g. by preparing a separate git branch. The feature flag `V6_5_0_0` should only be used to activate Bootstrap v5 during development.
-  Please do not use the feature flag conditions in your app/plugin or theme.
+* **For app/plugin/theme developers**: Migrate your code directly to Bootstrap v5 or use feature flag conditions.<br>
+  * Option A: You can migrate your code directly to Bootstrap v5 by creating a separate git branch and preparing a new release version with the breaking changes. 
+    The major feature flag `V6_5_0_0` can be used to activate Bootstrap v5 during development.
+  * Option B: Depending on you app/plugin/theme it might be more feasible to you to use the major feature flag `V6_5_0_0` to create compatibility to Bootstrap v5. 
+    You can use feature flag conditions with `V6_5_0_0` inside your app/plugin/theme. 
+    The major feature flag `V6_5_0_0` will remain inside the shopware platform and will be `true` by default after the release of `v6.5.0.0`
 
 You can find some code examples below which will illustrate this. There are always three examples for the same code snippet:
 
 1. Bootstrap v4 (Current implementation) - How it looks right now
-2. Bootstrap v5 with backward-compatibility (for platform contributors)
+2. Bootstrap v5 with backward-compatibility (for platform contributors or app/plugin/theme developers)
 3. Bootstrap v5 next major - How it will look after the release of v6.5.0.0 (for app/plugin/theme developers)
 
 **Please beware that this is only needed for areas which are effected by braking changes from Bootstrap v5. See: [Migrating to v5](https://getbootstrap.com/docs/5.1/migration)**
@@ -149,7 +152,8 @@ You can find some code examples below which will illustrate this. There are alwa
 
 <a href="#" class="btn btn-block">Default button</a>
 ```
-#### 2. Bootstrap v5 with backward-compatibility (for platform contributors):
+
+#### 2. Bootstrap v5 with backward-compatibility (for platform contributors or app/plugin/theme developers):
 
 **Attention:** There are a good amount of attributes and classes which have been renamed inside Bootstrap v5.
 To avoid having too many `{% if %}` conditions in the template we have created global twig variables for attribute renaming.
@@ -173,6 +177,7 @@ To avoid having too many `{% if %}` conditions in the template we have created g
     <a href="#" class="btn btn-block">Default button</a>
 {% endif %}
 ```
+
 #### 3. Bootstrap v5 next major (for app/plugin/theme developers):
 ```html
 <button class="collapsed btn"
@@ -194,7 +199,7 @@ To avoid having too many `{% if %}` conditions in the template we have created g
     line-height: $custom-select-line-height;
 }
 ```
-#### 2. Bootstrap v5 with backward-compatibility (for platform contributors):
+#### 2. Bootstrap v5 with backward-compatibility (for platform contributors or app/plugin/theme developers):
 
 Attention:
 ```scss
@@ -207,6 +212,7 @@ Attention:
     }
 }
 ```
+
 #### 3. Bootstrap v5 next major (for app/plugin/theme developers):
 ```scss
 .page-link {
@@ -220,7 +226,8 @@ Attention:
 ```js
 $(collapse).collapse('toggle');
 ```
-#### 2. Bootstrap v5 with backward-compatibility (for platform contributors):
+
+#### 2. Bootstrap v5 with backward-compatibility (for platform contributors or app/plugin/theme developers):
 ```js
 // Use feature.helper to check for feature flags.
 import Feature from 'src/helper/feature.helper';
@@ -234,6 +241,7 @@ if (Feature.isActive('V6_5_0_0')) {
     $(collapse).collapse('toggle');
 }
 ```
+
 #### 3. Bootstrap v5 next major (for app/plugin/theme developers):
 ```js
 new bootstrap.Collapse(collapse, {

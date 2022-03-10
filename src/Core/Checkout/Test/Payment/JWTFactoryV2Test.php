@@ -25,19 +25,20 @@ class JWTFactoryV2Test extends TestCase
     }
 
     /**
-     * @throws InvalidTokenException
+     * @dataProvider dataProviderExpiration
      */
-    public function testGenerateAndGetToken(): void
+    public function testGenerateAndGetToken(int $expiration, bool $expired): void
     {
         $transaction = self::createTransaction();
-        $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId());
+        $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), null, $expiration);
         $token = $this->tokenFactory->generateToken($tokenStruct);
         $tokenStruct = $this->tokenFactory->parseToken($token);
 
         static::assertEquals($transaction->getId(), $tokenStruct->getTransactionId());
         static::assertEquals($transaction->getPaymentMethodId(), $tokenStruct->getPaymentMethodId());
         static::assertEquals($token, $tokenStruct->getToken());
-        static::assertGreaterThan(time(), $tokenStruct->getExpires());
+        static::assertEqualsWithDelta(time() + $expiration, $tokenStruct->getExpires(), 1);
+        static::assertSame($expired, $tokenStruct->isExpired());
     }
 
     /**
@@ -78,5 +79,13 @@ class JWTFactoryV2Test extends TestCase
         $transactionStruct->setStateId(Uuid::randomHex());
 
         return $transactionStruct;
+    }
+
+    public function dataProviderExpiration(): array
+    {
+        return [
+            [30, false],
+            [-30, true],
+        ];
     }
 }

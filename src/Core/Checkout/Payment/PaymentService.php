@@ -133,7 +133,14 @@ class PaymentService
      */
     public function finalizeTransaction(string $paymentToken, Request $request, SalesChannelContext $context): TokenStruct
     {
-        $token = $this->parseToken($paymentToken);
+        $token = $this->tokenFactory->parseToken($paymentToken);
+
+        if ($token->isExpired()) {
+            $token->setException(new TokenExpiredException($paymentToken));
+            $this->tokenFactory->invalidateToken($token->getToken());
+
+            return $token;
+        }
 
         $transactionId = $token->getTransactionId();
 
@@ -163,20 +170,6 @@ class PaymentService
         }
 
         return $token;
-    }
-
-    /**
-     * @throws TokenExpiredException
-     */
-    private function parseToken(string $token): TokenStruct
-    {
-        $tokenStruct = $this->tokenFactory->parseToken($token);
-
-        if ($tokenStruct->isExpired()) {
-            throw new TokenExpiredException($tokenStruct->getToken());
-        }
-
-        return $tokenStruct;
     }
 
     /**

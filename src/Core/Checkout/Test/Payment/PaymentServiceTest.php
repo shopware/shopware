@@ -223,11 +223,10 @@ class PaymentServiceTest extends TestCase
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), null, -1);
         $token = $this->tokenFactory->generateToken($tokenStruct);
 
-        $this->expectException(TokenExpiredException::class);
-
         $paymentMethodId = $this->createPaymentMethodV630($this->context, DefaultPayment::class);
 
-        $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
+        $response = $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
+        static::assertInstanceof(TokenExpiredException::class, $response->getException());
     }
 
     public function testFinalizeTransactionCustomerCanceledV630(): void

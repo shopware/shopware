@@ -3,14 +3,24 @@ import sys
 import time
 from locust import FastHttpUser, task, between, constant
 from bs4 import BeautifulSoup
-import threading
 
-sys.path.append(os.path.dirname(__file__) + '/src')
-from storefront import Storefront
-from context import Context
-from api import Api
+sys.path.append(os.path.dirname(__file__) + '/..')
+
+from common.storefront import Storefront
+from common.context import Context
+from common.api import Api
 
 context = Context()
+
+class Erp(FastHttpUser):
+    fixed_count=1
+    def on_start(self):
+        self.api = Api(self.client, context)
+
+    @task
+    def call_api(self):
+        self.api.update_prices()
+        self.api.update_stock()
 
 class Customer(FastHttpUser):
     wait_time = between(2, 10)
@@ -129,22 +139,3 @@ class Customer(FastHttpUser):
 
         page = page.instant_order()
         page = page.logout()
-
-def stock_updates():
-    api = Api(context)
-    while True:
-        api.update_stock()
-        time.sleep(5)
-
-def price_updates():
-    api = Api(context)
-    while True:
-        api.update_prices()
-        time.sleep(5)
-
-stocks = threading.Timer(5.0, stock_updates)
-stocks.start()
-
-prices = threading.Timer(6.0, price_updates)
-prices.start()
-

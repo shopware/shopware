@@ -52,12 +52,11 @@ class Storefront:
         return Storefront(self.client, self.context, '/checkout/confirm', self, {}, self.__build_name('confirm-page'))
 
     def make_order(self):
-        self.client.post('/checkout/order', name=self.__build_name('order'), context={'tos': 'on'})
+        self.client.post('/checkout/order', name=self.__build_name('order'), data={'tos': 'on'})
         return self.go_to_home()
 
     def logout(self):
         self.client.get('/account/logout', name=self.__build_name('logout'))
-
         return self.go_to_home()
 
     def go_to_account(self):

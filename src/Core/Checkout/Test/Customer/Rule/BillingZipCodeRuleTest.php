@@ -255,7 +255,7 @@ class BillingZipCodeRuleTest extends TestCase
     /**
      * @dataProvider getMatchValuesAlphanumeric
      */
-    public function testRuleMatchingAlphanumeric(string $operator, bool $isMatching, string $zipCode, string $customerZipCode = '9E21L'): void
+    public function testRuleMatchingAlphanumeric(string $operator, bool $isMatching, ?string $zipCode, string $customerZipCode = '9E21L'): void
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $customerAddress = new CustomerAddressEntity();
@@ -265,7 +265,7 @@ class BillingZipCodeRuleTest extends TestCase
         $customer->setActiveBillingAddress($customerAddress);
         $salesChannelContext->method('getCustomer')->willReturn($customer);
         $scope = new CheckoutRuleScope($salesChannelContext);
-        $this->rule->assign(['zipCodes' => [$zipCode], 'operator' => $operator]);
+        $this->rule->assign(['zipCodes' => $zipCode ? [$zipCode] : null, 'operator' => $operator]);
 
         $match = $this->rule->match($scope);
         if ($isMatching) {
@@ -340,7 +340,7 @@ class BillingZipCodeRuleTest extends TestCase
     {
         return [
             'operator_eq / not match exact / zip code' => [Rule::OPERATOR_EQ, false, '56GG0'],
-            'operator_eq / match exact / zip code' => [Rule::OPERATOR_EQ, true, '9E21L'],
+            'operator_eq / match exact / zip code' => [Rule::OPERATOR_EQ, true, '9e21l'],
             'operator_eq / not match partially / zip code' => [Rule::OPERATOR_EQ, false, '*6A*0'],
             'operator_eq / match partially / zip code' => [Rule::OPERATOR_EQ, true, 'B*9D*', 'B19D5'],
             'operator_neq / match exact / zip code' => [Rule::OPERATOR_NEQ, true, '56000'],
@@ -349,6 +349,7 @@ class BillingZipCodeRuleTest extends TestCase
             'operator_neq / not match partially / zip code' => [Rule::OPERATOR_NEQ, false, 'B*9D*', 'B19D5'],
             'operator_empty / not match / zip code' => [Rule::OPERATOR_EMPTY, false, '56GG0'],
             'operator_empty / match / zip code' => [Rule::OPERATOR_EMPTY, true, ' ', ' '],
+            'operator_empty / match null / zip code' => [Rule::OPERATOR_EMPTY, true, null, ' '],
         ];
     }
 }

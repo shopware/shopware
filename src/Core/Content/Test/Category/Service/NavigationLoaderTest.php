@@ -173,7 +173,8 @@ class NavigationLoaderTest extends TestCase
         static::assertCount(1, $tree->getChildren($data->get('root'))->getTree());
         static::assertCount(1, $tree->getChildren($data->get('a'))->getTree());
         static::assertCount(1, $tree->getChildren($data->get('b'))->getTree());
-        static::assertCount(0, $tree->getChildren($data->get('c'))->getTree());
+        static::assertCount(1, $tree->getChildren($data->get('c'))->getTree());
+        static::assertCount(0, $tree->getChildren($data->get('d'))->getTree());
 
         $tree = $this->navigationLoader->load(
             $data->get('root'),
@@ -187,7 +188,8 @@ class NavigationLoaderTest extends TestCase
         static::assertCount(1, $tree->getChildren($data->get('a'))->getTree());
         static::assertCount(1, $tree->getChildren($data->get('b'))->getTree());
         static::assertCount(1, $tree->getChildren($data->get('c'))->getTree());
-        static::assertCount(0, $tree->getChildren($data->get('d'))->getTree());
+        static::assertCount(1, $tree->getChildren($data->get('d'))->getTree());
+        static::assertCount(0, $tree->getChildren($data->get('e'))->getTree());
     }
 
     public function testChildrenSortingTest(): void

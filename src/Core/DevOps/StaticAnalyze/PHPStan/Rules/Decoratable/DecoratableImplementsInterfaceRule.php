@@ -38,12 +38,14 @@ class DecoratableImplementsInterfaceRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!isset($node->namespacedName)) {
+        /** @var Node\Name|null $name */
+        $name = $node->namespacedName;
+        if (!$name) {
             // skip anonymous classes
             return [];
         }
 
-        $class = $this->broker->getClass($scope->resolveName($node->namespacedName));
+        $class = $this->broker->getClass($scope->resolveName($name));
         if (!AnnotationBasedRuleHelper::isClassTaggedWithAnnotation($class, AnnotationBasedRuleHelper::DECORATABLE_ANNOTATION)) {
             return [];
         }

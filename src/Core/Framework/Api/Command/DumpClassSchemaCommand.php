@@ -153,11 +153,24 @@ class DumpClassSchemaCommand extends Command
                 }
 
                 $type = $method->returnType;
+
+                if ($type === null) {
+                    continue;
+                }
+
                 if ($type instanceof NullableType) {
                     $type = $type->type;
                 }
 
-                $type = (string) $type;
+                if (\method_exists($type, 'toString')) {
+                    $type = $type->toString();
+                }
+
+                if (!\is_string($type)) {
+                    // ComplexTypes (e.g. UnionTypes) will be ignored
+                    continue;
+                }
+
                 if ($type === 'bool') {
                     $type = 'boolean';
                 }

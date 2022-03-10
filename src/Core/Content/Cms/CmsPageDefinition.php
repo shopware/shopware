@@ -59,6 +59,7 @@ class CmsPageDefinition extends EntityDefinition
             (new TranslatedField('name'))->addFlags(new ApiAware()),
             (new StringField('type', 'type'))->addFlags(new ApiAware(), new Required()),
             (new StringField('entity', 'entity'))->addFlags(new ApiAware()),
+            (new StringField('css_class', 'cssClass'))->addFlags(new ApiAware()),
             (new JsonField('config', 'config', [
                 (new StringField('background_color', 'backgroundColor'))->addFlags(new ApiAware()),
             ]))->addFlags(new ApiAware()),

@@ -80,6 +80,7 @@
       "label": {
         "buttonSave": "Speichern",
         "pageName": "Layout-Name",
+        "pageCssClass": "CSS-Klassen",
         "pageType": "Layout-Typ",
         "pageTypeLandingpage": "Landingpage",
         "pageTypeShopPage": "Shopseite",

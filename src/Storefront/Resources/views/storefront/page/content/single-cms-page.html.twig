@@ -41,7 +41,8 @@
             {% block single_cms_page_main %}
                 <main class="content-main">
                     {% block single_cms_page_main_content %}
-                        <div class="cms-page">
+                        {% set cmsPageClasses = ('cms-page ' ~ page.cmsPage.cssClass|striptags)|trim %}
+                        <div class="{{ cmsPageClasses }}">
                             {% block page_content_blocks %}
                                 {% sw_include "@Storefront/storefront/page/content/detail.html.twig" with {'cmsPage': page.cmsPage} %}
                             {% endblock %}

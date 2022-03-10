@@ -32,6 +32,15 @@
                 />
                 {% endblock %}
 
+                {% block sw_cms_sidebar_page_settings_css_class_field %}
+                <sw-text-field
+                    v-model="page.cssClass"
+                    :label="$tc('sw-cms.detail.label.pageCssClass')"
+                    :placeholder="placeholder(page, 'cssClass')"
+                    :help-text="$tc('sw-cms.detail.helpText.cssClassField')"
+                />
+                {% endblock %}
+
                 {% block sw_cms_sidebar_page_settings_type_field %}
                 <sw-select-field
                     v-model="page.type"

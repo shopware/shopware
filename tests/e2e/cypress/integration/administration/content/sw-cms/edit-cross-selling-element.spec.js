@@ -179,7 +179,7 @@ describe('CMS: Check usage and editing of cross selling element', () => {
 
         cy.get('.sw-tabs').should('exist');
         cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-product-detail__tab-cross-selling').click();
+        cy.get('.sw-product-detail__tab-cross-selling').realHover().click();
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('input[name="sw-field--crossSelling-active"]').click();
 

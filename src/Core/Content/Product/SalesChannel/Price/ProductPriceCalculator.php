@@ -228,7 +228,11 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
             return null;
         }
 
+        $taxPrice = $this->getPriceForTaxState($price, $context);
         $value = $this->getPriceForTaxState($price->getRegulationPrice(), $context);
+        if ($taxPrice === 0.0 || $taxPrice === $value) {
+            return null;
+        }
 
         if ($price->getCurrencyId() !== $context->getCurrency()->getId()) {
             $value *= $context->getContext()->getCurrencyFactor();

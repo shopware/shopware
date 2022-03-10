@@ -19,6 +19,7 @@ use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\Flow\Dispatching\FlowState;
 use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
 use Shopware\Core\Content\Mail\Service\MailService as EMailService;
+use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
@@ -220,6 +221,59 @@ class SendMailActionTest extends TestCase
             $mailFilterEvent = $event;
         });
 
+        $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
+
+        static::assertIsObject($mailFilterEvent);
+        static::assertEquals(1, $mailService->calls);
+    }
+
+    public function testSendMailWithConfigIsNull(): void
+    {
+        $criteria = new Criteria();
+        $criteria->setLimit(1);
+
+        $context = Context::createDefaultContext();
+
+        $context->addExtension(MailSendSubscriber::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(false, [], []));
+
+        $mailTemplateId = $this->getContainer()
+            ->get('mail_template.repository')
+            ->searchIds($criteria, $context)
+            ->firstId();
+
+        static::assertNotEmpty($mailTemplateId);
+
+        $config = array_filter([
+            'mailTemplateId' => $mailTemplateId,
+            'recipient' => [],
+        ]);
+
+        $event = new ContactFormEvent($context, Defaults::SALES_CHANNEL, new MailRecipientStruct(['test@example.com' => 'Shopware ag']), new DataBag());
+
+        $mailService = new TestEmailService();
+        $subscriber = new SendMailAction(
+            $mailService,
+            $this->getContainer()->get('mail_template.repository'),
+            $this->getContainer()->get(MediaService::class),
+            $this->getContainer()->get('media.repository'),
+            $this->getContainer()->get('document.repository'),
+            $this->getContainer()->get(DocumentService::class),
+            $this->getContainer()->get('logger'),
+            $this->getContainer()->get('event_dispatcher'),
+            $this->getContainer()->get('mail_template_type.repository'),
+            $this->getContainer()->get(Translator::class),
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get(LanguageLocaleCodeProvider::class),
+            true
+        );
+
+        $mailFilterEvent = null;
+        $this->getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
+            $mailFilterEvent = $event;
+        });
+
+        static::expectException(MailEventConfigurationException::class);
+        static::expectExceptionMessage('The recipient value in the flow action configuration is missing.');
         $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
 
         static::assertIsObject($mailFilterEvent);

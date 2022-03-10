@@ -185,7 +185,7 @@ class InfoControllerTest extends TestCase
             [
                 'name' => 'checkout.customer.login',
                 'class' => "Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent",
-                'mailAware' => false,
+                'mailAware' => true,
                 'logAware' => false,
                 'salesChannelAware' => true,
                 'extensions' => [],
@@ -200,6 +200,7 @@ class InfoControllerTest extends TestCase
                 ],
                 'aware' => [
                     SalesChannelAware::class,
+                    MailAware::class,
                     CustomerAware::class,
                 ],
             ],
@@ -391,6 +392,31 @@ class InfoControllerTest extends TestCase
             static::assertNotEmpty($actualActions, 'Event with name "' . $action['name'] . '" not found');
             static::assertCount(1, $actualActions);
             static::assertEquals($action, $actualActions[0]);
+        }
+    }
+
+    public function testMailAwareBusinessEventRoute(): void
+    {
+        $url = '/api/_info/events.json';
+        $client = $this->getBrowser();
+        $client->request('GET', $url);
+
+        static::assertJson($client->getResponse()->getContent());
+
+        $response = json_decode($client->getResponse()->getContent(), true);
+
+        static::assertSame(200, $client->getResponse()->getStatusCode());
+
+        foreach ($response as $event) {
+            if ($event['name'] === 'mail.after.create.message' || $event['name'] === 'mail.before.send' || $event['name'] === 'mail.sent') {
+                static::assertFalse($event['mailAware']);
+                static::assertFalse(\in_array('Shopware\Core\Framework\Event\MailAware', $event['aware'], true));
+
+                continue;
+            }
+            static::assertTrue($event['mailAware']);
+            static::assertTrue(\in_array('Shopware\Core\Framework\Event\MailAware', $event['aware'], true));
+            static::assertFalse(\in_array('Shopware\Core\Framework\Event\MailActionInterface', $event['aware'], true));
         }
     }
 }

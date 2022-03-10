@@ -135,6 +135,10 @@ class SendMailAction extends FlowAction
 
         $eventConfig = $event->getConfig();
 
+        if (empty($eventConfig['recipient'])) {
+            throw new MailEventConfigurationException('The recipient value in the flow action configuration is missing.', \get_class($mailEvent));
+        }
+
         if (!isset($eventConfig['mailTemplateId'])) {
             return;
         }
@@ -149,11 +153,7 @@ class SendMailAction extends FlowAction
 
         $data = new DataBag();
 
-        $recipients = $mailEvent->getMailStruct()->getRecipients();
-        if (!empty($eventConfig['recipient'])) {
-            $recipients = $this->getRecipients($eventConfig['recipient'], $mailEvent);
-        }
-
+        $recipients = $this->getRecipients($eventConfig['recipient'], $mailEvent);
         $data->set('recipients', $recipients);
         $data->set('senderName', $mailTemplate->getTranslation('senderName'));
         $data->set('salesChannelId', $mailEvent->getSalesChannelId());

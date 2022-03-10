@@ -9,13 +9,15 @@ use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class CustomerLoginEvent extends Event implements BusinessEventInterface, SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware
+class CustomerLoginEvent extends Event implements BusinessEventInterface, SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware
 {
     public const EVENT_NAME = 'checkout.customer.login';
 
@@ -81,5 +83,14 @@ class CustomerLoginEvent extends Event implements BusinessEventInterface, SalesC
     public function getCustomerId(): string
     {
         return $this->getCustomer()->getId();
+    }
+
+    public function getMailStruct(): MailRecipientStruct
+    {
+        return new MailRecipientStruct(
+            [
+                $this->customer->getEmail() => $this->customer->getFirstName() . ' ' . $this->customer->getLastName(),
+            ]
+        );
     }
 }

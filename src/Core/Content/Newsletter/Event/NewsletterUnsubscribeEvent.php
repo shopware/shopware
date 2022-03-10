@@ -8,13 +8,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
-use Shopware\Core\Framework\Event\MailActionInterface;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class NewsletterUnsubscribeEvent extends Event implements MailActionInterface, SalesChannelAware, MailAware
+class NewsletterUnsubscribeEvent extends Event implements SalesChannelAware, MailAware
 {
     use JsonSerializableTrait;
 

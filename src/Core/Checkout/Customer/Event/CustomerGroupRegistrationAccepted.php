@@ -12,12 +12,11 @@ use Shopware\Core\Framework\Event\CustomerGroupAware;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
-use Shopware\Core\Framework\Event\MailActionInterface;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class CustomerGroupRegistrationAccepted extends Event implements MailActionInterface, SalesChannelAware, CustomerAware, MailAware, CustomerGroupAware
+class CustomerGroupRegistrationAccepted extends Event implements SalesChannelAware, CustomerAware, MailAware, CustomerGroupAware
 {
     public const EVENT_NAME = 'customer.group.registration.accepted';
 

@@ -1,7 +1,7 @@
 import os
 import sys
 import time
-from locust import FastHttpUser, task, between, constant
+from locust import FastHttpUser, task, between, constant,tag
 from bs4 import BeautifulSoup
 
 sys.path.append(os.path.dirname(__file__) + '/..')
@@ -13,7 +13,8 @@ from common.api import Api
 context = Context()
 
 class Erp(FastHttpUser):
-    fixed_count=1
+    fixed_count = 1
+
     def on_start(self):
         self.api = Api(self.client, context)
 
@@ -25,11 +26,12 @@ class Erp(FastHttpUser):
         self.api.update_prices()
         self.api.update_stock()
 
-class Customer(FastHttpUser):
-    wait_time = between(2, 10)
+class Visitor(FastHttpUser):
+    wait_time = between(2, 5)
+    weight = 10
 
-    @task(4)
-    def short_time_listing_visitor(self):
+    @task(3)
+    def listing(self):
         page = Storefront(self.client, context)
         page = page.go_to_listing()
         page = page.view_products(2)
@@ -37,8 +39,8 @@ class Customer(FastHttpUser):
         page = page.go_to_next_page()
         page = page.view_products(3)
 
-    @task(4)
-    def short_time_search_visitor(self):
+    @task(1)
+    def search(self):
         page = Storefront(self.client, context)
         page = page.do_search()
         page = page.view_products(2)
@@ -51,8 +53,12 @@ class Customer(FastHttpUser):
         page = page.select_sorting()
         page = page.view_products(3)
 
-    @task(3)
-    def long_time_visitor(self):
+class Surfer(FastHttpUser):
+    wait_time = between(2, 5)
+    weight = 6
+
+    @task
+    def surf(self):
         page = Storefront(self.client, context)
 
         # search products over listings
@@ -83,21 +89,12 @@ class Customer(FastHttpUser):
         page = page.view_products(3)
         page = page.go_to_next_page()
 
-    @task(3)
-    def short_time_buyer(self):
-        page = Storefront(self.client, context)
-        page = page.register()       #instead of login, we register
-        page = page.browse_account()
+class SurfWithOrder(FastHttpUser):
+    wait_time = between(2, 5)
+    weight = 6
 
-        page = page.go_to_listing()
-        page = page.view_products(2)
-        page = page.add_product_to_cart()
-        page = page.add_product_to_cart()
-        page = page.instant_order()
-        page = page.logout()
-
-    @task(2)
-    def long_time_buyer(self):
+    @task
+    def surf(self):
         page = Storefront(self.client, context)
         page = page.register()      #instead of login, we register
         page = page.browse_account()
@@ -142,3 +139,18 @@ class Customer(FastHttpUser):
 
         page = page.instant_order()
         page = page.logout()
+
+class FastOrder(FastHttpUser):
+    wait_time = between(2, 5)
+    weight = 4
+    def on_start(self):
+        self.page = Storefront(self.client, context)
+        self.page.register()
+
+    @task
+    def order(self):
+        self.page.add_product_to_cart()
+        self.page.add_product_to_cart()
+        self.page.add_product_to_cart()
+        self.page.add_product_to_cart()
+        self.page.instant_order()

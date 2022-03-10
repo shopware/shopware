@@ -104,7 +104,12 @@ class ProductListingLoader
 
     private function hasOptionFilter(Criteria $criteria): bool
     {
-        $fields = $criteria->getFilterFields();
+        $filters = $criteria->getPostFilters();
+
+        $fields = [];
+        foreach ($filters as $filter) {
+            array_push($fields, ...$filter->getFields());
+        }
 
         $fields = array_map(function (string $field) {
             return preg_replace('/^product./', '', $field);

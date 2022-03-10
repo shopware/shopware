@@ -229,6 +229,43 @@ class ProductListingLoaderTest extends TestCase
         static::assertTrue($listing->first()->hasExtension('search'));
     }
 
+    public function testMainVariantAndVariantGroupsWithFilterOnOptions(): void
+    {
+        // main variant and variant groups be set initially
+        $this->createProduct(['color', 'size'], true);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('product.options.id', $this->optionIds['green']));
+        $listing = $this->fetchListing($criteria);
+
+        // only the main variant should be returned
+        static::assertEquals(1, $listing->getTotal());
+
+        $variantId = $listing->first()->getId();
+
+        static::assertEquals($this->mainVariantId, $variantId);
+        static::assertTrue($listing->first()->hasExtension('search'));
+    }
+
+    public function testMainVariantAndVariantGroupsWithPostFilterOnOptions(): void
+    {
+        // main variant and variant groups be set initially
+        $this->createProduct(['color', 'size'], true);
+
+        $criteria = new Criteria();
+        $criteria->addPostFilter(new EqualsFilter('product.options.id', $this->optionIds['green']));
+        $listing = $this->fetchListing($criteria);
+
+        // only one of the green variants should be returned
+        static::assertEquals(1, $listing->getTotal());
+
+        $variantId = $listing->first()->getId();
+
+        $expectedVariants = [$this->variantIds['greenL'], $this->variantIds['greenXl']];
+        static::assertContains($variantId, $expectedVariants);
+        static::assertTrue($listing->first()->hasExtension('search'));
+    }
+
     public function testAllVariants(): void
     {
         $this->createProduct(['size', 'color'], false);
@@ -250,9 +287,12 @@ class ProductListingLoaderTest extends TestCase
         }
     }
 
-    private function fetchListing(): EntitySearchResult
+    private function fetchListing(?Criteria $criteria = null): EntitySearchResult
     {
-        $criteria = new Criteria();
+        if (!$criteria) {
+            $criteria = new Criteria();
+        }
+
         $criteria->addFilter(new EqualsFilter('product.parentId', $this->productId));
         $criteria->setTerm('example');
 

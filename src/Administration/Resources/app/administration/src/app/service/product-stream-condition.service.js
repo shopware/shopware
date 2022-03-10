@@ -59,6 +59,7 @@ export default function conditionService() {
             'shippingFree',
             'visibilities',
             'properties',
+            'options',
             'isCloseout',
             'purchasePrices',
             'createdAt',

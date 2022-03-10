@@ -19,6 +19,9 @@ class Erp(FastHttpUser):
 
     @task
     def call_api(self):
+        if (context.erp == False):
+            return
+
         self.api.update_prices()
         self.api.update_stock()
 

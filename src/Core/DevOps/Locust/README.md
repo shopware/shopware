@@ -38,7 +38,7 @@ The `env.json` file allows the following configurations:
 - `wait`: The time in seconds to wait between requests. To disable wait time define `"wait": false`. The default value is `[3, 5]` which defines a minimal wait time of 3 seconds to a maximum of 5.
 - `aggregate`: If enabled, groups the requests by a logical key. Default `true`.
 - `indexing_behavior`: Allows to configure the indexing behavior. The default value is `false`. Allowed behavior values are: `disable-indexing`, `use-queue-indexing`
-- `max_api_user`: Allows to limit the number of users which sends requests against the sync api
+- `erp`: Allows to disable the erp/api calls
 
 ## Enabled cache
 Since locust is a benchmark script, the caches should be enabled.

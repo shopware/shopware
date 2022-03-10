@@ -2,6 +2,7 @@ import requests
 import csv
 import os
 import json
+from os.path import exists
 
 class Context:
     keywords: []
@@ -13,6 +14,7 @@ class Context:
     register: {}
     aggregate: False
     wait: False
+    erp: True
     host: None
     indexing_behavior: None
 
@@ -31,7 +33,7 @@ class Context:
         self.register = self.__initRegister()
         self.indexing_behavior = None
         self.admin_ids = []
-        self.max_api_users = self.env['max_api_users']
+        self.erp = self.env['erp']
 
         if (self.env['indexing_behavior'] != False):
             self.indexing_behavior = self.env['indexing_behavior']
@@ -77,6 +79,9 @@ class Context:
 
     def __get_json_file(self, file):
         path = os.path.dirname(os.path.realpath(__file__)) + file
+
+        if (exists(path) == False):
+            return {}
 
         with open(path) as file:
             return json.load(file)

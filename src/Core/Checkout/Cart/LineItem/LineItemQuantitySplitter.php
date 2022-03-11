@@ -27,6 +27,10 @@ class LineItemQuantitySplitter
      */
     public function split(LineItem $item, int $quantity, SalesChannelContext $context): LineItem
     {
+        if ($item->getQuantity() === $quantity) {
+            return clone $item;
+        }
+
         // clone the original line item
         $tmpItem = clone $item;
 

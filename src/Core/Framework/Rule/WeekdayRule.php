@@ -9,15 +9,9 @@ use Symfony\Component\Validator\Constraints\Range;
 
 class WeekdayRule extends Rule
 {
-    /**
-     * @var string
-     */
-    protected $operator;
+    protected string $operator;
 
-    /**
-     * @var int|null
-     */
-    protected $dayOfWeek;
+    protected ?int $dayOfWeek;
 
     public function __construct(string $operator = self::OPERATOR_EQ, ?int $dayOfWeek = null)
     {
@@ -34,7 +28,7 @@ class WeekdayRule extends Rule
 
     public function match(RuleScope $scope): bool
     {
-        $todaysDayOfWeek = (int) date('N');
+        $todaysDayOfWeek = (int) $scope->getCurrentTime()->format('N');
 
         switch ($this->operator) {
             case self::OPERATOR_EQ:

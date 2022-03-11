@@ -16,60 +16,70 @@ class TimeRangeRuleTest extends TestCase
 
     public function testIfOnSameDayInTimeRangeMatches(): void
     {
-        $now = new \DateTimeImmutable('12:00');
-        $rule = new TimeRangeRule($now);
+        $rule = new TimeRangeRule();
 
         $rule->assign(['fromTime' => '00:00', 'toTime' => '12:00']);
 
-        $match = $rule->match($this->createMock(RuleScope::class));
+        $ruleScope = $this->createMock(RuleScope::class);
+        $ruleScope->method('getCurrentTime')->willReturn(new \DateTimeImmutable('12:00'));
+
+        $match = $rule->match($ruleScope);
 
         static::assertTrue($match);
     }
 
     public function testIfOnSameDayOutOfTimeRangeMatches(): void
     {
-        $now = new \DateTimeImmutable('12:01');
-        $rule = new TimeRangeRule($now);
+        $rule = new TimeRangeRule();
 
         $rule->assign(['fromTime' => '00:00', 'toTime' => '12:00']);
 
-        $match = $rule->match($this->createMock(RuleScope::class));
+        $ruleScope = $this->createMock(RuleScope::class);
+        $ruleScope->method('getCurrentTime')->willReturn(new \DateTimeImmutable('12:01'));
+
+        $match = $rule->match($ruleScope);
 
         static::assertFalse($match);
     }
 
     public function testIfToTimeIsSmallerThanFromTimeMatchesCorrect(): void
     {
-        $now = new \DateTimeImmutable('23:00');
-        $rule = new TimeRangeRule($now);
+        $rule = new TimeRangeRule();
 
         $rule->assign(['fromTime' => '23:00', 'toTime' => '22:00']);
 
-        $match = $rule->match($this->createMock(RuleScope::class));
+        $ruleScope = $this->createMock(RuleScope::class);
+        $ruleScope->method('getCurrentTime')->willReturn(new \DateTimeImmutable('23:00'));
+
+        $match = $rule->match($ruleScope);
 
         static::assertFalse($match);
     }
 
     public function testBeforeEdgeToNextDayConditionMatchesCorrect(): void
     {
-        $now = new \DateTimeImmutable('22:59');
-        $rule = new TimeRangeRule($now);
+        $rule = new TimeRangeRule();
 
         $rule->assign(['fromTime' => '23:00', 'toTime' => '22:00']);
 
-        $match = $rule->match($this->createMock(RuleScope::class));
+        $ruleScope = $this->createMock(RuleScope::class);
+        $ruleScope->method('getCurrentTime')->willReturn(new \DateTimeImmutable('22:59'));
+
+        $match = $rule->match($ruleScope);
 
         static::assertFalse($match);
     }
 
     public function testOnNextDayConditionMatchesCorrect(): void
     {
-        $now = new \DateTimeImmutable('02:46');
-        $rule = new TimeRangeRule($now);
+        $rule = new TimeRangeRule();
 
         $rule->assign(['fromTime' => '23:00', 'toTime' => '22:00']);
 
-        $match = $rule->match($this->createMock(RuleScope::class));
+        $ruleScope = $this->createMock(RuleScope::class);
+        $ruleScope->method('getCurrentTime')->willReturn(new \DateTimeImmutable('02:46'));
+
+        $match = $rule->match($ruleScope);
 
         static::assertTrue($match);
     }

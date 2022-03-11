@@ -74,9 +74,9 @@ class AppRegistrationService
                 }
             }
 
-            throw new AppRegistrationException($e->getMessage(), 0, $e);
+            throw new AppRegistrationException($e->getMessage(), [], $e);
         } catch (GuzzleException $e) {
-            throw new AppRegistrationException($e->getMessage(), 0, $e);
+            throw new AppRegistrationException($e->getMessage(), [], $e);
         }
     }
 

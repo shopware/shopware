@@ -74,7 +74,13 @@
       "messageDeactivationFailedThemeAssignment": "Unable to deactivate or uninstall theme \"{themeName}\". Please remove the following theme assignments: {assignments}.",
       "messagePluginUpdateFailed": "The extension could not be updated: \"{message}\". {pluginDeactivatedHint}",
       "pluginDeactivatedHint": "Extension deactivated.",
-      "messagePluginRequirementMismatch": "The extension has technical requirements that are not compatible with those of the installed Shopware version. Please contact the manufacturer."
+      "messagePluginRequirementMismatch": "The extension has technical requirements that are not compatible with those of the installed Shopware version. Please contact the manufacturer.",
+      "appLicenseCouldNotBeVerified": {
+        "title": "The licence of this extension could not be verified",
+        "message": "Ensure that your licence domain is set correctly and that you are logged in with your Shopware Account to which this extension is licensed.",
+        "actionSetLicenseDomain": "Set licence domain",
+        "actionLogin": "Login"
+      }
     },
     "mainMenu": {
       "mainMenuItemExtensionStore": "Extensions",

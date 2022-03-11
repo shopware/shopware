@@ -20,6 +20,7 @@ function createWrapper(entityContext) {
             },
             'sw-data-grid': Shopware.Component.build('sw-data-grid'),
             'sw-pagination': true,
+            'sw-data-grid-skeleton': true,
             'sw-checkbox-field': true,
             'sw-icon': true,
             'sw-button': true

@@ -11,6 +11,7 @@
 
     {% block sw_settings_rule_add_assignment_listing_grid %}
     <sw-data-grid
+        :is-loading="loading"
         :data-source="items"
         :columns="entityContext.addContext.gridColumns"
         :is-record-selectable="isNotAssigned"

@@ -152,10 +152,14 @@ Component.register('sw-settings-rule-detail-assignments', {
                 Utils.object.get(this.deleteItem, this.deleteEntity.deleteContext.column).remove(this.rule.id);
             }
 
-            return repository.save(this.deleteItem, api);
+            this.isLoading = true;
+            return repository.save(this.deleteItem, api).finally(() => {
+                this.isLoading = false;
+            });
         },
 
         async refreshAssignmentData(entity) {
+            this.isLoading = true;
             const api = entity.api ? entity.api() : Context.api;
             const result = await entity.repository.search(entity.criteria(), api);
             const total = await this.loadNotAssignedDataTotals(entity, api);
@@ -166,6 +170,7 @@ Component.register('sw-settings-rule-detail-assignments', {
                     currentEntity.notAssignedDataTotal = total;
                 }
             });
+            this.isLoading = false;
         },
 
         onFilterEntity(item, term) {
@@ -175,8 +180,11 @@ Component.register('sw-settings-rule-detail-assignments', {
             criteria.setPage(1);
             criteria.setTerm(term);
 
+            this.isLoading = true;
             return item.repository.search(criteria, api).then((result) => {
                 item.loadedData = result;
+            }).finally(() => {
+                this.isLoading = false;
             });
         },
 
@@ -189,8 +197,11 @@ Component.register('sw-settings-rule-detail-assignments', {
             criteria.addFilter(Criteria.not('AND', item.criteria().filters));
             criteria.setLimit(1);
 
+            this.isLoading = true;
             return item.repository.search(criteria, api).then((notAssignedDataResult) => {
                 return Promise.resolve(notAssignedDataResult.total);
+            }).finally(() => {
+                this.isLoading = false;
             });
         },
 

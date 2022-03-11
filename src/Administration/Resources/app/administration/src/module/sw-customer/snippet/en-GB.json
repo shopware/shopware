@@ -64,6 +64,7 @@
       "columnAffiliateCode": "Affiliate code",
       "columnCampaignCode": "Campaign code",
       "columnBoundSalesChannel": "Sales Channel",
+      "columnActive": "Active",
       "emptyBoundSalesChannel": "All",
       "contextMenuView": "View",
       "contextMenuDelete": "Delete",

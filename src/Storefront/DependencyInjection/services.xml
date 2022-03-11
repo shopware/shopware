@@ -498,11 +498,20 @@
             <tag name="kernel.event_listener"/>
         </service>
 
+        <service id="shopware.storefront.framework.reverse_proxy.http_client" class="GuzzleHttp\Client"/>
+
         <service id="Shopware\Storefront\Framework\Cache\ReverseProxy\AbstractReverseProxyGateway" class="Shopware\Storefront\Framework\Cache\ReverseProxy\RedisReverseProxyGateway">
             <argument>%storefront.reverse_proxy.hosts%</argument>
             <argument>%storefront.reverse_proxy.max_parallel_invalidations%</argument>
             <argument>%storefront.reverse_proxy.ban_method%</argument>
             <argument type="service" id="shopware.cache.reverse_proxy.redis"/>
+            <argument type="service" id="shopware.storefront.framework.reverse_proxy.http_client"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Cache\ReverseProxy\ReverseProxyCacheClearer">
+            <argument type="service" id="Shopware\Storefront\Framework\Cache\ReverseProxy\AbstractReverseProxyGateway"/>
+            <argument>%storefront.reverse_proxy.purge_all_urls%</argument>
+            <tag name="kernel.cache_clearer"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer">

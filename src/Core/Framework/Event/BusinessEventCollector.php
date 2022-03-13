@@ -91,6 +91,7 @@ class BusinessEventCollector
                 && $interface !== MailActionInterface::class
                 && $interface !== BusinessEventInterface::class) {
                 $aware[] = $interface;
+                $aware[] = strtolower((new \ReflectionClass($interface))->getShortName());
             }
         }
 

@@ -44,6 +44,29 @@ class Action extends XmlElement
         return $this->config;
     }
 
+    public function toArray(string $defaultLocale): array
+    {
+        $data = parent::toArray($defaultLocale);
+
+        return [
+            'name' => 'app.' . $this->meta->getName(),
+            'swIcon' => $this->meta->getSwIcon(),
+            'url' => $this->meta->getUrl(),
+            'parameters' => array_map(function ($parameter) {
+                return $parameter->jsonSerialize();
+            }, $this->parameters->getParameters()),
+            'config' => array_map(function ($config) {
+                return $config->jsonSerialize();
+            }, $this->config->getConfig()),
+            'headers' => array_map(function ($header) {
+                return $header->jsonSerialize();
+            }, $this->headers->getParameters()),
+            'requirements' => $this->meta->getRequirements(),
+            'label' => $this->meta->getLabel(),
+            'description' => $this->meta->getDescription(),
+        ];
+    }
+
     public static function fromXml(\DOMElement $element): self
     {
         return new self(self::parse($element));

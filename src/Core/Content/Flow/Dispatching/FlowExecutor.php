@@ -7,6 +7,7 @@ use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Content\Flow\Dispatching\Struct\IfSequence;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Sequence;
 use Shopware\Core\Content\Flow\Exception\ExecuteSequenceException;
+use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -71,6 +72,11 @@ class FlowExecutor
         }
 
         $globalEvent = new FlowEvent($actionName, $state, $sequence->config);
+
+        if ($sequence->appFlowActionId) {
+            $globalEvent = new AppFlowActionEvent($sequence->appFlowActionId, $globalEvent);
+        }
+
         $this->dispatcher->dispatch($globalEvent, $actionName);
 
         /** @var ActionSequence $nextAction */

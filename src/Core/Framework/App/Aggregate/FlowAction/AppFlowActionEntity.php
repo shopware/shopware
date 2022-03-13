@@ -9,9 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
-/**
- * @internal
- */
 class AppFlowActionEntity extends Entity
 {
     use EntityIdTrait;
@@ -43,7 +40,7 @@ class AppFlowActionEntity extends Entity
 
     protected string $url;
 
-    protected ?AppFlowActionTranslationCollection $translations;
+    protected ?AppFlowActionTranslationCollection $translations = null;
 
     protected ?FlowSequenceCollection $flowSequences = null;
 

@@ -140,6 +140,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultPaymentMethods($apps->first()->getId());
         $this->assertDefaultCmsBlocks($apps->first()->getId());
         $this->assertAssetExists($apps->first()->getName());
+        $this->assertFlowActionExists($apps->first()->getId());
     }
 
     public function testInstallRollbacksRegistrationFailure(): void
@@ -224,6 +225,7 @@ class AppLifecycleTest extends TestCase
     public function testInstallWithSystemDefaultLanguageNotProvidedByApp(): void
     {
         $this->setNewSystemLanguage('nl-NL');
+        $this->setNewSystemLanguage('en-GB');
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
 
         $this->appLifecycle->install($manifest, true, $this->context);
@@ -424,6 +426,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultScript($apps->first()->getId(), false);
         $this->assertDefaultPaymentMethods($apps->first()->getId());
         $this->assertAssetExists($apps->first()->getName());
+        $this->assertFlowActionExists($apps->first()->getId());
     }
 
     public function testUpdateActiveApp(): void
@@ -584,6 +587,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultScript($apps->first()->getId());
         $this->assertDefaultPaymentMethods($apps->first()->getId());
         $this->assertAssetExists($apps->first()->getName());
+        $this->assertFlowActionExists($apps->first()->getId());
     }
 
     public function testUpdateDoesRunRegistrationIfNecessary(): void
@@ -664,6 +668,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultScript($apps->first()->getId());
         $this->assertDefaultPaymentMethods($apps->first()->getId());
         $this->assertAssetExists($apps->first()->getName());
+        $this->assertFlowActionExists($apps->first()->getId());
     }
 
     public function testUpdateSetsConfiguration(): void
@@ -1184,7 +1189,7 @@ class AppLifecycleTest extends TestCase
 
         $webhooks = $webhookRepository->search($criteria, $this->context)->getElements();
 
-        static::assertCount(2, $webhooks);
+        static::assertCount(3, $webhooks);
 
         usort($webhooks, static function (WebhookEntity $a, WebhookEntity $b): int {
             return $a->getUrl() <=> $b->getUrl();
@@ -1192,13 +1197,18 @@ class AppLifecycleTest extends TestCase
 
         /** @var WebhookEntity $firstWebhook */
         $firstWebhook = $webhooks[0];
-        static::assertEquals('https://test.com/hook', $firstWebhook->getUrl());
-        static::assertEquals('checkout.customer.before.login', $firstWebhook->getEventName());
+        static::assertEquals('https://test-flow.com', $firstWebhook->getUrl());
+        static::assertEquals('telegram.send.message', $firstWebhook->getEventName());
 
-        /** @var WebhookEntity $secondWebhook */
+        /** @var WebhookEntity $firstWebhook */
         $secondWebhook = $webhooks[1];
-        static::assertEquals('https://test.com/hook2', $secondWebhook->getUrl());
-        static::assertEquals('checkout.order.placed', $secondWebhook->getEventName());
+        static::assertEquals('https://test.com/hook', $secondWebhook->getUrl());
+        static::assertEquals('checkout.customer.before.login', $secondWebhook->getEventName());
+
+        /** @var WebhookEntity $thirdWebhook */
+        $thirdWebhook = $webhooks[2];
+        static::assertEquals('https://test.com/hook2', $thirdWebhook->getUrl());
+        static::assertEquals('checkout.order.placed', $thirdWebhook->getEventName());
     }
 
     private function assertDefaultTemplate(string $appId, bool $active = true): void
@@ -1415,5 +1425,60 @@ class AppLifecycleTest extends TestCase
         $filesystem = $this->getContainer()->get('shopware.filesystem.asset');
 
         static::assertTrue($filesystem->has('bundles/' . strtolower($appName) . '/asset.txt'));
+    }
+
+    private function assertFlowActionExists(string $appId): void
+    {
+        $appFlowAction = $this->getContainer()
+            ->get(Connection::class)
+            ->executeQuery('SELECT * FROM `app_flow_action` WHERE `app_id` = :id', [
+                'id' => Uuid::fromHexToBytes($appId),
+            ])->fetchAssociative();
+
+        static::assertEquals($appFlowAction['name'], 'app.telegram.send.message');
+        static::assertEquals($appFlowAction['url'], 'https://test-flow.com');
+        static::assertEquals($appFlowAction['sw_icon'], 'default-communication-speech-bubbles');
+        static::assertEquals(json_decode($appFlowAction['parameters'], true), [
+            [
+                'name' => 'message',
+                'type' => 'string',
+                'value' => 'string message',
+                'extensions' => [],
+            ],
+        ]);
+        static::assertEquals(json_decode($appFlowAction['config'], true), [
+            [
+                'name' => 'text',
+                'type' => 'text',
+                'label' => [
+                    'de-DE' => 'Text DE',
+                    'en-GB' => 'Text',
+                ],
+                'options' => [],
+                'helpText' => [
+                    'de-DE' => 'Help DE',
+                    'en-GB' => 'Help Text',
+                ],
+                'required' => true,
+                'extensions' => [],
+                'placeHolder' => [
+                    'de-DE' => 'Enter Text DE...',
+                    'en-GB' => 'Enter Text...',
+                ],
+                'defaultValue' => 'Hello',
+            ],
+        ]);
+        static::assertEquals(json_decode($appFlowAction['headers'], true), [
+            [
+                'name' => 'content-type',
+                'type' => 'string',
+                'value' => 'application/json',
+                'extensions' => [],
+            ],
+        ]);
+        static::assertEquals(json_decode($appFlowAction['requirements'], true), [
+            'orderaware',
+            'customeraware',
+        ]);
     }
 }

@@ -48,18 +48,9 @@
             <xs:element type="xs:anyURI" name="icon" minOccurs="0"/>
             <xs:element type="xs:string" name="sw-icon" minOccurs="0"/>
             <xs:element type="xs:string" name="url"/>
-            <xs:element type="requirements" name="requirements"/>
+            <xs:element type="xs:string" name="requirements"/>
         </xs:choice>
     </xs:complexType>
-    <xs:simpleType name="requirements">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="order" />
-            <xs:enumeration value="customer"/>
-            <xs:enumeration value="sales_channel"/>
-            <xs:enumeration value="mail"/>
-            <xs:enumeration value="user"/>
-        </xs:restriction>
-    </xs:simpleType>
     <xs:complexType name="parameter">
         <xs:attribute type="xs:string" name="type" use="required"/>
         <xs:attribute type="xs:string" name="name" use="required"/>
@@ -102,8 +93,6 @@
             <xs:element name="defaultValue" type="xs:string" minOccurs="0"/>
             <xs:element name="options" type="option-collection" minOccurs="0"/>
             <xs:element name="required" type="xs:boolean" minOccurs="0" default="false"/>
-            <xs:element name="disabled" type="xs:boolean" minOccurs="0" default="false"/>
-            <xs:element name="editable" type="xs:boolean" minOccurs="0" default="true"/>
         </xs:choice>
         <xs:attribute name="type" type="type" default="text"/>
     </xs:complexType>

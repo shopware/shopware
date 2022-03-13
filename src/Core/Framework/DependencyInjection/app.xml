@@ -479,12 +479,12 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="app_flow_action.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\FlowAction\AppFlowActionProvider" public="true">
-            <argument type="service" id="app_flow_action.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\BusinessEventEncoder"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer"/>
             <argument type="service" id="logger"/>

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -22,9 +23,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
-/**
- * @internal
- */
 class AppFlowActionDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'app_flow_action';
@@ -46,7 +44,7 @@ class AppFlowActionDefinition extends EntityDefinition
 
     public function since(): ?string
     {
-        return '6.4.7.0';
+        return '6.4.10.0';
     }
 
     protected function getParentDefinitionClass(): ?string
@@ -63,7 +61,7 @@ class AppFlowActionDefinition extends EntityDefinition
             (new JsonField('parameters', 'parameters')),
             (new JsonField('config', 'config')),
             (new JsonField('headers', 'headers')),
-            (new JsonField('requirements', 'requirements')),
+            (new ListField('requirements', 'requirements', StringField::class)),
             (new BlobField('icon', 'iconRaw')),
             (new StringField('icon', 'icon'))->addFlags(new WriteProtected(), new Runtime()),
             (new StringField('sw_icon', 'swIcon')),

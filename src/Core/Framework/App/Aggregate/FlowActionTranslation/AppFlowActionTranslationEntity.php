@@ -6,14 +6,11 @@ use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 
-/**
- * @internal
- */
 class AppFlowActionTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
 
-    protected string $label;
+    protected ?string $label;
 
     protected ?string $description;
 
@@ -26,7 +23,7 @@ class AppFlowActionTranslationEntity extends TranslationEntity
         return $this->label;
     }
 
-    public function setLabel(string $label): void
+    public function setLabel(?string $label): void
     {
         $this->label = $label;
     }

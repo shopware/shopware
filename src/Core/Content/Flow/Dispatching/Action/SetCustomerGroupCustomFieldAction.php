@@ -39,7 +39,10 @@ class SetCustomerGroupCustomFieldAction extends FlowAction
 
     public function requirements(): array
     {
-        return [CustomerGroupAware::class];
+        return [
+            CustomerGroupAware::class,
+            strtolower((new \ReflectionClass(CustomerGroupAware::class))->getShortName()),
+        ];
     }
 
     public function handle(FlowEvent $event): void

@@ -65,6 +65,7 @@ export default {
             };
 
             updatedSequence = Object.assign(sequences[sequenceIndex], updatedSequence);
+
             state.flow.sequences = new EntityCollection(
                 sequences.source,
                 sequences.entity,

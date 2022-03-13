@@ -2,18 +2,13 @@
 
 namespace Shopware\Core\Framework\Test\App\FlowAction;
 
+use Doctrine\DBAL\Connection;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\FlowState;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
-use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionCollection;
-use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionEntity;
-use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\App\FlowAction\AppFlowActionProvider;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -39,28 +34,15 @@ class AppFlowActionProviderTest extends TestCase
             'config2' => 'Text 2',
             'config3' => 'Text 3',
         ];
-        $app = $this->createMock(AppEntity::class);
+
         $context = $this->createMock(SalesChannelContext::class);
 
-        $appFlowAction = new AppFlowActionEntity();
-        $appFlowAction->setUniqueIdentifier('11111');
-        $appFlowAction->setName($actionName);
-        $appFlowAction->setHeaders($headers);
-        $appFlowAction->setParameters($params);
-        $appFlowAction->setApp($app);
-
-        $emptySearchResult = new EntitySearchResult(
-            'app_flow_action',
-            1,
-            new AppFlowActionCollection([$appFlowAction]),
-            null,
-            new Criteria(),
-            $context->getContext()
-        );
-        $this->createMock(EntityRepositoryInterface::class);
-
-        $appFlowActionRepository = $this->createMock(EntityRepositoryInterface::class);
-        $appFlowActionRepository->method('search')->willReturn($emptySearchResult);
+        $connection = $this->createMock(Connection::class);
+        $connection->expects(static::once())
+            ->method('fetchAssociative')
+            ->willReturn(
+                ['parameters' => json_encode($params), 'headers' => json_encode($headers)]
+            );
 
         $flowState = new FlowState(new TestBusinessEvent($context->getContext()));
 
@@ -70,10 +52,10 @@ class AppFlowActionProviderTest extends TestCase
             $config
         );
 
-        $appFlowActionEvent = new AppFlowActionEvent($flowEvent);
+        $appFlowActionEvent = new AppFlowActionEvent('1111', $flowEvent);
 
         $appFlowActionProvider = new AppFlowActionProvider(
-            $appFlowActionRepository,
+            $connection,
             $this->getContainer()->get(BusinessEventEncoder::class),
             $this->getContainer()->get(StringTemplateRenderer::class),
             $this->createMock(Logger::class)

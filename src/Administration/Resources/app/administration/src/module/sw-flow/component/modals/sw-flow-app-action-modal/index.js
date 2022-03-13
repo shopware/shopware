@@ -31,6 +31,10 @@ Component.register('sw-flow-app-action-modal', {
         actionLabel() {
             return this.sequence?.propsAppFlowAction?.translated?.label || this.sequence?.propsAppFlowAction?.label;
         },
+
+        currentLocale() {
+            return Shopware.State.get('session').currentLocale;
+        },
     },
 
     created() {
@@ -40,17 +44,15 @@ Component.register('sw-flow-app-action-modal', {
     methods: {
         createdComponent() {
             this.getFields();
-            if (this.sequence?.config) {
-                if (!this.sequence?.config) {
-                    return;
-                }
-
-                Object.entries({ ...this.sequence.config }).forEach(([key, configValue]) => {
-                    this.config[key] = (typeof configValue === 'object' && configValue.value !== undefined)
-                        ? configValue.value
-                        : configValue;
-                });
+            if (!this.sequence?.config) {
+                return;
             }
+
+            Object.entries({ ...this.sequence.config }).forEach(([key, configValue]) => {
+                this.config[key] = (typeof configValue === 'object' && configValue.value !== undefined)
+                    ? configValue.value
+                    : configValue;
+            });
         },
 
         onChange(event, field) {
@@ -69,9 +71,7 @@ Component.register('sw-flow-app-action-modal', {
 
         handleValid(field, val) {
             let value = val;
-            if ((typeof value === 'object' && value?.length === 0)
-                || (typeof value === 'object' && value?.value?.length === 0)
-            ) {
+            if (typeof value === 'object' && (value?.length === 0 || value?.value?.length === 0)) {
                 value = null;
             }
 
@@ -180,9 +180,8 @@ Component.register('sw-flow-app-action-modal', {
             }
 
             const objHelpText = JSON.parse(JSON.stringify(field.helpText));
-            const lang = Shopware.State.get('session').currentLocale;
 
-            return objHelpText[lang] ?? objHelpText['en-GB'] ?? null;
+            return objHelpText[this.currentLocale] ?? objHelpText['en-GB'] ?? null;
         },
     },
 });

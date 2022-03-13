@@ -149,4 +149,20 @@ class AppLoader extends AbstractAppLoader
 
         return FlowAction::createFromXmlFile($configPath);
     }
+
+    public function getFlowActionIcon(?string $iconName, FlowAction $flowAction): ?string
+    {
+        if (!$iconName) {
+            return null;
+        }
+
+        $iconPath = sprintf('%s/%s', $flowAction->getPath(), $iconName);
+        $icon = @file_get_contents($iconPath);
+
+        if (!$icon) {
+            return null;
+        }
+
+        return $icon;
+    }
 }

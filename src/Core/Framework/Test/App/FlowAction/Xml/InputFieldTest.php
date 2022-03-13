@@ -35,8 +35,6 @@ class InputFieldTest extends TestCase
         ], $firstInputField->getHelpText());
 
         static::assertTrue($firstInputField->getRequired());
-        static::assertTrue($firstInputField->getDisabled());
-        static::assertFalse($firstInputField->getEditable());
         static::assertEquals('Shopware 6', $firstInputField->getDefaultValue());
     }
 }

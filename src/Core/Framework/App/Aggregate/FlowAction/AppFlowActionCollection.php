@@ -5,8 +5,6 @@ namespace Shopware\Core\Framework\App\Aggregate\FlowAction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @internal
- *
  * @method void                     add(AppFlowActionEntity $entity)
  * @method void                     set(string $key, AppFlowActionEntity $entity)
  * @method AppFlowActionEntity[]    getIterator()

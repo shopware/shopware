@@ -2,18 +2,17 @@
 
 namespace Shopware\Core\Framework\App\FlowAction;
 
+use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 
 class AppFlowActionProvider
 {
-    private EntityRepositoryInterface $appFlowActionRepository;
+    private Connection $connection;
 
     private BusinessEventEncoder $businessEventEncoder;
 
@@ -22,12 +21,12 @@ class AppFlowActionProvider
     private LoggerInterface $logger;
 
     public function __construct(
-        EntityRepositoryInterface $appFlowActionRepository,
+        Connection $connection,
         BusinessEventEncoder $businessEventEncoder,
         StringTemplateRenderer $templateRenderer,
         LoggerInterface $logger
     ) {
-        $this->appFlowActionRepository = $appFlowActionRepository;
+        $this->connection = $connection;
         $this->businessEventEncoder = $businessEventEncoder;
         $this->templateRenderer = $templateRenderer;
         $this->logger = $logger;
@@ -37,14 +36,10 @@ class AppFlowActionProvider
     {
         $flowEvent = $event->getEvent();
         $context = $flowEvent->getContext();
-        $actionName = $flowEvent->getActionName();
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('name', $actionName));
+        $appFlowActionData = $this->getAppFlowActionData($event->getAppFlowActionId());
 
-        $appFlowAction = $this->appFlowActionRepository->search($criteria, $context)->first();
-
-        if (!$appFlowAction) {
+        if (empty($appFlowActionData)) {
             return [];
         }
 
@@ -54,8 +49,8 @@ class AppFlowActionProvider
         );
 
         return [
-            'payload' => $this->resolveParamsData($appFlowAction->getParameters(), $data, $context),
-            'headers' => $this->resolveParamsData($appFlowAction->getHeaders(), $data, $context),
+            'payload' => $this->resolveParamsData(json_decode($appFlowActionData['parameters'], true), $data, $context),
+            'headers' => $this->resolveParamsData(json_decode($appFlowActionData['headers'], true), $data, $context),
         ];
     }
 
@@ -82,5 +77,15 @@ class AppFlowActionProvider
         }
 
         return $paramData;
+    }
+
+    private function getAppFlowActionData(string $appFlowActionId): array
+    {
+        $data = $this->connection->fetchAssociative(
+            'SELECT `parameters`, `headers` FROM `app_flow_action` WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($appFlowActionId)]
+        );
+
+        return $data ? $data : [];
     }
 }

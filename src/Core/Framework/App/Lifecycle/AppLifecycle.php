@@ -256,11 +256,30 @@ class AppLifecycle extends AbstractAppLifecycle
 
         // Refetch app to get secret after registration
         $app = $this->loadApp($id, $context);
+
+        $flowActions = $this->appLoader->getFlowActions($app);
+        $actions = [];
+        if ($flowActions) {
+            $this->flowBuilderActionPersister->updateActions($flowActions, $id, $context, $defaultLocale);
+
+            $actions = $flowActions->getActions() ? $flowActions->getActions()->getActions() : [];
+            $manifestWebhooks = $app->getAppSecret() && $manifest->getWebhooks()
+                ? array_column($manifest->getWebhooks()->getWebhooks(), 'name')
+                : [];
+
+            $this->webhookPersister->updateAppFlowActionWebhooks(
+                $actions,
+                $manifestWebhooks,
+                $id,
+                $context
+            );
+        }
+
         // we need a app secret to securely communicate with apps
         // therefore we only install action-buttons, webhooks and modules if we have a secret
         if ($app->getAppSecret()) {
-            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($manifest, $id, $defaultLocale): void {
-                $this->webhookPersister->updateWebhooks($manifest, $id, $defaultLocale, $context);
+            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($manifest, $id, $defaultLocale, $actions): void {
+                $this->webhookPersister->updateWebhooks($manifest, $id, $defaultLocale, $context, $actions);
             });
             $this->paymentMethodPersister->updatePaymentMethods($manifest, $id, $defaultLocale, $context);
             $this->updateModules($manifest, $id, $defaultLocale, $context);
@@ -275,18 +294,6 @@ class AppLifecycle extends AbstractAppLifecycle
         $cmsExtensions = $this->appLoader->getCmsExtensions($app);
         if ($cmsExtensions) {
             $this->cmsBlockPersister->updateCmsBlocks($cmsExtensions, $id, $defaultLocale, $context);
-        }
-
-        $flowActions = $this->appLoader->getFlowActions($app);
-        if ($flowActions) {
-            $this->flowBuilderActionPersister->updateActions($flowActions, $id, $context);
-            $actions = $flowActions->getActions();
-
-            $this->webhookPersister->updateAppFlowActionWebhooks(
-                $actions ? $actions->getActions() : [],
-                $id,
-                $context
-            );
         }
 
         $this->updateConfigurable($app, $manifest, $install, $context);

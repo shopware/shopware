@@ -32,8 +32,6 @@
                 <helpText>Help text</helpText>
                 <helpText lang="de-DE">Help text DE</helpText>
                 <required>true</required>
-                <disabled>true</disabled>
-                <editable>false</editable>
                 <defaultValue>Shopware 6</defaultValue>
             </input-field>
             <input-field>
@@ -43,8 +41,6 @@
                 <place-holder>Enter from...</place-holder>
                 <place-holder lang="de-DE">Enter from...</place-holder>
                 <required>true</required>
-                <disabled>false</disabled>
-                <editable>true</editable>
                 <defaultValue>Shopware 6</defaultValue>
             </input-field>
             <input-field type="text">
@@ -54,8 +50,6 @@
                 <place-holder>Enter message...</place-holder>
                 <place-holder lang="de-DE">Enter message...</place-holder>
                 <required>true</required>
-                <disabled>false</disabled>
-                <editable>true</editable>
                 <defaultValue>Hello</defaultValue>
             </input-field>
             <input-field type="single-select">

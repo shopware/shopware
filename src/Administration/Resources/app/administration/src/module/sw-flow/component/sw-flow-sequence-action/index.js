@@ -120,11 +120,8 @@ Component.register('sw-flow-sequence-action', {
             return this.flowBuilderService.getActionModalName(this.selectedAction);
         },
 
-        appFlowActionCriteria() {
-            const criteria = new Criteria();
-            criteria.addAssociation('translations');
-
-            return criteria;
+        currentLocale() {
+            return Shopware.State.get('session').currentLocale;
         },
 
         actionDescription() {
@@ -366,7 +363,9 @@ Component.register('sw-flow-sequence-action', {
         },
 
         getAppFlowAction() {
-            return this.appFlowActionRepository.search(this.appFlowActionCriteria, Shopware.Context.api).then((response) => {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('app.active', 1));
+            return this.appFlowActionRepository.search(criteria, Shopware.Context.api).then((response) => {
                 this.appFlowActions = response;
             });
         },
@@ -602,9 +601,7 @@ Component.register('sw-flow-sequence-action', {
                     return val;
                 }
 
-                const lang = Shopware.State.get('session').currentLocale;
-
-                return option.label[lang] ?? config.label['en-GB'] ?? val;
+                return option.label[this.currentLocale] ?? config.label['en-GB'] ?? val;
             }
 
             if (['datetime', 'date', 'time'].includes(config.type)) {
@@ -629,13 +626,11 @@ Component.register('sw-flow-sequence-action', {
                 return fieldName;
             }
 
-            const lang = Shopware.State.get('session').currentLocale;
-
-            return config.label[lang] ?? config.label['en-GB'] ?? fieldName;
+            return config.label[this.currentLocale] ?? config.label['en-GB'] ?? fieldName;
         },
 
         isAware(appFlowAction) {
-            return appFlowAction.requirements.filter(aware => this.triggerEvent?.aware.includes(aware)).length;
+            return appFlowAction.requirements.some(aware => this.triggerEvent?.aware.includes(aware));
         },
     },
 });

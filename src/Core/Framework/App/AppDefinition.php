@@ -114,6 +114,7 @@ class AppDefinition extends EntityDefinition
             (new OneToManyAssociationField('webhooks', WebhookDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('paymentMethods', AppPaymentMethodDefinition::class, 'app_id'))->addFlags(new SetNullOnDelete()),
             (new OneToManyAssociationField('cmsBlocks', AppCmsBlockDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('flowActions', AppFlowActionDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
         ]);
 
         if (Feature::isActive('FEATURE_NEXT_17950')) {
@@ -121,8 +122,6 @@ class AppDefinition extends EntityDefinition
                 new StringField('base_app_url', 'baseAppUrl', 1024)
             );
         }
-
-        $fields->add((new OneToManyAssociationField('flowActions', AppFlowActionDefinition::class, 'app_id'))->addFlags(new CascadeDelete()));
 
         return $fields;
     }

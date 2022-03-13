@@ -9,9 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
-/**
- * @internal
- */
 class AppFlowActionTranslationDefinition extends EntityTranslationDefinition
 {
     public const ENTITY_NAME = 'app_flow_action_translation';
@@ -33,7 +30,7 @@ class AppFlowActionTranslationDefinition extends EntityTranslationDefinition
 
     public function since(): ?string
     {
-        return '6.4.7.0';
+        return '6.4.10.0';
     }
 
     protected function getParentDefinitionClass(): string

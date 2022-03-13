@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
-use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -26,54 +25,52 @@ class WebhookPersister
         $this->webhookRepository = $webhookRepository;
     }
 
-    public function updateWebhooks(Manifest $manifest, string $appId, string $defaultLocale, Context $context): void
+    public function updateWebhooks(Manifest $manifest, string $appId, string $defaultLocale, Context $context, array $actions = []): void
     {
-        $existingWebhooks = $this->getExistingWebhooks($appId, $context);
-
         $webhooks = $manifest->getWebhooks() ? $manifest->getWebhooks()->getWebhooks() : [];
-        $upserts = [];
 
-        foreach ($webhooks as $webhook) {
+        $webhooks = array_map(function ($webhook) use ($defaultLocale, $appId) {
             $payload = $webhook->toArray($defaultLocale);
             $payload['appId'] = $appId;
             $payload['eventName'] = $webhook->getEvent();
 
-            /** @var WebhookEntity|null $existing */
-            $existing = $existingWebhooks->filterByProperty('name', $webhook->getName())->first();
-            if ($existing) {
-                $payload['id'] = $existing->getId();
-                $existingWebhooks->remove($existing->getId());
-            }
+            return $payload;
+        }, $webhooks);
 
-            $upserts[] = $payload;
-        }
+        $exceptWebhooks = array_map(function ($action) {
+            return $action->getMeta()->getName();
+        }, $actions);
 
-        if (!empty($upserts)) {
-            $this->webhookRepository->upsert($upserts, $context);
-        }
-
-        $this->deleteOldWebhooks($existingWebhooks, $context);
+        $this->updateWebhooksFromArray($webhooks, $exceptWebhooks, $appId, $context);
     }
 
-    public function updateAppFlowActionWebhooks(array $actions, string $appId, Context $context): void
+    public function updateAppFlowActionWebhooks(array $actions, array $exceptWebhooks, string $appId, Context $context): void
     {
-        $existingWebhooks = $this->getExistingWebhooks($appId, $context);
-        $upserts = [];
+        $webhooks = array_map(function ($action) use ($appId) {
+            $name = $action->getMeta()->getName();
 
-        foreach ($actions as $action) {
-            $name = 'app.' . $action->getMeta()->getName();
-
-            $webhook = [
+            return [
                 'name' => $name,
-                'eventName' => AppFlowActionEvent::PREFIX . $name,
+                'eventName' => $name,
                 'url' => $action->getMeta()->getUrl(),
                 'appId' => $appId,
                 'active' => true,
                 'errorCount' => 0,
             ];
+        }, $actions);
 
+        $this->updateWebhooksFromArray($webhooks, $exceptWebhooks, $appId, $context);
+    }
+
+    private function updateWebhooksFromArray(array $webhooks, array $exceptWebhooks, string $appId, Context $context): void
+    {
+        $existingWebhooks = $this->getExistingWebhooks($appId, $context);
+        $upserts = [];
+
+        foreach ($webhooks as $webhook) {
             /** @var WebhookEntity|null $existing */
-            $existing = $existingWebhooks->filterByProperty('name', $name)->first();
+            $existing = $existingWebhooks->filterByProperty('name', $webhook['name'])->first();
+
             if ($existing) {
                 $webhook['id'] = $existing->getId();
                 $existingWebhooks->remove($existing->getId());
@@ -82,7 +79,18 @@ class WebhookPersister
             $upserts[] = $webhook;
         }
 
-        $this->webhookRepository->upsert($upserts, $context);
+        foreach ($exceptWebhooks as $name) {
+            /** @var WebhookEntity|null $existing */
+            $existing = $existingWebhooks->filterByProperty('name', $name)->first();
+
+            if ($existing) {
+                $existingWebhooks->remove($existing->getId());
+            }
+        }
+
+        if (!empty($upserts)) {
+            $this->webhookRepository->upsert($upserts, $context);
+        }
 
         $this->deleteOldWebhooks($existingWebhooks, $context);
     }

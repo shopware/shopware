@@ -15,11 +15,7 @@ class InputField extends XmlElement
         'helpText',
     ];
 
-    private const BOOLEAN_FIELD = [
-        'required',
-        'editable',
-        'disabled',
-    ];
+    private const BOOLEAN_FIELD = ['required'];
 
     protected ?string $name = null;
 
@@ -28,10 +24,6 @@ class InputField extends XmlElement
     protected ?array $placeHolder = null;
 
     protected ?bool $required = null;
-
-    protected ?bool $editable = null;
-
-    protected ?bool $disabled = null;
 
     protected ?array $helpText = [];
 
@@ -66,16 +58,6 @@ class InputField extends XmlElement
     public function getRequired(): ?bool
     {
         return $this->required;
-    }
-
-    public function getEditable(): ?bool
-    {
-        return $this->editable;
-    }
-
-    public function getDisabled(): ?bool
-    {
-        return $this->disabled;
     }
 
     public function getHelpText(): ?array

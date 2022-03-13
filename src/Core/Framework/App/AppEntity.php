@@ -17,9 +17,6 @@ use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\Integration\IntegrationEntity;
 
-/**
- * @internal
- */
 class AppEntity extends Entity
 {
     use EntityIdTrait;

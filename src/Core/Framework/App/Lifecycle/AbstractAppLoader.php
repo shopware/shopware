@@ -33,4 +33,6 @@ abstract class AbstractAppLoader
     abstract public function getEntities(AppEntity $app): ?CustomEntityXmlSchema;
 
     abstract public function getFlowActions(AppEntity $app): ?FlowAction;
+
+    abstract public function getFlowActionIcon(?string $iconName, FlowAction $flowAction): ?string;
 }

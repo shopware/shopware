@@ -6,10 +6,12 @@ issue: NEXT-19012
 * Added string field `url` into `Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionDefinition`
 * Added property `url` into `Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionEntity`
 * Added event `Shopware\Core\Framework\App\Event\AppFlowActionEvent`
-* Added listener `Shopware\Core\Framework\App\FlowAction\AppFlowActionListener`
-* Added method `updateAppFlowActionWebhooks` into `Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister`
+* Added function `updateAppFlowActionWebhooks` into `Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister`
+* Changed function `updateWebhooks` into `Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister`
 * Added new class `Shopware\Core\Framework\App\FlowAction\AppFlowActionProvider`
-* Changed method `updateApp` in `Shopware\Core\Framework\App\Lifecycle\AppLifecycle` to update webhook when update app
-* Changed method `load` in `Shopware\Core\Content\Flow\Dispatching\FlowLoader` to add `AppFlowActionListener` to app flow actions event
-* Changed method `getSubscribedEvents` in `Shopware\Core\Content\Flow\Indexing\FlowIndexer`
-
+* Changed function `updateApp` in `Shopware\Core\Framework\App\Lifecycle\AppLifecycle` to update webhook when update app
+* Changed function `getSubscribedEvents` in `Shopware\Core\Content\Flow\Indexing\FlowIndexer`.
+* Added property `appFlowActionId` into `Shopware\Core\Content\Flow\Dispatching\Struct\ActionSequence`
+* Added parameter `appFlowActionId` into method `Shopware\Core\Content\Flow\Dispatching\Struct\Sequence::createAction()`
+* Changed method `executeAction` in `Shopware\Core\Content\Flow\Dispatching\FlowExecutor` to dispatcher correct event.
+* Changed method `update` in `Shopware\Core\Content\Flow\Indexing\FlowPayloadUpdater` to add `app_flow_action_id` value to payload of flow.

@@ -145,7 +145,6 @@
         <service id="Shopware\Core\Content\Flow\Dispatching\FlowLoader" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="logger"/>
-            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\CachedFlowLoader" decorates="Shopware\Core\Content\Flow\Dispatching\FlowLoader" decoration-priority="-1000" public="true">

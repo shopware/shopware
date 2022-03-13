@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Test\Api;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Notification\NotificationDefinition;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
-use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
@@ -92,21 +91,6 @@ class ApiAwareTest extends TestCase
                 [
                     'notification.createdAt',
                     'notification.updatedAt',
-                ]
-            );
-        }
-
-        if ($this->getContainer()->has(AppFlowActionDefinition::class)) {
-            $expected = array_merge(
-                $expected,
-                [
-                    'app_flow_action.createdAt',
-                    'app_flow_action.updatedAt',
-                    'app_flow_action.translated',
-                    'app_flow_action_translation.createdAt',
-                    'app_flow_action_translation.updatedAt',
-                    'app_flow_action_translation.appFlowActionId',
-                    'app_flow_action_translation.languageId',
                 ]
             );
         }

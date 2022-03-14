@@ -8,7 +8,8 @@ from locust.exception import RescheduleTask
 class Api:
     context: None
 
-    def __init__(self, context):
+    def __init__(self, client, context):
+        self.client = client
         self.context = context
         self.headers = {
             'Accept': 'application/json',
@@ -37,6 +38,15 @@ class Api:
         if self.context.indexing_behavior:
             self.headers['indexing-behavior'] = self.context.indexing_behavior
 
+    def __get_headers():
+        return  {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'single-operation': 'true',
+            'Authorization': 'Bearer ' + self.context.token,
+            'indexing-skip': []
+        }
+
     def update_stock(self):
         updates = []
 
@@ -54,7 +64,7 @@ class Api:
             'product.stock',
         ])
 
-        self._sync(operations, headers)
+        self._sync(operations, headers, '_api-stock-update')
 
     def update_prices(self):
         updates = []
@@ -77,15 +87,19 @@ class Api:
             'product.cheapest-price',
         ])
 
-        self._sync(operations, headers)
+        self._sync(operations, headers, '_api-price-update')
 
-    def _sync(self, operations, headers):
-        response = requests.post(self.context.url + '/api/_action/sync', json=operations, headers=headers)
+    def _sync(self, operations, headers, name):
+        with self.client.post(self.context.url + '/api/_action/sync', json=operations, headers=headers, name=name,catch_response=True) as response:
+            if response.status_code in [200, 204]:
+                response.success()
+                return
 
-        if response.status_code in [200, 204]:
-            return
+            if response.status_code == 401:
+                self.context.refresh_token()
+                return
 
-        raise ValueError('Sync error: ' + str(response.status_code) + ' ' + response.text)
+            raise ValueError('Sync error: ' + str(response.status_code) + ' ' + response.text)
 
     def __define_updaters(self, excludes):
         skips = []

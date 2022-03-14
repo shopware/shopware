@@ -8,7 +8,7 @@
 
 		{% set currentListPage = reviews.page + 1 %}
 
-		{% set productReviewCount = reviews|length %}
+		{% set productReviewCount = reviews.totalReviews %}
 
 		{% if productReviewCount > 0 %}
             {% set productAvgRating = reviews.matrix.averageRating|round(2, 'common')  %}
@@ -210,7 +210,7 @@
                                         {% block component_review_list_paging %}
                                             {% set criteria = reviews.criteria %}
 
-                                            {% set totalPages = (reviews.total/10)|round(0,'ceil') %}
+                                            {% set totalPages = (productReviewCount/reviewsPerListPage)|round(0,'ceil') %}
 
                                             {% if totalPages > 1 %}
                                                 {% set formAjaxSubmitOptions = {
@@ -250,7 +250,8 @@
 
                                                             {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
                                                                 entities: reviews,
-                                                                criteria: criteria
+                                                                criteria: criteria,
+                                                                total: productReviewCount,
                                                             }  %}
                                                         </form>
                                                     </div>

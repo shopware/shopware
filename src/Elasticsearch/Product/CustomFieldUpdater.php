@@ -34,13 +34,13 @@ class CustomFieldUpdater implements EventSubscriberInterface
 
     public function onNewCustomFieldCreated(EntityWrittenContainerEvent $containerEvent): void
     {
-        if (!$this->elasticsearchHelper->allowIndexing()) {
-            return;
-        }
-
         $event = $containerEvent->getEventByEntityName(CustomFieldDefinition::ENTITY_NAME);
 
         if ($event === null) {
+            return;
+        }
+
+        if (!$this->elasticsearchHelper->allowIndexing()) {
             return;
         }
 

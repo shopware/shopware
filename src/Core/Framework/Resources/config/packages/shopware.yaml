@@ -161,6 +161,7 @@ shopware:
 
     cart:
         expire_days: 120
+        redis_url: false
 
     sales_channel_context:
         expire_days: 120

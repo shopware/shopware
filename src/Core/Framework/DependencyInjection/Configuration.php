@@ -442,6 +442,7 @@ class Configuration implements ConfigurationInterface
                     ->min(1)
                     ->defaultValue(120)
                 ->end()
+                ->scalarNode('redis_url')->end()
             ->end();
 
         return $rootNode;

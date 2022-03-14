@@ -58,11 +58,7 @@ class CartPersister implements CartPersisterInterface
      */
     public function save(Cart $cart, SalesChannelContext $context): void
     {
-        $shouldPersist = $cart->getLineItems()->count() > 0
-            || $cart->getAffiliateCode() !== null
-            || $cart->getCampaignCode() !== null
-            || $cart->getCustomerComment() !== null
-            || $cart->getExtension(DeliveryProcessor::MANUAL_SHIPPING_COSTS) instanceof CalculatedPrice;
+        $shouldPersist = self::shouldPersist($cart);
 
         $event = new CartVerifyPersistEvent($context, $cart, $shouldPersist);
 
@@ -115,6 +111,18 @@ class CartPersister implements CartPersisterInterface
             $this->connection->prepare('DELETE FROM `cart` WHERE `token` = :token')
         );
         $query->execute(['token' => $token]);
+    }
+
+    /**
+     * @internal
+     */
+    public static function shouldPersist(Cart $cart): bool
+    {
+        return $cart->getLineItems()->count() > 0
+            || $cart->getAffiliateCode() !== null
+            || $cart->getCampaignCode() !== null
+            || $cart->getCustomerComment() !== null
+            || $cart->getExtension(DeliveryProcessor::MANUAL_SHIPPING_COSTS) instanceof CalculatedPrice;
     }
 
     private function serializeCart(Cart $cart): string

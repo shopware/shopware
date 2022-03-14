@@ -202,7 +202,10 @@
                                         {% endblock %}
 
                                         {% block component_review_list_paging %}
-                                            {% set criteria = reviews.criteria %}
+                                            {# @deprecated tag:v6.7.0 - unused variable `criteria` will be removed, use reviews.criteria instead #} 
+                                            {% if not feature('v6.7.0.0') %}
+                                                {% set criteria = reviews.criteria %}
+                                            {% endif %}
 
                                             {% set totalPages = (productReviewCount/reviewsPerListPage)|round(0,'ceil') %}
 
@@ -239,11 +242,16 @@
                                                                 {% endfor %}
                                                             {% endif %}
 
-                                                            {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
-                                                                entities: reviews,
-                                                                criteria: criteria,
-                                                                total: productReviewCount,
-                                                            } %}
+                                                            {# @deprecated tag:v6.7.0 - variable `productReviewCount` will not be considered anymore, change `totalPages` if needed #}
+                                                            {% if feature('v6.7.0.0') %}
+                                                                {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {entities: reviews}  %}
+                                                            {% else %}
+                                                                {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
+                                                                    entities: reviews,
+                                                                    criteria: criteria,
+                                                                    total: productReviewCount,
+                                                                }  %}
+                                                            {% endif %}
                                                         </form>
                                                     </div>
                                                 {% endblock %}

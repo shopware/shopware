@@ -40,9 +40,10 @@
                             </div>
                         {% endblock %}
                         {% block page_account_orders_paging %}
-                            {% set criteria = page.orders.criteria %}
-
-                            {% set totalPages = (page.orders.total/criteria.limit)|round(0,'ceil') %}
+                            {% if not feature('v6.7.0.0') %}
+                                {% set criteria = page.orders.criteria %}
+                            {% endif %}
+                            {% set totalPages = (page.orders.total/page.orders.limit)|round(0,'ceil') %}
 
                             {% if totalPages > 1 %}
                                 {% set formAjaxSubmitOptions = {
@@ -58,10 +59,16 @@
                                               data-form-ajax-submit="true"
                                               {# ludtwig-ignore html-string-quotation #}
                                               data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
-                                            {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
-                                                entities: page.orders,
-                                                criteria: criteria
-                                            } %}
+
+                                            {# @deprecated tag:v6.7.0 - variable `criteria` will be removed #}
+                                            {% if feature('v6.7.0.0') %}
+                                                {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {entities: page.orders}  %}
+                                            {% else %}
+                                                {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
+                                                    entities: page.orders,
+                                                    criteria: criteria,
+                                                }  %}
+                                            {% endif %}
                                         </form>
                                     </div>
                                 {% endblock %}

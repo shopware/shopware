@@ -16,19 +16,11 @@
                         gutter: 30,
                         autoplayButtonOutput: false,
                         nav: false,
-                        mouseDrag: false,
+                        mouseDrag: sliderConfig.navigation.value ? false : true,
                         controls: sliderConfig.navigation.value ? true : false,
                         autoplay: sliderConfig.rotate.value ? true : false
                     }
                 } %}
-
-                {% if not sliderConfig.navigation.value %}
-                    {% set productSliderOptions = productSliderOptions|replace_recursive({
-                        slider: {
-                            mouseDrag: true
-                        }
-                    }) %}
-                {% endif %}
 
                 {% block element_product_slider_slider %}
                     <div

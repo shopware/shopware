@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
@@ -182,14 +181,27 @@ class LoginRoute extends AbstractLoginRoute
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customer.email', $email));
-        $criteria->addFilter(new EqualsFilter('customer.guest', 0));
-
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-            new EqualsFilter('customer.boundSalesChannelId', null),
-            new EqualsFilter('customer.boundSalesChannelId', $context->getSalesChannel()->getId()),
-        ]));
 
         $result = $this->customerRepository->search($criteria, $context->getContext());
+
+        $result = $result->filter(static function (CustomerEntity $customer) use ($context) {
+            // Skip guest users
+            if ($customer->getGuest()) {
+                return null;
+            }
+
+            // If not bound, we still need to consider it
+            if ($customer->getBoundSalesChannelId() === null) {
+                return true;
+            }
+
+            // It is bound, but not to the current one. Skip it
+            if ($customer->getBoundSalesChannelId() !== $context->getSalesChannel()->getId()) {
+                return null;
+            }
+
+            return true;
+        });
 
         if ($result->count() !== 1) {
             throw new BadCredentialsException();

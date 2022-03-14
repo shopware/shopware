@@ -174,7 +174,7 @@
                                 {% block page_account_overview_newest_order_content %}
                                     {% block page_account_overview_newest_order_table %}
                                         {# @deprecated tag:v6.5.0 - Bootstrap v5 `.table` class will be removed because it adds unneeded styling. #}
-                                        <div class="{% if not feature('V6_5_0_0') %}table {% endif %}order-table">
+                                        <div class="{% if not feature('v6.5.0.0') %}table {% endif %}order-table">
 
                                             {% block page_account_overview_newest_order_table_body %}
                                                 <div class="order-table-body"

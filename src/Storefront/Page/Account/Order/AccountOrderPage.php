@@ -11,6 +11,8 @@ use Shopware\Storefront\Page\Page;
 class AccountOrderPage extends Page
 {
     /**
+     * @deprecated tag:v6.7.0 - Type will change to EntitySearchResult<OrderCollection>
+     *
      * @var StorefrontSearchResult<OrderCollection>
      */
     protected $orders;
@@ -21,6 +23,8 @@ class AccountOrderPage extends Page
     protected $deepLinkCode;
 
     /**
+     * @deprecated tag:v6.7.0 - Return type will change to EntitySearchResult<OrderCollection>
+     *
      * @return StorefrontSearchResult<OrderCollection>
      */
     public function getOrders(): StorefrontSearchResult
@@ -29,6 +33,8 @@ class AccountOrderPage extends Page
     }
 
     /**
+     * @deprecated tag:v6.7.0 - Type will change to EntitySearchResult<OrderCollection>
+     *
      * @param StorefrontSearchResult<OrderCollection> $orders
      */
     public function setOrders(StorefrontSearchResult $orders): void

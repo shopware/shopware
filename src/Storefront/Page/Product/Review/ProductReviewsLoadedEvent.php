@@ -15,6 +15,8 @@ use Symfony\Component\HttpFoundation\Request;
 class ProductReviewsLoadedEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**
+     * @deprecated tag:v6.7.0 - Type will change to EntitySearchResult<ProductReviewCollection>
+     *
      * @var StorefrontSearchResult<ProductReviewCollection>
      */
     protected $searchResult;
@@ -43,6 +45,8 @@ class ProductReviewsLoadedEvent extends NestedEvent implements ShopwareSalesChan
     }
 
     /**
+     * @deprecated tag:v6.7.0 - Return type will change to EntitySearchResult<ProductReviewCollection>
+     *
      * @return StorefrontSearchResult<ProductReviewCollection>
      */
     public function getSearchResult(): StorefrontSearchResult

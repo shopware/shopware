@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 
 /**
+ * @deprecated tag:v6.7.0 - Will inherit from EntitySearchResult<ProductReviewCollection>
+ *
  * @template-extends StorefrontSearchResult<ProductReviewCollection>
  */
 #[Package('storefront')]
@@ -52,6 +54,8 @@ class ReviewLoaderResult extends StorefrontSearchResult
     }
 
     /**
+     * @deprecated tag:v6.7.0 - Return type will change to EntitySearchResult<ProductReviewCollection>
+     *
      * @return StorefrontSearchResult<ProductReviewCollection>
      */
     public function getReviews(): StorefrontSearchResult

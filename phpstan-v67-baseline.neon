@@ -1,0 +1,96 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Method \"getOrders\" of class \"Shopware\\\\Storefront\\\\Page\\\\Account\\\\Order\\\\AccountOrderPage\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
+			count: 1
+			path: src/Storefront/Page/Account/Order/AccountOrderPage.php
+
+		-
+			message: "#^Method \"setOrders\" of class \"Shopware\\\\Storefront\\\\Page\\\\Account\\\\Order\\\\AccountOrderPage\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
+			count: 1
+			path: src/Storefront/Page/Account/Order/AccountOrderPage.php
+
+		-
+			message: "#^Multiple class/interface/trait is not allowed in single file$#"
+			count: 1
+			path: src/Storefront/Page/Account/Order/AccountOrderPage.php
+
+		-
+			message: "#^Parameter \\#1 \\$orders of method Shopware\\\\Storefront\\\\Page\\\\Account\\\\Order\\\\AccountOrderPage\\:\\:setOrders\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult\\<Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderCollection\\>, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult\\<Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderCollection\\>\\|Shopware\\\\Storefront\\\\Framework\\\\Page\\\\StorefrontSearchResult given\\.$#"
+			count: 1
+			path: src/Storefront/Page/Account/Order/AccountOrderPageLoader.php
+
+		-
+			message: "#^Parameter \\#1 \\$searchResult of class Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ProductReviewsLoadedEvent constructor expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult\\<Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductReview\\\\ProductReviewCollection\\>, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\EntitySearchResult\\<Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductReview\\\\ProductReviewCollection\\>\\|Shopware\\\\Storefront\\\\Framework\\\\Page\\\\StorefrontSearchResult given\\.$#"
+			count: 1
+			path: src/Storefront/Page/Product/Review/ProductReviewLoader.php
+
+		-
+			message: "#^Method \"getSearchResult\" of class \"Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ProductReviewsLoadedEvent\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
+			count: 1
+			path: src/Storefront/Page/Product/Review/ProductReviewsLoadedEvent.php
+
+		-
+			message: "#^Multiple class/interface/trait is not allowed in single file$#"
+			count: 1
+			path: src/Storefront/Page/Product/Review/ProductReviewsLoadedEvent.php
+
+		-
+			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ReviewLoaderResult\" is marked as deprecated, but method \"getCustomerReview\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
+			count: 1
+			path: src/Storefront/Page/Product/Review/ReviewLoaderResult.php
+
+		-
+			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ReviewLoaderResult\" is marked as deprecated, but method \"getMatrix\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
+			count: 1
+			path: src/Storefront/Page/Product/Review/ReviewLoaderResult.php
+
+		-
+			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ReviewLoaderResult\" is marked as deprecated, but method \"getParentId\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
+			count: 1
+			path: src/Storefront/Page/Product/Review/ReviewLoaderResult.php
+
+		-
+			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ReviewLoaderResult\" is marked as deprecated, but method \"getProductId\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
+			count: 1
+			path: src/Storefront/Page/Product/Review/ReviewLoaderResult.php
+
+		-
+			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ReviewLoaderResult\" is marked as deprecated, but method \"getReviews\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
+			count: 1
+			path: src/Storefront/Page/Product/Review/ReviewLoaderResult.php
+
+		-
+			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ReviewLoaderResult\" is marked as deprecated, but method \"getTotalReviews\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
+			count: 1
+			path: src/Storefront/Page/Product/Review/ReviewLoaderResult.php
+
+		-
+			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ReviewLoaderResult\" is marked as deprecated, but method \"setCustomerReview\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
+			count: 1
+			path: src/Storefront/Page/Product/Review/ReviewLoaderResult.php
+
+		-
+			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ReviewLoaderResult\" is marked as deprecated, but method \"setMatrix\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
+			count: 1
+			path: src/Storefront/Page/Product/Review/ReviewLoaderResult.php
+
+		-
+			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ReviewLoaderResult\" is marked as deprecated, but method \"setParentId\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
+			count: 1
+			path: src/Storefront/Page/Product/Review/ReviewLoaderResult.php
+
+		-
+			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ReviewLoaderResult\" is marked as deprecated, but method \"setProductId\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
+			count: 1
+			path: src/Storefront/Page/Product/Review/ReviewLoaderResult.php
+
+		-
+			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ReviewLoaderResult\" is marked as deprecated, but method \"setTotalReviews\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
+			count: 1
+			path: src/Storefront/Page/Product/Review/ReviewLoaderResult.php
+
+		-
+			message: "#^Multiple class/interface/trait is not allowed in single file$#"
+			count: 1
+			path: src/Storefront/Page/Product/Review/ReviewLoaderResult.php

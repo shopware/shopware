@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
+namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @covers \Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult
+ *
  * @internal
  */
 class EntitySearchResultTest extends TestCase
@@ -72,6 +74,7 @@ class EntitySearchResultTest extends TestCase
 
     public static function resultPageCriteriaDataProvider(): \Generator
     {
+        // Criteria, Page
         yield [(new Criteria())->setLimit(5)->setOffset(0), 1];
         yield [(new Criteria())->setLimit(5)->setOffset(1), 1];
         yield [(new Criteria())->setLimit(5)->setOffset(9), 2];

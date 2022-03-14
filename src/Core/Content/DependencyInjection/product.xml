@@ -214,7 +214,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Product\Cms\ProductDescriptionReviewsCmsElementResolver">
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader"/>
             <tag name="shopware.cms.data_resolver"/>
         </service>
 
@@ -427,6 +427,11 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
             <argument type="service" id="event_dispatcher"/>
             <argument>%shopware.cache.invalidation.product_review_route%</argument>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader">
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader">

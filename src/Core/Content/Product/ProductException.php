@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\Product;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('inventory')]
@@ -13,6 +15,7 @@ class ProductException extends HttpException
     public const PRODUCT_PROXY_MANIPULATION_NOT_ALLOWED_CODE = 'PRODUCT_PROXY_MANIPULATION_NOT_ALLOWED';
     public const PRODUCT_INVALID_PRICE_DEFINITION_CODE = 'PRODUCT_INVALID_PRICE_DEFINITION';
     public const CATEGORY_NOT_FOUND = 'PRODUCT__CATEGORY_NOT_FOUND';
+    public const PRODUCT_MISSING_PRODUCT_ID_IN_REQUEST_CODE = 'PRODUCT__MISSING_PRODUCT_ID_IN_REQUEST';
 
     public static function invalidCheapestPriceFacade(string $id): self
     {
@@ -50,6 +53,20 @@ class ProductException extends HttpException
             self::CATEGORY_NOT_FOUND,
             'Category "{{ categoryId }}" not found.',
             ['categoryId' => $categoryId]
+        );
+    }
+
+    public static function missingProductId(string $path = ''): HttpException
+    {
+        if (!Feature::isActive('v6.6.0.0')) {
+            return new MissingRequestParameterException('productId', $path);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PRODUCT_MISSING_PRODUCT_ID_IN_REQUEST_CODE,
+            'Parameter "productId" is missing.',
+            ['path' => $path]
         );
     }
 }

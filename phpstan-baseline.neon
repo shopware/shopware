@@ -4376,11 +4376,6 @@ parameters:
 			path: src/Core/Content/Product/Cms/CrossSellingCmsElementResolver.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Cms\\\\ProductDescriptionReviewsCmsElementResolver\\:\\:getCustomerReview\\(\\) should return Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductReview\\\\ProductReviewEntity\\|null but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Cms/ProductDescriptionReviewsCmsElementResolver.php
-
-		-
 			message: "#^PHPDoc tag @var with type Shopware\\\\Core\\\\Content\\\\Product\\\\ProductCollection\\|null is not subtype of native type Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Cms/ProductSliderCmsElementResolver.php
@@ -16324,11 +16319,6 @@ parameters:
 			message: "#^Property Shopware\\\\Storefront\\\\Page\\\\Address\\\\AddressEditorModalStruct\\:\\:\\$messages type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Page/Address/AddressEditorModalStruct.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\ProductReviewLoader\\:\\:getCustomerReview\\(\\) should return Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductReview\\\\ProductReviewEntity\\|null but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Page/Product/Review/ProductReviewLoader.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Page\\\\Sitemap\\\\SitemapPage\\:\\:getSitemaps\\(\\) return type has no value type specified in iterable type array\\.$#"

@@ -75,6 +75,7 @@ class DemodataCommand extends Command
         $this->addOption('customer-attributes', null, InputOption::VALUE_REQUIRED, 'Customer attribute count');
         $this->addOption('media-attributes', null, InputOption::VALUE_REQUIRED, 'Media attribute count');
         $this->addOption('flows', 'fl', InputOption::VALUE_OPTIONAL, 'Flows count', '0');
+        $this->addOption('rules', 'R', InputOption::VALUE_OPTIONAL, 'Rules count', '25');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -92,7 +93,7 @@ class DemodataCommand extends Command
 
         $request = new DemodataRequest();
 
-        $request->add(RuleDefinition::class, 25);
+        $request->add(RuleDefinition::class, (int) $input->getOption('rules'));
         $request->add(MediaDefinition::class, (int) $input->getOption('media'));
         $request->add(CustomerDefinition::class, (int) $input->getOption('customers'));
         $request->add(PropertyGroupDefinition::class, (int) $input->getOption('properties'));

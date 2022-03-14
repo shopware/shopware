@@ -27,7 +27,8 @@
                                 {% block page_account_orders_table %}
                                     {% block page_account_orders_table_body %}
                                         {% for order in page.orders %}
-                                            <div class="table order-table"
+                                            {# @deprecated tag:v6.5.0 - Bootstrap v5 `.table` class will be removed because it adds unneeded styling. #}
+                                            <div class="{% if not feature('V6_5_0_0') %}table {% endif %}order-table"
                                                  data-order-detail-loader="true">
                                                 {% sw_include '@Storefront/storefront/page/account/order-history/order-item.html.twig' %}
                                             </div>

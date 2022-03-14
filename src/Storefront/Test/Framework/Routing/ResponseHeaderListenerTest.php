@@ -70,7 +70,8 @@ class ResponseHeaderListenerTest extends TestCase
         $response = $browser->getResponse();
 
         static::assertTrue($response->headers->hasCacheControlDirective('no-store'));
-        static::assertLessThanOrEqual(0, $response->getMaxAge());
+        static::assertTrue($response->headers->hasCacheControlDirective('private'));
+        static::assertFalse($response->isCacheable());
     }
 
     public function dataProviderRevalidateRoutes(): iterable

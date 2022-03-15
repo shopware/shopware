@@ -50,6 +50,10 @@
         "listPrice": {
           "changeLabel": "Ändern: Streichpreis",
           "placeholderListPrice": "Streichpreis eingeben ..."
+        },
+        "regulationPrice": {
+          "changeLabel": "Ändern: Günstigster Preis (letzten 30 Tage)",
+          "placeholderRegulationPrice": "Günstigsten Preis eingeben ..."
         }
       },
       "advancedPrices": {

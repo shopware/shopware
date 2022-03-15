@@ -46,6 +46,10 @@ class EntitySearcher implements EntitySearcherInterface
 
     public function search(EntityDefinition $definition, Criteria $criteria, Context $context): IdSearchResult
     {
+        if ($criteria->getLimit() === 0) {
+            return new IdSearchResult(0, [], $criteria, $context);
+        }
+
         $table = $definition->getEntityName();
 
         $fields = $definition->getPrimaryKeys();

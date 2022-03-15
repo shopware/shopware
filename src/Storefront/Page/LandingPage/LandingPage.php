@@ -4,10 +4,13 @@ namespace Shopware\Storefront\Page\LandingPage;
 
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Storefront\Page\Page;
 
 class LandingPage extends Page
 {
+    use EntityCustomFieldsTrait;
+
     /**
      * @var CmsPageEntity|null
      */

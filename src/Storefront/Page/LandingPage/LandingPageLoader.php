@@ -63,6 +63,7 @@ class LandingPageLoader
         $metaInformation->setMetaDescription($landingPage->getMetaDescription() ?? '');
         $metaInformation->setMetaKeywords($landingPage->getKeywords() ?? '');
         $page->setMetaInformation($metaInformation);
+        $page->setCustomFields($landingPage->getCustomFields());
 
         $this->eventDispatcher->dispatch(
             new LandingPageLoadedEvent($page, $context, $request)

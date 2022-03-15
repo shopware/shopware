@@ -1,4 +1,5 @@
 import { AxiosInstance, AxiosResponse } from 'axios';
+import { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
 import Criteria from './criteria.data';
 import EntityHydrator from './entity-hydrator.data';
 import ChangesetGenerator from './changeset-generator.data';
@@ -6,7 +7,6 @@ import ErrorResolver from './error-resolver.data';
 import EntityFactory from './entity-factory.data';
 import EntityDefinition from './entity-definition.data';
 import EntityCollection from './entity-collection.data';
-import Entity from './entity.data';
 
 type options = {
     [key: string]: unknown
@@ -508,7 +508,7 @@ export default class Repository {
      * To Many association are initialed with a collection with the corresponding remote api route
      */
     create(context = Shopware.Context.api, id: string | null = null): Entity | null {
-        return this.entityFactory.create(this.entityName, id, context);
+        return this.entityFactory.create(this.entityName, id, context) as unknown as Entity;
     }
 
     /**

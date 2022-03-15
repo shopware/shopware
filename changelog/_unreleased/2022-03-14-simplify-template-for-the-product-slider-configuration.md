@@ -1,5 +1,6 @@
 ---
 title: Simplify template for the product slider configuration
+issue: NEXT-20564
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999

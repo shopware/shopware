@@ -102,6 +102,9 @@ class CartOrderRoute extends AbstractCartOrderRoute
      */
     public function order(Cart $cart, SalesChannelContext $context, RequestDataBag $data): CartOrderRouteResponse
     {
+        // we use this state in stock updater class, to prevent duplicate available stock updates
+        $context->addState('checkout-order-route');
+
         $calculatedCart = $this->cartCalculator->calculate($cart, $context);
 
         $this->addCustomerComment($calculatedCart, $data);

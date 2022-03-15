@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSetAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
@@ -68,15 +69,47 @@ class StockUpdater implements EventSubscriberInterface
             if ($command->getDefinition()->getEntityName() !== OrderLineItemDefinition::ENTITY_NAME) {
                 continue;
             }
+            if ($command instanceof InsertCommand) {
+                continue;
+            }
             if ($command instanceof DeleteCommand) {
                 $command->requestChangeSet();
 
                 continue;
             }
+            /** @var WriteCommand&ChangeSetAware $command */
             if ($command->hasField('referenced_id') || $command->hasField('product_id') || $command->hasField('quantity')) {
                 $command->requestChangeSet();
             }
         }
+    }
+
+    public function orderPlaced(CheckoutOrderPlacedEvent $event): void
+    {
+        $ids = [];
+        foreach ($event->getOrder()->getLineItems() as $lineItem) {
+            if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
+                continue;
+            }
+
+            if (!\array_key_exists($lineItem->getReferencedId(), $ids)) {
+                $ids[$lineItem->getReferencedId()] = 0;
+            }
+
+            $ids[$lineItem->getReferencedId()] += $lineItem->getQuantity();
+        }
+
+        // order placed event is a high load event. Because of the high load, we simply reduce the quantity here instead of executing the high costs `update` function
+        $query = new RetryableQuery(
+            $this->connection,
+            $this->connection->prepare('UPDATE product SET available_stock = available_stock - :quantity WHERE id = :id')
+        );
+
+        foreach ($ids as $id => $quantity) {
+            $query->execute(['id' => Uuid::fromHexToBytes((string) $id), 'quantity' => $quantity]);
+        }
+
+        $this->updateAvailableFlag(\array_keys($ids), $event->getContext());
     }
 
     /**
@@ -85,6 +118,11 @@ class StockUpdater implements EventSubscriberInterface
     public function lineItemWritten(EntityWrittenEvent $event): void
     {
         $ids = [];
+
+        // we don't want to trigger to `update` method when we are inside the order process
+        if ($event->getContext()->hasState('checkout-order-route')) {
+            return;
+        }
 
         foreach ($event->getWriteResults() as $result) {
             if ($result->hasPayload('referencedId') && $result->getProperty('type') === LineItem::PRODUCT_LINE_ITEM_TYPE) {
@@ -167,19 +205,6 @@ class StockUpdater implements EventSubscriberInterface
         $this->updateAvailableStockAndSales($ids, $context);
 
         $this->updateAvailableFlag($ids, $context);
-    }
-
-    public function orderPlaced(CheckoutOrderPlacedEvent $event): void
-    {
-        $ids = [];
-        foreach ($event->getOrder()->getLineItems() as $lineItem) {
-            if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
-                continue;
-            }
-            $ids[] = $lineItem->getReferencedId();
-        }
-
-        $this->update($ids, $event->getContext());
     }
 
     private function increaseStock(StateMachineTransitionEvent $event): void

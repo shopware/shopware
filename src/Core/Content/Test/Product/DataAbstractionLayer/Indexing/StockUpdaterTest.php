@@ -32,7 +32,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @group slow
  */
-class ProductStockIndexerTest extends TestCase
+class StockUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;

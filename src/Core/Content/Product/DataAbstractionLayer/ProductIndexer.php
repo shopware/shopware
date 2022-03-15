@@ -129,7 +129,9 @@ class ProductIndexer extends EntityIndexer
         }
 
         $this->inheritanceUpdater->update(ProductDefinition::ENTITY_NAME, $updates, $event->getContext());
-        $this->stockUpdater->update($updates, $event->getContext());
+
+        $stocks = $event->getPrimaryKeysWithPropertyChange(ProductDefinition::ENTITY_NAME, ['stock', 'isCloseout', 'minPurchase']);
+        $this->stockUpdater->update($stocks, $event->getContext());
 
         $message = new ProductIndexingMessage(array_values($updates), null, $event->getContext());
         $message->addSkip(self::INHERITANCE_UPDATER, self::STOCK_UPDATER);

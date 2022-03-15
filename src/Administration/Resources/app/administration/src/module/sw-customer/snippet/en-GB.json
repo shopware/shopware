@@ -114,7 +114,7 @@
       "labelBirthday": "Date of birth",
       "labelLastLogin": "Last login",
       "labelLanguage": "Language",
-      "labelOrders": "Order value",
+      "labelOrders": "Number of orders",
       "labelTurnover": "Turnover",
       "labelDefaultPayment": "Default payment method",
       "labelActive": "Account status",

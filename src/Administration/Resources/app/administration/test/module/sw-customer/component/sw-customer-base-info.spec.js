@@ -57,6 +57,17 @@ function createWrapper() {
             'sw-checkbox-field': true,
             'sw-help-text': true,
             'sw-datepicker': true
+        },
+        provide: {
+            repositoryFactory: {
+                create: () => ({
+                    search: () => Promise.resolve({
+                        total: 2,
+                        aggregations: { orderAmount: { sum: 29.68 } }
+                    }),
+                    get: () => Promise.resolve(),
+                })
+            }
         }
     });
 }
@@ -106,5 +117,9 @@ describe('module/sw-customer/page/sw-customer-base-info', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.sw-customer-base__label-last-login').text()).toBe('sw-customer.baseInfo.emptyTextLogin');
+    });
+
+    it('should display turnover of user', async () => {
+        expect(wrapper.find('.sw-customer-base__label-turnover').text()).toBe('€29.68');
     });
 });

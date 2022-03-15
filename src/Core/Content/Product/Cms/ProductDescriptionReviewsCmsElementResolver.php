@@ -77,7 +77,7 @@ class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailC
     {
         $reviewCriteria = $this->createReviewCriteria($request, $context);
         $reviews = $this->productReviewRoute
-            ->load($product->getId(), $request, $context, $reviewCriteria)
+            ->load($product->getParentId() ?? $product->getId(), $request, $context, $reviewCriteria)
             ->getResult();
 
         $matrix = $this->getReviewRatingMatrix($reviews);

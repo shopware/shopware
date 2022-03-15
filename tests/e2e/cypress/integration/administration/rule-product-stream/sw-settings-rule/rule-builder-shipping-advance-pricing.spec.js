@@ -121,7 +121,7 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
                 cy.get('.sw-loader').should('not.exist');
                 cy.get('.sw-skeleton').should('not.exist');
                 // now it should be safe to select the element in the flyout
-                cy.contains('.sw-select-result-list__item-list li', 'Shipping to Netherlands').click();
+                cy.contains('.sw-select-result-list__item-list', 'Shipping to Netherlands').click();
                 cy.wait('@getShippingMethod').its('response.statusCode').should('equal', 200);
             }
         });

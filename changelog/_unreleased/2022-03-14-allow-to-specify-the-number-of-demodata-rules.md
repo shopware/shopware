@@ -1,5 +1,6 @@
 ---
 title: Allow to specify the number of demodata rules
+issue: NEXT-20563
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999

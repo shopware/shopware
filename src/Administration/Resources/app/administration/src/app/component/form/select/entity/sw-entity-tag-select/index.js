@@ -33,6 +33,10 @@ Component.extend('sw-entity-tag-select', 'sw-entity-multi-select', {
 
         addItem(item) {
             if (item.id === -1) {
+                if (this.isLoading) {
+                    return;
+                }
+
                 this.createNewTag();
             } else {
                 this.$super('addItem', item);
@@ -42,6 +46,7 @@ Component.extend('sw-entity-tag-select', 'sw-entity-multi-select', {
         createNewTag() {
             const item = this.repository.create(this.entityCollection.context);
             item.name = this.searchTerm;
+            this.isLoading = true;
             this.repository.save(item, this.entityCollection.context).then(() => {
                 this.addItem(item);
 
@@ -52,9 +57,11 @@ Component.extend('sw-entity-tag-select', 'sw-entity-multi-select', {
                 this.searchTerm = '';
                 this.resultCollection = null;
 
-                this.loadData().then(() => {
-                    this.resetActiveItem();
-                });
+                return this.loadData();
+            }).then(() => {
+                this.resetActiveItem();
+            }).finally(() => {
+                this.isLoading = false;
             });
         },
 

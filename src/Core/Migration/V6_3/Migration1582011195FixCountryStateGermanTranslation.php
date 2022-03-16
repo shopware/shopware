@@ -57,7 +57,7 @@ class Migration1582011195FixCountryStateGermanTranslation extends MigrationStep
             ->from('language', 'lang')
             ->innerJoin('lang', 'locale', 'loc', 'lang.translation_code_id = loc.id')
             ->where('loc.code = :germanLocale')
-            ->setParameter(':germanLocale', 'de-DE')
+            ->setParameter('germanLocale', 'de-DE')
             ->execute()
             ->fetchColumn();
 
@@ -74,8 +74,8 @@ class Migration1582011195FixCountryStateGermanTranslation extends MigrationStep
                 'state_translation',
                 'state.id = state_translation.country_state_id AND state_translation.language_id = :germanLanguageId'
             )->where('state.short_code IN (:shortCodes)')
-            ->setParameter(':germanLanguageId', $germanLanguageId)
-            ->setParameter(':shortCodes', array_keys($default), Connection::PARAM_STR_ARRAY)
+            ->setParameter('germanLanguageId', $germanLanguageId)
+            ->setParameter('shortCodes', array_keys($default), Connection::PARAM_STR_ARRAY)
             ->execute()
             ->fetchAll();
 

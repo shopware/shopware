@@ -302,14 +302,14 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
             $alias = 'pt';
             $outerAlias = 'product_translation.translation.fallback_' . $i;
-            $languageParam = ':languageId' . $i;
+            $languageParam = 'languageId' . $i;
             if ($i === 0) {
                 $outerAlias = $firstAlias;
-                $languageParam = ':languageId';
+                $languageParam = 'languageId';
             }
 
             $languageQuery->from('product_translation ' . EntityDefinitionQueryHelper::escape($alias));
-            $languageQuery->andWhere(EntityDefinitionQueryHelper::escape($alias) . '.language_id = ' . $languageParam);
+            $languageQuery->andWhere(EntityDefinitionQueryHelper::escape($alias) . '.language_id = :' . $languageParam);
             $languageQuery->addSelect(EntityDefinitionQueryHelper::escape($alias) . '.product_id');
             $languageQuery->addSelect(EntityDefinitionQueryHelper::escape($alias) . '.name');
             $languageQuery->addSelect(EntityDefinitionQueryHelper::escape($alias) . '.description');

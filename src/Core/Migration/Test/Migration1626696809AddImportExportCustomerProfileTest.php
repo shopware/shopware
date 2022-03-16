@@ -46,7 +46,7 @@ class Migration1626696809AddImportExportCustomerProfileTest extends TestCase
     {
         return (int) $this->connection->fetchOne(
             'SELECT COUNT(`import_export_profile_id`) FROM `import_export_profile_translation` WHERE `import_export_profile_id` = :id',
-            [':id' => $id]
+            ['id' => $id]
         );
     }
 }

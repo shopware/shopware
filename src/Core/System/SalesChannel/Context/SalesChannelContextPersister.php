@@ -16,17 +16,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class SalesChannelContextPersister
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var string
-     */
-    private $lifetimeInterval;
+    private string $lifetimeInterval;
 
     /**
      * @deprecated tag:v6.5.0 - CartPersisterInterface will be removed, type hint with AbstractCartPersister

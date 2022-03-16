@@ -15,10 +15,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class SystemDefaultValidator implements EventSubscriberInterface
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(Connection $connection)
     {
@@ -64,8 +61,8 @@ class SystemDefaultValidator implements EventSubscriberInterface
 
         $result = $this->connection->executeQuery(
             'SELECT id FROM import_export_profile WHERE id IN (:idList) AND system_default = 1',
-            [':idList' => $ids],
-            [':idList' => Connection::PARAM_STR_ARRAY]
+            ['idList' => $ids],
+            ['idList' => Connection::PARAM_STR_ARRAY]
         );
 
         return $result->fetchAll(FetchMode::COLUMN);

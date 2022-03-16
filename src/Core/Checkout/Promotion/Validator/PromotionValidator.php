@@ -428,7 +428,7 @@ class PromotionValidator implements EventSubscriberInterface
             ->select('id')
             ->from('promotion')
             ->where($qb->expr()->eq('individual_code_pattern', ':pattern'))
-            ->setParameter(':pattern', $pattern);
+            ->setParameter('pattern', $pattern);
 
         $promotions = $query->execute()->fetchAll();
 
@@ -460,11 +460,11 @@ class PromotionValidator implements EventSubscriberInterface
             ->select('id')
             ->from('promotion_individual_code')
             ->where($qb->expr()->eq('code', ':code'))
-            ->setParameter(':code', $code);
+            ->setParameter('code', $code);
 
         if ($promotionId !== null) {
             $query->andWhere($qb->expr()->neq('promotion_id', ':promotion_id'))
-                ->setParameter(':promotion_id', $promotionId);
+                ->setParameter('promotion_id', $promotionId);
         }
 
         $existingIndividual = \count($query->execute()->fetchAll()) > 0;
@@ -482,11 +482,11 @@ class PromotionValidator implements EventSubscriberInterface
             = $qb->select('id')
             ->from('promotion')
             ->where($qb->expr()->eq('code', ':code'))
-            ->setParameter(':code', $code);
+            ->setParameter('code', $code);
 
         if ($promotionId !== null) {
             $query->andWhere($qb->expr()->neq('id', ':id'))
-                ->setParameter(':id', $promotionId);
+                ->setParameter('id', $promotionId);
         }
 
         return \count($query->execute()->fetchAll()) > 0;

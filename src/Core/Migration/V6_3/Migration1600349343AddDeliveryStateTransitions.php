@@ -43,21 +43,21 @@ class Migration1600349343AddDeliveryStateTransitions extends MigrationStep
     private function fetchOrderDeliveryStateId(Connection $connection): string
     {
         return $connection->fetchColumn('SELECT id FROM state_machine WHERE technical_name = :technical_name', [
-            ':technical_name' => 'order_delivery.state',
+            'technical_name' => 'order_delivery.state',
         ]);
     }
 
     private function fetchOpenOrderDeliveryStateId(Connection $connection): string
     {
         return $connection->fetchColumn('SELECT initial_state_id FROM state_machine WHERE technical_name = :technical_name', [
-            ':technical_name' => 'order_delivery.state',
+            'technical_name' => 'order_delivery.state',
         ]);
     }
 
     private function fetchMissingOrderDeliveryStates(Connection $connection, string $stateMachineId): array
     {
         $allStates = $connection->fetchAll('SELECT action_name, from_state_id, to_state_id FROM state_machine_transition WHERE state_machine_id = :id', [
-            ':id' => $stateMachineId,
+            'id' => $stateMachineId,
         ]);
 
         $reopenStates = array_filter($allStates, static function (array $state) {

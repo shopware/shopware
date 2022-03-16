@@ -41,10 +41,10 @@ class Migration1599134496FixImportExportProfilesForGermanLanguage extends Migrat
 SQL;
 
         $englishData = $connection->fetchAll($sql, [
-            ':languageId' => $englishLanguageId,
+            'languageId' => $englishLanguageId,
         ]);
         $germanData = $connection->fetchAll($sql, [
-            ':languageId' => $germanLanguageId,
+            'languageId' => $germanLanguageId,
         ]);
         $germanTranslations = $this->getGermanTranslationData();
 
@@ -60,10 +60,10 @@ SQL;
             }
 
             $stmt->execute([
-                ':import_export_profile_id' => $data['import_export_profile_id'],
-                ':language_id' => $germanLanguageId,
-                ':label' => $germanTranslations[$data['name']],
-                ':created_at' => $data['created_at'],
+                'import_export_profile_id' => $data['import_export_profile_id'],
+                'language_id' => $germanLanguageId,
+                'label' => $germanTranslations[$data['name']],
+                'created_at' => $data['created_at'],
             ]);
         }
     }

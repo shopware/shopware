@@ -20,6 +20,7 @@ Component.register('sw-flow-list', {
             isLoading: false,
             flows: null,
             currentFlow: {},
+            selectedItems: [],
         };
     },
 
@@ -150,6 +151,10 @@ Component.register('sw-flow-list', {
 
         getTranslatedEventName(value) {
             return value.replace(/\./g, '_');
+        },
+
+        selectionChange(selection) {
+            this.selectedItems = Object.values(selection);
         },
     },
 });

@@ -38,6 +38,10 @@ Component.register('sw-flow-sequence', {
             return this.sequenceData.ruleId || this.sequenceData.ruleId === '';
         },
 
+        isActionSequence() {
+            return !this.isSelectorSequence && !this.isConditionSequence;
+        },
+
         trueBlockClasses() {
             if (this.sequence.parentId || !this.isConditionSequence) {
                 return null;

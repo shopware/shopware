@@ -27,6 +27,7 @@
             icon="small-default-plus-line-medium"
             :disabled="disabledAddSequence(true)"
         >
+            {% block sw_flow_sequence_condition_true_arrow_add_condition %}
             <sw-context-menu-item
                 class="sw-flow-sequence-condition__add-true-condition"
                 :disabled="disabled"
@@ -34,7 +35,9 @@
             >
                 {{ $tc('sw-flow.detail.sequence.selectorIfCondition') }}
             </sw-context-menu-item>
+            {% endblock %}
 
+            {% block sw_flow_sequence_condition_true_arrow_add_action %}
             <sw-context-menu-item
                 class="sw-flow-sequence-condition__add-true-action"
                 :disabled="disabled"
@@ -42,6 +45,9 @@
             >
                 {{ $tc('sw-flow.detail.sequence.selectorThenAction') }}
             </sw-context-menu-item>
+            {% endblock %}
+
+            {% block sw_flow_sequence_condition_true_arrow_extension_options %}{% endblock %}
         </sw-context-button>
         {% endblock %}
 
@@ -94,6 +100,7 @@
             icon="small-default-plus-line-medium"
             :disabled="disabledAddSequence(false)"
         >
+            {% block sw_flow_sequence_condition_false_arrow_add_condition %}
             <sw-context-menu-item
                 class="sw-flow-sequence-condition__add-false-condition"
                 :disabled="disabled"
@@ -101,7 +108,9 @@
             >
                 {{ $tc('sw-flow.detail.sequence.selectorIfCondition') }}
             </sw-context-menu-item>
+            {% endblock %}
 
+            {% block sw_flow_sequence_condition_false_arrow_add_action %}
             <sw-context-menu-item
                 class="sw-flow-sequence-condition__add-false-action"
                 :disabled="disabled"
@@ -109,6 +118,9 @@
             >
                 {{ $tc('sw-flow.detail.sequence.selectorThenAction') }}
             </sw-context-menu-item>
+            {% endblock %}
+
+            {% block sw_flow_sequence_condition_false_arrow_extension_options %}{% endblock %}
         </sw-context-button>
         {% endblock %}
     </div>

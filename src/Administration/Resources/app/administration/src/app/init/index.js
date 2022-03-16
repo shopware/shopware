@@ -28,6 +28,7 @@ import initSettingItems from './settings-item.init';
 import initMainModules from './main-module.init';
 import initializeActionButtons from './action-button.init';
 import initializeActions from './actions.init';
+import initializeExtensionDataHandling from './extension-data-handling.init';
 
 export default {
     coreMixin: initMixin,
@@ -56,4 +57,5 @@ export default {
     mainModules: initMainModules,
     actionButton: initializeActionButtons,
     actions: initializeActions,
+    extensionDataHandling: initializeExtensionDataHandling,
 };

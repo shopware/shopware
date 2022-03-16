@@ -1,5 +1,5 @@
 import { AxiosInstance, AxiosResponse } from 'axios';
-import { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
+import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
 import Criteria from './criteria.data';
 import EntityHydrator from './entity-hydrator.data';
 import ChangesetGenerator from './changeset-generator.data';

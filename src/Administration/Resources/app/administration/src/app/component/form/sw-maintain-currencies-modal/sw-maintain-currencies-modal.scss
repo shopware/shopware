@@ -1,6 +1,10 @@
 @import "~scss/variables";
 
 .sw-modal.sw-maintain-currencies-modal {
+    .sw-modal__dialog {
+        max-width: 1170px;
+    }
+
     .sw-modal__body {
         padding: 0;
         border-bottom: 1px solid $color-gray-300;
@@ -17,11 +21,15 @@
             cursor: pointer;
             margin-right: 5px;
         }
+
+        .sw-field {
+            width: 130px;
+        }
     }
 
     .sw-maintain-currencies-modal__price-label-wrapper {
-        display: flex;
+        display: grid;
+        grid-template-columns: repeat(3, 320px);
         width: 100%;
-        justify-content: space-around;
     }
 }

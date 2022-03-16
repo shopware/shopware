@@ -1147,7 +1147,8 @@
   "sw-maintain-currencies-modal": {
     "title": "Währungen pflegen",
     "columnPrice": "Preise (Brutto / Netto)",
-    "columnListPriceHeader": "Streichpreise (Brutto / Netto)"
+    "columnListPriceHeader": "Streichpreise (Brutto / Netto)",
+    "columnReferencePriceHeader": "Günstigster Preis (letzte 30 Tage, Brutto / Netto)"
   },
   "sw-privileges": {
     "tooltip": {

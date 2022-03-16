@@ -155,7 +155,6 @@ Component.register('sw-customer-detail', {
                 this.defaultCriteria,
             ).then((customer) => {
                 this.customer = customer;
-                this.customer.vatIds = this.customer.vatIds || [];
                 this.isLoading = false;
             });
         },

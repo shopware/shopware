@@ -164,12 +164,11 @@ export default class EntityHydrator {
             }
 
             const isEmptyObject = !Array.isArray(attributeValue)
-                && typeof attributeValue === 'object'
-                && attributeValue !== null
-                && Object.keys(attributeValue).length <= 0
-                && schema.isJsonListField(field);
+                    && typeof attributeValue === 'object'
+                    && attributeValue !== null
+                    && Object.keys(attributeValue).length <= 0;
 
-            if (isEmptyObject) {
+            if (schema.isJsonListField(field) && (isEmptyObject || attributeValue === null)) {
                 data[attributeKey] = [];
             }
         });

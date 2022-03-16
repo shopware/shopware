@@ -14,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\ThemeAppLifecycleHandler;
 
@@ -23,7 +22,6 @@ class UninstallAppsStrategyTest extends TestCase
     use IntegrationTestBehaviour;
     use EnvTestBehaviour;
     use AppSystemTestBehaviour;
-    use SystemConfigTestBehaviour;
 
     /**
      * @var SystemConfigService

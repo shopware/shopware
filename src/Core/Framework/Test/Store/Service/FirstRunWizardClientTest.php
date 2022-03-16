@@ -17,7 +17,6 @@ use Shopware\Core\Framework\Store\Services\StoreService;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -25,7 +24,6 @@ class FirstRunWizardClientTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use StoreClientBehaviour;
-    use SystemConfigTestBehaviour;
     use EnvTestBehaviour;
 
     private Context $storeContext;

@@ -11,13 +11,11 @@ use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class StoreClientTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use SystemConfigTestBehaviour;
     use StoreClientBehaviour;
 
     private StoreClient $storeClient;

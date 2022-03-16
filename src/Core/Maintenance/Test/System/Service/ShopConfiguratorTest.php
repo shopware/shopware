@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
 use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -17,7 +16,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 class ShopConfiguratorTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use SystemConfigTestBehaviour;
 
     private ShopConfigurator $shopConfigurator;
 

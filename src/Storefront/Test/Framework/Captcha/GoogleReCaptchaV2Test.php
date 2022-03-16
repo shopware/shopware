@@ -11,7 +11,6 @@ use GuzzleHttp\Psr7\Request as GuzzleRequest;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV2;
@@ -21,7 +20,6 @@ use Symfony\Component\HttpFoundation\Request;
 class GoogleReCaptchaV2Test extends TestCase
 {
     use KernelTestBehaviour;
-    use SystemConfigTestBehaviour;
 
     private const IS_VALID = true;
     private const IS_INVALID = false;

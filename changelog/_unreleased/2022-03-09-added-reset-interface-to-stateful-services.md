@@ -5,7 +5,7 @@ issue: NEXT-20253
 # Core
 * Added `ResetInterface` to all services having internal state, that needs to be reset between requests, and tagged them with `kernel.reset` tag.
 * Deprecated `\Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader::clearInternalCache()`, use `reset()` instead.
-* Deprecated the TestBehaviourTraits `\Shopware\Core\Content\Test\ImportExport\SerializerCacheTestBehaviour`, `\Shopware\Core\Framework\Test\App\StorefrontPluginRegistryTestBehaviour` and `\Shopware\Core\Framework\Test\TestCaseBase\RuleTestBehaviour` as they are not needed anymore, if you use them in your unit test remove the usage.
+* Deprecated the TestBehaviourTraits `\Shopware\Core\Content\Test\ImportExport\SerializerCacheTestBehaviour`, `\Shopware\Core\Framework\Test\App\StorefrontPluginRegistryTestBehaviour`, `\Shopware\Core\Framework\Test\TestCaseBase\RuleTestBehaviour` and `\Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour` as they are not needed anymore, if you use them in your unit test remove the usage.
 ___
 # Storefront
 * Added `ResetInterface` to `\Shopware\Storefront\Theme\StorefrontPluginRegistry` and tagged it with the `kernel.reset` tag.

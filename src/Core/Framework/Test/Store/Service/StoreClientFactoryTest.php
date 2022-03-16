@@ -8,13 +8,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Store\Services\OpenSSLVerifier;
 use Shopware\Core\Framework\Store\Services\StoreClientFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class StoreClientFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use SystemConfigTestBehaviour;
 
     private const TEST_STORE_URI = 'http://test-store';
 

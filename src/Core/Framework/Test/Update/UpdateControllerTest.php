@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Update\Api\UpdateController;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
@@ -35,7 +34,6 @@ use Symfony\Component\HttpFoundation\Response;
 class UpdateControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
-    use SystemConfigTestBehaviour;
 
     public function testEventDispatcherNotCalledOnInvalidToken(): void
     {

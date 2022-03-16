@@ -6,7 +6,13 @@
              role="document">
             <div class="modal-content">
                 <div class="modal-header only-close">
-                    <div class="modal-title js-pseudo-modal-template-title-element h5"></div>
+                    {# @deprecated tag:v6.5.0 - h5 will be changed to div because it causes incorrect semantics on all pages which include pseudo-modal.html.twig #}
+                    {% if feature('V6_5_0_0') %}
+                        <div class="modal-title js-pseudo-modal-template-title-element h5"></div>
+                    {% else %}
+                        <h5 class="modal-title js-pseudo-modal-template-title-element"></h5>
+                    {% endif %}
+
                     <button type="button"
                             class="{{ modalCloseBtnClass }} close"
                             {{ dataBsDismissAttr }}="modal"

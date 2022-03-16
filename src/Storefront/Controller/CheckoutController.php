@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
@@ -36,6 +37,7 @@ use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader;
 use Shopware\Storefront\Page\Checkout\Offcanvas\CheckoutInfoWidgetLoadedHook;
 use Shopware\Storefront\Page\Checkout\Offcanvas\CheckoutOffcanvasWidgetLoadedHook;
 use Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPageLoader;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -249,8 +251,12 @@ class CheckoutController extends StorefrontController
      *
      * @throws CartTokenNotFoundException
      */
-    public function info(Request $request, SalesChannelContext $context): Response
+    public function info(Request $request, SalesChannelContext $context, Cart $cart): Response
     {
+        if ($cart->getLineItems()->count() <= 0) {
+            return new Response('');
+        }
+
         $page = $this->offcanvasCartPageLoader->load($request, $context);
 
         $this->hook(new CheckoutInfoWidgetLoadedHook($page, $context));

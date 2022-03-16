@@ -36,6 +36,9 @@ export default class CartWidgetPlugin extends Plugin {
      */
     fetch() {
         this._client.get(window.router['frontend.checkout.info'], (response) => {
+            if (response.length <= 0) {
+                return;
+            }
 
             Storage.setItem(this.options.cartWidgetStorageKey, response);
             this.el.innerHTML = response;

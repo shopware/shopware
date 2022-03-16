@@ -6,4 +6,4 @@ author_email: max@swk-web.com
 author_github: @aragon999
 ---
 # Core
-* Allow to specify the number of rules which should be generated using the in the `framework:demodata` command using `--rules` or `-R`
+* Added option `--rules` (or `-R`) to `Shopware\Core\Framework\Demodata\Command\DemodataCommand` to specify the number of rules which should be generated when running the `framework:demodata` command

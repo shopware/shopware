@@ -234,8 +234,8 @@ Component.register('sw-product-properties', {
             if (newProperties.length <= 0) {
                 return;
             }
-            this.productProperties.splice(0, this.productProperties.length);
-            this.productProperties.push(...newProperties);
+
+            this.productProperties.splice(0, this.productProperties.length, ...newProperties);
         },
 
         checkIfPropertiesExists() {

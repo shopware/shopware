@@ -22,7 +22,7 @@ class Feature
          * - NEXT-1234
          * - FEATURE_NEXT_1234
          * - SAAS_321
-         * - v6.5.0.0 => v6_5_0_0
+         * - v6.5.0.0 => v6.5.0.0
          */
         return \strtoupper(\str_replace(['.', ':', '-'], '_', $name));
     }
@@ -132,6 +132,7 @@ class Feature
 
         foreach (self::$registeredFeatures as $name => $_) {
             $resolvedFlags[$name] = self::isActive($name);
+            $resolvedFlags[self::deNormalizeName($name)] = self::isActive($name);
         }
 
         return $resolvedFlags;
@@ -196,5 +197,17 @@ class Feature
             && $value !== 'false'
             && $value !== '0'
             && $value !== '';
+    }
+
+    private static function deNormalizeName(string $name): string
+    {
+        /*
+         * Examples:
+         * - NEXT-1234
+         * - FEATURE_NEXT_1234
+         * - SAAS_321
+         * - v6.5.0.0 => v6.5.0.0
+         */
+        return \strtolower(\str_replace(['_'], '.', $name));
     }
 }

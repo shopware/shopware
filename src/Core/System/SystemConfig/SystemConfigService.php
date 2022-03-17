@@ -3,9 +3,11 @@
 namespace Shopware\Core\System\SystemConfig;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Cms\Events\CmsPageBeforeDefaultChangeEvent;
+use Shopware\Core\Content\Cms\Subscriber\CmsPageDefaultChangeSubscriber;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -28,7 +30,7 @@ class SystemConfigService
 {
     private Connection $connection;
 
-    private EntityRepositoryInterface $systemConfigRepository;
+    private EntityRepository $systemConfigRepository;
 
     private ConfigReader $configReader;
 
@@ -45,7 +47,7 @@ class SystemConfigService
      */
     public function __construct(
         Connection $connection,
-        EntityRepositoryInterface $systemConfigRepository,
+        EntityRepository $systemConfigRepository,
         ConfigReader $configReader,
         AbstractSystemConfigLoader $loader,
         EventDispatcherInterface $eventDispatcher
@@ -214,7 +216,16 @@ class SystemConfigService
     public function set(string $key, $value, ?string $salesChannelId = null): void
     {
         $key = trim($key);
-        $this->validate($key, $salesChannelId);
+        $this->validate($key, $value, $salesChannelId);
+
+        // fire event if default cms page is affected by this change
+        if (\in_array($key, CmsPageDefaultChangeSubscriber::$defaultCmsPageConfigKeys, true)) {
+            /** @var string|null $newDefault */
+            $newDefault = $value;
+
+            $event = new CmsPageBeforeDefaultChangeEvent($key, $newDefault, $salesChannelId);
+            $this->eventDispatcher->dispatch($event);
+        }
 
         $id = $this->getId($key, $salesChannelId);
         if ($value === null) {
@@ -344,10 +355,12 @@ class SystemConfigService
     }
 
     /**
+     * @param array|bool|float|int|string|null $value
+     *
      * @throws InvalidKeyException
      * @throws InvalidUuidException
      */
-    private function validate(string $key, ?string $salesChannelId): void
+    private function validate(string $key, $value, ?string $salesChannelId): void
     {
         $key = trim($key);
         if ($key === '') {
@@ -366,8 +379,12 @@ class SystemConfigService
             new EqualsFilter('salesChannelId', $salesChannelId)
         );
 
+        /** @var array<string> $ids */
         $ids = $this->systemConfigRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
 
-        return array_shift($ids);
+        /** @var string|null $id */
+        $id = array_shift($ids);
+
+        return $id;
     }
 }

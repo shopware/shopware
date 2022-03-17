@@ -118,25 +118,6 @@ Component.register('sw-category-tree', {
         productRepository() {
             return this.repositoryFactory.create('product');
         },
-
-        defaultLayout() {
-            return Shopware.State.get('swCategoryDetail').defaultLayout;
-        },
-
-        defaultLayoutCriteria() {
-            const criteria = new Criteria(1, 1);
-            criteria
-                .addSorting(Criteria.sort('createdAt', 'ASC'))
-                .addFilter(Criteria.multi(
-                    'AND',
-                    [
-                        Criteria.equals('type', 'product_list'),
-                        Criteria.equals('locked', true),
-                    ],
-                ));
-
-            return criteria;
-        },
     },
 
     watch: {
@@ -199,8 +180,6 @@ Component.register('sw-category-tree', {
 
     methods: {
         createdComponent() {
-            this.loadDefaultLayout();
-
             if (this.category !== null) {
                 this.openInitialTree();
             }
@@ -472,7 +451,6 @@ Component.register('sw-category-tree', {
             newCategory.childCount = 0;
             newCategory.active = false;
             newCategory.visible = true;
-            newCategory.cmsPageId = this.defaultLayout;
 
             newCategory.save = () => {
                 return this.categoryRepository.save(newCategory).then(() => {
@@ -551,12 +529,6 @@ Component.register('sw-category-tree', {
             return (category.navigationSalesChannels !== null && category.navigationSalesChannels.length > 0)
                 || (category.serviceSalesChannels !== null && category.serviceSalesChannels.length > 0)
                 || (category.footerSalesChannels !== null && category.footerSalesChannels.length > 0);
-        },
-
-        loadDefaultLayout() {
-            return this.cmsPageRepository.search(this.defaultLayoutCriteria).then((response) => {
-                Shopware.State.commit('swCategoryDetail/setDefaultLayout', response[0]);
-            });
         },
 
         isErrorNavigationEntryPoint(category) {

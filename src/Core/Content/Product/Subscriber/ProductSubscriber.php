@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\AbstractProductVariationBuilder;
 use Shopware\Core\Content\Product\AbstractPropertyGroupSorter;
 use Shopware\Core\Content\Product\AbstractSalesChannelProductBuilder;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalculator;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\Entity\PartialSalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ProductSubscriber implements EventSubscriberInterface
@@ -37,6 +39,8 @@ class ProductSubscriber implements EventSubscriberInterface
 
     private AbstractIsNewDetector $isNewDetector;
 
+    private SystemConfigService $systemConfigService;
+
     /**
      * @internal
      */
@@ -46,7 +50,8 @@ class ProductSubscriber implements EventSubscriberInterface
         AbstractProductPriceCalculator $calculator,
         AbstractPropertyGroupSorter $propertyGroupSorter,
         AbstractProductMaxPurchaseCalculator $maxPurchaseCalculator,
-        AbstractIsNewDetector $isNewDetector
+        AbstractIsNewDetector $isNewDetector,
+        SystemConfigService $systemConfigService
     ) {
         $this->salesChannelProductBuilder = $salesChannelProductBuilder;
         $this->productVariationBuilder = $productVariationBuilder;
@@ -54,6 +59,7 @@ class ProductSubscriber implements EventSubscriberInterface
         $this->propertyGroupSorter = $propertyGroupSorter;
         $this->maxPurchaseCalculator = $maxPurchaseCalculator;
         $this->isNewDetector = $isNewDetector;
+        $this->systemConfigService = $systemConfigService;
     }
 
     public static function getSubscribedEvents(): array
@@ -112,6 +118,8 @@ class ProductSubscriber implements EventSubscriberInterface
                 }
             }
 
+            $this->setDefaultLayout($product);
+
             $this->productVariationBuilder->build($product);
         }
     }
@@ -152,8 +160,39 @@ class ProductSubscriber implements EventSubscriberInterface
                     $this->salesChannelProductBuilder->build($product, $context);
                 });
             }
+
+            $this->setDefaultLayout($product, $context->getSalesChannelId());
         }
 
         $this->calculator->calculate($elements, $context);
+    }
+
+    /**
+     * @param Entity $product - typehint as Entity because it could be a ProductEntity or PartialEntity
+     */
+    private function setDefaultLayout(Entity $product, ?string $salesChannelId = null): void
+    {
+        if (!Feature::isActive('v6.5.0.0') || !$product->has('cmsPageId')) {
+            return;
+        }
+
+        /** @var ProductEntity $product */
+        if ($product->getCmsPageId() !== null) {
+            return;
+        }
+
+        if ($salesChannelId) {
+            $cmsPageId = $this->systemConfigService->get(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT, $salesChannelId);
+        }
+
+        $cmsPageId = $cmsPageId ?? $this->systemConfigService->get(ProductDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_PRODUCT);
+
+        if (!$cmsPageId) {
+            return;
+        }
+
+        /** @var string $cmsPageId */
+        $product->setCmsPageId($cmsPageId);
+        $product->setCmsPageIdSwitched(true);
     }
 }

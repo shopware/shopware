@@ -3,9 +3,14 @@
 namespace Shopware\Storefront\Page\Product;
 
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Content\Cms\CmsPageEntity;
+use Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver;
+use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
+use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageRepository;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\AbstractProductCrossSellingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -26,6 +31,12 @@ class ProductPageLoader
 
     private EventDispatcherInterface $eventDispatcher;
 
+    private SalesChannelCmsPageRepository $cmsPageRepository;
+
+    private CmsSlotsDataResolver $slotDataResolver;
+
+    private ProductDefinition $productDefinition;
+
     private AbstractProductDetailRoute $productDetailRoute;
 
     private ProductReviewLoader $productReviewLoader;
@@ -38,12 +49,18 @@ class ProductPageLoader
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,
+        SalesChannelCmsPageRepository $cmsPageRepository,
+        CmsSlotsDataResolver $slotDataResolver,
+        ProductDefinition $productDefinition,
         AbstractProductDetailRoute $productDetailRoute,
         ProductReviewLoader $productReviewLoader,
         AbstractProductCrossSellingRoute $crossSellingRoute
     ) {
         $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;
+        $this->cmsPageRepository = $cmsPageRepository;
+        $this->slotDataResolver = $slotDataResolver;
+        $this->productDefinition = $productDefinition;
         $this->productDetailRoute = $productDetailRoute;
         $this->productReviewLoader = $productReviewLoader;
         $this->crossSellingRoute = $crossSellingRoute;
@@ -162,12 +179,43 @@ class ProductPageLoader
         $metaInformation->setMetaTitle(implode(' | ', $metaTitleParts));
     }
 
+    private function loadSlotData(
+        CmsPageEntity $page,
+        SalesChannelContext $salesChannelContext,
+        SalesChannelProductEntity $product,
+        Request $request
+    ): void {
+        $resolverContext = new EntityResolverContext($salesChannelContext, $request, $this->productDefinition, $product);
+
+        foreach ($page->getSections() as $section) {
+            $slots = $this->slotDataResolver->resolve($section->getBlocks()->getSlots(), $resolverContext);
+            $section->getBlocks()->setSlots($slots);
+        }
+    }
+
+    private function getCmsPage(string $cmsPageId, SalesChannelContext $context): ?CmsPageEntity
+    {
+        $pages = $this->cmsPageRepository->read([$cmsPageId], $context);
+
+        if ($pages->count() === 0) {
+            return null;
+        }
+
+        /** @var CmsPageEntity $page */
+        $page = $pages->first();
+
+        return $page;
+    }
+
     private function loadDefaultAdditions(SalesChannelProductEntity $product, ProductPage $page, Request $request, SalesChannelContext $context): void
     {
         if ($cmsPage = $product->getCmsPage()) {
             $page->setCmsPage($cmsPage);
 
-            return;
+            // $product->getCmsPageIdSwitched() === false indicates that the cms page was set by the user
+            if (!$product->getCmsPageIdSwitched()) {
+                return;
+            }
         }
 
         $request->request->set('parentId', $product->getParentId());

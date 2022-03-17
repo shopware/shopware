@@ -67,5 +67,12 @@
         <service id="Shopware\Core\Content\Cms\SalesChannel\CmsRoute" public="true">
             <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoader"/>
         </service>
+
+        <service id="Shopware\Core\Content\Cms\Subscriber\CmsPageDefaultChangeSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="system_config.repository"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

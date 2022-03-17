@@ -121,6 +121,11 @@ class CategoryEntity extends Entity
     protected $cmsPageId;
 
     /**
+     * @var bool
+     */
+    protected $cmsPageIdSwitched = false;
+
+    /**
      * @var CmsPageEntity|null
      */
     protected $cmsPage;
@@ -418,6 +423,16 @@ class CategoryEntity extends Entity
     public function setCmsPageId(string $cmsPageId): void
     {
         $this->cmsPageId = $cmsPageId;
+    }
+
+    public function getCmsPageIdSwitched(): bool
+    {
+        return $this->cmsPageIdSwitched;
+    }
+
+    public function setCmsPageIdSwitched(bool $switched): void
+    {
+        $this->cmsPageIdSwitched = $switched;
     }
 
     public function getProductStream(): ?ProductStreamEntity

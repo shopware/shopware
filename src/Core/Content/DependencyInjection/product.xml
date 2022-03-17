@@ -161,6 +161,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\AbstractPropertyGroupSorter"/>
             <argument type="service" id="Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator"/>
             <argument type="service" id="Shopware\Core\Content\Product\AbstractIsNewDetector"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

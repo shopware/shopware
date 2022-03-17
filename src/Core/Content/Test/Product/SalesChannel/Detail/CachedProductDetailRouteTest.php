@@ -60,12 +60,14 @@ class CachedProductDetailRouteTest extends TestCase
 
         $productId = Uuid::randomHex();
         $propertyId = Uuid::randomHex();
+        $cmsPageId = $this->createCmsPage('product_detail');
 
         $this->createProduct([
             'id' => $productId,
             'properties' => [
                 ['id' => $propertyId, 'name' => 'red', 'group' => ['name' => 'color']],
             ],
+            'cmsPageId' => $cmsPageId,
         ]);
 
         if ($isTestingWithVariant) {
@@ -204,5 +206,20 @@ class CachedProductDetailRouteTest extends TestCase
         );
 
         $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
+    }
+
+    private function createCmsPage(string $type): string
+    {
+        $cmsPageId = Uuid::randomHex();
+
+        $cmsPage = [
+            'id' => $cmsPageId,
+            'name' => 'test page',
+            'type' => $type,
+        ];
+
+        $this->getContainer()->get('cms_page.repository')->create([$cmsPage], Context::createDefaultContext());
+
+        return $cmsPageId;
     }
 }

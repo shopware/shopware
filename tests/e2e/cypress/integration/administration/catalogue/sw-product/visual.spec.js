@@ -251,19 +251,27 @@ describe('Product: Visual tests', () => {
         // Verify in storefront
         cy.visit('/');
         cy.contains('Original product').click();
-        cy.get('.product-detail-content').should('be.visible');
-        cy.contains('.product-detail-name', 'Original product');
 
-        cy.get('.product-cross-selling-tab-navigation')
-            .scrollIntoView()
-            .should('be.visible');
-        cy.contains('.product-detail-tab-navigation-link.active', 'Kunden kauften auch');
-        cy.get('.product-slider-item .product-name[title="Second product"]')
-            .should('be.visible');
-        cy.get('.product-slider-item .product-name[title="Third product"]')
-            .should('be.visible');
+        cy.featureIsActive('v6.5.0.0').then((isActive) => {
+            if (isActive) {
+                cy.get('.cms-page').should('be.visible');
+            } else {
+                cy.get('.product-detail-content').should('be.visible');
+            }
 
-        // Take snapshot for visual testing
-        cy.takeSnapshot('[Product] Storefront, Cross Selling', '.product-slider-item');
+            cy.get('.product-detail-name').contains('Original product');
+
+            cy.get('.product-cross-selling-tab-navigation')
+                .scrollIntoView()
+                .should('be.visible');
+            cy.get('.product-detail-tab-navigation-link.active').contains('Kunden kauften auch');
+            cy.get('.product-slider-item .product-name[title="Second product"]')
+                .should('be.visible');
+            cy.get('.product-slider-item .product-name[title="Third product"]')
+                .should('be.visible');
+
+            // Take snapshot for visual testing
+            cy.takeSnapshot('[Product] Storefront, Cross Selling', '.product-slider-item');
+        });
     });
 });

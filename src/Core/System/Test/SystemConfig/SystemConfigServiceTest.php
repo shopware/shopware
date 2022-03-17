@@ -26,10 +26,7 @@ class SystemConfigServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
+    private SystemConfigService $systemConfigService;
 
     public function setUp(): void
     {

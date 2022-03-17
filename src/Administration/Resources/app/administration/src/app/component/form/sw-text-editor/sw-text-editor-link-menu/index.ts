@@ -1,7 +1,10 @@
+import type CriteriaType from 'src/core/data/criteria.data';
+import type RepositoryType from 'src/core/data/repository.data';
+import type EntityCollectionType from 'src/core/data/entity-collection.data';
 import template from './sw-text-editor-link-menu.html.twig';
-import './sw-text-editor-link-menu.scss';
 
-const { Component, Data: { Criteria, EntityCollection, Repository } } = Shopware;
+const { Component } = Shopware;
+const { Criteria, EntityCollection } = Shopware.Data;
 
 type LinkCategories = 'link' | 'detail' | 'category' | 'email' | 'phone';
 interface TextEditorLinkMenuConfig {
@@ -33,89 +36,141 @@ Component.register('sw-text-editor-link-menu', {
         },
     },
 
-    data() {
+    data(): {
+        linkTitle: string,
+        linkTarget: string,
+        isHTTPs: boolean,
+        opensNewTab: boolean,
+        displayAsButton: boolean,
+        linkCategory: LinkCategories,
+        categoryCollection?: EntityCollectionType,
+        } {
         return {
             linkTitle: '',
             linkTarget: '',
             isHTTPs: false,
-            magicLinkPrefix: '124c71d524604ccbad6042edce3ac799',
             opensNewTab: false,
             displayAsButton: false,
-            linkCategory: 'link' as LinkCategories,
+            linkCategory: 'link',
             categoryCollection: undefined,
         };
     },
-    created() {
-        this.categoryCollection = this.getEmptyCategoryCollection();
+
+    computed: {
+        seoUrlReplacePrefix(): string {
+            return '124c71d524604ccbad6042edce3ac799';
+        },
+
+        entityFilter(): CriteriaType {
+            const criteria = new Criteria();
+            criteria.addSorting(Criteria.sort('name', 'ASC'));
+
+            return criteria;
+        },
+
+        categoryRepository(): RepositoryType {
+            return this.repositoryFactory.create('category');
+        },
+    },
+
+    watch: {
+        buttonConfig: {
+            async handler(buttonConfig): Promise<void> {
+                const { title, newTab, displayAsButton, value, type } = buttonConfig as TextEditorLinkMenuConfig;
+                this.linkTitle = title;
+                this.opensNewTab = newTab;
+                this.displayAsButton = displayAsButton;
+
+                const parsedResult = await this.parseLink(value, type);
+                this.linkCategory = parsedResult.type;
+                this.linkTarget = parsedResult.target;
+            },
+            immediate: true,
+        },
+    },
+
+    created(): void {
+        this.createdComponent();
     },
 
     methods: {
-        getCategoryCollection(categoryId: string): Promise<EntityCollection> {
-            const categoryCriteria = new Criteria().addFilter(Criteria.equals('id', categoryId));
-            return this.categoryRepository.search(categoryCriteria) as Promise<EntityCollection>;
+        createdComponent(): void {
+            this.categoryCollection = this.getEmptyCategoryCollection();
         },
 
-        getEmptyCategoryCollection(): EntityCollection {
+        getCategoryCollection(categoryId: string): Promise<EntityCollectionType> {
+            const categoryCriteria = (new Criteria()).addFilter(Criteria.equals('id', categoryId));
+            return this.categoryRepository.search(categoryCriteria);
+        },
+
+        getEmptyCategoryCollection(): EntityCollectionType {
             return new EntityCollection(
                 this.categoryRepository.route,
                 this.categoryRepository.entityName,
-                Shopware.Context,
+                Shopware.Context.api,
             );
         },
 
         async parseLink(link: string, detectedLinkType: string): Promise<{ type: LinkCategories, target: string }> {
             const slicedLink = link.slice(0, -1).split('/');
 
-            if (link.startsWith(this.magicLinkPrefix)) {
+            if (link.startsWith(this.seoUrlReplacePrefix)) {
                 const [productId] = slicedLink.splice(-1);
                 return { type: 'detail', target: productId };
             }
 
             if (link.startsWith('category')) {
                 this.categoryCollection = await this.getCategoryCollection(slicedLink[2]);
-                return { type: 'category', target: slicedLink[2] };
+                return {
+                    type: 'category',
+                    target: slicedLink[2],
+                };
             }
 
             if (link.startsWith('mailto:')) {
-                return { type: 'email', target: link.replace('mailto:', '') };
+                return {
+                    type: 'email',
+                    target: link.replace('mailto:', ''),
+                };
             }
 
             if (link.startsWith('tel:')) {
-                return { type: 'phone', target: link.replace('tel:', '') };
+                return {
+                    type: 'phone',
+                    target: link.replace('tel:', ''),
+                };
             }
 
-            return { target: link, type: detectedLinkType as LinkCategories };
+            return {
+                target: link,
+                type: detectedLinkType as LinkCategories,
+            };
         },
 
-        replaceCategorySelection(category: {id: string}) {
+        replaceCategorySelection(category: {id: string}): void {
             this.linkTarget = category.id;
         },
 
-        removeCategorySelection() {
+        removeCategorySelection(): void {
             this.linkTarget = '';
         },
 
-        prepareLink() {
-            if (this.linkCategory === 'detail') {
-                return `${this.magicLinkPrefix}/detail/${this.linkTarget}#`;
+        prepareLink(): string {
+            switch (this.linkCategory) {
+                case 'detail':
+                    return `${this.seoUrlReplacePrefix}/detail/${this.linkTarget}#`;
+                case 'category':
+                    return `category/${this.seoUrlReplacePrefix}/${this.linkTarget}#`;
+                case 'email':
+                    return `mailto:${this.linkTarget}`;
+                case 'phone':
+                    return `tel:${this.linkTarget.replace(/\//, '')}`;
+                default:
+                    return this.addProtocolToLink(this.linkTarget);
             }
-
-            if (this.linkCategory === 'category') {
-                return `category/${this.magicLinkPrefix}/${this.linkTarget}#`;
-            }
-
-            if (this.linkCategory === 'email') {
-                return `mailto:${this.linkTarget}`;
-            }
-
-            if (this.linkCategory === 'phone') {
-                return `tel:${this.linkTarget}`;
-            }
-
-            return this.addProtocolToLink(this.linkTarget);
         },
 
-        addProtocolToLink(link:string) {
+        addProtocolToLink(link: string): string {
             if (/(^(\w+):\/\/)|(mailto:)|(fax:)|(tel:)/.test(link)) {
                 return link;
             }
@@ -131,17 +186,7 @@ Component.register('sw-text-editor-link-menu', {
             return link;
         },
 
-        getCategoryLabel(entity: {name: string, breadcrumb: string[]}) {
-            const breadcrumbPath = entity.breadcrumb?.join('/');
-
-            if (!breadcrumbPath) {
-                return entity.name;
-            }
-
-            return `${breadcrumbPath}/${entity.name}`;
-        },
-
-        setLink() {
+        setLink(): void {
             this.$emit('button-click', {
                 type: 'link',
                 value: this.prepareLink(),
@@ -149,48 +194,11 @@ Component.register('sw-text-editor-link-menu', {
                 newTab: this.opensNewTab,
             });
         },
-        removeLink() {
+
+        removeLink(): void {
             this.$emit('button-click', {
                 type: 'linkRemove',
             });
-        },
-    },
-
-    watch: {
-        buttonConfig: {
-            async handler(buttonConfig) {
-                const { title, newTab, displayAsButton, value, type } = buttonConfig as TextEditorLinkMenuConfig;
-                this.linkTitle = title;
-                this.opensNewTab = newTab;
-                this.displayAsButton = displayAsButton;
-
-                const parsedResult = await this.parseLink(value, type);
-                this.linkCategory = parsedResult.type;
-                this.linkTarget = parsedResult.target;
-            },
-            immediate: true,
-        },
-        linkCategory: {
-            handler() {
-                this.linkTarget = '';
-                this.linkTitle = '';
-                this.opensNewTab = false;
-                this.displayAsButton = false;
-            },
-        },
-
-    },
-
-    computed: {
-        entityFilter() {
-            const criteria = new Criteria();
-            criteria.addSorting(Criteria.sort('name', 'ASC', false));
-
-            return criteria;
-        },
-
-        categoryRepository(): Repository {
-            return this.repositoryFactory.create('category');
         },
     },
 });

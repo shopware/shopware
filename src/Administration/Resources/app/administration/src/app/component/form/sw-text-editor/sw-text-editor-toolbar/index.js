@@ -2,7 +2,6 @@ import template from './sw-text-editor-toolbar.html.twig';
 import './sw-text-editor-toolbar.scss';
 
 const { Component, Utils } = Shopware;
-const domainPlaceholderId = '124c71d524604ccbad6042edce3ac799';
 
 /**
  * @private
@@ -277,6 +276,7 @@ Component.register('sw-text-editor-toolbar', {
             if (button.type === 'link') {
                 button.value = this.currentLink?.url ?? '';
                 button.newTab = this.currentLink?.newTab ?? false;
+                button.displayAsButton = this.currentLink?.displayAsButton ?? false;
             }
 
             this.$set(button, 'active', !!this.activeTags.includes(button.tag));
@@ -372,7 +372,11 @@ Component.register('sw-text-editor-toolbar', {
                 }
 
                 if (parentNode.tagName === 'A') {
-                    this.currentLink = { url: parentNode.getAttribute('href'), newTab: parentNode.target === '_blank' };
+                    this.currentLink = {
+                        url: parentNode.getAttribute('href'),
+                        newTab: parentNode.target === '_blank',
+                        displayAsButton: parentNode.classList.contains('btn'),
+                    };
                 }
 
                 if (parentNode.tagName === 'TABLE') {
@@ -429,34 +433,6 @@ Component.register('sw-text-editor-toolbar', {
                 this.range.setStart(this.range.startContainer, 0);
                 button.expanded = false;
             }
-        },
-
-        /** @deprecated tag:v6.5.0 - Will be handled by sw-text-editor-link-menus */
-        prepareLink(link) {
-            link = link.trim();
-
-            if (!link.startsWith(domainPlaceholderId)) {
-                link = this.addProtocol(link);
-            }
-
-            return link;
-        },
-
-        /** @deprecated tag:v6.5.0 - Will be handled by sw-text-editor-link-menus */
-        addProtocol(link) {
-            if (/(^(\w+):\/\/)|(mailto:)|(fax:)|(tel:)/.test(link)) {
-                return link;
-            }
-
-            const isInternal = /^\/[^\/\s]/.test(link);
-            const isAnchor = link.substring(0, 1) === '#';
-            const isProtocolRelative = /^\/\/[^\/\s]/.test(link);
-
-            if (!isInternal && !isAnchor && !isProtocolRelative) {
-                link = `http://${link}`;
-            }
-
-            return link;
         },
 
         keepSelection(keepRange) {

@@ -22,15 +22,15 @@ $sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 0.5);
     }
 
     .sw-text-editor-toolbar-button__icon {
-        &:hover {
-            color: $color-shopware-brand-500;
-        }
-
         display: flex;
         align-items: center;
         justify-content: center;
         width: 100%;
         cursor: pointer;
+
+        &:hover {
+            color: $color-shopware-brand-500;
+        }
 
         .sw-icon {
             margin-left: 5px;
@@ -112,13 +112,18 @@ $sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 0.5);
         width: 500px;
         cursor: initial;
         color: $color-darkgray-200;
-        
-        .sw-text-editor-toolbar-button__link-menu__content {
-            .sw-block-field  {
+
+        .sw-text-editor-toolbar-button__link-menu-content {
+            padding: 16px;
+
+            .sw-block-field {
                 margin-bottom: 19px;
             }
-            padding: 32px;
-        }   
+
+            .sw-category-tree-field__results {
+                height: 300px;
+            }
+        }
 
         .sw-text-editor-toolbar-button__link-menu-buttons {
             background-color: $color-gray-100;
@@ -129,6 +134,8 @@ $sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 0.5);
         }
 
         .sw-text-editor-toolbar-button__link-menu-switch {
+            margin: 0;
+
             .sw-field--switch__input {
                 padding: 10px;
             }
@@ -136,8 +143,6 @@ $sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 0.5);
             .sw-field__label label {
                 padding: 10px 15px;
             }
-
-            margin: 0;
         }
 
         .sw-field {

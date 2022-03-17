@@ -64,6 +64,7 @@ Component.register('sw-text-editor-toolbar-button', {
             }
 
             this.$emit('button-click', button, parent);
+            this.$emit('menu-toggle', null, button);
         },
 
         onToggleMenu(event, button) {

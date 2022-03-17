@@ -1,13 +1,16 @@
-{% block sw_text_editor_toolbar_button_link_menu_content %}
+{% block sw_text_editor_toolbar_button_link_menu %}
 <div class="sw-text-editor-toolbar-button__link-menu">
-    <div class="sw-text-editor-toolbar-button__link-menu__content">
+    {% block sw_text_editor_toolbar_button_link_menu_content %}
+    <div class="sw-text-editor-toolbar-button__link-menu-content">
+        {% block sw_text_editor_toolbar_button_link_menu_content_type %}
         <sw-select-field
             v-model="linkCategory"
-            label="Type"
+            :label="$tc('sw-text-editor-toolbar.link.labelType')"
             require
         >
+            {% block sw_text_editor_toolbar_button_link_menu_content_type_options %}
             <option value="link">
-                {{ $tc('sw-text-editor-toolbar.link.placeholder') }}
+                {{ $tc('sw-text-editor-toolbar.link.labelUrl') }}
             </option>
             <option value="detail">
                 {{ $tc('sw-text-editor-toolbar.link.labelProduct') }}
@@ -21,67 +24,93 @@
             <option value="phone">
                 {{ $tc('sw-text-editor-toolbar.link.labelPhoneNumber') }}
             </option>
+            {% endblock %}
         </sw-select-field>
-        <sw-field
+        {% endblock %}
+
+        {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs %}
+        {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs_link %}
+        <sw-text-field
             v-if="linkCategory === 'link'"
             v-model="linkTarget"
-            type="text"
             :label="$tc('sw-text-editor-toolbar.link.linkTo')"
             :placeholder="$tc('sw-text-editor-toolbar.link.placeholder')"
         />
-        <sw-field
+        {% endblock %}
+
+        {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs_phone %}
+        <sw-text-field
             v-else-if="linkCategory === 'phone'"
             v-model="linkTarget"
             :label="$tc('sw-text-editor-toolbar.link.linkTo')"
             :placeholder="$tc('sw-text-editor-toolbar.link.placeholderPhoneNumber')"
         />
-        <sw-field
+        {% endblock %}
+
+        {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs_email %}
+        <sw-email-field
             v-else-if="linkCategory === 'email'"
             v-model="linkTarget"
-            type="email"
             :label="$tc('sw-text-editor-toolbar.link.linkTo')"
             :placeholder="$tc('sw-text-editor-toolbar.link.placeholderEmail')"
         />
+        {% endblock %}
+
+        {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs_detail %}
         <sw-entity-single-select
             v-else-if="linkCategory === 'detail'"
             v-model="linkTarget"
-            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
-            :criteria="entityFilter"
-            :placeholder="$tc('sw-text-editor-toolbar.link.placeholderProduct')"
             entity="product"
+            :criteria="entityFilter"
+            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
+            :placeholder="$tc('sw-text-editor-toolbar.link.placeholderProduct')"
             show-clearable-button
         />
+        {% endblock %}
+
+        {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs_category %}
         <sw-category-tree-field
             v-else-if="linkCategory === 'category'"
             :label="$tc('sw-text-editor-toolbar.link.linkTo')"
             :criteria="entityFilter"
             :placeholder="$tc('sw-text-editor-toolbar.link.placeholderCategory')"
-            :single-select="true"
             :categories-collection="categoryCollection"
+            single-select
             @selection-add="replaceCategorySelection"
             @selection-remove="removeCategorySelection"
         />
+        {% endblock %}
+        {% endblock %}
+
+        {% block sw_text_editor_toolbar_button_link_menu_content_type_opens_new_tab %}
         <sw-switch-field
-            v-if="!(linkCategory === 'phone' || linkCategory === 'email')"
+            v-if="!['phone', 'email'].includes(linkCategory)"
             v-model="opensNewTab"
             class="sw-text-editor-toolbar-button__link-menu-switch sw-text-editor-toolbar-button__link-menu-new-tab"
             :label="$tc('sw-text-editor-toolbar.link.openInNewTab')"
             no-margin-top
         />
+        {% endblock %}
+
+        {% block sw_text_editor_toolbar_button_link_menu_content_type_display_as_button %}
         <sw-switch-field
             v-model="displayAsButton"
             class="sw-text-editor-toolbar-button__link-menu-switch sw-text-editor-toolbar-button__link-menu-display-button"
             :label="$tc('sw-text-editor-toolbar.link.displayAsButton')"
             no-margin-top
         />
+        {% endblock %}
     </div>
+    {% endblock %}
+
+    {% block sw_text_editor_toolbar_button_link_menu_buttons %}
     <div class="sw-text-editor-toolbar-button__link-menu-buttons">
-        {% block sw_text_editor_toolbar_button_link_menu_buttons %}
         {% block sw_text_editor_toolbar_button_link_menu_button_remove %}
         <sw-button
-            size="small"
-            variant="ghost-danger"
             class="sw-text-editor-toolbar-button__link-menu-buttons-button-remove"
+            variant="ghost-danger"
+            size="small"
+            :disabled="!linkTarget"
             @click="removeLink"
         >
             {{ $tc('global.default.remove') }}
@@ -90,15 +119,16 @@
 
         {% block sw_text_editor_toolbar_button_link_menu_button_insert %}
         <sw-button
-            size="small"
-            variant="primary"
             class="sw-text-editor-toolbar-button__link-menu-buttons-button-insert"
+            variant="primary"
+            size="small"
+            :disabled="!linkTarget"
             @click="setLink"
         >
             {{ $tc('global.default.add') }}
         </sw-button>
-    {% endblock %}
-    {% endblock %}
+        {% endblock %}
     </div>
+    {% endblock %}
 </div>
 {% endblock %}

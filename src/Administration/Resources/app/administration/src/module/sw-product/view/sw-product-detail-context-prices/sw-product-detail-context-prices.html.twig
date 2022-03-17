@@ -155,6 +155,10 @@
                         <label v-if="showListPrices[priceGroup.ruleId] !== false">
                             {{ $tc('sw-product.advancedPrices.advancedListPriceLabel') }}
                         </label>
+                        <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
+                        <label v-if="showListPrices[priceGroup.ruleId] !== false">
+                            {{ $tc('sw-product.advancedPrices.labelRegulationPrice') }}
+                        </label>
                     </div>
                 </template>
                 {% endblock %}

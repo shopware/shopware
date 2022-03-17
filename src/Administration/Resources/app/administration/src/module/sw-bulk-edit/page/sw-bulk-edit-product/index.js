@@ -23,6 +23,7 @@ Component.register('sw-bulk-edit-product', {
             isSaveSuccessful: false,
             displayAdvancePricesModal: false,
             isDisabledListPrice: true,
+            isDisabledRegulationPrice: true,
             bulkEditProduct: {},
             bulkEditSelected: [],
             taxRate: {},
@@ -153,6 +154,16 @@ Component.register('sw-bulk-edit-product', {
                     placeholder: this.$tc('sw-bulk-edit.product.prices.price.placeholderPrice'),
                 },
             }, {
+                name: 'purchasePrices',
+                config: {
+                    componentName: 'sw-price-field',
+                    price: this.product.purchasePrices,
+                    taxRate: this.taxRate,
+                    currency: this.currency,
+                    changeLabel: this.$tc('sw-bulk-edit.product.prices.purchasePrices.changeLabel'),
+                    placeholder: this.$tc('sw-bulk-edit.product.prices.purchasePrices.placeholderPurchasePrices'),
+                },
+            }, {
                 name: 'listPrice',
                 config: {
                     componentName: 'sw-price-field',
@@ -164,14 +175,15 @@ Component.register('sw-bulk-edit-product', {
                     placeholder: this.$tc('sw-bulk-edit.product.prices.listPrice.placeholderListPrice'),
                 },
             }, {
-                name: 'purchasePrices',
+                name: 'regulationPrice',
                 config: {
                     componentName: 'sw-price-field',
-                    price: this.product.purchasePrices,
+                    price: this.product.regulationPrice,
+                    disabled: this.isDisabledRegulationPrice,
                     taxRate: this.taxRate,
                     currency: this.currency,
-                    changeLabel: this.$tc('sw-bulk-edit.product.prices.purchasePrices.changeLabel'),
-                    placeholder: this.$tc('sw-bulk-edit.product.prices.purchasePrices.placeholderPurchasePrices'),
+                    changeLabel: this.$tc('sw-bulk-edit.product.prices.regulationPrice.changeLabel'),
+                    placeholder: this.$tc('sw-bulk-edit.product.prices.regulationPrice.placeholderRegulationPrice'),
                 },
             }];
         },
@@ -692,6 +704,13 @@ Component.register('sw-bulk-edit-product', {
                 linked: true,
                 gross: null,
             }];
+
+            this.product.regulationPrice = [{
+                currencyId: this.currency.id,
+                net: null,
+                linked: true,
+                gross: null,
+            }];
         },
 
         onChangePrices(item) {
@@ -699,6 +718,7 @@ Component.register('sw-bulk-edit-product', {
                 this.taxRate = this.productTaxRate();
             } else if (item === 'price') {
                 this.isDisabledListPrice = !this.bulkEditProduct.price.isChanged;
+                this.isDisabledRegulationPrice = !this.bulkEditProduct.price.isChanged;
             }
         },
 
@@ -719,6 +739,7 @@ Component.register('sw-bulk-edit-product', {
 
         onProcessData() {
             let hasListPrice = false;
+            let hasRegulationPrice = false;
 
             Object.keys(this.bulkEditProduct).forEach(key => {
                 const bulkEditField = this.bulkEditProduct[key];
@@ -728,6 +749,12 @@ Component.register('sw-bulk-edit-product', {
 
                 if (key === 'listPrice') {
                     hasListPrice = true;
+
+                    return;
+                }
+
+                if (key === 'regulationPrice') {
+                    hasRegulationPrice = true;
 
                     return;
                 }
@@ -762,6 +789,10 @@ Component.register('sw-bulk-edit-product', {
             if (hasListPrice) {
                 this.processListPrice();
             }
+
+            if (hasRegulationPrice) {
+                this.processRegulationPrice();
+            }
         },
 
         processListPrice() {
@@ -770,8 +801,34 @@ Component.register('sw-bulk-edit-product', {
             });
 
             if (priceField) {
-                this.$set(priceField.value[0], 'listPrice', this.product.listPrice[0]);
+                this.$set(priceField.value[0], 'listPrice', this.validatePrice(this.product.listPrice[0]));
             }
+        },
+
+        processRegulationPrice() {
+            const priceField = this.bulkEditSelected.find((dataField) => {
+                return dataField.field === 'price';
+            });
+
+            if (priceField) {
+                this.$set(priceField.value[0], 'regulationPrice', this.validatePrice(this.product.regulationPrice[0]));
+            }
+        },
+
+        validatePrice(price) {
+            if (!price || (!price.gross && !price.net)) {
+                return null;
+            }
+
+            if (!price.gross) {
+                price.gross = 0;
+            }
+
+            if (!price.net) {
+                price.net = 0;
+            }
+
+            return price;
         },
 
         openModal() {
@@ -830,6 +887,7 @@ Component.register('sw-bulk-edit-product', {
                     linked: this.defaultPrice.linked,
                     net: 0,
                     listPrice: null,
+                    regulationPrice: null,
                 }];
 
                 if (this.defaultPrice.listPrice) {
@@ -838,6 +896,15 @@ Component.register('sw-bulk-edit-product', {
                         gross: this.defaultPrice.listPrice.gross,
                         linked: this.defaultPrice.listPrice.linked,
                         net: this.defaultPrice.listPrice.net,
+                    };
+                }
+
+                if (this.defaultPrice.regulationPrice) {
+                    newPriceRule.price[0].regulationPrice = {
+                        currencyId: this.defaultCurrency.id,
+                        gross: this.defaultPrice.regulationPrice.gross,
+                        linked: this.defaultPrice.regulationPrice.linked,
+                        net: this.defaultPrice.regulationPrice.net,
                     };
                 }
 

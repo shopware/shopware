@@ -50,6 +50,10 @@
         "listPrice": {
           "changeLabel": "Change: List price",
           "placeholderListPrice": "Enter list price..."
+        },
+        "regulationPrice": {
+          "changeLabel": "Change: Cheapest price (last 30 days)",
+          "placeholderRegulationPrice": "Enter Cheapest price..."
         }
       },
       "advancedPrices": {

@@ -167,6 +167,9 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         $definition->setListPrice(
             $this->getListPrice($prices, $context)
         );
+        $definition->setRegulationPrice(
+            $this->getRegulationPrice($prices, $context)
+        );
 
         return $definition;
     }
@@ -206,6 +209,30 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         }
 
         $value = $this->getPriceForTaxState($price->getListPrice(), $context);
+
+        if ($price->getCurrencyId() !== $context->getCurrency()->getId()) {
+            $value *= $context->getContext()->getCurrencyFactor();
+        }
+
+        return $value;
+    }
+
+    private function getRegulationPrice(?PriceCollection $prices, SalesChannelContext $context): ?float
+    {
+        if (!$prices) {
+            return null;
+        }
+
+        $price = $prices->getCurrencyPrice($context->getCurrency()->getId());
+        if ($price === null || $price->getRegulationPrice() === null) {
+            return null;
+        }
+
+        $taxPrice = $this->getPriceForTaxState($price, $context);
+        $value = $this->getPriceForTaxState($price->getRegulationPrice(), $context);
+        if ($taxPrice === 0.0 || $taxPrice === $value) {
+            return null;
+        }
 
         if ($price->getCurrencyId() !== $context->getCurrency()->getId()) {
             $value *= $context->getContext()->getCurrencyFactor();

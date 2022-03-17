@@ -40,9 +40,20 @@
         <template slot="column-label-price">
             {% block sw_maintain_currencies_modal_grid_column_price_field_label %}
             <div class="sw-maintain-currencies-modal__price-label-wrapper">
-                <div>{{ $tc('sw-maintain-currencies-modal.columnPrice') }}</div>
-                <div v-if="!hideListPrices">
+                <div class="sw-maintain-currencies-modal__price-label">
+                    {{ $tc('sw-maintain-currencies-modal.columnPrice') }}
+                </div>
+                <div
+                    v-if="!hideListPrices"
+                    class="sw-maintain-currencies-modal__list-price-label"
+                >
                     {{ $tc('sw-maintain-currencies-modal.columnListPriceHeader') }}
+                </div>
+                <div
+                    v-if="!hideRegulationPrices"
+                    class="sw-maintain-currencies-modal__reference-price-label"
+                >
+                    {{ $tc('sw-maintain-currencies-modal.columnReferencePriceHeader') }}
                 </div>
             </div>
             {% endblock %}
@@ -60,6 +71,7 @@
                 :label="false"
                 :disable-suffix="true"
                 :hide-list-prices="hideListPrices"
+                :hide-regulation-prices="hideRegulationPrices"
                 hide-purchase-prices
                 :disabled="disabled"
                 enable-inheritance

@@ -147,5 +147,8 @@ describe('components/form/sw-list-price-field', () => {
 
         expect(wrapper.find('.sw-list-price-field__list-price sw-price-field-stub')
             .attributes()['gross-help-text']).toBeUndefined();
+
+        expect(wrapper.find('.sw-list-price-field__regulation-price sw-price-field-stub')
+            .attributes()['gross-help-text']).toBeUndefined();
     });
 });

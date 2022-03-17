@@ -279,4 +279,40 @@ describe('module/sw-product/page/sw-product-detail', () => {
             }
         ]);
     });
+
+    it('should validate and clear listPrices/regulationPrices on save', async () => {
+        wrapper.vm.getCmsPageOverrides = jest.fn(() => { return null; });
+        wrapper.vm.product.prices = [];
+        wrapper.vm.product.price = [{
+            currencyId: undefined,
+            linked: true,
+            gross: 100,
+            net: 84.034,
+            listPrice: {
+                currencyId: undefined,
+                linked: true,
+                gross: 0,
+                net: 0,
+            },
+            regulationPrice: {
+                currencyId: undefined,
+                linked: true,
+                gross: 0,
+                net: 0,
+            }
+        }];
+
+        wrapper.vm.onSave();
+
+        expect(wrapper.vm.product.price).toStrictEqual([
+            {
+                currencyId: undefined,
+                gross: 100,
+                net: 84.034,
+                linked: true,
+                listPrice: null,
+                regulationPrice: null
+            }
+        ]);
+    });
 });

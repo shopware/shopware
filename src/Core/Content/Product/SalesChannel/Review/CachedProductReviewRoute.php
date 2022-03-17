@@ -136,7 +136,6 @@ class CachedProductReviewRoute extends AbstractProductReviewRoute
     private function generateKey(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): string
     {
         $parts = [
-            self::buildName($productId),
             $this->generator->getCriteriaHash($criteria),
             $this->generator->getSalesChannelContextHash($context),
         ];
@@ -144,7 +143,7 @@ class CachedProductReviewRoute extends AbstractProductReviewRoute
         $event = new ProductDetailRouteCacheKeyEvent($parts, $request, $context, $criteria);
         $this->dispatcher->dispatch($event);
 
-        return md5(JsonFieldSerializer::encodeJson($event->getParts()));
+        return self::buildName($productId) . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
     private function generateTags(string $productId, Request $request, ProductReviewRouteResponse $response, SalesChannelContext $context, Criteria $criteria): array

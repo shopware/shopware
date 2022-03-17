@@ -119,7 +119,6 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
     private function generateKey(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): string
     {
         $parts = [
-            self::buildName($productId),
             $this->generator->getCriteriaHash($criteria),
             $this->generator->getSalesChannelContextHash($context),
         ];
@@ -127,7 +126,7 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         $event = new CrossSellingRouteCacheKeyEvent($productId, $parts, $request, $context, $criteria);
         $this->dispatcher->dispatch($event);
 
-        return md5(JsonFieldSerializer::encodeJson($event->getParts()));
+        return self::buildName($productId) . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
     private function generateTags(string $productId, Request $request, ProductCrossSellingRouteResponse $response, SalesChannelContext $context, Criteria $criteria): array

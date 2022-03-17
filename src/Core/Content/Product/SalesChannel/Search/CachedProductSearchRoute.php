@@ -117,7 +117,6 @@ class CachedProductSearchRoute extends AbstractProductSearchRoute
     private function generateKey(Request $request, SalesChannelContext $context, Criteria $criteria): string
     {
         $parts = [
-            self::NAME,
             $this->generator->getCriteriaHash($criteria),
             $this->generator->getSalesChannelContextHash($context),
             $request->get('search'),
@@ -126,7 +125,7 @@ class CachedProductSearchRoute extends AbstractProductSearchRoute
         $event = new ProductSearchRouteCacheKeyEvent($parts, $request, $context, $criteria);
         $this->dispatcher->dispatch($event);
 
-        return md5(JsonFieldSerializer::encodeJson($event->getParts()));
+        return self::NAME . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
     private function generateTags(Request $request, StoreApiResponse $response, SalesChannelContext $context, Criteria $criteria): array

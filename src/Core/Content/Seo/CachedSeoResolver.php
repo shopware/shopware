@@ -25,8 +25,7 @@ class CachedSeoResolver extends AbstractSeoResolver
 
     public function resolve(string $languageId, string $salesChannelId, string $pathInfo): array
     {
-        $name = 'seo-resolver';
-        $key = md5(implode('-', [$name, $languageId, $salesChannelId, $pathInfo]));
+        $key = 'seo-resolver-' . md5(implode('-', [$languageId, $salesChannelId, $pathInfo]));
 
         $value = $this->cache->get($key, function (ItemInterface $item) use ($languageId, $salesChannelId, $pathInfo) {
             $resolved = $this->getDecorated()->resolve($languageId, $salesChannelId, $pathInfo);

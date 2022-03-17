@@ -1,4 +1,4 @@
-import { fileSize, date, toISODate } from 'src/core/service/utils/format.utils';
+import { fileSize, date, dateWithUserTimezone, toISODate } from 'src/core/service/utils/format.utils';
 
 describe('src/core/service/utils/format.utils.js', () => {
     describe('filesize', () => {
@@ -19,9 +19,7 @@ describe('src/core/service/utils/format.utils.js', () => {
         const setTimeZone = (timeZone) => Shopware.State.commit('setCurrentUser', { timeZone });
 
         beforeEach(() => {
-            // reset locale
             setLocale('en-GB');
-            // reset timeZone
             setTimeZone('UTC');
         });
 
@@ -69,6 +67,35 @@ describe('src/core/service/utils/format.utils.js', () => {
             setTimeZone('America/New_York');
 
             expect(date('2000-06-18T08:30:00.000+00:00')).toBe('18. Juni 2000, 04:30');
+        });
+    });
+
+    describe('dateWithUserTimezone', () => {
+        const setLocale = (locale) => {
+            jest.spyOn(Shopware.Application.getContainer('factory').locale, 'getLastKnownLocale')
+                .mockImplementation(() => locale);
+        };
+        const setTimeZone = (timeZone) => Shopware.State.commit('setCurrentUser', { timeZone });
+
+        beforeEach(() => {
+            setLocale('en-GB');
+            setTimeZone('UTC');
+        });
+
+        it('should convert the date correctly with timezone Pacific/Pago_Pago', () => {
+            setTimeZone('Pacific/Samoa');
+            // eslint-disable-next-line no-shadow
+            const date = new Date(2000, 1, 1, 11, 13, 37);
+
+            expect(dateWithUserTimezone(date).toString()).toBe('Tue Feb 01 2000 00:13:37 GMT+0000 (Coordinated Universal Time)');
+        });
+
+        it('should convert the date correctly with timezone UTC as fallback', () => {
+            setTimeZone(null);
+            // eslint-disable-next-line no-shadow
+            const date = new Date(2000, 1, 1, 0, 13, 37);
+
+            expect(dateWithUserTimezone(date).toString()).toBe('Tue Feb 01 2000 00:13:37 GMT+0000 (Coordinated Universal Time)');
         });
     });
 

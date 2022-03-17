@@ -7,6 +7,7 @@ import MD5 from 'md5-es';
 export default {
     currency,
     date,
+    dateWithUserTimezone,
     md5,
     fileSize,
     toISODate,
@@ -84,6 +85,30 @@ export function date(val: string, options: Intl.DateTimeFormatOptions = {}): str
     });
 
     return dateTimeFormatter.format(givenDate);
+}
+
+/**
+ * Formats a Date object to the currently selected timezone.
+ *
+ * @param {Date} dateObj
+ * @returns {Date}
+ */
+export function dateWithUserTimezone(dateObj: Date = new Date()) : Date {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const userTimeZone = (Shopware.State.get('session').currentUser?.timeZone as string) ?? 'UTC';
+
+    // Language and options are set in order to re-create the date object
+    const localizedDate = dateObj.toLocaleDateString('en-GB', {
+        timeZone: userTimeZone,
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+    });
+
+    return new Date(localizedDate);
 }
 
 /**

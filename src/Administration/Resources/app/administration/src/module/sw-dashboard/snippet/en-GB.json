@@ -68,7 +68,7 @@
     "todayStats": {
       "headline": "Today's statistics",
       "orders": "Orders",
-      "turnover": "Turnover",
+      "turnover": "Total value",
       "orderTime": "Time"
     },
     "monthStats": {

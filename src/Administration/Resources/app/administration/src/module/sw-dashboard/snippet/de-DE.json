@@ -68,7 +68,7 @@
     "todayStats": {
       "headline": "Statistik des Tages",
       "orders": "Bestellungen",
-      "turnover": "Umsatz",
+      "turnover": "Gesamtwert",
       "orderTime": "Zeitpunkt"
     },
     "monthStats": {

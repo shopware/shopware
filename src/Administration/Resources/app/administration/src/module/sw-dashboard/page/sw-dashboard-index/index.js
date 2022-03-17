@@ -213,7 +213,7 @@ Component.register('sw-dashboard-index', {
             });
 
             // add empty value for today if there isn't any order, otherwise today would be missing
-            if (!this.todayBucket) {
+            if (!this.todayBucketSum) {
                 seriesData.push({ x: this.today.getTime(), y: 0 });
             }
 
@@ -248,7 +248,7 @@ Component.register('sw-dashboard-index', {
          * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead.
          */
         dateAgo() {
-            const date = new Date();
+            const date = Shopware.Utils.format.dateWithUserTimezone();
             const selectedDateRange = this.statisticDateRanges.value;
             const dateRange = this.statisticDateRanges.options[selectedDateRange] ?? 0;
 
@@ -269,7 +269,7 @@ Component.register('sw-dashboard-index', {
          * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead.
          */
         today() {
-            const today = new Date();
+            const today = Shopware.Utils.format.dateWithUserTimezone();
             today.setHours(0, 0, 0, 0);
             return today;
         },
@@ -278,29 +278,14 @@ Component.register('sw-dashboard-index', {
          * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead.
          */
         todayBucket() {
-            if (!(this.historyOrderDataCount && this.historyOrderDataSum)) {
-                return null;
-            }
+            return this.calculateTodayBucket(this.historyOrderDataCount);
+        },
 
-            const todayStart = new Date().setHours(0, 0, 0, 0);
-            const todayEnd = new Date().setHours(23, 59, 59, 999);
-            // search for stats with same timestamp as today
-            const findDateStatsCount = this.historyOrderDataCount.buckets.find((dateCount) => {
-                // when date exists
-                if (dateCount.key) {
-                    const timeConverted = this.parseDate(dateCount.key);
-
-                    // if time is today
-                    return timeConverted >= todayStart && timeConverted <= todayEnd;
-                }
-
-                return false;
-            });
-
-            if (findDateStatsCount) {
-                return findDateStatsCount;
-            }
-            return null;
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead.
+         */
+        todayBucketSum() {
+            return this.calculateTodayBucket(this.historyOrderDataSum);
         },
 
         /**
@@ -329,6 +314,36 @@ Component.register('sw-dashboard-index', {
     },
 
     methods: {
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead.
+         */
+        calculateTodayBucket(aggregation) {
+            const buckets = aggregation?.buckets;
+
+            if (!buckets) {
+                return null;
+            }
+
+            const today = this.today;
+            // search for stats with same timestamp as today
+            const findDateStats = buckets.find((dateCount) => {
+                // when date exists
+                if (dateCount.key) {
+                    // if time is today
+                    const date = new Date(dateCount.key);
+
+                    return date.setHours(0, 0, 0, 0) === today.setHours(0, 0, 0, 0);
+                }
+
+                return false;
+            });
+
+            if (findDateStats) {
+                return findDateStats;
+            }
+            return null;
+        },
+
         /**
          * @deprecated tag:v6.5.0 - won't call getHistoryOrderData nor fetchTodayData after FEATURE_NEXT_18187 is removed
          */
@@ -446,6 +461,18 @@ Component.register('sw-dashboard-index', {
          */
         formatDate(date) {
             return Shopware.Utils.format.toISODate(date, false);
+        },
+
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed. Use sw-dashboard-statistics instead.
+         */
+        formatChartHeadlineDate(date) {
+            const lastKnownLang = Shopware.Application.getContainer('factory').locale.getLastKnownLocale();
+
+            return date.toLocaleDateString(lastKnownLang, {
+                day: 'numeric',
+                month: 'short',
+            });
         },
 
         /**

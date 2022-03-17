@@ -80,6 +80,7 @@
       "label": {
         "buttonSave": "Save",
         "pageName": "Layout name",
+        "pageCssClass": "CSS classes",
         "pageType": "Layout type",
         "pageTypeLandingpage": "Landing page",
         "pageTypeShopPage": "Shop page",

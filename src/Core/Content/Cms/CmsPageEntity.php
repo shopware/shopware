@@ -54,6 +54,11 @@ class CmsPageEntity extends Entity
     protected $products;
 
     /**
+     * @var string|null
+     */
+    protected $cssClass;
+
+    /**
      * @var array|null
      */
     protected $config;
@@ -151,6 +156,16 @@ class CmsPageEntity extends Entity
     public function setProducts(ProductCollection $products): void
     {
         $this->products = $products;
+    }
+
+    public function getCssClass(): ?string
+    {
+        return $this->cssClass;
+    }
+
+    public function setCssClass(?string $cssClass): void
+    {
+        $this->cssClass = $cssClass;
     }
 
     public function getConfig(): ?array

@@ -52,7 +52,7 @@ describe('Fading plugin test', () => {
         };
 
         /** @deprecated tag:v6.5.0 - Feature flag reset will be removed. */
-        Feature.init({ 'V6_5_0_0': false });
+        Feature.init({ 'v6.5.0.0': false });
 
         fadingEntryPoint = document.querySelector('#entryPoint');
         collapse = fadingEntryPoint.querySelector('.collapse');
@@ -101,7 +101,7 @@ describe('Fading plugin test', () => {
         });
 
         /** @deprecated tag:v6.5.0 - Feature flag activation will be removed. */
-        Feature.init({ 'V6_5_0_0': true });
+        Feature.init({ 'v6.5.0.0': true });
 
         Object.defineProperty(HTMLElement.prototype, 'offsetHeight', { configurable: true, value: 50 });
         Object.defineProperty(HTMLElement.prototype, 'scrollHeight', { configurable: true, value: 500 });
@@ -125,7 +125,7 @@ describe('Fading plugin test', () => {
         });
 
         /** @deprecated tag:v6.5.0 - Feature flag activation will be removed. */
-        Feature.init({ 'V6_5_0_0': true });
+        Feature.init({ 'v6.5.0.0': true });
 
         Object.defineProperty(HTMLElement.prototype, 'offsetHeight', { configurable: true, value: 50 });
         Object.defineProperty(HTMLElement.prototype, 'scrollHeight', { configurable: true, value: 50 });
@@ -147,7 +147,7 @@ describe('Fading plugin test', () => {
         });
 
         /** @deprecated tag:v6.5.0 - Feature flag activation will be removed. */
-        Feature.init({ 'V6_5_0_0': true });
+        Feature.init({ 'v6.5.0.0': true });
 
         Object.defineProperty(HTMLElement.prototype, 'offsetHeight', { configurable: true, value: 50 });
         Object.defineProperty(HTMLElement.prototype, 'scrollHeight', { configurable: true, value: 500 });
@@ -172,7 +172,7 @@ describe('Fading plugin test', () => {
         });
 
         /** @deprecated tag:v6.5.0 - Feature flag activation will be removed. */
-        Feature.init({ 'V6_5_0_0': true });
+        Feature.init({ 'v6.5.0.0': true });
 
         Object.defineProperty(HTMLElement.prototype, 'offsetHeight', { configurable: true, value: 50 });
         Object.defineProperty(HTMLElement.prototype, 'scrollHeight', { configurable: true, value: 500 });

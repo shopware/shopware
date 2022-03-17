@@ -9,7 +9,7 @@ import 'src/helper/polyfill-loader.helper';
  *
  * @deprecated tag:v6.5.0 - Alias `vendorBootstrapJs` will be removed.
  *
- * Alias is used to import Bootstrap v5 if feature flag V6_5_0_0 is active.
+ * Alias is used to import Bootstrap v5 if feature flag v6.5.0.0 is active.
  * Package `bootstrap5` will be renamed to `bootstrap` and replace Bootstrap v4.
  */
 import 'vendorBootstrapJs';
@@ -204,8 +204,8 @@ window.storeApiClient = StoreApiClient;
 window.Feature = Feature;
 
 /** @deprecated tag:v6.5.0 - Warning will be removed */
-if (Feature.isActive('V6_5_0_0')) {
-    console.warn('[Bootstrap v5 Warning] The feature flag V6_5_0_0 is activated and the Storefront is using Bootstrap v5.');
+if (Feature.isActive('v6.5.0.0')) {
+    console.warn('[Bootstrap v5 Warning] The feature flag v6.5.0.0 is activated and the Storefront is using Bootstrap v5.');
 }
 
 /*

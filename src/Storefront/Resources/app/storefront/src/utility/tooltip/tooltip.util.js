@@ -8,13 +8,13 @@ import Feature from 'src/helper/feature.helper';
  * @see https://getbootstrap.com/docs/5.0/migration/#javascript
  * @type {string}
  */
-const TOOLTIP_SELECTOR = Feature.isActive('V6_5_0_0') ? '[data-bs-toggle="tooltip"]' : '[data-toggle="tooltip"]';
+const TOOLTIP_SELECTOR = Feature.isActive('v6.5.0.0') ? '[data-bs-toggle="tooltip"]' : '[data-toggle="tooltip"]';
 
 export default class TooltipUtil {
 
     constructor() {
         /** @deprecated tag:v6.5.0 - Bootstrap v5 uses native elements to init Tooltip plugin */
-        if (Feature.isActive('V6_5_0_0')) {
+        if (Feature.isActive('v6.5.0.0')) {
             const tooltipTriggerList = [].slice.call(document.querySelectorAll(TOOLTIP_SELECTOR))
             tooltipTriggerList.forEach(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl);

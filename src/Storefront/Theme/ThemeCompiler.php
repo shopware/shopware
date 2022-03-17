@@ -235,7 +235,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                     /**
                      * @deprecated tag:v6.5.0 - Alias `vendorBootstrap` will be removed.
                      *
-                     * Alias is used to import Bootstrap v5 instead of Bootstrap v4 if feature flag V6_5_0_0 is active.
+                     * Alias is used to import Bootstrap v5 instead of Bootstrap v4 if feature flag v6.5.0.0 is active.
                      * Package `bootstrap5` will be renamed to `bootstrap` and replace Bootstrap v4.
                      * Remove this if completely.
                      */

@@ -22,7 +22,7 @@ class Feature
          * - NEXT-1234
          * - FEATURE_NEXT_1234
          * - SAAS_321
-         * - v6.5.0.0 => v6.5.0.0
+         * - v6.5.0.0 => v6_5_0_0
          */
         return \strtoupper(\str_replace(['.', ':', '-'], '_', $name));
     }
@@ -126,13 +126,18 @@ class Feature
         return isset(self::$registeredFeatures[$flag]);
     }
 
-    public static function getAll(): array
+    public static function getAll(bool $denormalized = true): array
     {
         $resolvedFlags = [];
 
         foreach (self::$registeredFeatures as $name => $_) {
-            $resolvedFlags[$name] = self::isActive($name);
-            $resolvedFlags[self::deNormalizeName($name)] = self::isActive($name);
+            $active = self::isActive($name);
+            $resolvedFlags[$name] = $active;
+
+            if (!$denormalized) {
+                continue;
+            }
+            $resolvedFlags[self::denormalize($name)] = $active;
         }
 
         return $resolvedFlags;
@@ -199,15 +204,8 @@ class Feature
             && $value !== '';
     }
 
-    private static function deNormalizeName(string $name): string
+    private static function denormalize(string $name): string
     {
-        /*
-         * Examples:
-         * - NEXT-1234
-         * - FEATURE_NEXT_1234
-         * - SAAS_321
-         * - v6.5.0.0 => v6.5.0.0
-         */
         return \strtolower(\str_replace(['_'], '.', $name));
     }
 }

@@ -178,7 +178,7 @@ class SalesChannelContextRestorer
      */
     public function restore(string $customerId, SalesChannelContext $currentContext): SalesChannelContext
     {
-        Feature::throwException('v6_5_0_0', 'Will be removed in v6.5.0');
+        Feature::throwException('v6.5.0.0', 'Will be removed in v6.5.0');
 
         return $this->cartRestorer->restore($customerId, $currentContext);
     }

@@ -72,7 +72,7 @@ class ProductLoadedSubscriberTest extends TestCase
 
     public function testCheapestPriceOnSalesChannelProductEntityPartial(): void
     {
-        Feature::skipTestIfInActive('v6_5_0_0', $this);
+        Feature::skipTestIfInActive('v6.5.0.0', $this);
 
         $ids = new IdsCollection();
 
@@ -154,7 +154,7 @@ class ProductLoadedSubscriberTest extends TestCase
      */
     public function testSortPropertiesPartial(array $product, array $expected, array $unexpected, Criteria $criteria): void
     {
-        Feature::skipTestIfInActive('v6_5_0_0', $this);
+        Feature::skipTestIfInActive('v6.5.0.0', $this);
 
         $this->getContainer()->get('product.repository')
             ->create([$product], Context::createDefaultContext());
@@ -1307,7 +1307,7 @@ class ProductLoadedSubscriberTest extends TestCase
             static::assertEquals($case->percentage, $price->getListPrice()->getPercentage());
             static::assertEquals($case->discount, $price->getListPrice()->getDiscount());
 
-            if (Feature::isActive('v6_5_0_0')) {
+            if (Feature::isActive('v6.5.0.0')) {
                 $partialCriteria = new Criteria([$id]);
                 $partialCriteria->addFields(['price', 'taxId']);
                 $product = $this->getContainer()->get('sales_channel.product.repository')

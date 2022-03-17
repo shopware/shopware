@@ -190,7 +190,7 @@ export default class ZoomModalPlugin extends Plugin {
      */
     _showModal(modal) {
         /** @deprecated tag:v6.5.0 - Bootstrap v5 uses native HTML elements to init Modal plugin */
-        if (Feature.isActive('V6_5_0_0')) {
+        if (Feature.isActive('v6.5.0.0')) {
             const bootstrapModal = new bootstrap.Modal(modal, {
                 keyboard: false,
             });

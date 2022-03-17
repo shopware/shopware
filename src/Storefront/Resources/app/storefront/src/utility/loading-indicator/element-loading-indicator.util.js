@@ -7,7 +7,7 @@ const ELEMENT_LOADER_CLASS = 'element-loader-backdrop';
  * @deprecated tag:v6.5.0 - Bootstrap v5 renames `sr-only` class to `visually-hidden`
  * @type {string}
  */
-const VISUALLY_HIDDEN_CLASS = Feature.isActive('V6_5_0_0') ? 'visually-hidden' : 'sr-only';
+const VISUALLY_HIDDEN_CLASS = Feature.isActive('v6.5.0.0') ? 'visually-hidden' : 'sr-only';
 
 export default class ElementLoadingIndicatorUtil extends LoadingIndicatorUtil {
 

@@ -150,13 +150,13 @@ export default class AddressEditorPlugin extends Plugin {
          * @deprecated tag:v6.5.0 - Bootstrap v5 renames `data-toggle` attribute to `data-bs-toggle`
          * Replace variable `dataBsToggleSelector` with string `[data-bs-toggle="collapse"]`.
          */
-        const dataBsToggleSelector = Feature.isActive('V6_5_0_0') ? '[data-bs-toggle="collapse"]' : '[data-toggle="collapse"]';
+        const dataBsToggleSelector = Feature.isActive('v6.5.0.0') ? '[data-bs-toggle="collapse"]' : '[data-toggle="collapse"]';
 
         /**
          * @deprecated tag:v6.5.0 - Bootstrap v5 renames `data-target` attribute to `data-bs-target`
          * Replace variable `dataBsTargetAttr` with string `data-bs-target`.
          */
-        const dataBsTargetAttr = Feature.isActive('V6_5_0_0') ? 'data-bs-target' : 'data-target';
+        const dataBsTargetAttr = Feature.isActive('v6.5.0.0') ? 'data-bs-target' : 'data-target';
 
         const collapseTriggers = DomAccess.querySelectorAll(modal, dataBsToggleSelector, false);
 
@@ -168,7 +168,7 @@ export default class AddressEditorPlugin extends Plugin {
                 const parent = DomAccess.querySelector(modal, parentSelector);
 
                 /** @deprecated tag:v6.5.0 - Bootstrap v5 uses native HTML elements and events to subscribe to Collapse plugin events */
-                if (Feature.isActive('V6_5_0_0')) {
+                if (Feature.isActive('v6.5.0.0')) {
                     parent.addEventListener('hidden.bs.collapse', () => {
                         pseudoModal.updatePosition();
 

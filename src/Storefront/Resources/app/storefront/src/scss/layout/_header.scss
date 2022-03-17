@@ -54,7 +54,7 @@ The header contains the shop logo, the search form and various actions like the 
 
 // @deprecated tag:v6.5.0 - Bootstrap v5 removes relative position on `col-` elements.
 // The action buttons itself now need relative position in order to place the absolute badges like cart quantity.
-@if feature('V6_5_0_0') {
+@if feature('v6.5.0.0') {
     .header-actions-btn {
         position: relative;
     }

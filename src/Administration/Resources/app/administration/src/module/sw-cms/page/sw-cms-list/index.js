@@ -103,7 +103,7 @@ Component.register('sw-cms-list', {
             /**
              * @deprecated tag:v6.5.0 - Association will be removed
              */
-            if (!this.feature.isActive('V6_5_0_0')) {
+            if (!this.feature.isActive('v6.5.0.0')) {
                 criteria.addAssociation('products');
             }
 

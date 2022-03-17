@@ -65,7 +65,7 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
         const collapseShowClass = this.options.collapseShowClass;
 
         /** @deprecated tag:v6.5.0 - Bootstrap v5 uses native HTML elements to init Collapse plugin */
-        if (Feature.isActive('V6_5_0_0')) {
+        if (Feature.isActive('v6.5.0.0')) {
             new bootstrap.Collapse(collapseEl, {
                 toggle: true,
             });

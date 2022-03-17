@@ -34,9 +34,9 @@ if (fs.existsSync(featureConfigPath)) {
 }
 
 /** @deprecated tag:v6.5.0 - Remove this warning message. */
-if (features['V6_5_0_0']) {
+if (features['v6.5.0.0']) {
     // eslint-disable-next-line no-console
-    console.log(chalk.yellow('\n \u{26A0}️  [Bootstrap v5 Warning] The feature flag V6_5_0_0 is activated and the Storefront is using Bootstrap v5.  \u{26A0}️\n'));
+    console.log(chalk.yellow('\n \u{26A0}️  [Bootstrap v5 Warning] The feature flag v6.5.0.0 is activated and the Storefront is using Bootstrap v5.  \u{26A0}️\n'));
 }
 
 let hostName;
@@ -169,7 +169,7 @@ let webpackConfig = {
             },
             /** @deprecated tag:v6.5.0 - jQuery will be removed. Remove this function. */
             ...(() => {
-                if (!features['V6_5_0_0']) {
+                if (!features['v6.5.0.0']) {
                     // Expose jQuery to the global scope for plugins which don't want to use Webpack
                     return [{
                         test: require.resolve('jquery/dist/jquery.slim'),
@@ -323,7 +323,7 @@ let webpackConfig = {
              * Remove else case and enclosing function.
              */
             ...(() => {
-                if (features['V6_5_0_0']) {
+                if (features['v6.5.0.0']) {
                     return {
                         bootstrap: require.resolve('bootstrap5/dist/js/bootstrap'),
                     }
@@ -376,26 +376,26 @@ let webpackConfig = {
             /**
              * @deprecated tag:v6.5.0 - Alias `vendorBootstrap` will be removed.
              *
-             * Alias is used to import Bootstrap v5 if feature flag V6_5_0_0 is active.
+             * Alias is used to import Bootstrap v5 if feature flag v6.5.0.0 is active.
              * Package `bootstrap5` will be renamed to `bootstrap` and replace Bootstrap v4.
              */
-            vendorBootstrap: features['V6_5_0_0']
+            vendorBootstrap: features['v6.5.0.0']
                 ? path.resolve(__dirname, 'vendor/bootstrap5')
                 : path.resolve(__dirname, 'vendor/bootstrap'),
 
             /**
              * @deprecated tag:v6.5.0 - Alias `vendorBootstrapJs` will be removed.
              *
-             * Alias is used to import Bootstrap v5 if feature flag V6_5_0_0 is active.
+             * Alias is used to import Bootstrap v5 if feature flag v6.5.0.0 is active.
              * Package `bootstrap5` will be renamed to `bootstrap` and replace Bootstrap v4.
              */
-            vendorBootstrapJs: features['V6_5_0_0']
+            vendorBootstrapJs: features['v6.5.0.0']
                 ? require.resolve('bootstrap5/dist/js/bootstrap')
                 : require.resolve('bootstrap/dist/js/bootstrap'),
 
             /** @deprecated tag:v6.5.0 - jQuery will be removed. Remove this function. */
             ...(() => {
-                if (!features['V6_5_0_0']) {
+                if (!features['v6.5.0.0']) {
                     return {
                         jquery: 'jquery/dist/jquery.slim',
                     }

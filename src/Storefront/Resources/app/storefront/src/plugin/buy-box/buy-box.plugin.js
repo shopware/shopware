@@ -15,7 +15,7 @@ export default class BuyBoxPlugin extends Plugin {
          * @deprecated tag:v6.5.0 - Bootstrap v5 renames `data-toggle` attribute to `data-bs-toggle`
          * @see https://getbootstrap.com/docs/5.0/migration/#javascript
          */
-        modalTriggerSelector: Feature.isActive('V6_5_0_0') ? 'a[data-bs-toggle="modal"]' : 'a[data-toggle="modal"]',
+        modalTriggerSelector: Feature.isActive('v6.5.0.0') ? 'a[data-bs-toggle="modal"]' : 'a[data-toggle="modal"]',
         buyWidgetSelector: '.product-detail-buy',
         urlAttribute: 'data-url',
     };

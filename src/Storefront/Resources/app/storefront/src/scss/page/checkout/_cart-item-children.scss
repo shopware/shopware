@@ -6,7 +6,7 @@
     order: 10;
 
     // @deprecated tag:v6.5.0 - Bootstrap v5 applies `flex-shrink: 0` to all direct `.row` children which causes clipping `.cart-item-children` element.
-    @if feature('V6_5_0_0') {
+    @if feature('v6.5.0.0') {
         flex-shrink: initial;
     }
 
@@ -50,7 +50,7 @@
     }
 
     // @deprecated tag:v6.5.0 - Bootstrap v5 removes relative position on `col-` elements.
-    @if (feature('V6_5_0_0')) {
+    @if (feature('v6.5.0.0')) {
         .cart-item-child-label {
             position: relative;
         }

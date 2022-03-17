@@ -134,7 +134,7 @@ specific styling for elements dependent on their parent block
 }
 
 // @deprecated tag:v6.5.0 - Bootstrap v5 uses the breakpoint itself instead of the next breakpoint in `media-breakpoint-down()`, use `md` instead of `sm`.
-@include media-breakpoint-down(if(feature('V6_5_0_0'), md, sm)) {
+@include media-breakpoint-down(if(feature('v6.5.0.0'), md, sm)) {
     .cms-block-image-text-gallery,
     .cms-block-image-two-column,
     .cms-block-image-three-column,

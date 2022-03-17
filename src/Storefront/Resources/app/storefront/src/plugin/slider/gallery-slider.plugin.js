@@ -33,7 +33,7 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
               lg: {},
               xl: {},
               /** @deprecated tag:v6.5.0 - Bootstrap v5 adds xxl breakpoint */
-              ...(Feature.isActive('V6_5_0_0') && { xxl: {} }),
+              ...(Feature.isActive('v6.5.0.0') && { xxl: {} }),
           },
       },
       thumbnailSlider: {
@@ -51,7 +51,7 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
               lg: {},
               xl: {},
               /** @deprecated tag:v6.5.0 - Bootstrap v5 adds xxl breakpoint */
-              ...(Feature.isActive('V6_5_0_0') && { xxl: {} }),
+              ...(Feature.isActive('v6.5.0.0') && { xxl: {} }),
           },
       },
   });

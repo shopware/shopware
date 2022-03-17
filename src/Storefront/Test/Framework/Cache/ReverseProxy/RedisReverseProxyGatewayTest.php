@@ -29,6 +29,7 @@ class RedisReverseProxyGatewayTest extends TestCase
             ['http://localhost'],
             1,
             'BAN',
+            [],
             $this->redis,
             new Client(['handler' => HandlerStack::create($this->mockHandler)])
         );

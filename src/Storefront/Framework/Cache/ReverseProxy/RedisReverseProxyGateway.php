@@ -22,6 +22,8 @@ class RedisReverseProxyGateway extends AbstractReverseProxyGateway
 
     private string $banMethod;
 
+    private array $banHeaders;
+
     /**
      * @var \Redis|\RedisCluster
      */
@@ -50,13 +52,14 @@ LUA;
     /**
      * @param \Redis|\RedisCluster $redis
      */
-    public function __construct(array $hosts, int $concurrency, string $banMethod, $redis, Client $client)
+    public function __construct(array $hosts, int $concurrency, string $banMethod, array $banHeaders, $redis, Client $client)
     {
         $this->hosts = $hosts;
         $this->client = $client;
         $this->concurrency = $concurrency;
         $this->banMethod = $banMethod;
         $this->redis = $redis;
+        $this->banHeaders = $banHeaders;
     }
 
     /**
@@ -86,7 +89,7 @@ LUA;
 
         foreach ($urls as $url) {
             foreach ($this->hosts as $host) {
-                $list[] = new Request($this->banMethod, $host . $url);
+                $list[] = new Request($this->banMethod, $host . $url, $this->banHeaders);
             }
         }
 

@@ -18,8 +18,8 @@
         }
     }
 
-    .cart-item-children-elements {
-        padding: 12px 0 0;
+    .cart-item-children-elements > div:first-of-type {
+        padding: 20px 4px 0;
     }
 
     .cart-item-headline {

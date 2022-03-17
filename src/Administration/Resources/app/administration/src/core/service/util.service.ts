@@ -26,7 +26,7 @@ import {
     pick,
 } from './utils/object.utils';
 import { warn, error } from './utils/debug.utils';
-import { currency, date, fileSize, md5, toISODate } from './utils/format.utils';
+import { currency, date, dateWithUserTimezone, fileSize, md5, toISODate } from './utils/format.utils';
 import domUtils from './utils/dom.utils';
 import stringUtils from './utils/string.utils';
 import typesUtils, { isUndefined } from './utils/types.utils';
@@ -55,6 +55,7 @@ export const debug = {
 export const format = {
     currency: currency,
     date: date,
+    dateWithUserTimezone: dateWithUserTimezone,
     fileSize: fileSize,
     md5: md5,
     toISODate: toISODate,

@@ -18,7 +18,7 @@
 
                 {% block sw_dashboard_statistics_intro_stats_headline_date %}
                 <span class="sw-dashboard-statistics__card-headline-timerange">
-                    {{ today.toUTCString() | date({ minute: undefined, hour: undefined, month: 'short', year: undefined }) }}
+                    {{ formatChartHeadlineDate(today) }}
                 </span>
                 {% endblock %}
             </div>
@@ -148,9 +148,7 @@
                 <h1>
                     {{ $tc('sw-dashboard.monthStats.headline') }}
                     <span class="sw-dashboard-statistics__card-headline-timerange">
-                        ({{ dateAgo.toUTCString() | date({ minute: undefined, hour: undefined, month: 'short', year: undefined }) }}
-                        -
-                        {{ today.toUTCString() | date({ minute: undefined, hour: undefined, month: 'short', year: undefined }) }})
+                        ({{ formatChartHeadlineDate(dateAgo) }} - {{ formatChartHeadlineDate(today) }})
                     </span>
                 </h1>
                 {% endblock %}

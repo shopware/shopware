@@ -431,7 +431,7 @@ Component.register('sw-chart', {
             }
 
             // get timestamps for start date
-            const fromDate = new Date();
+            const fromDate = Shopware.Utils.format.dateWithUserTimezone();
             fromDate.setTime(this.options.xaxis.min);
             this.setDateTime(fromDate);
             const fromDateTimestamp = fromDate.getTime();
@@ -443,7 +443,7 @@ Component.register('sw-chart', {
                 toDateTimestamp = this.options.xaxis.max;
             } else {
                 // get actual day
-                const toDate = new Date();
+                const toDate = Shopware.Utils.format.dateWithUserTimezone();
                 this.setDateTime(toDate);
                 toDate.getTime();
                 toDateTimestamp = toDate.getTime();

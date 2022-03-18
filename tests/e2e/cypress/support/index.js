@@ -41,3 +41,11 @@ beforeEach(() => {
         return cy.setToInitialState();
     }
 });
+
+// we need to use the classic function syntax to bind `this` correctly
+afterEach(function () {
+    const { state, _currentRetry, _retries } = this.currentTest;
+    if (Cypress.env('INTERRUPT_ON_ERROR') && state === 'failed' && _currentRetry >= _retries) {
+        throw new Error('Interrupt');
+    }
+})

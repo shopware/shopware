@@ -3,7 +3,7 @@
   install-node:
       script:
         - apk add curl bash wget coreutils || true
-        - apt-update && apt-get install curl bash || true
+        - apt-update && apt-get install -y curl bash || true
         - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
         - export NVM_DIR="$HOME/.nvm"
         - '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'
@@ -15,3 +15,17 @@
         - ln -s $NVM_DIR/versions/node/v$NODE_VERSION*/bin/npm /usr/bin/npm
         - npm config set --global user 0
         - npm config set --global unsafe-perm true
+  handle-failed-merge-train:
+      after_script:
+        - >
+          if [[ $CI_JOB_STATUS == 'failed' && $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" && "$ALLOW_FAILURE" != "true" && -n "$CI_MERGE_REQUEST_IID" ]]; then
+            apk add jq || true
+            apt-update && apt-get install -y jq || true
+            LABEL="${CI_JOB_STAGE}::all";
+            COMMENT="The job $CI_JOB_URL failed in the merge train. We've added the label '$LABEL' to make sure it's not caused by your MR";
+            MR_API_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests/${CI_MERGE_REQUEST_IID}";
+            if ! curl -H "Private-Token: ${CI_GITLAB_API_TOKEN}" $MR_API_URL --insecure | jq .labels | grep -i "$LABEL"; then
+              curl -X POST -H "Private-Token: ${CI_GITLAB_API_TOKEN}" -H 'Content-Type: application/json' -d "{\"body\": \"$COMMENT\"}" $MR_API_URL/notes --insecure;
+              curl -X PUT -H "Private-Token: ${CI_GITLAB_API_TOKEN}" -H 'Content-Type: application/json' -d "{\"add_labels\": \"$LABEL\"}" $MR_API_URL --insecure;
+            fi
+          fi

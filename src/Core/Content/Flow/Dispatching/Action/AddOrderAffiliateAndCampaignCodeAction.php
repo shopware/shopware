@@ -36,10 +36,7 @@ class AddOrderAffiliateAndCampaignCodeAction extends FlowAction
 
     public function requirements(): array
     {
-        return [
-            OrderAware::class,
-            strtolower((new \ReflectionClass(OrderAware::class))->getShortName()),
-        ];
+        return [OrderAware::class];
     }
 
     public function handle(FlowEvent $event): void

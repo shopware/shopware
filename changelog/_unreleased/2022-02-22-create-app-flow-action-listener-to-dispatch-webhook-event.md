@@ -1,5 +1,5 @@
 ---
-title: Create App flow action listener to dispatch Webhook event
+title: Update FlowExecutor to dispatch Webhook event
 issue: NEXT-19012
 ---
 # Core
@@ -7,8 +7,9 @@ issue: NEXT-19012
 * Added property `url` into `Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionEntity`
 * Added event `Shopware\Core\Framework\App\Event\AppFlowActionEvent`
 * Added function `updateAppFlowActionWebhooks` into `Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister`
-* Changed function `updateWebhooks` into `Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister`
-* Added new class `Shopware\Core\Framework\App\FlowAction\AppFlowActionProvider`
+* Added function `updateWebhooksFromArray` into `Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister`
+* Added exception `Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException`
+* Added class `Shopware\Core\Framework\App\FlowAction\AppFlowActionProvider`
 * Changed function `updateApp` in `Shopware\Core\Framework\App\Lifecycle\AppLifecycle` to update webhook when update app
 * Changed function `getSubscribedEvents` in `Shopware\Core\Content\Flow\Indexing\FlowIndexer`.
 * Added property `appFlowActionId` into `Shopware\Core\Content\Flow\Dispatching\Struct\ActionSequence`

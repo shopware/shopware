@@ -17,6 +17,7 @@ class MetadataTest extends TestCase
         $meta = $firstAction->getMeta();
 
         static::assertEquals('abc.cde.ccc', $meta->getName());
+        static::assertEquals('abc', $meta->getBadge());
         static::assertEquals(['order', 'customer'], $meta->getRequirements());
         static::assertEquals('https://example.xyz', $meta->getUrl());
         static::assertEquals('sw-pencil', $meta->getSwIcon());

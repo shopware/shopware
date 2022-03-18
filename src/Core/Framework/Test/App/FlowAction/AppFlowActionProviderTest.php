@@ -3,11 +3,9 @@
 namespace Shopware\Core\Framework\Test\App\FlowAction;
 
 use Doctrine\DBAL\Connection;
-use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\FlowState;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
-use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\App\FlowAction\AppFlowActionProvider;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
@@ -52,16 +50,13 @@ class AppFlowActionProviderTest extends TestCase
             $config
         );
 
-        $appFlowActionEvent = new AppFlowActionEvent('1111', $flowEvent);
-
         $appFlowActionProvider = new AppFlowActionProvider(
             $connection,
             $this->getContainer()->get(BusinessEventEncoder::class),
-            $this->getContainer()->get(StringTemplateRenderer::class),
-            $this->createMock(Logger::class)
+            $this->getContainer()->get(StringTemplateRenderer::class)
         );
 
-        $webhookData = $appFlowActionProvider->getWebhookData($appFlowActionEvent);
+        $webhookData = $appFlowActionProvider->getWebhookData($flowEvent, '1111');
 
         static::assertEquals(['param1' => 'Text 1', 'param2' => 'Text 2 and Text 3'], $webhookData['payload']);
         static::assertEquals(['content-type' => 'application/json'], $webhookData['headers']);

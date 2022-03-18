@@ -3,6 +3,7 @@
     <flow-action>
         <meta>
             <name>abc.cde.ccc</name>
+            <badge>abc</badge>
             <label>First action app</label>
             <label lang="de-DE">First action app DE</label>
             <description>First action app description</description>

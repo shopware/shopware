@@ -32,6 +32,7 @@ class Migration1638993987AddAppFlowActionTableTest extends TestCase
         static::assertContains('id', $appFlowActionColumns);
         static::assertContains('app_id', $appFlowActionColumns);
         static::assertContains('name', $appFlowActionColumns);
+        static::assertContains('badge', $appFlowActionColumns);
         static::assertContains('url', $appFlowActionColumns);
         static::assertContains('parameters', $appFlowActionColumns);
         static::assertContains('config', $appFlowActionColumns);

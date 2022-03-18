@@ -108,10 +108,7 @@ class SendMailAction extends FlowAction
 
     public function requirements(): array
     {
-        return [
-            MailAware::class,
-            strtolower((new \ReflectionClass(OrderAware::class))->getShortName()),
-        ];
+        return [MailAware::class];
     }
 
     /**

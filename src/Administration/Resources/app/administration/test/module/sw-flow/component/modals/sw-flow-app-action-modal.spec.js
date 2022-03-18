@@ -35,7 +35,10 @@ function createWrapper() {
             sequence: {
                 propsAppFlowAction: {
                     appId: 'id',
-                    name: 'app.telegram.send.message',
+                    name: 'telegram.send.message',
+                    app: {
+                        active: true
+                    },
                     config: [
                         {
                             name: 'content',

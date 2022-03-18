@@ -12,7 +12,6 @@ use Shopware\Core\Framework\App\Event\AppChangedEvent;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
-use Shopware\Core\Framework\App\FlowAction\AppFlowActionProvider;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
@@ -280,19 +279,33 @@ class WebhookDispatcher implements EventDispatcherInterface
             }
 
             try {
-                $webhookData = $this->getDataForWebhook($webhook, $event, $languageId, $userLocale);
+                $webhookData = $this->getPayloadForWebhook($webhook, $event);
             } catch (AppUrlChangeDetectedException $e) {
                 // don't dispatch webhooks for apps if url changed
                 continue;
             }
 
+            $timestamp = time();
+            $webhookData['timestamp'] = $timestamp;
+
             /** @var string $jsonPayload */
-            $jsonPayload = json_encode($webhookData['payload']);
+            $jsonPayload = json_encode($webhookData);
+
+            $headers = [
+                'Content-Type' => 'application/json',
+                'sw-version' => $this->shopwareVersion,
+                AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE => $languageId,
+                AuthMiddleware::SHOPWARE_USER_LANGUAGE => $userLocale,
+            ];
+
+            if ($event instanceof AppFlowActionEvent) {
+                $headers = array_merge($headers, $event->getWebhookHeaders());
+            }
 
             $request = new Request(
                 'POST',
                 $webhook->getUrl(),
-                $webhookData['headers'],
+                $headers,
                 $jsonPayload
             );
 
@@ -359,6 +372,10 @@ class WebhookDispatcher implements EventDispatcherInterface
 
     private function getPayloadForWebhook(WebhookEntity $webhook, Hookable $event): array
     {
+        if ($event instanceof AppFlowActionEvent) {
+            return $event->getWebhookPayload();
+        }
+
         $data = [
             'payload' => $event->getWebhookPayload(),
             'event' => $event->getName(),
@@ -439,41 +456,5 @@ class WebhookDispatcher implements EventDispatcherInterface
         }
 
         return $this->container->get(AppLocaleProvider::class);
-    }
-
-    private function getAppFlowActionProvider(): AppFlowActionProvider
-    {
-        if (!$this->container->has(AppFlowActionProvider::class)) {
-            throw new ServiceNotFoundException(AppFlowActionProvider::class);
-        }
-
-        return $this->container->get(AppFlowActionProvider::class);
-    }
-
-    private function getDataForWebhook(
-        WebhookEntity $webhook,
-        Hookable $event,
-        string $languageId,
-        string $userLocale
-    ): array {
-        if ($event instanceof AppFlowActionEvent) {
-            return $this->getAppFlowActionProvider()->getWebhookData($event);
-        }
-
-        $payload = $this->getPayloadForWebhook($webhook, $event);
-
-        $timestamp = time();
-        $payload['timestamp'] = $timestamp;
-        $headers = [
-            'Content-Type' => 'application/json',
-            'sw-version' => $this->shopwareVersion,
-            AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE => $languageId,
-            AuthMiddleware::SHOPWARE_USER_LANGUAGE => $userLocale,
-        ];
-
-        return [
-            'payload' => $payload,
-            'headers' => $headers,
-        ];
     }
 }

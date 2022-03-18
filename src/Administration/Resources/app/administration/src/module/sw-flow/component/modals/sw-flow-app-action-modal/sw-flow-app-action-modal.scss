@@ -1,0 +1,17 @@
+/* stylelint-disable max-nesting-depth */
+@import "~scss/variables";
+@import "~scss/mixins";
+
+.sw-flow-app-action-modal {
+    &__header {
+        justify-content: flex-start;
+    }
+
+    &__app-badge {
+        padding: 4px 6px;
+        background: $color-gray-100;
+        border-radius: 4px;
+        margin-left: 8px;
+        font-size: $font-size-small;
+    }
+}

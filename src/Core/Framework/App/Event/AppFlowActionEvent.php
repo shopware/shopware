@@ -2,43 +2,38 @@
 
 namespace Shopware\Core\Framework\App\Event;
 
-use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class AppFlowActionEvent extends Event implements Hookable
 {
-    public const PREFIX = 'app_flow_action.';
+    private string $name;
 
-    private FlowEvent $flowEvent;
+    private array $headers;
 
-    private string $appFlowActionId;
+    private array $payload;
 
-    public function __construct(string $appFlowActionId, FlowEvent $flowEvent)
+    public function __construct(string $name, array $headers, array $payload)
     {
-        $this->appFlowActionId = $appFlowActionId;
-        $this->flowEvent = $flowEvent;
-    }
-
-    public function getAppFlowActionId(): string
-    {
-        return $this->appFlowActionId;
-    }
-
-    public function getEvent(): FlowEvent
-    {
-        return $this->flowEvent;
+        $this->name = $name;
+        $this->headers = $headers;
+        $this->payload = $payload;
     }
 
     public function getName(): string
     {
-        return $this->flowEvent->getActionName();
+        return $this->name;
+    }
+
+    public function getWebhookHeaders(): array
+    {
+        return $this->headers;
     }
 
     public function getWebhookPayload(): array
     {
-        return [];
+        return $this->payload;
     }
 
     /**

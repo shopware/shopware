@@ -1,4 +1,5 @@
 import template from './sw-flow-app-action-modal.html.twig';
+import './sw-flow-app-action-modal.scss';
 
 const { Component, Mixin, Classes: { ShopwareError } } = Shopware;
 
@@ -30,6 +31,10 @@ Component.register('sw-flow-app-action-modal', {
     computed: {
         actionLabel() {
             return this.sequence?.propsAppFlowAction?.translated?.label || this.sequence?.propsAppFlowAction?.label;
+        },
+
+        appBadge() {
+            return this.sequence?.propsAppFlowAction?.badge;
         },
 
         currentLocale() {
@@ -87,9 +92,7 @@ Component.register('sw-flow-app-action-modal', {
         },
 
         onSave() {
-            if (!this.isValid()) {
-                return;
-            }
+            if (!this.isValid() || !this.sequence?.propsAppFlowAction?.app?.active) return;
 
             const config = this.buildConfig();
             const data = {
@@ -181,7 +184,7 @@ Component.register('sw-flow-app-action-modal', {
 
             const objHelpText = JSON.parse(JSON.stringify(field.helpText));
 
-            return objHelpText[this.currentLocale] ?? objHelpText['en-GB'] ?? null;
+            return objHelpText[this.currentLocale] ?? objHelpText[Shopware.Context.app.fallbackLocale] ?? null;
         },
     },
 });

@@ -26,6 +26,8 @@ class Metadata extends XmlElement
 
     protected string $name;
 
+    protected ?string $badge;
+
     protected string $url;
 
     protected array $requirements = [];
@@ -56,6 +58,11 @@ class Metadata extends XmlElement
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function getBadge(): ?string
+    {
+        return $this->badge;
     }
 
     public function getUrl(): string

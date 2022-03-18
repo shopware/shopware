@@ -36,10 +36,7 @@ class AddCustomerAffiliateAndCampaignCodeAction extends FlowAction
 
     public function requirements(): array
     {
-        return [
-            CustomerAware::class,
-            strtolower((new \ReflectionClass(CustomerAware::class))->getShortName()),
-        ];
+        return [CustomerAware::class];
     }
 
     public function handle(FlowEvent $event): void

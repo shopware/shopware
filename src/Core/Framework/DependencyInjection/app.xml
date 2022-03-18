@@ -487,7 +487,6 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\BusinessEventEncoder"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer"/>
-            <argument type="service" id="logger"/>
         </service>
     </services>
 </container>

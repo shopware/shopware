@@ -9,3 +9,4 @@ issue: NEXT-18951
 * Added new property `flowSequences` to `Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionEntity`.
 * Added OneToMany association between `app_flow_action` and `flow_sequence`.
 * Changed `updateApp` function in `Shopware\Core\Framework\App\Lifecycle\AppLifecycle` for calling service `FlowActionPersister`.
+* Changed `collect` function in `Shopware\Core\Content\Flow\Api\FlowActionCollector` to add more actions from app system.

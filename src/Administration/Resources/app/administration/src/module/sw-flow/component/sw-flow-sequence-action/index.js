@@ -1,3 +1,4 @@
+import orderBy from 'lodash/orderBy';
 import template from './sw-flow-sequence-action.html.twig';
 import './sw-flow-sequence-action.scss';
 import { ACTION } from '../../constant/flow.constant';
@@ -60,29 +61,7 @@ Component.register('sw-flow-sequence-action', {
                 return this.getActionTitle(action);
             });
 
-            if (!this.appFlowActions?.length) {
-                return actions;
-            }
-
-            let appActions = [];
-            this.appFlowActions.forEach((appFlowAction) => {
-                if (!this.isAware(appFlowAction)) {
-                    return;
-                }
-
-                appActions = [...appActions, {
-                    value: appFlowAction.name,
-                    icon: appFlowAction.swIcon,
-                    iconRaw: appFlowAction.icon,
-                    label: appFlowAction.label || appFlowAction.translated?.label,
-                }];
-            });
-
-            if (appActions.length > 0) {
-                return [...appActions, ...actions];
-            }
-
-            return actions;
+            return this.sortActionOptions(actions);
         },
 
         sequenceData() {
@@ -117,6 +96,10 @@ Component.register('sw-flow-sequence-action', {
         },
 
         modalName() {
+            if (this.getSelectedAppFlowAction(this.selectedAction)) {
+                return 'sw-flow-app-action-modal';
+            }
+
             return this.flowBuilderService.getActionModalName(this.selectedAction);
         },
 
@@ -244,7 +227,7 @@ Component.register('sw-flow-sequence-action', {
                     config: action.config,
                 };
 
-                if (appAction !== undefined) {
+                if (appAction) {
                     data.appFlowActionId = appAction.id;
                 }
 
@@ -265,7 +248,7 @@ Component.register('sw-flow-sequence-action', {
                     id: utils.createId(),
                 };
 
-                if (appAction !== undefined) {
+                if (appAction) {
                     newSequence.appFlowActionId = appAction.id;
                 }
 
@@ -290,6 +273,8 @@ Component.register('sw-flow-sequence-action', {
         },
 
         removeAction(id) {
+            if (this.isAppDisabled(this.getSelectedAppFlowAction(this.sequence[id]?.actionName))) return;
+
             State.commit('swFlowState/removeSequences', [id]);
         },
 
@@ -315,6 +300,8 @@ Component.register('sw-flow-sequence-action', {
         },
 
         moveAction(action, type) {
+            if (this.isAppDisabled(this.getSelectedAppFlowAction(action.actionName))) return;
+
             const actions = this.actionsWithoutStopFlow();
             const currentIndex = actions.findIndex(item => item.position === action.position);
             const moveAction = type === 'up' ? actions[currentIndex - 1] : actions[currentIndex + 1];
@@ -328,6 +315,8 @@ Component.register('sw-flow-sequence-action', {
             if (!sequence?.actionName) {
                 return;
             }
+
+            if (this.isAppDisabled(this.getSelectedAppFlowAction(sequence.actionName))) return;
 
             sequence.propsAppFlowAction = this.getSelectedAppFlowAction(sequence.actionName);
             this.currentSequence = sequence;
@@ -346,12 +335,13 @@ Component.register('sw-flow-sequence-action', {
             }
 
             const appAction = this.getSelectedAppFlowAction(actionName);
-            if (appAction !== undefined) {
+            if (appAction) {
                 return {
                     label: appAction.label || appAction.translated?.label,
                     icon: appAction.swIcon,
                     iconRaw: appAction.icon,
                     value: appAction.name,
+                    disabled: !appAction.app?.active,
                 };
             }
 
@@ -364,7 +354,7 @@ Component.register('sw-flow-sequence-action', {
 
         getAppFlowAction() {
             const criteria = new Criteria();
-            criteria.addFilter(Criteria.equals('app.active', 1));
+            criteria.addAssociation('app');
             return this.appFlowActionRepository.search(criteria, Shopware.Context.api).then((response) => {
                 this.appFlowActions = response;
             });
@@ -395,8 +385,7 @@ Component.register('sw-flow-sequence-action', {
 
             if (!actionName) return '';
 
-            const appAction = this.getSelectedAppFlowAction(actionName);
-            if (appAction !== undefined) {
+            if (this.getSelectedAppFlowAction(actionName)) {
                 return this.actionDescription[ACTION.APP_FLOW_ACTION](config, actionName);
             }
 
@@ -629,8 +618,18 @@ Component.register('sw-flow-sequence-action', {
             return config.label[this.currentLocale] ?? config.label['en-GB'] ?? fieldName;
         },
 
-        isAware(appFlowAction) {
-            return appFlowAction.requirements.some(aware => this.triggerEvent?.aware.includes(aware));
+        isAppDisabled(appAction) {
+            if (!appAction) return false;
+
+            return !appAction.app.active;
+        },
+
+        sortActionOptions(actions) {
+            const stopAction = actions.pop();
+            const ordered = orderBy(actions, ['label']);
+            ordered.push(stopAction);
+
+            return ordered;
         },
     },
 });

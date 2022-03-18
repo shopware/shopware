@@ -67,6 +67,7 @@
                             v-for="item in sequenceData"
                             :key="item.id"
                             class="sw-flow-sequence-action__action-item"
+                            :class="{'sw-flow-sequence-action__disabled': item.disabled}"
                         >
 
                             {% block sw_flow_sequence_action_actions_item_header %}
@@ -209,7 +210,7 @@
                                 is="sw-select-result"
                                 :selected="isSelected(item)"
                                 v-bind="{ item, index }"
-                                :class="stopFlowStyle(item.value)"
+                                :class="[stopFlowStyle(item.value), {'sw-flow-sequence-action__disabled': item.disabled}]"
                                 @item-select="setValue"
                             >
                                 {% block sw_flow_sequence_action_select_results_list_result_label %}

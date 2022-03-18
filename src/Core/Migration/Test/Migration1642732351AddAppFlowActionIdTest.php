@@ -78,7 +78,8 @@ class Migration1642732351AddAppFlowActionIdTest extends TestCase
         $this->connection->insert('app_flow_action', [
             'id' => Uuid::fromHexToBytes($flowAppId),
             'app_id' => Uuid::fromHexToBytes($appId),
-            'name' => 'app.telegram.send.message',
+            'name' => 'telegram.send.message',
+            'badge' => 'Telegram',
             'url' => 'https://example.xyz',
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);

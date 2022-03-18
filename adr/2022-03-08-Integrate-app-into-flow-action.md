@@ -10,17 +10,51 @@ We integrate App system into Flow builder and use Webhook to call API
 
 ### Generate app flow actions and webhooks when install a new app system
 App system can define one or more actions in the manifest xml file.
-The actions defined in manifest.xml are synchronized into the `app_flow_action` table. The actions stored there are used for the UI in the admin to indicate to the user which actions
+By adding the necessary attributes, the user can define how the action should be displayed as well as how the information should be sent to the 3rd party.
+
+```xml
+<flow-actions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://test-flow.com/flow-action-1.0.xsd">
+    <flow-action>
+        <meta>
+            <name>telegram.send.message</name>
+            <badge>Telegram</badge>
+            <label>Telegram send message</label>
+            <description>Telegram send message description</description>
+            <url>https://test-flow.com</url>
+            <sw-icon>default-communication-speech-bubbles</sw-icon>
+            <requirements>orderAware</requirements>
+        </meta>
+        <headers>
+            <parameter type="string" name="content-type" value="application/json"/>
+        </headers>
+        <parameters>
+            <parameter type="string" name="message" value="{{ subject }} \n {{ customer.lastName }} some text here"/>
+        </parameters>
+        <config>
+            <input-field type="text">
+                <name>subject</name>
+                <label>Subject</label>
+                <required>true</required>
+            </input-field>
+        </config>
+    </flow-action>
+</flow-actions>
+```
+
+The actions defined in manifest.xml are stored into the `app_flow_action` table. The actions stored there are used for the UI in the admin to indicate to the user which actions
 can configure. When an app action is configured in a flow, we store the associated `app_flow_action_id` on the `flow_sequence` for later identification.
 
 Each concurrently created action will register a webhook to be called on a predefined URL if some events (that using an App flow action) happen inside Shopware.
 
-### Load actions that created by App system when use Flow Builder
-In Administration, when list all actions that can be used in Flow Builder, in addition to the actions in Core, we also load the actions that have been installed by the App system.
-In the `flow_sequence` table, we have the `app_flow_action_id` column to know which record is the App flow action.
+### Load actions that created by app system in flow builder
+In administration, when list all actions that can be used in flow builder, in addition to the actions in core, we also load the actions that have been installed by the app system.
+In the `flow_sequence` table, we have the `app_flow_action_id` column to know which record is the app flow action.
 
 ### Dispatch an AppFlowActionEvent when an app flow action is executed in FlowExecutor
-At FlowExecutor, when we execute an action that is app flow action (based on `app_flow_action_id` column in flow_sequence) we will dispatch `AppFlowActionEvent` instead of `FlowEvent`.
+For each action, the `FlowExecutor` dispatches a `FlowEvent`, which will be then handled by the subscriber or listener defined in core.
+With app flow action, all events after being dispatched by `FlowExecutor` will be handled by `WebhookDispatcher`. To call the webhook in `WebhookDispatcher` we need some information like payload, headers.. from the event, and it will make the event more complicated if we put all these properties into the `FlowEvent`. Meanwhile, the other properties of `FlowEvent` are not currently used in `WebhookDispatcher`.
+That's why we need to define `AppFlowActionEvent` and it implements from `Hookable`, `FlowExecutor` will dispatch this event instead of `FlowEvent` when handling actions from app system (based on `app_flow_action_id` column in flow_sequence).
+
 We use `AppFlowActionProvider` to get event data (`headers` and `payload`) which will be use in `WebhookDispatcher`.
 
 ```php
@@ -35,9 +69,10 @@ We use `AppFlowActionProvider` to get event data (`headers` and `payload`) which
    }
 ```
 
-### Generate headers and payload for webhook in AppFlowActionProvider
-`headers` and `payload` are saved as JSON with variables, we have to replace variables by data that available in event and data config in flow.
-For example, in manifest file we have a parameter:
+### Data for the webhooks will be retrieved during the flow execution from AppFlowActionProvider
+`headers` and `payload` are saved as JSON with variables, we have to replace variables with data before calling webhook.
+We define values in config for this purpose. But some necessary data may not can be created in config.
+For example, the user needs when a customer has successfully logged in, the system will send a message to the channel with the name of the logged in person. User cannot define the name of that customer in the config, instead the system will automatically get that customer's data in event's availableData.
 
 ```xml
 <parameters>
@@ -52,44 +87,15 @@ For example, in manifest file we have a parameter:
 </config>
 ```
 
-Before parsing `message` parameter to `payload` of `AppFlowActionEvent`, we need resolve all variables on `value` of that parameter.
-All logic to get data from AppFlowAction and generate Payload data and Headers data is handled in `AppFlowActionProvider`.
+All logic to get data from AppFlowAction and generate `payload` data and `headers` data is handled in `AppFlowActionProvider`.
 The variables in the Payload and Headers will be converted to values, that's taken from the action's config data and the event's availableData.
 
-```php
-private function resolveParamsData(array $params, array $data, Context $context): array
-    {
-        $paramData = [];
-
-        foreach ($params as $key => $param) {
-            try {
-                $paramData[$key] = $this->templateRenderer->render($param, $data, $context);
-            } catch (\Throwable $e) {
-                $this->logger->error(
-                    "Could not render template with error message:\n"
-                    . $e->getMessage() . "\n"
-                    . 'Error Code:' . $e->getCode() . "\n"
-                    . 'Template source:'
-                    . $param['value'] . "\n"
-                    . "Template data: \n"
-                    . \json_encode($data) . "\n"
-                );
-
-                $paramData[$key] = null;
-            }
-        }
-
-        return $paramData;
-    }
-```
-
 ### Call webhook in WebhookDispatcher when dispatching AppFlowActionEvent
-Workflow of `WebhookDispatcher` is basically unchanged.
 After the `AppFlowActionEvent` is dispatched, the `WebhookDispatcher` will check if the webhook of this event has been generated in the `webhook` table. Only events registered in the `webhook` table with actived app system, will be processed.
 `WebhookDispatcher` gets the `payload` from the event and generate default `headers`. If the event is a `AppFlowActionEvent`, the `headers` will also be got from the event.
 
 `WebhookDispatcher` will generate `Request` based on `url` get from `webhook` table, `payload` and `headers` from the event, and default method is `POST` for all webhooks.
-Finally, `WebhookDispatcher` sends `Request` by `Guzzle`.
+Finally, `WebhookDispatcher` sends request by `Guzzle`.
 
 ## Consequences
 We can make Action for Flow builder easy to call 3rd party APIs by configuring manifest file for an App System. The way it's displayed in the action form is also easily customizable.

@@ -19,6 +19,7 @@ class Migration1638993987AddAppFlowActionTable extends MigrationStep
                 `id`                        BINARY(16)      NOT NULL,
                 `app_id`                    BINARY(16)      NOT NULL,
                 `name`                      VARCHAR(255)    NOT NULL,
+                `badge`                     VARCHAR(255)    NULL,
                 `url`                       VARCHAR(500)    NOT NULL,
                 `parameters`                JSON            NULL,
                 `config`                    JSON            NULL,
@@ -43,7 +44,7 @@ class Migration1638993987AddAppFlowActionTable extends MigrationStep
             CREATE TABLE IF NOT EXISTS `app_flow_action_translation` (
                 `app_flow_action_id`        BINARY(16)      NOT NULL,
                 `language_id`               BINARY(16)      NOT NULL,
-                `label`                     VARCHAR(255)    NULL,
+                `label`                     VARCHAR(255)    NOT NULL,
                 `description`               VARCHAR(255)    NULL,
                 `custom_fields`             JSON            NULL,
                 `created_at`                DATETIME(3)     NOT NULL,

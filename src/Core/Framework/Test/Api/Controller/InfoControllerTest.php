@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
+use Doctrine\DBAL\Connection;
 use Enqueue\Container\Container;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
+use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
@@ -23,6 +25,7 @@ use Shopware\Core\Framework\Test\Api\Controller\fixtures\AdminExtensionApiPlugin
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Symfony\Component\Asset\Package;
 use Symfony\Component\Asset\Packages;
@@ -206,8 +209,11 @@ class InfoControllerTest extends TestCase
                 ],
                 'aware' => [
                     SalesChannelAware::class,
+                    lcfirst((new \ReflectionClass(SalesChannelAware::class))->getShortName()),
                     MailAware::class,
+                    lcfirst((new \ReflectionClass(MailAware::class))->getShortName()),
                     CustomerAware::class,
+                    lcfirst((new \ReflectionClass(CustomerAware::class))->getShortName()),
                 ],
             ],
             [
@@ -225,9 +231,13 @@ class InfoControllerTest extends TestCase
                 ],
                 'aware' => [
                     CustomerAware::class,
+                    lcfirst((new \ReflectionClass(CustomerAware::class))->getShortName()),
                     MailAware::class,
+                    lcfirst((new \ReflectionClass(MailAware::class))->getShortName()),
                     SalesChannelAware::class,
+                    lcfirst((new \ReflectionClass(SalesChannelAware::class))->getShortName()),
                     OrderAware::class,
+                    lcfirst((new \ReflectionClass(OrderAware::class))->getShortName()),
                 ],
             ],
             [
@@ -245,9 +255,13 @@ class InfoControllerTest extends TestCase
                 ],
                 'aware' => [
                     MailAware::class,
+                    lcfirst((new \ReflectionClass(MailAware::class))->getShortName()),
                     SalesChannelAware::class,
+                    lcfirst((new \ReflectionClass(SalesChannelAware::class))->getShortName()),
                     OrderAware::class,
+                    lcfirst((new \ReflectionClass(OrderAware::class))->getShortName()),
                     CustomerAware::class,
+                    lcfirst((new \ReflectionClass(CustomerAware::class))->getShortName()),
                 ],
             ],
         ];
@@ -385,7 +399,53 @@ class InfoControllerTest extends TestCase
             [
                 'name' => 'action.add.order.tag',
                 'requirements' => [
-                    "Shopware\Core\Framework\Event\OrderAware",
+                    'orderAware',
+                ],
+                'extensions' => [],
+            ],
+        ];
+
+        if (!Feature::isActive('v6.5.0.0')) {
+            $expected[0]['requirements'] = [
+                "Shopware\Core\Framework\Event\OrderAware",
+                'orderAware',
+            ];
+        }
+
+        foreach ($expected as $action) {
+            $actualActions = array_values(array_filter($response, function ($x) use ($action) {
+                return $x['name'] === $action['name'];
+            }));
+            static::assertNotEmpty($actualActions, 'Event with name "' . $action['name'] . '" not found');
+            static::assertCount(1, $actualActions);
+            static::assertEquals($action, $actualActions[0]);
+        }
+    }
+
+    public function testFlowActionRouteHasAppFlowActions(): void
+    {
+        $aclRoleId = Uuid::randomHex();
+        $this->createAclRole($aclRoleId);
+
+        $appId = Uuid::randomHex();
+        $this->createApp($appId, $aclRoleId);
+
+        $flowAppId = Uuid::randomHex();
+        $this->createAppFlowAction($flowAppId, $appId);
+
+        $url = '/api/_info/flow-actions.json';
+        $client = $this->getBrowser();
+        $client->request('GET', $url);
+
+        static::assertJson($client->getResponse()->getContent());
+
+        $response = json_decode($client->getResponse()->getContent(), true);
+
+        $expected = [
+            [
+                'name' => 'telegram.send.message',
+                'requirements' => [
+                    'orderaware',
                 ],
                 'extensions' => [],
             ],
@@ -424,5 +484,59 @@ class InfoControllerTest extends TestCase
             static::assertTrue(\in_array('Shopware\Core\Framework\Event\MailAware', $event['aware'], true));
             static::assertFalse(\in_array('Shopware\Core\Framework\Event\MailActionInterface', $event['aware'], true));
         }
+    }
+
+    private function createApp(string $appId, string $aclRoleId): void
+    {
+        $this->getContainer()->get(Connection::class)->insert('app', [
+            'id' => Uuid::fromHexToBytes($appId),
+            'name' => 'flowbuilderactionapp',
+            'active' => 1,
+            'path' => 'custom/apps/flowbuilderactionapp',
+            'version' => '1.0.0',
+            'configurable' => 0,
+            'app_secret' => 'appSecret',
+            'acl_role_id' => Uuid::fromHexToBytes($aclRoleId),
+            'integration_id' => $this->getIntegrationId(),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+    }
+
+    private function createAppFlowAction(string $flowAppId, string $appId): void
+    {
+        $this->getContainer()->get(Connection::class)->insert('app_flow_action', [
+            'id' => Uuid::fromHexToBytes($flowAppId),
+            'app_id' => Uuid::fromHexToBytes($appId),
+            'name' => 'telegram.send.message',
+            'badge' => 'Telegram',
+            'url' => 'https://example.xyz',
+            'requirements' => json_encode(['orderaware']),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+    }
+
+    private function getIntegrationId(): string
+    {
+        $integrationId = Uuid::randomBytes();
+
+        $this->getContainer()->get(Connection::class)->insert('integration', [
+            'id' => $integrationId,
+            'access_key' => 'test',
+            'secret_access_key' => 'test',
+            'label' => 'test',
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        return $integrationId;
+    }
+
+    private function createAclRole($aclRoleId): void
+    {
+        $this->getContainer()->get(Connection::class)->insert('acl_role', [
+            'id' => Uuid::fromHexToBytes($aclRoleId),
+            'name' => 'aclTest',
+            'privileges' => json_encode(['users_and_permissions.viewer']),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
     }
 }

@@ -1388,5 +1388,13 @@
     "shipping_method_translation.shippingMethodId",
     "shipping_method_translation.languageId",
     "custom_entity.createdAt",
-    "custom_entity.updatedAt"
+    "custom_entity.updatedAt",
+    "shipping_method_translation.languageId",
+    "app_flow_action.createdAt",
+    "app_flow_action.updatedAt",
+    "app_flow_action.translated",
+    "app_flow_action_translation.createdAt",
+    "app_flow_action_translation.updatedAt",
+    "app_flow_action_translation.appFlowActionId",
+    "app_flow_action_translation.languageId"
 ]

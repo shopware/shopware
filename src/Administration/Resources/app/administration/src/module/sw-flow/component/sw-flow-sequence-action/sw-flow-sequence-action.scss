@@ -189,6 +189,11 @@
         margin-left: 9px;
     }
 
+    &__disabled {
+        pointer-events: none;
+        opacity: 0.6;
+    }
+
     &__popover {
         .sw-select-result__result-item-text {
             flex-direction: row !important;

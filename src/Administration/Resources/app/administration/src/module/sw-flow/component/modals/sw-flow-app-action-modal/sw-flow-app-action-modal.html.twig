@@ -1,9 +1,19 @@
 {% block sw_flow_app_action_modal %}
 <sw-modal
     class="sw-flow-app-action-modal"
-    :title="actionLabel"
     @modal-close="onClose"
 >
+    <template #modal-header>
+        {% block sw_flow_app_action_modal_header %}
+        <div class="sw-flow-app-action-modal__header">
+            {{ actionLabel }}
+            <span class="sw-flow-app-action-modal__app-badge">
+                {{ appBadge }}
+            </span>
+        </div>
+        {% endblock %}
+    </template>
+
     {% block sw_flow_app_action_modal_content %}
     <sw-form-field-renderer
         v-for="field in fields"

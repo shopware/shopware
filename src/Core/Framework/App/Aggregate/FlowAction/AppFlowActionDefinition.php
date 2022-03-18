@@ -58,6 +58,7 @@ class AppFlowActionDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('app_id', 'appId', AppDefinition::class))->addFlags(new Required()),
             (new StringField('name', 'name', 255))->addFlags(new Required()),
+            new StringField('badge', 'badge', 255),
             (new JsonField('parameters', 'parameters')),
             (new JsonField('config', 'config')),
             (new JsonField('headers', 'headers')),

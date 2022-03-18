@@ -24,6 +24,7 @@
 
         <service id="Shopware\Core\Content\Flow\Dispatching\FlowExecutor" public="true">
             <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="Shopware\Core\Framework\App\FlowAction\AppFlowActionProvider" />
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction">
@@ -140,6 +141,7 @@
         <service id="Shopware\Core\Content\Flow\Api\FlowActionCollector">
             <argument type="tagged" tag="flow.action" />
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="app_flow_action.repository"/>
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\FlowLoader" public="true">

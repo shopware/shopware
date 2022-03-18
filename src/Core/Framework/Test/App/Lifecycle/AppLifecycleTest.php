@@ -1435,7 +1435,8 @@ class AppLifecycleTest extends TestCase
                 'id' => Uuid::fromHexToBytes($appId),
             ])->fetchAssociative();
 
-        static::assertEquals($appFlowAction['name'], 'app.telegram.send.message');
+        static::assertEquals($appFlowAction['name'], 'telegram.send.message');
+        static::assertEquals($appFlowAction['badge'], 'Telegram');
         static::assertEquals($appFlowAction['url'], 'https://test-flow.com');
         static::assertEquals($appFlowAction['sw_icon'], 'default-communication-speech-bubbles');
         static::assertEquals(json_decode($appFlowAction['parameters'], true), [
@@ -1477,8 +1478,8 @@ class AppLifecycleTest extends TestCase
             ],
         ]);
         static::assertEquals(json_decode($appFlowAction['requirements'], true), [
-            'orderaware',
-            'customeraware',
+            'orderAware',
+            'customerAware',
         ]);
     }
 }

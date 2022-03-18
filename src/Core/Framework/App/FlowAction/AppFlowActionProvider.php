@@ -3,10 +3,10 @@
 namespace Shopware\Core\Framework\App\FlowAction;
 
 use Doctrine\DBAL\Connection;
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
-use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
+use Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 
@@ -18,61 +18,59 @@ class AppFlowActionProvider
 
     private StringTemplateRenderer $templateRenderer;
 
-    private LoggerInterface $logger;
-
     public function __construct(
         Connection $connection,
         BusinessEventEncoder $businessEventEncoder,
-        StringTemplateRenderer $templateRenderer,
-        LoggerInterface $logger
+        StringTemplateRenderer $templateRenderer
     ) {
         $this->connection = $connection;
         $this->businessEventEncoder = $businessEventEncoder;
         $this->templateRenderer = $templateRenderer;
-        $this->logger = $logger;
     }
 
-    public function getWebhookData(AppFlowActionEvent $event): array
+    public function getWebhookData(FlowEvent $event, string $appFlowActionId): array
     {
-        $flowEvent = $event->getEvent();
-        $context = $flowEvent->getContext();
+        $context = $event->getContext();
 
-        $appFlowActionData = $this->getAppFlowActionData($event->getAppFlowActionId());
+        $appFlowActionData = $this->getAppFlowActionData($appFlowActionId);
 
         if (empty($appFlowActionData)) {
             return [];
         }
 
+        $availableData = $this->businessEventEncoder->encode($event->getEvent());
         $data = array_merge(
-            $flowEvent->getConfig(),
-            $this->businessEventEncoder->encode($flowEvent->getEvent())
+            $event->getConfig(),
+            $availableData
         );
 
+        $configData = $this->resolveParamsData($event->getConfig(), $data, $context, $appFlowActionId);
+        $data = array_merge(
+            $configData,
+            $availableData
+        );
+
+        $parameters = array_column(json_decode($appFlowActionData['parameters'], true), 'value', 'name');
+        $headers = array_column(json_decode($appFlowActionData['headers'], true), 'value', 'name');
+
         return [
-            'payload' => $this->resolveParamsData(json_decode($appFlowActionData['parameters'], true), $data, $context),
-            'headers' => $this->resolveParamsData(json_decode($appFlowActionData['headers'], true), $data, $context),
+            'payload' => $this->resolveParamsData($parameters, $data, $context, $appFlowActionId),
+            'headers' => $this->resolveParamsData($headers, $data, $context, $appFlowActionId),
         ];
     }
 
-    private function resolveParamsData(array $params, array $data, Context $context): array
+    /**
+     * @throws InvalidAppFlowActionVariableException
+     */
+    private function resolveParamsData(array $params, array $data, Context $context, string $appFlowActionId): array
     {
         $paramData = [];
 
-        foreach ($params as $param) {
+        foreach ($params as $key => $param) {
             try {
-                $paramData[$param['name']] = $this->templateRenderer->render($param['value'], $data, $context);
+                $paramData[$key] = $this->templateRenderer->render($param, $data, $context);
             } catch (\Throwable $e) {
-                $this->logger->error(
-                    "Could not render template with error message:\n"
-                    . $e->getMessage() . "\n"
-                    . 'Error Code:' . $e->getCode() . "\n"
-                    . 'Template source:'
-                    . $param['value'] . "\n"
-                    . "Template data: \n"
-                    . \json_encode($data) . "\n"
-                );
-
-                $paramData[$param['name']] = null;
+                throw new InvalidAppFlowActionVariableException($appFlowActionId, $param, $e->getMessage(), $e->getCode());
             }
         }
 
@@ -81,11 +79,9 @@ class AppFlowActionProvider
 
     private function getAppFlowActionData(string $appFlowActionId): array
     {
-        $data = $this->connection->fetchAssociative(
+        return $this->connection->fetchAssociative(
             'SELECT `parameters`, `headers` FROM `app_flow_action` WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($appFlowActionId)]
-        );
-
-        return $data ? $data : [];
+        ) ?: [];
     }
 }

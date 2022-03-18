@@ -17,6 +17,7 @@ use Shopware\Core\Framework\App\Event\Hooks\AppUpdatedHook;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\InvalidAppConfigurationException;
+use Shopware\Core\Framework\App\FlowAction\FlowAction;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister;
@@ -29,6 +30,7 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Module;
+use Shopware\Core\Framework\App\Manifest\Xml\Webhook;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -258,29 +260,19 @@ class AppLifecycle extends AbstractAppLifecycle
         $app = $this->loadApp($id, $context);
 
         $flowActions = $this->appLoader->getFlowActions($app);
-        $actions = [];
+
         if ($flowActions) {
             $this->flowBuilderActionPersister->updateActions($flowActions, $id, $context, $defaultLocale);
-
-            $actions = $flowActions->getActions() ? $flowActions->getActions()->getActions() : [];
-            $manifestWebhooks = $app->getAppSecret() && $manifest->getWebhooks()
-                ? array_column($manifest->getWebhooks()->getWebhooks(), 'name')
-                : [];
-
-            $this->webhookPersister->updateAppFlowActionWebhooks(
-                $actions,
-                $manifestWebhooks,
-                $id,
-                $context
-            );
         }
+
+        $webhooks = $this->getWebhooks($manifest, $flowActions, $id, $defaultLocale, (bool) $app->getAppSecret());
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($webhooks, $id): void {
+            $this->webhookPersister->updateWebhooksFromArray($webhooks, $id, $context);
+        });
 
         // we need a app secret to securely communicate with apps
         // therefore we only install action-buttons, webhooks and modules if we have a secret
         if ($app->getAppSecret()) {
-            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($manifest, $id, $defaultLocale, $actions): void {
-                $this->webhookPersister->updateWebhooks($manifest, $id, $defaultLocale, $context, $actions);
-            });
             $this->paymentMethodPersister->updatePaymentMethods($manifest, $id, $defaultLocale, $context);
             $this->updateModules($manifest, $id, $defaultLocale, $context);
         }
@@ -553,5 +545,42 @@ class AppLifecycle extends AbstractAppLifecycle
         $data = ['id' => $app->getId(), 'allowDisable' => $allow];
 
         $this->appRepository->update([$data], $context);
+    }
+
+    private function getWebhooks(Manifest $manifest, ?FlowAction $flowActions, string $appId, string $defaultLocale, bool $hasAppSecret): array
+    {
+        $actions = [];
+
+        if ($flowActions) {
+            $actions = $flowActions->getActions() ? $flowActions->getActions()->getActions() : [];
+        }
+
+        $webhooks = array_map(function ($action) use ($appId) {
+            $name = $action->getMeta()->getName();
+
+            return [
+                'name' => $name,
+                'eventName' => $name,
+                'url' => $action->getMeta()->getUrl(),
+                'appId' => $appId,
+                'active' => true,
+                'errorCount' => 0,
+            ];
+        }, $actions);
+
+        if (!$hasAppSecret) {
+            return $webhooks;
+        }
+
+        $manifestWebhooks = $manifest->getWebhooks() ? $manifest->getWebhooks()->getWebhooks() : [];
+        $webhooks = array_merge($webhooks, array_map(function ($webhook) use ($defaultLocale, $appId) {
+            $payload = $webhook->toArray($defaultLocale);
+            $payload['appId'] = $appId;
+            $payload['eventName'] = $webhook->getEvent();
+
+            return $payload;
+        }, $manifestWebhooks));
+
+        return $webhooks;
     }
 }

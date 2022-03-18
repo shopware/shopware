@@ -48,13 +48,12 @@ class Action extends XmlElement
     {
         $data = parent::toArray($defaultLocale);
 
-        return [
-            'name' => 'app.' . $this->meta->getName(),
+        return array_merge($data, [
+            'name' => $this->meta->getName(),
+            'badge' => $this->meta->getBadge(),
             'swIcon' => $this->meta->getSwIcon(),
             'url' => $this->meta->getUrl(),
-            'parameters' => array_map(function ($parameter) {
-                return $parameter->jsonSerialize();
-            }, $this->parameters->getParameters()),
+            'parameters' => $this->normalizeParameters(),
             'config' => array_map(function ($config) {
                 return $config->jsonSerialize();
             }, $this->config->getConfig()),
@@ -64,12 +63,28 @@ class Action extends XmlElement
             'requirements' => $this->meta->getRequirements(),
             'label' => $this->meta->getLabel(),
             'description' => $this->meta->getDescription(),
-        ];
+        ]);
     }
 
     public static function fromXml(\DOMElement $element): self
     {
         return new self(self::parse($element));
+    }
+
+    private function normalizeParameters(): array
+    {
+        /** @var array $parameters */
+        $parameters = array_map(function ($parameter) {
+            return $parameter->jsonSerialize();
+        }, $this->parameters->getParameters());
+
+        /** @var string $parameters */
+        $parameters = json_encode($parameters);
+
+        /** @var string $parameters */
+        $parameters = \preg_replace('/\\\\([a-zA-Z])/', '$1', $parameters);
+
+        return json_decode($parameters, true);
     }
 
     private static function parse(\DOMElement $element): array

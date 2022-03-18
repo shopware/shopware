@@ -17,6 +17,9 @@ use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\Integration\IntegrationEntity;
 
+/**
+ * @internal
+ */
 class AppEntity extends Entity
 {
     use EntityIdTrait;
@@ -194,8 +197,6 @@ class AppEntity extends Entity
     protected $cmsBlocks;
 
     /**
-     * @internal
-     *
      * @var AppFlowActionCollection|null
      */
     protected $flowActions;
@@ -559,17 +560,11 @@ class AppEntity extends Entity
         $this->cmsBlocks = $cmsBlocks;
     }
 
-    /**
-     * @internal
-     */
     public function getFlowActions(): ?AppFlowActionCollection
     {
         return $this->flowActions;
     }
 
-    /**
-     * @internal
-     */
     public function setFlowActions(AppFlowActionCollection $flowActions): void
     {
         $this->flowActions = $flowActions;

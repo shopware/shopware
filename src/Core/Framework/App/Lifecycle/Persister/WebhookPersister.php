@@ -25,44 +25,36 @@ class WebhookPersister
         $this->webhookRepository = $webhookRepository;
     }
 
-    public function updateWebhooks(Manifest $manifest, string $appId, string $defaultLocale, Context $context, array $actions = []): void
+    public function updateWebhooks(Manifest $manifest, string $appId, string $defaultLocale, Context $context): void
     {
-        $webhooks = $manifest->getWebhooks() ? $manifest->getWebhooks()->getWebhooks() : [];
+        $existingWebhooks = $this->getExistingWebhooks($appId, $context);
 
-        $webhooks = array_map(function ($webhook) use ($defaultLocale, $appId) {
+        $webhooks = $manifest->getWebhooks() ? $manifest->getWebhooks()->getWebhooks() : [];
+        $upserts = [];
+
+        foreach ($webhooks as $webhook) {
             $payload = $webhook->toArray($defaultLocale);
             $payload['appId'] = $appId;
             $payload['eventName'] = $webhook->getEvent();
 
-            return $payload;
-        }, $webhooks);
+            /** @var WebhookEntity|null $existing */
+            $existing = $existingWebhooks->filterByProperty('name', $webhook->getName())->first();
+            if ($existing) {
+                $payload['id'] = $existing->getId();
+                $existingWebhooks->remove($existing->getId());
+            }
 
-        $exceptWebhooks = array_map(function ($action) {
-            return $action->getMeta()->getName();
-        }, $actions);
+            $upserts[] = $payload;
+        }
 
-        $this->updateWebhooksFromArray($webhooks, $exceptWebhooks, $appId, $context);
+        if (!empty($upserts)) {
+            $this->webhookRepository->upsert($upserts, $context);
+        }
+
+        $this->deleteOldWebhooks($existingWebhooks, $context);
     }
 
-    public function updateAppFlowActionWebhooks(array $actions, array $exceptWebhooks, string $appId, Context $context): void
-    {
-        $webhooks = array_map(function ($action) use ($appId) {
-            $name = $action->getMeta()->getName();
-
-            return [
-                'name' => $name,
-                'eventName' => $name,
-                'url' => $action->getMeta()->getUrl(),
-                'appId' => $appId,
-                'active' => true,
-                'errorCount' => 0,
-            ];
-        }, $actions);
-
-        $this->updateWebhooksFromArray($webhooks, $exceptWebhooks, $appId, $context);
-    }
-
-    private function updateWebhooksFromArray(array $webhooks, array $exceptWebhooks, string $appId, Context $context): void
+    public function updateWebhooksFromArray(array $webhooks, string $appId, Context $context): void
     {
         $existingWebhooks = $this->getExistingWebhooks($appId, $context);
         $upserts = [];
@@ -77,15 +69,6 @@ class WebhookPersister
             }
 
             $upserts[] = $webhook;
-        }
-
-        foreach ($exceptWebhooks as $name) {
-            /** @var WebhookEntity|null $existing */
-            $existing = $existingWebhooks->filterByProperty('name', $name)->first();
-
-            if ($existing) {
-                $existingWebhooks->remove($existing->getId());
-            }
         }
 
         if (!empty($upserts)) {

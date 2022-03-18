@@ -66,6 +66,7 @@ class AppFlowActionLoadedSubscriberTest extends TestCase
                     [
                         'id' => $idFlowAction,
                         'name' => 'FlowActiontest',
+                        'sign' => 'Test',
                         'label' => 'Flow Action test',
                         'iconRaw' => file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png'),
                         'url' => 'http://xxxxx',

@@ -20,7 +20,9 @@ class AppFlowActionEntity extends Entity
 
     protected string $name;
 
-    protected ?string $label;
+    protected ?string $badge;
+
+    protected string $label;
 
     protected ?string $description;
 
@@ -74,12 +76,22 @@ class AppFlowActionEntity extends Entity
         $this->name = $name;
     }
 
-    public function getLabel(): ?string
+    public function getBadge(): ?string
+    {
+        return $this->badge;
+    }
+
+    public function setBadge(string $badge): void
+    {
+        $this->badge = $badge;
+    }
+
+    public function getLabel(): string
     {
         return $this->label;
     }
 
-    public function setLabel(?string $label): void
+    public function setLabel(string $label): void
     {
         $this->label = $label;
     }

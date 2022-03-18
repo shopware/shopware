@@ -87,10 +87,6 @@ export default function flowBuilderService() {
             return '';
         }
 
-        if (actionName.slice(0, 4) === 'app.') {
-            return 'sw-flow-app-action-modal';
-        }
-
         if (mapActionType(actionName) === ACTION_TYPE.ADD_TAG
             || mapActionType(actionName) === ACTION_TYPE.REMOVE_TAG) {
             return 'sw-flow-tag-modal';

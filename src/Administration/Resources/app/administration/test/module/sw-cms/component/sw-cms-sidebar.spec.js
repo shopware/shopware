@@ -432,10 +432,6 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
                                         displayMode: {
                                             source: 'static',
                                             value: 'standard'
-                                        },
-                                        media: {
-                                            value: 'preview_mountain_large.jpg',
-                                            source: 'default'
                                         }
                                     },
                                     data: {

@@ -24,7 +24,7 @@ Shopware.Service('cmsService').registerCmsBlock({
                 },
                 data: {
                     media: {
-                        value: CONSTANTS.CMS.MEDIA.previewCamera,
+                        value: CONSTANTS.MEDIA.previewCamera,
                         source: 'default',
                     },
                 },
@@ -38,8 +38,8 @@ Shopware.Service('cmsService').registerCmsBlock({
                         source: 'static',
                         value: `
                         <h2 style="text-align: center;">Lorem Ipsum dolor</h2>
-                        <p style="text-align: center;">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, 
-                        sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, 
+                        <p style="text-align: center;">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
+                        sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
                         sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.</p>
                         `.trim(),
                     },
@@ -54,7 +54,7 @@ Shopware.Service('cmsService').registerCmsBlock({
                 },
                 data: {
                     media: {
-                        value: CONSTANTS.CMS.MEDIA.previewPlant,
+                        value: CONSTANTS.MEDIA.previewPlant,
                         source: 'default',
                     },
                 },
@@ -68,8 +68,8 @@ Shopware.Service('cmsService').registerCmsBlock({
                         source: 'static',
                         value: `
                         <h2 style="text-align: center;">Lorem Ipsum dolor</h2>
-                        <p style="text-align: center;">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, 
-                        sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, 
+                        <p style="text-align: center;">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
+                        sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
                         sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.</p>
                         `.trim(),
                     },
@@ -84,7 +84,7 @@ Shopware.Service('cmsService').registerCmsBlock({
                 },
                 data: {
                     media: {
-                        value: CONSTANTS.CMS.MEDIA.previewGlasses,
+                        value: CONSTANTS.MEDIA.previewGlasses,
                         source: 'default',
                     },
                 },
@@ -98,8 +98,8 @@ Shopware.Service('cmsService').registerCmsBlock({
                         source: 'static',
                         value: `
                         <h2 style="text-align: center;">Lorem Ipsum dolor</h2>
-                        <p style="text-align: center;">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, 
-                        sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, 
+                        <p style="text-align: center;">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
+                        sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
                         sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.</p>
                         `.trim(),
                     },

@@ -10,7 +10,7 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageSliderItemStruct;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageSliderStruct;
-use Shopware\Core\Content\Media\Cms\ImageCmsElementResolver;
+use Shopware\Core\Content\Media\Cms\AbstractDefaultMediaResolver;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
@@ -20,14 +20,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
 {
-    private string $cmsAssetPath;
+    private AbstractDefaultMediaResolver $mediaResolver;
 
-    private string $projectDir;
-
-    public function __construct(string $projectDir, string $cmsAssetPath = ImageCmsElementResolver::CMS_DEFAULT_ASSETS_PATH)
+    public function __construct(AbstractDefaultMediaResolver $mediaResolver)
     {
-        $this->projectDir = $projectDir;
-        $this->cmsAssetPath = $cmsAssetPath;
+        $this->mediaResolver = $mediaResolver;
     }
 
     public function getType(): string
@@ -77,7 +74,7 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
 
         if ($sliderItemsConfig->isDefault()) {
             foreach ($sliderItemsConfig->getArrayValue() as $sliderItem) {
-                $this->addDefaultMedia($imageSlider, $sliderItem);
+                $this->addDefaultMediaToImageSlider($imageSlider, $sliderItem);
             }
         }
 
@@ -145,25 +142,13 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
         $imageSlider->addSliderItem($imageSliderItem);
     }
 
-    private function addDefaultMedia(ImageSliderStruct $imageSlider, array $config): void
+    private function addDefaultMediaToImageSlider(ImageSliderStruct $imageSlider, array $config): void
     {
-        $filePath = $this->projectDir . $this->cmsAssetPath . $config['fileName'];
+        $media = $this->mediaResolver->getDefaultCmsMediaEntity($config['fileName']);
 
-        if (!file_exists($filePath)) {
+        if ($media === null) {
             return;
         }
-
-        $mimeType = mime_content_type($filePath);
-        $pathInfo = pathinfo($filePath);
-
-        if (!$mimeType || !\array_key_exists('extension', $pathInfo)) {
-            return;
-        }
-
-        $media = new MediaEntity();
-        $media->setFileName($config['fileName']);
-        $media->setMimeType($mimeType);
-        $media->setFileExtension($pathInfo['extension']);
 
         $imageSliderItem = new ImageSliderItemStruct();
         $imageSliderItem->setMedia($media);

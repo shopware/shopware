@@ -10,6 +10,7 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageStruct;
+use Shopware\Core\Content\Media\Cms\DefaultMediaResolver;
 use Shopware\Core\Content\Media\Cms\ImageCmsElementResolver;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -35,7 +36,7 @@ class ImageTypeDataResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->imageResolver = new ImageCmsElementResolver(__DIR__, self::FIXTURES_DIRECTORY);
+        $this->imageResolver = new ImageCmsElementResolver(new DefaultMediaResolver(__DIR__ . self::FIXTURES_DIRECTORY, 'core'));
     }
 
     public function testType(): void

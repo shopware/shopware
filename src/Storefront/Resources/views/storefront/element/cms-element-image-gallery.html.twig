@@ -5,16 +5,7 @@
 
         {% set mediaItems = [] %}
         {% for item in element.data.sliderItems %}
-            {% set media = item.media %}
-            {% if sliderConfig.sliderItems.source == 'default' %}
-                {% do media.setUrl(asset("bundles/storefront/assets/default/cms/" ~ media.fileName )) %}
-                {% do media.setTranslated({
-                    'title': ("component.cms.defaultMedia." ~ media.fileName|split('.')|first ~ ".title")|trans,
-                    'alt': ("component.cms.defaultMedia." ~ media.fileName|split('.')|first ~ ".alt")|trans,
-                }) %}
-            {% endif %}
-
-            {% set mediaItems = mediaItems|merge([media]) %}
+            {% set mediaItems = mediaItems|merge([item.media]) %}
         {% endfor %}
 
         {% set zoom = sliderConfig.zoom.value %}

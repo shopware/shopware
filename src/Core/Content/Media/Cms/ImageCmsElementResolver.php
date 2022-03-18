@@ -18,14 +18,11 @@ class ImageCmsElementResolver extends AbstractCmsElementResolver
 {
     public const CMS_DEFAULT_ASSETS_PATH = '/bundles/storefront/assets/default/cms/';
 
-    private string $cmsAssetPath;
+    private AbstractDefaultMediaResolver $mediaResolver;
 
-    private string $projectDir;
-
-    public function __construct(string $projectDir, string $cmsAssetPath = self::CMS_DEFAULT_ASSETS_PATH)
+    public function __construct(AbstractDefaultMediaResolver $mediaResolver)
     {
-        $this->projectDir = $projectDir;
-        $this->cmsAssetPath = $cmsAssetPath;
+        $this->mediaResolver = $mediaResolver;
     }
 
     public function getType(): string
@@ -36,7 +33,13 @@ class ImageCmsElementResolver extends AbstractCmsElementResolver
     public function collect(CmsSlotEntity $slot, ResolverContext $resolverContext): ?CriteriaCollection
     {
         $mediaConfig = $slot->getFieldConfig()->get('media');
-        if ($mediaConfig === null || $mediaConfig->isMapped() || $mediaConfig->isDefault() || $mediaConfig->getValue() === null) {
+
+        if (
+            $mediaConfig === null
+            || $mediaConfig->isMapped()
+            || $mediaConfig->isDefault()
+            || $mediaConfig->getValue() === null
+        ) {
             return null;
         }
 
@@ -87,7 +90,7 @@ class ImageCmsElementResolver extends AbstractCmsElementResolver
         ResolverContext $resolverContext
     ): void {
         if ($config->isDefault()) {
-            $media = $this->getDefaultMediaEntity($config->getStringValue());
+            $media = $this->mediaResolver->getDefaultCmsMediaEntity($config->getStringValue());
 
             if ($media) {
                 $image->setMedia($media);
@@ -120,28 +123,5 @@ class ImageCmsElementResolver extends AbstractCmsElementResolver
 
             $image->setMedia($media);
         }
-    }
-
-    private function getDefaultMediaEntity(string $fileName): ?MediaEntity
-    {
-        $filePath = $this->projectDir . $this->cmsAssetPath . $fileName;
-
-        if (!file_exists($filePath)) {
-            return null;
-        }
-
-        $mimeType = mime_content_type($filePath);
-        $pathInfo = pathinfo($filePath);
-
-        if (!$mimeType || !\array_key_exists('extension', $pathInfo)) {
-            return null;
-        }
-
-        $media = new MediaEntity();
-        $media->setFileName($fileName);
-        $media->setMimeType($mimeType);
-        $media->setFileExtension($pathInfo['extension']);
-
-        return $media;
     }
 }

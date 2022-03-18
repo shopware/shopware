@@ -403,8 +403,8 @@ Component.register('sw-cms-sidebar', {
                 }
 
                 const slotDefaultData = slotConfig.default?.data;
-                if (slotDefaultData?.media?.source === 'default' || slotDefaultData?.sliderItems?.source === 'default') {
-                    Object.assign({}, element.config, slotDefaultData);
+                if ([slotDefaultData?.media?.source, slotDefaultData?.sliderItems?.source].includes('default')) {
+                    element.config = Object.assign({}, element.config, slotDefaultData);
                 }
 
                 newBlock.slots.add(element);

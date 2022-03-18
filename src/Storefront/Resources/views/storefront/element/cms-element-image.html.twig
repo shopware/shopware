@@ -9,30 +9,23 @@
                 {% block element_image_inner %}
                     {% set imageElement %}
                         {% block element_image_container %}
-                            {% set media = element.data.media %}
-                            {%  if config.media.source == 'default' %}
-                                {% do media.setUrl(asset("bundles/storefront/assets/default/cms/" ~ media.fileName )) %}
-                                {% do media.setTranslated({
-                                    'title': ("component.cms.defaultMedia." ~ media.fileName|split('.')|first ~ ".title")|trans,
-                                    'alt': ("component.cms.defaultMedia." ~ media.fileName|split('.')|first ~ ".alt")|trans,
-                                }) %}
-                            {% endif %}
-
-                            {% if media.url %}
+                            {% if element.data.media.url %}
                                 <div class="cms-image-container is-{{ element.translated.config.displayMode.value }}"
                                     {% if element.translated.config.minHeight.value and element.translated.config.displayMode.value == "cover" %} style="min-height: {{ element.translated.config.minHeight.value }};"{% endif %}>
                                     {% block element_image_media %}
                                         {% set attributes = {
                                             'class': 'cms-image',
-                                            'alt': (media.translated.alt ?: ''),
-                                            'title': (media.translated.title ?: '')
+                                            'alt': (element.data.media.translated.alt ?: ''),
+                                            'title': (element.data.media.translated.title ?: '')
                                         } %}
 
                                         {% if element.translated.config.displayMode.value == 'cover' or element.translated.config.displayMode.value == 'contain' %}
                                             {% set attributes = attributes|merge({ 'data-object-fit': element.translated.config.displayMode.value }) %}
                                         {% endif %}
 
-                                        {% sw_thumbnails 'cms-image-thumbnails' with { media } %}
+                                        {% sw_thumbnails 'cms-image-thumbnails' with {
+                                            media: element.data.media
+                                        } %}
                                     {% endblock %}
                                 </div>
                             {% endif %}

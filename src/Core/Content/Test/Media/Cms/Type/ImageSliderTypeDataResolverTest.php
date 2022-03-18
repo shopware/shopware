@@ -11,6 +11,7 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageSliderItemStruct;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageSliderStruct;
+use Shopware\Core\Content\Media\Cms\DefaultMediaResolver;
 use Shopware\Core\Content\Media\Cms\Type\ImageSliderTypeDataResolver;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -39,7 +40,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->imageSliderResolver = new ImageSliderTypeDataResolver(__DIR__, self::FIXTURES_DIRECTORY);
+        $this->imageSliderResolver = new ImageSliderTypeDataResolver(new DefaultMediaResolver(__DIR__ . self::FIXTURES_DIRECTORY, 'core'));
     }
 
     public function testType(): void

@@ -1,4 +1,4 @@
-import CONSTANTS from '../../../constant/sw-cms.constant';
+import CMS from '../../../constant/sw-cms.constant';
 import './component';
 import './preview';
 
@@ -24,7 +24,7 @@ Shopware.Service('cmsService').registerCmsBlock({
                 },
                 data: {
                     media: {
-                        value: CONSTANTS.MEDIA.previewCamera,
+                        value: CMS.MEDIA.previewCamera,
                         source: 'default',
                     },
                 },
@@ -54,7 +54,7 @@ Shopware.Service('cmsService').registerCmsBlock({
                 },
                 data: {
                     media: {
-                        value: CONSTANTS.MEDIA.previewPlant,
+                        value: CMS.MEDIA.previewPlant,
                         source: 'default',
                     },
                 },
@@ -84,7 +84,7 @@ Shopware.Service('cmsService').registerCmsBlock({
                 },
                 data: {
                     media: {
-                        value: CONSTANTS.MEDIA.previewGlasses,
+                        value: CMS.MEDIA.previewGlasses,
                         source: 'default',
                     },
                 },

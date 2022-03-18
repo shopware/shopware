@@ -11,6 +11,18 @@ issue: NEXT-20673
 * Added method `\Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry::generatePattern()`.
 * Deprecated method `\Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry::getPatternResolver()`, please use `generatePattern()` directly.
 * Deprecated all protected methods of `\Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGenerator`, those will be internal, please only use the public methods.
+* Added `\Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementRedisStorage` to be able to generate number range increments using redis.
+* Added config option `shopware.number_range.redis_url` to specify the redis connection that should be used for the number ranges.
+___
+# Upgrade Information
+## Redis store for number range increments
+You can now generate the number range increments using redis instead of the Database.
+In your `shopware.yaml` specify the url that should be used to connect to the redis server to activate this feature:
+```yaml
+shopware:
+  number_range:
+    redis_url: "redis://redis-host:port/dbIndex"
+```
 ___
 # Next Major Version Changes
 ## Refactoring of Number Ranges

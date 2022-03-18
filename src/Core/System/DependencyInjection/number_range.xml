@@ -41,6 +41,18 @@
             <deprecated>tag:v6.5.0 "%alias_id%" service alias is deprecated, use "Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementSqlStorage" instead.</deprecated>
         </service>
 
+        <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementRedisStorage">
+            <argument type="service" id="shopware.cart.redis"/>
+            <argument type="service" id="lock.factory"/>
+
+            <tag name="shopware.value_generator_connector"/>
+        </service>
+
+        <service id="shopware.number_range.redis" class="Redis">
+            <factory class="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory" method="createConnection"/>
+            <argument>%shopware.number_range.redis_url%</argument>
+        </service>
+
         <service class="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGenerator"
                  id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"
                  public="true">

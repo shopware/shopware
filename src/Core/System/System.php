@@ -3,6 +3,7 @@
 namespace Shopware\Core\System;
 
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\System\DependencyInjection\CompilerPass\RedisNumberRangeIncrementerCompilerPass;
 use Shopware\Core\System\DependencyInjection\CompilerPass\SalesChannelEntityCompilerPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -34,5 +35,6 @@ class System extends Bundle
         $loader->load('tag.xml');
 
         $container->addCompilerPass(new SalesChannelEntityCompilerPass());
+        $container->addCompilerPass(new RedisNumberRangeIncrementerCompilerPass());
     }
 }

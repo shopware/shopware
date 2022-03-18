@@ -2,6 +2,7 @@
 Percy:
     extends: .base
     stage: visual
+    timeout: 1h
     services:
         -   name: mariadb:10.3
             alias: database

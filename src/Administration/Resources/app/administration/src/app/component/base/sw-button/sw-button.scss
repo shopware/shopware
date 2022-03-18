@@ -222,6 +222,17 @@ $sw-button-transition: all 0.15s ease-out;
         &:active {
             background: $color-crimson-100;
         }
+
+        &:disabled,
+        &.sw-button--disabled {
+            background-color: transparent;
+            border-color: $color-crimson-200;
+            color: $color-crimson-200;
+
+            .sw-icon {
+                color: $color-crimson-200;
+            }
+        }
     }
 
     &.sw-button--context {

@@ -909,8 +909,19 @@
       "buttonVariantSecondary": "Sekundär",
       "buttonVariantPrimarySmall": "Primär (klein)",
       "buttonVariantSecondarySmall": "Sekundär (klein)",
+      "linkTo": "Link zu",
       "placeholder": "URL eingeben ...",
-      "linkTo": "Link zu"
+      "labelUrl": "URL",
+      "labelType": "Typ",
+      "labelLink": "Link",
+      "labelProduct": "Produkt",
+      "labelCategory":"Kategorie",
+      "labelEmail": "E-Mail-Adresse",
+      "labelPhoneNumber": "Telefonnummer",
+      "placeholderPhoneNumber": "Telefonnummer eingeben ...",
+      "placeholderEmail": "E-Mail-Adresse eingeben ...",
+      "placeholderProduct": "Produkt auswählen ...",
+      "placeholderCategory": "Kategorie auswählen ..."
     },
     "table": {
       "addHeading": "Tabellenkopf hinzufügen",

@@ -2,6 +2,7 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/app/component/form/sw-text-editor';
 import 'src/app/component/form/sw-text-editor/sw-text-editor-toolbar';
 import 'src/app/component/form/sw-text-editor/sw-text-editor-toolbar-button';
+import 'src/app/component/form/sw-text-editor/sw-text-editor-link-menu';
 import 'src/app/component/form/sw-field';
 import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
@@ -28,24 +29,24 @@ function createWrapper(allowInlineDataMapping = true) {
         },
         localVue,
         stubs: {
-            'sw-text-editor-toolbar': Shopware.Component.build('sw-text-editor-toolbar'),
             'sw-text-editor-toolbar-button': Shopware.Component.build('sw-text-editor-toolbar-button'),
-            'sw-icon': { template: '<div class="sw-icon"></div>' },
-            'sw-field': Shopware.Component.build('sw-field'),
-            'sw-text-field': Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': Shopware.Component.build('sw-block-field'),
-            'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
-            'sw-switch-field': Shopware.Component.build('sw-switch-field'),
-            'sw-field-error': true,
+            'sw-text-editor-link-menu': Shopware.Component.build('sw-text-editor-link-menu'),
             'sw-compact-colorpicker': Shopware.Component.build('sw-compact-colorpicker'),
+            'sw-text-editor-toolbar': Shopware.Component.build('sw-text-editor-toolbar'),
+            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
+            'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
+            'sw-code-editor': { template: '<div id="sw-code-editor"></div>' },
+            'sw-switch-field': Shopware.Component.build('sw-switch-field'),
+            'sw-block-field': Shopware.Component.build('sw-block-field'),
             'sw-colorpicker': Shopware.Component.build('sw-colorpicker'),
+            'sw-text-field': Shopware.Component.build('sw-text-field'),
+            'sw-base-field': Shopware.Component.build('sw-base-field'),
             'sw-container': Shopware.Component.build('sw-container'),
+            'sw-icon': { template: '<div class="sw-icon"></div>' },
             'sw-button': Shopware.Component.build('sw-button'),
-            'sw-code-editor': {
-                template: '<div id="sw-code-editor"></div>'
-            }
+            'sw-field': Shopware.Component.build('sw-field'),
+            'sw-select-field': true,
+            'sw-field-error': true,
         },
         data() {
             return {
@@ -230,12 +231,12 @@ describe('src/app/component/form/sw-text-editor', () => {
         await buttonLink.find('.sw-text-editor-toolbar-button__icon').trigger('click');
 
         // set link
-        await buttonLink.find('#sw-field--buttonConfig-value').setValue('https://www.foo-bar.com');
-        await buttonLink.find('#sw-field--buttonConfig-value').trigger('change');
+        await buttonLink.find('#sw-field--linkTarget').setValue('https://www.foo-bar.com');
+        await buttonLink.find('#sw-field--linkTarget').trigger('change');
 
         // set new tab
-        buttonLink.find('input[name="sw-field--buttonConfig-newTab"]').element.checked = true;
-        await buttonLink.find('input[name="sw-field--buttonConfig-newTab"]').trigger('change');
+        buttonLink.find('.sw-text-editor-toolbar-button__link-menu-new-tab input').element.checked = true;
+        await buttonLink.find('.sw-text-editor-toolbar-button__link-menu-new-tab input').trigger('change');
 
         // insert link
         await buttonLink.find('.sw-text-editor-toolbar-button__link-menu-buttons-button-insert').trigger('click');
@@ -477,18 +478,19 @@ describe('src/app/component/form/sw-text-editor', () => {
         // click on link button
         const linkButtonIcon = wrapper.find('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon');
         await linkButtonIcon.trigger('click');
+        await wrapper.vm.$nextTick();
 
         // link menu should be opened
         const linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');
         expect(linkMenu.exists()).toBe(true);
 
         // input field should contain the correct url value
-        const linkInput = linkMenu.find('#sw-field--buttonConfig-value');
+        const linkInput = linkMenu.find('#sw-field--linkTarget');
         expect(linkInput.exists()).toBe(true);
         expect(linkInput.element.value).toBe('http://shopware.com');
 
         // switch field should contain correct newTab value
-        const newTabSwitch = wrapper.find('input[name="sw-field--buttonConfig-newTab"]');
+        const newTabSwitch = wrapper.find('.sw-text-editor-toolbar-button__link-menu-new-tab input');
         expect(newTabSwitch.element.checked).toBe(false);
     });
 
@@ -511,18 +513,19 @@ describe('src/app/component/form/sw-text-editor', () => {
         // click on link button
         const linkButtonIcon = wrapper.find('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon');
         await linkButtonIcon.trigger('click');
+        await wrapper.vm.$nextTick();
 
         // link menu should be opened
         const linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');
         expect(linkMenu.exists()).toBe(true);
 
         // input field should contain the correct url value
-        const linkInput = linkMenu.find('#sw-field--buttonConfig-value');
+        const linkInput = linkMenu.find('#sw-field--linkTarget');
         expect(linkInput.exists()).toBe(true);
         expect(linkInput.element.value).toBe('http://shopware.com');
 
         // switch field should contain correct newTab value
-        const newTabSwitch = wrapper.find('input[name="sw-field--buttonConfig-newTab"]');
+        const newTabSwitch = wrapper.find('.sw-text-editor-toolbar-button__link-menu-new-tab input');
         expect(newTabSwitch.element.checked).toBe(true);
     });
 
@@ -551,12 +554,12 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(linkMenu.exists()).toBe(true);
 
         // input field should contain the correct url value
-        const linkInput = linkMenu.find('#sw-field--buttonConfig-value');
+        const linkInput = linkMenu.find('#sw-field--linkTarget');
         expect(linkInput.exists()).toBe(true);
         expect(linkInput.element.value).toBe('');
 
         // switch field should contain correct newTab value
-        const newTabSwitch = wrapper.find('input[name="sw-field--buttonConfig-newTab"]');
+        const newTabSwitch = wrapper.find('.sw-text-editor-toolbar-button__link-menu-new-tab input');
         expect(newTabSwitch.element.checked).toBe(false);
     });
 
@@ -579,18 +582,19 @@ describe('src/app/component/form/sw-text-editor', () => {
         // click on link button
         let linkButtonIcon = wrapper.find('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon');
         await linkButtonIcon.trigger('click');
+        await wrapper.vm.$nextTick();
 
         // link menu should be opened
         let linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');
         expect(linkMenu.exists()).toBe(true);
 
         // input field should contain the correct url value
-        let linkInput = linkMenu.find('#sw-field--buttonConfig-value');
+        let linkInput = linkMenu.find('#sw-field--linkTarget');
         expect(linkInput.exists()).toBe(true);
         expect(linkInput.element.value).toBe('http://shopware.com');
 
         // switch field should contain correct newTab value
-        let newTabSwitch = wrapper.find('input[name="sw-field--buttonConfig-newTab"]');
+        let newTabSwitch = wrapper.find('.sw-text-editor-toolbar-button__link-menu-new-tab input');
         expect(newTabSwitch.element.checked).toBe(true);
 
         // select "No Link" after the "Shopware" link was selected before
@@ -604,16 +608,16 @@ describe('src/app/component/form/sw-text-editor', () => {
         await linkButtonIcon.trigger('click');
 
         // link menu should be opened
-        linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');
+        linkMenu = wrapper.find('.sw-text-editor-toolbar-button__children');
         expect(linkMenu.exists()).toBe(true);
 
         // input field should contain the correct url value
-        linkInput = linkMenu.find('#sw-field--buttonConfig-value');
+        linkInput = linkMenu.find('#sw-field--linkTarget');
         expect(linkInput.exists()).toBe(true);
         expect(linkInput.element.value).toBe('');
 
         // switch field should contain correct newTab value
-        newTabSwitch = wrapper.find('input[name="sw-field--buttonConfig-newTab"]');
+        newTabSwitch = wrapper.find('.sw-text-editor-toolbar-button__link-menu-new-tab input');
         expect(newTabSwitch.element.checked).toBe(false);
     });
 
@@ -621,8 +625,8 @@ describe('src/app/component/form/sw-text-editor', () => {
         wrapper = createWrapper();
 
         await addTextToEditor(wrapper, `
-            <a id="linkOne" href="http://shopware.com" target="_blank">Shopware</a>
-            <a id="linkTwo" href="http://google.com" target="_self">Google</a>
+            <a id="linkOne" href="http://shopware.com" target="_self">Shopware</a>
+            <a id="linkTwo" href="http://google.com" target="_blank">Google</a>
         `);
 
         // select "Shopware"
@@ -633,19 +637,20 @@ describe('src/app/component/form/sw-text-editor', () => {
         // click on link button
         let linkButtonIcon = wrapper.find('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon');
         await linkButtonIcon.trigger('click');
+        await wrapper.vm.$nextTick();
 
         // link menu should be opened
         let linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');
         expect(linkMenu.exists()).toBe(true);
 
         // input field should contain the correct url value
-        let linkInput = linkMenu.find('#sw-field--buttonConfig-value');
+        let linkInput = linkMenu.find('#sw-field--linkTarget');
         expect(linkInput.exists()).toBe(true);
         expect(linkInput.element.value).toBe('http://shopware.com');
 
         // switch field should contain correct newTab value
-        let newTabSwitch = wrapper.find('input[name="sw-field--buttonConfig-newTab"]');
-        expect(newTabSwitch.element.checked).toBe(true);
+        let newTabSwitch = wrapper.find('.sw-text-editor-toolbar-button__link-menu-new-tab input');
+        expect(newTabSwitch.element.checked).toBe(false);
 
         // select "Google" after the "Shopware" link was selected before
         const linkTwo = document.getElementById('linkTwo');
@@ -656,19 +661,20 @@ describe('src/app/component/form/sw-text-editor', () => {
         // click on link button
         linkButtonIcon = wrapper.find('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon');
         await linkButtonIcon.trigger('click');
+        await wrapper.vm.$nextTick();
 
         // link menu should be opened
         linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');
         expect(linkMenu.exists()).toBe(true);
 
         // input field should contain the correct url value
-        linkInput = linkMenu.find('#sw-field--buttonConfig-value');
+        linkInput = linkMenu.find('#sw-field--linkTarget');
         expect(linkInput.exists()).toBe(true);
         expect(linkInput.element.value).toBe('http://google.com');
 
         // switch field should contain correct newTab value
-        newTabSwitch = wrapper.find('input[name="sw-field--buttonConfig-newTab"]');
-        expect(newTabSwitch.element.checked).toBe(false);
+        newTabSwitch = wrapper.find('.sw-text-editor-toolbar-button__link-menu-new-tab input');
+        expect(newTabSwitch.element.checked).toBe(true);
     });
 
     it('should remove link from text', async () => {
@@ -689,7 +695,9 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(linkMenu.exists()).toBe(true);
 
         // trigger the link removal
-        await wrapper.get('.sw-text-editor-toolbar-button__link-menu-buttons-button-remove').trigger('click');
+        const removeButton = await wrapper.get('.sw-text-editor-toolbar-button__link-menu-buttons-button-remove');
+        removeButton.disabled = '';
+        removeButton.trigger('click');
 
         // check that the link got removed
         expect(wrapper.vm.getContentValue()).toBe('<bold><u>Shop<strike id="anchor">ware</strike></u></bold>');
@@ -739,7 +747,6 @@ describe('src/app/component/form/sw-text-editor', () => {
             ['text/plain', 'ware']
         );
     });
-
 
     it('should paste html styled text into the wysiwyg editor', async () => {
         wrapper = createWrapper();

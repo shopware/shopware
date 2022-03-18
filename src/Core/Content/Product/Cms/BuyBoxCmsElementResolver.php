@@ -67,7 +67,7 @@ class BuyBoxCmsElementResolver extends AbstractProductDetailCmsElementResolver
 
     private function getReviewsCount(SalesChannelProductEntity $product, SalesChannelContext $context): int
     {
-        $reviewCriteria = $this->createReviewCriteria($context, $product->getId());
+        $reviewCriteria = $this->createReviewCriteria($context, $product->getParentId() ?? $product->getId());
 
         $aggregation = $this->repository->aggregate($reviewCriteria, $context->getContext())->get('review-count');
 

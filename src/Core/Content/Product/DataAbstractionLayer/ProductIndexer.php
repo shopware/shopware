@@ -101,7 +101,7 @@ class ProductIndexer extends EntityIndexer
     /**
      * @param array|null $offset
      *
-     * @deprecated tag:v6.5.0 The parameter $offset will be native typed
+     * @deprecated tag:v6.5.0 The parameter $offset will be natively typed
      */
     public function iterate(/*?array */$offset): ?EntityIndexingMessage
     {

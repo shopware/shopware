@@ -47,8 +47,9 @@
             <div class="product-price-wrapper">
                 {% set price = real %}
                 {% set isListPrice = price.listPrice.percentage > 0 %}
+                {% set isRegulationPrice = price.regulationPrice != null %}
 
-                <div class="product-cheapest-price{% if isListPrice and price.regulationPrice.price and not displayFrom %} with-list-price{% endif %}">
+                <div class="product-cheapest-price{% if isListPrice and price.regulationPrice.price and not displayFrom %} with-list-price{% endif %}{% if isRegulationPrice and displayFrom %} with-regulation-price{% endif %}">
                     {% if cheapest.unitPrice != real.unitPrice %}
                         <div>{{ "listing.cheapestPriceLabel"|trans|sw_sanitize }}<span class="product-cheapest-price-price"> {{ cheapest.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}</span></div>
                     {% endif %}
@@ -74,13 +75,14 @@
                             {% if afterListPriceSnippetExists %}{{ "listing.afterListPrice"|trans|trim|sw_sanitize }}{% endif %}
 
                             <span class="list-price-percentage">{{ "detail.listPricePercentage"|trans({'%price%': price.listPrice.percentage })|sw_sanitize }}</span>
-
-                            {% if price.regulationPrice.price %}
-                                <br/><span class="list-price-percentage">{{ "general.listPricePreviously"|trans({'%price%': price.regulationPrice.price|currency }) }}{{ "general.star"|trans|sw_sanitize }}</span>
-                            {% endif %}
                         </span>
                     {% endif %}
                 </span>
+                {% if isRegulationPrice %}
+                    <span class="product-price with-regulation-price">
+                        {% if isListPrice %}<br/>{% endif %}<span class="regulation-price">{{ "general.listPricePreviously"|trans({'%price%': price.regulationPrice.price|currency }) }}{{ "general.star"|trans|sw_sanitize }}</span>
+                    </span>
+                {% endif %}
             </div>
         {% endblock %}
     </div>

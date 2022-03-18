@@ -154,6 +154,7 @@ $box-image-height-img: 332px;
         font-weight: $font-weight-bold;
     }
 
+    &.with-regulation-price,
     &.with-list-price {
         margin-bottom: 6px;
     }
@@ -182,6 +183,14 @@ $box-image-height-img: 332px;
         .list-price-price {
             text-decoration: line-through;
         }
+    }
+
+    .regulation-price {
+        color: $headings-color;
+        font-weight: $font-weight-normal;
+        padding-left: 5px;
+        font-size: 12px;
+        padding-left: 0;
     }
 
     .list-price-no-line-through .list-price-price {

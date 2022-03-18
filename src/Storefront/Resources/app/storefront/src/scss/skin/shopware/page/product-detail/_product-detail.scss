@@ -18,6 +18,10 @@
         display: inline-block;
     }
 
+    &.with-regulation-price {
+        display: inline-block;
+    }
+
     &.with-advanced-list-price {
         color: $sw-color-danger;
         font-size: $font-size-base;
@@ -48,6 +52,7 @@
     margin-right: 6px;
 }
 
+.product-detail-regulation-price-wrapper,
 .product-detail-list-price-wrapper {
     color: $headings-color;
     font-weight: $font-weight-normal;
@@ -66,7 +71,7 @@
     }
 }
 
-
+.product-detail-advanced-regulation-price-wrapper,
 .product-detail-advanced-list-price-wrapper {
     color: $headings-color;
     font-weight: $font-weight-normal;
@@ -77,6 +82,10 @@
 
     .list-price-price {
         text-decoration: line-through;
+    }
+
+    &.with-list-price {
+        padding-left: 0;
     }
 
     &-no-line-through .list-price-price {

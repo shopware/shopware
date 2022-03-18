@@ -87,12 +87,14 @@
 
         {% block buy_widget_price_content %}
             {% set listPrice = price.listPrice %}
+            {% set isListPrice = price.listPrice.percentage > 0 %}
+            {% set isRegulationPrice = price.regulationPrice != null %}
 
-            <p class="product-detail-price{% if listPrice.percentage > 0 %} with-list-price{% endif %}">
+            <p class="product-detail-price{% if isListPrice %} with-list-price{% endif %}{% if isRegulationPrice %} with-regulation-price{% endif %}">
                 {{ price.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
             </p>
 
-            {% if listPrice.percentage > 0 %}
+            {% if isListPrice %}
                 {% block buy_widget_was_price %}
 
                     {% block buy_widget_was_price_badge %}
@@ -113,12 +115,14 @@
                             {% endif %}
 
                             <span class="list-price-percentage">{{ "detail.listPricePercentage"|trans({'%price%': listPrice.percentage })|sw_sanitize }}</span>
-                            {% if price.regulationPrice is not null %}
-                                <span class="list-price-percentage">{{ "general.listPricePreviously"|trans({'%price%': price.regulationPrice.price|currency }) }}{{ "general.star"|trans|sw_sanitize }}</span>
-                            {% endif %}
                         </span>
                     {% endblock %}
                 {% endblock %}
+            {% endif %}
+            {% if isRegulationPrice %}
+                <span class="product-detail-list-price-wrapper">
+                    <span class="regulation-price">{{ "general.listPricePreviously"|trans({'%price%': price.regulationPrice.price|currency }) }}{{ "general.star"|trans|sw_sanitize }}</span>
+                </span>
             {% endif %}
         {% endblock %}
 

@@ -115,6 +115,10 @@ class CheckoutFinishPageLoader
 
         $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
 
+        $this->eventDispatcher->dispatch(
+            new CheckoutFinishPageOrderCriteriaEvent($criteria, $salesChannelContext)
+        );
+
         try {
             $searchResult = $this->orderRoute
                 ->load(new Request(), $salesChannelContext, $criteria)

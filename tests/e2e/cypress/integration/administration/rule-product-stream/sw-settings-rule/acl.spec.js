@@ -9,6 +9,9 @@ describe('Rule builder: Test crud operations', () => {
                 return cy.createDefaultFixture('rule');
             })
             .then(() => {
+                return cy.createDefaultFixture('promotion');
+            })
+            .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             });
     });
@@ -37,6 +40,13 @@ describe('Rule builder: Test crud operations', () => {
 
         cy.get('.smart-bar__actions .sw-settings-rule-detail__button-context-menu')
             .should('to.have.prop', 'disabled', true);
+
+        // Switch to assignments tab
+        cy.get('.sw-settings-rule-detail__tab-item-assignments').click();
+
+        cy.get('.sw-settings-rule-detail-assignments__add-button').each(($element) => {
+            cy.wrap($element).should('have.class', 'sw-button--disabled');
+        });
     });
 
     it('@base @rule: edit rule', () => {
@@ -92,6 +102,13 @@ describe('Rule builder: Test crud operations', () => {
         // Verify rule
         cy.get('button.sw-button').contains('Save').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
+
+        // Switch to assignments tab
+        cy.get('.sw-settings-rule-detail__tab-item-assignments').click();
+
+        cy.get('.sw-settings-rule-detail-assignments__add-button').each(($element) => {
+            cy.wrap($element).should('have.not.class', 'sw-button--disabled');
+        });
     });
 
     it('@base @rule: create and read rule', () => {

@@ -12,5 +12,6 @@ https://getbootstrap.com/docs/4.3/components/modal/
 
     .modal-title {
         margin: 0;
+        line-height: $modal-title-line-height;
     }
 }

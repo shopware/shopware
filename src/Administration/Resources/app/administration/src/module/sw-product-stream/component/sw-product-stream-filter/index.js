@@ -128,6 +128,14 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
                 return false;
             }
 
+            if (this.condition.type === 'not' &&
+                this.conditionDataProviderService.isNegatedType(type)
+            ) {
+                this.unwrapNot(this.condition, type, parameters);
+                this.wrapInNot(this.condition, type, parameters);
+                return false;
+            }
+
             this.actualCondition.type = type;
 
             return true;

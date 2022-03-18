@@ -75,7 +75,7 @@ deploy to cloud staging:
     when: manual
     inherit:
         variables: false
-    trigger: shopware-cloud/project-template
+    trigger: shopware/6/product/saas
     variables:
         VERSION_ORIGIN_REF: '$CI_MERGE_REQUEST_PROJECT_PATH!$CI_MERGE_REQUEST_IID'
         CUSTOM_VERSION: 'shopware/platform:dev-${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME} as 6.4.x-dev'

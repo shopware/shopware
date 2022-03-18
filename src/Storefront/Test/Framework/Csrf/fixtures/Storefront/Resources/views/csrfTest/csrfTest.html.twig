@@ -3,6 +3,10 @@
 </form>
 
 <form>
+    {{ sw_csrf('token1') }}
+</form>
+
+<form>
     {{ sw_csrf('token2', {'mode': 'input'}) }}
 </form>
 

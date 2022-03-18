@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\Security\Csrf\CsrfToken;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Twig\Loader\LoaderInterface;
@@ -48,8 +50,24 @@ class CsrfPlaceholderHandlerTest extends TestCase
         $request->setSession(new Session(new MockArraySessionStorage()));
         $this->getContainer()->get('request_stack')->push($request);
 
-        $csrfPlaceholderHandler = $this->createCsrfPlaceholderHandler();
-
+        $tokenManager = $this->createPartialMock(
+            CsrfTokenManagerInterface::class,
+            [
+                'getToken',
+                'refreshToken',
+                'removeToken',
+                'isTokenValid'
+            ]
+        );
+        $tokenManager->expects($this->exactly(3))
+            ->method('getToken')
+            ->willReturnCallback(
+                fn($tokenId) => new CsrfToken(
+                    $tokenId,
+                    bin2hex(random_bytes(32))
+                )
+            );
+        $csrfPlaceholderHandler = $this->createCsrfPlaceholderHandler(true, 'twig', $tokenManager);
         $response = new Response($this->getContentWithCsrfPLaceholder(), 200, ['Content-Type' => 'text/html']);
 
         $expectedContent = file_get_contents(__DIR__ . '/fixtures/Storefront/Resources/views/csrfTest/csrfTestRendered.html.twig');
@@ -136,10 +154,13 @@ class CsrfPlaceholderHandlerTest extends TestCase
         return $template->render();
     }
 
-    private function createCsrfPlaceholderHandler(bool $csrfEnabled = true, string $csrfMode = 'twig')
-    {
+    private function createCsrfPlaceholderHandler(
+        bool $csrfEnabled = true,
+        string $csrfMode = 'twig',
+        ?CsrfTokenManagerInterface $tokenManager = null
+    ) {
         return new CsrfPlaceholderHandler(
-            $this->getContainer()->get('security.csrf.token_manager'),
+            $tokenManager ?? $this->getContainer()->get('security.csrf.token_manager'),
             $csrfEnabled,
             $csrfMode,
             $this->getContainer()->get('request_stack'),

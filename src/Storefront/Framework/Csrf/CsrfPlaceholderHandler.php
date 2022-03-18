@@ -74,17 +74,23 @@ class CsrfPlaceholderHandler
             $this->requestStack->push($request);
         }
 
+        $processedIdents = [];
+
         // https://regex101.com/r/fefx3V/1
         $content = preg_replace_callback(
             '/' . self::CSRF_PLACEHOLDER . '(?<intent>[^#]*)#/',
-            function ($matches) use ($response, $request) {
-                $token = $this->getToken($matches['intent']);
+            function ($matches) use ($response, $request, &$processedIdents) {
+                $intent = $matches['intent'];
+                $token = $processedIdents[$intent] ?? null;
 
-                $cookie = Cookie::create('csrf[' . $matches['intent'] . ']', $token);
-
-                $cookie->setSecureDefault($request->isSecure());
-
-                $response->headers->setCookie($cookie);
+                // Don't generate the token and set the cookie again
+                if ($token === null) {
+                    $token = $this->getToken($intent);
+                    $cookie = Cookie::create('csrf[' . $intent . ']', $token);
+                    $cookie->setSecureDefault($request->isSecure());
+                    $response->headers->setCookie($cookie);
+                    $processedIdents[$intent] = $token;
+                }
 
                 return $token;
             },

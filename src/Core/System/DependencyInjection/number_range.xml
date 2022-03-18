@@ -30,20 +30,23 @@
         </service>
 
         <!-- Value Generator -->
-        <service class="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementSqlStorage"
-                 id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageInterface">
+        <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementSqlStorage">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="shopware.value_generator_connector"/>
+        </service>
+
+        <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageInterface"
+                 alias="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementSqlStorage">
+            <deprecated>tag:v6.5.0 "%alias_id%" service alias is deprecated, use "Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementSqlStorage" instead.</deprecated>
         </service>
 
         <service class="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGenerator"
                  id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"
                  public="true">
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry" />
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface" />
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\System\NumberRange\NumberRangeDefinition"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry">
@@ -51,7 +54,7 @@
         </service>
 
         <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternIncrement">
-            <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageInterface" />
+            <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementSqlStorage" />
             <tag name="shopware.value_generator_pattern"/>
         </service>
 

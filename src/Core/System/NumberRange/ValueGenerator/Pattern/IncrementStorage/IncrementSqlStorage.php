@@ -4,11 +4,18 @@ namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStora
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\NumberRangeEntity;
 
-class IncrementSqlStorage implements IncrementStorageInterface
+/**
+ * @deprecated tag:v6.5.0 won't implement IncrementStorageInterface anymore, use AbstractIncrementStorage instead
+ */
+class IncrementSqlStorage extends AbstractIncrementStorage implements IncrementStorageInterface
 {
+    /**
+     * @deprecated tag:v6.5.0 property will be removed as it is unused
+     */
     protected string $connectorId = 'standard_pattern_connector';
 
     private Connection $connection;
@@ -18,7 +25,35 @@ class IncrementSqlStorage implements IncrementStorageInterface
         $this->connection = $connection;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 will be removed use `reserve()` instead
+     */
     public function pullState(NumberRangeEntity $configuration): string
+    {
+        $config = [
+            'id' => $configuration->getId(),
+            'start' => $configuration->getStart(),
+            'pattern' => $configuration->getPattern() ?? '',
+        ];
+
+        return $this->reserve($config);
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 will be removed use `preview()` instead
+     */
+    public function getNext(NumberRangeEntity $configuration): string
+    {
+        $config = [
+            'id' => $configuration->getId(),
+            'start' => $configuration->getStart(),
+            'pattern' => $configuration->getPattern() ?? '',
+        ];
+
+        return $this->preview($config);
+    }
+
+    public function reserve(array $config): string
     {
         $varname = Uuid::randomHex();
         $stateId = Uuid::randomBytes();
@@ -27,8 +62,8 @@ class IncrementSqlStorage implements IncrementStorageInterface
                 ON DUPLICATE KEY UPDATE
                 `last_value` = @nr' . $varname . ' := IF(`last_value`+1 > :value, `last_value`+1, :value)',
             [
-                'value' => $configuration->getStart(),
-                'id' => Uuid::fromHexToBytes($configuration->getId()),
+                'value' => $config['start'],
+                'id' => Uuid::fromHexToBytes($config['id']),
                 'stateId' => $stateId,
                 'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
@@ -39,7 +74,7 @@ class IncrementSqlStorage implements IncrementStorageInterface
         $lastNumber = $stmt->fetchColumn();
 
         if ($lastNumber === null || $lastNumber === false) {
-            $nextNumber = $configuration->getStart();
+            $nextNumber = $config['start'];
         } else {
             $nextNumber = $lastNumber;
         }
@@ -47,22 +82,27 @@ class IncrementSqlStorage implements IncrementStorageInterface
         return (string) $nextNumber;
     }
 
-    public function getNext(NumberRangeEntity $configuration): string
+    public function preview(array $config): string
     {
         $stmt = $this->connection->executeQuery(
             'SELECT `last_value` FROM `number_range_state` WHERE number_range_id = :id',
             [
-                'id' => Uuid::fromHexToBytes($configuration->getId()),
+                'id' => Uuid::fromHexToBytes($config['id']),
             ]
         );
         $lastNumber = $stmt->fetchColumn();
 
-        if ($lastNumber === false) {
-            $nextNumber = $configuration->getStart();
+        if ($lastNumber === false || (int) $lastNumber < (int) $config['start']) {
+            $nextNumber = $config['start'];
         } else {
             $nextNumber = $lastNumber + 1;
         }
 
         return (string) $nextNumber;
+    }
+
+    public function getDecorated(): AbstractIncrementStorage
+    {
+        throw new DecorationPatternException(self::class);
     }
 }

@@ -4,6 +4,9 @@ namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStora
 
 use Shopware\Core\System\NumberRange\NumberRangeEntity;
 
+/**
+ * @deprecated tag:v6.5.0 will be removed, use AbstractIncrementStorage instead
+ */
 interface IncrementStorageInterface
 {
     /**

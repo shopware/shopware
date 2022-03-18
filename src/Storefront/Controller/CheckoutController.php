@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
@@ -220,7 +221,10 @@ class CheckoutController extends StorefrontController
         try {
             $this->addAffiliateTracking($data, $request->getSession());
 
-            $orderId = $this->orderService->createOrder($data, $context);
+            $orderId = Profiler::trace('checkout-order', function() use ($data, $context) {
+                return $this->orderService->createOrder($data, $context);
+            });
+
         } catch (ConstraintViolationException $formViolations) {
             return $this->forwardToRoute('frontend.checkout.confirm.page', ['formViolations' => $formViolations]);
         } catch (InvalidCartException | Error | EmptyCartException $error) {
@@ -235,7 +239,9 @@ class CheckoutController extends StorefrontController
             $finishUrl = $this->generateUrl('frontend.checkout.finish.page', ['orderId' => $orderId]);
             $errorUrl = $this->generateUrl('frontend.account.edit-order.page', ['orderId' => $orderId]);
 
-            $response = $this->paymentService->handlePaymentByOrder($orderId, $data, $context, $finishUrl, $errorUrl);
+            $response = Profiler::trace('handle-payment', function() use ($orderId, $data, $context, $finishUrl, $errorUrl): ?RedirectResponse {
+                return $this->paymentService->handlePaymentByOrder($orderId, $data, $context, $finishUrl, $errorUrl);
+            });
 
             return $response ?? new RedirectResponse($finishUrl);
         } catch (PaymentProcessException | InvalidOrderException | UnknownPaymentMethodException $e) {

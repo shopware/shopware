@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -61,23 +62,25 @@ class CartLineItemController extends StorefrontController
      * @Since("6.0.0.0")
      * @Route("/checkout/line-item/delete/{id}", name="frontend.checkout.line-item.delete", methods={"POST", "DELETE"}, defaults={"XmlHttpRequest": true})
      */
-    public function deleteLineItem(Cart $cart, string $id, Request $request, SalesChannelContext $salesChannelContext): Response
+    public function deleteLineItem(Cart $cart, string $id, Request $request, SalesChannelContext $context): Response
     {
-        try {
-            if (!$cart->has($id)) {
-                throw new LineItemNotFoundException($id);
+        return Profiler::trace('cart::delete-line-item', function() use ($cart, $id, $request, $context) {
+            try {
+                if (!$cart->has($id)) {
+                    throw new LineItemNotFoundException($id);
+                }
+
+                $cart = $this->cartService->remove($cart, $id, $context);
+
+                if (!$this->traceErrors($cart)) {
+                    $this->addFlash(self::SUCCESS, $this->trans('checkout.cartUpdateSuccess'));
+                }
+            } catch (\Exception $exception) {
+                $this->addFlash(self::DANGER, $this->trans('error.message-default'));
             }
 
-            $cart = $this->cartService->remove($cart, $id, $salesChannelContext);
-
-            if (!$this->traceErrors($cart)) {
-                $this->addFlash(self::SUCCESS, $this->trans('checkout.cartUpdateSuccess'));
-            }
-        } catch (\Exception $exception) {
-            $this->addFlash(self::DANGER, $this->trans('error.message-default'));
-        }
-
-        return $this->createActionResponse($request);
+            return $this->createActionResponse($request);
+        });
     }
 
     /**
@@ -88,69 +91,73 @@ class CartLineItemController extends StorefrontController
      *
      * @Route("/checkout/promotion/add", name="frontend.checkout.promotion.add", defaults={"XmlHttpRequest": true}, methods={"POST"})
      */
-    public function addPromotion(Cart $cart, Request $request, SalesChannelContext $salesChannelContext): Response
+    public function addPromotion(Cart $cart, Request $request, SalesChannelContext $context): Response
     {
-        try {
-            $code = (string) $request->request->get('code');
+        return Profiler::trace('cart::add-promotion', function() use ($cart, $request, $context) {
+            try {
+                $code = (string) $request->request->get('code');
 
-            if ($code === '') {
-                throw new \InvalidArgumentException('Code is required');
+                if ($code === '') {
+                    throw new \InvalidArgumentException('Code is required');
+                }
+
+                $lineItem = $this->promotionItemBuilder->buildPlaceholderItem($code);
+
+                $cart = $this->cartService->add($cart, $lineItem, $context);
+
+                // we basically show all cart errors or notices
+                // at the moments its not possible to show success messages with "green" color
+                // from the cart...thus it has to be done in the storefront level
+                // so if we have an promotion added notice, we simply convert this to
+                // a success flash message
+                $addedEvents = $cart->getErrors()->filterInstance(PromotionCartAddedInformationError::class);
+                if ($addedEvents->count() > 0) {
+                    $this->addFlash(self::SUCCESS, $this->trans('checkout.codeAddedSuccessful'));
+
+                    return $this->createActionResponse($request);
+                }
+
+                // if we have no custom error message above
+                // then simply continue with the default display
+                // of the cart errors and notices
+                $this->traceErrors($cart);
+            } catch (\Exception $exception) {
+                $this->addFlash(self::DANGER, $this->trans('error.message-default'));
             }
 
-            $lineItem = $this->promotionItemBuilder->buildPlaceholderItem($code);
-
-            $cart = $this->cartService->add($cart, $lineItem, $salesChannelContext);
-
-            // we basically show all cart errors or notices
-            // at the moments its not possible to show success messages with "green" color
-            // from the cart...thus it has to be done in the storefront level
-            // so if we have an promotion added notice, we simply convert this to
-            // a success flash message
-            $addedEvents = $cart->getErrors()->filterInstance(PromotionCartAddedInformationError::class);
-            if ($addedEvents->count() > 0) {
-                $this->addFlash(self::SUCCESS, $this->trans('checkout.codeAddedSuccessful'));
-
-                return $this->createActionResponse($request);
-            }
-
-            // if we have no custom error message above
-            // then simply continue with the default display
-            // of the cart errors and notices
-            $this->traceErrors($cart);
-        } catch (\Exception $exception) {
-            $this->addFlash(self::DANGER, $this->trans('error.message-default'));
-        }
-
-        return $this->createActionResponse($request);
+            return $this->createActionResponse($request);
+        });
     }
 
     /**
      * @Since("6.0.0.0")
      * @Route("/checkout/line-item/change-quantity/{id}", name="frontend.checkout.line-item.change-quantity", defaults={"XmlHttpRequest": true}, methods={"POST"})
      */
-    public function changeQuantity(Cart $cart, string $id, Request $request, SalesChannelContext $salesChannelContext): Response
+    public function changeQuantity(Cart $cart, string $id, Request $request, SalesChannelContext $context): Response
     {
-        try {
-            $quantity = $request->get('quantity');
+        return Profiler::trace('cart::change-quantity', function() use ($cart, $id, $request, $context) {
+            try {
+                $quantity = $request->get('quantity');
 
-            if ($quantity === null) {
-                throw new \InvalidArgumentException('quantity field is required');
+                if ($quantity === null) {
+                    throw new \InvalidArgumentException('quantity field is required');
+                }
+
+                if (!$cart->has($id)) {
+                    throw new LineItemNotFoundException($id);
+                }
+
+                $cart = $this->cartService->changeQuantity($cart, $id, (int) $quantity, $context);
+
+                if (!$this->traceErrors($cart)) {
+                    $this->addFlash(self::SUCCESS, $this->trans('checkout.cartUpdateSuccess'));
+                }
+            } catch (\Exception $exception) {
+                $this->addFlash(self::DANGER, $this->trans('error.message-default'));
             }
 
-            if (!$cart->has($id)) {
-                throw new LineItemNotFoundException($id);
-            }
-
-            $cart = $this->cartService->changeQuantity($cart, $id, (int) $quantity, $salesChannelContext);
-
-            if (!$this->traceErrors($cart)) {
-                $this->addFlash(self::SUCCESS, $this->trans('checkout.cartUpdateSuccess'));
-            }
-        } catch (\Exception $exception) {
-            $this->addFlash(self::DANGER, $this->trans('error.message-default'));
-        }
-
-        return $this->createActionResponse($request);
+            return $this->createActionResponse($request);
+        });
     }
 
     /**
@@ -160,44 +167,45 @@ class CartLineItemController extends StorefrontController
      * @throws InconsistentCriteriaIdsException
      * @throws MissingRequestParameterException
      */
-    public function addProductByNumber(Request $request, SalesChannelContext $salesChannelContext): Response
+    public function addProductByNumber(Request $request, SalesChannelContext $context): Response
     {
-        $number = (string) $request->request->get('number');
+        return Profiler::trace('cart::add-product-by-number', function() use ($request, $context) {
+            $number = (string) $request->request->get('number');
 
-        if (!$number) {
-            throw new MissingRequestParameterException('number');
-        }
+            if (!$number) {
+                throw new MissingRequestParameterException('number');
+            }
 
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        $criteria->addFilter(new EqualsFilter('productNumber', $number));
+            $criteria = new Criteria();
+            $criteria->setLimit(1);
+            $criteria->addFilter(new EqualsFilter('productNumber', $number));
 
-        $idSearchResult = $this->productRepository->searchIds($criteria, $salesChannelContext);
-        $data = $idSearchResult->getIds();
+            $data = $this->productRepository->searchIds($criteria, $context)->getIds();
 
-        if (empty($data)) {
-            $this->addFlash(self::DANGER, $this->trans(
-                'error.productNotFound',
-                ['%number%' => $this->htmlSanitizer->sanitize($number, null, true)]
-            ));
+            if (empty($data)) {
+                $this->addFlash(self::DANGER, $this->trans(
+                    'error.productNotFound',
+                    ['%number%' => $this->htmlSanitizer->sanitize($number, null, true)]
+                ));
+
+                return $this->createActionResponse($request);
+            }
+
+            /** @var string $productId */
+            $productId = array_shift($data);
+
+            $product = $this->productLineItemFactory->create($productId);
+
+            $cart = $this->cartService->getCart($context->getToken(), $context);
+
+            $cart = $this->cartService->add($cart, $product, $context);
+
+            if (!$this->traceErrors($cart)) {
+                $this->addFlash(self::SUCCESS, $this->trans('checkout.addToCartSuccess', ['%count%' => 1]));
+            }
 
             return $this->createActionResponse($request);
-        }
-
-        /** @var string $productId */
-        $productId = array_shift($data);
-
-        $product = $this->productLineItemFactory->create($productId);
-
-        $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
-
-        $cart = $this->cartService->add($cart, $product, $salesChannelContext);
-
-        if (!$this->traceErrors($cart)) {
-            $this->addFlash(self::SUCCESS, $this->trans('checkout.addToCartSuccess', ['%count%' => 1]));
-        }
-
-        return $this->createActionResponse($request);
+        });
     }
 
     /**
@@ -223,45 +231,47 @@ class CartLineItemController extends StorefrontController
      * @throws MissingRequestParameterException
      * @throws MixedLineItemTypeException
      */
-    public function addLineItems(Cart $cart, RequestDataBag $requestDataBag, Request $request, SalesChannelContext $salesChannelContext): Response
+    public function addLineItems(Cart $cart, RequestDataBag $requestDataBag, Request $request, SalesChannelContext $context): Response
     {
-        /** @var RequestDataBag|null $lineItems */
-        $lineItems = $requestDataBag->get('lineItems');
-        if (!$lineItems) {
-            throw new MissingRequestParameterException('lineItems');
-        }
-
-        $count = 0;
-
-        try {
-            $items = [];
-            /** @var RequestDataBag $lineItemData */
-            foreach ($lineItems as $lineItemData) {
-                $lineItem = new LineItem(
-                    $lineItemData->getAlnum('id'),
-                    $lineItemData->getAlnum('type'),
-                    $lineItemData->get('referencedId'),
-                    $lineItemData->getInt('quantity', 1)
-                );
-
-                $lineItem->setStackable($lineItemData->getBoolean('stackable', true));
-                $lineItem->setRemovable($lineItemData->getBoolean('removable', true));
-
-                $count += $lineItem->getQuantity();
-
-                $items[] = $lineItem;
+        return Profiler::trace('cart::add-line-item', function() use ($cart, $requestDataBag, $request, $context) {
+            /** @var RequestDataBag|null $lineItems */
+            $lineItems = $requestDataBag->get('lineItems');
+            if (!$lineItems) {
+                throw new MissingRequestParameterException('lineItems');
             }
 
-            $cart = $this->cartService->add($cart, $items, $salesChannelContext);
+            $count = 0;
 
-            if (!$this->traceErrors($cart)) {
-                $this->addFlash(self::SUCCESS, $this->trans('checkout.addToCartSuccess', ['%count%' => $count]));
+            try {
+                $items = [];
+                /** @var RequestDataBag $lineItemData */
+                foreach ($lineItems as $lineItemData) {
+                    $lineItem = new LineItem(
+                        $lineItemData->getAlnum('id'),
+                        $lineItemData->getAlnum('type'),
+                        $lineItemData->get('referencedId'),
+                        $lineItemData->getInt('quantity', 1)
+                    );
+
+                    $lineItem->setStackable($lineItemData->getBoolean('stackable', true));
+                    $lineItem->setRemovable($lineItemData->getBoolean('removable', true));
+
+                    $count += $lineItem->getQuantity();
+
+                    $items[] = $lineItem;
+                }
+
+                $cart = $this->cartService->add($cart, $items, $context);
+
+                if (!$this->traceErrors($cart)) {
+                    $this->addFlash(self::SUCCESS, $this->trans('checkout.addToCartSuccess', ['%count%' => $count]));
+                }
+            } catch (ProductNotFoundException $exception) {
+                $this->addFlash(self::DANGER, $this->trans('error.addToCartError'));
             }
-        } catch (ProductNotFoundException $exception) {
-            $this->addFlash(self::DANGER, $this->trans('error.addToCartError'));
-        }
 
-        return $this->createActionResponse($request);
+            return $this->createActionResponse($request);
+        });
     }
 
     private function traceErrors(Cart $cart): bool

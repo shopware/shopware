@@ -93,8 +93,13 @@ class ProductListingRoute extends AbstractProductListingRoute
             new ProductAvailableFilter($context->getSalesChannel()->getId(), ProductVisibilityDefinition::VISIBILITY_ALL)
         );
 
+        $criteria->setTitle('product-listing-route::loading');
+
         /** @var CategoryEntity $category */
-        $category = $this->categoryRepository->search(new Criteria([$categoryId]), $context->getContext())->first();
+        $categoryCriteria = new Criteria([$categoryId]);
+        $categoryCriteria->setTitle('product-listing-route::category-loading');
+
+        $category = $this->categoryRepository->search($categoryCriteria, $context->getContext())->first();
 
         $streamId = $this->extendCriteria($context, $criteria, $category);
 

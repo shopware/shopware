@@ -208,6 +208,7 @@ class WebhookDispatcher implements EventDispatcherInterface
         }
 
         $criteria = new Criteria();
+        $criteria->setTitle('apps::webhooks');
         $criteria->addFilter(new EqualsFilter('active', true));
         $criteria->addAssociation('app');
 

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Routing\CanonicalRedirectService;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Profiling\Doctrine\DebugStack;
+use Shopware\Core\Profiling\Profiler;
 use Shopware\Storefront\Framework\Cache\CacheStore;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;

@@ -81,6 +81,7 @@ class ScriptPersister
     public function activateAppScripts(string $appId, Context $context): void
     {
         $criteria = new Criteria();
+        $criteria->setTitle('app-scripts::activate');
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', false));
 
@@ -97,6 +98,7 @@ class ScriptPersister
     public function deactivateAppScripts(string $appId, Context $context): void
     {
         $criteria = new Criteria();
+        $criteria->setTitle('app-scripts::deactivate');
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', true));
 
@@ -113,6 +115,7 @@ class ScriptPersister
     public function refresh(): void
     {
         $criteria = new Criteria();
+        $criteria->setTitle('app-scripts::refresh');
         $criteria->addFilter(new EqualsFilter('active', true));
 
         $apps = $this->appRepository->search($criteria, Context::createDefaultContext())->getEntities();

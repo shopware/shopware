@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -103,25 +104,27 @@ class CachedCategoryRoute extends AbstractCategoryRoute
      */
     public function load(string $navigationId, Request $request, SalesChannelContext $context): CategoryRouteResponse
     {
-        if ($context->hasState(...$this->states)) {
-            return $this->getDecorated()->load($navigationId, $request, $context);
-        }
-
-        $key = $this->generateKey($navigationId, $request, $context);
-
-        $value = $this->cache->get($key, function (ItemInterface $item) use ($navigationId, $request, $context) {
-            $name = self::buildName($navigationId);
-
-            $response = $this->tracer->trace($name, function () use ($navigationId, $request, $context) {
+        return Profiler::trace('category-route', function() use ($navigationId, $request, $context) {
+            if ($context->hasState(...$this->states)) {
                 return $this->getDecorated()->load($navigationId, $request, $context);
+            }
+
+            $key = $this->generateKey($navigationId, $request, $context);
+
+            $value = $this->cache->get($key, function (ItemInterface $item) use ($navigationId, $request, $context) {
+                $name = self::buildName($navigationId);
+
+                $response = $this->tracer->trace($name, function () use ($navigationId, $request, $context) {
+                    return $this->getDecorated()->load($navigationId, $request, $context);
+                });
+
+                $item->tag($this->generateTags($navigationId, $response, $request, $context));
+
+                return CacheValueCompressor::compress($response);
             });
 
-            $item->tag($this->generateTags($navigationId, $response, $request, $context));
-
-            return CacheValueCompressor::compress($response);
+            return CacheValueCompressor::uncompress($value);
         });
-
-        return CacheValueCompressor::uncompress($value);
     }
 
     private function generateKey(string $navigationId, Request $request, SalesChannelContext $context): string

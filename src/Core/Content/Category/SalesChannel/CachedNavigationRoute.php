@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -132,26 +133,28 @@ Instead of passing uuids, you can also use one of the following aliases for the 
      */
     public function load(string $activeId, string $rootId, Request $request, SalesChannelContext $context, Criteria $criteria): NavigationRouteResponse
     {
-        if ($context->hasState(...$this->states)) {
-            return $this->getDecorated()->load($activeId, $rootId, $request, $context, $criteria);
-        }
+        return Profiler::trace('navigation-route', function() use ($activeId, $rootId, $request, $context, $criteria) {
+            if ($context->hasState(...$this->states)) {
+                return $this->getDecorated()->load($activeId, $rootId, $request, $context, $criteria);
+            }
 
-        $depth = $request->query->getInt('depth', $request->request->getInt('depth', 2));
+            $depth = $request->query->getInt('depth', $request->request->getInt('depth', 2));
 
-        // first we load the base navigation, the base navigation is shared for all storefront listings
-        $response = $this->loadNavigation($request, $rootId, $rootId, $depth, $context, $criteria, [self::ALL_TAG, self::BASE_NAVIGATION_TAG]);
+            // first we load the base navigation, the base navigation is shared for all storefront listings
+            $response = $this->loadNavigation($request, $rootId, $rootId, $depth, $context, $criteria, [self::ALL_TAG, self::BASE_NAVIGATION_TAG]);
 
-        // no we have to check if the active category is loaded and the children of the active category are loaded
-        if ($this->isActiveLoaded($rootId, $response->getCategories(), $activeId)) {
+            // no we have to check if the active category is loaded and the children of the active category are loaded
+            if ($this->isActiveLoaded($rootId, $response->getCategories(), $activeId)) {
+                return $response;
+            }
+
+            // reload missing children of active category, depth 0 allows us the skip base navigation loading in the core route
+            $active = $this->loadNavigation($request, $activeId, $rootId, 0, $context, $criteria, [self::ALL_TAG]);
+
+            $response->getCategories()->merge($active->getCategories());
+
             return $response;
-        }
-
-        // reload missing children of active category, depth 0 allows us the skip base navigation loading in the core route
-        $active = $this->loadNavigation($request, $activeId, $rootId, 0, $context, $criteria, [self::ALL_TAG]);
-
-        $response->getCategories()->merge($active->getCategories());
-
-        return $response;
+        });
     }
 
     public static function buildName(string $id): string

@@ -79,6 +79,7 @@ class ProductReviewRoute extends AbstractProductReviewRoute
             $active->addQuery(new EqualsFilter('customerId', $customer->getId()));
         }
 
+        $criteria->setTitle('product-review-route');
         $criteria->addFilter(
             new MultiFilter(MultiFilter::CONNECTION_AND, [
                 $active,

@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -110,11 +111,17 @@ class CartOrderRoute extends AbstractCartOrderRoute
         $this->addCustomerComment($calculatedCart, $data);
         $this->addAffiliateTracking($calculatedCart, $data);
 
-        $preOrderPayment = $this->preparedPaymentService->handlePreOrderPayment($calculatedCart, $data, $context);
+        $preOrderPayment = Profiler::trace('checkout-order::pre-payment', function() use ($calculatedCart, $data, $context) {
+            return $this->preparedPaymentService->handlePreOrderPayment($calculatedCart, $data, $context);
+        });
 
-        $orderId = $this->orderPersister->persist($calculatedCart, $context);
+
+        $orderId = Profiler::trace('checkout-order::order-persist', function() use ($calculatedCart, $context) {
+            return $this->orderPersister->persist($calculatedCart, $context);
+        });
 
         $criteria = new Criteria([$orderId]);
+        $criteria->setTitle('order-route::order-loading');
         $criteria
             ->addAssociation('orderCustomer.customer')
             ->addAssociation('orderCustomer.salutation')
@@ -129,23 +136,29 @@ class CartOrderRoute extends AbstractCartOrderRoute
         $this->eventDispatcher->dispatch(new CheckoutOrderPlacedCriteriaEvent($criteria, $context));
 
         /** @var OrderEntity|null $orderEntity */
-        $orderEntity = $this->orderRepository->search($criteria, $context->getContext())->first();
+        $orderEntity = Profiler::trace('checkout-order::order-loading', function() use ($criteria, $context) {
+            return $this->orderRepository->search($criteria, $context->getContext())->first();
+        });
 
         if (!$orderEntity) {
             throw new InvalidOrderException($orderId);
         }
 
-        $orderPlacedEvent = new CheckoutOrderPlacedEvent(
+        $event = new CheckoutOrderPlacedEvent(
             $context->getContext(),
             $orderEntity,
             $context->getSalesChannel()->getId()
         );
 
-        $this->eventDispatcher->dispatch($orderPlacedEvent);
+        Profiler::trace('checkout-order::event-listeners', function() use ($event) {
+            $this->eventDispatcher->dispatch($event);
+        });
 
         $this->cartPersister->delete($context->getToken(), $context);
 
-        $this->preparedPaymentService->handlePostOrderPayment($orderEntity, $data, $context, $preOrderPayment);
+        Profiler::trace('checkout-order::post-payment', function() use ($orderEntity, $data, $context, $preOrderPayment) {
+            $this->preparedPaymentService->handlePostOrderPayment($orderEntity, $data, $context, $preOrderPayment);
+        });
 
         return new CartOrderRouteResponse($orderEntity);
     }

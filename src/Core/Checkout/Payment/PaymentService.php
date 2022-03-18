@@ -90,8 +90,10 @@ class PaymentService
             throw new InvalidOrderException($orderId);
         }
 
+        $criteria = new Criteria([$orderId]);
+        $criteria->setTitle('payment-service::load-order');
         $order = $this->orderRepository
-            ->search(new Criteria([$orderId]), $context->getContext())
+            ->search($criteria, $context->getContext())
             ->first();
 
         if ($order === null) {
@@ -178,6 +180,7 @@ class PaymentService
     private function getPaymentHandlerById(string $paymentMethodId, Context $context): ?AsynchronousPaymentHandlerInterface
     {
         $criteria = new Criteria([$paymentMethodId]);
+        $criteria->setTitle('payment-service::load-payment-handler');
         $criteria->addAssociation('appPaymentMethod.app');
         $paymentMethods = $this->paymentMethodRepository->search($criteria, $context);
 
@@ -196,6 +199,7 @@ class PaymentService
     private function getPaymentTransactionStruct(string $orderTransactionId, Context $context): AsyncPaymentTransactionStruct
     {
         $criteria = new Criteria([$orderTransactionId]);
+        $criteria->setTitle('payment-service::load-transaction');
         $criteria->addAssociation('order');
         $criteria->addAssociation('paymentMethod.appPaymentMethod.app');
         /** @var OrderTransactionEntity|null $orderTransaction */

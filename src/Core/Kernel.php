@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\Controller\FallbackController;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Maintenance\Maintenance;
+use Shopware\Core\Profiling\Profiler;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Loader\LoaderInterface;
@@ -198,6 +199,10 @@ class Kernel extends HttpKernel
         }
 
         $this->initializeDatabaseConnectionVariables();
+
+        foreach ($this->container->getParameter('shopware.profiler.integrations') as $profiler) {
+            Profiler::register($profiler);
+        }
 
         $this->booted = true;
     }

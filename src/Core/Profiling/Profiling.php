@@ -4,6 +4,7 @@ namespace Shopware\Core\Profiling;
 
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Kernel;
+use Shopware\Core\Profiling\Integration\Stopwatch;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
@@ -39,6 +40,12 @@ class Profiling extends Bundle
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('services.xml');
+    }
+
+    public function boot(): void
+    {
+        parent::boot();
+        $this->container->get(Stopwatch::class); // trigger __construct to inject symfony stopwatch
     }
 
     private function buildConfig(ContainerBuilder $container, $environment): void

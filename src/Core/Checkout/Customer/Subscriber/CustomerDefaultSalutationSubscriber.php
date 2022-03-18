@@ -66,10 +66,9 @@ class CustomerDefaultSalutationSubscriber implements EventSubscriberInterface
             return $this->defaultSalutation;
         }
 
-        $this->defaultSalutation = $this->salutationRepository->search(
-            new Criteria([Defaults::SALUTATION]),
-            $context
-        )->first();
+        $criteria = new Criteria([Defaults::SALUTATION]);
+        $criteria->setTitle('default-salutation-loading');
+        $this->defaultSalutation = $this->salutationRepository->search($criteria, $context)->first();
 
         return $this->defaultSalutation;
     }

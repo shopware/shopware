@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
+use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -23,16 +24,18 @@ class CartCalculator
 
     public function calculate(Cart $cart, SalesChannelContext $context): Cart
     {
-        // validate cart against the context rules
-        $cart = $this->cartRuleLoader
-            ->loadByCart($context, $cart, new CartBehavior($context->getPermissions()))
-            ->getCart();
+        return Profiler::trace('cart-calculation', function() use ($cart, $context) {
+            // validate cart against the context rules
+            $cart = $this->cartRuleLoader
+                ->loadByCart($context, $cart, new CartBehavior($context->getPermissions()))
+                ->getCart();
 
-        $cart->markUnmodified();
-        foreach ($cart->getLineItems()->getFlat() as $lineItem) {
-            $lineItem->markUnmodified();
-        }
+            $cart->markUnmodified();
+            foreach ($cart->getLineItems()->getFlat() as $lineItem) {
+                $lineItem->markUnmodified();
+            }
 
-        return $cart;
+            return $cart;
+        });
     }
 }

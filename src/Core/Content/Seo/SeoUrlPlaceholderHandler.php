@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Seo;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
@@ -45,21 +46,23 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
 
     public function replace(string $content, string $host, SalesChannelContext $context): string
     {
-        $matches = [];
+        return Profiler::trace('seo-url-replacer', function() use ($content, $host, $context) {
+            $matches = [];
 
-        if (preg_match_all('/' . self::DOMAIN_PLACEHOLDER . '[^#]*#/', $content, $matches)) {
-            $mapping = $this->createDefaultMapping($matches[0]);
-            $seoMapping = $this->createSeoMapping($context, $mapping);
-            foreach ($seoMapping as $key => $value) {
-                $seoMapping[$key] = $host . '/' . ltrim($value, '/');
+            if (preg_match_all('/' . self::DOMAIN_PLACEHOLDER . '[^#]*#/', $content, $matches)) {
+                $mapping = $this->createDefaultMapping($matches[0]);
+                $seoMapping = $this->createSeoMapping($context, $mapping);
+                foreach ($seoMapping as $key => $value) {
+                    $seoMapping[$key] = $host . '/' . ltrim($value, '/');
+                }
+
+                return (string) preg_replace_callback('/' . self::DOMAIN_PLACEHOLDER . '[^#]*#/', static function (array $match) use ($seoMapping) {
+                    return $seoMapping[$match[0]];
+                }, $content);
             }
 
-            return (string) preg_replace_callback('/' . self::DOMAIN_PLACEHOLDER . '[^#]*#/', static function (array $match) use ($seoMapping) {
-                return $seoMapping[$match[0]];
-            }, $content);
-        }
-
-        return $content;
+            return $content;
+        });
     }
 
     private function createDefaultMapping(array $matches): array

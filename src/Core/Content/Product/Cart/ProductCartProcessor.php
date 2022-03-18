@@ -27,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -72,90 +73,85 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         $this->repository = $repository;
     }
 
-    public function collect(
-        CartDataCollection $data,
-        Cart $original,
-        SalesChannelContext $context,
-        CartBehavior $behavior
-    ): void {
-        $lineItems = $this->getProducts($original->getLineItems());
+    public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void
+    {
+        Profiler::trace('cart::product::collect', function() use ($data, $original, $context, $behavior) {
+            $lineItems = $this->getProducts($original->getLineItems());
 
-        $items = array_column($lineItems, 'item');
+            $items = array_column($lineItems, 'item');
 
-        // find products in original cart which requires data from gateway
-        $ids = $this->getNotCompleted($data, $items, $context);
+            // find products in original cart which requires data from gateway
+            $ids = $this->getNotCompleted($data, $items, $context);
 
-        if (!empty($ids)) {
-            // fetch missing data over gateway
-            $products = $this->productGateway->get($ids, $context);
+            if (!empty($ids)) {
+                // fetch missing data over gateway
+                $products = $this->productGateway->get($ids, $context);
 
-            // add products to data collection
-            foreach ($products as $product) {
-                $data->set($this->getDataKey($product->getId()), $product);
-            }
+                // add products to data collection
+                foreach ($products as $product) {
+                    $data->set($this->getDataKey($product->getId()), $product);
+                }
 
-            $hash = $this->generator->getSalesChannelContextHash($context);
+                $hash = $this->generator->getSalesChannelContextHash($context);
 
-            // refresh data timestamp to prevent unnecessary gateway calls
-            foreach ($items as $lineItem) {
-                if (\in_array($lineItem->getReferencedId(), $products->getIds(), true)) {
-                    $lineItem->setDataTimestamp(new \DateTimeImmutable());
-                    $lineItem->setDataContextHash($hash);
+                // refresh data timestamp to prevent unnecessary gateway calls
+                foreach ($items as $lineItem) {
+                    if (\in_array($lineItem->getReferencedId(), $products->getIds(), true)) {
+                        $lineItem->setDataTimestamp(new \DateTimeImmutable());
+                        $lineItem->setDataContextHash($hash);
+                    }
                 }
             }
-        }
 
-        foreach ($lineItems as $match) {
-            // enrich all products in original cart
-            $this->enrich($context, $match['item'], $data, $behavior);
+            foreach ($lineItems as $match) {
+                // enrich all products in original cart
+                $this->enrich($context, $match['item'], $data, $behavior);
 
-            // remove "parent" products which should never be displayed in storefront
-            $this->validateParents($match['item'], $data, $match['scope']);
+                // remove "parent" products which should never be displayed in storefront
+                $this->validateParents($match['item'], $data, $match['scope']);
 
-            // validate data timestamps that inactive products (or not assigned to sales channel) are removed
-            $this->validateTimestamp($match['item'], $original, $data, $behavior, $match['scope']);
+                // validate data timestamps that inactive products (or not assigned to sales channel) are removed
+                $this->validateTimestamp($match['item'], $original, $data, $behavior, $match['scope']);
 
-            // validate availability of the product stock
-            $this->validateStock($match['item'], $original, $match['scope'], $behavior);
-        }
+                // validate availability of the product stock
+                $this->validateStock($match['item'], $original, $match['scope'], $behavior);
+            }
 
-        $this->featureBuilder->prepare($items, $data, $context);
+            $this->featureBuilder->prepare($items, $data, $context);
+        }, 'cart');
     }
 
     /**
      * @throws MissingLineItemPriceException
      */
-    public function process(
-        CartDataCollection $data,
-        Cart $original,
-        Cart $toCalculate,
-        SalesChannelContext $context,
-        CartBehavior $behavior
-    ): void {
-        $hash = $this->generator->getSalesChannelContextHash($context);
+    public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
+    {
+        Profiler::trace('cart::product::process', function() use ($data, $original, $toCalculate, $context) {
+            $hash = $this->generator->getSalesChannelContextHash($context);
 
-        $items = $original->getLineItems()->filterFlatByType(LineItem::PRODUCT_LINE_ITEM_TYPE);
+            $items = $original->getLineItems()->filterFlatByType(LineItem::PRODUCT_LINE_ITEM_TYPE);
 
-        foreach ($items as $item) {
-            $definition = $item->getPriceDefinition();
+            foreach ($items as $item) {
+                $definition = $item->getPriceDefinition();
 
-            if (!$definition instanceof QuantityPriceDefinition) {
-                throw new MissingLineItemPriceException($item->getId());
+                if (!$definition instanceof QuantityPriceDefinition) {
+                    throw new MissingLineItemPriceException($item->getId());
+                }
+                $definition->setQuantity($item->getQuantity());
+
+                $item->setPrice($this->calculator->calculate($definition, $context));
+                $item->setDataContextHash($hash);
             }
-            $definition->setQuantity($item->getQuantity());
 
-            $item->setPrice($this->calculator->calculate($definition, $context));
-            $item->setDataContextHash($hash);
-        }
+            $this->featureBuilder->add($items, $data, $context);
 
-        $this->featureBuilder->add($items, $data, $context);
+            // handle all products which stored in root level
+            $items = $original->getLineItems()->filterType(LineItem::PRODUCT_LINE_ITEM_TYPE);
 
-        // handle all products which stored in root level
-        $items = $original->getLineItems()->filterType(LineItem::PRODUCT_LINE_ITEM_TYPE);
-
-        foreach ($items as $item) {
-            $toCalculate->add($item);
-        }
+            foreach ($items as $item) {
+                $toCalculate->add($item);
+            }
+        }, 'cart');
     }
 
     /**

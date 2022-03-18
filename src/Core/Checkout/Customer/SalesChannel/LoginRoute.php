@@ -180,6 +180,7 @@ class LoginRoute extends AbstractLoginRoute
     private function getCustomerByEmail(string $email, SalesChannelContext $context): CustomerEntity
     {
         $criteria = new Criteria();
+        $criteria->setTitle('login-route');
         $criteria->addFilter(new EqualsFilter('customer.email', $email));
 
         $result = $this->customerRepository->search($criteria, $context->getContext());

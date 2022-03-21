@@ -1,4 +1,11 @@
 # 6.5.0.0
+## Introduced in 6.4.10.0
+* Deprecated function `logBusinessEvent` at `src/Core/Framework/Log/LoggingService.php`.
+* Deprecated `src/Core/Framework/Log/LogAwareBusinessEventInterface.php` use `LogAware` instead.
+## Removal of `\Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader::clearInternalCache()`
+
+We removed `\Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader::clearInternalCache()`, use `reset()` instead.
+
 ## Introduced in 6.4.9.0
 Bootstrap v5 introduces breaking changes in HTML, (S)CSS and JavaScript.
 Below you can find a migration overview of the effected areas in the Shopware platform.

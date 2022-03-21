@@ -94,6 +94,19 @@ E2E install NL:
         CYPRESS_dbName: root
         CYPRESS_locale: nl-NL
         CYPRESS_CACHE_FOLDER: $CI_PROJECT_DIR/.Cypress
+    parallel:
+      matrix:
+        - FEATURE_ALL: ''
+        - FEATURE_ALL: 'major'
+          ALLOW_FAILURE: 'true'
+    rules:
+        - !reference [ .rules, skip ]
+        - !reference [ .rules, run-allow-failure, if ]
+          allow_failure: true
+        - !reference [ .rules, run ]
+        - if: !reference [ .rules, long-running-allow-failure, if ]
+          allow_failure: true
+        - if: !reference [ .rules, long-running, if ]
     script:
         - apt-get update && apt-get -y install jq
         - export PLATFORM_VERSION="$(jq -r .version < composer.json)"
@@ -119,6 +132,7 @@ E2E install NL:
         - touch var/dumps/database_root.sql
         - mysql -hdatabase -uroot -p$MYSQL_ROOT_PASSWORD -e "DROP DATABASE $CYPRESS_dbName"
         - composer run e2e:cypress -- run
+            --config retries=0
             --browser chrome
             --spec "cypress/integration/recovery/installer/install_nl.spec.js"
             --headless

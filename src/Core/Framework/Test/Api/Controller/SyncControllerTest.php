@@ -26,28 +26,15 @@ class SyncControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var AbstractIncrementer
-     */
-    private $gateway;
+    private AbstractIncrementer $gateway;
 
     protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->gateway = $this->getContainer()->get('shopware.increment.gateway.registry')->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
         $this->gateway->reset('message_queue_stats');
-        $reflection = new \ReflectionClass($this->gateway);
-
-        if ($reflection->hasProperty('logs')) {
-            $property = $reflection->getProperty('logs');
-            $property->setAccessible(true);
-            $property->setValue($this->gateway, []);
-        }
     }
 
     public function testMultipleProductInsert(): void

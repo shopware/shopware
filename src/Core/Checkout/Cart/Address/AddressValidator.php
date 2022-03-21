@@ -14,8 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Contracts\Service\ResetInterface;
 
-class AddressValidator implements CartValidatorInterface
+class AddressValidator implements CartValidatorInterface, ResetInterface
 {
     private EntityRepositoryInterface $repository;
 
@@ -76,6 +77,11 @@ class AddressValidator implements CartValidatorInterface
         if (!$this->isValidSalutationId($customer->getActiveShippingAddress()->getSalutationId())) {
             $errors->add(new ShippingAddressSalutationMissingError($customer->getActiveShippingAddress()));
         }
+    }
+
+    public function reset(): void
+    {
+        $this->available = [];
     }
 
     private function isSalesChannelCountry(string $countryId, SalesChannelContext $context): bool

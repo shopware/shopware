@@ -7,14 +7,12 @@ use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class ShopIdProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use EnvTestBehaviour;
-    use SystemConfigTestBehaviour;
 
     /**
      * @var ShopIdProvider

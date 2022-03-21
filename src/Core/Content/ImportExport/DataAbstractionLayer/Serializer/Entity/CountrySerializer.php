@@ -10,8 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\CountryEntity;
+use Symfony\Contracts\Service\ResetInterface;
 
-class CountrySerializer extends EntitySerializer
+class CountrySerializer extends EntitySerializer implements ResetInterface
 {
     private EntityRepositoryInterface $countryRepository;
 
@@ -50,6 +51,11 @@ class CountrySerializer extends EntitySerializer
     public function supports(string $entity): bool
     {
         return $entity === CountryDefinition::ENTITY_NAME;
+    }
+
+    public function reset(): void
+    {
+        $this->cacheCountries = [];
     }
 
     private function getCountryId(string $iso): ?string

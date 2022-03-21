@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\BundleConfigGenerator;
 use Shopware\Core\Framework\Plugin\BundleConfigGeneratorInterface;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
-use Shopware\Core\Framework\Test\App\StorefrontPluginRegistryTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 
@@ -14,7 +13,6 @@ class BundleConfigGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
-    use StorefrontPluginRegistryTestBehaviour;
 
     private BundleConfigGeneratorInterface $configGenerator;
 

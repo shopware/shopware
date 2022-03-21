@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
 use Symfony\Component\Filesystem\Filesystem;
 
 class DefaultAppUpdaterTest extends TestCase
@@ -20,7 +19,6 @@ class DefaultAppUpdaterTest extends TestCase
     use IntegrationTestBehaviour;
     use StoreClientBehaviour;
     use ExtensionBehaviour;
-    use SystemConfigTestBehaviour;
 
     private AbstractAppUpdater $updater;
 

@@ -27,14 +27,6 @@ class ConsumeMessagesControllerTest extends TestCase
     protected function setUp(): void
     {
         $this->gateway = $this->getContainer()->get('shopware.increment.gateway.registry')->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
-
-        $reflection = new \ReflectionClass($this->gateway);
-
-        if ($reflection->hasProperty('logs')) {
-            $property = $reflection->getProperty('logs');
-            $property->setAccessible(true);
-            $property->setValue($this->gateway, []);
-        }
     }
 
     public function testConsumeMessages(): void

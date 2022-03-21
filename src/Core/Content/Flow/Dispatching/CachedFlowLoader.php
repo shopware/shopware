@@ -8,11 +8,12 @@ use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal not intended for decoration or replacement
  */
-class CachedFlowLoader extends AbstractFlowLoader implements EventSubscriberInterface
+class CachedFlowLoader extends AbstractFlowLoader implements EventSubscriberInterface, ResetInterface
 {
     public const KEY = 'flow-loader';
 
@@ -82,7 +83,12 @@ class CachedFlowLoader extends AbstractFlowLoader implements EventSubscriberInte
 
     public function invalidate(EntityWrittenEvent $event): void
     {
-        $this->flows = [];
+        $this->reset();
         $this->cache->deleteItem(self::KEY);
+    }
+
+    public function reset(): void
+    {
+        $this->flows = [];
     }
 }

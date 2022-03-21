@@ -40,7 +40,6 @@ use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
 use Shopware\Core\Framework\Script\ScriptEntity;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
@@ -51,7 +50,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class AppLifecycleTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
-    use SystemConfigTestBehaviour;
 
     private AppLifecycle $appLifecycle;
 
@@ -246,7 +244,6 @@ class AppLifecycleTest extends TestCase
         static::assertTrue($apps->first()->isConfigurable());
 
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
-        $this->resetInternalSystemConfigCache();
         static::assertEquals([
             'withConfig.config.email' => 'no-reply@shopware.de',
         ], $systemConfigService->getDomain('withConfig.config'));
@@ -697,7 +694,6 @@ class AppLifecycleTest extends TestCase
         $this->appLifecycle->update($manifest, $app, $this->context);
 
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
-        $this->resetInternalSystemConfigCache();
         static::assertEquals([
             'withConfig.config.email' => 'no-reply@shopware.de',
         ], $systemConfigService->getDomain('withConfig.config'));
@@ -746,7 +742,6 @@ class AppLifecycleTest extends TestCase
 
         $this->appLifecycle->update($manifest, $app, $this->context);
 
-        $this->resetInternalSystemConfigCache();
         static::assertEquals([
             'withConfig.config.email' => 'my-shop@test.com',
         ], $systemConfigService->getDomain('withConfig.config'));
@@ -971,14 +966,12 @@ class AppLifecycleTest extends TestCase
         $app = $apps->first();
 
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
-        $this->resetInternalSystemConfigCache();
         static::assertEquals([
             'withConfig.config.email' => 'no-reply@shopware.de',
         ], $systemConfigService->getDomain('withConfig.config'));
 
         $this->appLifecycle->delete('withConfig', ['id' => $app->getId()], $this->context);
 
-        $this->resetInternalSystemConfigCache();
         static::assertEquals([], $systemConfigService->getDomain('withConfig.config'));
     }
 
@@ -996,14 +989,12 @@ class AppLifecycleTest extends TestCase
         $app = $apps->first();
 
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
-        $this->resetInternalSystemConfigCache();
         static::assertEquals([
             'withConfig.config.email' => 'no-reply@shopware.de',
         ], $systemConfigService->getDomain('withConfig.config'));
 
         $this->appLifecycle->delete('withConfig', ['id' => $app->getId()], $this->context, true);
 
-        $this->resetInternalSystemConfigCache();
         static::assertEquals([
             'withConfig.config.email' => 'no-reply@shopware.de',
         ], $systemConfigService->getDomain('withConfig.config'));

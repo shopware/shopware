@@ -152,6 +152,7 @@
             <argument type="service" id="logger" />
 
             <tag name="kernel.event_subscriber" />
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Content\Flow\Indexing\FlowPayloadUpdater">

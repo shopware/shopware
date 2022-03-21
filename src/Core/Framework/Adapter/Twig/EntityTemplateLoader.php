@@ -5,11 +5,12 @@ namespace Shopware\Core\Framework\Adapter\Twig;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\Service\ResetInterface;
 use Twig\Error\LoaderError;
 use Twig\Loader\LoaderInterface;
 use Twig\Source;
 
-class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface
+class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface, ResetInterface
 {
     private array $databaseTemplateCache = [];
 
@@ -25,10 +26,18 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface
 
     public static function getSubscribedEvents(): array
     {
-        return ['app_template.written' => 'clearInternalCache'];
+        return ['app_template.written' => 'reset'];
     }
 
+    /**
+     * @deprecated tag:v6.5.0 will be removed, use `reset()` instead
+     */
     public function clearInternalCache(): void
+    {
+        $this->reset();
+    }
+
+    public function reset(): void
     {
         $this->databaseTemplateCache = [];
     }

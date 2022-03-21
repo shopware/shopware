@@ -58,8 +58,6 @@ class AddCustomerTagActionTest extends TestCase
         $this->connection->executeStatement('DELETE FROM event_action;');
 
         $this->flowLoader = $this->getContainer()->get(FlowLoader::class);
-
-        $this->resetCachedFlows();
     }
 
     public function testAddCustomerTagAction(): void
@@ -202,20 +200,5 @@ class AddCustomerTagActionTest extends TestCase
                 'name' => 'test tag3',
             ],
         ], $this->ids->context);
-    }
-
-    private function resetCachedFlows(): void
-    {
-        $class = new \ReflectionClass($this->flowLoader);
-
-        if ($class->hasProperty('flows')) {
-            $class = new \ReflectionClass($this->flowLoader);
-            $property = $class->getProperty('flows');
-            $property->setAccessible(true);
-            $property->setValue(
-                $this->flowLoader,
-                []
-            );
-        }
     }
 }

@@ -12,8 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Symfony\Contracts\Service\ResetInterface;
 
-class CustomerSerializer extends EntitySerializer
+class CustomerSerializer extends EntitySerializer implements ResetInterface
 {
     private EntityRepositoryInterface $customerGroupRepository;
 
@@ -95,6 +96,13 @@ class CustomerSerializer extends EntitySerializer
     public function supports(string $entity): bool
     {
         return $entity === CustomerDefinition::ENTITY_NAME;
+    }
+
+    public function reset(): void
+    {
+        $this->cacheCustomerGroups = [];
+        $this->cachePaymentMethods = [];
+        $this->cacheSalesChannels = [];
     }
 
     private function getCustomerGroupId(?string $name): ?string

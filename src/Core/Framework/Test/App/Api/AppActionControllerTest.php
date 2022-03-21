@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
-use Shopware\Core\Framework\Test\App\StorefrontPluginRegistryTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -21,7 +20,6 @@ class AppActionControllerTest extends TestCase
     use GuzzleTestClientBehaviour;
     use AdminApiTestBehaviour;
     use AppSystemTestBehaviour;
-    use StorefrontPluginRegistryTestBehaviour;
 
     public function testGetActionsPerViewEmpty(): void
     {

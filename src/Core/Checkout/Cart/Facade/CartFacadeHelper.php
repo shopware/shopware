@@ -14,11 +14,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
  */
-class CartFacadeHelper
+class CartFacadeHelper implements ResetInterface
 {
     private LineItemFactoryRegistry $factory;
 
@@ -83,6 +84,11 @@ class CartFacadeHelper
         }
 
         return $collection;
+    }
+
+    public function reset(): void
+    {
+        $this->currencies = [];
     }
 
     private function validatePrice(array $price): array

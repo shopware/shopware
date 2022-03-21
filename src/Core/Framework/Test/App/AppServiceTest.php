@@ -22,7 +22,6 @@ use Symfony\Component\Finder\Finder;
 class AppServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use StorefrontPluginRegistryTestBehaviour;
 
     /**
      * @var AppService

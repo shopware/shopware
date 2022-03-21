@@ -2,18 +2,9 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
-use Shopware\Core\Checkout\Cart\CartRuleLoader;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
-
+/**
+ * @deprecated tag:v6.5.0 will be removed, as it is not needed anymore
+ */
 trait RuleTestBehaviour
 {
-    /**
-     * @before
-     */
-    public function clearCachedRules(): void
-    {
-        $evaluator = $this->getContainer()->get(CartRuleLoader::class);
-        $rulesProperty = ReflectionHelper::getProperty(CartRuleLoader::class, 'rules');
-        $rulesProperty->setValue($evaluator, null);
-    }
 }

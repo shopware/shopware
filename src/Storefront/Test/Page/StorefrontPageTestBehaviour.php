@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -303,8 +302,6 @@ trait StorefrontPageTestBehaviour
         $context = $factory->create(Uuid::randomHex(), $salesChannelId, $options);
 
         $ruleLoader = $this->getContainer()->get(CartRuleLoader::class);
-        $rulesProperty = ReflectionHelper::getProperty(CartRuleLoader::class, 'rules');
-        $rulesProperty->setValue($ruleLoader, null);
         $ruleLoader->loadByToken($context, $context->getToken());
 
         return $context;

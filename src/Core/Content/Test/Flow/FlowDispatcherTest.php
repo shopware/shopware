@@ -49,8 +49,6 @@ class FlowDispatcherTest extends TestCase
         $this->flowLoader = $this->getContainer()->get(FlowLoader::class);
 
         $this->ids = new TestDataCollection(Context::createDefaultContext());
-
-        $this->resetCachedFlows();
     }
 
     protected function tearDown(): void
@@ -438,20 +436,5 @@ class FlowDispatcherTest extends TestCase
             ], $additionSequence),
         ],
         ], $additionFlow), Context::createDefaultContext());
-    }
-
-    private function resetCachedFlows(): void
-    {
-        $class = new \ReflectionClass($this->flowLoader);
-
-        if ($class->hasProperty('flows')) {
-            $class = new \ReflectionClass($this->flowLoader);
-            $property = $class->getProperty('flows');
-            $property->setAccessible(true);
-            $property->setValue(
-                $this->flowLoader,
-                []
-            );
-        }
     }
 }

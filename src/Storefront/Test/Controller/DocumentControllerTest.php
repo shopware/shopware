@@ -20,7 +20,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
-use Shopware\Core\Framework\Test\TestCaseBase\RuleTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -34,7 +33,6 @@ use Symfony\Component\HttpFoundation\Request;
 class DocumentControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use RuleTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
     use StorefrontControllerTestBehaviour;
 

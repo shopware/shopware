@@ -60,8 +60,6 @@ class ChangeCustomerStatusActionTest extends TestCase
         $this->connection->executeStatement('DELETE FROM event_action;');
 
         $this->flowLoader = $this->getContainer()->get(FlowLoader::class);
-
-        $this->resetCachedFlows();
     }
 
     public function testChangeCustomerStatusAction(): void
@@ -166,20 +164,5 @@ class ChangeCustomerStatusActionTest extends TestCase
                 'active' => true,
             ],
         ], $this->ids->context);
-    }
-
-    private function resetCachedFlows(): void
-    {
-        $class = new \ReflectionClass($this->flowLoader);
-
-        if ($class->hasProperty('flows')) {
-            $class = new \ReflectionClass($this->flowLoader);
-            $property = $class->getProperty('flows');
-            $property->setAccessible(true);
-            $property->setValue(
-                $this->flowLoader,
-                []
-            );
-        }
     }
 }

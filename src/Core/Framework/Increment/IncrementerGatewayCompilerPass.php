@@ -78,6 +78,7 @@ class IncrementerGatewayCompilerPass implements CompilerPassInterface
 
                 $definition = new Definition($referenceDefinition->getClass());
                 $definition->setArguments($referenceDefinition->getArguments());
+                $definition->setTags($referenceDefinition->getTags());
 
                 $container->setDefinition($active, $definition);
 

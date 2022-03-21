@@ -19,8 +19,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Unit\UnitCollection;
+use Symfony\Contracts\Service\ResetInterface;
 
-class ProductPriceCalculator extends AbstractProductPriceCalculator
+class ProductPriceCalculator extends AbstractProductPriceCalculator implements ResetInterface
 {
     private EntityRepositoryInterface $unitRepository;
 
@@ -49,6 +50,11 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
             $this->calculateAdvancePrices($product, $context, $units);
             $this->calculateCheapestPrice($product, $context, $units);
         }
+    }
+
+    public function reset(): void
+    {
+        $this->units = null;
     }
 
     private function calculatePrice(Entity $product, SalesChannelContext $context, UnitCollection $units): void

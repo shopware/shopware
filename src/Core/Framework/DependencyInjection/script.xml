@@ -29,6 +29,7 @@
 
         <service id="Shopware\Core\Framework\Script\Debugging\ScriptTraces">
             <tag name="data_collector"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Framework\Script\Api\ScriptStoreApiRoute" public="true">

@@ -11,8 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Language\LanguageEntity;
+use Symfony\Contracts\Service\ResetInterface;
 
-class LanguageSerializer extends EntitySerializer
+class LanguageSerializer extends EntitySerializer implements ResetInterface
 {
     private EntityRepositoryInterface $languageRepository;
 
@@ -54,6 +55,11 @@ class LanguageSerializer extends EntitySerializer
     public function supports(string $entity): bool
     {
         return $entity === LanguageDefinition::ENTITY_NAME;
+    }
+
+    public function reset(): void
+    {
+        $this->cacheLanguages = [];
     }
 
     private function getLanguageSerialized(string $code): ?array

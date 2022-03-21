@@ -26,4 +26,9 @@ class SearchKeywordReplacement extends SearchKeywordUpdater
 
         $this->decorated->update($ids, $context);
     }
+
+    public function reset(): void
+    {
+        $this->decorated->reset();
+    }
 }

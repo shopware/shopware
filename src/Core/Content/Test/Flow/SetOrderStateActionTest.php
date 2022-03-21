@@ -62,8 +62,6 @@ class SetOrderStateActionTest extends TestCase
         $this->connection->executeStatement('DELETE FROM event_action;');
 
         $this->flowLoader = $this->getContainer()->get(FlowLoader::class);
-
-        $this->resetCachedFlows();
     }
 
     public function testSetAvailableOrderState(): void
@@ -398,20 +396,5 @@ class SetOrderStateActionTest extends TestCase
             ->addFilter(new EqualsFilter('stateMachine.technicalName', $stateMachine));
 
         return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
-    }
-
-    private function resetCachedFlows(): void
-    {
-        $class = new \ReflectionClass($this->flowLoader);
-
-        if ($class->hasProperty('flows')) {
-            $class = new \ReflectionClass($this->flowLoader);
-            $property = $class->getProperty('flows');
-            $property->setAccessible(true);
-            $property->setValue(
-                $this->flowLoader,
-                []
-            );
-        }
     }
 }

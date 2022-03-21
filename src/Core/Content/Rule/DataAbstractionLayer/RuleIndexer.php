@@ -130,6 +130,6 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
 
     public function onRuleWritten(EntityWrittenEvent $event): void
     {
-        $this->cartRuleLoader->reset();
+        $this->cartRuleLoader->invalidate();
     }
 }

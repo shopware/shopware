@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -20,7 +19,6 @@ class AppActionLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
-    use SystemConfigTestBehaviour;
 
     public function testCreateAppActionReturnCorrectData(): void
     {

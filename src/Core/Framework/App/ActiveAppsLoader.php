@@ -5,11 +5,12 @@ namespace Shopware\Core\Framework\App;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
-class ActiveAppsLoader
+class ActiveAppsLoader implements ResetInterface
 {
     private ?array $activeApps = null;
 
@@ -32,7 +33,7 @@ class ActiveAppsLoader
         return $this->activeApps;
     }
 
-    public function resetActiveApps(): void
+    public function reset(): void
     {
         $this->activeApps = null;
     }

@@ -24,8 +24,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
+use Symfony\Contracts\Service\ResetInterface;
 
-class SearchKeywordUpdater
+class SearchKeywordUpdater implements ResetInterface
 {
     private Connection $connection;
 
@@ -83,6 +84,11 @@ class SearchKeywordUpdater
 
             $products[$language->getId()] = $this->updateLanguage($ids, $languageContext, $existingProducts);
         }
+    }
+
+    public function reset(): void
+    {
+        $this->config = [];
     }
 
     /**

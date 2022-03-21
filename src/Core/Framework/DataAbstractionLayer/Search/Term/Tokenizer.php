@@ -4,6 +4,13 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term;
 
 class Tokenizer implements TokenizerInterface
 {
+    private int $tokenMinimumLength;
+
+    public function __construct(int $tokenMinimumLength)
+    {
+        $this->tokenMinimumLength = $tokenMinimumLength;
+    }
+
     public function tokenize(string $string): array
     {
         $string = mb_strtolower(html_entity_decode($string), 'UTF-8');
@@ -18,7 +25,7 @@ class Tokenizer implements TokenizerInterface
         foreach ($tags as $tag) {
             $tag = trim($tag);
 
-            if (empty($tag) || mb_strlen($tag) < 3) {
+            if (empty($tag) || mb_strlen($tag) < $this->tokenMinimumLength) {
                 continue;
             }
 

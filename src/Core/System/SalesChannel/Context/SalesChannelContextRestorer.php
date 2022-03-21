@@ -151,7 +151,7 @@ class SalesChannelContextRestorer
             throw new CustomerNotFoundByIdException($customerId);
         }
 
-        list($languageId, $groupId, $salesChannelId) = array_values($customer);
+        [$languageId, $groupId, $salesChannelId] = array_values($customer);
         $options = [
             SalesChannelContextService::LANGUAGE_ID => $languageId,
             SalesChannelContextService::CUSTOMER_ID => $customerId,
@@ -169,6 +169,7 @@ class SalesChannelContextRestorer
 
         $rules = $this->ruleLoader->load($context);
         $salesChannelContext->setRuleIds($rules->getIds());
+        $salesChannelContext->getContext()->addState(...$context->getStates());
 
         return $salesChannelContext;
     }

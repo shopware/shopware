@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart;
 use Shopware\Core\Checkout\Cart\Hook\CartHook;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -88,7 +89,7 @@ class Processor
 
     private function runProcessors(Cart $original, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
     {
-        if ($original->getLineItems()->count() <= 0) {
+        if ($original->getLineItems()->count() <= 0 && Feature::isActive('v6.5.0.0')) {
             $cart->addErrors(...array_values($original->getErrors()->getPersistent()->getElements()));
 
             $cart->setExtensions($original->getExtensions());

@@ -56,13 +56,13 @@ class CsrfPlaceholderHandlerTest extends TestCase
                 'getToken',
                 'refreshToken',
                 'removeToken',
-                'isTokenValid'
+                'isTokenValid',
             ]
         );
-        $tokenManager->expects($this->exactly(3))
+        $tokenManager->expects(static::exactly(3))
             ->method('getToken')
             ->willReturnCallback(
-                fn($tokenId) => new CsrfToken(
+                fn ($tokenId) => new CsrfToken(
                     $tokenId,
                     bin2hex(random_bytes(32))
                 )

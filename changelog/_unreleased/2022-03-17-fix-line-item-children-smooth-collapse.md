@@ -6,4 +6,4 @@ author_email: melvin.achterhuis@iodigital.com
 author_github: @MelvinAchterhuis
 ---
 # Storefront
-* Refactored padding in `Storefront/Resources/app/storefront/src/scss/page/checkout/_cart-item-children.scss` for a smooth collapse.
+* Changed padding in `Storefront/Resources/app/storefront/src/scss/page/checkout/_cart-item-children.scss` for a smooth collapse.

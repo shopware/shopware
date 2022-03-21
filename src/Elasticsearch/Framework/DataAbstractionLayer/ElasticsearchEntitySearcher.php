@@ -81,7 +81,6 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
                 'body' => $search,
             ]);
         } catch (\Throwable $e) {
-
             $this->helper->logOrThrowException($e);
 
             return $this->decorated->search($definition, $criteria, $context);

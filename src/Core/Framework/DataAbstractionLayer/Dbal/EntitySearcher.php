@@ -19,20 +19,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
  */
 class EntitySearcher implements EntitySearcherInterface
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EntityDefinitionQueryHelper
-     */
-    private $queryHelper;
+    private EntityDefinitionQueryHelper $queryHelper;
 
-    /**
-     * @var CriteriaQueryBuilder
-     */
-    private $criteriaQueryBuilder;
+    private CriteriaQueryBuilder $criteriaQueryBuilder;
 
     public function __construct(
         Connection $connection,

@@ -8,10 +8,11 @@ use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
 use Shopware\Core\Checkout\Cart\Exception\CartDeserializeFailedException;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class RedisCartPersister implements CartPersisterInterface
+class RedisCartPersister extends AbstractCartPersister
 {
     /**
      * @var \Redis|\RedisCluster
@@ -20,20 +21,33 @@ class RedisCartPersister implements CartPersisterInterface
 
     private EventDispatcherInterface $eventDispatcher;
 
+    private bool $compress;
+
     /**
      * @param \Redis|\RedisCluster $redis
      */
-    public function __construct($redis, EventDispatcherInterface $eventDispatcher)
+    public function __construct($redis, EventDispatcherInterface $eventDispatcher, bool $compress)
     {
         $this->redis = $redis;
         $this->eventDispatcher = $eventDispatcher;
+        $this->compress = $compress;
+    }
+
+    public function getDecorated(): AbstractCartPersister
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     public function load(string $token, SalesChannelContext $context): Cart
     {
-        $content = $this->redis->get($token);
+        /** @var string|bool|array $value */
+        $value = $this->redis->get('cart-' . $token);
 
-        $content = CacheValueCompressor::uncompress($content);
+        if ($value === false || !\is_array($value)) {
+            throw new CartTokenNotFoundException($token);
+        }
+
+        $content = $value['compressed'] ? CacheValueCompressor::uncompress($value['content']) : \unserialize((string) $value['content']);
 
         if (!\is_array($content)) {
             throw new CartTokenNotFoundException($token);
@@ -61,22 +75,37 @@ class RedisCartPersister implements CartPersisterInterface
 
         $this->eventDispatcher->dispatch($event);
         if (!$event->shouldBePersisted()) {
-            $this->delete($cart->getToken(), $context);
+            $this->delete('cart-' . $cart->getToken(), $context);
 
             return;
         }
 
         $content = $this->serializeCart($cart, $context);
 
-        $this->redis->set($cart->getToken(), $content);
+        $this->redis->set('cart-' . $cart->getToken(), $content);
     }
 
     public function delete(string $token, SalesChannelContext $context): void
     {
-        $this->redis->del($token);
+        $this->redis->del('cart-' . $token);
     }
 
-    private function serializeCart(Cart $cart, SalesChannelContext $context): string
+    public function replace(string $oldToken, string $newToken, SalesChannelContext $context): void
+    {
+        try {
+            $cart = $this->load($oldToken, $context);
+        } catch (CartTokenNotFoundException $e) {
+            return;
+        }
+
+        $cart->setToken($newToken);
+        $this->save($cart, $context);
+        $cart->setToken($oldToken);
+
+        $this->delete($oldToken, $context);
+    }
+
+    private function serializeCart(Cart $cart, SalesChannelContext $context): array
     {
         $errors = $cart->getErrors();
         $data = $cart->getData();
@@ -84,14 +113,13 @@ class RedisCartPersister implements CartPersisterInterface
         $cart->setErrors(new ErrorCollection());
         $cart->setData(null);
 
-        $content = CacheValueCompressor::compress([
-            'cart' => $cart,
-            'rule_ids' => $context->getRuleIds(),
-        ]);
+        $content = ['cart' => $cart, 'rule_ids' => $context->getRuleIds()];
+
+        $content = $this->compress ? CacheValueCompressor::compress($content) : \serialize($content);
 
         $cart->setErrors($errors);
         $cart->setData($data);
 
-        return $content;
+        return ['compressed' => $this->compress, 'content' => $content];
     }
 }

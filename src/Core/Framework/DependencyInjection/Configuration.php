@@ -438,6 +438,7 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
+                ->booleanNode('compress')->defaultFalse()->end()
                 ->integerNode('expire_days')
                     ->min(1)
                     ->defaultValue(120)

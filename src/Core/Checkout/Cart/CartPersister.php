@@ -12,12 +12,13 @@ use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class CartPersister implements CartPersisterInterface
+class CartPersister extends AbstractCartPersister
 {
     private Connection $connection;
 
@@ -27,6 +28,11 @@ class CartPersister implements CartPersisterInterface
     {
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
+    }
+
+    public function getDecorated(): AbstractCartPersister
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     public function load(string $token, SalesChannelContext $context): Cart
@@ -74,7 +80,7 @@ class CartPersister implements CartPersisterInterface
 
         $sql = <<<'SQL'
             INSERT INTO `cart` (`token`, `name`, `currency_id`, `shipping_method_id`, `payment_method_id`, `country_id`, `sales_channel_id`, `customer_id`, `price`, `line_item_count`, `cart`, `rule_ids`, `created_at`)
-            VALUES (:token, :name, :currency_id, :shipping_method_id, :payment_method_id, :country_id, :sales_channel_id, :customer_id, :price, :line_item_count, :cart, :rule_ids, :now)
+            VALUES (:token, :name, :currency_id, :shipping_method_id, :payment_method_id, :country_id, :sales_channel_id, :customer_id, :price, :line_item_count, :cart, :rule_ids, :compressed, :now)
             ON DUPLICATE KEY UPDATE `name` = :name,`currency_id` = :currency_id, `shipping_method_id` = :shipping_method_id, `payment_method_id` = :payment_method_id, `country_id` = :country_id, `sales_channel_id` = :sales_channel_id, `customer_id` = :customer_id,`price` = :price, `line_item_count` = :line_item_count, `cart` = :cart, `rule_ids` = :rule_ids, `updated_at` = :now
             ;
         SQL;
@@ -113,6 +119,14 @@ class CartPersister implements CartPersisterInterface
         $query->execute(['token' => $token]);
     }
 
+    public function replace(string $oldToken, string $newToken, SalesChannelContext $context): void
+    {
+        $this->connection->executeUpdate(
+            'UPDATE `cart` SET `token` = :newToken WHERE `token` = :oldToken',
+            ['newToken' => $newToken, 'oldToken' => $oldToken]
+        );
+    }
+
     /**
      * @internal
      */
@@ -133,11 +147,11 @@ class CartPersister implements CartPersisterInterface
         $cart->setErrors(new ErrorCollection());
         $cart->setData(null);
 
-        $serializedCart = serialize($cart);
+        $serialized = serialize($cart);
 
         $cart->setErrors($errors);
         $cart->setData($data);
 
-        return $serializedCart;
+        return $serialized;
     }
 }

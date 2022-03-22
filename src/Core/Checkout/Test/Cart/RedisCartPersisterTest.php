@@ -26,11 +26,11 @@ class RedisCartPersisterTest extends TestCase
         $redis = $this->createMock(\Redis::class);
         $redis->expects(static::once())
             ->method('set')
-            ->with(static::equalTo($token), static::equalTo($content));
+            ->with(static::equalTo('cart-' . $token), static::equalTo(['compressed' => true, 'content' => $content]));
 
         $context = $this->createMock(SalesChannelContext::class);
 
-        $persister = new RedisCartPersister($redis, $dispatcher);
+        $persister = new RedisCartPersister($redis, $dispatcher, true);
 
         $persister->save($cart, $context);
     }
@@ -48,12 +48,12 @@ class RedisCartPersisterTest extends TestCase
         $redis = $this->createMock(\Redis::class);
         $redis->expects(static::once())
             ->method('get')
-            ->with(static::equalTo($token))
-            ->willReturn($content);
+            ->with(static::equalTo('cart-' . $token))
+            ->willReturn(['compressed' => true, 'content' => $content]);
 
         $context = $this->createMock(SalesChannelContext::class);
 
-        $loadedCart = (new RedisCartPersister($redis, $dispatcher))->load($token, $context);
+        $loadedCart = (new RedisCartPersister($redis, $dispatcher, true))->load($token, $context);
 
         static::assertEquals($cart, $loadedCart);
     }
@@ -67,12 +67,50 @@ class RedisCartPersisterTest extends TestCase
         $redis = $this->createMock(\Redis::class);
         $redis->expects(static::once())
             ->method('del')
-            ->with(static::equalTo($token));
+            ->with(static::equalTo('cart-' . $token));
 
-        $persister = new RedisCartPersister($redis, $dispatcher);
+        $persister = new RedisCartPersister($redis, $dispatcher, true);
 
         $context = $this->createMock(SalesChannelContext::class);
 
         $persister->delete($token, $context);
+    }
+
+    public function testLoadWithDifferentCompression(): void
+    {
+        $token = Uuid::randomHex();
+        $cart = new Cart('test', $token);
+        $cart->add(new LineItem('test', 'test'));
+
+        $dispatcher = $this->createMock(EventDispatcher::class);
+
+        $content = CacheValueCompressor::compress(['cart' => $cart, 'rule_ids' => []]);
+
+        $compressedRedis = $this->createMock(\Redis::class);
+        $compressedRedis->expects(static::once())
+            ->method('set')
+            ->with(static::equalTo('cart-' . $token), static::equalTo(['compressed' => true, 'content' => $content]));
+
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $persister = new RedisCartPersister($compressedRedis, $dispatcher, true);
+
+        $persister->save($cart, $context);
+
+        $dispatcher = $this->createMock(EventDispatcher::class);
+
+        $content = CacheValueCompressor::compress(['cart' => $cart, 'rule_ids' => []]);
+
+        $uncompressedRedis = $this->createMock(\Redis::class);
+        $uncompressedRedis->expects(static::once())
+            ->method('get')
+            ->with(static::equalTo('cart-' . $token))
+            ->willReturn(['compressed' => true, 'content' => $content]);
+
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $loadedCart = (new RedisCartPersister($uncompressedRedis, $dispatcher, false))->load($token, $context);
+
+        static::assertEquals($cart, $loadedCart);
     }
 }

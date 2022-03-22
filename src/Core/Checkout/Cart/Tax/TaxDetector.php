@@ -49,7 +49,7 @@ class TaxDetector
         }
 
         $vatPattern = $shippingLocationCountry->getVatIdPattern();
-        $vatIds = $customer->getVatIds();
+        $vatIds = array_filter($customer->getVatIds());
 
         if (empty($vatIds)) {
             return false;

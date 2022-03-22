@@ -188,6 +188,18 @@ class SalesChannelContextRestorerTest extends TestCase
         static::assertTrue(\in_array($ruleId, $saleChanelContext->getRuleIds(), true));
     }
 
+    public function testRestoreByCustomerPassesStates(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->addState('foo');
+
+        $ids = new TestDataCollection();
+        $this->createOrder($ids);
+
+        $saleChanelContext = $this->contextRestorer->restoreByCustomer($this->createCustomer()->getId(), $context);
+        static::assertTrue($saleChanelContext->getContext()->hasState('foo'));
+    }
+
     public function testGuestContextAndCartAreDeleted(): void
     {
         Feature::skipTestIfActive('v6_5_0_0', $this);

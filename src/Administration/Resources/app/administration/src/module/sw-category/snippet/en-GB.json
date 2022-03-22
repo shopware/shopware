@@ -200,8 +200,8 @@
         "placeholderMetaDescription": "Enter a meta description...",
         "placeholderKeywords": "Enter one or more keywords...",
         "placeholderUrl": "Enter URL...",
-        "helpTextMetaTitle": "Meta titles should not be longer than {limit} characters. Excess text will be truncated by Google and the title will not be fully displayed in the SERP snippet.",
-        "helpTextMetaDescription": "Meta descriptions should not be longer than {limit} characters. Excess text will be truncated by Google and the description will not be fully displayed in the SERP snippet."
+        "helpTextMetaTitle": "Meta titles should not be longer than 70 characters. Excess text will be truncated by Google and the title will not be fully displayed in the SERP snippet.",
+        "helpTextMetaDescription": "The possible length for meta descriptions on Google is about 175 characters and is trimmed according to pixel width. However, it is recommended to aim for a length of about 150 characters so that the description is not cut off in the SERP snippet."
       },
       "cms": {
         "title": "Layout assignment",

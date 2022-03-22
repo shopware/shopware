@@ -4,7 +4,8 @@ import 'src/module/sw-category/component/sw-category-seo-form';
 function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-category-seo-form'), {
         stubs: {
-            'sw-field': true
+            'sw-text-field': true,
+            'sw-textarea-field': true,
         },
         provide: {
             acl: {

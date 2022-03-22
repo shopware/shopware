@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -36,8 +36,6 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
 
     private EntityRepositoryInterface $paymentMethodRepository;
 
-    private StateMachineRegistry $stateMachineRegistry;
-
     private TestDataCollection $ids;
 
     protected function setUp(): void
@@ -52,7 +50,6 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->orderTransactionRepository = $this->getContainer()->get('order_transaction.repository');
         $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
-        $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
     }
 
     public function testRequestNotLoggedIn(): void
@@ -122,7 +119,7 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
             'id' => $id,
             'orderId' => $orderId,
             'paymentMethodId' => $paymentMethodId,
-            'stateId' => $this->stateMachineRegistry->getInitialState(OrderTransactionStates::STATE_MACHINE, $context)->getId(),
+            'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderTransactionStates::STATE_MACHINE),
             'amount' => new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
             'payload' => '{}',
         ];
@@ -139,7 +136,7 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
     ): string {
         $orderId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
-        $stateId = $this->stateMachineRegistry->getInitialState(OrderStates::STATE_MACHINE, $context)->getId();
+        $stateId = $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE);
 
         $order = [
             'id' => $orderId,

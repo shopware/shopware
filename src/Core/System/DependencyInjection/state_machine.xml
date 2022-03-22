@@ -44,5 +44,11 @@
         <service  id="Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
+
+        <service id="Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="cache.object"/>
+            <tag name="kernel.reset" method="reset"/>
+        </service>
     </services>
 </container>

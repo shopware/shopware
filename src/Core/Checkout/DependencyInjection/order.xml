@@ -67,11 +67,11 @@
         <service id="Shopware\Core\Checkout\Cart\Order\OrderConverter">
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
-            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\OrderDefinition"/>
             <argument type="service" id="order_address.repository"/>
+            <argument type="service" id="Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler">
@@ -104,10 +104,10 @@
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
             <argument type="service" id="order.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
-            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader"/>
         </service>
 
         <!-- events -->

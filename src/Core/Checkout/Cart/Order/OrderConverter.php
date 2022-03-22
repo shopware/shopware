@@ -45,7 +45,7 @@ use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInt
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderConverter
@@ -68,22 +68,11 @@ class OrderConverter
         ProductCartProcessor::KEEP_INACTIVE_PRODUCT => true,
     ];
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    protected $customerRepository;
+    protected EntityRepositoryInterface $customerRepository;
 
-    /**
-     * @var AbstractSalesChannelContextFactory
-     */
-    protected $salesChannelContextFactory;
+    protected AbstractSalesChannelContextFactory $salesChannelContextFactory;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    protected $eventDispatcher;
-
-    private StateMachineRegistry $stateMachineRegistry;
+    protected EventDispatcherInterface $eventDispatcher;
 
     private NumberRangeValueGeneratorInterface $numberRangeValueGenerator;
 
@@ -91,22 +80,24 @@ class OrderConverter
 
     private EntityRepositoryInterface $orderAddressRepository;
 
+    private InitialStateIdLoader $initialStateIdLoader;
+
     public function __construct(
         EntityRepositoryInterface $customerRepository,
         AbstractSalesChannelContextFactory $salesChannelContextFactory,
-        StateMachineRegistry $stateMachineRegistry,
         EventDispatcherInterface $eventDispatcher,
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         OrderDefinition $orderDefinition,
-        EntityRepositoryInterface $orderAddressRepository
+        EntityRepositoryInterface $orderAddressRepository,
+        InitialStateIdLoader $initialStateIdLoader
     ) {
         $this->customerRepository = $customerRepository;
         $this->salesChannelContextFactory = $salesChannelContextFactory;
-        $this->stateMachineRegistry = $stateMachineRegistry;
         $this->eventDispatcher = $eventDispatcher;
         $this->numberRangeValueGenerator = $numberRangeValueGenerator;
         $this->orderDefinition = $orderDefinition;
         $this->orderAddressRepository = $orderAddressRepository;
+        $this->initialStateIdLoader = $initialStateIdLoader;
     }
 
     /**
@@ -124,7 +115,7 @@ class OrderConverter
         $data = CartTransformer::transform(
             $cart,
             $context,
-            $this->stateMachineRegistry->getInitialState(OrderStates::STATE_MACHINE, $context->getContext())->getId(),
+            $this->initialStateIdLoader->get(OrderStates::STATE_MACHINE),
             $conversionContext->shouldIncludeOrderDate()
         );
 
@@ -147,7 +138,7 @@ class OrderConverter
             $data['deliveries'] = DeliveryTransformer::transformCollection(
                 $cart->getDeliveries(),
                 $convertedLineItems,
-                $this->stateMachineRegistry->getInitialState(OrderDeliveryStates::STATE_MACHINE, $context->getContext())->getId(),
+                $this->initialStateIdLoader->get(OrderDeliveryStates::STATE_MACHINE),
                 $context->getContext(),
                 $shippingAddresses
             );
@@ -178,7 +169,7 @@ class OrderConverter
         if ($conversionContext->shouldIncludeTransactions()) {
             $data['transactions'] = TransactionTransformer::transformCollection(
                 $cart->getTransactions(),
-                $this->stateMachineRegistry->getInitialState(OrderTransactionStates::STATE_MACHINE, $context->getContext())->getId(),
+                $this->initialStateIdLoader->get(OrderTransactionStates::STATE_MACHINE),
                 $context->getContext()
             );
         }

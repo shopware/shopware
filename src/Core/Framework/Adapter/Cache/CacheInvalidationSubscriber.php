@@ -64,6 +64,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Salutation\SalesChannel\CachedSalutationRoute;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\Snippet\SnippetDefinition;
+use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
+use Shopware\Core\System\StateMachine\StateMachineDefinition;
 use Shopware\Core\System\SystemConfig\CachedSystemConfigLoader;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -133,6 +135,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
                 ['invalidateStreamIds', 2014],
                 ['invalidateCountryRoute', 2015],
                 ['invalidateSalutationRoute', 2016],
+                ['invalidateInitialStateIdLoader', 2017],
             ],
             SeoUrlUpdateEvent::class => [
                 ['invalidateSeoUrls', 2000],
@@ -167,6 +170,15 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
                 ['invalidateSitemap', 2000],
             ],
         ];
+    }
+
+    public function invalidateInitialStateIdLoader(EntityWrittenContainerEvent $event): void
+    {
+        if (!$event->getPrimaryKeys(StateMachineDefinition::ENTITY_NAME)) {
+            return;
+        }
+
+        $this->cacheInvalidator->invalidate([InitialStateIdLoader::CACHE_KEY]);
     }
 
     public function invalidateSitemap(SitemapGeneratedEvent $event): void

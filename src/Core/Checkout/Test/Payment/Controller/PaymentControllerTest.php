@@ -24,7 +24,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -42,8 +42,6 @@ class PaymentControllerTest extends TestCase
 
     private EntityRepositoryInterface $paymentMethodRepository;
 
-    private StateMachineRegistry $stateMachineRegistry;
-
     private PaymentService $paymentService;
 
     protected function setUp(): void
@@ -53,7 +51,6 @@ class PaymentControllerTest extends TestCase
         $this->orderRepository = $this->getContainer()->get('order.repository');
         $this->orderTransactionRepository = $this->getContainer()->get('order_transaction.repository');
         $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
-        $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
         $this->paymentService = $this->getContainer()->get(PaymentService::class);
     }
 
@@ -153,7 +150,7 @@ class PaymentControllerTest extends TestCase
             'id' => $id,
             'orderId' => $orderId,
             'paymentMethodId' => $paymentMethodId,
-            'stateId' => $this->stateMachineRegistry->getInitialState(OrderTransactionStates::STATE_MACHINE, $context)->getId(),
+            'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderTransactionStates::STATE_MACHINE),
             'amount' => new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
             'payload' => '{}',
         ];

@@ -5,16 +5,26 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 use Psr\Cache\CacheItemInterface;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\CacheItem;
+use Symfony\Contracts\Cache\CacheTrait;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
-class CacheDecorator implements TagAwareAdapterInterface
+class CacheDecorator implements TagAwareAdapterInterface, TagAwareCacheInterface
 {
-    private TagAwareAdapterInterface $decorated;
+    use CacheTrait;
+
+    /**
+     * @var TagAwareCacheInterface&TagAwareAdapterInterface
+     */
+    private $decorated;
 
     private CacheTagCollection $collection;
 
     private \ReflectionProperty $property;
 
-    public function __construct(TagAwareAdapterInterface $decorated, CacheTagCollection $collection)
+    /**
+     * @param TagAwareCacheInterface&TagAwareAdapterInterface $decorated
+     */
+    public function __construct($decorated, CacheTagCollection $collection)
     {
         $this->decorated = $decorated;
         $this->collection = $collection;

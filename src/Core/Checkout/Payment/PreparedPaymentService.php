@@ -21,28 +21,28 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 
 class PreparedPaymentService
 {
     private PaymentHandlerRegistry $paymentHandlerRegistry;
 
-    private StateMachineRegistry $stateMachineRegistry;
-
     private EntityRepositoryInterface $appPaymentMethodRepository;
 
     private LoggerInterface $logger;
 
+    private InitialStateIdLoader $initialStateIdLoader;
+
     public function __construct(
         PaymentHandlerRegistry $paymentHandlerRegistry,
-        StateMachineRegistry $stateMachineRegistry,
         EntityRepositoryInterface $appPaymentMethodRepository,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        InitialStateIdLoader $initialStateIdLoader
     ) {
         $this->paymentHandlerRegistry = $paymentHandlerRegistry;
-        $this->stateMachineRegistry = $stateMachineRegistry;
         $this->appPaymentMethodRepository = $appPaymentMethodRepository;
         $this->logger = $logger;
+        $this->initialStateIdLoader = $initialStateIdLoader;
     }
 
     public function handlePreOrderPayment(
@@ -106,10 +106,7 @@ class PreparedPaymentService
         }
 
         $transactions = $transactions->filterByStateId(
-            $this->stateMachineRegistry->getInitialState(
-                OrderTransactionStates::STATE_MACHINE,
-                $salesChannelContext->getContext()
-            )->getId()
+            $this->initialStateIdLoader->get(OrderTransactionStates::STATE_MACHINE)
         );
 
         return $transactions->last();
@@ -139,6 +136,7 @@ class PreparedPaymentService
         }
 
         $criteria = new Criteria();
+        $criteria->setTitle('prepared-payment-handler');
         $criteria->addAssociation('app');
         $criteria->addFilter(new EqualsFilter('paymentMethodId', $paymentMethod->getId()));
 

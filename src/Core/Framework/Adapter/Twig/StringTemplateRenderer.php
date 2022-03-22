@@ -16,6 +16,8 @@ class StringTemplateRenderer
 
     private Environment $platformTwig;
 
+    private string $cacheDir;
+
     public function __construct(Environment $environment, string $cacheDir)
     {
         $this->platformTwig = $environment;

@@ -32,7 +32,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
-use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
@@ -47,8 +47,6 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
 
     private AbstractPaymentMethodRoute $paymentRoute;
 
-    private StateMachineRegistry $stateMachineRegistry;
-
     private OrderService $orderService;
 
     private OrderConverter $orderConverter;
@@ -57,22 +55,24 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
 
     private EventDispatcherInterface $eventDispatcher;
 
+    private InitialStateIdLoader $initialStateIdLoader;
+
     public function __construct(
         OrderService $orderService,
         EntityRepositoryInterface $orderRepository,
         AbstractPaymentMethodRoute $paymentRoute,
-        StateMachineRegistry $stateMachineRegistry,
         OrderConverter $orderConverter,
         CartRuleLoader $cartRuleLoader,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        InitialStateIdLoader $initialStateIdLoader
     ) {
         $this->orderService = $orderService;
         $this->orderRepository = $orderRepository;
         $this->paymentRoute = $paymentRoute;
-        $this->stateMachineRegistry = $stateMachineRegistry;
         $this->orderConverter = $orderConverter;
         $this->cartRuleLoader = $cartRuleLoader;
         $this->eventDispatcher = $eventDispatcher;
+        $this->initialStateIdLoader = $initialStateIdLoader;
     }
 
     public function getDecorated(): AbstractSetPaymentOrderRoute
@@ -146,10 +146,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
             return;
         }
 
-        $initialState = $this->stateMachineRegistry->getInitialState(
-            OrderTransactionStates::STATE_MACHINE,
-            $context
-        );
+        $initialState = $this->initialStateIdLoader->get(OrderTransactionStates::STATE_MACHINE);
 
         $transactionAmount = new CalculatedPrice(
             $order->getPrice()->getTotalPrice(),
@@ -165,7 +162,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
                 [
                     'id' => $transactionId,
                     'paymentMethodId' => $paymentMethodId,
-                    'stateId' => $initialState->getId(),
+                    'stateId' => $initialState,
                     'amount' => $transactionAmount,
                 ],
             ],
@@ -218,8 +215,8 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
 
         foreach ($transactions as $transaction) {
             if ($transaction->getPaymentMethodId() === $paymentMethodId && $lastTransaction->getId() === $transaction->getId()) {
-                $initialState = $this->stateMachineRegistry->getInitialState(OrderTransactionStates::STATE_MACHINE, $context);
-                if ($transaction->getStateId() === $initialState->getId()) {
+                $initialState = $this->initialStateIdLoader->get(OrderTransactionStates::STATE_MACHINE);
+                if ($transaction->getStateId() === $initialState) {
                     return true;
                 }
 

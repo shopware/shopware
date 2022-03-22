@@ -159,9 +159,10 @@ class ProductGenerator implements DemodataGeneratorInterface
             $tax = $taxes->get(array_rand($taxes->getIds()));
             $taxRate = 1 + ($tax->getTaxRate() / 100);
 
+            $id = Uuid::randomHex();
             $variants[] = [
-                'id' => Uuid::randomHex(),
-                'productNumber' => Uuid::randomHex(),
+                'id' => $id,
+                'productNumber' => $id,
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price / $taxRate, 'linked' => true]],
                 'active' => true,
                 'stock' => $this->faker->numberBetween(1, 50),

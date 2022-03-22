@@ -37,6 +37,7 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
             cy.contains('.sw-sidebar-item__title', 'Navigator');
             cy.get('.sw-cms-sidebar__navigator-confirm-modal-confirm').click();
             cy.wait('@searchData').its('response.statusCode').should('equal', 200);
+            cy.get('.sw-loader').should('not.exist');
         });
     });
 
@@ -68,6 +69,7 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
         cy.get(`#sw-cms-sidebar__section-${sectionId} .sw-context-button__button`).click();
         cy.get('.sw-cms-sidebar__navigator-section-move-down').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get(blockSelector).eq(0).contains('Section 2 - Block C')
         cy.get(blockSelector).eq(2).contains('Section 1 - Block A')
@@ -76,6 +78,7 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
         cy.get(`#sw-cms-sidebar__section-${sectionId} .sw-context-button__button`).click();
         cy.get('.sw-cms-sidebar__navigator-section-move-down').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get(blockSelector).eq(0).contains('Section 2 - Block C')
         cy.get(blockSelector).eq(2).contains('Section 3 - Block E')
@@ -84,6 +87,7 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
         cy.get(`#sw-cms-sidebar__section-${sectionId} .sw-context-button__button`).click();
         cy.get('.sw-cms-sidebar__navigator-section-move-up').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get(blockSelector).eq(0).contains('Section 2 - Block C')
         cy.get(blockSelector).eq(2).contains('Section 1 - Block A')
@@ -92,6 +96,7 @@ describe('CMS: Test crud operations in the cms-sidebar', () => {
         cy.get(`#sw-cms-sidebar__section-${sectionId} .sw-context-button__button`).click();
         cy.get('.sw-cms-sidebar__navigator-section-move-up').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get(blockSelector).eq(0).contains('Section 1 - Block A');
         cy.get(blockSelector).eq(2).contains('Section 2 - Block C');

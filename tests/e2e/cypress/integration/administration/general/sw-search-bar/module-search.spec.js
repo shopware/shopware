@@ -16,14 +16,20 @@ describe('Search bar: Check search module with short keyword', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader__element')
+        cy.get('.sw-loader')
             .should('not.exist');
 
+        cy.get('.sw-skeleton')
+            .should('not.exist');
+
+        cy.get('input.sw-search-bar__input').click();
         cy.get('input.sw-search-bar__input').type('Pro');
         cy.get('.sw-search-bar__results').should('be.visible');
 
         cy.get('.sw-search-bar-item')
-            .should('be.visible')
+            .should('be.visible');
+
+        cy.get('.sw-search-bar-item')
             .contains('Products');
 
         cy.get('.sw-search-bar-item__link[href="#/sw/product/create"]')
@@ -45,14 +51,20 @@ describe('Search bar: Check search module with short keyword', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader__element')
+        cy.get('.sw-loader')
             .should('not.exist');
 
+        cy.get('.sw-skeleton')
+            .should('not.exist');
+
+        cy.get('input.sw-search-bar__input').click();
         cy.get('input.sw-search-bar__input').type('Cat');
         cy.get('.sw-search-bar__results').should('be.visible');
 
         cy.get('.sw-search-bar-item')
-            .should('be.visible')
+            .should('be.visible');
+
+        cy.get('.sw-search-bar-item')
             .contains('Categories');
 
         cy.get('.sw-search-bar-item')
@@ -74,14 +86,20 @@ describe('Search bar: Check search module with short keyword', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader__element')
+        cy.get('.sw-loader')
             .should('not.exist');
 
+        cy.get('.sw-skeleton')
+            .should('not.exist');
+
+        cy.get('input.sw-search-bar__input').click();
         cy.get('input.sw-search-bar__input').type('Cus');
         cy.get('.sw-search-bar__results').should('be.visible');
 
         cy.get('.sw-search-bar-item')
-            .should('be.visible')
+            .should('be.visible');
+
+        cy.get('.sw-search-bar-item')
             .contains('Customers');
 
         cy.get('.sw-search-bar-item__link[href="#/sw/customer/create"]')
@@ -127,9 +145,13 @@ describe('Search bar: Check search module with short keyword', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader__element')
+        cy.get('.sw-loader')
             .should('not.exist');
 
+        cy.get('.sw-skeleton')
+            .should('not.exist');
+
+        cy.get('input.sw-search-bar__input').click();
         cy.get('input.sw-search-bar__input').type('Ord');
         cy.get('.sw-search-bar__results').should('be.visible');
 
@@ -138,7 +160,9 @@ describe('Search bar: Check search module with short keyword', () => {
             .contains('Orders');
 
         cy.get('.sw-search-bar-item')
-            .should('be.visible')
+            .should('be.visible');
+
+        cy.get('.sw-search-bar-item')
             .contains('Add new order')
             .click();
 
@@ -183,14 +207,20 @@ describe('Search bar: Check search module with short keyword', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader__element')
+        cy.get('.sw-loader')
             .should('not.exist');
 
+        cy.get('.sw-skeleton')
+            .should('not.exist');
+
+        cy.get('input.sw-search-bar__input').click();
         cy.get('input.sw-search-bar__input').type('Med');
         cy.get('.sw-search-bar__results').should('be.visible');
 
         cy.get('.sw-search-bar-item')
-            .should('be.visible')
+            .should('be.visible');
+
+        cy.get('.sw-search-bar-item')
             .contains('Media')
             .click();
 
@@ -208,21 +238,27 @@ describe('Search bar: Check search module with short keyword', () => {
         cy.get('.sw-dashboard')
             .should('exist');
 
-        cy.get('.sw-loader__element')
+        cy.get('.sw-loader')
             .should('not.exist');
 
+        cy.get('.sw-skeleton')
+            .should('not.exist');
+
+        cy.get('input.sw-search-bar__input').click();
         cy.get('input.sw-search-bar__input').type('add new prod');
         cy.get('.sw-search-bar__results').should('be.visible');
 
         cy.get('.sw-search-bar-item')
-            .should('be.visible')
+            .should('be.visible');
+
+        cy.get('.sw-search-bar-item')
             .contains('Add new product');
 
         cy.get('.sw-search-bar-item__link[href="#/sw/product/create"]')
             .should('be.visible')
             .contains('Add new product')
             .click();
-        
+
         cy.get('.smart-bar__header h2')
             .should('be.visible')
             .contains('New product');

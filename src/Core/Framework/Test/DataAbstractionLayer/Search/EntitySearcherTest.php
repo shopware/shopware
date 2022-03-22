@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaQueryBuilder;
@@ -16,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -25,15 +28,9 @@ class EntitySearcherTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $groupRepository;
+    private EntityRepositoryInterface $groupRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $productRepository;
+    private EntityRepositoryInterface $productRepository;
 
     protected function setUp(): void
     {
@@ -469,5 +466,40 @@ class EntitySearcherTest extends TestCase
             static::assertEquals($ids['categoryId'], $ids['category_id']);
             static::assertEquals($ids['productId'], $ids['product_id']);
         }
+    }
+
+    public function testWithCriteriaLimitOfZero(): void
+    {
+        $ids = new IdsCollection();
+        $product = (new ProductBuilder($ids, 'p1'))
+            ->price(100);
+
+        $repository = $this->getContainer()->get('product.repository');
+
+        $repository->create([$product->build()], $ids->getContext());
+
+        $criteria = new Criteria();
+        $criteria->setLimit(0);
+
+        $connection = $this->createMock(Connection::class);
+        // connection should not be used if limit is 0
+        $connection->expects(static::never())
+            ->method('executeQuery');
+        $connection->expects(static::never())
+            ->method('getDatabasePlatform');
+
+        $searcher = new EntitySearcher(
+            $connection,
+            $this->getContainer()->get(EntityDefinitionQueryHelper::class),
+            $this->getContainer()->get(CriteriaQueryBuilder::class),
+        );
+
+        $result = $searcher->search(
+            $this->getContainer()->get(ProductDefinition::class),
+            $criteria,
+            $ids->getContext()
+        );
+
+        static::assertEquals(0, $result->getTotal());
     }
 }

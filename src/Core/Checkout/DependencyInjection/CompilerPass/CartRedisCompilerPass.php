@@ -13,6 +13,7 @@ class CartRedisCompilerPass implements CompilerPassInterface
     {
         if (!$container->getParameter('shopware.cart.redis_url')) {
             $container->removeDefinition('shopware.cart.redis');
+            $container->removeDefinition(RedisCartPersister::class);
 
             return;
         }

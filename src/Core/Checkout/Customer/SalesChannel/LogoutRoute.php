@@ -89,7 +89,7 @@ class LogoutRoute extends AbstractLogoutRoute
         $customer = $context->getCustomer();
         if ($this->shouldDelete($context)) {
             $this->cartService->deleteCart($context);
-            $this->contextPersister->delete($context->getToken());
+            $this->contextPersister->delete($context->getToken(), $context->getSalesChannelId());
 
             $event = new CustomerLogoutEvent($context, $customer);
             $this->eventDispatcher->dispatch($event);

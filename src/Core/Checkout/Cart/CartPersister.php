@@ -3,13 +3,11 @@
 namespace Shopware\Core\Checkout\Cart;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
 use Shopware\Core\Checkout\Cart\Exception\CartDeserializeFailedException;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -64,7 +62,7 @@ class CartPersister extends AbstractCartPersister
      */
     public function save(Cart $cart, SalesChannelContext $context): void
     {
-        $shouldPersist = self::shouldPersist($cart);
+        $shouldPersist = $this->shouldPersist($cart);
 
         $event = new CartVerifyPersistEvent($context, $cart, $shouldPersist);
 
@@ -80,7 +78,7 @@ class CartPersister extends AbstractCartPersister
 
         $sql = <<<'SQL'
             INSERT INTO `cart` (`token`, `name`, `currency_id`, `shipping_method_id`, `payment_method_id`, `country_id`, `sales_channel_id`, `customer_id`, `price`, `line_item_count`, `cart`, `rule_ids`, `created_at`)
-            VALUES (:token, :name, :currency_id, :shipping_method_id, :payment_method_id, :country_id, :sales_channel_id, :customer_id, :price, :line_item_count, :cart, :rule_ids, :compressed, :now)
+            VALUES (:token, :name, :currency_id, :shipping_method_id, :payment_method_id, :country_id, :sales_channel_id, :customer_id, :price, :line_item_count, :cart, :rule_ids, :now)
             ON DUPLICATE KEY UPDATE `name` = :name,`currency_id` = :currency_id, `shipping_method_id` = :shipping_method_id, `payment_method_id` = :payment_method_id, `country_id` = :country_id, `sales_channel_id` = :sales_channel_id, `customer_id` = :customer_id,`price` = :price, `line_item_count` = :line_item_count, `cart` = :cart, `rule_ids` = :rule_ids, `updated_at` = :now
             ;
         SQL;
@@ -125,18 +123,6 @@ class CartPersister extends AbstractCartPersister
             'UPDATE `cart` SET `token` = :newToken WHERE `token` = :oldToken',
             ['newToken' => $newToken, 'oldToken' => $oldToken]
         );
-    }
-
-    /**
-     * @internal
-     */
-    public static function shouldPersist(Cart $cart): bool
-    {
-        return $cart->getLineItems()->count() > 0
-            || $cart->getAffiliateCode() !== null
-            || $cart->getCampaignCode() !== null
-            || $cart->getCustomerComment() !== null
-            || $cart->getExtension(DeliveryProcessor::MANUAL_SHIPPING_COSTS) instanceof CalculatedPrice;
     }
 
     private function serializeCart(Cart $cart): string

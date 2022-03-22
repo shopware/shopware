@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
@@ -104,7 +105,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
         $eventDispatcher = new EventDispatcher();
-        $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher);
+        $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher, $this->getContainer()->get(CartPersister::class));
         $this->ids = new TestDataCollection($this->context);
     }
 

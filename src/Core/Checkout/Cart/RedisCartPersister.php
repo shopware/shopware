@@ -67,7 +67,7 @@ class RedisCartPersister extends AbstractCartPersister
 
     public function save(Cart $cart, SalesChannelContext $context): void
     {
-        $shouldPersist = CartPersister::shouldPersist($cart);
+        $shouldPersist = $this->shouldPersist($cart);
 
         $this->eventDispatcher->dispatch(new CartSavedEvent($context, $cart));
 

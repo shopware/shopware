@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Test\SalesChannel\Context;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -35,7 +36,7 @@ class SalesChannelContextPersisterTest extends TestCase
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $eventDispatcher = new EventDispatcher();
-        $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher);
+        $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher, $this->getContainer()->get(CartPersister::class));
     }
 
     public function testLoad(): void
@@ -333,6 +334,7 @@ class SalesChannelContextPersisterTest extends TestCase
         $persister = new SalesChannelContextPersister(
             $connection,
             $this->createMock(EventDispatcher::class),
+            $this->getContainer()->get(CartPersister::class),
             $lifeTimeInterval
         );
         $token = Uuid::randomHex();

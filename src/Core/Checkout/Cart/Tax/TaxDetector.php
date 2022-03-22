@@ -49,7 +49,7 @@ class TaxDetector
         }
 
         $vatPattern = $shippingLocationCountry->getVatIdPattern();
-        $vatIds = $customer->getVatIds();
+        $vatIds = array_filter($customer->getVatIds());
 
         if (empty($vatIds)) {
             return false;
@@ -59,7 +59,7 @@ class TaxDetector
             $regex = '/^' . $vatPattern . '$/i';
 
             foreach ($vatIds as $vatId) {
-                if ($vatId === null || !preg_match($regex, $vatId)) {
+                if (!preg_match($regex, $vatId)) {
                     return false;
                 }
             }

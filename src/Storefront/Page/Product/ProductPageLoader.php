@@ -7,6 +7,7 @@ use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageRepository;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -86,10 +87,17 @@ class ProductPageLoader
         $result = $this->productDetailRoute->load($productId, $request, $context, $criteria);
         $product = $result->getProduct();
 
-        if ($product->getMedia() !== null) {
+        if ($product->getMedia()) {
             $product->getMedia()->sort(function (ProductMediaEntity $a, ProductMediaEntity $b) {
                 return $a->getPosition() <=> $b->getPosition();
             });
+        }
+
+        if ($product->getMedia() && $product->getCover()) {
+            $product->setMedia(new ProductMediaCollection(array_merge(
+                [$product->getCover()->getId() => $product->getCover()],
+                $product->getMedia()->getElements()
+            )));
         }
 
         if ($category = $product->getSeoCategory()) {

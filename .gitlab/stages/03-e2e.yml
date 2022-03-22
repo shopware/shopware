@@ -96,12 +96,12 @@ E2E install NL:
         CYPRESS_CACHE_FOLDER: $CI_PROJECT_DIR/.Cypress
     parallel:
       matrix:
-        - FEATURE_ALL: ''
+        - FEATURE_ALL: 'false'
         - FEATURE_ALL: 'major'
           ALLOW_FAILURE: 'true'
     rules:
         - !reference [ .rules, skip ]
-        - !reference [ .rules, run-allow-failure, if ]
+        - if: !reference [ .rules, run-allow-failure, if ]
           allow_failure: true
         - !reference [ .rules, run ]
         - if: !reference [ .rules, long-running-allow-failure, if ]

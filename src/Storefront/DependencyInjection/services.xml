@@ -488,7 +488,7 @@
         </service>
 
         <service id="shopware.cache.reverse_proxy.redis" class="Redis">
-            <factory class="Symfony\Component\Cache\Adapter\RedisAdapter" method="createConnection"/>
+            <factory class="RedisConnectionFactory" method="createConnection"/>
             <argument>%storefront.reverse_proxy.redis_url%</argument>
         </service>
 

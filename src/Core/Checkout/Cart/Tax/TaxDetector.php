@@ -59,7 +59,7 @@ class TaxDetector
             $regex = '/^' . $vatPattern . '$/i';
 
             foreach ($vatIds as $vatId) {
-                if (!preg_match($regex, $vatId)) {
+                if ($vatId === null || !preg_match($regex, $vatId)) {
                     return false;
                 }
             }

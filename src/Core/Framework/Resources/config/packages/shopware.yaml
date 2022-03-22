@@ -159,6 +159,9 @@ shopware:
         versioning:
             expire_days: 30
 
+    mail:
+        update_on_order: true
+
     cart:
         expire_days: 120
 

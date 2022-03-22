@@ -75,6 +75,7 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
+            <argument>%shopware.mail.update_on_order%</argument>
             <tag name="kernel.event_subscriber"/>
             <tag name="flow.action" priority="500" />
         </service>

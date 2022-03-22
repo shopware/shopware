@@ -25,20 +25,43 @@ class Storefront:
     def go_to_home(self):
         return Storefront(self.client, self.context, '', self)
 
+    def new(self, url, params, name):
+        self.url = url
+        self.params = params
+        self.name = name
+        self.refresh()
+
+        return self
+
     def go_to_listing(self):
-        return Storefront(self.client, self.context, random.choice(self.context.listings), self, {}, self.__build_name('listing-page'))
+        return self.new(random.choice(self.context.listings), {}, self.__build_name('listing-page'))
 
     def go_to_product(self):
-        return Storefront(self.client, self.context, random.choice(self.context.product_urls), self, {}, self.__build_name('product-page'))
+        return self.new(random.choice(self.context.product_urls), {}, self.__build_name('product-page'))
 
     def go_to_next_page(self):
         params = self.params
         params['p'] = params['p'] + 1 if 'p' in params else 2
 
-        return Storefront(self.client, self.context, self.url, self, params, self.name)
+        return self.new(self.url, params, self.name)
 
     def do_search(self):
-        return Storefront(self.client, self.context, '', self, {'search': random.choice(self.context.keywords)}, self.__build_name('search-page'))
+        return self.new('/search', {'search': random.choice(self.context.keywords)}, self.__build_name('search-page'))
+
+    def add_advertisement(self):
+        product = random.choice(self.context.advertisements)
+
+        self.new(product['url'], {}, self.__build_name('advertisement-page'))
+
+        self.client.post('/checkout/product/add-by-number', name=self.__build_name('add-product'), data={
+            'redirectTo': 'frontend.checkout.cart.page',
+            'number': product['number']
+        })
+
+        if self.context.ajax_calls:
+            self.__offcanvas_cart()
+
+        return self.go_to_cart()
 
     def add_product_to_cart(self):
         self.__add_product_to_cart()
@@ -46,44 +69,49 @@ class Storefront:
         return self.go_to_cart()
 
     def go_to_cart(self):
-        return Storefront(self.client, self.context, '/checkout/cart', self, {}, self.__build_name('cart-page'))
+        return self.new('/checkout/cart', {}, self.__build_name('cart-page'))
 
     def go_to_confirm(self):
-        return Storefront(self.client, self.context, '/checkout/confirm', self, {}, self.__build_name('confirm-page'))
+        return self.new('/checkout/confirm', {}, self.__build_name('confirm-page'))
 
     def make_order(self):
-        self.client.post('/checkout/order', name=self.__build_name('order'), data={'tos': 'on'})
-        return self.go_to_home()
+        response = self.client.post('/checkout/order', name=self.__build_name('order'), allow_redirects=False, data={'tos': 'on'})
+
+        time.sleep(7)
+
+        return self.new(response.headers['Location'], {}, name=self.__build_name('finish-page'))
 
     def logout(self):
         self.client.get('/account/logout', name=self.__build_name('logout'))
         return self.go_to_home()
 
     def go_to_account(self):
-        return Storefront(self.client, self.context, '/account', self, {}, self.__build_name('account-page'))
+        return self.new('/account', {}, self.__build_name('account-page'))
 
     def go_to_account_addresses(self):
-        return Storefront(self.client, self.context, '/account/address', self, {}, self.__build_name('account-addresses-page'))
+        return self.new('/account/address', {}, self.__build_name('account-addresses-page'))
 
     def go_to_account_profile(self):
-        return Storefront(self.client, self.context, '/account/profile', self, {}, self.__build_name('account-profile-page'))
+        return self.new('/account/profile', {}, self.__build_name('account-profile-page'))
 
     def go_to_account_orders(self):
-        return Storefront(self.client, self.context, '/account/order', self, {}, self.__build_name('account-orders-page'))
+        return self.new('/account/order', {}, self.__build_name('account-orders-page'))
 
     def go_to_account_create_address_form(self):
-        return Storefront(self.client, self.context, '/account/address/create', self, {}, self.__build_name('account-create-address-page'))
+        return self.new('/account/address/create', {}, self.__build_name('account-create-address-page'))
 
     def go_to_account_payment(self):
-        return Storefront(self.client, self.context, '/account/payment', self, {}, self.__build_name('account-payment-page'))
+        return self.new('/account/payment', {}, self.__build_name('account-payment-page'))
 
     def register(self, guest = 0):
+        self.email = 'user-' + str(uuid.uuid4()).replace('-', '') + '@example.com'
+
         register = {
             'redirectTo': 'frontend.account.home.page',
             'salutationId': self.context.register['salutationId'],
             'firstName': 'Firstname',
             'lastName': 'Lastname',
-            'email': 'user-' + str(uuid.uuid4()).replace('-', '') + '@example.com',
+            'email': self.email,
             'password': 'shopware',
             'billingAddress[street]': 'Test street',
             'billingAddress[zipcode]': '11111',
@@ -102,13 +130,19 @@ class Storefront:
 
         return self.go_to_home()
 
+    def login(self):
+        self.client.post('/account/login', data={'username': self.email, 'password': 'shopware'}, name=self.__build_name('login'))
+        self.__wait()
+
+        return self.go_to_home()
+
     ### listing helpers ###
     def select_sorting(self):
         params = self.params
         params['order'] = random.choice(['name-desc', 'price-asc', 'price-desc'])
         params['p'] = 1
 
-        return Storefront(self.client, self.context, self.url, self, params, self.name)
+        return self.new(self.url, params, self.name)
 
     def add_manufacturer_filter(self):
         params = self.params
@@ -125,7 +159,7 @@ class Storefront:
         else:
             params['manufacturer'] = manufacturer
 
-        return Storefront(self.client, self.context, self.url, self, params, self.name)
+        return self.new(self.url, params, self.name)
 
     def add_property_filter(self):
         params = self.params
@@ -142,7 +176,7 @@ class Storefront:
         else:
             params['properties'] = manufacturer
 
-        return Storefront(self.client, self.context, self.url, self, params, self.name)
+        return self.new(self.url, params, self.name)
 
     def add_price_filter(self):
         params = self.params
@@ -157,7 +191,7 @@ class Storefront:
 
         params['min-price'] = round(random.uniform(price / 20, price / 1.2), 2)
 
-        return Storefront(self.client, self.context, self.url, self, params, self.name)
+        return self.new(self.url, params, self.name)
 
     # short hands
     def instant_order(self):
@@ -168,7 +202,7 @@ class Storefront:
     def view_products(self, count = 2):
         for x in range(count):
             self.go_to_product()
-            self.__wait([5, 15])
+            self.__wait()
             self.refresh()
 
         return self
@@ -196,10 +230,12 @@ class Storefront:
             'redirectTo': 'frontend.checkout.cart.page',
             'number': number
         })
-        self.__offcanvas_cart()
+        if self.context.ajax_calls:
+            self.__offcanvas_cart()
 
     def __ajax_requests(self):
-        self.client.get('/widgets/checkout/info', name=self.__build_name('ajax-cart-widget'))
+        if self.context.ajax_calls:
+            self.client.get('/widgets/checkout/info', name=self.__build_name('ajax-cart-widget'))
 
     def __offcanvas_cart(self):
         self.client.get('/checkout/offcanvas', name=self.__build_name('ajax-cart-offcanvas'))
@@ -241,12 +277,12 @@ class Storefront:
 
     def __collect_inputs(self, css_class, soup):
         filters = []
-        element = soup.find('div', class_='filter-multi-select-properties')
+        element = soup.find('div', class_=css_class)
         if element == None:
             return filters
 
         for input in element.find_all('input'):
-            filters.append(input['value'])
+            filters.append(input['id'])
 
         return filters
 

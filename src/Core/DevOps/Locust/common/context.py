@@ -16,7 +16,9 @@ class Context:
     wait: False
     erp: True
     host: None
+    ajax_calls: True
     indexing_behavior: None
+    advertisements: []
 
     def __init__(self):
         self.env = self.__get_env()
@@ -24,10 +26,13 @@ class Context:
         self.token = self.get_token()
         self.aggregate = self.env['aggregate']
         self.wait = self.env['wait']
+        self.allow_filter = self.env['allow_filter']
+        self.ajax_calls = self.env['ajax_calls']
         self.keywords = self.__initKeywords()
         self.listings = self.__initListings()
         self.product_urls = self.__initProductsUrls()
         self.products = self.__initProducts()
+        self.advertisements = self.initAdvertisements()
         self.numbers = self.__column(self.products, 'productNumber')
         self.product_ids = self.__column(self.products, 'id')
         self.register = self.__initRegister()
@@ -37,6 +42,9 @@ class Context:
 
         if (self.env['indexing_behavior'] != False):
             self.indexing_behavior = self.env['indexing_behavior']
+
+    def initAdvertisements(self):
+        return self.__get_json_file('/../fixtures/advertisements.json')
 
     def __initListings(self):
         return self.__get_json_file('/../fixtures/listing_urls.json')

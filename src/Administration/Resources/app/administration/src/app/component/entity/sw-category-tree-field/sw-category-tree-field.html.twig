@@ -73,153 +73,155 @@
             {% endblock %}
 
             {% block sw_category_tree_field_input_transition %}
-            <transition name="sw-category-tree-field__fade-down">
-                {% block sw_category_tree_field_input_results %}
-                <div
-                    v-if="isExpanded"
-                    class="sw-category-tree-field__results"
+            {% block sw_category_tree_field_input_results %}
+            <sw-popover
+                v-if="isExpanded"
+                class="sw-category-tree-field__results_base"
+                popover-class="sw-category-tree-field__results_popover"
+                :z-index="1100"
+                :resize-width="true"
+            >
+
+                {% block sw_category_tree_field_input_results_tree %}
+                <sw-tree
+                    v-if="term.length <= 0 && categories.length > 0"
+                    ref="swTree"
+                    :items="categories"
+                    after-id-property="afterCategoryId"
+                    :sortable="false"
+                    @get-tree-items="getTreeItems"
                 >
 
-                    {% block sw_category_tree_field_input_results_tree %}
-                    <sw-tree
-                        v-if="term.length <= 0 && categories.length > 0"
-                        ref="swTree"
-                        :items="categories"
-                        after-id-property="afterCategoryId"
-                        :sortable="false"
-                        @get-tree-items="getTreeItems"
-                    >
-
-                        {% block sw_category_tree_field_input_results_tree_headline %}
-                        <template #headline>
-                            <span></span></template>
-                        {% endblock %}
-
-                        {% block sw_category_tree_field_input_results_tree_search %}
-                        <template #search>
-                            <span></span></template>
-                        {% endblock %}
-
-                        {% block sw_category_tree_field_input_results_tree_items %}
-                        <template
-                            #items="{
-                                treeItems,
-                                sortable,
-                                draggedItem,
-                                newElementId,
-                                checkItem,
-                                translationContext,
-                                onChangeRoute,
-                                disableContextMenu
-                            }"
-                        >
-                            {% block sw_category_tree_field_input_results_tree_item %}
-                            <sw-tree-item
-                                v-for="item in treeItems"
-                                :key="item.id"
-                                :item="item"
-                                :translation-context="translationContext"
-                                :dragged-item="draggedItem"
-                                :active-parent-ids="selectedCategoriesPathIds"
-                                :active-item-ids="selectedCategoriesItemsIds"
-                                :sortable="false"
-                                should-focus
-                                :active-focus-id="selectedTreeItem.id"
-                                :mark-inactive="true"
-                                @check-item="onCheckItem"
-                            >
-
-                                {% block sw_category_tree_field_input_results_tree_item_actions %}
-                                <template #actions>
-                                    <span></span></template>
-                                {% endblock %}
-
-                            </sw-tree-item>
-                            {% endblock %}
-                        </template>
-                        {% endblock %}
-                    </sw-tree>
+                    {% block sw_category_tree_field_input_results_tree_headline %}
+                    <template #headline>
+                        <span></span></template>
                     {% endblock %}
 
-                    {% block sw_category_tree_field_input_results_search_results %}
-                    <ul
-                        v-else-if="searchResult.length > 0 && term.length > 0"
-                        class="sw-category-tree-field__search-results"
-                    >
+                    {% block sw_category_tree_field_input_results_tree_search %}
+                    <template #search>
+                        <span></span></template>
+                    {% endblock %}
 
-                        {% block sw_category_tree_field_input_results_search_results_item %}
-                        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
-                        <li
-                            v-for="item in searchResult"
+                    {% block sw_category_tree_field_input_results_tree_items %}
+                    <template
+                        #items="{
+                            treeItems,
+                            sortable,
+                            draggedItem,
+                            newElementId,
+                            checkItem,
+                            translationContext,
+                            onChangeRoute,
+                            disableContextMenu
+                        }"
+                    >
+                        {% block sw_category_tree_field_input_results_tree_item %}
+                        <sw-tree-item
+                            v-for="item in treeItems"
                             :key="item.id"
-                            class="sw-category-tree-field__search-result"
-                            :class="{ 'is--focus': isSearchResultInFocus(item)}"
-                            @click.stop="onCheckSearchItem(item)"
+                            :item="item"
+                            :translation-context="translationContext"
+                            :dragged-item="draggedItem"
+                            :active-parent-ids="selectedCategoriesPathIds"
+                            :active-item-ids="selectedCategoriesItemsIds"
+                            :sortable="false"
+                            should-focus
+                            :active-focus-id="selectedTreeItem.id"
+                            :mark-inactive="true"
+                            @check-item="onCheckItem"
                         >
 
-                            {% block sw_category_tree_field_input_results_search_results_item_checkbox %}
-                            <sw-field
-                                type="checkbox"
-                                :value="isSearchItemChecked(item.id)"
-                                class="sw-category-tree-field__search-results-checkbox"
+                            {% block sw_category_tree_field_input_results_tree_item_actions %}
+                            <template #actions>
+                                <span></span></template>
+                            {% endblock %}
+
+                        </sw-tree-item>
+                        {% endblock %}
+                    </template>
+                    {% endblock %}
+                </sw-tree>
+                {% endblock %}
+
+                {% block sw_category_tree_field_input_results_search_results %}
+                <ul
+                    v-else-if="searchResult.length > 0 && term.length > 0"
+                    class="sw-category-tree-field__search-results"
+                >
+
+                    {% block sw_category_tree_field_input_results_search_results_item %}
+                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+                    <li
+                        v-for="item in searchResult"
+                        :key="item.id"
+                        class="sw-category-tree-field__search-result"
+                        :class="{ 'is--focus': isSearchResultInFocus(item)}"
+                        @click.stop="onCheckSearchItem(item)"
+                    >
+
+                        {% block sw_category_tree_field_input_results_search_results_item_checkbox %}
+                        <sw-field
+                            type="checkbox"
+                            :value="isSearchItemChecked(item.id)"
+                            class="sw-category-tree-field__search-results-checkbox"
+                        />
+                        {% endblock %}
+
+                        {% block sw_category_tree_field_input_results_search_results_item_folder %}
+                        <div
+                            v-if="item.childCount > 0"
+                            class="sw-category-tree-field__search-results-icon"
+                        >
+                            {% block sw_category_tree_field_input_results_search_results_item_folder_icon %}
+                            <sw-icon
+                                name="multicolor-folder-tree"
+                                multicolor
+                                small
                             />
                             {% endblock %}
-
-                            {% block sw_category_tree_field_input_results_search_results_item_folder %}
-                            <div
-                                v-if="item.childCount > 0"
-                                class="sw-category-tree-field__search-results-icon"
-                            >
-                                {% block sw_category_tree_field_input_results_search_results_item_folder_icon %}
-                                <sw-icon
-                                    name="multicolor-folder-tree"
-                                    multicolor
-                                    small
-                                />
-                                {% endblock %}
-                            </div>
-                            {% endblock %}
-
-                            {% block sw_category_tree_field_input_results_search_results_item_endpoint %}
-                            <div
-                                v-else
-                                class="sw-category-tree-field__search-results-icon"
-                            >
-                                {% block sw_category_tree_field_input_results_search_results_item_endpoint_icon %}
-                                <sw-icon
-                                    name="small-default-circle-small"
-                                    size="18"
-                                />
-                                {% endblock %}
-                            </div>
-                            {% endblock %}
-
-                            {% block sw_category_tree_field_input_results_search_results_item_name %}
-                            <span class="sw-category-tree-field__search-results-name">
-                                {% block sw_category_tree_field_input_results_search_results_item_name_highlight %}
-                                <sw-highlight-text
-                                    :search-term="term"
-                                    :text="getBreadcrumb(item)"
-                                />
-                                {% endblock %}
-                            </span>
-                            {% endblock %}
-                        </li>
+                        </div>
                         {% endblock %}
-                    </ul>
-                    {% endblock %}
 
-                    {% block sw_category_tree_field_input_search_results_empty %}
-                    <p
-                        v-else
-                        class="sw-category-tree-field__empty-state"
-                    >
-                        {{ $tc('sw-category-tree-field.emptySearchResults') }}
-                    </p>
+                        {% block sw_category_tree_field_input_results_search_results_item_endpoint %}
+                        <div
+                            v-else
+                            class="sw-category-tree-field__search-results-icon"
+                        >
+                            {% block sw_category_tree_field_input_results_search_results_item_endpoint_icon %}
+                            <sw-icon
+                                name="small-default-circle-small"
+                                size="18"
+                            />
+                            {% endblock %}
+                        </div>
+                        {% endblock %}
+
+                        {% block sw_category_tree_field_input_results_search_results_item_name %}
+                        <span class="sw-category-tree-field__search-results-name">
+                            {% block sw_category_tree_field_input_results_search_results_item_name_highlight %}
+                            <sw-highlight-text
+                                :search-term="term"
+                                :text="getBreadcrumb(item)"
+                            />
+                            {% endblock %}
+                        </span>
+                        {% endblock %}
+                    </li>
                     {% endblock %}
-                </div>
+                </ul>
                 {% endblock %}
-            </transition>
+
+                {% block sw_category_tree_field_input_search_results_empty %}
+                <p
+                    v-else
+                    class="sw-category-tree-field__empty-state"
+                >
+                    {{ $tc('sw-category-tree-field.emptySearchResults') }}
+                </p>
+                {% endblock %}
+
+            </sw-popover>
+            {% endblock %}
             {% endblock %}
         </template>
         {% endblock %}

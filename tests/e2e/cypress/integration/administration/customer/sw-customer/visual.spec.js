@@ -101,12 +101,6 @@ describe('Customer:  Visual test', () => {
     it('@visual: check appearance of customer address workflow', () => {
         const page = new CustomerPageObject();
 
-        // Request we want to wait for later
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/search/country`,
-            method: 'POST'
-        }).as('getCountries');
-
         // Open customer
         cy.clickContextMenuItem(
             '.sw-customer-list__view-action',
@@ -127,7 +121,6 @@ describe('Customer:  Visual test', () => {
         cy.get('.sw-customer-detail-addresses__add-address-action').click();
 
         cy.get('.sw-modal').should('be.visible');
-        cy.wait('@getCountries').its('response.statusCode').should('equal', 200);
 
         // Take snapshot for visual testing
         cy.handleModalSnapshot('Address');

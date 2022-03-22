@@ -152,7 +152,7 @@
 
         {% block sw_customer_address_form_state_field %}
         <div
-            v-if="countryId"
+            v-if="countryId && hasStates"
             class="sw-customer-address-form__state-select-placeholder"
         >
             <sw-entity-single-select

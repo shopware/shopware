@@ -29,6 +29,39 @@ function createWrapper() {
             'sw-container': true,
             'sw-text-field': true,
             'sw-entity-single-select': true
+        },
+        provide: {
+            repositoryFactory: {
+                create: (entity) => {
+                    if (entity === 'country') {
+                        return {
+                            get: (id) => {
+                                if (id) {
+                                    return Promise.resolve({
+                                        id,
+                                        name: 'Germany'
+                                    });
+                                }
+
+                                return Promise.resolve({});
+                            }
+                        };
+                    }
+
+                    return {
+                        search: (criteria = {}) => {
+                            const countryIdFilter = criteria?.filters.find(item => item.field === 'countryId');
+
+                            if (countryIdFilter?.value === '1') {
+                                return Promise.resolve([{
+                                    id: 'state1'
+                                }]);
+                            }
+                            return Promise.resolve([]);
+                        }
+                    };
+                },
+            },
         }
     });
 }
@@ -40,5 +73,35 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
         const expectedCriteria = { type: 'not', operator: 'or', queries: [{ field: 'id', type: 'equals', value: 'ed643807c9f84cc8b50132ea3ccb1c3b' }] };
 
         expect(criteria.filters).toContainEqual(expectedCriteria);
+    });
+
+    it('should hide state field if country dont have states', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.setProps({
+            address: {
+                countryId: '2'
+            }
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const stateSelect = wrapper.find('.sw-customer-address-form__state-select');
+        expect(stateSelect.exists()).toBeFalsy();
+    });
+
+    it('should show state field if country has states', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.setProps({
+            address: {
+                countryId: '1'
+            }
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const stateSelect = wrapper.find('.sw-customer-address-form__state-select');
+        expect(stateSelect.exists()).toBeTruthy();
     });
 });

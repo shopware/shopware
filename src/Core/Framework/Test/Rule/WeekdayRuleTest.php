@@ -13,9 +13,12 @@ class WeekdayRuleTest extends TestCase
         $rule = new WeekdayRule();
         $rule->assign([
             'operator' => WeekdayRule::OPERATOR_EQ,
-            'dayOfWeek' => date('N'),
+            'dayOfWeek' => (int) date('N'),
         ]);
-        $match = $rule->match($this->createMock(RuleScope::class));
+
+        $ruleScope = $this->createMock(RuleScope::class);
+        $ruleScope->method('getCurrentTime')->willReturn(new \DateTimeImmutable());
+        $match = $rule->match($ruleScope);
 
         static::assertTrue($match);
     }
@@ -25,10 +28,12 @@ class WeekdayRuleTest extends TestCase
         $rule = new WeekdayRule();
         $rule->assign([
             'operator' => WeekdayRule::OPERATOR_EQ,
-            'dayOfWeek' => (new \DateTime())->modify('-1 day')->format('N'),
+            'dayOfWeek' => (int) (new \DateTime())->modify('-1 day')->format('N'),
         ]);
 
-        $match = $rule->match($this->createMock(RuleScope::class));
+        $ruleScope = $this->createMock(RuleScope::class);
+        $ruleScope->method('getCurrentTime')->willReturn(new \DateTimeImmutable());
+        $match = $rule->match($ruleScope);
 
         static::assertFalse($match);
     }
@@ -38,10 +43,12 @@ class WeekdayRuleTest extends TestCase
         $rule = new WeekdayRule();
         $rule->assign([
             'operator' => WeekdayRule::OPERATOR_NEQ,
-            'dayOfWeek' => date('N'),
+            'dayOfWeek' => (int) date('N'),
         ]);
 
-        $match = $rule->match($this->createMock(RuleScope::class));
+        $ruleScope = $this->createMock(RuleScope::class);
+        $ruleScope->method('getCurrentTime')->willReturn(new \DateTimeImmutable());
+        $match = $rule->match($ruleScope);
 
         static::assertFalse($match);
     }

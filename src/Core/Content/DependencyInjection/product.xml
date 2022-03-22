@@ -263,7 +263,6 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
             <argument type="service" id="event_dispatcher"/>
             <argument>%shopware.cache.invalidation.product_suggest_route%</argument>
-            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute" public="true">
@@ -286,7 +285,6 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
             <argument type="service" id="event_dispatcher"/>
             <argument>%shopware.cache.invalidation.product_search_route%</argument>
-            <argument type="service" id="logger" />
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\ResolveCriteriaProductListingRoute" decorates="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute" decoration-priority="-2000" public="true">
@@ -302,7 +300,6 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
             <argument type="service" id="event_dispatcher" />
             <argument>%shopware.cache.invalidation.product_listing_route%</argument>
-            <argument type="service" id="logger" />
         </service>
 
         <!-- decorated by cached route -->
@@ -399,7 +396,6 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
             <argument type="service" id="event_dispatcher"/>
             <argument>%shopware.cache.invalidation.product_detail_route%</argument>
-            <argument type="service" id="logger" />
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute" public="true">
@@ -413,7 +409,6 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
             <argument type="service" id="event_dispatcher"/>
             <argument>%shopware.cache.invalidation.product_review_route%</argument>
-            <argument type="service" id="logger" />
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader">
@@ -432,7 +427,6 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
             <argument type="service" id="event_dispatcher"/>
             <argument>%shopware.cache.invalidation.product_cross_selling_route%</argument>
-            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute" public="true">

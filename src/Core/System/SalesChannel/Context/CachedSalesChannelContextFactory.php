@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\System\SalesChannel\Context;
 
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
-use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
+use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactory
 {
@@ -14,28 +14,24 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
 
     private AbstractSalesChannelContextFactory $decorated;
 
-    private TagAwareAdapterInterface $cache;
+    private CacheInterface $cache;
 
     /**
      * @var AbstractCacheTracer<SalesChannelContext>
      */
     private AbstractCacheTracer $tracer;
 
-    private LoggerInterface $logger;
-
     /**
      * @param AbstractCacheTracer<SalesChannelContext> $tracer
      */
     public function __construct(
         AbstractSalesChannelContextFactory $decorated,
-        TagAwareAdapterInterface $cache,
-        AbstractCacheTracer $tracer,
-        LoggerInterface $logger
+        CacheInterface $cache,
+        AbstractCacheTracer $tracer
     ) {
         $this->decorated = $decorated;
         $this->cache = $cache;
         $this->tracer = $tracer;
-        $this->logger = $logger;
     }
 
     public function getDecorated(): AbstractSalesChannelContextFactory
@@ -48,49 +44,31 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
         $name = self::buildName($salesChannelId);
 
         if (!$this->isCacheable($options)) {
-            $this->logger->info('cache-miss: ' . $name);
-
             return $this->getDecorated()->create($token, $salesChannelId, $options);
         }
 
         ksort($options);
 
-        $key = md5(implode('-', [
-            $name,
-            json_encode($options),
-        ]));
+        $key = md5(implode('-', [$name, json_encode($options)]));
 
-        $item = $this->cache->getItem($key);
+        $value = $this->cache->get($key, function (ItemInterface $item) use ($name, $token, $salesChannelId, $options) {
+            $context = $this->tracer->trace($name, function () use ($token, $salesChannelId, $options) {
+                return $this->getDecorated()->create($token, $salesChannelId, $options);
+            });
 
-        try {
-            if ($item->isHit() && $item->get()) {
-                $this->logger->info('cache-hit: ' . $name);
+            $keys = array_unique(array_merge(
+                $this->tracer->get($name),
+                [$name, self::ALL_TAG]
+            ));
 
-                /** @var SalesChannelContext $context */
-                $context = CacheCompressor::uncompress($item);
-                $context->assign(['token' => $token]);
+            $item->tag($keys);
 
-                return $context;
-            }
-        } catch (\Throwable $e) {
-            $this->logger->error($e->getMessage());
-        }
-
-        $this->logger->info('cache-miss: ' . $name);
-
-        $context = $this->tracer->trace($name, function () use ($token, $salesChannelId, $options) {
-            return $this->getDecorated()->create($token, $salesChannelId, $options);
+            return CacheValueCompressor::compress($context);
         });
 
-        $keys = array_unique(array_merge(
-            $this->tracer->get($name),
-            [$name, self::ALL_TAG]
-        ));
+        $context = CacheValueCompressor::uncompress($value);
 
-        $item = CacheCompressor::compress($item, $context);
-        $item->tag($keys);
-
-        $this->cache->save($item);
+        $context->assign(['token' => $token]);
 
         return $context;
     }

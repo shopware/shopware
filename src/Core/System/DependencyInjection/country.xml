@@ -40,7 +40,6 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
             <argument type="service" id="event_dispatcher"/>
             <argument>%shopware.cache.invalidation.country_route%</argument>
-            <argument type="service" id="logger" />
         </service>
 
         <service id="Shopware\Core\System\Country\CountryTaxFreeDeprecationUpdater">

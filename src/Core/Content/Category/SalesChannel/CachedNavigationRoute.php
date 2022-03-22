@@ -3,12 +3,11 @@
 namespace Shopware\Core\Content\Category\SalesChannel;
 
 use OpenApi\Annotations as OA;
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\Event\NavigationRouteCacheKeyEvent;
 use Shopware\Core\Content\Category\Event\NavigationRouteCacheTagsEvent;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
-use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
+use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -17,9 +16,10 @@ use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
-use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -33,7 +33,7 @@ class CachedNavigationRoute extends AbstractNavigationRoute
 
     private AbstractNavigationRoute $decorated;
 
-    private TagAwareAdapterInterface $cache;
+    private CacheInterface $cache;
 
     private EntityCacheKeyGenerator $generator;
 
@@ -46,19 +46,16 @@ class CachedNavigationRoute extends AbstractNavigationRoute
 
     private EventDispatcherInterface $dispatcher;
 
-    private LoggerInterface $logger;
-
     /**
      * @param AbstractCacheTracer<NavigationRouteResponse> $tracer
      */
     public function __construct(
         AbstractNavigationRoute $decorated,
-        TagAwareAdapterInterface $cache,
+        CacheInterface $cache,
         EntityCacheKeyGenerator $generator,
         AbstractCacheTracer $tracer,
         EventDispatcherInterface $dispatcher,
-        array $states,
-        LoggerInterface $logger
+        array $states
     ) {
         $this->decorated = $decorated;
         $this->cache = $cache;
@@ -66,7 +63,6 @@ class CachedNavigationRoute extends AbstractNavigationRoute
         $this->tracer = $tracer;
         $this->states = $states;
         $this->dispatcher = $dispatcher;
-        $this->logger = $logger;
     }
 
     public function getDecorated(): AbstractNavigationRoute
@@ -137,8 +133,6 @@ Instead of passing uuids, you can also use one of the following aliases for the 
     public function load(string $activeId, string $rootId, Request $request, SalesChannelContext $context, Criteria $criteria): NavigationRouteResponse
     {
         if ($context->hasState(...$this->states)) {
-            $this->logger->info('cache-miss: ' . self::buildName($activeId));
-
             return $this->getDecorated()->load($activeId, $rootId, $request, $context, $criteria);
         }
 
@@ -167,37 +161,23 @@ Instead of passing uuids, you can also use one of the following aliases for the 
 
     private function loadNavigation(Request $request, string $active, string $rootId, int $depth, SalesChannelContext $context, Criteria $criteria, array $tags = []): NavigationRouteResponse
     {
-        $item = $this->cache->getItem(
-            $this->generateKey($active, $rootId, $depth, $request, $context, $criteria)
-        );
+        $key = $this->generateKey($active, $rootId, $depth, $request, $context, $criteria);
 
-        try {
-            if ($item->isHit() && $item->get()) {
-                $this->logger->info('cache-hit: ' . self::buildName($active));
+        $value = $this->cache->get($key, function (ItemInterface $item) use ($active, $depth, $rootId, $request, $context, $criteria, $tags) {
+            $request->query->set('depth', (string) $depth);
 
-                return CacheCompressor::uncompress($item);
-            }
-        } catch (\Throwable $e) {
-            $this->logger->error($e->getMessage());
-        }
+            $name = self::buildName($active);
 
-        $this->logger->info('cache-miss: ' . self::buildName($active));
+            $response = $this->tracer->trace($name, function () use ($active, $rootId, $request, $context, $criteria) {
+                return $this->getDecorated()->load($active, $rootId, $request, $context, $criteria);
+            });
 
-        $request->query->set('depth', (string) $depth);
+            $item->tag($this->generateTags($tags, $active, $rootId, $depth, $request, $response, $context, $criteria));
 
-        $name = self::buildName($active);
-
-        $response = $this->tracer->trace($name, function () use ($active, $rootId, $request, $context, $criteria) {
-            return $this->getDecorated()->load($active, $rootId, $request, $context, $criteria);
+            return CacheValueCompressor::compress($response);
         });
 
-        $item = CacheCompressor::compress($item, $response);
-
-        $item->tag($this->generateTags($tags, $active, $rootId, $depth, $request, $response, $context, $criteria));
-
-        $this->cache->save($item);
-
-        return $response;
+        return CacheValueCompressor::uncompress($value);
     }
 
     private function isActiveLoaded(string $root, CategoryCollection $categories, string $activeId): bool

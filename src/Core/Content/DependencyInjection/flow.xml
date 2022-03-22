@@ -149,7 +149,6 @@
         <service id="Shopware\Core\Content\Flow\Dispatching\CachedFlowLoader" decorates="Shopware\Core\Content\Flow\Dispatching\FlowLoader" decoration-priority="-1000" public="true">
             <argument type="service" id="Shopware\Core\Content\Flow\Dispatching\CachedFlowLoader.inner"/>
             <argument type="service" id="cache.object"/>
-            <argument type="service" id="logger" />
 
             <tag name="kernel.event_subscriber" />
             <tag name="kernel.reset" method="reset"/>

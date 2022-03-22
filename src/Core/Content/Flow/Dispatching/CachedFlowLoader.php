@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching;
 
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Flow\FlowEvents;
-use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
-use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
+use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
@@ -21,18 +20,14 @@ class CachedFlowLoader extends AbstractFlowLoader implements EventSubscriberInte
 
     private AbstractFlowLoader $decorated;
 
-    private TagAwareAdapterInterface $cache;
-
-    private LoggerInterface $logger;
+    private CacheInterface $cache;
 
     public function __construct(
         AbstractFlowLoader $decorated,
-        TagAwareAdapterInterface $cache,
-        LoggerInterface $logger
+        CacheInterface $cache
     ) {
         $this->decorated = $decorated;
         $this->cache = $cache;
-        $this->logger = $logger;
     }
 
     /**
@@ -56,35 +51,19 @@ class CachedFlowLoader extends AbstractFlowLoader implements EventSubscriberInte
             return $this->flows;
         }
 
-        $item = $this->cache->getItem(self::KEY);
+        $value = $this->cache->get(self::KEY, function (ItemInterface $item) {
+            $item->tag([self::KEY]);
 
-        try {
-            if ($item->isHit() && $item->get()) {
-                $this->logger->info('cache-hit: ' . self::KEY);
+            return CacheValueCompressor::compress($this->getDecorated()->load());
+        });
 
-                return $this->flows = CacheCompressor::uncompress($item);
-            }
-        } catch (\Throwable $e) {
-            $this->logger->error($e->getMessage());
-        }
-
-        $this->logger->info('cache-miss: ' . self::KEY);
-
-        $flows = $this->getDecorated()->load();
-
-        $item = CacheCompressor::compress($item, $flows);
-
-        $item->tag([self::KEY]);
-
-        $this->cache->save($item);
-
-        return $this->flows = $flows;
+        return $this->flows = CacheValueCompressor::uncompress($value);
     }
 
-    public function invalidate(EntityWrittenEvent $event): void
+    public function invalidate(): void
     {
         $this->reset();
-        $this->cache->deleteItem(self::KEY);
+        $this->cache->delete(self::KEY);
     }
 
     public function reset(): void

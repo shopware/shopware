@@ -14,7 +14,7 @@ class CacheCompressor
      */
     public static function compress(CacheItem $item, $content): CacheItem
     {
-        $item->set(gzcompress(serialize($content), 9));
+        $item->set(CacheValueCompressor::compress($content));
 
         return $item;
     }
@@ -27,15 +27,6 @@ class CacheCompressor
         /** @var TCachedContent|string $value */
         $value = $item->get();
 
-        if (!\is_string($value)) {
-            return $value;
-        }
-
-        $uncompressed = gzuncompress($value);
-        if ($uncompressed === false) {
-            throw new \RuntimeException(sprintf('Could not uncompress "%s"', $value));
-        }
-
-        return unserialize($uncompressed);
+        return CacheValueCompressor::uncompress($value);
     }
 }

@@ -2,10 +2,9 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Context;
-use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 
 class CachedRuleLoader extends AbstractRuleLoader
 {
@@ -13,15 +12,12 @@ class CachedRuleLoader extends AbstractRuleLoader
 
     private AbstractRuleLoader $decorated;
 
-    private TagAwareAdapterInterface $cache;
+    private CacheInterface $cache;
 
-    private LoggerInterface $logger;
-
-    public function __construct(AbstractRuleLoader $decorated, TagAwareAdapterInterface $cache, LoggerInterface $logger)
+    public function __construct(AbstractRuleLoader $decorated, CacheInterface $cache)
     {
         $this->decorated = $decorated;
         $this->cache = $cache;
-        $this->logger = $logger;
     }
 
     public function getDecorated(): AbstractRuleLoader
@@ -31,25 +27,8 @@ class CachedRuleLoader extends AbstractRuleLoader
 
     public function load(Context $context): RuleCollection
     {
-        $item = $this->cache->getItem(self::CACHE_KEY);
-
-        try {
-            if ($item->isHit() && $item->get()) {
-                $this->logger->info('cache-hit: ' . self::CACHE_KEY);
-
-                return $item->get();
-            }
-        } catch (\Throwable $e) {
-            $this->logger->error($e->getMessage());
-        }
-
-        $this->logger->info('cache-miss: ' . self::CACHE_KEY);
-
-        $rules = $this->getDecorated()->load($context);
-
-        $item->set($rules);
-        $this->cache->save($item);
-
-        return $rules;
+        return $this->cache->get(self::CACHE_KEY, function () use ($context): RuleCollection {
+            return $this->decorated->load($context);
+        });
     }
 }

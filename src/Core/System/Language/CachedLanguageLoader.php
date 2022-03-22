@@ -2,18 +2,18 @@
 
 namespace Shopware\Core\System\Language;
 
-use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 
 class CachedLanguageLoader implements LanguageLoaderInterface, EventSubscriberInterface
 {
     private const CACHE_KEY = 'shopware.languages';
 
-    private CacheItemPoolInterface $cache;
+    private CacheInterface $cache;
 
     private LanguageLoaderInterface $loader;
 
-    public function __construct(LanguageLoaderInterface $loader, CacheItemPoolInterface $cache)
+    public function __construct(LanguageLoaderInterface $loader, CacheInterface $cache)
     {
         $this->cache = $cache;
         $this->loader = $loader;
@@ -29,25 +29,13 @@ class CachedLanguageLoader implements LanguageLoaderInterface, EventSubscriberIn
 
     public function loadLanguages(): array
     {
-        $cacheItem = $this->cache->getItem(self::CACHE_KEY);
-        if ($cacheItem->isHit()) {
-            return $cacheItem->get();
-        }
-
-        $languages = $this->loader->loadLanguages();
-
-        $cacheItem->set($languages);
-        $this->cache->save($cacheItem);
-
-        return $languages;
+        return $this->cache->get(self::CACHE_KEY, function () {
+            return $this->loader->loadLanguages();
+        });
     }
 
     public function invalidateCache(): void
     {
-        $cacheItem = $this->cache->getItem(self::CACHE_KEY);
-        if (!$cacheItem->isHit()) {
-            return;
-        }
-        $this->cache->deleteItem($cacheItem->getKey());
+        $this->cache->delete(self::CACHE_KEY);
     }
 }

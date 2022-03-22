@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
@@ -31,6 +32,7 @@ class SeoUrlIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use StorefrontSalesChannelTestHelper;
+    use QueueTestBehaviour;
 
     /**
      * @var EntityRepositoryInterface
@@ -490,6 +492,8 @@ class SeoUrlIndexerTest extends TestCase
         $context = Context::createDefaultContext();
         $this->productRepository->upsert($products, $context);
 
+        $this->runWorker();
+
         // update parent
         $update = [
             'id' => $parentId,
@@ -497,6 +501,7 @@ class SeoUrlIndexerTest extends TestCase
         ];
 
         $this->productRepository->update([$update], Context::createDefaultContext());
+        $this->runWorker();
 
         $criteria = new Criteria([$parentId, $child1Id, $child2Id]);
         $criteria->addAssociation('seoUrls');

@@ -3,11 +3,10 @@
 namespace Shopware\Core\Content\Product\SalesChannel\CrossSelling;
 
 use OpenApi\Annotations as OA;
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\Events\CrossSellingRouteCacheKeyEvent;
 use Shopware\Core\Content\Product\Events\CrossSellingRouteCacheTagsEvent;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
-use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
+use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -15,9 +14,10 @@ use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -27,7 +27,7 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 {
     private AbstractProductCrossSellingRoute $decorated;
 
-    private TagAwareAdapterInterface $cache;
+    private CacheInterface $cache;
 
     private EntityCacheKeyGenerator $generator;
 
@@ -40,19 +40,16 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
     private EventDispatcherInterface $dispatcher;
 
-    private LoggerInterface $logger;
-
     /**
      * @param AbstractCacheTracer<ProductCrossSellingRouteResponse> $tracer
      */
     public function __construct(
         AbstractProductCrossSellingRoute $decorated,
-        TagAwareAdapterInterface $cache,
+        CacheInterface $cache,
         EntityCacheKeyGenerator $generator,
         AbstractCacheTracer $tracer,
         EventDispatcherInterface $dispatcher,
-        array $states,
-        LoggerInterface $logger
+        array $states
     ) {
         $this->decorated = $decorated;
         $this->cache = $cache;
@@ -60,7 +57,6 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         $this->tracer = $tracer;
         $this->states = $states;
         $this->dispatcher = $dispatcher;
-        $this->logger = $logger;
     }
 
     public function getDecorated(): AbstractProductCrossSellingRoute
@@ -100,39 +96,24 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductCrossSellingRouteResponse
     {
         if ($context->hasState(...$this->states)) {
-            $this->logger->info('cache-miss: ' . self::buildName($productId));
-
             return $this->getDecorated()->load($productId, $request, $context, $criteria);
         }
 
-        $item = $this->cache->getItem(
-            $this->generateKey($productId, $request, $context, $criteria)
-        );
+        $key = $this->generateKey($productId, $request, $context, $criteria);
 
-        try {
-            if ($item->isHit() && $item->get()) {
-                $this->logger->info('cache-hit: ' . self::buildName($productId));
+        $value = $this->cache->get($key, function (ItemInterface $item) use ($productId, $request, $context, $criteria) {
+            $name = self::buildName($productId);
 
-                return CacheCompressor::uncompress($item);
-            }
-        } catch (\Throwable $e) {
-            $this->logger->error($e->getMessage());
-        }
+            $response = $this->tracer->trace($name, function () use ($productId, $request, $context, $criteria) {
+                return $this->getDecorated()->load($productId, $request, $context, $criteria);
+            });
 
-        $this->logger->info('cache-miss: ' . self::buildName($productId));
+            $item->tag($this->generateTags($productId, $request, $response, $context, $criteria));
 
-        $name = self::buildName($productId);
-        $response = $this->tracer->trace($name, function () use ($productId, $request, $context, $criteria) {
-            return $this->getDecorated()->load($productId, $request, $context, $criteria);
+            return CacheValueCompressor::compress($response);
         });
 
-        $item = CacheCompressor::compress($item, $response);
-
-        $item->tag($this->generateTags($productId, $request, $response, $context, $criteria));
-
-        $this->cache->save($item);
-
-        return $response;
+        return CacheValueCompressor::uncompress($value);
     }
 
     private function generateKey(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): string

@@ -3,22 +3,22 @@
 namespace Shopware\Core\Content\LandingPage\SalesChannel;
 
 use OpenApi\Annotations as OA;
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductBoxStruct;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
 use Shopware\Core\Content\LandingPage\Event\LandingPageRouteCacheKeyEvent;
 use Shopware\Core\Content\LandingPage\Event\LandingPageRouteCacheTagsEvent;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
-use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
+use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -28,7 +28,7 @@ class CachedLandingPageRoute extends AbstractLandingPageRoute
 {
     private AbstractLandingPageRoute $decorated;
 
-    private TagAwareAdapterInterface $cache;
+    private CacheInterface $cache;
 
     private EntityCacheKeyGenerator $generator;
 
@@ -41,19 +41,16 @@ class CachedLandingPageRoute extends AbstractLandingPageRoute
 
     private EventDispatcherInterface $dispatcher;
 
-    private LoggerInterface $logger;
-
     /**
      * @param AbstractCacheTracer<LandingPageRouteResponse> $tracer
      */
     public function __construct(
         AbstractLandingPageRoute $decorated,
-        TagAwareAdapterInterface $cache,
+        CacheInterface $cache,
         EntityCacheKeyGenerator $generator,
         AbstractCacheTracer $tracer,
         EventDispatcherInterface $dispatcher,
-        array $states,
-        LoggerInterface $logger
+        array $states
     ) {
         $this->decorated = $decorated;
         $this->cache = $cache;
@@ -61,7 +58,6 @@ class CachedLandingPageRoute extends AbstractLandingPageRoute
         $this->tracer = $tracer;
         $this->states = $states;
         $this->dispatcher = $dispatcher;
-        $this->logger = $logger;
     }
 
     public static function buildName(string $id): string
@@ -119,39 +115,23 @@ The criteria passed with this route also affects the listing, if there is one wi
     public function load(string $landingPageId, Request $request, SalesChannelContext $context): LandingPageRouteResponse
     {
         if ($context->hasState(...$this->states)) {
-            $this->logger->info('cache-miss: ' . self::buildName($landingPageId));
-
             return $this->getDecorated()->load($landingPageId, $request, $context);
         }
 
-        $item = $this->cache->getItem(
-            $this->generateKey($landingPageId, $request, $context)
-        );
+        $key = $this->generateKey($landingPageId, $request, $context);
 
-        try {
-            if ($item->isHit() && $item->get()) {
-                $this->logger->info('cache-hit: ' . self::buildName($landingPageId));
+        $value = $this->cache->get($key, function (ItemInterface $item) use ($request, $context, $landingPageId) {
+            $name = self::buildName($landingPageId);
+            $response = $this->tracer->trace($name, function () use ($landingPageId, $request, $context) {
+                return $this->getDecorated()->load($landingPageId, $request, $context);
+            });
 
-                return CacheCompressor::uncompress($item);
-            }
-        } catch (\Throwable $e) {
-            $this->logger->error($e->getMessage());
-        }
+            $item->tag($this->generateTags($landingPageId, $response, $request, $context));
 
-        $this->logger->info('cache-miss: ' . self::buildName($landingPageId));
-
-        $name = self::buildName($landingPageId);
-        $response = $this->tracer->trace($name, function () use ($landingPageId, $request, $context) {
-            return $this->getDecorated()->load($landingPageId, $request, $context);
+            return CacheValueCompressor::compress($response);
         });
 
-        $item = CacheCompressor::compress($item, $response);
-
-        $item->tag($this->generateTags($landingPageId, $response, $request, $context));
-
-        $this->cache->save($item);
-
-        return $response;
+        return CacheValueCompressor::uncompress($value);
     }
 
     private function generateKey(string $landingPageId, Request $request, SalesChannelContext $context): string

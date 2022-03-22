@@ -34,6 +34,13 @@ return (new Config())
              }
         ]
     ))
+    ->useRule(function (Context $context) {
+        $files = $context->platform->pullRequest->getFiles();
+
+        if ($files->matches('*/shopware.yaml')->count() > 0) {
+            $context->warning('You updated the shopware.yaml, please consider to update the config-schema.json');
+        }
+    })
     ->useRule(new Condition(
         function(Context $context) {
             return $context->platform instanceof Gitlab;

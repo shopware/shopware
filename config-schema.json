@@ -1,0 +1,547 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$ref": "#/definitions/root",
+    "definitions": {
+        "root": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "parameters": {
+                    "$ref": "#/definitions/parameters"
+                },
+                "shopware": {
+                    "$ref": "#/definitions/shopware"
+                }
+            },
+            "required": [
+                "parameters",
+                "shopware"
+            ],
+            "title": "Root"
+        },
+        "parameters": {
+            "type": "object",
+            "additionalProperties": true,
+            "title": "Parameters"
+        },
+        "shopware": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "filesystem": {
+                    "$ref": "#/definitions/filesystem"
+                },
+                "cdn": {
+                    "$ref": "#/definitions/cdn"
+                },
+                "increment": {
+                    "$ref": "#/definitions/increment"
+                },
+                "api": {
+                    "$ref": "#/definitions/api"
+                },
+                "admin_worker": {
+                    "$ref": "#/definitions/admin_worker"
+                },
+                "auto_update": {
+                    "$ref": "#/definitions/auto_update"
+                },
+                "store": {
+                    "$ref": "#/definitions/shopware_store"
+                },
+                "sitemap": {
+                    "$ref": "#/definitions/sitemap"
+                },
+                "deployment": {
+                    "$ref": "#/definitions/deployment"
+                },
+                "media": {
+                    "$ref": "#/definitions/media"
+                },
+                "dal": {
+                    "$ref": "#/definitions/dal"
+                },
+                "cart": {
+                    "$ref": "#/definitions/cart"
+                },
+                "sales_channel_context": {
+                    "$ref": "#/definitions/sales_channel_context"
+                },
+                "html_sanitizer": {
+                    "$ref": "#/definitions/html_sanitizer"
+                },
+                "logger": {
+                    "$ref": "#/definitions/logger"
+                },
+                "cache": {
+                    "$ref": "#/definitions/cache"
+                }
+            },
+            "title": "Shopware"
+        },
+        "admin_worker": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "enable_admin_worker": {
+                    "type": "boolean"
+                },
+                "poll_interval": {
+                    "type": "integer"
+                },
+                "transports": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "title": "Admin worker"
+        },
+        "api": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "max_limit": {
+                    "type": "integer"
+                },
+                "api_browser": {
+                    "$ref": "#/definitions/api_browser"
+                },
+                "store": {
+                    "$ref": "#/definitions/api_store"
+                },
+                "rate_limiter": {
+                    "$ref": "#/definitions/rate_limiter"
+                }
+            },
+            "title": "API"
+        },
+        "api_browser": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "auth_required": {
+                    "type": "boolean"
+                }
+            },
+            "title": "API browser"
+        },
+        "rate_limiter": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+                "login": {
+                    "$ref": "#/definitions/rate_limiter_config"
+                },
+                "guest_login": {
+                    "$ref": "#/definitions/rate_limiter_config"
+                },
+                "oauth": {
+                    "$ref": "#/definitions/rate_limiter_config"
+                },
+                "reset_password": {
+                    "$ref": "#/definitions/rate_limiter_config"
+                },
+                "user_recovery": {
+                    "$ref": "#/definitions/rate_limiter_config"
+                },
+                "contact_form": {
+                    "$ref": "#/definitions/rate_limiter_config"
+                },
+                "notification": {
+                    "$ref": "#/definitions/rate_limiter_config"
+                }
+            },
+            "title": "RateLimiter"
+        },
+        "rate_limiter_config": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "policy": {
+                    "type": "string"
+                },
+                "reset": {
+                    "type": "string"
+                },
+                "limits": {
+                    "type": ["object", "array"]
+                }
+            },
+            "title": "Rate limiter config"
+        },
+        "api_store": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "context_lifetime": {
+                    "type": "string"
+                }
+            },
+            "title": "API store"
+        },
+        "auto_update": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                }
+            },
+            "title": "Auto update"
+        },
+        "cache": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "invalidation": {
+                    "$ref": "#/definitions/cache_invalidation"
+                }
+            },
+            "title": "Cache"
+        },
+        "cache_invalidation": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "delay": {
+                    "type": "integer"
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "http_cache": {
+                    "$ref": "#/definitions/cache_invalidation_states"
+                },
+                "product_listing_route": {
+                    "$ref": "#/definitions/cache_invalidation_states"
+                },
+                "product_detail_route": {
+                    "$ref": "#/definitions/cache_invalidation_states"
+                },
+                "product_review_route": {
+                    "$ref": "#/definitions/cache_invalidation_states"
+                },
+                "product_search_route": {
+                    "$ref": "#/definitions/cache_invalidation_states"
+                },
+                "product_suggest_route": {
+                    "$ref": "#/definitions/cache_invalidation_states"
+                },
+                "product_cross_selling_route": {
+                    "$ref": "#/definitions/cache_invalidation_states"
+                },
+                "payment_method_route": {
+                    "$ref": "#/definitions/cache_invalidation_states"
+                },
+                "shipping_method_route": {
+                    "$ref": "#/definitions/cache_invalidation_states"
+                },
+                "navigation_route": {
+                    "$ref": "#/definitions/cache_invalidation_states"
+                },
+                "category_route": {
+                    "$ref": "#/definitions/cache_invalidation_states"
+                },
+                "landing_page_route": {
+                    "$ref": "#/definitions/cache_invalidation_states"
+                },
+                "language_route": {
+                    "$ref": "#/definitions/cache_invalidation_states"
+                },
+                "currency_route": {
+                    "$ref": "#/definitions/cache_invalidation_states"
+                },
+                "country_route": {
+                    "$ref": "#/definitions/cache_invalidation_states"
+                },
+                "salutation_route": {
+                    "$ref": "#/definitions/cache_invalidation_states"
+                },
+                "sitemap_route": {
+                    "$ref": "#/definitions/cache_invalidation_states"
+                }
+            },
+            "title": "Cache invalidation"
+        },
+        "cache_invalidation_states": {
+            "type": "array",
+            "title": "Cache invalidation states",
+            "items": {
+                "type": "string",
+                "enum": ["logged-in", "cart-filled"]
+            }
+        },
+        "cart": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "expire_days": {
+                    "type": "integer"
+                }
+            },
+            "title": "Cart"
+        },
+        "cdn": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "url": {
+                    "type": "string"
+                },
+                "strategy": {
+                    "type": "string"
+                }
+            },
+            "title": "CDN"
+        },
+        "dal": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "batch_size": {
+                    "type": "integer"
+                },
+                "versioning": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "expire_days": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            },
+            "title": "DAL"
+        },
+        "deployment": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "blue_green": {
+                    "type": "string"
+                }
+            },
+            "title": "Deployment"
+        },
+        "filesystem": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "private": {
+                    "$ref": "#/definitions/file_system_type"
+                },
+                "public": {
+                    "$ref": "#/definitions/file_system_type"
+                },
+                "temp": {
+                    "$ref": "#/definitions/file_system_type"
+                },
+                "theme": {
+                    "$ref": "#/definitions/file_system_type"
+                },
+                "asset": {
+                    "$ref": "#/definitions/file_system_type"
+                },
+                "sitemap": {
+                    "$ref": "#/definitions/file_system_type"
+                },
+                "allowed_extensions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "title": "Filesystem"
+        },
+        "file_system_type": {
+            "type": ["object", "null"],
+            "additionalProperties": true
+        },
+        "html_sanitizer": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "cache_dir": {
+                    "type": "string"
+                },
+                "cache_enabled": {
+                    "type": "boolean"
+                },
+                "sets": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "tags": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "attributes": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "options": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "title": "Set"
+                    }
+                },
+                "fields": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "sets": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "title": "Field"
+                    }
+                }
+            },
+            "title": "HTMLSanitizer"
+        },
+        "increment": {
+            "type": "object",
+            "additionalProperties": true,
+            "patternProperties": {
+                "^.*$": {
+                    "$ref": "#/definitions/increment_config"
+                }
+            },
+            "required": [
+                "message_queue",
+                "user_activity"
+            ],
+            "title": "Increment pools"
+        },
+        "increment_config": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+                "type": {
+                    "enum": ["mysql", "redis", "array"],
+                    "type": "string"
+                }
+            },
+            "required": ["type"],
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "redis"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "config": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "url": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": ["url"]
+                            }
+                        },
+                        "required": ["config"]
+                    }
+                }
+            ],
+            "title": "Increment storage config"
+        },
+        "logger": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "file_rotation_count": {
+                    "type": "integer"
+                },
+                "exclude_exception": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "title": "Logger"
+        },
+        "media": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "enable_url_upload_feature": {
+                    "type": "boolean"
+                },
+                "enable_url_validation": {
+                    "type": "boolean"
+                }
+            },
+            "title": "Media"
+        },
+        "sitemap": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "batchsize": {
+                    "type": "integer"
+                },
+                "custom_urls": {
+                    "type": "null"
+                },
+                "excluded_urls": {
+                    "type": "null"
+                }
+            },
+            "title": "sitemap"
+        },
+        "shopware_store": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "frw": {
+                    "type": "boolean"
+                }
+            },
+            "title": "Shopware store"
+        },
+        "sales_channel_context": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "expire_days": {
+                    "type": "integer"
+                }
+            },
+            "title": "Sales channel context"
+        }
+    }
+}

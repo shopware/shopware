@@ -6,7 +6,7 @@
     {% block component_address_form_company_vatId_label %}
         <label class="form-label"
                for="vatIds">
-            {{ "address.companyVatLabel"|trans|sw_sanitize }}
+            {{ "address.companyVatLabel"|trans|sw_sanitize }}{% if config('core.loginRegistration.vatIdFieldRequired') %}{{ "general.required"|trans|sw_sanitize }}{% endif %}
         </label>
     {% endblock %}
 
@@ -16,7 +16,9 @@
                id="vatIds"
                placeholder="{{ "address.companyVatPlaceholder"|trans|striptags }}"
                name="vatIds[]"
-               value="{{ activeRoute == 'frontend.account.profile.page' or (feature('FEATURE_NEXT_15957') and activeRoute == 'frontend.account.addressbook' and context.customer.guest) ? vatIds[0] : vatIds.get(0) }}">
+               value="{{ activeRoute == 'frontend.account.profile.page' or (feature('FEATURE_NEXT_15957') and activeRoute == 'frontend.account.addressbook' and context.customer.guest) ? vatIds[0] : vatIds.get(0) }}"
+               {% if config('core.loginRegistration.vatIdFieldRequired') %}required="required"{% endif %}
+        >
     {% endblock %}
 
     {% block component_address_form_company_vatId_input_error %}

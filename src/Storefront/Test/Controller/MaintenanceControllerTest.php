@@ -108,7 +108,10 @@ class MaintenanceControllerTest extends TestCase
 
         /** @var SalesChannelEntity $salesChannel */
         $salesChannel = $salesChannelRepository->search(
-            (new Criteria())->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT)),
+            (new Criteria())->addFilter(
+                new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT),
+                new EqualsFilter('domains.url', $_SERVER['APP_URL'])
+            ),
             Context::createDefaultContext()
         )->first();
 

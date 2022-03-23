@@ -117,4 +117,81 @@ describe('core/worker/admin-worker.worker.js', () => {
         await jest.runTimersToTime(0);
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(2);
     });
+
+    it('should reset timeout to send request before 20 seconds (no messages)', async () => {
+        axiosMock.reset();
+        axiosMock.onAny().reply(() => {
+            return [200, { handledMessages: 0 }];
+        });
+
+        expect(getConsumeRequests(axiosMock.history)).toHaveLength(0);
+
+        const message = {
+            context: {
+                languageId: 'language_id',
+                apiResourcePath: 'api_resource_path',
+            },
+            bearerAuth: 'bearer_auth',
+            host: 'http://www.shopware.com',
+            transports: ['default'],
+        };
+
+        await AdminWorker.onMessage({ data: message }); // start AdminWorker
+        await jest.runAllTimers(); // start consumeMessages
+        await jest.runAllTimers(); // consume firstMessage
+
+        expect(getConsumeRequests(axiosMock.history)).toHaveLength(1);
+
+        await jest.runTimersToTime(500);
+
+        await AdminWorker.onMessage({ data: { ...message, ...{ type: 'consumeReset' } } }); // reset consume cycle
+        await jest.runAllTimers(); // start consumeMessages
+        await jest.runAllTimers(); // consume firstMessage
+
+        expect(getConsumeRequests(axiosMock.history)).toHaveLength(2);
+
+        // there should not have been a request since timeout should have been cleared earlier
+        await jest.runTimersToTime(19500);
+        expect(getConsumeRequests(axiosMock.history)).toHaveLength(2);
+
+        // should be the first request by the new timeout after the earlier one has been reset
+        await jest.runTimersToTime(500);
+        expect(getConsumeRequests(axiosMock.history)).toHaveLength(3);
+    });
+
+    it('should cancel current consume request', async () => {
+        axiosMock.reset();
+        axiosMock.onAny().reply(() => {
+            return [200, { handledMessages: 0 }];
+        });
+
+        expect(getConsumeRequests(axiosMock.history)).toHaveLength(0);
+
+        const isCanceled = (index) => {
+            const cancelToken = getConsumeRequests(axiosMock.history)[index].cancelToken;
+
+            return !!cancelToken.reason;
+        };
+
+        const message = {
+            context: {
+                languageId: 'language_id',
+                apiResourcePath: 'api_resource_path',
+            },
+            bearerAuth: 'bearer_auth',
+            host: 'http://www.shopware.com',
+            transports: ['default'],
+        };
+
+        await AdminWorker.onMessage({ data: message }); // start AdminWorker
+
+        expect(getConsumeRequests(axiosMock.history)).toHaveLength(1);
+        expect(isCanceled(0)).toBeFalsy();
+
+        await AdminWorker.onMessage({ data: { ...message, ...{ type: 'consumeReset' } } }); // reset consume cycle
+
+        expect(getConsumeRequests(axiosMock.history)).toHaveLength(2);
+        expect(isCanceled(0)).toBeTruthy();
+        expect(isCanceled(1)).toBeFalsy();
+    });
 });

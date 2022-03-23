@@ -48,8 +48,8 @@ export default function initializeWorker() {
 }
 
 function enableAdminWorker(loginService, context, config) {
-    if (loginService.isLoggedIn()) {
-        getWorker().postMessage({
+    const getMessage = () => {
+        return {
             context: {
                 languageId: context.languageId,
                 apiResourcePath: context.apiResourcePath,
@@ -57,23 +57,25 @@ function enableAdminWorker(loginService, context, config) {
             bearerAuth: loginService.getBearerAuthentication(),
             host: window.location.origin,
             transports: config.transports,
-        });
+        };
+    };
+
+    if (loginService.isLoggedIn()) {
+        getWorker().postMessage(getMessage());
     }
 
     loginService.addOnTokenChangedListener((auth) => {
-        getWorker().postMessage({
-            context: {
-                languageId: context.languageId,
-                apiResourcePath: context.apiResourcePath,
-            },
-            bearerAuth: auth,
-            host: window.location.origin,
-            transports: config.transports,
-        });
+        getWorker().postMessage({ ...getMessage(), ...{ bearerAuth: auth } });
     });
 
     loginService.addOnLogoutListener(() => {
-        getWorker(loginService).postMessage({ type: 'logout' });
+        getWorker().postMessage({ type: 'logout' });
+    });
+
+    const importExportService = Shopware.Service('importExport');
+
+    importExportService.addOnProgressStartedListener(() => {
+        getWorker().postMessage({ ...getMessage(), ...{ type: 'consumeReset' } });
     });
 
     enabled = true;

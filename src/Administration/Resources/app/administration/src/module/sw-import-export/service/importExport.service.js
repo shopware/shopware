@@ -8,6 +8,7 @@ export default class ImportExportService extends ApiService {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'importExportService';
         this.httpClient = httpClient;
+        this.onProgressStartedListener = [];
     }
 
     /**
@@ -123,7 +124,6 @@ export default class ImportExportService extends ApiService {
             formData.append(`config[${key}]`, JSON.stringify(value));
         });
 
-
         const createdLog = await this.httpClient.post('/_action/import-export/prepare', formData, {
             headers: this.getBasicHeaders(),
         });
@@ -143,7 +143,19 @@ export default class ImportExportService extends ApiService {
 
         callback.call(this, logEntry.data.log);
 
+        this.onProgressStartedListener.forEach((listenerCallback) => {
+            listenerCallback.call();
+        });
+
         return logEntry;
+    }
+
+    /**
+     * @param callback
+     * @returns void
+     */
+    addOnProgressStartedListener(callback) {
+        this.onProgressStartedListener.push(callback);
     }
 
     /**

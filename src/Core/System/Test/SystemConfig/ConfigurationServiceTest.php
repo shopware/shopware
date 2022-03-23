@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use SwagExampleTest\SwagExampleTest;
 use SwagInvalidTest\SwagInvalidTest;
@@ -95,6 +96,82 @@ class ConfigurationServiceTest extends TestCase
         static::assertEquals($expectedConfig, $actualConfig);
     }
 
+    public function testGetResolvedConfigurationFromAppChanged(): void
+    {
+        $this->addApp('SwagAppConfig');
+
+        /** @var SystemConfigService $systemConfigService */
+        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfigService->set('SwagAppConfig.config.email', 'changed@shopware.de');
+
+        $actualConfig = $this->configurationService->getResolvedConfiguration(
+            'SwagAppConfig.config',
+            Context::createDefaultContext()
+        );
+
+        $expectedConfig = [
+            [
+                'title' => [
+                    'en-GB' => 'Basic configuration',
+                    'de-DE' => 'Grundeinstellungen',
+                ],
+                'name' => 'TestCard',
+                'elements' => [
+                    [
+                        'type' => 'text',
+                        'name' => 'SwagAppConfig.config.email',
+                        'config' => [
+                            'copyable' => true,
+                            'label' => [
+                                'en-GB' => 'eMail',
+                                'de-DE' => 'E-Mail',
+                            ],
+                            'defaultValue' => 'no-reply@shopware.de',
+                        ],
+                        'value' => 'changed@shopware.de',
+                    ],
+                ],
+            ],
+        ];
+        static::assertEquals($expectedConfig, $actualConfig);
+    }
+
+    public function testGetResolvedConfigurationFromAppNotChanged(): void
+    {
+        $this->addApp('SwagAppConfig');
+
+        $actualConfig = $this->configurationService->getResolvedConfiguration(
+            'SwagAppConfig.config',
+            Context::createDefaultContext()
+        );
+
+        $expectedConfig = [
+            [
+                'title' => [
+                    'en-GB' => 'Basic configuration',
+                    'de-DE' => 'Grundeinstellungen',
+                ],
+                'name' => 'TestCard',
+                'elements' => [
+                    [
+                        'type' => 'text',
+                        'name' => 'SwagAppConfig.config.email',
+                        'config' => [
+                            'copyable' => true,
+                            'label' => [
+                                'en-GB' => 'eMail',
+                                'de-DE' => 'E-Mail',
+                            ],
+                            'defaultValue' => 'no-reply@shopware.de',
+                        ],
+                        'value' => 'no-reply@shopware.de',
+                    ],
+                ],
+            ],
+        ];
+        static::assertEquals($expectedConfig, $actualConfig);
+    }
+
     private function getConfigWithoutValues(): array
     {
         return [
@@ -164,7 +241,8 @@ class ConfigurationServiceTest extends TestCase
             $this->getTestPlugins(),
             new ConfigReader(),
             $this->getContainer()->get(AppLoader::class),
-            $this->getContainer()->get('app.repository')
+            $this->getContainer()->get('app.repository'),
+            $this->getContainer()->get(SystemConfigService::class)
         );
     }
 

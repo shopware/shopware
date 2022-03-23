@@ -2,11 +2,8 @@
 
 namespace Shopware\Storefront\Test\Theme\fixtures\SimplePlugin;
 
-use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Plugin;
 
-/**
- * @internal
- */
-class SimplePlugin extends Bundle
+class SimplePlugin extends Plugin
 {
 }

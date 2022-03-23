@@ -470,6 +470,7 @@ class RulePayloadIndexerTest extends TestCase
         $plugin = new PluginEntity();
         $plugin->setName('TestPlugin');
         $plugin->setBaseClass(RulePlugin::class);
+        $plugin->setPath('');
 
         $context = Context::createDefaultContext();
         $rulePlugin = new RulePlugin(false, '');

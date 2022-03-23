@@ -81,9 +81,9 @@ class ThemeFileResolverTest extends TestCase
 
     public function testResolvedFilesDontContainDuplicates(): void
     {
-        $themePluginBundle = new ThemeWithMultiInheritance();
+        $themePluginBundle = new ThemeWithMultiInheritance(true, __DIR__ . '/fixtures/SimplePlugin');
         $storefrontBundle = new MockStorefront();
-        $pluginBundle = new SimplePlugin();
+        $pluginBundle = new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin');
 
         $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
 
@@ -117,7 +117,7 @@ class ThemeFileResolverTest extends TestCase
 
         $themePluginBundle = new ThemeNotIncludingPluginJsAndCss();
         $storefrontBundle = new MockStorefront();
-        $pluginBundle = new SimplePlugin();
+        $pluginBundle = new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin');
 
         $factory = new StorefrontPluginConfigurationFactory($projectDir, $this->getKernel());
         $config = $factory->createFromBundle($themePluginBundle);

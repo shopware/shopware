@@ -2,17 +2,18 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 
-/** @deprecated tag:v6.5.0 - will be removed. Use AbstractThemeCompiler instead and make the $context their mandatory */
-interface ThemeCompilerInterface
+abstract class AbstractThemeCompiler implements ThemeCompilerInterface
 {
-    public function compileTheme(
+    abstract public function compileTheme(
         string $salesChannelId,
         string $themeId,
         StorefrontPluginConfiguration $themeConfig,
         StorefrontPluginConfigurationCollection $configurationCollection,
-        bool $withAssets = true
+        bool $withAssets = true,
+        ?Context $context = null
     ): void;
 }

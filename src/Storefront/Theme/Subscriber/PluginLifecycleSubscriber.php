@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Theme\Subscriber;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreDeactivateEvent;
@@ -54,6 +55,7 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
     {
         return [
             PluginPreActivateEvent::class => 'pluginActivate',
+            PluginPostActivateEvent::class => 'pluginPostActivate',
             PluginPreUpdateEvent::class => 'pluginUpdate',
             PluginPreDeactivateEvent::class => 'pluginDeactivateAndUninstall',
             PluginPreUninstallEvent::class => 'pluginDeactivateAndUninstall',
@@ -61,7 +63,15 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Method will be removed. use pluginPostActivate instead
+     */
     public function pluginActivate(PluginPreActivateEvent $event): void
+    {
+        // do nothing
+    }
+
+    public function pluginPostActivate(PluginPostActivateEvent $event): void
     {
         if ($this->skipCompile($event->getContext()->getContext())) {
             return;

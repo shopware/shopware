@@ -74,7 +74,7 @@ class ThemeInheritanceBuilderTest extends TestCase
         $configs = new StorefrontPluginConfigurationCollection([
             $this->configFactory->createFromBundle(new Storefront()),
             $this->configFactory->createFromBundle(new InheritanceWithConfig()),
-            $this->configFactory->createFromBundle($this->getMockedBundle('PayPal', SimplePlugin::class)),
+            $this->configFactory->createFromBundle($this->getMockedPlugin('PayPal', SimplePlugin::class)),
         ]);
 
         $this->themeRegistryMock->method('getConfigurations')
@@ -93,7 +93,7 @@ class ThemeInheritanceBuilderTest extends TestCase
         $configs = new StorefrontPluginConfigurationCollection([
             $this->configFactory->createFromBundle(new Storefront()),
             $this->configFactory->createFromBundle(new ConfigWithoutStorefrontDefined()),
-            $this->configFactory->createFromBundle($this->getMockedBundle('PayPal', SimplePlugin::class)),
+            $this->configFactory->createFromBundle($this->getMockedPlugin('PayPal', SimplePlugin::class)),
         ]);
 
         $this->themeRegistryMock->method('getConfigurations')
@@ -112,8 +112,8 @@ class ThemeInheritanceBuilderTest extends TestCase
         $configs = new StorefrontPluginConfigurationCollection([
             $this->configFactory->createFromBundle(new Storefront()),
             $this->configFactory->createFromBundle(new PluginWildcardAndExplicit()),
-            $this->configFactory->createFromBundle($this->getMockedBundle('PayPal', SimplePlugin::class)),
-            $this->configFactory->createFromBundle($this->getMockedBundle('CustomProducts', SimplePlugin::class)),
+            $this->configFactory->createFromBundle($this->getMockedPlugin('PayPal', SimplePlugin::class)),
+            $this->configFactory->createFromBundle($this->getMockedPlugin('CustomProducts', SimplePlugin::class)),
         ]);
 
         $this->themeRegistryMock->method('getConfigurations')
@@ -132,8 +132,8 @@ class ThemeInheritanceBuilderTest extends TestCase
         $configs = new StorefrontPluginConfigurationCollection([
             $this->configFactory->createFromBundle(new Storefront()),
             $this->configFactory->createFromBundle(new ThemeWithoutStorefront()),
-            $this->configFactory->createFromBundle($this->getMockedBundle('PayPal', SimplePlugin::class)),
-            $this->configFactory->createFromBundle($this->getMockedBundle('CustomProducts', SimplePlugin::class)),
+            $this->configFactory->createFromBundle($this->getMockedPlugin('PayPal', SimplePlugin::class)),
+            $this->configFactory->createFromBundle($this->getMockedPlugin('CustomProducts', SimplePlugin::class)),
         ]);
 
         $this->themeRegistryMock->method('getConfigurations')
@@ -151,16 +151,16 @@ class ThemeInheritanceBuilderTest extends TestCase
     {
         $configs = new StorefrontPluginConfigurationCollection([
             $this->configFactory->createFromBundle(new Storefront()),
-            $this->configFactory->createFromBundle(new ThemeWithMultiInheritance()),
-            $this->configFactory->createFromBundle($this->getMockedBundle('ThemeA', SimpleTheme::class)),
-            $this->configFactory->createFromBundle($this->getMockedBundle('ThemeB', SimpleTheme::class)),
-            $this->configFactory->createFromBundle($this->getMockedBundle('ThemeC', SimpleTheme::class)),
+            $this->configFactory->createFromBundle(new ThemeWithMultiInheritance(true, __DIR__ . '/fixtures/SimplePlugin')),
+            $this->configFactory->createFromBundle($this->getMockedPlugin('ThemeA', SimpleTheme::class)),
+            $this->configFactory->createFromBundle($this->getMockedPlugin('ThemeB', SimpleTheme::class)),
+            $this->configFactory->createFromBundle($this->getMockedPlugin('ThemeC', SimpleTheme::class)),
 
             // paypal is a plugin and should be registered
-            $this->configFactory->createFromBundle($this->getMockedBundle('PayPal', SimplePlugin::class)),
+            $this->configFactory->createFromBundle($this->getMockedPlugin('PayPal', SimplePlugin::class)),
 
             // theme d is not included in theme.json
-            $this->configFactory->createFromBundle($this->getMockedBundle('ThemeD', SimpleTheme::class)),
+            $this->configFactory->createFromBundle($this->getMockedPlugin('ThemeD', SimpleTheme::class)),
         ]);
 
         $this->themeRegistryMock->method('getConfigurations')
@@ -177,14 +177,14 @@ class ThemeInheritanceBuilderTest extends TestCase
         );
     }
 
-    private function getMockedBundle(string $bundleName, string $bundleClass): Bundle
+    private function getMockedPlugin(string $pluginName, string $pluginClass): Bundle
     {
-        $bundle = new $bundleClass();
+        $bundle = new $pluginClass(true, __DIR__ . '/fixtures/SimplePlugin');
 
-        $reflection = new \ReflectionClass($bundleClass);
+        $reflection = new \ReflectionClass($pluginClass);
         $name = $reflection->getProperty('name');
         $name->setAccessible(true);
-        $name->setValue($bundle, $bundleName);
+        $name->setValue($bundle, $pluginName);
 
         return $bundle;
     }

@@ -66,10 +66,6 @@ class StorefrontPluginRegistry implements StorefrontPluginRegistryInterface, Res
 
             $config = $this->pluginConfigurationFactory->createFromBundle($bundle);
 
-            if (!$config->getIsTheme() && !$config->hasFilesToCompile()) {
-                continue;
-            }
-
             $this->pluginConfigurations->add($config);
         }
     }
@@ -78,10 +74,6 @@ class StorefrontPluginRegistry implements StorefrontPluginRegistryInterface, Res
     {
         foreach ($this->activeAppsLoader->getActiveApps() as $app) {
             $config = $this->pluginConfigurationFactory->createFromApp($app['name'], $app['path']);
-
-            if (!$config->getIsTheme() && !$config->hasFilesToCompile()) {
-                continue;
-            }
 
             $this->pluginConfigurations->add($config);
         }

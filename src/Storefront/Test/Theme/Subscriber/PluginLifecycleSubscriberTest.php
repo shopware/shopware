@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
-use Shopware\Core\Framework\Plugin\Event\PluginPreActivateEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Test\Plugin\PluginTestsHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -36,7 +36,7 @@ class PluginLifecycleSubscriberTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $context->addState(Plugin\PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
-        $event = new PluginPreActivateEvent(
+        $event = new PluginPostActivateEvent(
             $this->getPlugin(),
             new ActivateContext(
                 $this->createMock(Plugin::class),
@@ -58,7 +58,7 @@ class PluginLifecycleSubscriberTest extends TestCase
             $this->createMock(ThemeLifecycleService::class)
         );
 
-        $subscriber->pluginActivate($event);
+        $subscriber->pluginPostActivate($event);
     }
 
     public function testThemeLifecycleIsNotCalledWhenDeactivatedUsingContextOnUpdate(): void

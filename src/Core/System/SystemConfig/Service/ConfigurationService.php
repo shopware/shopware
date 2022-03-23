@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SystemConfig\Service;
 
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
+use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
@@ -36,6 +38,8 @@ class ConfigurationService
      */
     private $appRepository;
 
+    private SystemConfigService $systemConfigService;
+
     /**
      * @internal
      *
@@ -45,12 +49,14 @@ class ConfigurationService
         iterable $bundles,
         ConfigReader $configReader,
         AbstractAppLoader $appLoader,
-        EntityRepositoryInterface $appRepository
+        EntityRepositoryInterface $appRepository,
+        SystemConfigService $systemConfigService
     ) {
         $this->bundles = $bundles;
         $this->configReader = $configReader;
         $this->appLoader = $appLoader;
         $this->appRepository = $appRepository;
+        $this->systemConfigService = $systemConfigService;
     }
 
     /**
@@ -109,6 +115,23 @@ class ConfigurationService
         return $config;
     }
 
+    public function getResolvedConfiguration(string $domain, Context $context, ?string $salesChannelId = null): array
+    {
+        $config = [];
+        if ($this->checkConfiguration($domain, $context)) {
+            $config = array_merge(
+                $config,
+                $this->enrichValues(
+                    $this->getConfiguration($domain, $context),
+                    $domain,
+                    $salesChannelId
+                )
+            );
+        }
+
+        return $config;
+    }
+
     public function checkConfiguration(string $domain, Context $context): bool
     {
         try {
@@ -123,8 +146,9 @@ class ConfigurationService
     private function fetchConfiguration(string $scope, ?string $configName, Context $context): ?array
     {
         $technicalName = \array_slice(explode('\\', $scope), -1)[0];
+
         foreach ($this->bundles as $bundle) {
-            if ($bundle->getName() === $technicalName) {
+            if ($bundle->getName() === $technicalName && $bundle instanceof Bundle) {
                 return $this->configReader->getConfigFromBundle($bundle, $configName);
             }
         }
@@ -146,5 +170,23 @@ class ConfigurationService
         $result = $this->appRepository->search($criteria, $context)->first();
 
         return $result;
+    }
+
+    private function enrichValues(array $config, string $domain, ?string $salesChannelId): array
+    {
+        foreach ($config as &$card) {
+            if (!\is_array($card['elements'] ?? false)) {
+                continue;
+            }
+
+            foreach ($card['elements'] as &$element) {
+                $element['value'] = $this->systemConfigService->get(
+                    $element['name'],
+                    $salesChannelId
+                ) ?? $element['config']['defaultValue'] ?? '';
+            }
+        }
+
+        return $config;
     }
 }

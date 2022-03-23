@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use SwagExampleTest\SwagExampleTest;
 use SwagInvalidTest\SwagInvalidTest;
@@ -111,7 +112,8 @@ class ConfigurationServiceInFlagTest extends TestCase
             $this->getTestPlugins(),
             new ConfigReader(),
             $this->getContainer()->get(AppLoader::class),
-            $this->getContainer()->get('app.repository')
+            $this->getContainer()->get('app.repository'),
+            $this->getContainer()->get(SystemConfigService::class)
         );
     }
 

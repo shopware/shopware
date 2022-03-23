@@ -74,7 +74,7 @@ class ThemeLifecycleHandlerTest extends TestCase
 
     public function testHandleThemeInstallOrUpdateWillRecompileThemeIfNecessary(): void
     {
-        $installConfig = $this->configFactory->createFromBundle(new SimplePlugin());
+        $installConfig = $this->configFactory->createFromBundle(new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'));
 
         $this->themeServiceMock->expects(static::once())
             ->method('compileTheme')
@@ -145,7 +145,7 @@ class ThemeLifecycleHandlerTest extends TestCase
 
     public function testHandleThemeUninstallWillRecompileThemeIfNecessary(): void
     {
-        $uninstalledConfig = $this->configFactory->createFromBundle(new SimplePlugin());
+        $uninstalledConfig = $this->configFactory->createFromBundle(new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'));
 
         $this->themeServiceMock->expects(static::once())
             ->method('compileTheme')

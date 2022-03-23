@@ -7,10 +7,12 @@ use Padaliyajay\PHPAutoprefixer\Autoprefixer;
 use ScssPhp\ScssPhp\Compiler;
 use ScssPhp\ScssPhp\OutputStyle;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedScriptsEvent;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent;
+use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent as ThemeCompilerEnrichScssVariablesEventNew;
 use Shopware\Storefront\Theme\Event\ThemeCopyToLiveEvent;
 use Shopware\Storefront\Theme\Exception\InvalidThemeException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
@@ -21,7 +23,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Symfony\Component\Asset\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ThemeCompiler implements ThemeCompilerInterface
+class ThemeCompiler extends AbstractThemeCompiler
 {
     private FilesystemInterface $filesystem;
 
@@ -82,12 +84,16 @@ class ThemeCompiler implements ThemeCompilerInterface
         $this->projectDir = $projectDir;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Context will be mandatory
+     */
     public function compileTheme(
         string $salesChannelId,
         string $themeId,
         StorefrontPluginConfiguration $themeConfig,
         StorefrontPluginConfigurationCollection $configurationCollection,
-        bool $withAssets = true
+        bool $withAssets = true,
+        ?Context $context = null
     ): void {
         /**
          * @feature-deprecated (flag:FEATURE_NEXT_15381) keep if branch remove complete following on feature release
@@ -110,7 +116,13 @@ class ThemeCompiler implements ThemeCompilerInterface
             }
             $concatenatedStylesEvent = new ThemeCompilerConcatenatedStylesEvent($concatenatedStyles, $salesChannelId);
             $this->eventDispatcher->dispatch($concatenatedStylesEvent);
-            $compiled = $this->compileStyles($concatenatedStylesEvent->getConcatenatedStyles(), $themeConfig, $styleFiles->getResolveMappings(), $salesChannelId);
+            $compiled = $this->compileStyles(
+                $concatenatedStylesEvent->getConcatenatedStyles(),
+                $themeConfig,
+                $styleFiles->getResolveMappings(),
+                $salesChannelId,
+                $context
+            );
             $tmpCssFilepath = $tmpOutputPath . \DIRECTORY_SEPARATOR . 'css' . \DIRECTORY_SEPARATOR . 'all.css';
             $this->filesystem->put($tmpCssFilepath, $compiled);
 
@@ -159,7 +171,13 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
         $concatenatedStylesEvent = new ThemeCompilerConcatenatedStylesEvent($concatenatedStyles, $salesChannelId);
         $this->eventDispatcher->dispatch($concatenatedStylesEvent);
-        $compiled = $this->compileStyles($concatenatedStylesEvent->getConcatenatedStyles(), $themeConfig, $styleFiles->getResolveMappings(), $salesChannelId);
+        $compiled = $this->compileStyles(
+            $concatenatedStylesEvent->getConcatenatedStyles(),
+            $themeConfig,
+            $styleFiles->getResolveMappings(),
+            $salesChannelId,
+            $context
+        );
         $cssFilepath = $outputPath . \DIRECTORY_SEPARATOR . 'css' . \DIRECTORY_SEPARATOR . 'all.css';
         $this->filesystem->put($cssFilepath, $compiled);
 
@@ -230,12 +248,20 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - $context will be mandatory
+     */
     private function compileStyles(
         string $concatenatedStyles,
         StorefrontPluginConfiguration $configuration,
         array $resolveMappings,
-        string $salesChannelId
+        string $salesChannelId,
+        ?Context $context = null
     ): string {
+        if ($context === null) {
+            $context = Context::createDefaultContext();
+        }
+
         $this->scssCompiler->addImportPath(function ($originalPath) use ($resolveMappings) {
             foreach ($resolveMappings as $resolve => $resolvePath) {
                 $resolve = '~' . $resolve;
@@ -272,7 +298,7 @@ class ThemeCompiler implements ThemeCompilerInterface
             return null;
         });
 
-        $variables = $this->dumpVariables($configuration->getThemeConfig(), $salesChannelId);
+        $variables = $this->dumpVariables($configuration->getThemeConfig(), $salesChannelId, $context);
         $features = $this->getFeatureConfigScssMap();
 
         try {
@@ -319,7 +345,7 @@ class ThemeCompiler implements ThemeCompilerInterface
     private function formatVariables(array $variables): array
     {
         return array_map(function ($value, $key) {
-            return sprintf('$%s: %s;', $key, $value);
+            return sprintf('$%s: %s;', $key, (!empty($value) ? $value : 0));
         }, $variables, array_keys($variables));
     }
 
@@ -346,7 +372,6 @@ class ThemeCompiler implements ThemeCompilerInterface
             try {
                 $this->filesystem->deleteDir($backupPath);
                 $this->filesystem->rename($path, $backupPath);
-                echo $backupPath;
             } catch (\Throwable $e) {
                 throw new ThemeFileCopyException($themeId, $e->getMessage());
             }
@@ -368,14 +393,10 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
     }
 
-    private function dumpVariables(array $config, string $salesChannelId): string
+    private function dumpVariables(array $config, string $salesChannelId, Context $context): string
     {
-        if (!\array_key_exists('fields', $config)) {
-            return '';
-        }
-
         $variables = [];
-        foreach ($config['fields'] as $key => $data) {
+        foreach ($config['fields'] ?? [] as $key => $data) {
             if (!\is_array($data) || !$this->isDumpable($data)) {
                 continue;
             }
@@ -393,7 +414,17 @@ class ThemeCompiler implements ThemeCompilerInterface
             $variables[sprintf('sw-asset-%s-url', $key)] = sprintf('\'%s\'', $package->getUrl(''));
         }
 
+        /** @deprecated tag:v6.5.0 remove this event in 6.5.0 */
         $themeVariablesEvent = new ThemeCompilerEnrichScssVariablesEvent($variables, $salesChannelId);
+        $this->eventDispatcher->dispatch($themeVariablesEvent);
+
+        /** @deprecated tag:v6.5.0 remove alias */
+        $themeVariablesEvent = new ThemeCompilerEnrichScssVariablesEventNew(
+            $themeVariablesEvent->getVariables(),
+            $salesChannelId,
+            $context
+        );
+
         $this->eventDispatcher->dispatch($themeVariablesEvent);
 
         $dump = str_replace(

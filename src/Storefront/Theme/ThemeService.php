@@ -27,7 +27,7 @@ class ThemeService
 
     private EntityRepositoryInterface $themeSalesChannelRepository;
 
-    private ThemeCompilerInterface $themeCompiler;
+    private AbstractThemeCompiler $themeCompiler;
 
     private EventDispatcherInterface $dispatcher;
 
@@ -42,7 +42,7 @@ class ThemeService
         StorefrontPluginRegistryInterface $extensionRegistry,
         EntityRepositoryInterface $themeRepository,
         EntityRepositoryInterface $themeSalesChannelRepository,
-        ThemeCompilerInterface $themeCompiler,
+        AbstractThemeCompiler $themeCompiler,
         EventDispatcherInterface $dispatcher,
         AbstractConfigLoader $configLoader,
         Connection $connection
@@ -72,7 +72,8 @@ class ThemeService
             $themeId,
             $this->configLoader->load($themeId, $context),
             $configurationCollection ?? $this->extensionRegistery->getConfigurations(),
-            $withAssets
+            $withAssets,
+            $context
         );
     }
 
@@ -95,7 +96,8 @@ class ThemeService
                 $mapping->getThemeId(),
                 $this->configLoader->load($themeId, $context),
                 $configurationCollection ?? $this->extensionRegistery->getConfigurations(),
-                $withAssets
+                $withAssets,
+                $context
             );
             $compiledThemeIds[] = $mapping->getThemeId();
         }

@@ -1,28 +1,24 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Event;
+namespace Shopware\Storefront\Theme\Event;
 
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\ShopwareEvent;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @deprecated tag:v6.5.0 - Will be removed. Use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent instead.
- */
-class ThemeCompilerEnrichScssVariablesEvent extends Event
+class ThemeCompilerEnrichScssVariablesEvent extends Event implements ShopwareEvent
 {
-    /**
-     * @var array
-     */
-    private $variables;
+    private array $variables;
 
-    /**
-     * @var string
-     */
-    private $salesChannelId;
+    private string $salesChannelId;
 
-    public function __construct(array $variables, string $salesChannelId)
+    private Context $context;
+
+    public function __construct(array $variables, string $salesChannelId, Context $context)
     {
         $this->variables = $variables;
         $this->salesChannelId = $salesChannelId;
+        $this->context = $context;
     }
 
     public function addVariable(string $name, string $value, bool $sanitize = false): void
@@ -42,5 +38,10 @@ class ThemeCompilerEnrichScssVariablesEvent extends Event
     public function getSalesChannelId(): string
     {
         return $this->salesChannelId;
+    }
+
+    public function getContext(): Context
+    {
+        return $this->context;
     }
 }

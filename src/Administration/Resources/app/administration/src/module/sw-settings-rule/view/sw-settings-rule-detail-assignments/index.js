@@ -12,6 +12,7 @@ Component.register('sw-settings-rule-detail-assignments', {
     inject: [
         'repositoryFactory',
         'feature',
+        'acl',
     ],
 
     mixins: [

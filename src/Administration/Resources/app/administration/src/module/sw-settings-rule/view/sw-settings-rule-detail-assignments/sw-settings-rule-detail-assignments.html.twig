@@ -20,7 +20,7 @@
                     {% block sw_settings_rule_detail_assignments_add_button %}
                     <sw-button
                         v-if="entity.allowAdd"
-                        :disabled="disableAdd(entity)"
+                        :disabled="disableAdd(entity) || !acl.can('rule.editor')"
                         variant="ghost"
                         size="small"
                         class="sw-settings-rule-detail-assignments__add-button"
@@ -46,10 +46,10 @@
                 :repository="entity.repository"
                 :local-mode="false"
                 :criteria-limit="5"
-                :allow-delete="allowDeletion(entity)"
+                :allow-delete="allowDeletion(entity) && acl.can('rule.editor')"
                 :allow-inline-edit="false"
                 :show-settings="false"
-                :show-selection="allowDeletion(entity)"
+                :show-selection="allowDeletion(entity) && acl.can('rule.editor')"
                 :allow-column-edit="false"
                 :steps="associationSteps"
                 :columns="entity.gridColumns"
@@ -92,7 +92,7 @@
                     {% endblock %}
                     {% block sw_settings_rule_detail_assignments_entity_listing_delete_action %}
                     <sw-context-menu-item
-                        v-if="entity.deleteContext"
+                        v-if="entity.deleteContext && acl.can('rule.editor')"
                         variant="danger"
                         @click="onOpenDeleteModal(entity, item)"
                     >

@@ -293,6 +293,14 @@
             "properties": {
                 "expire_days": {
                     "type": "integer"
+                },
+                "compress": {
+                    "type": "boolean",
+                    "description": "All carts, which stored in redis, are compressed via gzcompress. This option is only available if redis is used."
+                },
+                "redis_url": {
+                    "type": "string",
+                    "description": "The redis url to connect to. All carts will be saved in Redis instead of mysql"
                 }
             },
             "title": "Cart"

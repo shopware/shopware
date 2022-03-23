@@ -52,6 +52,7 @@
         <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
             <argument type="string">%shopware.api.store.context_lifetime%</argument>
         </service>
 

@@ -66,7 +66,7 @@ class CartRestorer
 
         $restoredCart->addErrors(...array_values($guestCart->getErrors()->getPersistent()->getElements()));
 
-        $this->deleteGuestContext($currentContext);
+        $this->deleteGuestContext($currentContext, $customerId);
 
         $errors = $restoredCart->getErrors();
         $result = $this->cartRuleLoader->loadByToken($customerContext, $restoredCart->getToken());
@@ -122,9 +122,9 @@ class CartRestorer
         return $currentContext;
     }
 
-    private function deleteGuestContext(SalesChannelContext $guestContext): void
+    private function deleteGuestContext(SalesChannelContext $guestContext, string $customerId): void
     {
         $this->cartService->deleteCart($guestContext);
-        $this->contextPersister->delete($guestContext->getToken());
+        $this->contextPersister->delete($guestContext->getToken(), $guestContext->getSalesChannelId(), $customerId);
     }
 }

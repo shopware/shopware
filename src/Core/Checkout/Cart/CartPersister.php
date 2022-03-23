@@ -3,21 +3,20 @@
 namespace Shopware\Core\Checkout\Cart;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
 use Shopware\Core\Checkout\Cart\Exception\CartDeserializeFailedException;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class CartPersister implements CartPersisterInterface
+class CartPersister extends AbstractCartPersister
 {
     private Connection $connection;
 
@@ -27,6 +26,11 @@ class CartPersister implements CartPersisterInterface
     {
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
+    }
+
+    public function getDecorated(): AbstractCartPersister
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     public function load(string $token, SalesChannelContext $context): Cart
@@ -58,11 +62,7 @@ class CartPersister implements CartPersisterInterface
      */
     public function save(Cart $cart, SalesChannelContext $context): void
     {
-        $shouldPersist = $cart->getLineItems()->count() > 0
-            || $cart->getAffiliateCode() !== null
-            || $cart->getCampaignCode() !== null
-            || $cart->getCustomerComment() !== null
-            || $cart->getExtension(DeliveryProcessor::MANUAL_SHIPPING_COSTS) instanceof CalculatedPrice;
+        $shouldPersist = $this->shouldPersist($cart);
 
         $event = new CartVerifyPersistEvent($context, $cart, $shouldPersist);
 
@@ -117,6 +117,14 @@ class CartPersister implements CartPersisterInterface
         $query->execute(['token' => $token]);
     }
 
+    public function replace(string $oldToken, string $newToken, SalesChannelContext $context): void
+    {
+        $this->connection->executeUpdate(
+            'UPDATE `cart` SET `token` = :newToken WHERE `token` = :oldToken',
+            ['newToken' => $newToken, 'oldToken' => $oldToken]
+        );
+    }
+
     private function serializeCart(Cart $cart): string
     {
         $errors = $cart->getErrors();
@@ -125,11 +133,11 @@ class CartPersister implements CartPersisterInterface
         $cart->setErrors(new ErrorCollection());
         $cart->setData(null);
 
-        $serializedCart = serialize($cart);
+        $serialized = serialize($cart);
 
         $cart->setErrors($errors);
         $cart->setData($data);
 
-        return $serializedCart;
+        return $serialized;
     }
 }

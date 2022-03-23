@@ -4,7 +4,10 @@ namespace Shopware\Core\System\SalesChannel\Context;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\ResultStatement;
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
+use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextTokenChangeEvent;
@@ -25,11 +28,21 @@ class SalesChannelContextPersister
      */
     private $lifetimeInterval;
 
-    public function __construct(Connection $connection, EventDispatcherInterface $eventDispatcher, ?string $lifetimeInterval = 'P1D')
-    {
+    /**
+     * @deprecated tag:v6.5.0 - CartPersisterInterface will be removed, type hint with AbstractCartPersister
+     */
+    private CartPersisterInterface $cartPersister;
+
+    public function __construct(
+        Connection $connection,
+        EventDispatcherInterface $eventDispatcher,
+        CartPersisterInterface $cartPersister,      // @deprecated tag:v6.5.0 - CartPersisterInterface will be removed, type hint with AbstractCartPersister
+        ?string $lifetimeInterval = 'P1D'
+    ) {
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
         $this->lifetimeInterval = $lifetimeInterval ?? 'P1D';
+        $this->cartPersister = $cartPersister;
     }
 
     public function save(string $token, array $parameters, string $salesChannelId, ?string $customerId = null): void
@@ -53,8 +66,12 @@ class SalesChannelContextPersister
         );
     }
 
-    public function delete(string $token): void
+    public function delete(string $token, ?string $salesChannelId = null, ?string $customerId = null): void
     {
+        if ($salesChannelId === null) {
+            Feature::throwException('v6.5.0.0', 'Parameter `$salesChannelId` in `SalesChannelContextPersister::delete` will be required with v6.5.0');
+        }
+
         $this->connection->executeUpdate(
             'DELETE FROM sales_channel_api_context WHERE token = :token',
             [
@@ -91,15 +108,13 @@ class SalesChannelContextPersister
             ]);
         }
 
-        $this->connection->executeUpdate(
-            'UPDATE `cart`
-                   SET `token` = :newToken
-                   WHERE `token` = :oldToken',
-            [
-                'newToken' => $newToken,
-                'oldToken' => $oldToken,
-            ]
-        );
+        // @deprecated tag:v6.5.0 - Remove else part
+        if ($this->cartPersister instanceof AbstractCartPersister) {
+            $this->cartPersister->replace($oldToken, $newToken, $context);
+        } else {
+            Feature::throwException('v6.5.0.0', 'CartPersisterInterface will be removed, type hint with AbstractCartPersister');
+            $this->connection->executeUpdate('UPDATE `cart` SET `token` = :newToken WHERE `token` = :oldToken', ['newToken' => $newToken, 'oldToken' => $oldToken]);
+        }
 
         $context->assign(['token' => $newToken]);
         $this->eventDispatcher->dispatch(new SalesChannelContextTokenChangeEvent($context, $oldToken, $newToken));
@@ -115,16 +130,16 @@ class SalesChannelContextPersister
         $qb->from('sales_channel_api_context');
 
         $qb->where('sales_channel_id = :salesChannelId');
-        $qb->setParameter(':salesChannelId', Uuid::fromHexToBytes($salesChannelId));
+        $qb->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannelId));
 
         if ($customerId !== null) {
-            $qb->andWhere('token = :token OR customer_id = :customerId');
-            $qb->setParameter(':token', $token);
-            $qb->setParameter(':customerId', Uuid::fromHexToBytes($customerId));
+            $qb->andWhere('(token = :token OR customer_id = :customerId)');
+            $qb->setParameter('token', $token);
+            $qb->setParameter('customerId', Uuid::fromHexToBytes($customerId));
             $qb->setMaxResults(2);
         } else {
             $qb->andWhere('token = :token');
-            $qb->setParameter(':token', $token);
+            $qb->setParameter('token', $token);
             $qb->setMaxResults(1);
         }
 
@@ -175,14 +190,14 @@ class SalesChannelContextPersister
             ->set('updated_at', ':updatedAt')
             ->where('customer_id = :customerId')
             ->setParameter('updatedAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT))
-            ->setParameter(':payload', json_encode($revokeParams))
-            ->setParameter(':customerId', Uuid::fromHexToBytes($customerId));
+            ->setParameter('payload', json_encode($revokeParams))
+            ->setParameter('customerId', Uuid::fromHexToBytes($customerId));
 
         // keep tokens valid, which are given in $preserveTokens
         if ($preserveTokens) {
             $qb
                 ->andWhere($qb->expr()->notIn('token', ':preserveTokens'))
-                ->setParameter(':preserveTokens', $preserveTokens, Connection::PARAM_STR_ARRAY);
+                ->setParameter('preserveTokens', $preserveTokens, Connection::PARAM_STR_ARRAY);
         }
 
         $qb->execute();

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout;
 
+use Shopware\Core\Checkout\DependencyInjection\CompilerPass\CartRedisCompilerPass;
 use Shopware\Core\Framework\Bundle;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -15,6 +16,8 @@ class Checkout extends Bundle
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);
+
+        $container->addCompilerPass(new CartRedisCompilerPass());
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('cart.xml');

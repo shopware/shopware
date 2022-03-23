@@ -63,6 +63,7 @@ export default function conditionService() {
             'purchasePrices',
             'createdAt',
             'coverId',
+            'markAsTopseller',
         ],
     };
 

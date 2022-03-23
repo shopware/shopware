@@ -58,12 +58,11 @@ abstract class ZipCodeRule extends Rule
     {
         $zipCode = $this->sanitizeZipCode($address);
 
-        if ($this->zipCodes === null) {
+        if ($this->zipCodes === null && $this->operator !== self::OPERATOR_EMPTY) {
             throw new UnsupportedValueException(\gettype($this->zipCodes), self::class);
         }
 
-        $this->zipCodes = array_map('mb_strtolower', $this->zipCodes);
-        $compareZipCode = $this->zipCodes[0];
+        $compareZipCode = \is_array($this->zipCodes) ? $this->zipCodes[0] : null;
 
         switch ($this->operator) {
             case Rule::OPERATOR_EQ:

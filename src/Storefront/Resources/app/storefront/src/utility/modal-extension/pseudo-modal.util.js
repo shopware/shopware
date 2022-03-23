@@ -39,7 +39,7 @@ export default class PseudoModalUtil {
         const modal = this.getModal();
 
         /** @deprecated tag:v6.5.0 - Bootstrap v5 uses native HTML elements and events to handle Modal plugin */
-        if (Feature.isActive('V6_5_0_0')) {
+        if (Feature.isActive('v6.5.0.0')) {
             this._modalInstance = bootstrap.Modal.getInstance(modal);
         } else {
             $(modal).modal('hide');
@@ -62,7 +62,7 @@ export default class PseudoModalUtil {
      */
     updatePosition() {
         /** @deprecated tag:v6.5.0 - Bootstrap v5 uses native HTML elements and events to handle Modal plugin */
-        if (Feature.isActive('V6_5_0_0')) {
+        if (Feature.isActive('v6.5.0.0')) {
             this._modalInstance.handleUpdate();
         } else {
             this._$modal.modal('handleUpdate');
@@ -95,7 +95,7 @@ export default class PseudoModalUtil {
         this.getModal();
 
         /** @deprecated tag:v6.5.0 - Bootstrap v5 uses native HTML elements and events to handle Modal plugin */
-        if (Feature.isActive('V6_5_0_0')) {
+        if (Feature.isActive('v6.5.0.0')) {
             this._modal.addEventListener('hidden.bs.modal', this._modalWrapper.remove);
             this._modal.addEventListener('shown.bs.modal', cb);
 
@@ -127,7 +127,7 @@ export default class PseudoModalUtil {
         this._modal = this._createModalMarkup();
 
         /** @deprecated tag:v6.5.0 -  this._$modal will be removed. Bootstrap v5 uses native HTML elements */
-        if (!Feature.isActive('V6_5_0_0')) {
+        if (!Feature.isActive('v6.5.0.0')) {
             this._$modal = $(this._modal);
         }
         document.body.insertAdjacentElement('beforeend', this._modalWrapper);

@@ -12,7 +12,7 @@ const URL_DATA_ATTRIBUTE = 'data-url';
  * @deprecated tag:v6.5.0 - Bootstrap v5 renames `data-toggle` attribute to `data-bs-toggle`
  * @see https://getbootstrap.com/docs/5.0/migration/#javascript
  */
-const MODAL_TRIGGER_DATA_ATTRIBUTE = Feature.isActive('V6_5_0_0') ? 'data-bs-toggle="modal"' : 'data-toggle="modal"';
+const MODAL_TRIGGER_DATA_ATTRIBUTE = Feature.isActive('v6.5.0.0') ? 'data-bs-toggle="modal"' : 'data-toggle="modal"';
 
 /**
  * This class extends the Bootstrap modal functionality by

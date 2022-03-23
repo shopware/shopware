@@ -17,7 +17,7 @@ export default class FadingPlugin extends Plugin {
 
         collapses.forEach((collapse) => {
             /** @deprecated tag:v6.5.0 - jQuery wrapper `$collapse` will be removed. Bootstrap v5 uses native HTML elements */
-            const $collapse = Feature.isActive('V6_5_0_0') ? collapse : $(collapse);
+            const $collapse = Feature.isActive('v6.5.0.0') ? collapse : $(collapse);
             const containers = DomAccess.querySelectorAll(collapse, '.swag-fade-container', false);
 
             if (!containers.length) {
@@ -50,7 +50,7 @@ export default class FadingPlugin extends Plugin {
         );
 
         /** @deprecated tag:v6.5.0 - Bootstrap v5 uses native HTML elements and events to subscribe to Collapse plugin events */
-        if (Feature.isActive('V6_5_0_0')) {
+        if (Feature.isActive('v6.5.0.0')) {
             $collapse.addEventListener('shown.bs.collapse', this._onCollapseShow.bind(this, container, moreLink, lessLink));
         } else {
             $collapse.on('shown.bs.collapse', this._onCollapseShow.bind(this, container, moreLink, lessLink));

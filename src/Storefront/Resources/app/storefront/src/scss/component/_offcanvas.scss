@@ -20,7 +20,7 @@ This SCSS file will be adjusted to build up upon Bootstraps OffCanvas styling.
     top: 0;
     transition: all 0.45s cubic-bezier(0.3, 0, 0.15, 1);
     // @deprecated tag:v6.5.0 - Bootstrap v5 needs higher OffCanvas z-index to be above `.modal-backdrop`.
-    @if (feature('V6_5_0_0')) {
+    @if (feature('v6.5.0.0')) {
         z-index: 1060;
         display: block; // Overwrite Bootstrap v5 flex layout for OffCanvas
     } @else {
@@ -47,7 +47,7 @@ This SCSS file will be adjusted to build up upon Bootstraps OffCanvas styling.
     &.is-open {
         transform: translateX(0) !important;
         // @deprecated tag:v6.5.0 - Bootstrap v5 OffCanvas needs additional visibility property to be displayed.
-        @if (feature('V6_5_0_0')) {
+        @if (feature('v6.5.0.0')) {
             visibility: visible;
         }
     }

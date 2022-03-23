@@ -96,7 +96,7 @@ class EntityReaderTest extends TestCase
 
     public function testPartialLoadingAddsImplicitAssociationToRequestedFields(): void
     {
-        Feature::skipTestIfInActive('v6_5_0_0', $this);
+        Feature::skipTestIfInActive('v6.5.0.0', $this);
 
         $ids = new IdsCollection();
 
@@ -134,7 +134,7 @@ class EntityReaderTest extends TestCase
 
     public function testPartialLoadingManyToOne(): void
     {
-        Feature::skipTestIfInActive('v6_5_0_0', $this);
+        Feature::skipTestIfInActive('v6.5.0.0', $this);
 
         $ids = new IdsCollection();
 
@@ -168,7 +168,7 @@ class EntityReaderTest extends TestCase
 
     public function testPartialLoadingOneToMany(): void
     {
-        Feature::skipTestIfInActive('v6_5_0_0', $this);
+        Feature::skipTestIfInActive('v6.5.0.0', $this);
 
         $ids = new IdsCollection();
 
@@ -227,7 +227,7 @@ class EntityReaderTest extends TestCase
 
     public function testPartialLoadingManyToMany(): void
     {
-        Feature::skipTestIfInActive('v6_5_0_0', $this);
+        Feature::skipTestIfInActive('v6.5.0.0', $this);
 
         $ids = new IdsCollection();
 

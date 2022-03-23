@@ -20,7 +20,7 @@ export default class CmsGdprVideoElement extends Plugin {
          * @deprecated tag:v6.5.0 - Bootstrap v5 renames `data-toggle` attribute to `data-bs-toggle`
          * @see https://getbootstrap.com/docs/5.0/migration/#javascript
          */
-        modalTriggerSelector: Feature.isActive('V6_5_0_0') ? '[data-bs-toggle="modal"][data-url]' : '[data-toggle="modal"][data-url]',
+        modalTriggerSelector: Feature.isActive('v6.5.0.0') ? '[data-bs-toggle="modal"][data-url]' : '[data-toggle="modal"][data-url]',
         urlAttribute: 'data-url',
     };
 

@@ -231,7 +231,7 @@ class RequestCriteriaBuilder
             }
         }
 
-        if (isset($payload['fields']) && Feature::isActive('v6_5_0_0')) {
+        if (isset($payload['fields']) && Feature::isActive('v6.5.0.0')) {
             $criteria->addFields($payload['fields']);
         }
 

@@ -33,7 +33,7 @@ html {
             content: 'xl';
         }
         // @deprecated tag:v6.5.0 - Bootstrap v5 adds xxl breakpoint
-        @if feature('V6_5_0_0') {
+        @if feature('v6.5.0.0') {
             @include media-breakpoint-only(xxl) {
                 content: 'xxl';
             }

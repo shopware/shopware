@@ -5,7 +5,7 @@
 
     {% set paginationSuffix = '' %}
     {# @deprecated tag:v6.5.0 - pagination template will append `paginationSuffix` for input and label ids to avoid duplicate ids. #}
-    {% if feature('V6_5_0_0') and paginationLocation %}
+    {% if feature('v6.5.0.0') and paginationLocation %}
         {% set paginationSuffix = '-' ~ paginationLocation %}
     {% endif %}
 

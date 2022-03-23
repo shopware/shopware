@@ -132,7 +132,7 @@ class ProductSubscriber implements EventSubscriberInterface
                 }
             }
 
-            if (Feature::isActive('v6_5_0_0')) {
+            if (Feature::isActive('v6.5.0.0')) {
                 $assigns = [];
 
                 if (($properties = $product->get('properties')) !== null && $properties instanceof PropertyGroupOptionCollection) {

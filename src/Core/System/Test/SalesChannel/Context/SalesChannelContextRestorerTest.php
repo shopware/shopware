@@ -122,7 +122,7 @@ class SalesChannelContextRestorerTest extends TestCase
 
     public function testRestore(): void
     {
-        Feature::skipTestIfActive('v6_5_0_0', $this);
+        Feature::skipTestIfActive('v6.5.0.0', $this);
 
         $expectedToken = Uuid::randomHex();
         $expectedContext = $this->createSalesChannelContext($expectedToken, []);
@@ -202,7 +202,7 @@ class SalesChannelContextRestorerTest extends TestCase
 
     public function testGuestContextAndCartAreDeleted(): void
     {
-        Feature::skipTestIfActive('v6_5_0_0', $this);
+        Feature::skipTestIfActive('v6.5.0.0', $this);
 
         $currentContextToken = Random::getAlphanumericString(32);
 
@@ -229,7 +229,7 @@ class SalesChannelContextRestorerTest extends TestCase
 
     public function testCartIsRecalculated(): void
     {
-        Feature::skipTestIfActive('v6_5_0_0', $this);
+        Feature::skipTestIfActive('v6.5.0.0', $this);
 
         $customerContextToken = Random::getAlphanumericString(32);
 
@@ -268,7 +268,7 @@ class SalesChannelContextRestorerTest extends TestCase
 
     public function testCartIsMergedAndRecalculatedWithTheSavedOne(): void
     {
-        Feature::skipTestIfActive('v6_5_0_0', $this);
+        Feature::skipTestIfActive('v6.5.0.0', $this);
 
         $currentContextToken = Random::getAlphanumericString(32);
 
@@ -348,7 +348,7 @@ class SalesChannelContextRestorerTest extends TestCase
     public function testCartMergedEventIsFiredWithCustomerCart(): void
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_16824', $this);
-        Feature::skipTestIfActive('v6_5_0_0', $this);
+        Feature::skipTestIfActive('v6.5.0.0', $this);
 
         $currentContextToken = Random::getAlphanumericString(32);
 

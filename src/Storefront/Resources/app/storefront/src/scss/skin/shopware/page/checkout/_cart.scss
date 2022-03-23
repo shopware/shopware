@@ -1,5 +1,5 @@
 // @deprecated tag:v6.5.0 - Bootstrap v5 uses the breakpoint itself instead of the next breakpoint in `media-breakpoint-down()`, use `md` instead of `sm`.
-@include media-breakpoint-down(if(feature('V6_5_0_0'), md, sm)) {
+@include media-breakpoint-down(if(feature('v6.5.0.0'), md, sm)) {
     .cart-table {
         border: 0;
     }

@@ -20,7 +20,7 @@ https://getbootstrap.com/docs/4.3/components/buttons/
     color: $buy-btn-color;
 
     // @deprecated tag:v6.5.0 - Bootstrap v5 uses more aggressive contrast ratio in text color
-    @if feature('V6_5_0_0') {
+    @if feature('v6.5.0.0') {
         &:hover,
         &:focus {
             color: $buy-btn-color;
@@ -29,7 +29,7 @@ https://getbootstrap.com/docs/4.3/components/buttons/
 }
 
 // @deprecated tag:v6.5.0 - Bootstrap v5 uses more aggressive contrast ratio in text color
-@if feature('V6_5_0_0') {
+@if feature('v6.5.0.0') {
     .btn-primary {
         color: $white;
 

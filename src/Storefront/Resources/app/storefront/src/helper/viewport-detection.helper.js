@@ -77,7 +77,7 @@ export default class ViewportDetection {
             this._dispatchViewportEvent('Viewport/isXL');
 
         /** @deprecated tag:v6.5.0 - Bootstrap v5 adds xxl breakpoint */
-        } else if (ViewportDetection.isXXL() && Feature.isActive('V6_5_0_0')) {
+        } else if (ViewportDetection.isXXL() && Feature.isActive('v6.5.0.0')) {
             this._dispatchViewportEvent('Viewport/isXXL');
         }
     }

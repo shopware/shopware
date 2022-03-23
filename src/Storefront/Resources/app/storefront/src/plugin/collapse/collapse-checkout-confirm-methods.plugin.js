@@ -27,7 +27,7 @@ export default class CollapseCheckoutConfirmMethodsPlugin extends Plugin {
         const collapse = DomAccess.querySelector(this.el.parentNode, this.options.collapseContainerSelector);
 
         /** @deprecated tag:v6.5.0 - Bootstrap v5 uses native HTML elements and events to subscribe to Collapse plugin events */
-        if (Feature.isActive('V6_5_0_0')) {
+        if (Feature.isActive('v6.5.0.0')) {
             collapse.addEventListener('show.bs.collapse', this._onCollapseShow.bind(this));
             collapse.addEventListener('hide.bs.collapse', this._onCollapseHide.bind(this));
         } else {
@@ -49,7 +49,7 @@ export default class CollapseCheckoutConfirmMethodsPlugin extends Plugin {
         const collapse = DomAccess.querySelector(this.el.parentNode, this.options.collapseContainerSelector);
 
         /** @deprecated tag:v6.5.0 - Bootstrap v5 uses native HTML elements to init Collapse plugin */
-        if (Feature.isActive('V6_5_0_0')) {
+        if (Feature.isActive('v6.5.0.0')) {
             new bootstrap.Collapse(collapse, {
                 toggle: true,
             });

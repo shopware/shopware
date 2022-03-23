@@ -177,41 +177,25 @@ class TaxDetectorTest extends TestCase
         $detector = $this->getContainer()->get(TaxDetector::class);
         static::assertFalse($detector->isNetDelivery($context));
     }
+
     public function testIsNotNetDeliveryWithCompanyFreeTaxAndNullVatId(): void
     {
         $context = $this->createMock(SalesChannelContext::class);
 
-        $countryRepository = $this->getContainer()->get('country.repository');
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('iso', 'DE'));
-        $criteria->setLimit(1);
-
-        $deCountry = $countryRepository->search($criteria, Context::createDefaultContext())->first();
-        $data = [
-            'id' => $deCountry->getId(),
-            'customerTax' => [
-                'enabled' => false,
-                'currencyId' => Defaults::CURRENCY,
-                'amount' => 0,
-            ],
-            'companyTax' => [
-                'enabled' => true,
-                'currencyId' => Defaults::CURRENCY,
-                'amount' => 0,
-            ],
-            'vatIdPattern' => '(DE)?[0-9]{9}',
+        $country = (new CountryEntity)->assign([
+            'customerTax' => new TaxFreeConfig(false),
+            'companyTax' => new TaxFreeConfig(true),
+            'vatIdPattern' => '...',
             'checkVatIdPattern' => true,
-        ];
+        ]);
 
-        $countryRepository->update([$data], Context::createDefaultContext());
-        $deCountry = $countryRepository->search($criteria, Context::createDefaultContext())->first();
-
-        $customer = $this->createMock(CustomerEntity::class);
-        $customer->expects(static::once())->method('getCompany')->willReturn('ABC Company');
-        $customer->expects(static::once())->method('getVatIds')->willReturn([null]);
+        $customer = (new CustomerEntity())->assign([
+             'company' => 'ABC Compay',
+             'vatIds' => [null],
+        ]);
 
         $context->expects(static::once())->method('getShippingLocation')->willReturn(
-            ShippingLocation::createFromCountry($deCountry)
+            ShippingLocation::createFromCountry($country)
         );
 
         $context->expects(static::once())->method('getCustomer')->willReturn(
@@ -221,6 +205,7 @@ class TaxDetectorTest extends TestCase
         $detector = $this->getContainer()->get(TaxDetector::class);
         static::assertFalse($detector->isNetDelivery($context));
     }
+
     public function testIsNetDeliveryWithCompanyFreeTaxAndWrongVatIdButVatIdCheckDisabled(): void
     {
         $context = $this->createMock(SalesChannelContext::class);

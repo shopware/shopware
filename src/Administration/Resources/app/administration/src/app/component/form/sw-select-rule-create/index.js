@@ -141,10 +141,15 @@ Component.register('sw-select-rule-create', {
 
         /* @internal (flag:FEATURE_NEXT_18215) */
         getTooltipConfig(itemId) {
+            let translation = this.$tc('sw-restricted-rules.restrictedAssignment.productPrices');
+            const restrictionTranslationKey = `sw-restricted-rules.restrictedAssignment.${this.restriction}`;
+
+            if (this.$te(restrictionTranslationKey)) {
+                translation = this.$tc(restrictionTranslationKey);
+            }
+
             return {
-                message: this.$t('sw-restricted-rules.restrictedAssignment.general', {
-                    relation: this.$tc('sw-restricted-rules.restrictedAssignment.productPrices'),
-                }),
+                message: this.$t('sw-restricted-rules.restrictedAssignment.general', { relation: translation }),
                 disabled: !this.restrictedRules.includes(itemId),
             };
         },

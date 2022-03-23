@@ -18,6 +18,40 @@
             {% endblock %}
         </template>
 
+        <template #result-item="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey }">
+            {% block sw_select_rule_create_select_multi_select_result_list_item %}
+            <slot
+                name="result-item"
+                v-bind="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey }"
+            >
+                <li
+                    is="sw-select-result"
+                    v-tooltip="getTooltipConfig(item.id)"
+                    :selected="isSelected(item)"
+                    :disabled="restrictedRules.includes(item.id)"
+                    v-bind="{ item, index }"
+                    @item-select="addItem"
+                >
+                    {% block sw_select_rule_create_select_multi_select_result_item_label %}
+                    <slot
+                        name="result-label-property"
+                        v-bind="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, getKey }"
+                    >
+                        <sw-highlight-text
+                            v-if="highlightSearchTerm"
+                            :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                            :search-term="searchTerm"
+                        />
+                        <template v-else>
+                            {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                        </template>
+                    </slot>
+                    {% endblock %}
+                </li>
+            </slot>
+            {% endblock %}
+        </template>
+
     </sw-entity-multi-select>
 
     {% block sw_select_rule_create_select %}

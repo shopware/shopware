@@ -35,6 +35,11 @@ class ShippingMethodEntity extends Entity
     protected $active;
 
     /**
+     * @var int
+     */
+    protected $position;
+
+    /**
      * @var string|null
      */
     protected $description;
@@ -142,6 +147,16 @@ class ShippingMethodEntity extends Entity
     public function setActive(bool $active): void
     {
         $this->active = $active;
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
     }
 
     public function getDescription(): ?string

@@ -491,6 +491,9 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                 },
             ],
         },
+        /**
+         * @deprecated tag:v6.5.0 - will be removed
+         */
         event_action: {
             id: 'event_action',
             notAssignedDataTotal: 0,
@@ -567,6 +570,39 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                     },
                 ],
             },
+        },
+        flow: {
+            id: 'flow',
+            notAssignedDataTotal: 0,
+            allowAdd: false,
+            entityName: 'flow',
+            label: 'sw-settings-rule.detail.associations.flows',
+            criteria: () => {
+                const criteria = new Criteria();
+                criteria.setLimit(associationLimit);
+                criteria.addFilter(Criteria.equals('sequences.rule.id', ruleId));
+
+                return criteria;
+            },
+            detailRoute: 'sw.flow.detail',
+            gridColumns: [
+                {
+                    property: 'name',
+                    label: 'Flow',
+                    rawData: true,
+                    sortable: true,
+                    width: '50%',
+                    routerLink: 'sw.flow.detail',
+                },
+                {
+                    property: 'eventName',
+                    label: 'Trigger',
+                    rawData: true,
+                    sortable: true,
+                    width: '50%',
+                    routerLink: false,
+                },
+            ],
         },
     };
 

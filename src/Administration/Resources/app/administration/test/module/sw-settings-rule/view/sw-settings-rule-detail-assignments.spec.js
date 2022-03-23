@@ -101,7 +101,8 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
             'shipping_method',
             'payment_method',
             'promotion',
-            'event_action'
+            'event_action',
+            'flow'
         ]);
 
         expect(wrapper.vm.associationEntities).toEqual(
@@ -124,7 +125,8 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
             'shipping_method',
             'payment_method',
             'promotion',
-            'event_action'
+            'event_action',
+            'flow'
         ]);
         await flushPromises();
 
@@ -154,7 +156,8 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
             'shipping_method',
             'payment_method',
             'promotion',
-            'event_action'
+            'event_action',
+            'flow'
         ]);
         await flushPromises();
 
@@ -169,6 +172,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion_discount_rule .router-link').exists()).toBeTruthy();
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion_group_rule .router-link').exists()).toBeTruthy();
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-event_action .router-link').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-flow .router-link').exists()).toBeTruthy();
 
         // Empty states should not be present
         expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-product').exists()).toBeFalsy();
@@ -181,6 +185,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion_discount_rule').exists()).toBeFalsy();
         expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion_group_rule').exists()).toBeFalsy();
         expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-event_action').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-flow').exists()).toBeFalsy();
 
         // Loader should not be present
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-loader').exists()).toBeFalsy();
@@ -201,6 +206,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion_discount_rule .router-link').exists()).toBeFalsy();
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion_group_rule .router-link').exists()).toBeFalsy();
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-event_action .router-link').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-flow .router-link').exists()).toBeFalsy();
 
         // Expect empty states to be present
         expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-product').exists()).toBeTruthy();
@@ -213,6 +219,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion_discount_rule').exists()).toBeTruthy();
         expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion_group_rule').exists()).toBeTruthy();
         expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-event_action').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-flow').exists()).toBeTruthy();
 
         // Loader should not be present
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-loader').exists()).toBeFalsy();

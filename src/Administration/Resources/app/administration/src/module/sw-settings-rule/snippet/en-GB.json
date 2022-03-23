@@ -49,7 +49,8 @@
         "promotionDiscountRules": "Promotion discount product rules",
         "promotionGroupRules": "Promotion set group rules",
         "shippingMethodAvailabilityRule": "Shipping method availability rules",
-        "eventActions": "Business events"
+        "eventActions": "Business events",
+        "flows": "Flow Builders"
       },
       "typeHasNoAssociations": "No rules assigned",
       "hasNoAssociations": "This rule is not in use",

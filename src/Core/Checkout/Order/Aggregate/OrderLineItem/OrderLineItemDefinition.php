@@ -4,8 +4,10 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
@@ -77,6 +79,7 @@ class OrderLineItemDefinition extends EntityDefinition
             (new ReferenceVersionField(OrderDefinition::class))->addFlags(new ApiAware(), new Required()),
             (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new ApiAware()),
             (new ReferenceVersionField(ProductDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new FkField('promotion_id', 'promotionId', PromotionDefinition::class))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             (new ParentFkField(self::class))->addFlags(new ApiAware()),
             (new ReferenceVersionField(self::class, 'parent_version_id'))->addFlags(new ApiAware(), new Required()),
             (new FkField('cover_id', 'coverId', MediaDefinition::class))->addFlags(new ApiAware()),
@@ -102,6 +105,7 @@ class OrderLineItemDefinition extends EntityDefinition
             (new CustomFields())->addFlags(new ApiAware()),
             new ManyToOneAssociationField('order', 'order_id', OrderDefinition::class, 'id', false),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id', false),
+            new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id', false),
             (new OneToManyAssociationField('orderDeliveryPositions', OrderDeliveryPositionDefinition::class, 'order_line_item_id', 'id'))->addFlags(new ApiAware(), new CascadeDelete(), new WriteProtected()),
             (new ParentAssociationField(self::class))->addFlags(new ApiAware()),
             (new ChildrenAssociationField(self::class))->addFlags(new ApiAware(), new Required()),

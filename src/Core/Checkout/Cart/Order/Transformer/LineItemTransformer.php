@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class LineItemTransformer
@@ -40,12 +41,18 @@ class LineItemTransformer
             $productId = $lineItem->getReferencedId();
         }
 
+        $promotionId = null;
+        if ($lineItem->getType() === PromotionProcessor::LINE_ITEM_TYPE) {
+            $promotionId = $lineItem->getPayloadValue('promotionId');
+        }
+
         $definition = $lineItem->getPriceDefinition();
 
         $data = [
             'id' => $id,
             'identifier' => $lineItem->getId(),
             'productId' => $productId,
+            'promotionId' => $promotionId,
             'referencedId' => $lineItem->getReferencedId(),
             'quantity' => $lineItem->getQuantity(),
             'type' => $lineItem->getType(),

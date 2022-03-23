@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Promotion;
 use Shopware\Core\Checkout\Cart\Rule\LineItemGroupRule;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\Rule\CustomerNumberRule;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSalesChannelCollection;
@@ -136,6 +137,8 @@ class PromotionEntity extends Entity
      * @var RuleCollection|null
      */
     protected $cartRules;
+
+    protected ?OrderLineItemCollection $orderLineItems = null;
 
     /**
      * @var PromotionTranslationCollection|null
@@ -414,6 +417,16 @@ class PromotionEntity extends Entity
     public function setOrderRules(RuleCollection $orderRules): void
     {
         $this->orderRules = $orderRules;
+    }
+
+    public function getOrderLineItems(): ?OrderLineItemCollection
+    {
+        return $this->orderLineItems;
+    }
+
+    public function setOrderLineItems(OrderLineItemCollection $orderLineItems): void
+    {
+        $this->orderLineItems = $orderLineItems;
     }
 
     public function getOrderCount(): int

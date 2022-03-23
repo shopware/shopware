@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Test\Promotion\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -16,6 +17,7 @@ use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -29,23 +31,52 @@ class PromotionRedemptionUpdaterTest extends TestCase
     use IntegrationTestBehaviour;
     use PromotionTestFixtureBehaviour;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
+    private EntityRepositoryInterface $customerRepository;
+
+    private Connection $connection;
+
+    private SalesChannelContext $salesChannelContext;
 
     protected function setUp(): void
     {
         $this->ids = new TestDataCollection(Context::createDefaultContext());
         $this->customerRepository = $this->getContainer()->get('customer.repository');
+        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->salesChannelContext = $this->createSalesChannelContext();
     }
 
-    public function testPromotionRedemptionUpdaterUpdate(): void
+    public function testPromotionRedemptionUpdaterUpdateViaIndexer(): void
+    {
+        $this->createPromotionsAndOrder();
+
+        $updater = $this->getContainer()->get(PromotionRedemptionUpdater::class);
+        $updater->update([$this->ids->get('voucherA'), $this->ids->get('voucherB')], Context::createDefaultContext());
+
+        $this->assertUpdatedCounts();
+    }
+
+    public function testPromotionRedemptionUpdaterUpdateViaOrderPlacedEvent(): void
+    {
+        $this->createPromotionsAndOrder();
+
+        $criteria = new Criteria([$this->ids->get('order')]);
+        $criteria->addAssociation('lineItems');
+        $order = $this->getContainer()->get('order.repository')->search($criteria, $this->salesChannelContext->getContext())->first();
+        static::assertNotNull($order);
+
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher->dispatch(new CheckoutOrderPlacedEvent(
+            $this->salesChannelContext->getContext(),
+            $order,
+            $this->salesChannelContext->getSalesChannelId()
+        ));
+
+        $this->assertUpdatedCounts();
+    }
+
+    private function createPromotionsAndOrder(): void
     {
         /** @var EntityRepositoryInterface $promotionRepository */
         $promotionRepository = $this->getContainer()->get('promotion.repository');
@@ -53,24 +84,20 @@ class PromotionRedemptionUpdaterTest extends TestCase
         $voucherA = $this->ids->create('voucherA');
         $voucherB = $this->ids->create('voucherB');
 
-        $salesChannelContext = $this->createSalesChannelContext();
+        $this->createPromotion($voucherA, $voucherA, $promotionRepository, $this->salesChannelContext);
+        $this->createPromotion($voucherB, $voucherB, $promotionRepository, $this->salesChannelContext);
 
-        $this->createPromotion($voucherA, $voucherA, $promotionRepository, $salesChannelContext);
-        $this->createPromotion($voucherB, $voucherB, $promotionRepository, $salesChannelContext);
-        $updater = $this->getContainer()->get(PromotionRedemptionUpdater::class);
+        $this->ids->set('customer', $this->createCustomer('shopware', 'johndoe@example.com'));
+        $this->createOrder($this->ids->get('customer'));
 
-        $customerId = $this->createCustomer('shopware', 'johndoe@example.com');
-        $this->createOrder($customerId);
-
-        $conn = $this->getContainer()->get(Connection::class);
-
-        $lineItems = $conn->fetchAll('SELECT id FROM order_line_item;');
+        $lineItems = $this->connection->fetchAll('SELECT id FROM order_line_item;');
 
         static::assertCount(3, $lineItems);
+    }
 
-        $updater->update([$this->ids->get('voucherA'), $this->ids->get('voucherB')], Context::createDefaultContext());
-
-        $promotions = $conn->fetchAll('SELECT * FROM promotion;');
+    private function assertUpdatedCounts(): void
+    {
+        $promotions = $this->connection->fetchAll('SELECT * FROM promotion;');
 
         static::assertCount(2, $promotions);
 
@@ -78,14 +105,14 @@ class PromotionRedemptionUpdaterTest extends TestCase
         static::assertNotEmpty($actualVoucherA);
         static::assertEquals('1', $actualVoucherA['order_count']);
         $customerCount = json_decode($actualVoucherA['orders_per_customer_count'], true);
-        static::assertEquals(1, $customerCount[$customerId]);
+        static::assertEquals(1, $customerCount[$this->ids->get('customer')]);
 
         $actualVoucherB = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherB') ? $promotions[0] : $promotions[1];
         static::assertNotEmpty($actualVoucherB);
         // VoucherB is used twice, it's mean group by works
         static::assertEquals('2', $actualVoucherB['order_count']);
         $customerCount = json_decode($actualVoucherB['orders_per_customer_count'], true);
-        static::assertEquals(2, $customerCount[$customerId]);
+        static::assertEquals(2, $customerCount[$this->ids->get('customer')]);
     }
 
     private function createSalesChannelContext(array $options = []): SalesChannelContext
@@ -101,7 +128,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
     {
         $this->getContainer()->get('order.repository')->create(
             [[
-                'id' => $this->ids->create('test-order'),
+                'id' => $this->ids->create('order'),
                 'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
                 'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
@@ -137,7 +164,11 @@ class PromotionRedemptionUpdaterTest extends TestCase
                         'code' => $this->ids->get('VoucherA'),
                         'identifier' => $this->ids->get('VoucherA'),
                         'quantity' => 1,
-                        'payload' => ['promotionId' => $this->ids->get('voucherA')],
+                        'payload' => [
+                            'promotionId' => $this->ids->get('voucherA'),
+                            'code' => $this->ids->get('VoucherA'),
+                        ],
+                        'promotionId' => $this->ids->get('voucherA'),
                         'label' => 'label',
                         'price' => new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
                         'priceDefinition' => new QuantityPriceDefinition(200, new TaxRuleCollection(), 2),
@@ -147,7 +178,11 @@ class PromotionRedemptionUpdaterTest extends TestCase
                         'type' => LineItem::PROMOTION_LINE_ITEM_TYPE,
                         'code' => $this->ids->get('VoucherC'),
                         'identifier' => $this->ids->get('VoucherC'),
-                        'payload' => ['promotionId' => $this->ids->get('voucherB')],
+                        'payload' => [
+                            'promotionId' => $this->ids->get('voucherB'),
+                            'code' => $this->ids->get('VoucherC'),
+                        ],
+                        'promotionId' => $this->ids->get('voucherB'),
                         'quantity' => 1,
                         'label' => 'label',
                         'price' => new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
@@ -158,7 +193,11 @@ class PromotionRedemptionUpdaterTest extends TestCase
                         'type' => LineItem::PROMOTION_LINE_ITEM_TYPE,
                         'code' => $this->ids->get('VoucherB'),
                         'identifier' => $this->ids->get('VoucherB'),
-                        'payload' => ['promotionId' => $this->ids->get('voucherB')],
+                        'payload' => [
+                            'promotionId' => $this->ids->get('voucherB'),
+                            'code' => $this->ids->get('VoucherB'),
+                        ],
+                        'promotionId' => $this->ids->get('voucherB'),
                         'quantity' => 1,
                         'label' => 'label',
                         'price' => new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),

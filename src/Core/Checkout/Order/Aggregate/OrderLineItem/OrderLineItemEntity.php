@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -36,6 +37,11 @@ class OrderLineItemEntity extends Entity
      * @var string|null
      */
     protected $productId;
+
+    /**
+     * @internal
+     */
+    protected ?string $promotionId;
 
     /**
      * @var int
@@ -143,6 +149,11 @@ class OrderLineItemEntity extends Entity
      * @var ProductEntity|null
      */
     protected $product;
+
+    /**
+     * @internal
+     */
+    protected ?PromotionEntity $promotion;
 
     public function getOrderId(): string
     {
@@ -392,5 +403,37 @@ class OrderLineItemEntity extends Entity
     public function setProduct(?ProductEntity $product): void
     {
         $this->product = $product;
+    }
+
+    /**
+     * @internal
+     */
+    public function getPromotionId(): ?string
+    {
+        return $this->promotionId;
+    }
+
+    /**
+     * @internal
+     */
+    public function setPromotionId(?string $promotionId): void
+    {
+        $this->promotionId = $promotionId;
+    }
+
+    /**
+     * @internal
+     */
+    public function getPromotion(): ?PromotionEntity
+    {
+        return $this->promotion;
+    }
+
+    /**
+     * @internal
+     */
+    public function setPromotion(?PromotionEntity $promotion): void
+    {
+        $this->promotion = $promotion;
     }
 }

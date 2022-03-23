@@ -35,6 +35,7 @@ use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\System\Tax\TaxRuleType\TaxRuleTypeFilterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use function array_unique;
 
 class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 {
@@ -408,12 +409,6 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $criteria->setTitle('context-factory::customer');
         $criteria->addAssociation('salutation');
         $criteria->addAssociation('defaultPaymentMethod');
-        $criteria->addAssociation('defaultBillingAddress.salutation');
-        $criteria->addAssociation('defaultBillingAddress.country');
-        $criteria->addAssociation('defaultBillingAddress.countryState');
-        $criteria->addAssociation('defaultShippingAddress.salutation');
-        $criteria->addAssociation('defaultShippingAddress.country');
-        $criteria->addAssociation('defaultShippingAddress.countryState');
 
         /** @var SalesChannelApiSource $source */
         $source = $context->getSource();
@@ -423,19 +418,22 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             new EqualsFilter('customer.boundSalesChannelId', $source->getSalesChannelId()),
         ]));
 
+        /** @var CustomerEntity|null $customer */
         $customer = $this->customerRepository->search($criteria, $context)->get($customerId);
 
         if (!$customer) {
             return null;
         }
 
-        $billingAddressId = $options[SalesChannelContextService::BILLING_ADDRESS_ID] ?? $customer->getDefaultBillingAddressId();
-        $shippingAddressId = $options[SalesChannelContextService::SHIPPING_ADDRESS_ID] ?? $customer->getDefaultShippingAddressId();
+        $activeBillingAddressId = $options[SalesChannelContextService::BILLING_ADDRESS_ID] ?? $customer->getDefaultBillingAddressId();
+        $activeShippingAddressId = $options[SalesChannelContextService::SHIPPING_ADDRESS_ID] ?? $customer->getDefaultShippingAddressId();
 
-        $addressIds[] = $billingAddressId;
-        $addressIds[] = $shippingAddressId;
+        $addressIds[] = $activeBillingAddressId;
+        $addressIds[] = $activeShippingAddressId;
+        $addressIds[] = $customer->getDefaultBillingAddressId();
+        $addressIds[] = $customer->getDefaultShippingAddressId();
 
-        $criteria = new Criteria($addressIds);
+        $criteria = new Criteria(array_unique($addressIds));
         $criteria->setTitle('context-factory::addresses');
         $criteria->addAssociation('salutation');
         $criteria->addAssociation('country');
@@ -443,8 +441,10 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
         $addresses = $this->addressRepository->search($criteria, $context);
 
-        $customer->setActiveBillingAddress($addresses->get($billingAddressId));
-        $customer->setActiveShippingAddress($addresses->get($shippingAddressId));
+        $customer->setActiveBillingAddress($addresses->get($activeBillingAddressId));
+        $customer->setActiveShippingAddress($addresses->get($activeShippingAddressId));
+        $customer->setDefaultBillingAddress($addresses->get($customer->getDefaultBillingAddressId()));
+        $customer->setDefaultShippingAddress($addresses->get($customer->getDefaultShippingAddressId()));
 
         return $customer;
     }

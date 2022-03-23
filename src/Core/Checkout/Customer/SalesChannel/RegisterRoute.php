@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Doctrine\DBAL\Connection;
 use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
@@ -18,7 +19,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Event\DataMappingEvent;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -56,50 +56,25 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class RegisterRoute extends AbstractRegisterRoute
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
+    protected Connection $connection;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EntityRepositoryInterface $customerRepository;
 
-    /**
-     * @var NumberRangeValueGeneratorInterface
-     */
-    private $numberRangeValueGenerator;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var DataValidationFactoryInterface
-     */
-    private $addressValidationFactory;
+    private NumberRangeValueGeneratorInterface $numberRangeValueGenerator;
 
-    /**
-     * @var DataValidator
-     */
-    private $validator;
+    private DataValidationFactoryInterface $addressValidationFactory;
 
-    /**
-     * @var DataValidationFactoryInterface
-     */
-    private $accountValidationFactory;
+    private DataValidator $validator;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
+    private DataValidationFactoryInterface $accountValidationFactory;
 
-    /**
-     * @var SalesChannelContextPersister
-     */
-    private $contextPersister;
+    private SystemConfigService $systemConfigService;
 
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $countryRepository;
+    private SalesChannelContextPersister $contextPersister;
+
+    private SalesChannelRepositoryInterface $countryRepository;
 
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
@@ -110,7 +85,8 @@ class RegisterRoute extends AbstractRegisterRoute
         SystemConfigService $systemConfigService,
         EntityRepositoryInterface $customerRepository,
         SalesChannelContextPersister $contextPersister,
-        SalesChannelRepositoryInterface $countryRepository
+        SalesChannelRepositoryInterface $countryRepository,
+        Connection $connection
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->numberRangeValueGenerator = $numberRangeValueGenerator;
@@ -121,6 +97,7 @@ class RegisterRoute extends AbstractRegisterRoute
         $this->customerRepository = $customerRepository;
         $this->contextPersister = $contextPersister;
         $this->countryRepository = $countryRepository;
+        $this->connection = $connection;
     }
 
     public function getDecorated(): AbstractRegisterRoute
@@ -400,7 +377,7 @@ See the Guide ""Register a customer"" for more information on customer registrat
             $data->set('vatIds', $vatIds);
         }
 
-        if ($data->get('vatIds') !== null && $accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+        if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS && $data->get('vatIds') !== null) {
             if ($this->requiredVatIdField($billingAddress['countryId'], $context)) {
                 $definition->add('vatIds', new NotBlank());
             }
@@ -577,30 +554,38 @@ See the Guide ""Register a customer"" for more information on customer registrat
     private function getBoundSalesChannelId(string $email, SalesChannelContext $context): ?string
     {
         $bindCustomers = $this->systemConfigService->get('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel');
-        $salesChannelId = $context->getSalesChannel()->getId();
+        $salesChannelId = $context->getSalesChannelId();
 
         if ($bindCustomers) {
             return $salesChannelId;
         }
 
-        if ($this->hasBoundAccount($email, $context)) {
+        if ($this->hasBoundAccount($email)) {
             return $salesChannelId;
         }
 
         return null;
     }
 
-    private function hasBoundAccount(string $email, SalesChannelContext $context): bool
+    private function hasBoundAccount(string $email): bool
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('email', $email));
-        $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [
-            new EqualsFilter('customer.boundSalesChannelId', null),
-        ]));
+        $query = $this->connection->createQueryBuilder();
 
-        $criteria->setLimit(1);
+        /** @var array{email: string, guest: int, bound_sales_channel_id: string|null}[] $results */
+        $results = $query
+            ->select('LOWER(HEX(bound_sales_channel_id)) as bound_sales_channel_id')
+            ->from('customer')
+            ->where($query->expr()->eq('email', $query->createPositionalParameter($email)))
+            ->execute()
+            ->fetchAllAssociative();
 
-        return $this->customerRepository->search($criteria, $context->getContext())->count() > 0;
+        foreach ($results as $result) {
+            if ($result['bound_sales_channel_id']) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function requiredVatIdField(string $countryId, SalesChannelContext $context): bool

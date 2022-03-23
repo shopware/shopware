@@ -39,14 +39,6 @@ class CheapestPriceUpdater
 
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
 
-        RetryableQuery::retryable($this->connection, function () use ($parentIds, $versionId): void {
-            $this->connection->executeUpdate(
-                'UPDATE product SET cheapest_price = NULL, cheapest_price_accessor = NULL WHERE (id IN (:ids) OR parent_id IN (:ids)) AND version_id = :version',
-                ['ids' => Uuid::fromHexToBytesList($parentIds), 'version' => $versionId],
-                ['ids' => Connection::PARAM_STR_ARRAY]
-            );
-        });
-
         $cheapestPrice = new RetryableQuery(
             $this->connection,
             $this->connection->prepare('UPDATE product SET cheapest_price = :price WHERE id = :id AND version_id = :version')

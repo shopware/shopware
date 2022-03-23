@@ -35,15 +35,15 @@ export default class CartWidgetPlugin extends Plugin {
      * and persist the response to the browser's session storage
      */
     fetch() {
-        this._client.get(window.router['frontend.checkout.info'], (response) => {
-            if (response.length <= 0) {
+        this._client.get(window.router['frontend.checkout.info'], (content, response) => {
+            if (response.status === 204) {
                 return;
             }
 
-            Storage.setItem(this.options.cartWidgetStorageKey, response);
-            this.el.innerHTML = response;
+            Storage.setItem(this.options.cartWidgetStorageKey, content);
+            this.el.innerHTML = content;
 
-            this.$emitter.publish('fetch', { response });
+            this.$emitter.publish('fetch', { content });
         });
     }
 }

@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentService;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -37,7 +38,6 @@ use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader;
 use Shopware\Storefront\Page\Checkout\Offcanvas\CheckoutInfoWidgetLoadedHook;
 use Shopware\Storefront\Page\Checkout\Offcanvas\CheckoutOffcanvasWidgetLoadedHook;
 use Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPageLoader;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -251,10 +251,11 @@ class CheckoutController extends StorefrontController
      *
      * @throws CartTokenNotFoundException
      */
-    public function info(Request $request, SalesChannelContext $context, Cart $cart): Response
+    public function info(Request $request, SalesChannelContext $context): Response
     {
-        if ($cart->getLineItems()->count() <= 0) {
-            return new Response('');
+        $cart = $this->cartService->getCart($context->getToken(), $context);
+        if ($cart->getLineItems()->count() <= 0 && Feature::isActive('v6.5.0.0')) {
+            return new Response(null, Response::HTTP_NO_CONTENT);
         }
 
         $page = $this->offcanvasCartPageLoader->load($request, $context);

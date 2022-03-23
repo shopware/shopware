@@ -16,11 +16,14 @@ class MessageQueueApiService extends ApiService {
      *
      * @returns {Promise<T>}
      */
-    consume(receiver) {
+    consume(receiver, cancelToken = null) {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
-            .post(`/_action/${this.getApiBasePath()}/consume`, { receiver }, { headers })
+            .post(`/_action/${this.getApiBasePath()}/consume`, { receiver }, {
+                headers,
+                cancelToken,
+            })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });

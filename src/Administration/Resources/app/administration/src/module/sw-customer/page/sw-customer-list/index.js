@@ -331,6 +331,13 @@ Component.register('sw-customer-list', {
                 allowResize: true,
                 visible: false,
                 useCustomSort: true,
+            }, {
+                property: 'active',
+                inlineEdit: 'boolean',
+                label: 'sw-customer.list.columnActive',
+                allowResize: true,
+                visible: false,
+                useCustomSort: true,
             }];
 
             return columns;

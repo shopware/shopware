@@ -80,8 +80,8 @@ class CacheController extends AbstractController
     public function info(): JsonResponse
     {
         return new JsonResponse([
-            'environment' => getenv('APP_ENV'),
-            'httpCache' => (bool) getenv('SHOPWARE_HTTP_CACHE_ENABLED'),
+            'environment' => $this->getParameter('kernel.environment'),
+            'httpCache' => $this->container->get('parameter_bag')->has('shopware.http.cache.enabled') && $this->getParameter('shopware.http.cache.enabled'),
             'cacheAdapter' => $this->getUsedCache($this->adapter),
         ]);
     }

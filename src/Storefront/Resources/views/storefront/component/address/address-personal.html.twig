@@ -146,6 +146,12 @@
         <div class="{{ formRowClass }}">
             {% block component_address_personal_fields_first_name %}
                 <div class="form-group col-sm-6">
+                    {% if formViolations.getViolations("/firstName") is not empty %}
+                        {% set violationPath = "/firstName" %}
+                    {% else %}
+                        {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "account.personalFirstNameLabel"|trans|sw_sanitize }) %}
+                    {% endif %}
+
                     {% block component_address_personal_fields_first_name_label %}
                         <label class="form-label"
                                for="{{ idPrefix ~ prefix }}personalFirstName">
@@ -155,20 +161,20 @@
 
                     {% block component_address_personal_fields_first_name_input %}
                         <input type="text"
-                               class="form-control{% if formViolations.getViolations('/firstName') is not empty %} is-invalid{% endif %}"
+                               class="form-control{% if violationPath is not empty %} is-invalid{% endif %}"
                                autocomplete="section-personal given-name"
                                id="{{ idPrefix ~ prefix }}personalFirstName"
                                placeholder="{{ "account.personalFirstNamePlaceholder"|trans|striptags }}"
                                name="{% if prefix %}{{ prefix }}[firstName]{% else %}firstName{% endif %}"
                                value="{{ data.get('firstName') }}"
+                               data-form-validation-required
+                               {% if requiredMessage is defined %}data-form-validation-required-message="{{ requiredMessage }}"{% endif %}
                                required="required">
                     {% endblock %}
 
                     {% block component_address_personal_fields_first_name_input_error %}
-                        {% if formViolations.getViolations('/firstName') is not empty %}
-                            {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
-                                violationPath: '/firstName'
-                            } %}
+                        {% if violationPath %}
+                            {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
                         {% endif %}
                     {% endblock %}
                 </div>
@@ -176,6 +182,12 @@
 
             {% block component_address_personal_fields_last_name %}
                 <div class="form-group col-sm-6">
+                    {% if formViolations.getViolations("/lastName") is not empty %}
+                        {% set violationPath = "/lastName" %}
+                    {% else %}
+                        {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "account.personalLastNameLabel"|trans|sw_sanitize }) %}
+                    {% endif %}
+
                     {% block component_address_personal_fields_last_name_label %}
                         <label class="form-label"
                                for="{{ idPrefix ~ prefix }}personalLastName">
@@ -185,20 +197,20 @@
 
                     {% block component_address_personal_fields_last_name_input %}
                         <input type="text"
-                               class="form-control{% if formViolations.getViolations('/lastName') is not empty %} is-invalid{% endif %}"
+                               class="form-control{% if violationPath %} is-invalid{% endif %}"
                                autocomplete="section-personal family-name"
                                id="{{ idPrefix ~ prefix }}personalLastName"
                                placeholder="{{ "account.personalLastNamePlaceholder"|trans|striptags }}"
                                name="{% if prefix %}{{ prefix }}[lastName]{% else %}lastName{% endif %}"
                                value="{{ data.get('lastName') }}"
+                               data-form-validation-required
+                               {% if requiredMessage is defined %}data-form-validation-required-message="{{ requiredMessage }}"{% endif %}
                                required="required">
                     {% endblock %}
 
                     {% block component_address_personal_fields_last_name_input_error %}
-                        {% if formViolations.getViolations('/lastName') is not empty %}
-                            {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
-                                violationPath: '/lastName'
-                            } %}
+                        {% if violationPath %}
+                            {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
                         {% endif %}
                     {% endblock %}
                 </div>
@@ -215,6 +227,8 @@
                             <div class="form-group col-12">
                                 {% if formViolations.getViolations("/company") is not empty %}
                                     {% set violationPath = "/company" %}
+                                {% else %}
+                                    {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "address.companyNameLabel"|trans|sw_sanitize }) %}
                                 {% endif %}
 
                                 {% block component_address_personal_company_name_label %}
@@ -230,6 +244,8 @@
                                            placeholder="{{ "address.companyNamePlaceholder"|trans|striptags }}"
                                            name="company"
                                            value="{{ data.get('company') }}"
+                                           data-form-validation-required
+                                           {% if requiredMessage is defined %}data-form-validation-required-message="{{ requiredMessage }}"{% endif %}
                                            required="required">
                                 {% endblock %}
 

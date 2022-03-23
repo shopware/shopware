@@ -42,7 +42,7 @@ class StringFieldSerializer extends AbstractFieldSerializer
             throw new InvalidSerializerFieldException(StringField::class, $field);
         }
 
-        if ($data->getValue() === '' && !$field->is(AllowEmptyString::class)) {
+        if (\is_string($data->getValue()) && trim($data->getValue()) === '' && !$field->is(AllowEmptyString::class)) {
             $data->setValue(null);
         }
 

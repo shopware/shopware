@@ -145,6 +145,8 @@
                         {% set violationPath = "/street" %}
                     {% elseif formViolations.getViolations("/#{prefix}/street") is not empty %}
                         {% set violationPath = "/#{prefix}/street" %}
+                    {% else %}
+                        {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "address.streetLabel"|trans|sw_sanitize }) %}
                     {% endif %}
 
                     {% block component_address_form_street_label %}
@@ -161,6 +163,8 @@
                                placeholder="{{ "address.streetPlaceholder"|trans|striptags }}"
                                name="{{ prefix }}[street]"
                                value="{{ data.get('street') }}"
+                               data-form-validation-required
+                               {% if requiredMessage is defined %}data-form-validation-required-message="{{ requiredMessage }}"{% endif %}
                                required="required">
                     {% endblock %}
 
@@ -178,6 +182,8 @@
                         {% set violationPath = "/zipcode" %}
                     {% elseif formViolations.getViolations("/#{prefix}/zipcode") is not empty %}
                         {% set violationPath = "/#{prefix}/zipcode" %}
+                    {% else %}
+                        {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "address.zipcodeLabel"|trans|sw_sanitize }) %}
                     {% endif %}
 
                     {% block component_address_form_zipcode_label %}
@@ -194,6 +200,8 @@
                                placeholder="{{ "address.zipcodePlaceholder"|trans|striptags }}"
                                name="{{ prefix }}[zipcode]"
                                value="{{ data.get('zipcode') }}"
+                               data-form-validation-required
+                               {% if requiredMessage is defined %}data-form-validation-required-message="{{ requiredMessage }}"{% endif %}
                                required="required">
                     {% endblock %}
 
@@ -210,6 +218,7 @@
                     {% elseif formViolations.getViolations("/#{prefix}/city") is not empty %}
                         {% set violationPath = "/#{prefix}/city" %}
                     {% else %}
+                        {% set requiredMessage = "error.VIOLATION::IS_BLANK_ERROR"|trans({ '%field%': "address.cityLabel"|trans|sw_sanitize }) %}
                         {% set violationPath = null %}
                     {% endif %}
 
@@ -227,6 +236,8 @@
                                placeholder="{{ "address.cityPlaceholder"|trans|striptags }}"
                                name="{{ prefix }}[city]"
                                value="{{ data.get('city') }}"
+                               data-form-validation-required
+                               {% if requiredMessage is defined %}data-form-validation-required-message="{{ requiredMessage }}"{% endif %}
                                required="required">
                     {% endblock %}
 

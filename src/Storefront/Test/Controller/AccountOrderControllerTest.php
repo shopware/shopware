@@ -53,10 +53,12 @@ class AccountOrderControllerTest extends TestCase
         $criteria = new Criteria();
         $criteria
             ->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT))
-            ->addFilter(new EqualsFilter('active', true));
+            ->addFilter(new EqualsFilter('active', true))
+            ->addFilter(new EqualsFilter('domains.url', $_SERVER['APP_URL']));
 
         /** @var SalesChannelEntity|null $salesChannel */
         $salesChannel = $this->getContainer()->get('sales_channel.repository')->search($criteria, $context)->first();
+
         if ($salesChannel !== null) {
             $orderData[0]['salesChannelId'] = $salesChannel->getId();
         }
@@ -65,6 +67,7 @@ class AccountOrderControllerTest extends TestCase
         $orderData[0]['lineItems'][0]['identifier'] = $productId;
         $orderData[0]['lineItems'][0]['productId'] = $productId;
 
+        /** @var EntityRepositoryInterface $orderRepo */
         $orderRepo = $this->getContainer()->get('order.repository');
         $orderRepo->create($orderData, $context);
 
@@ -110,7 +113,8 @@ class AccountOrderControllerTest extends TestCase
         $criteria = new Criteria();
         $criteria
             ->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT))
-            ->addFilter(new EqualsFilter('active', true));
+            ->addFilter(new EqualsFilter('active', true))
+            ->addFilter(new EqualsFilter('domains.url', $_SERVER['APP_URL']));
 
         /** @var SalesChannelEntity|null $salesChannel */
         $salesChannel = $this->getContainer()->get('sales_channel.repository')->search($criteria, $context)->first();
@@ -160,7 +164,8 @@ class AccountOrderControllerTest extends TestCase
         $criteria = new Criteria();
         $criteria
             ->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT))
-            ->addFilter(new EqualsFilter('active', true));
+            ->addFilter(new EqualsFilter('active', true))
+            ->addFilter(new EqualsFilter('domains.url', $_SERVER['APP_URL']));
 
         /** @var EntityRepositoryInterface $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
@@ -293,7 +298,8 @@ class AccountOrderControllerTest extends TestCase
         $criteria = new Criteria();
         $criteria
             ->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT))
-            ->addFilter(new EqualsFilter('active', true));
+            ->addFilter(new EqualsFilter('active', true))
+            ->addFilter(new EqualsFilter('domains.url', $_SERVER['APP_URL']));
 
         /** @var EntityRepositoryInterface $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
@@ -333,7 +339,8 @@ class AccountOrderControllerTest extends TestCase
         $criteria = new Criteria();
         $criteria
             ->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT))
-            ->addFilter(new EqualsFilter('active', true));
+            ->addFilter(new EqualsFilter('active', true))
+            ->addFilter(new EqualsFilter('domains.url', $_SERVER['APP_URL']));
 
         /** @var EntityRepositoryInterface $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');

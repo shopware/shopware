@@ -60,6 +60,12 @@ Component.register('sw-settings-shipping-list', {
                 inlineEdit: 'boolean',
                 allowResize: true,
                 align: 'center',
+            }, {
+                property: 'position',
+                label: 'sw-settings-shipping.list.columnPosition',
+                inlineEdit: 'number',
+                allowResize: true,
+                align: 'center',
             }];
         },
 

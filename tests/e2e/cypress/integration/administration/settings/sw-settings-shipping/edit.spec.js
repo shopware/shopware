@@ -32,6 +32,7 @@ describe('Shipping: Edit in various ways', () => {
             `${page.elements.dataGridRow}--0`
         );
         cy.get('input[name=sw-field--shippingMethod-name]').clearTypeAndCheck('Wasserpost');
+        cy.get('input[name=sw-field--shippingMethod-position]').clearTypeAndCheck('99');
 
         // Test shipping price matrix
 
@@ -124,5 +125,7 @@ describe('Shipping: Edit in various ways', () => {
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--name`).should('be.visible')
             .contains('Wasserpost');
+        cy.get(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--position`).should('be.visible')
+            .contains('99');
     });
 });

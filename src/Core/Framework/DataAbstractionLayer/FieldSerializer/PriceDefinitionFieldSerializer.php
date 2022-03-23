@@ -194,6 +194,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
             $rule = $this->ruleConditionRegistry->getRuleInstance($type);
             // do not validate container
             if (!$rule instanceof Container) {
+                $rule->assign($data);
                 $validations = $rule->getConstraints();
                 $violationList->addAll($this->validateConsistence($basePath, $validations, $data));
             }

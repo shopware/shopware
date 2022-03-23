@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CurrencyPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Defaults;
@@ -27,6 +28,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Currency\Rule\CurrencyRule;
+use Shopware\Core\System\CustomField\CustomFieldTypes;
 
 class PriceDefinitionFieldSerializerTest extends TestCase
 {
@@ -85,6 +87,27 @@ class PriceDefinitionFieldSerializerTest extends TestCase
                 new Price(Defaults::CURRENCY, 100, 200, false),
                 new Price(Uuid::randomHex(), 200, 300, true),
             ]), $rule),
+        ];
+
+        $customFieldsRule = new LineItemCustomFieldRule(
+            LineItemCustomFieldRule::OPERATOR_EQ,
+            ['name' => 'foobar', 'type' => CustomFieldTypes::BOOL]
+        );
+        $customFieldsRule->assign([
+            'selectedField' => 'foo',
+            'selectedFieldSet' => 'bar',
+            'renderedFieldValue' => null,
+        ]);
+
+        $rule = new AndRule([
+            new OrRule([
+                $customFieldsRule,
+            ]),
+            $customFieldsRule,
+        ]);
+
+        yield 'Test percentage price definition with bool type custom field rule' => [
+            new PercentagePriceDefinition(-20, $rule),
         ];
     }
 }

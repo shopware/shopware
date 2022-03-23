@@ -1,5 +1,5 @@
 import type { Module } from 'vuex';
-import { actionButtonAdd } from '@shopware-ag/admin-extension-sdk/es/ui/actionButton';
+import type { actionButtonAdd } from '@shopware-ag/admin-extension-sdk/es/ui/actionButton';
 
 type ActionButtonConfig = Omit<actionButtonAdd, 'responseType'>
 

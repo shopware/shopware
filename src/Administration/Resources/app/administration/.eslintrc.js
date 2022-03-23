@@ -205,6 +205,7 @@ module.exports = {
                 '@typescript-eslint/prefer-ts-expect-error': 'error',
                 'no-shadow': 'off',
                 '@typescript-eslint/no-shadow': ['error'],
+                '@typescript-eslint/consistent-type-imports': ['error'],
                 'import/extensions': [
                     'error',
                     'ignorePackages',

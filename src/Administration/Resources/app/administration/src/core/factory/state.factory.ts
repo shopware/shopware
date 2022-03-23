@@ -36,7 +36,7 @@ class State {
     }
 }
 
-interface FullState extends State {
+export interface FullState extends State {
     _store: Store<VuexRootState>,
     list: () => (keyof VuexRootState)[],
     get: <NAME extends keyof VuexRootState>(name: NAME) => VuexRootState[NAME],

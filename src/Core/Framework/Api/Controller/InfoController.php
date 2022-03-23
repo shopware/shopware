@@ -358,8 +358,11 @@ class InfoController extends AbstractController
             return $assets;
         }
 
+        /** @var AppEntity $app */
         foreach ($this->getActiveApps($context) as $app) {
             $assets[$app->getName()] = [
+                'active' => $app->isActive(),
+                'integrationId' => $app->getIntegrationId(),
                 'type' => 'app',
                 'baseUrl' => $app->getBaseAppUrl(),
                 'permissions' => $this->fetchAppPermissions($app),

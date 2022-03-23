@@ -10,7 +10,9 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
+use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
@@ -131,7 +133,16 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     private function resolveContextSource(Request $request): ContextSource
     {
         if ($userId = $request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID)) {
-            return $this->getAdminApiSource($userId);
+            $appIntegrationId = $request->headers->get(PlatformRequest::HEADER_APP_INTEGRATION_ID);
+
+            // The app integration id header is only to be used by a privileged user
+            if ($this->userAppIntegrationHeaderPrivileged($userId, $appIntegrationId)) {
+                $userId = null;
+            } else {
+                $appIntegrationId = null;
+            }
+
+            return $this->getAdminApiSource($userId, $appIntegrationId);
         }
 
         if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID)) {
@@ -357,5 +368,56 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         }
 
         return array_unique(array_filter($list));
+    }
+
+    private function fetchAppNameByIntegrationId(string $integrationId): ?string
+    {
+        $name = $this->connection->createQueryBuilder()
+            ->select(['app.name'])
+            ->from('app', 'app')
+            ->innerJoin('app', 'integration', 'integration', 'integration.id = app.integration_id')
+            ->where('integration.id = :integrationId')
+            ->andWhere('app.active = 1')
+            ->setParameter('integrationId', Uuid::fromHexToBytes($integrationId))
+            ->execute()
+            ->fetchOne();
+
+        if ($name === false) {
+            return null;
+        }
+
+        return $name;
+    }
+
+    /**
+     * @throws MissingPrivilegeException
+     * @throws AppNotFoundException
+     */
+    private function userAppIntegrationHeaderPrivileged(string $userId, ?string $appIntegrationId): bool
+    {
+        if ($appIntegrationId === null) {
+            return false;
+        }
+
+        $appName = $this->fetchAppNameByIntegrationId($appIntegrationId);
+        if ($appName === null) {
+            throw new AppNotFoundException($appIntegrationId);
+        }
+
+        $isAdmin = $this->isAdmin($userId);
+        if ($isAdmin) {
+            return true;
+        }
+
+        $permissions = $this->fetchPermissions($userId);
+        $allAppsPrivileged = \in_array('app.all', $permissions, true);
+        $appPrivilegeName = \sprintf('app.%s', $appName);
+        $specificAppPrivileged = \in_array($appPrivilegeName, $permissions, true);
+
+        if (!($specificAppPrivileged || $allAppsPrivileged)) {
+            throw new MissingPrivilegeException([$appPrivilegeName]);
+        }
+
+        return true;
     }
 }

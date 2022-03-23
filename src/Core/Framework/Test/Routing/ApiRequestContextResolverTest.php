@@ -8,6 +8,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\ApiRequestContextResolver;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -17,6 +19,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class ApiRequestContextResolverTest extends TestCase
 {
@@ -207,6 +210,199 @@ class ApiRequestContextResolverTest extends TestCase
 
         static::assertEquals(200, $browser->getResponse()->getStatusCode());
         static::assertArrayHasKey('data', $response);
+    }
+
+    public function testAdminIntegrationIdHeader(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+        $ids = new IdsCollection();
+        $ids->create('integration');
+
+        $connection->insert('integration', [
+            'id' => Uuid::fromHexToBytes($ids->get('integration')),
+            'write_access' => true,
+            'access_key' => 'foo',
+            'secret_access_key' => password_hash('bar', \PASSWORD_BCRYPT),
+            'label' => 'test integration',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'admin' => 0,
+        ]);
+
+        $connection->insert('acl_role', [
+            'id' => Uuid::fromHexToBytes($ids->create('acl_role')),
+            'name' => 'integration',
+            'privileges' => '["sales_channel:read"]',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $connection->insert('app', [
+            'id' => Uuid::fromHexToBytes($ids->get('app')),
+            'name' => 'PHPUnit',
+            'path' => 'foo',
+            'active' => 1,
+            'configurable' => 0,
+            'version' => '0.0.1',
+            'integration_id' => Uuid::fromHexToBytes($ids->get('integration')),
+            'acl_role_id' => Uuid::fromHexToBytes($ids->get('acl_role')),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $connection->insert('integration_role', [
+            'integration_id' => Uuid::fromHexToBytes($ids->get('integration')),
+            'acl_role_id' => Uuid::fromHexToBytes($ids->get('acl_role')),
+        ]);
+
+        $this->resetBrowser();
+        $browser = $this->getBrowser();
+        $browser->followRedirects();
+        $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_APP_INTEGRATION_ID, $ids->get('integration'));
+
+        $browser->request('POST', '/api/search/currency', [
+            'limit' => 2,
+        ]);
+        $response = json_decode($browser->getResponse()->getContent(), true);
+
+        static::assertEquals(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), \json_encode($response));
+        static::assertArrayHasKey('errors', $response);
+    }
+
+    public function testAdminIntegrationIdHeaderUserNeedsToBePrivileged(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+        $ids = new IdsCollection();
+        $ids->create('integration');
+
+        $connection->insert('integration', [
+            'id' => Uuid::fromHexToBytes($ids->get('integration')),
+            'write_access' => true,
+            'access_key' => 'foo',
+            'secret_access_key' => password_hash('bar', \PASSWORD_BCRYPT),
+            'label' => 'test integration',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'admin' => 0,
+        ]);
+
+        $connection->insert('acl_role', [
+            'id' => Uuid::fromHexToBytes($ids->create('acl_role')),
+            'name' => 'integration',
+            'privileges' => '["currency:read"]',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $connection->insert('app', [
+            'id' => Uuid::fromHexToBytes($ids->get('app')),
+            'name' => 'PHPUnit',
+            'path' => 'foo',
+            'active' => 1,
+            'configurable' => 0,
+            'version' => '0.0.1',
+            'integration_id' => Uuid::fromHexToBytes($ids->get('integration')),
+            'acl_role_id' => Uuid::fromHexToBytes($ids->get('acl_role')),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $connection->insert('integration_role', [
+            'integration_id' => Uuid::fromHexToBytes($ids->get('integration')),
+            'acl_role_id' => Uuid::fromHexToBytes($ids->get('acl_role')),
+        ]);
+
+        $this->resetBrowser();
+        $browser = $this->getBrowser();
+        $browser->followRedirects();
+        $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_APP_INTEGRATION_ID, $ids->get('integration'));
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('email', 'admin@example.com'));
+        $userRepository = $this->getContainer()->get('user.repository');
+        $adminUserId = $userRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        static::assertNotNull($adminUserId, (string) $adminUserId);
+
+        $userRepository->update([
+            [
+                'id' => $adminUserId,
+                'admin' => false,
+            ],
+        ], Context::createDefaultContext());
+
+        $browser->request('POST', '/api/search/currency', [
+            'limit' => 2,
+        ]);
+        $response = json_decode($browser->getResponse()->getContent(), true);
+
+        static::assertEquals(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), \json_encode($response));
+        static::assertArrayHasKey('errors', $response);
+
+        $errors = $response['errors'];
+        static::assertCount(1, $errors);
+
+        $error = $errors[0];
+        static::assertArrayHasKey('detail', $error);
+
+        $detail = \json_decode($error['detail'], true);
+        static::assertArrayHasKey('missingPrivileges', $detail);
+        static::assertSame(['app.PHPUnit'], $detail['missingPrivileges']);
+    }
+
+    public function testAdminIntegrationIdHeaderNeedsToBeAppIntegration(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+        $ids = new IdsCollection();
+        $ids->create('integration');
+
+        $connection->insert('integration', [
+            'id' => Uuid::fromHexToBytes($ids->get('integration')),
+            'write_access' => true,
+            'access_key' => 'foo',
+            'secret_access_key' => password_hash('bar', \PASSWORD_BCRYPT),
+            'label' => 'test integration',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'admin' => 0,
+        ]);
+
+        $connection->insert('acl_role', [
+            'id' => Uuid::fromHexToBytes($ids->create('acl_role')),
+            'name' => 'integration',
+            'privileges' => '["currency:read"]',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $connection->insert('integration_role', [
+            'integration_id' => Uuid::fromHexToBytes($ids->get('integration')),
+            'acl_role_id' => Uuid::fromHexToBytes($ids->get('acl_role')),
+        ]);
+
+        $this->resetBrowser();
+        $browser = $this->getBrowser();
+        $browser->followRedirects();
+        $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_APP_INTEGRATION_ID, $ids->get('integration'));
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('email', 'admin@example.com'));
+        $userRepository = $this->getContainer()->get('user.repository');
+        $adminUserId = $userRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        static::assertNotNull($adminUserId, (string) $adminUserId);
+
+        $userRepository->update([
+            [
+                'id' => $adminUserId,
+                'admin' => false,
+            ],
+        ], Context::createDefaultContext());
+
+        $browser->request('POST', '/api/search/currency', [
+            'limit' => 2,
+        ]);
+        $response = json_decode($browser->getResponse()->getContent(), true);
+
+        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $browser->getResponse()->getStatusCode(), \json_encode($response));
+        static::assertArrayHasKey('errors', $response);
+
+        $errors = $response['errors'];
+        static::assertCount(1, $errors);
+
+        $error = $errors[0];
+        static::assertArrayHasKey('detail', $error);
+        static::assertSame(\sprintf('App for ID: "%s" could not be found.', $ids->get('integration')), $error['detail']);
     }
 
     public function testIntegrationWithoutPrivileges(): void

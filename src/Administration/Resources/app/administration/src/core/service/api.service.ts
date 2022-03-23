@@ -1,6 +1,6 @@
 import parseJsonApi from 'src/core/service/jsonapi-parser.service';
-import { AxiosInstance, AxiosResponse } from 'axios';
-import { LoginService } from './login.service';
+import type { AxiosInstance, AxiosResponse } from 'axios';
+import type { LoginService } from './login.service';
 
 export type BasicHeaders = {
     Accept: string,

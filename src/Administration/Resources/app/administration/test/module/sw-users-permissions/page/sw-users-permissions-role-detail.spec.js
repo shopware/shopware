@@ -3,8 +3,24 @@ import 'src/module/sw-users-permissions/page/sw-users-permissions-role-detail';
 import 'src/app/component/base/sw-button-process';
 import 'src/app/component/base/sw-button';
 import PrivilegesService from 'src/app/service/privileges.service';
+import flushPromises from 'flush-promises';
+import AppAclService from '../../../../src/app/service/app-acl.service';
 
 let privilegesService = new PrivilegesService();
+const appAclService = new AppAclService(
+    {
+        privileges: privilegesService,
+        appRepository: {
+            search: () => {
+                return Promise.resolve([
+                    {
+                        name: 'JestAppName',
+                    }
+                ]);
+            }
+        }
+    }
+);
 
 function isNew() {
     return false;
@@ -72,7 +88,8 @@ function createWrapper({
                 })
             },
             userService: {},
-            privileges: privilegesService
+            privileges: privilegesService,
+            appAclService: appAclService,
         }
     });
 }
@@ -92,7 +109,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
             privileges: ['system:clear:cache', 'system.clear_cache']
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.role.privileges.length).toBe(0);
     });
@@ -115,7 +132,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
             ]
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.role.privileges).toContain('system.clear_cache');
         expect(wrapper.vm.role.privileges).not.toContain('system:clear:cache');
@@ -150,7 +167,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
             ]
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.role.privileges).toContain('system.clear_cache');
         expect(wrapper.vm.role.privileges).toContain('orders.create_discounts');
@@ -187,7 +204,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
             ]
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.role.privileges).toContain('system.clear_cache');
         expect(wrapper.vm.role.privileges).toContain('orders.create_discounts');
@@ -220,7 +237,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
             ]
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.roleRepository.save).not.toHaveBeenCalled();
 
@@ -270,7 +287,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
             ]
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.roleRepository.save).not.toHaveBeenCalled();
 
@@ -322,7 +339,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
             ]
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.roleRepository.save).not.toHaveBeenCalled();
 
@@ -375,7 +392,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
             ]
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.detailedPrivileges.push('currency:update');
 
@@ -462,7 +479,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
             ]
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.roleRepository.save).not.toHaveBeenCalled();
 
@@ -510,9 +527,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     it('should show the name of the role as the title', async () => {
         const wrapper = createWrapper();
-        await wrapper.setData({
-            isLoading: false
-        });
+        await flushPromises();
 
         const title = wrapper.find('h2');
         expect(title.text()).toBe('demoRole');
@@ -520,15 +535,13 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     it('should not show the create new snippet when user deletes name', async () => {
         const wrapper = createWrapper();
-        await wrapper.setData({
-            isLoading: false
-        });
+        await flushPromises();
 
         const title = wrapper.find('h2');
         expect(title.text()).toBe('demoRole');
 
         wrapper.vm.role.name = '';
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(title.text()).toBe('');
     });
@@ -557,7 +570,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
         expect(title.text()).toBe('sw-users-permissions.roles.general.labelCreateNewRole');
 
         wrapper.vm.role.name = 'Test';
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(title.text()).toBe('Test');
     });

@@ -1,4 +1,4 @@
-import { ComponentSectionEntry } from 'src/app/state/extension-component-sections.store';
+import type { ComponentSectionEntry } from 'src/app/state/extension-component-sections.store';
 import template from './sw-extension-component-section.html.twig';
 
 /**

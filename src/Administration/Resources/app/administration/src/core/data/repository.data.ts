@@ -1,12 +1,12 @@
-import { AxiosInstance, AxiosResponse } from 'axios';
+import type { AxiosInstance, AxiosResponse } from 'axios';
 import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
 import Criteria from './criteria.data';
-import EntityHydrator from './entity-hydrator.data';
-import ChangesetGenerator from './changeset-generator.data';
-import ErrorResolver from './error-resolver.data';
-import EntityFactory from './entity-factory.data';
-import EntityDefinition from './entity-definition.data';
-import EntityCollection from './entity-collection.data';
+import type EntityHydrator from './entity-hydrator.data';
+import type ChangesetGenerator from './changeset-generator.data';
+import type ErrorResolver from './error-resolver.data';
+import type EntityFactory from './entity-factory.data';
+import type EntityDefinition from './entity-definition.data';
+import type EntityCollection from './entity-collection.data';
 
 type options = {
     [key: string]: unknown
@@ -639,6 +639,7 @@ export default class Repository {
     } {
         const { hasOwnProperty } = Shopware.Utils.object;
         const compatibility = hasOwnProperty(this.options, 'compatibility') ? this.options.compatibility : true;
+        const appId = hasOwnProperty(this.options, 'sw-app-integration-id') ? this.options['sw-app-integration-id'] : false;
 
         let headers = {
             Accept: 'application/vnd.api+json',
@@ -672,6 +673,13 @@ export default class Repository {
         if (context.inheritance) {
             headers = Object.assign(
                 { 'sw-inheritance': context.inheritance },
+                headers,
+            );
+        }
+
+        if (appId) {
+            headers = Object.assign(
+                { 'sw-app-integration-id': appId },
                 headers,
             );
         }

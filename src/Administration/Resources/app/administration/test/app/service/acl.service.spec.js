@@ -1,6 +1,6 @@
 import AclService from 'src/app/service/acl.service';
 
-describe('src/app/service/acl.service.js', () => {
+describe('src/app/service/acl.service.ts', () => {
     beforeAll(() => {
         Shopware.Service().register('feature', () => {
             return {

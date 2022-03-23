@@ -1,5 +1,5 @@
 import types from 'src/core/service/utils/types.utils';
-import { AxiosResponse } from 'axios';
+import type { AxiosResponse } from 'axios';
 import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
 import EntityClass from './entity.data';
 import Criteria from './criteria.data';

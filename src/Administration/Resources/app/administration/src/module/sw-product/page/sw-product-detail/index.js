@@ -572,11 +572,6 @@ Component.register('sw-product-detail', {
                 if (!product.purchasePrices?.length > 0 && !product.parentId) {
                     product.purchasePrices = this.getDefaultPurchasePrices();
                 }
-                if (product.media) {
-                    product.media.forEach((medium, index) => {
-                        medium.position = index;
-                    });
-                }
 
                 Shopware.State.commit('swProductDetail/setProduct', product);
 

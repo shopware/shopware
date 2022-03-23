@@ -108,7 +108,7 @@
                             <sw-inherit-wrapper
                                 v-if="entity && customField.config"
                                 :key="customField.name"
-                                v-model="entity.customFields[customField.name]"
+                                v-model="customFields[customField.name]"
                                 v-bind="getInheritWrapperBind(customField)"
                                 :class="'sw-form-field-renderer-field__' + customField.name"
                                 :has-parent="hasParent"
@@ -151,7 +151,7 @@
                         {% block sw_custom_field_set_renderer_media_form_renderer %}
                         <sw-form-field-renderer
                             :key="customField.name"
-                            v-model="entity.customFields[customField.name]"
+                            v-model="customFields[customField.name]"
                             v-bind="customField"
                             :disabled="disabled"
                             :required="customField.config.validation === 'required'"

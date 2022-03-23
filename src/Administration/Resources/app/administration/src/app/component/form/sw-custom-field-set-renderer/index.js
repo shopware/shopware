@@ -5,7 +5,7 @@ const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @public
+ * @public - @deprecated tag:v6.5.0 - Will be changed to private
  * @status ready
  * @description
  * Renders custom-field sets
@@ -78,6 +78,12 @@ Component.register('sw-custom-field-set-renderer', {
             default: false,
             require: false,
         },
+    },
+
+    data() {
+        return {
+            customFields: {},
+        };
     },
 
     computed: {
@@ -171,6 +177,13 @@ Component.register('sw-custom-field-set-renderer', {
             },
             deep: true,
         },
+
+        customFields: {
+            handler(customFields) {
+                this.entity.customFields = customFields;
+            },
+            deep: true,
+        },
     },
 
     created() {
@@ -185,8 +198,10 @@ Component.register('sw-custom-field-set-renderer', {
 
         initializeCustomFields() {
             if (!this.entity.customFields) {
-                this.entity.customFields = {};
+                return;
             }
+
+            this.customFields = this.entity.customFields;
         },
 
         getInheritedCustomField(customFieldName) {

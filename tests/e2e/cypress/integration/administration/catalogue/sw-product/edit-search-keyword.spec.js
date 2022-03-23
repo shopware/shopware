@@ -49,6 +49,9 @@ describe('Product: Search Keyword product', () => {
         cy.get('.sw-product-category-form__search-keyword-field input')
             .type('{enter}');
 
+        // To loose keyword list focus
+        cy.get('.sw-product-variant-info__product-name').click();
+
         // Save product with search keyword
         cy.get(page.elements.productSaveAction).click();
 

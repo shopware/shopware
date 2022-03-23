@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Test\Adapter\Twig\fixtures\BundleFixture;
 use Shopware\Core\Framework\Test\Api\Controller\fixtures\AdminExtensionApiPlugin;
 use Shopware\Core\Framework\Test\Api\Controller\fixtures\AdminExtensionApiPluginWithLocalEntryPoint\AdminExtensionApiPluginWithLocalEntryPoint;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Kernel;
 use Symfony\Component\Asset\Package;
@@ -67,6 +68,8 @@ class InfoControllerTest extends TestCase
         if (!Feature::isActive('FEATURE_NEXT_17950')) {
             static::markTestSkipped('Only available with flag FEATURE_NEXT_17950');
         }
+
+        $ids = new IdsCollection();
         $appRepository = $this->getContainer()->get('app.repository');
         $appRepository->create([
             [
@@ -77,6 +80,7 @@ class InfoControllerTest extends TestCase
                 'version' => '1.0.0',
                 'label' => 'PHPUnit',
                 'integration' => [
+                    'id' => $ids->create('integration'),
                     'label' => 'foo',
                     'accessKey' => '123',
                     'secretAccessKey' => '456',
@@ -98,6 +102,8 @@ class InfoControllerTest extends TestCase
         static::assertIsString($appUrl);
 
         $bundle = [
+            'active' => true,
+            'integrationId' => $ids->get('integration'),
             'type' => 'app',
             'baseUrl' => 'https://example.com',
             'permissions' => [

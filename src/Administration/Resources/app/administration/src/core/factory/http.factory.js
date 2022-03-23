@@ -79,6 +79,12 @@ function requestCacheAdapterInterceptor(client) {
  */
 function globalErrorHandlingInterceptor(client) {
     client.interceptors.response.use(response => response, error => {
+        const { hasOwnProperty } = Shopware.Utils.object;
+
+        if (hasOwnProperty(error.config.headers, 'sw-app-integration-id')) {
+            return Promise.reject(error);
+        }
+
         const { response: { status, data: { errors, data } } } = error;
 
         try {

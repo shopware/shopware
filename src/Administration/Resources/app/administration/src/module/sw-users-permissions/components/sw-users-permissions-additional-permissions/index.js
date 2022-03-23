@@ -6,7 +6,7 @@ const { Component } = Shopware;
 Component.register('sw-users-permissions-additional-permissions', {
     template,
 
-    inject: ['privileges', 'appAclService'],
+    inject: ['privileges'],
 
     props: {
         role: {
@@ -42,14 +42,18 @@ Component.register('sw-users-permissions-additional-permissions', {
         },
     },
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed
+     */
     created() {
         this.createdComponent();
     },
 
     methods: {
-        createdComponent() {
-            this.appAclService.addAppPermissions();
-        },
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed
+         */
+        createdComponent() {},
 
         isPrivilegeSelected(privilegeKey) {
             if (!this.role.privileges) {

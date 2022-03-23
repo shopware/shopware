@@ -1,6 +1,6 @@
-import { AxiosInstance, AxiosResponse } from 'axios';
+import type { AxiosInstance, AxiosResponse } from 'axios';
 import ApiService from '../api.service';
-import { LoginService } from '../login.service';
+import type { LoginService } from '../login.service';
 
 export type action = {
     url: string,

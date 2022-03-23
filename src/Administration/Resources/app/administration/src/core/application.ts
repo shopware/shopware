@@ -1,7 +1,7 @@
 import type Bottle from 'bottlejs';
 import Vue from 'vue';
 import type ViewAdapter from './adapter/view.adapter';
-import { ContextState } from '../app/state/context.store';
+import type { ContextState } from '../app/state/context.store';
 /**
  * @module core/application
  */
@@ -13,6 +13,9 @@ interface bundlesSinglePluginResponse {
     baseUrl?: null | string,
     type?: 'app'|'plugin',
     version?: string,
+    // Properties below this line are only available for apps
+    integrationId?: string,
+    active?: boolean,
 }
 
 interface bundlesPluginResponse {
@@ -593,6 +596,8 @@ class ApplicationBootstrapper {
             }
 
             this.injectIframe({
+                active: bundle.active,
+                integrationId: bundle.integrationId,
                 bundleName,
                 bundleVersion: bundle.version,
                 iframeSrc: bundle.baseUrl,
@@ -705,11 +710,15 @@ class ApplicationBootstrapper {
      * Inject hidden iframes
      */
     private injectIframe({
+        active,
+        integrationId,
         bundleName,
         iframeSrc,
         bundleVersion,
         bundleType,
     }: {
+        active?: boolean,
+        integrationId?: string,
         bundleName: string,
         iframeSrc: string,
         bundleVersion?: string,
@@ -723,6 +732,8 @@ class ApplicationBootstrapper {
         }
 
         const extension = {
+            active,
+            integrationId,
             name: bundleName,
             baseUrl: iframeSrc,
             version: bundleVersion,

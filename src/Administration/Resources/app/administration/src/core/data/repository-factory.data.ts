@@ -1,9 +1,9 @@
-import { AxiosInstance } from 'axios';
+import type { AxiosInstance } from 'axios';
 import Repository from './repository.data';
-import EntityHydrator from './entity-hydrator.data';
-import ChangesetGenerator from './changeset-generator.data';
-import EntityFactory from './entity-factory.data';
-import ErrorResolver from './error-resolver.data';
+import type EntityHydrator from './entity-hydrator.data';
+import type ChangesetGenerator from './changeset-generator.data';
+import type EntityFactory from './entity-factory.data';
+import type ErrorResolver from './error-resolver.data';
 
 export default class RepositoryFactory {
     private hydrator: EntityHydrator;

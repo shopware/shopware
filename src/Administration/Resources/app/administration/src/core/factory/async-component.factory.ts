@@ -3,7 +3,7 @@ import { cloneDeep } from 'src/core/service/utils/object.utils';
 import TemplateFactory from 'src/core/factory/template.factory';
 // eslint-disable-next-line import/no-named-default
 import type { default as Vue, ComponentOptions } from 'vue';
-import {
+import type {
     ThisTypedComponentOptionsWithRecordProps,
     ThisTypedComponentOptionsWithArrayProps,
 // eslint-disable-next-line import/no-unresolved

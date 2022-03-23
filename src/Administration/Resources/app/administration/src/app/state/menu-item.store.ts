@@ -1,5 +1,5 @@
-import { Module } from 'vuex';
-import { menuItemAdd } from '@shopware-ag/admin-extension-sdk/es/ui/menu';
+import type { Module } from 'vuex';
+import type { menuItemAdd } from '@shopware-ag/admin-extension-sdk/es/ui/menu';
 
 export type MenuItemEntry = Omit<menuItemAdd, 'responseType' | 'locationId' | 'displaySearchBar'> & { moduleId: string }
 

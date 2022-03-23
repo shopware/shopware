@@ -1,4 +1,4 @@
-import { Module } from 'vuex';
+import type { Module } from 'vuex';
 
 export type ExtensionSdkModule = {
     id: string,

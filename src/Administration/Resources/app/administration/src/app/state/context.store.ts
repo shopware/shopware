@@ -18,7 +18,9 @@ interface ContextState {
                 [BundleName: string]: {
                     css: string | string[],
                     js: string | string[],
-                    permissions: privileges,
+                    permissions?: privileges,
+                    integrationId?: string,
+                    active?: boolean,
                 }
             },
             version: null | string,

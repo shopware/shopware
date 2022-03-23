@@ -15,11 +15,11 @@ import type ExtensionSdkService from 'src/core/service/api/extension-sdk.service
 import type { ExtensionsState } from './app/state/extensions.store';
 import type { ComponentConfig } from './core/factory/component.factory';
 import type { TabsState } from './app/state/tabs.store';
-import { MenuItemState } from './app/state/menu-item.store';
-import { ModalsState } from './app/state/modals.store';
-import { ExtensionSdkModuleState } from './app/state/extension-sdk-module.store';
-import { MainModuleState } from './app/state/main-module.store';
-import { ActionButtonState } from './app/state/action-button.store';
+import type { MenuItemState } from './app/state/menu-item.store';
+import type { ModalsState } from './app/state/modals.store';
+import type { ExtensionSdkModuleState } from './app/state/extension-sdk-module.store';
+import type { MainModuleState } from './app/state/main-module.store';
+import type { ActionButtonState } from './app/state/action-button.store';
 
 // trick to make it an "external module" to support global type extension
 export {};

@@ -36,7 +36,7 @@ class ImageTypeDataResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->imageResolver = new ImageCmsElementResolver(new DefaultMediaResolver(__DIR__ . self::FIXTURES_DIRECTORY, 'core'));
+        $this->imageResolver = new ImageCmsElementResolver(new DefaultMediaResolver(__DIR__ . self::FIXTURES_DIRECTORY));
     }
 
     public function testType(): void
@@ -276,7 +276,7 @@ class ImageTypeDataResolverTest extends TestCase
         $result = new ElementDataCollection();
 
         $fieldConfig = new FieldConfigCollection();
-        $fieldConfig->add(new FieldConfig('media', FieldConfig::SOURCE_DEFAULT, 'shopware.jpg'));
+        $fieldConfig->add(new FieldConfig('media', FieldConfig::SOURCE_DEFAULT, 'core/assets/default/cms/shopware.jpg'));
 
         $slot = new CmsSlotEntity();
         $slot->setFieldConfig($fieldConfig);
@@ -287,7 +287,7 @@ class ImageTypeDataResolverTest extends TestCase
         $imageStruct = $slot->getData();
         $media = $imageStruct->getMedia();
 
-        static::assertEquals('shopware.jpg', $media->getFileName());
+        static::assertEquals('shopware', $media->getFileName());
         static::assertEquals('image/jpeg', $media->getMimeType());
         static::assertEquals('jpg', $media->getFileExtension());
     }

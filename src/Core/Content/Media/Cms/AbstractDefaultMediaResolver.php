@@ -6,9 +6,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 
 abstract class AbstractDefaultMediaResolver
 {
-    public const CMS_DEFAULT_ASSETS_PATH = 'assets/default/cms/';
-
     abstract public function getDecorated(): AbstractDefaultMediaResolver;
 
-    abstract public function getDefaultCmsMediaEntity(string $cmsAssetFileName): ?MediaEntity;
+    abstract public function getDefaultCmsMediaEntity(string $mediaAssetFilePath): ?MediaEntity;
 }

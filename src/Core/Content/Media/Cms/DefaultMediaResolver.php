@@ -7,16 +7,11 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 class DefaultMediaResolver extends AbstractDefaultMediaResolver
 {
-    private const BUNDLE_NAME = 'core';
-
     private string $projectDir;
 
-    private string $bundleName;
-
-    public function __construct(string $projectDir, string $bundleName = self::BUNDLE_NAME)
+    public function __construct(string $projectDir)
     {
         $this->projectDir = $projectDir;
-        $this->bundleName = $bundleName;
     }
 
     public function getDecorated(): AbstractDefaultMediaResolver
@@ -24,15 +19,9 @@ class DefaultMediaResolver extends AbstractDefaultMediaResolver
         throw new DecorationPatternException(self::class);
     }
 
-    public function getDefaultCmsMediaEntity(string $cmsAssetFileName): ?MediaEntity
+    public function getDefaultCmsMediaEntity(string $mediaAssetFilePath): ?MediaEntity
     {
-        $filePath = sprintf(
-            '%s/bundles/%s/%s%s',
-            $this->projectDir,
-            $this->bundleName,
-            self::CMS_DEFAULT_ASSETS_PATH,
-            $cmsAssetFileName
-        );
+        $filePath = $this->projectDir . '/bundles/' . $mediaAssetFilePath;
 
         if (!file_exists($filePath)) {
             return null;
@@ -46,7 +35,7 @@ class DefaultMediaResolver extends AbstractDefaultMediaResolver
         }
 
         $media = new MediaEntity();
-        $media->setFileName($cmsAssetFileName);
+        $media->setFileName($pathInfo['filename']);
         $media->setMimeType($mimeType);
         $media->setFileExtension($pathInfo['extension']);
 

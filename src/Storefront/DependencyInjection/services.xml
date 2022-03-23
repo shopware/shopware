@@ -453,7 +453,7 @@
         </service>
 
         <service id="Shopware\Storefront\Page\Cms\DefaultMediaResolver" decorates="Shopware\Core\Content\Media\Cms\DefaultMediaResolver">
-            <argument>%kernel.project_dir%/public</argument>
+            <argument type="service" id="Shopware\Storefront\Page\Cms\DefaultMediaResolver.inner"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
             <argument type="service" id="twig.extension.assets"/>
         </service>

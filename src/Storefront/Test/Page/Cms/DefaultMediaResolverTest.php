@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Cms\AbstractDefaultMediaResolver;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -14,16 +15,26 @@ class DefaultMediaResolverTest extends TestCase
 
     private DefaultMediaResolver $mediaResolver;
 
+    private $decorated;
+
     public function setUp(): void
     {
-        $translator = $this->createConfiguredMock(Translator::class, ['trans' => 'foobar']);
         $assetExtension = $this->getContainer()->get('twig.extension.assets');
 
-        $this->mediaResolver = new DefaultMediaResolver(__DIR__ . self::FIXTURES_DIRECTORY, $translator, $assetExtension);
+        $translator = $this->createConfiguredMock(
+            Translator::class,
+            [
+                'trans' => 'foobar',
+            ]
+        );
+
+        $this->decorated = $this->createMock(AbstractDefaultMediaResolver::class);
+        $this->mediaResolver = new DefaultMediaResolver($this->decorated, $translator, $assetExtension);
     }
 
     public function testGetDefaultMediaEntityWithoutValidFileName(): void
     {
+        $this->decorated->method('getDefaultCmsMediaEntity')->willReturn(null);
         $media = $this->mediaResolver->getDefaultCmsMediaEntity('this/file/does/not/exists');
 
         static::assertNull($media);
@@ -31,13 +42,12 @@ class DefaultMediaResolverTest extends TestCase
 
     public function testGetDefaultMediaEntityWithValidFileName(): void
     {
-        $media = $this->mediaResolver->getDefaultCmsMediaEntity('shopware.jpg');
+        $this->decorated->method('getDefaultCmsMediaEntity')->willReturn(new MediaEntity());
+        $media = $this->mediaResolver->getDefaultCmsMediaEntity('storefront/assets/default/cms/shopware.jpg');
 
         static::assertInstanceOf(MediaEntity::class, $media);
-        static::assertEquals('shopware.jpg', $media->getFileName());
-        static::assertEquals('image/jpeg', $media->getMimeType());
-        static::assertEquals('jpg', $media->getFileExtension());
 
+        // ensure url and translations are set correctly
         static::assertStringContainsString('bundles/storefront/assets/default/cms/shopware.jpg', $media->getUrl());
         static::assertEquals('foobar', $media->getTranslated()['title']);
         static::assertEquals('foobar', $media->getTranslated()['alt']);

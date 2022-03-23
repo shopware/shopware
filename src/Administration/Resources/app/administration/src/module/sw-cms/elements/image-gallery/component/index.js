@@ -135,15 +135,21 @@ Component.register('sw-cms-el-image-gallery', {
 
         getPlaceholderItems() {
             if (this.element?.config?.source !== 'default') {
+                const previewMountain = CMS.MEDIA.previewMountain.slice(CMS.MEDIA.previewMountain.lastIndexOf('/') + 1);
+                const previewGlasses = CMS.MEDIA.previewGlasses.slice(CMS.MEDIA.previewGlasses.lastIndexOf('/') + 1);
+                const previewPlant = CMS.MEDIA.previewPlant.slice(CMS.MEDIA.previewPlant.lastIndexOf('/') + 1);
+
                 return [
-                    { url: this.assetFilter(`administration/static/img/cms/${CMS.MEDIA.previewMountain}`) },
-                    { url: this.assetFilter(`administration/static/img/cms/${CMS.MEDIA.previewGlasses}`) },
-                    { url: this.assetFilter(`administration/static/img/cms/${CMS.MEDIA.previewPlant}`) },
+                    { url: this.assetFilter(`administration/static/img/cms/${previewMountain}`) },
+                    { url: this.assetFilter(`administration/static/img/cms/${previewGlasses}`) },
+                    { url: this.assetFilter(`administration/static/img/cms/${previewPlant}`) },
                 ];
             }
 
             return this.element.config.sliderItems.value.map(media => {
-                return { url: this.assetFilter(`/administration/static/img/cms/${media.fileName}`) };
+                const fileName = media.fileName.slice(media.fileName.lastIndexOf('/') + 1);
+
+                return { url: this.assetFilter(`/administration/static/img/cms/${fileName}`) };
             });
         },
 

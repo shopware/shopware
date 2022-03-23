@@ -40,7 +40,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->imageSliderResolver = new ImageSliderTypeDataResolver(new DefaultMediaResolver(__DIR__ . self::FIXTURES_DIRECTORY, 'core'));
+        $this->imageSliderResolver = new ImageSliderTypeDataResolver(new DefaultMediaResolver(__DIR__ . self::FIXTURES_DIRECTORY));
     }
 
     public function testType(): void
@@ -237,8 +237,8 @@ class ImageSliderTypeDataResolverTest extends TestCase
         $resolverContext = $this->getResolverContext($productMediaCollection);
 
         $medias = [
-            ['fileName' => 'animated.gif'],
-            ['fileName' => 'shopware.jpg'],
+            ['fileName' => 'core/assets/default/cms/animated.gif'],
+            ['fileName' => 'core/assets/default/cms/shopware.jpg'],
         ];
 
         $fieldConfig = new FieldConfigCollection();
@@ -265,7 +265,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
         /** @var ImageSliderItemStruct $firstSliderItem */
         $firstSliderItemMedia = $firstSliderItem->getMedia();
-        static::assertEquals('animated.gif', $firstSliderItemMedia->getFileName());
+        static::assertEquals('animated', $firstSliderItemMedia->getFileName());
         static::assertEquals('image/gif', $firstSliderItemMedia->getMimeType());
         static::assertEquals('gif', $firstSliderItemMedia->getFileExtension());
 
@@ -274,7 +274,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
         /** @var MediaEntity $secondSliderItem */
         $secondSliderItemMedia = $secondSliderItem->getMedia();
-        static::assertEquals('shopware.jpg', $secondSliderItemMedia->getFileName());
+        static::assertEquals('shopware', $secondSliderItemMedia->getFileName());
         static::assertEquals('image/jpeg', $secondSliderItemMedia->getMimeType());
         static::assertEquals('jpg', $secondSliderItemMedia->getFileExtension());
     }

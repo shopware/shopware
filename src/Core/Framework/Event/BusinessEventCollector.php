@@ -88,7 +88,7 @@ class BusinessEventCollector
         foreach ($interfaces as $interface) {
             if (is_subclass_of($interface, FlowEventAware::class)
                 && $interface !== FlowEventAware::class
-                && !is_subclass_of($interface, BusinessEventInterface::class)
+                && $interface !== MailActionInterface::class
                 && $interface !== BusinessEventInterface::class) {
                 $aware[] = $interface;
             }

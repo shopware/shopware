@@ -345,4 +345,86 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         expect(row1.find('.sw-data-grid__cell--email').text()).toContain('test1@example.com');
         expect(row1.find('.sw-data-grid__cell--name').text()).toContain('Jane Doe');
     });
+
+    it('should show customer recipient when entity available', async () => {
+        Shopware.State.commit('swFlowState/setTriggerEvent', {
+            data: {
+                customer: '',
+                order: ''
+            },
+            customerAware: true,
+            extensions: [],
+            mailAware: true,
+            name: 'checkout.customer.login',
+            aware: [
+                'Shopware\\Core\\Framework\\Event\\CustomerAware',
+                'Shopware\\Core\\Framework\\Event\\MailAware'
+            ]
+        });
+
+        const wrapper = createWrapper();
+        const recipientSelect = wrapper.find('.sw-flow-mail-send-modal__recipient .sw-select__selection');
+        await recipientSelect.trigger('click');
+
+        const customOption = wrapper.find('.sw-select-option--custom');
+        expect(customOption.exists()).toBeTruthy();
+        const standardOption = wrapper.find('.sw-select-option--default');
+        expect(standardOption.exists()).toBeTruthy();
+        const adminOption = wrapper.find('.sw-select-option--admin');
+        expect(adminOption.exists()).toBeTruthy();
+    });
+
+    it('should show standard recipient for contact form', async () => {
+        Shopware.State.commit('swFlowState/setTriggerEvent', {
+            data: {
+                customer: '',
+                order: ''
+            },
+            customerAware: true,
+            extensions: [],
+            mailAware: true,
+            name: 'contact_form.send',
+            aware: [
+                'Shopware\\Core\\Framework\\Event\\MailAware'
+            ]
+        });
+
+        const wrapper = createWrapper();
+        const recipientSelect = wrapper.find('.sw-flow-mail-send-modal__recipient .sw-select__selection');
+        await recipientSelect.trigger('click');
+
+        const customOption = wrapper.find('.sw-select-option--custom');
+        expect(customOption.exists()).toBeTruthy();
+        const standardOption = wrapper.find('.sw-select-option--default');
+        expect(standardOption.exists()).toBeTruthy();
+        const adminOption = wrapper.find('.sw-select-option--admin');
+        expect(adminOption.exists()).toBeTruthy();
+    });
+
+    it('should not show standard recipient when entity not available', async () => {
+        Shopware.State.commit('swFlowState/setTriggerEvent', {
+            data: {
+                customer: '',
+                order: ''
+            },
+            customerAware: true,
+            extensions: [],
+            mailAware: true,
+            name: 'checkout.customer.login',
+            aware: [
+                'Shopware\\Core\\Framework\\Event\\MailAware'
+            ]
+        });
+
+        const wrapper = createWrapper();
+        const recipientSelect = wrapper.find('.sw-flow-mail-send-modal__recipient .sw-select__selection');
+        await recipientSelect.trigger('click');
+
+        const customOption = wrapper.find('.sw-select-option--custom');
+        expect(customOption.exists()).toBeTruthy();
+        const standardOption = wrapper.find('.sw-select-option--default');
+        expect(standardOption.exists()).toBeFalsy();
+        const adminOption = wrapper.find('.sw-select-option--admin');
+        expect(adminOption.exists()).toBeTruthy();
+    });
 });

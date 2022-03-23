@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Event;
 
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 
-interface MailAware extends FlowEventAware
+interface MailAware extends MailActionInterface
 {
     public function getMailStruct(): MailRecipientStruct;
 

@@ -3,14 +3,17 @@
 namespace Shopware\Core\Content\ProductExport\Event;
 
 use Monolog\Logger;
+use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Log\LogAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class ProductExportLoggingEvent extends Event implements BusinessEventInterface, LogAware
+class ProductExportLoggingEvent extends Event implements BusinessEventInterface, LogAware, MailAware
 {
     public const NAME = 'product_export.log';
 
@@ -88,5 +91,15 @@ class ProductExportLoggingEvent extends Event implements BusinessEventInterface,
     {
         return (new EventDataCollection())
             ->add('name', new ScalarValueType(ScalarValueType::TYPE_STRING));
+    }
+
+    public function getMailStruct(): MailRecipientStruct
+    {
+        throw new MailEventConfigurationException('Data for mailRecipientStruct not available.', self::class);
+    }
+
+    public function getSalesChannelId(): ?string
+    {
+        return null;
     }
 }

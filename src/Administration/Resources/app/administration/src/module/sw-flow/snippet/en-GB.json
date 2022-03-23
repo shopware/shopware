@@ -191,6 +191,7 @@
         "placeholderHtml": "Enter email template HTML text ...",
         "buttonAddMailTemplate": "Add email template",
         "labelDefault": "Standard",
+        "labelCustomer": "Customer",
         "labelAdmin": "Admin",
         "labelCustom": "Custom",
         "labelRecipient": "Recipient",

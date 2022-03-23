@@ -50,20 +50,78 @@ Component.register('sw-flow-mail-send-modal', {
             return !this.sequence?.id;
         },
 
-        recipientOptions() {
+        recipientCustomer() {
+            return [
+                {
+                    value: 'default',
+                    label: this.$tc('sw-flow.modals.mail.labelCustomer'),
+                },
+            ];
+        },
+
+        recipientAdmin() {
+            return [
+                {
+                    value: 'admin',
+                    label: this.$tc('sw-flow.modals.mail.labelAdmin'),
+                },
+            ];
+        },
+
+        recipientCustom() {
+            return [
+                {
+                    value: 'custom',
+                    label: this.$tc('sw-flow.modals.mail.labelCustom'),
+                },
+            ];
+        },
+
+        recipientDefault() {
             return [
                 {
                     value: 'default',
                     label: this.$tc('sw-flow.modals.mail.labelDefault'),
                 },
-                {
-                    value: 'admin',
-                    label: this.$tc('sw-flow.modals.mail.labelAdmin'),
-                },
-                {
-                    value: 'custom',
-                    label: this.$tc('sw-flow.modals.mail.labelCustom'),
-                },
+            ];
+        },
+
+        entityAware() {
+            return ['CustomerAware', 'UserAware', 'OrderAware', 'CustomerGroupAware'];
+        },
+
+        recipientOptions() {
+            const allowedAwareOrigin = this.triggerEvent.aware ?? [];
+            const allowAwareConverted = [];
+            allowedAwareOrigin.forEach(aware => {
+                allowAwareConverted.push(aware.slice(aware.lastIndexOf('\\') + 1));
+            });
+
+            if (allowAwareConverted.length === 0) {
+                return this.recipientCustom;
+            }
+
+            if (this.triggerEvent.name === 'contact_form.send') {
+                return [
+                    ...this.recipientDefault,
+                    ...this.recipientAdmin,
+                    ...this.recipientCustom,
+                ];
+            }
+
+            const hasEntityAware = allowAwareConverted.some(allowedAware => this.entityAware.includes(allowedAware));
+
+            if (hasEntityAware) {
+                return [
+                    ...this.recipientCustomer,
+                    ...this.recipientAdmin,
+                    ...this.recipientCustom,
+                ];
+            }
+
+            return [
+                ...this.recipientAdmin,
+                ...this.recipientCustom,
             ];
         },
 
@@ -79,7 +137,7 @@ Component.register('sw-flow-mail-send-modal', {
             }];
         },
 
-        ...mapState('swFlowState', ['mailTemplates']),
+        ...mapState('swFlowState', ['mailTemplates', 'triggerEvent', 'triggerActions']),
     },
 
     created() {
@@ -88,7 +146,7 @@ Component.register('sw-flow-mail-send-modal', {
 
     methods: {
         createdComponent() {
-            this.mailRecipient = this.recipientOptions.find(recipient => recipient.value === 'default').value;
+            this.mailRecipient = this.recipientOptions[0].value;
 
             if (!this.isNewMail) {
                 const { config } = this.sequence;

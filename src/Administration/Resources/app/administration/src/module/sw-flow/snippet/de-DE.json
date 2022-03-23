@@ -191,6 +191,7 @@
         "placeholderHtml": "HTML-Inhalt eingeben ...",
         "buttonAddMailTemplate": "E-Mail-Template hinzufügen",
         "labelDefault": "Standard",
+        "labelCustomer": "Kunde",
         "labelAdmin": "Administrator",
         "labelCustom": "Eigener Empfänger",
         "labelRecipient": "Empfänger",

@@ -25,8 +25,10 @@ class TwigEnvironment extends Environment
         $source = $this->compiler->compile($node)->getSource();
 
         $source = str_replace('twig_get_attribute(', 'sw_get_attribute(', $source);
+        $source = str_replace('twig_escape_filter(', 'sw_escape_filter(', $source);
+        $source = str_replace('use Twig\Environment;', "use Twig\Environment;\nuse function Shopware\Core\Framework\Adapter\Twig\sw_get_attribute;\nuse function Shopware\Core\Framework\Adapter\Twig\sw_escape_filter;", $source);
 
-        return str_replace('use Twig\Environment;', "use Twig\Environment;\nuse function Shopware\Core\Framework\Adapter\Twig\sw_get_attribute;", $source);
+        return $source;
     }
 }
 
@@ -47,4 +49,25 @@ function sw_get_attribute(Environment $env, Source $source, $object, $item, arra
     } finally {
         FieldVisibility::$isInTwigRenderingContext = false;
     }
+}
+
+function sw_escape_filter(Environment $env, $string, $strategy = 'html', $charset = null, $autoescape = false)
+{
+    if (\is_int($string)) {
+        $string = (string) $string;
+    }
+    static $strings = [];
+    if (\is_string($string) && isset($strings[$string][$strategy])) {
+        return $strings[$string][$strategy];
+    }
+
+    $result = twig_escape_filter($env, $string, $strategy, $charset, $autoescape);
+
+    if (!\is_string($string)) {
+        return $result;
+    }
+
+    $strings[$string][$strategy] = $result;
+
+    return $result;
 }

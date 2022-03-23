@@ -182,7 +182,7 @@ class TaxDetectorTest extends TestCase
     {
         $context = $this->createMock(SalesChannelContext::class);
 
-        $country = (new CountryEntity)->assign([
+        $country = (new CountryEntity())->assign([
             'customerTax' => new TaxFreeConfig(false),
             'companyTax' => new TaxFreeConfig(true),
             'vatIdPattern' => '...',
@@ -190,8 +190,8 @@ class TaxDetectorTest extends TestCase
         ]);
 
         $customer = (new CustomerEntity())->assign([
-             'company' => 'ABC Compay',
-             'vatIds' => [null],
+            'company' => 'ABC Compay',
+            'vatIds' => [null],
         ]);
 
         $context->expects(static::once())->method('getShippingLocation')->willReturn(

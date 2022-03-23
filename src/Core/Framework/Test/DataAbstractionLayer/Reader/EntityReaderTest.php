@@ -2247,6 +2247,34 @@ class EntityReaderTest extends TestCase
         static::assertSame($expected, array_values($urls));
     }
 
+    public function testLoadOneToManyPaginatedWithNoParent(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+
+        $this->productRepository->create([
+            [
+                'id' => $id = Uuid::randomHex(),
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 1,
+                'name' => 'test',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
+                'manufacturer' => ['name' => 'test'],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
+            ],
+        ], $context);
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('media');
+        $criteria->getAssociation('media')->setLimit(1);
+
+        /** @var ProductEntity|null $product */
+        $product = $this->productRepository->search($criteria, $context)->first();
+
+        static::assertNotNull($product);
+        static::assertCount(0, $product->getMedia());
+    }
+
     public function casesToManyPaginated(): iterable
     {
         yield 'Multi sort' => [

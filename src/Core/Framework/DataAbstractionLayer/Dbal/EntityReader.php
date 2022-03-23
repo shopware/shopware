@@ -593,6 +593,7 @@ class EntityReader implements EntityReaderInterface
             }
 
             $parentId = $entity->get('parentId');
+
             if ($parentId === null) {
                 continue;
             }

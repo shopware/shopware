@@ -75,9 +75,20 @@
                 },
                 "cache": {
                     "$ref": "#/definitions/cache"
+                },
+                "mail": {
+                    "$ref": "#/definitions/mail"
                 }
             },
             "title": "Shopware"
+        },
+        "mail": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "update_on_order": {
+                    "type": "boolean"
+                }
         },
         "admin_worker": {
             "type": "object",

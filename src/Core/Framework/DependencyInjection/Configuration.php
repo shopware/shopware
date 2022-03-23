@@ -27,6 +27,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createDeploymentSection())
                 ->append($this->createMediaSection())
                 ->append($this->createDalSection())
+                ->append($this->createMailSection())
                 ->append($this->createFeatureSection())
                 ->append($this->createLoggerSection())
                 ->append($this->createCacheSection())
@@ -528,6 +529,19 @@ class Configuration implements ConfigurationInterface
                     ->scalarNode('type')->end()
                     ->variableNode('config')->end()
                 ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createMailSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('mail');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+            ->booleanNode('update_on_order')->defaultTrue()->end()
             ->end();
 
         return $rootNode;

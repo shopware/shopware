@@ -58,6 +58,8 @@ class SendMailAction extends FlowAction
 
     private LanguageLocaleCodeProvider $languageLocaleProvider;
 
+    private bool $updateMailTemplate;
+
     public function __construct(
         AbstractMailService $emailService,
         EntityRepositoryInterface $mailTemplateRepository,
@@ -70,7 +72,8 @@ class SendMailAction extends FlowAction
         EntityRepositoryInterface $mailTemplateTypeRepository,
         Translator $translator,
         Connection $connection,
-        LanguageLocaleCodeProvider $languageLocaleProvider
+        LanguageLocaleCodeProvider $languageLocaleProvider,
+        bool $updateMailTemplate
     ) {
         $this->mailTemplateRepository = $mailTemplateRepository;
         $this->mediaService = $mediaService;
@@ -84,6 +87,7 @@ class SendMailAction extends FlowAction
         $this->translator = $translator;
         $this->connection = $connection;
         $this->languageLocaleProvider = $languageLocaleProvider;
+        $this->updateMailTemplate = $updateMailTemplate;
     }
 
     public static function getName(): string
@@ -208,6 +212,10 @@ class SendMailAction extends FlowAction
             return;
         }
 
+        if (!$this->updateMailTemplate) {
+            return;
+        }
+
         $mailTemplateTypeTranslation = $this->connection->fetchOne(
             'SELECT 1 FROM mail_template_type_translation WHERE language_id = :languageId AND mail_template_type_id =:mailTemplateTypeId',
             [
@@ -236,6 +244,7 @@ class SendMailAction extends FlowAction
     private function getMailTemplate(string $id, Context $context): ?MailTemplateEntity
     {
         $criteria = new Criteria([$id]);
+        $criteria->setTitle('send-mail::load-mail-template');
         $criteria->addAssociation('media.media');
         $criteria->setLimit(1);
 
@@ -283,7 +292,10 @@ class SendMailAction extends FlowAction
         }
 
         if (!empty($extensions->getMediaIds())) {
-            $entities = $this->mediaRepository->search(new Criteria($extensions->getMediaIds()), $mailEvent->getContext());
+            $criteria = new Criteria($extensions->getMediaIds());
+            $criteria->setTitle('send-mail::load-media');
+
+            $entities = $this->mediaRepository->search($criteria, $mailEvent->getContext());
 
             foreach ($entities as $media) {
                 $attachments[] = $this->mediaService->getAttachment($media, $mailEvent->getContext());
@@ -344,6 +356,7 @@ class SendMailAction extends FlowAction
     private function buildOrderAttachments(array $documentIds, array $attachments, Context $context): array
     {
         $criteria = new Criteria($documentIds);
+        $criteria->setTitle('send-mail::load-attachments');
         $criteria->addAssociation('documentMediaFile');
         $criteria->addAssociation('documentType');
 
@@ -385,6 +398,7 @@ class SendMailAction extends FlowAction
         }
 
         $criteria = new Criteria($documentIds);
+        $criteria->setTitle('send-mail::load-flow-documents');
         $criteria->addAssociations(['documentMediaFile', 'documentType']);
 
         $entities = $this->documentRepository->search($criteria, $context);

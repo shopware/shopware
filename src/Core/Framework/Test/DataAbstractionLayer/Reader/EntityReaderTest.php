@@ -2445,4 +2445,29 @@ class EntityReaderTest extends TestCase
             'variant-main',
         ];
     }
+
+    public function testLimitAssociation(): void
+    {
+        $ids = new IdsCollection();
+
+        $product = (new ProductBuilder($ids, 'p1'))
+            ->name('Test Product')
+            ->price(50, 50);
+
+
+        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository->create([
+            $product->build(),
+        ], $ids->context);
+
+        $criteria = new Criteria();
+        $criteria
+            ->getAssociation('media')
+            ->setLimit(1);
+
+        $product = $productRepository->search($criteria, $ids->context)->first();
+
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertCount(0, $product->getMedia());
+    }
 }

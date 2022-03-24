@@ -5,22 +5,28 @@ namespace Shopware\Core\Checkout\Test\Cart;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
+use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor;
+use Shopware\Core\Checkout\Cart\Validator;
 use Shopware\Core\Checkout\Promotion\Cart\Error\AutoPromotionNotFoundError;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
@@ -36,20 +42,11 @@ class ProcessorTest extends TestCase
     use IntegrationTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
 
-    /**
-     * @var AbstractSalesChannelContextFactory
-     */
-    private $factory;
+    private AbstractSalesChannelContextFactory $factory;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $context;
+    private SalesChannelContext $context;
 
-    /**
-     * @var Processor
-     */
-    private $processor;
+    private Processor $processor;
 
     protected function setUp(): void
     {
@@ -344,6 +341,30 @@ class ProcessorTest extends TestCase
         foreach ($originalCart->getErrors() as $error) {
             static::assertInstanceOf(AutoPromotionNotFoundError::class, $error);
         }
+    }
+
+    public function testProcessorsAndCollectorsAreSkippedIfCartIsEmpty(): void
+    {
+        Feature::skipTestIfInActive('v6.5.0.0', $this);
+        $cart = new Cart('test', 'test');
+
+        $collector = $this->createMock(CartDataCollectorInterface::class);
+        $collector->expects(static::never())
+            ->method('collect');
+
+        $processorMock = $this->createMock(CartProcessorInterface::class);
+        $processorMock->expects(static::never())
+            ->method('process');
+
+        $processor = new Processor(
+            $this->getContainer()->get(Validator::class),
+            $this->getContainer()->get(AmountCalculator::class),
+            $this->getContainer()->get(TransactionProcessor::class),
+            [$processorMock],
+            [$collector],
+            $this->getContainer()->get(ScriptExecutor::class)
+        );
+        $processor->process($cart, $this->context, new CartBehavior());
     }
 
     private function createDummyProduct(string $id, array $tax, int $stock = 10): array

@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart;
 use Shopware\Core\Checkout\Cart\Hook\CartHook;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -65,23 +66,7 @@ class Processor
         // move data from previous calculation into new cart
         $cart->setData($original->getData());
 
-        // enrich cart with all required data
-        foreach ($this->collectors as $collector) {
-            $collector->collect($cart->getData(), $original, $context, $behavior);
-        }
-
-        $cart->addErrors(...array_values($original->getErrors()->getPersistent()->getElements()));
-
-        $cart->setExtensions($original->getExtensions());
-
-        $this->calculateAmount($context, $cart);
-
-        // start processing, cart will be filled step by step with line items of original cart
-        foreach ($this->processors as $processor) {
-            $processor->process($cart->getData(), $original, $cart, $context, $behavior);
-
-            $this->calculateAmount($context, $cart);
-        }
+        $this->runProcessors($original, $cart, $context, $behavior);
 
         if ($behavior->hookAware()) {
             $this->executor->execute(new CartHook($cart, $context));
@@ -100,6 +85,35 @@ class Processor
         $cart->setRuleIds($context->getRuleIds());
 
         return $cart;
+    }
+
+    private function runProcessors(Cart $original, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
+    {
+        if ($original->getLineItems()->count() <= 0 && Feature::isActive('v6.5.0.0')) {
+            $cart->addErrors(...array_values($original->getErrors()->getPersistent()->getElements()));
+
+            $cart->setExtensions($original->getExtensions());
+
+            return;
+        }
+
+        // enrich cart with all required data
+        foreach ($this->collectors as $collector) {
+            $collector->collect($cart->getData(), $original, $context, $behavior);
+        }
+
+        $cart->addErrors(...array_values($original->getErrors()->getPersistent()->getElements()));
+
+        $cart->setExtensions($original->getExtensions());
+
+        $this->calculateAmount($context, $cart);
+
+        // start processing, cart will be filled step by step with line items of original cart
+        foreach ($this->processors as $processor) {
+            $processor->process($cart->getData(), $original, $cart, $context, $behavior);
+
+            $this->calculateAmount($context, $cart);
+        }
     }
 
     private function calculateAmount(SalesChannelContext $context, Cart $cart): void

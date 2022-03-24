@@ -121,17 +121,12 @@ class CachedSitemapRoute extends AbstractSitemapRoute
 
     private function generateKey(Request $request, SalesChannelContext $context): string
     {
-        $parts = array_merge(
-            [
-                self::buildName($context->getSalesChannelId()),
-                $this->generator->getSalesChannelContextHash($context),
-            ]
-        );
+        $parts = [$this->generator->getSalesChannelContextHash($context)];
 
         $event = new SitemapRouteCacheKeyEvent($parts, $request, $context, null);
         $this->dispatcher->dispatch($event);
 
-        return md5(JsonFieldSerializer::encodeJson($event->getParts()));
+        return self::buildName($context->getSalesChannelId()) . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
     private function generateTags(SitemapRouteResponse $response, Request $request, SalesChannelContext $context): array

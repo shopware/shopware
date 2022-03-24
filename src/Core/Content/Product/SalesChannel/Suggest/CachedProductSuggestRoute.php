@@ -123,7 +123,6 @@ Note: Aggregations, currentFilters and availableSortings are empty in this respo
     private function generateKey(Request $request, SalesChannelContext $context, Criteria $criteria): string
     {
         $parts = [
-            self::NAME,
             $this->generator->getCriteriaHash($criteria),
             $this->generator->getSalesChannelContextHash($context),
             $request->get('search'),
@@ -132,7 +131,7 @@ Note: Aggregations, currentFilters and availableSortings are empty in this respo
         $event = new ProductSuggestRouteCacheKeyEvent($parts, $request, $context, $criteria);
         $this->dispatcher->dispatch($event);
 
-        return md5(JsonFieldSerializer::encodeJson($event->getParts()));
+        return self::NAME . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
     private function generateTags(Request $request, StoreApiResponse $response, SalesChannelContext $context, Criteria $criteria): array

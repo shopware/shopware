@@ -119,7 +119,6 @@ class CachedProductListingRoute extends AbstractProductListingRoute
     private function generateKey(string $categoryId, Request $request, SalesChannelContext $context, Criteria $criteria): string
     {
         $parts = [
-            self::buildName($categoryId),
             $this->generator->getCriteriaHash($criteria),
             $this->generator->getSalesChannelContextHash($context),
         ];
@@ -127,7 +126,7 @@ class CachedProductListingRoute extends AbstractProductListingRoute
         $event = new ProductListingRouteCacheKeyEvent($parts, $categoryId, $request, $context, $criteria);
         $this->dispatcher->dispatch($event);
 
-        return md5(JsonFieldSerializer::encodeJson($event->getParts()));
+        return self::buildName($categoryId) . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
     private function generateTags(string $categoryId, Request $request, ProductListingRouteResponse $response, SalesChannelContext $context, Criteria $criteria): array

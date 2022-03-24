@@ -128,7 +128,6 @@ class CachedSalutationRoute extends AbstractSalutationRoute
     private function generateKey(Request $request, SalesChannelContext $context, Criteria $criteria): string
     {
         $parts = [
-            self::buildName(),
             $this->generator->getCriteriaHash($criteria),
             $this->generator->getSalesChannelContextHash($context),
         ];
@@ -136,7 +135,7 @@ class CachedSalutationRoute extends AbstractSalutationRoute
         $event = new SalutationRouteCacheKeyEvent($parts, $request, $context, $criteria);
         $this->dispatcher->dispatch($event);
 
-        return md5(JsonFieldSerializer::encodeJson($event->getParts()));
+        return self::buildName() . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
     private function generateTags(Request $request, StoreApiResponse $response, SalesChannelContext $context, Criteria $criteria): array

@@ -129,16 +129,13 @@ class CachedCategoryRoute extends AbstractCategoryRoute
         $parts = array_merge(
             $request->query->all(),
             $request->request->all(),
-            [
-                self::buildName($navigationId),
-                $this->generator->getSalesChannelContextHash($context),
-            ]
+            [$this->generator->getSalesChannelContextHash($context)]
         );
 
         $event = new CategoryRouteCacheKeyEvent($navigationId, $parts, $request, $context, null);
         $this->dispatcher->dispatch($event);
 
-        return md5(JsonFieldSerializer::encodeJson($event->getParts()));
+        return self::buildName($navigationId) . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
     private function generateTags(string $navigationId, CategoryRouteResponse $response, Request $request, SalesChannelContext $context): array

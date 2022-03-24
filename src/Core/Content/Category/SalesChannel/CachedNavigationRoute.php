@@ -207,7 +207,6 @@ Instead of passing uuids, you can also use one of the following aliases for the 
     private function generateKey(string $active, string $rootId, int $depth, Request $request, SalesChannelContext $context, Criteria $criteria): string
     {
         $parts = [
-            self::buildName($active),
             $rootId,
             $depth,
             $this->generator->getCriteriaHash($criteria),
@@ -217,7 +216,7 @@ Instead of passing uuids, you can also use one of the following aliases for the 
         $event = new NavigationRouteCacheKeyEvent($parts, $active, $rootId, $depth, $request, $context, $criteria);
         $this->dispatcher->dispatch($event);
 
-        return md5(JsonFieldSerializer::encodeJson($event->getParts()));
+        return self::buildName($active) . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
     private function generateTags(array $tags, string $active, string $rootId, int $depth, Request $request, StoreApiResponse $response, SalesChannelContext $context, Criteria $criteria): array

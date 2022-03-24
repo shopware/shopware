@@ -138,7 +138,6 @@ class CachedShippingMethodRoute extends AbstractShippingMethodRoute
     private function generateKey(Request $request, SalesChannelContext $context, Criteria $criteria): string
     {
         $parts = [
-            self::buildName($context->getSalesChannelId()),
             $this->generator->getCriteriaHash($criteria),
             $this->generator->getSalesChannelContextHash($context),
             $request->query->getBoolean('onlyAvailable', false),
@@ -147,7 +146,7 @@ class CachedShippingMethodRoute extends AbstractShippingMethodRoute
         $event = new ShippingMethodRouteCacheKeyEvent($parts, $request, $context, $criteria);
         $this->dispatcher->dispatch($event);
 
-        return md5(JsonFieldSerializer::encodeJson($event->getParts()));
+        return self::buildName($context->getSalesChannelId()) . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
     private function generateTags(Request $request, StoreApiResponse $response, SalesChannelContext $context, Criteria $criteria): array

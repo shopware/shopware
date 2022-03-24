@@ -139,16 +139,13 @@ The criteria passed with this route also affects the listing, if there is one wi
         $parts = array_merge(
             $request->query->all(),
             $request->request->all(),
-            [
-                self::buildName($landingPageId),
-                $this->generator->getSalesChannelContextHash($context),
-            ]
+            [$this->generator->getSalesChannelContextHash($context)]
         );
 
         $event = new LandingPageRouteCacheKeyEvent($landingPageId, $parts, $request, $context, null);
         $this->dispatcher->dispatch($event);
 
-        return md5(JsonFieldSerializer::encodeJson($event->getParts()));
+        return self::buildName($landingPageId) . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
     }
 
     private function generateTags(string $landingPageId, LandingPageRouteResponse $response, Request $request, SalesChannelContext $context): array

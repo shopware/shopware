@@ -56,21 +56,34 @@
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory">
-            <argument type="service" id="sales_channel.repository"/>
-            <argument type="service" id="currency.repository"/>
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="customer_group.repository"/>
-            <argument type="service" id="country.repository"/>
-            <argument type="service" id="tax.repository"/>
             <argument type="service" id="customer_address.repository"/>
             <argument type="service" id="payment_method.repository"/>
-            <argument type="service" id="shipping_method.repository"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="country_state.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
             <argument type="tagged" tag="tax.rule_type_filter"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="currency_country_rounding.repository"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\BaseContextFactory"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\Context\BaseContextFactory">
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="currency.repository"/>
+            <argument type="service" id="customer_group.repository"/>
+            <argument type="service" id="country.repository"/>
+            <argument type="service" id="tax.repository"/>
+            <argument type="service" id="payment_method.repository"/>
+            <argument type="service" id="shipping_method.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="country_state.repository"/>
+            <argument type="service" id="currency_country_rounding.repository"/>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\Context\CachedBaseContextFactory" decorates="Shopware\Core\System\SalesChannel\Context\BaseContextFactory">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\CachedBaseContextFactory.inner"/>
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory" decorates="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory" decoration-priority="-1000">

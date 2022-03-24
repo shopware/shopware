@@ -117,6 +117,7 @@ class SalesChannelContext extends Struct
     private $domainId;
 
     /**
+     * @deprecated tag:v6.5.0 - __construct will be internal, use context factory to create a new context
      * @deprecated tag:v6.5.0 - Parameter $fallbackCustomerGroup is deprecated and will be removed
      */
     public function __construct(

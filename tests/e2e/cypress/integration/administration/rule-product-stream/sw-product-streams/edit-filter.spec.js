@@ -247,7 +247,7 @@ describe('Dynamic product group: Test various filters', () => {
 
                     cy.get('.sw-product-stream-filter').as('currentProductStreamFilter');
 
-                    page.selectFieldAndOperator('@currentProductStreamFilter', 'Properties', 'Is equal to');
+                    page.selectFieldAndOperator('@currentProductStreamFilter', 'Property values', 'Is equal to');
 
                     cy.get('@currentProductStreamFilter').within(() => {
                         cy.get('.sw-select input').last().clearTypeAndCheck(resultCase.value);
@@ -283,7 +283,7 @@ describe('Dynamic product group: Test various filters', () => {
 
                     page.selectFieldAndOperator(
                         '@currentProductStreamFilter',
-                        'Properties',
+                        'Property values',
                         'Is equal to any of'
                     );
 

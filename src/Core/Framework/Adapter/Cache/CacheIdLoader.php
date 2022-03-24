@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Doctrine\DBAL\Connection;
 use Psr\Cache\CacheItemPoolInterface;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
@@ -27,6 +28,11 @@ class CacheIdLoader
 
     public function load(): string
     {
+        $cacheId = EnvironmentHelper::getVariable('SHOPWARE_CACHE_ID');
+        if ($cacheId) {
+            return (string) $cacheId;
+        }
+
         try {
             $cacheId = $this->connection->fetchColumn(
                 '# cache-id-loader

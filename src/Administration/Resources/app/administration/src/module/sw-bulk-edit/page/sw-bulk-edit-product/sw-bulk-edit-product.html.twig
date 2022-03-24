@@ -120,7 +120,6 @@
 
             {% block sw_bulk_edit_product_content_advanced_prices_card %}
             <sw-card
-                v-if="!isChild"
                 class="sw-bulk-edit-product-base__advanced-prices"
                 position-identifier="sw-bulk-edit-product-advanced-prices"
                 :title="$tc('sw-bulk-edit.product.advancedPrices.cardTitle')"
@@ -132,9 +131,17 @@
                     :entity="product"
                 >
                     <template #valueFieldWithBoxType="{ formField, entity, index }">
+                        <sw-inheritance-switch
+                            v-if="isChild"
+                            :is-inherited="bulkEditProduct[formField.name].isInherited"
+                            @inheritance-restore="onInheritanceRestore(formField)"
+                            @inheritance-remove="onInheritanceRemove(formField)"
+                        />
+
                         <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                         <a
                             v-if="['add', 'overwrite'].includes(bulkEditProduct[formField.name].type)"
+                            :class="{ 'is--disabled': !!bulkEditProduct[formField.name].isInherited }"
                             class="sw-card__quick-link"
                             @click="displayAdvancePricesModal = true"
                         >
@@ -153,6 +160,7 @@
                             :criteria="ruleCriteria"
                             entity-name="rule"
                             :entity-collection="entity[formField.name]"
+                            :disabled="!!bulkEditProduct[formField.name].isInherited"
                             @change="onRuleChange"
                         >
                             <template #selection-label-property="{ item }">

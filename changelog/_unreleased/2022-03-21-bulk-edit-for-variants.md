@@ -1,5 +1,5 @@
 ---
-title: Bulk edit for variants - phase 1
+title: Bulk edit for variants
 issue: NEXT-19387
 ---
 # Administration
@@ -32,6 +32,7 @@ issue: NEXT-19387
     * `getParentProduct`
     * `onInheritanceRestore`
     * `onInheritanceRemove`
+    * `setProductPrice`
     * `setProductSearchKeywords`
     * `setProductProperties`
 * Changed the following methods in `sw-bulk-edit-product` component:

@@ -72,6 +72,18 @@
         width: 100%;
     }
 
+    .sw-bulk-edit-product-base__advanced-prices {
+        .sw-bulk-edit-change-type {
+            position: relative;
+        }
+
+        .sw-inheritance-switch {
+            position: absolute;
+            top: 15px;
+            left: -30px;
+        }
+    }
+
     .sw-product-media-form .sw-product-media-form__previews {
         grid-template-columns: none;
     }

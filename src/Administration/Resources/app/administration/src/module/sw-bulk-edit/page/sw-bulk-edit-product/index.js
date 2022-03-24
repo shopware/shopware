@@ -159,9 +159,7 @@ Component.register('sw-bulk-edit-product', {
                 type: 'html',
                 canInherit: this.isChild,
                 config: {
-                    componentName: this.bulkEditProduct?.description?.isInherited
-                        ? 'sw-bulk-edit-product-description'
-                        : 'sw-text-editor',
+                    componentName: 'sw-bulk-edit-product-description',
                     changeLabel: this.$tc('sw-bulk-edit.product.generalInformation.description.changeLabel'),
                     disabled: this.bulkEditProduct?.description?.isInherited,
                 },
@@ -199,8 +197,6 @@ Component.register('sw-bulk-edit-product', {
         },
 
         pricesFormFields() {
-            this.definePricesBulkEdit();
-
             return [{
                 name: 'taxId',
                 canInherit: this.isChild,
@@ -249,14 +245,15 @@ Component.register('sw-bulk-edit-product', {
                 },
             }, {
                 name: 'regulationPrice',
+                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-price-field',
                     price: this.product.regulationPrice,
-                    disabled: this.isDisabledRegulationPrice,
                     taxRate: this.taxRate,
                     currency: this.currency,
                     changeLabel: this.$tc('sw-bulk-edit.product.prices.regulationPrice.changeLabel'),
                     placeholder: this.$tc('sw-bulk-edit.product.prices.regulationPrice.placeholderRegulationPrice'),
+                    disabled: this.isDisabledRegulationPrice || this.bulkEditProduct?.regulationPrice?.isInherited,
                 },
             }];
         },
@@ -264,6 +261,7 @@ Component.register('sw-bulk-edit-product', {
         advancedPricesFormFields() {
             return [{
                 name: 'prices',
+                canInherit: this.isChild,
                 config: {
                     allowOverwrite: true,
                     allowClear: true,
@@ -694,19 +692,13 @@ Component.register('sw-bulk-edit-product', {
     },
 
     watch: {
-        'bulkEditProduct.prices': {
-            handler(value) {
-                if (
-                    !this.product?.prices?.length ||
-                    value?.type !== 'remove'
-                ) {
-                    return;
-                }
+        'bulkEditProduct.prices.type'(type) {
+            if (!this.product?.prices?.length || type !== 'remove') {
+                return;
+            }
 
-                const ids = this.product.prices?.getIds();
-                ids.forEach(id => this.product.prices.remove(id));
-            },
-            deep: true,
+            const ids = this.product.prices?.getIds();
+            ids.forEach(id => this.product.prices.remove(id));
         },
         'product.visibilities': {
             handler(productVisibilities) {
@@ -757,6 +749,7 @@ Component.register('sw-bulk-edit-product', {
 
                 const product = this.isChild ? this.parentProduct : this.productRepository.create();
                 Shopware.State.commit('swProductDetail/setProduct', product);
+                this.definePricesBulkEdit();
 
                 if (this.isChild) {
                     this.setBulkEditProductValue();
@@ -870,13 +863,6 @@ Component.register('sw-bulk-edit-product', {
         },
 
         definePricesBulkEdit() {
-            const emptyPrice = [{
-                currencyId: this.currency.id,
-                net: null,
-                linked: true,
-                gross: null,
-            }];
-
             if (!this.isComponentMounted) {
                 return;
             }
@@ -884,12 +870,8 @@ Component.register('sw-bulk-edit-product', {
             if (this.isChild && !types.isEmpty(this.parentProduct)) {
                 this.$set(this.product, 'price', this.parentProduct.price);
                 this.$set(this.product, 'purchasePrices', this.parentProduct.purchasePrices);
-
-                if (!types.isEmpty(this.parentProduct.price[0].listPrice)) {
-                    this.$set(this.product, 'listPrice', [this.parentProduct.price[0].listPrice]);
-                } else {
-                    this.$set(this.product, 'listPrice', emptyPrice);
-                }
+                this.setProductPrice('listPrice');
+                this.setProductPrice('regulationPrice');
 
                 return;
             }
@@ -921,6 +903,21 @@ Component.register('sw-bulk-edit-product', {
                 linked: true,
                 gross: null,
             }];
+        },
+
+        setProductPrice(price) {
+            const emptyPrice = [{
+                currencyId: this.currency.id,
+                net: null,
+                linked: true,
+                gross: null,
+            }];
+
+            if (!types.isEmpty(this.parentProduct.price[0][price])) {
+                this.$set(this.product, `${price}`, [this.parentProduct.price[0][price]]);
+            } else {
+                this.$set(this.product, `${price}`, emptyPrice);
+            }
         },
 
         onChangePrices(item) {
@@ -1021,7 +1018,7 @@ Component.register('sw-bulk-edit-product', {
 
         processRegulationPrice() {
             const priceField = this.bulkEditSelected.find((dataField) => {
-                return dataField.field === 'price';
+                return dataField.field === 'price' && !types.isEmpty(dataField.value);
             });
 
             if (priceField) {
@@ -1153,6 +1150,12 @@ Component.register('sw-bulk-edit-product', {
 
         onInheritanceRestore(item) {
             const parentProductFrozen = JSON.parse(this.parentProductFrozen);
+            const emptyPrice = {
+                currencyId: this.currency.id,
+                net: null,
+                linked: true,
+                gross: null,
+            };
 
             this.$set(this.bulkEditProduct[item.name], 'isInherited', true);
             this.$set(this.bulkEditProduct[item.name], 'value', parentProductFrozen[item.name]);
@@ -1162,7 +1165,6 @@ Component.register('sw-bulk-edit-product', {
                 this.$set(this.product, 'taxId', parentProductFrozen.taxId);
                 return;
             }
-
             if (item.name === 'price') {
                 this.$set(this.product.price, 0, parentProductFrozen.price[0]);
                 return;
@@ -1172,7 +1174,21 @@ Component.register('sw-bulk-edit-product', {
                 return;
             }
             if (item.name === 'listPrice') {
-                this.$set(this.product.price[0], 'listPrice', parentProductFrozen.price[0].listPrice);
+                const listPrice = !types.isEmpty(parentProductFrozen.price[0].listPrice)
+                    ? parentProductFrozen.price[0].listPrice
+                    : emptyPrice;
+
+                this.$set(this.product, 'listPrice', [listPrice]);
+                this.$set(this.product.price[0], 'listPrice', listPrice);
+                return;
+            }
+            if (item.name === 'regulationPrice') {
+                const regulationPrice = !types.isEmpty(parentProductFrozen.price[0].regulationPrice)
+                    ? parentProductFrozen.price[0].regulationPrice
+                    : emptyPrice;
+
+                this.$set(this.product, 'regulationPrice', [regulationPrice]);
+                this.$set(this.product.price[0], 'regulationPrice', regulationPrice);
                 return;
             }
             if (item.name === 'categories') {
@@ -1183,8 +1199,12 @@ Component.register('sw-bulk-edit-product', {
                 this.$set(this.product, 'media', parentProductFrozen.media);
                 return;
             }
+            if (item.name === 'prices') {
+                this.setProductAssociation(item.name);
+                return;
+            }
             if (item.name === 'properties') {
-                this.setProductProperties(parentProductFrozen);
+                this.setProductAssociation(item.name, parentProductFrozen);
                 return;
             }
             if (item.name === 'searchKeywords') {
@@ -1196,8 +1216,8 @@ Component.register('sw-bulk-edit-product', {
         },
 
         onInheritanceRemove(item) {
-            if (item.name === 'properties') {
-                this.setProductProperties();
+            if (['properties', 'prices'].includes(item.name)) {
+                this.setProductAssociation(item.name);
             }
 
             this.$set(this.bulkEditProduct[item.name], 'isInherited', false);
@@ -1215,21 +1235,16 @@ Component.register('sw-bulk-edit-product', {
             this.$set(this.product, 'searchKeywords', this.parentProduct.customSearchKeywords);
         },
 
-        setProductProperties(parentProductFrozen) {
-            const ids = this.product.properties.getIds();
-            ids.forEach((id) => {
-                this.product.properties.remove(id);
-            });
+        setProductAssociation(entityName, parentProduct = null) {
+            const ids = this.product[entityName].getIds();
+            ids.forEach(id => this.product[entityName].remove(id));
 
-            if (!parentProductFrozen) {
-                this.$set(this.bulkEditProduct.properties, 'value', []);
+            if (!parentProduct) {
+                this.$set(this.bulkEditProduct[entityName], 'value', []);
                 return;
             }
 
-            parentProductFrozen.properties.forEach((property) => {
-                this.product.properties.add(property);
-            });
+            parentProduct[entityName].forEach(item => this.product[entityName].add(item));
         },
     },
 });
-

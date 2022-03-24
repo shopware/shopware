@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class EntityWriteResultFactory
@@ -143,9 +144,14 @@ class EntityWriteResultFactory
         }
 
         $parentIds = [];
-        if ($definition->isInheritanceAware()) {
-            // inheritance case for products (resolve product.parent_id here to trigger indexing for parent)
-            $parentIds = $this->fetchParentIds($definition, $ids);
+
+        // @deprecated tag:v6.5.0 parent ids will be resolved in ProductIndexer. Dispatching an update event for the parent would cause an indexing of all variants, even if you only update a single variant
+        // @deprecated tag:v6.5.0 remove complete if block and return empty array instead of $parentIds (see line 161)
+        if (!Feature::isActive('v6.5.0.0')) {
+            if ($definition->isInheritanceAware()) {
+                // inheritance case for products (resolve product.parent_id here to trigger indexing for parent)
+                $parentIds = $this->fetchParentIds($definition, $ids);
+            }
         }
 
         $parent = $definition->getParentDefinition();
@@ -239,6 +245,9 @@ class EntityWriteResultFactory
         return $mapping;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 Remove this function, not used anymore
+     */
     private function fetchParentIds(EntityDefinition $definition, array $rawData): array
     {
         $fetchQuery = sprintf(

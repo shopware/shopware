@@ -325,6 +325,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater"/>
+            <argument type="service" id="messenger.bus.shopware"/>
             <tag name="shopware.entity_indexer" priority="100"/>
         </service>
 
@@ -361,7 +362,6 @@
             <argument type="service" id="language.repository"/>
             <argument type="service" id="product.repository"/>
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer"/>
-            <argument type="service" id="product_search_config_field.repository"/>
 
             <tag name="kernel.reset" method="reset"/>
         </service>

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\AbstractIncrementer;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,6 +26,7 @@ use Symfony\Component\HttpFoundation\Response;
 class SyncControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
+    use QueueTestBehaviour;
 
     private Connection $connection;
 
@@ -475,6 +477,9 @@ class SyncControllerTest extends TestCase
         $this->connection->executeUpdate('DELETE FROM enqueue;');
         $this->connection->executeUpdate('DELETE FROM `increment`;');
         $this->connection->executeUpdate('DELETE FROM message_queue_stats;');
+
+        $keys = $this->gateway->list('message_queue_stats');
+        static::assertEmpty($keys);
 
         $this->getBrowser()->request('POST', '/api/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'false'], json_encode($data));
 

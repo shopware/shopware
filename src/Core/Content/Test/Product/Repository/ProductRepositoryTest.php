@@ -242,12 +242,13 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->create($products, $this->context);
         $delete = $this->repository->delete([['id' => $secondVariantId]], $this->context);
+
+        $this->runWorker();
+
         static::assertInstanceOf(EntityWrittenContainerEvent::class, $delete);
 
         $ids = $delete->getPrimaryKeys('product');
 
-        static::assertCount(2, $ids);
-        static::assertContains($parentId, $ids);
         static::assertContains($secondVariantId, $ids);
 
         $this->runWorker();
@@ -3058,6 +3059,9 @@ class ProductRepositoryTest extends TestCase
         ];
 
         $this->repository->upsert([$data], $this->context);
+
+        // depending ids (parents and children) will be queued
+        $this->runWorker();
 
         $variants = $this->repository->search(new Criteria([$variantB, $variantA]), $context)->getElements();
         $product = $this->repository->search(new Criteria([$productId]), $context)->first();

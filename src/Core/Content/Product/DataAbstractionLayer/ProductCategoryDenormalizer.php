@@ -24,19 +24,19 @@ class ProductCategoryDenormalizer
 
     public function update(array $ids, Context $context): void
     {
+        $ids = array_unique(\array_filter($ids));
+
         if (empty($ids)) {
             return;
         }
-
-        $ids = array_unique($ids);
 
         $categories = $this->fetchMapping($ids, $context);
 
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
         $liveVersionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
-        $changeSets = [];
         $inserts = [];
+        $updates = [];
         foreach ($categories as $productId => $mapping) {
             $productId = Uuid::fromHexToBytes($productId);
 
@@ -47,14 +47,7 @@ class ProductCategoryDenormalizer
                 $json = json_encode($categoryIds);
             }
 
-            $changeSets[] = [
-                'type' => 'update',
-                'params' => ['id' => $productId, 'tree' => $json, 'version' => $versionId],
-            ];
-            $changeSets[] = [
-                'type' => 'delete',
-                'params' => ['id' => $productId, 'version' => $versionId],
-            ];
+            $updates[] = ['id' => $productId, 'tree' => $json, 'version' => $versionId];
 
             if (empty($categoryIds)) {
                 continue;
@@ -70,21 +63,23 @@ class ProductCategoryDenormalizer
             }
         }
 
-        RetryableTransaction::retryable($this->connection, function () use ($changeSets, $inserts): void {
-            $update = $this->connection->prepare('UPDATE product SET category_tree = :tree WHERE id = :id AND version_id = :version');
-            $delete = $this->connection->prepare('DELETE FROM `product_category_tree` WHERE `product_id` = :id AND `product_version_id` = :version');
-            foreach ($changeSets as $changeSet) {
-                if ($changeSet['type'] === 'update') {
-                    $update->execute($changeSet['params']);
-                } elseif ($changeSet['type'] === 'delete') {
-                    $delete->execute($changeSet['params']);
-                } else {
-                    throw new \LogicException('only "update" and "delete" are allowed as changeSet types');
-                }
-            }
-
-            $this->insertTree($inserts);
+        RetryableTransaction::retryable($this->connection, function () use ($ids, $versionId): void {
+            $this->connection->executeStatement(
+                'DELETE FROM product_category_tree WHERE `product_id` IN (:ids) AND `product_version_id` = :version',
+                ['ids' => Uuid::fromHexToBytesList($ids), 'version' => $versionId],
+                ['ids' => Connection::PARAM_STR_ARRAY]
+            );
         });
+
+        RetryableTransaction::retryable($this->connection, function () use ($updates): void {
+            $query = $this->connection->prepare('UPDATE product SET category_tree = :tree WHERE id = :id AND version_id = :version');
+
+            foreach ($updates as $update) {
+                $query->execute($update);
+            }
+        });
+
+        $this->insertTree($inserts);
     }
 
     private function insertTree(array $inserts): void
@@ -124,7 +119,7 @@ class ProductCategoryDenormalizer
 
         $query->addGroupBy('product.id');
 
-        $query->andWhere('product.id IN (:ids) OR product.parent_id IN (:ids)');
+        $query->andWhere('product.id IN (:ids)');
         $query->andWhere('product.version_id = :version');
 
         $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));

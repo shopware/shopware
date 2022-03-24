@@ -8,7 +8,6 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
@@ -18,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProductIndexer extends EntityIndexer
@@ -61,6 +61,8 @@ class ProductIndexer extends EntityIndexer
 
     private ProductStreamUpdater $streamUpdater;
 
+    private MessageBusInterface $messageBus;
+
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
@@ -75,7 +77,8 @@ class ProductIndexer extends EntityIndexer
         StockUpdater $stockUpdater,
         EventDispatcherInterface $eventDispatcher,
         CheapestPriceUpdater $cheapestPriceUpdater,
-        ProductStreamUpdater $streamUpdater
+        ProductStreamUpdater $streamUpdater,
+        MessageBusInterface $messageBus
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
@@ -91,6 +94,7 @@ class ProductIndexer extends EntityIndexer
         $this->eventDispatcher = $eventDispatcher;
         $this->cheapestPriceUpdater = $cheapestPriceUpdater;
         $this->streamUpdater = $streamUpdater;
+        $this->messageBus = $messageBus;
     }
 
     public function getName(): string
@@ -125,12 +129,25 @@ class ProductIndexer extends EntityIndexer
         }
 
         $this->inheritanceUpdater->update(ProductDefinition::ENTITY_NAME, $updates, $event->getContext());
-
         $this->stockUpdater->update($updates, $event->getContext());
 
         $message = new ProductIndexingMessage(array_values($updates), null, $event->getContext());
-
         $message->addSkip(self::INHERITANCE_UPDATER, self::STOCK_UPDATER);
+
+        // @deprecated tag:v6.5.0 - remove this function call and simply use the `$updates` property instead
+        // @deprecated tag:v6.5.0 - with next major, we will only dispatch an update event of the updated variant and not for the parent too. This would cause an indexing process of all variants
+        $updates = $event->getPrimaryKeysWithPayload(ProductDefinition::ENTITY_NAME);
+
+        $delayed = \array_unique(\array_filter(\array_merge(
+            $this->getParentIds($updates),
+            $this->getChildrenIds($updates)
+        )));
+
+        foreach (\array_chunk($delayed, 50) as $chunk) {
+            $child = new ProductIndexingMessage($chunk, null, $event->getContext());
+            $child->setIndexer($this->getName());
+            $this->messageBus->dispatch($child);
+        }
 
         return $message;
     }
@@ -147,68 +164,69 @@ class ProductIndexer extends EntityIndexer
 
     public function handle(EntityIndexingMessage $message): void
     {
-        $ids = $message->getData();
-        $ids = array_unique(array_filter($ids));
+        $ids = array_unique(array_filter($message->getData()));
 
         if (empty($ids)) {
             return;
         }
 
-        $parentIds = $this->getParentIds($ids);
-
-        $childrenIds = $this->getChildrenIds($ids);
+        $parentIds = $this->filterVariants($ids);
 
         $context = $message->getContext();
 
-        RetryableTransaction::retryable($this->connection, function () use ($message, $ids, $parentIds, $childrenIds, $context): void {
-            $all = array_filter(array_unique(array_merge($ids, $parentIds, $childrenIds)));
+        if ($message->allow(self::INHERITANCE_UPDATER)) {
+            $this->inheritanceUpdater->update(ProductDefinition::ENTITY_NAME, $ids, $context);
+        }
 
-            if ($message->allow(self::INHERITANCE_UPDATER)) {
-                $this->inheritanceUpdater->update(ProductDefinition::ENTITY_NAME, $all, $context);
-            }
+        if ($message->allow(self::STOCK_UPDATER)) {
+            $this->stockUpdater->update($ids, $context);
+        }
 
-            if ($message->allow(self::STOCK_UPDATER)) {
-                $this->stockUpdater->update($ids, $context);
-            }
+        if ($message->allow(self::VARIANT_LISTING_UPDATER)) {
+            $this->variantListingUpdater->update($parentIds, $context);
+        }
 
-            if ($message->allow(self::VARIANT_LISTING_UPDATER)) {
-                $this->variantListingUpdater->update($parentIds, $context);
-            }
+        if ($message->allow(self::CHILD_COUNT_UPDATER)) {
+            $this->childCountUpdater->update(ProductDefinition::ENTITY_NAME, $parentIds, $context);
+        }
 
-            if ($message->allow(self::CHILD_COUNT_UPDATER)) {
-                $this->childCountUpdater->update(ProductDefinition::ENTITY_NAME, $parentIds, $context);
-            }
+        if ($message->allow(self::STREAM_UPDATER)) {
+            $this->streamUpdater->updateProducts($ids, $context);
+        }
 
-            if ($message->allow(self::STREAM_UPDATER)) {
-                $this->streamUpdater->updateProducts($all, $context);
-            }
+        if ($message->allow(self::MANY_TO_MANY_ID_FIELD_UPDATER)) {
+            $this->manyToManyIdFieldUpdater->update(ProductDefinition::ENTITY_NAME, $ids, $context);
+        }
 
-            if ($message->allow(self::MANY_TO_MANY_ID_FIELD_UPDATER)) {
-                $this->manyToManyIdFieldUpdater->update(ProductDefinition::ENTITY_NAME, $all, $context);
-            }
+        if ($message->allow(self::CATEGORY_DENORMALIZER_UPDATER)) {
+            $this->categoryDenormalizer->update($ids, $context);
+        }
 
-            if ($message->allow(self::CATEGORY_DENORMALIZER_UPDATER)) {
-                $this->categoryDenormalizer->update($ids, $context);
-            }
+        if ($message->allow(self::CHEAPEST_PRICE_UPDATER)) {
+            $this->cheapestPriceUpdater->update($parentIds, $context);
+        }
 
-            if ($message->allow(self::CHEAPEST_PRICE_UPDATER)) {
-                $this->cheapestPriceUpdater->update($parentIds, $context);
-            }
+        if ($message->allow(self::RATING_AVERAGE_UPDATER)) {
+            $this->ratingAverageUpdater->update($parentIds, $context);
+        }
 
-            if ($message->allow(self::RATING_AVERAGE_UPDATER)) {
-                $this->ratingAverageUpdater->update($parentIds, $context);
-            }
+        if ($message->allow(self::SEARCH_KEYWORD_UPDATER)) {
+            $this->searchKeywordUpdater->update($ids, $context);
+        }
 
-            if ($message->allow(self::SEARCH_KEYWORD_UPDATER)) {
-                $this->searchKeywordUpdater->update(array_merge($ids, $childrenIds), $context);
-            }
+        $this->connection->executeStatement(
+            'UPDATE product SET updated_at = :now WHERE id IN (:ids)',
+            [
+                'ids' => Uuid::fromHexToBytesList($ids),
+                'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
 
-            $this->connection->executeStatement(
-                'UPDATE product SET updated_at = :now WHERE id IN (:ids)',
-                ['ids' => Uuid::fromHexToBytesList($all), 'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
-                ['ids' => Connection::PARAM_STR_ARRAY]
-            );
-        });
+        // @deprecated tag:v6.5.0 - parentIds and childrenIds will be removed - event methods will be removed too
+        $parentIds = $this->getParentIds($ids);
+
+        $childrenIds = $this->getChildrenIds($ids);
 
         $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $childrenIds, $parentIds, $context, $message->getSkip()));
     }
@@ -245,13 +263,28 @@ class ProductIndexer extends EntityIndexer
      */
     private function getParentIds(array $ids): array
     {
-        $parentIds = $this->connection->fetchAll(
-            'SELECT DISTINCT LOWER(HEX(IFNULL(product.parent_id, id))) as id FROM product WHERE id IN (:ids)',
+        $parentIds = $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT LOWER(HEX(product.parent_id)) as id FROM product WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        return array_unique(array_filter(array_column($parentIds, 'id')));
+        return array_unique(array_filter($parentIds));
+    }
+
+    /**
+     * @return array|mixed[]
+     */
+    private function filterVariants(array $ids): array
+    {
+        return $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT LOWER(HEX(`id`)) 
+             FROM product 
+             WHERE `id` IN (:ids)
+             AND `parent_id` IS NULL',
+            ['ids' => Uuid::fromHexToBytesList($ids)],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
     }
 
     private function getIterator(?array $offset): IterableQuery

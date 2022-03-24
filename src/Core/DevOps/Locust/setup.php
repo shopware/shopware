@@ -29,8 +29,8 @@ $salesChannel = $connection->fetchAssociative(
 $advertisements = $connection->fetchAllAssociative(
     "
     SELECT product_number as number, CONCAT('/', seo_path_info) as url
-    FROM product 
-       INNER JOIN seo_url 
+    FROM product
+       INNER JOIN seo_url
           ON seo_url.route_name = 'frontend.detail.page' AND is_deleted = 0 AND is_canonical = 1
     WHERE is_closeout = 0 AND min_purchase = 1
     LIMIT " . (int) $env['advertisements']

@@ -127,7 +127,7 @@ class Migration1603293043FixCurrencyTypoTest extends TestCase
             ->from('language', 'lang')
             ->innerJoin('lang', 'locale', 'loc', 'lang.translation_code_id = loc.id')
             ->where('loc.code = :englishLocale')
-            ->setParameter(':englishLocale', $this->englishLanguageLocale)
+            ->setParameter('englishLocale', $this->englishLanguageLocale)
             ->execute()
             ->fetchColumn();
         static::assertNotNull($englishLanguageId, 'Test failed: English language ID not found');

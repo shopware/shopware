@@ -163,8 +163,8 @@ class Migration1632721037OrderDocumentMailTemplateTest extends TestCase
         $query = $this->connection->createQueryBuilder()->delete($table);
 
         foreach ($associatedIds as $index => $associatedId) {
-            $parameter = \sprintf(':associatedId%s', $index);
-            $query->orWhere(\sprintf('%s = %s', $associationField, $parameter))
+            $parameter = \sprintf('associatedId%s', $index);
+            $query->orWhere(\sprintf('%s = :%s', $associationField, $parameter))
                 ->setParameter($parameter, $associatedId, ParameterType::BINARY);
         }
 
@@ -176,8 +176,8 @@ class Migration1632721037OrderDocumentMailTemplateTest extends TestCase
         $query = $this->connection->createQueryBuilder()->select('id')->from('mail_template');
 
         foreach ($typeIds as $index => $typeId) {
-            $parameter = \sprintf(':typeId%s', $index);
-            $query->orWhere(\sprintf('mail_template_type_id = %s', $parameter))
+            $parameter = \sprintf('typeId%s', $index);
+            $query->orWhere(\sprintf('mail_template_type_id = :%s', $parameter))
                 ->setParameter($parameter, $typeId, ParameterType::BINARY);
         }
 

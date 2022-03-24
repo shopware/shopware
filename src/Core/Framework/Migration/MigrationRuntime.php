@@ -127,7 +127,7 @@ class MigrationRuntime
             $query->setMaxResults($limit);
         }
 
-        $query->setParameter(':pattern', $source->getNamespacePattern());
+        $query->setParameter('pattern', $source->getNamespacePattern());
 
         return $query;
     }

@@ -30,7 +30,7 @@ class PromotionCodesLoader
         $qb->select('code');
         $qb->from('promotion_individual_code');
         $qb->where($qb->expr()->eq('promotion_id', ':id'));
-        $qb->setParameter(':id', Uuid::fromHexToBytes($promotionId));
+        $qb->setParameter('id', Uuid::fromHexToBytes($promotionId));
 
         /** @var array|bool $result */
         $result = $qb->execute()->fetchAll(\PDO::FETCH_COLUMN);

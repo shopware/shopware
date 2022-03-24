@@ -46,7 +46,7 @@ class Migration1627562945AddImportExportPromotionCodesProfileTest extends TestCa
     {
         return (int) $this->connection->fetchOne(
             'SELECT COUNT(`import_export_profile_id`) FROM `import_export_profile_translation` WHERE `import_export_profile_id` = :id',
-            [':id' => $id]
+            ['id' => $id]
         );
     }
 }

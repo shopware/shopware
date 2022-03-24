@@ -70,7 +70,7 @@ class StorefrontCartFacade
             return $originalCart;
         }
 
-        $updatedContext = clone $originalContext;
+        $updatedContext = $originalContext;
         $updatedContext->assign([
             'shippingMethod' => $contextShippingMethod,
             'paymentMethod' => $contextPaymentMethod,

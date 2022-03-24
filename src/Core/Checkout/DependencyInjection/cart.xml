@@ -59,6 +59,8 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartItemUpdateRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartItemRemoveRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute"/>
+
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\CartCalculator">

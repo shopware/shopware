@@ -6,6 +6,7 @@ export default class CartWidgetPlugin extends Plugin {
 
     static options = {
         cartWidgetStorageKey: 'cart-widget-template',
+        emptyCartWidgetStorageKey: 'empty-cart-widget',
     };
 
     init() {
@@ -22,6 +23,10 @@ export default class CartWidgetPlugin extends Plugin {
      * into the element
      */
     insertStoredContent() {
+        // the page is initially always loaded with an empty cart
+        // save the empty cart widget, to reuse it when the cart is emptied
+        Storage.setItem(this.options.emptyCartWidgetStorageKey, this.el.innerHTML);
+
         const storedContent = Storage.getItem(this.options.cartWidgetStorageKey);
         if (storedContent) {
             this.el.innerHTML = storedContent;
@@ -37,6 +42,12 @@ export default class CartWidgetPlugin extends Plugin {
     fetch() {
         this._client.get(window.router['frontend.checkout.info'], (content, response) => {
             if (response.status === 204) {
+                Storage.removeItem(this.options.cartWidgetStorageKey);
+                const emptyCartWidget = Storage.getItem(this.options.emptyCartWidgetStorageKey);
+                if (emptyCartWidget) {
+                    this.el.innerHTML = emptyCartWidget;
+                }
+
                 return;
             }
 

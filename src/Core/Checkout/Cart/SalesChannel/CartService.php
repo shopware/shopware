@@ -19,8 +19,9 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Service\ResetInterface;
 
-class CartService
+class CartService implements ResetInterface
 {
     public const SALES_CHANNEL = 'sales-channel';
 
@@ -29,50 +30,23 @@ class CartService
      */
     private $cart = [];
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var AbstractCartLoadRoute
-     */
-    private $loadRoute;
+    private AbstractCartLoadRoute $loadRoute;
 
-    /**
-     * @var AbstractCartDeleteRoute
-     */
-    private $deleteRoute;
+    private AbstractCartDeleteRoute $deleteRoute;
 
-    /**
-     * @var CartCalculator
-     */
-    private $calculator;
+    private CartCalculator $calculator;
 
-    /**
-     * @var AbstractCartItemUpdateRoute
-     */
-    private $itemUpdateRoute;
+    private AbstractCartItemUpdateRoute $itemUpdateRoute;
 
-    /**
-     * @var AbstractCartItemRemoveRoute
-     */
-    private $itemRemoveRoute;
+    private AbstractCartItemRemoveRoute $itemRemoveRoute;
 
-    /**
-     * @var AbstractCartItemAddRoute
-     */
-    private $itemAddRoute;
+    private AbstractCartItemAddRoute $itemAddRoute;
 
-    /**
-     * @var AbstractCartOrderRoute
-     */
-    private $orderRoute;
+    private AbstractCartOrderRoute $orderRoute;
 
-    /**
-     * @var CartPersisterInterface
-     */
-    private $persister;
+    private CartPersisterInterface $persister;
 
     public function __construct(
         CartPersisterInterface $persister,
@@ -210,5 +184,10 @@ class CartService
     public function deleteCart(SalesChannelContext $context): void
     {
         $this->deleteRoute->delete($context);
+    }
+
+    public function reset(): void
+    {
+        $this->cart = [];
     }
 }

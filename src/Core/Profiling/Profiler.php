@@ -27,15 +27,15 @@ abstract class Profiler
         // we have to chain the profilers here: `return Stopwatch::trace(Tideways::trace(...));`
         foreach (self::$profilers as $profiler) {
             $pointer = static function() use ($profiler, $name, $pointer, $category) {
-                return $profiler::trace($name, $pointer, $category);
+                return $profiler->trace($name, $pointer, $category);
             };
         }
 
         return $pointer();
     }
 
-    public static function register(string $class): void
+    public static function register(ProfilerInterface $profiler): void
     {
-        self::$profilers[$class] = $class;
+        self::$profilers[] = $profiler;
     }
 }

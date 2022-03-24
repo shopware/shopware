@@ -2,7 +2,10 @@
 
 namespace Shopware\Core\Profiling\Integration;
 
+/**
+ * @internal experimental atm
+ */
 interface ProfilerInterface
 {
-    public static function trace(string $title, \Closure $closure, string $category = 'shopware');
+    public function trace(string $title, \Closure $closure, string $category = 'shopware');
 }

@@ -6,3 +6,6 @@ shopware:
     media:
         enable_url_upload_feature: true
         enable_url_validation: false
+
+    profiler:
+        integrations: ['Shopware\Core\Profiling\Integration\Stopwatch']

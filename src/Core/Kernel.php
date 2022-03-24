@@ -200,10 +200,6 @@ class Kernel extends HttpKernel
 
         $this->initializeDatabaseConnectionVariables();
 
-        foreach ($this->container->getParameter('shopware.profiler.integrations') as $profiler) {
-            Profiler::register($profiler);
-        }
-
         $this->booted = true;
     }
 

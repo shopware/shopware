@@ -6,7 +6,10 @@
 
     <services>
         <service id="Shopware\Core\Profiling\Integration\Stopwatch" public="true">
-            <argument type="service" id="debug.stopwatch"/>
+            <argument type="service" id="debug.stopwatch" on-invalid="null"/>
+        </service>
+
+        <service id="Shopware\Core\Profiling\Integration\Tideways" public="true">
         </service>
 
         <service id="Shopware\Core\Profiling\Doctrine\ConnectionProfiler">

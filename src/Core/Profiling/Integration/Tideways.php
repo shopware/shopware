@@ -7,7 +7,7 @@ namespace Shopware\Core\Profiling\Integration;
  */
 class Tideways implements ProfilerInterface
 {
-    public static function trace(string $title, \Closure $closure, string $category = 'shopware')
+    public function trace(string $title, \Closure $closure, string $category = 'shopware')
     {
         if (!class_exists('Tideways\Profiler')) {
             return $closure();

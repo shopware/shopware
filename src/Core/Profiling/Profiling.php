@@ -4,7 +4,7 @@ namespace Shopware\Core\Profiling;
 
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Kernel;
-use Shopware\Core\Profiling\Integration\Stopwatch;
+use Shopware\Core\Profiling\Integration\ProfilerInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
@@ -45,7 +45,8 @@ class Profiling extends Bundle
     public function boot(): void
     {
         parent::boot();
-        $this->container->get(Stopwatch::class); // trigger __construct to inject symfony stopwatch
+        // profiler need to be registered on every request, therefore this can not happen as compiler pass
+        $this->registerProfilers();
     }
 
     private function buildConfig(ContainerBuilder $container, $environment): void
@@ -63,5 +64,22 @@ class Profiling extends Bundle
 
         $configLoader->load($confDir . '/{packages}/*' . Kernel::CONFIG_EXTS, 'glob');
         $configLoader->load($confDir . '/{packages}/' . $environment . '/*' . Kernel::CONFIG_EXTS, 'glob');
+    }
+
+    private function registerProfilers(): void
+    {
+        foreach ($this->container->getParameter('shopware.profiler.integrations') as $profiler) {
+            $profiler = $this->container->get($profiler);
+
+            if (!$profiler instanceof ProfilerInterface) {
+                throw new \RuntimeException(\sprintf(
+                    'All configured profilers need to implement the %s interface, but service "%s" does not implement it.',
+                    ProfilerInterface::class,
+                    $profiler
+                ));
+            }
+
+            Profiler::register($profiler);
+        }
     }
 }

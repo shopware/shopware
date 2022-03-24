@@ -191,8 +191,8 @@ class StorefrontCartFacadeTest extends TestCase
             static::assertCount(1, $changedShippingMethodErrors);
             /** @var ShippingMethodChangedError $shippingMethodChangedError */
             $shippingMethodChangedError = $changedShippingMethodErrors->first();
-            static::assertSame($salesChannelContext->getShippingMethod()->getName(), $shippingMethodChangedError->getOldShippingMethodName());
-            static::assertNotSame($salesChannelContext->getShippingMethod()->getName(), $shippingMethodChangedError->getNewShippingMethodName());
+            static::assertSame($salesChannelContext->getShippingMethod()->getName(), $shippingMethodChangedError->getNewShippingMethodName());
+            static::assertNotSame($salesChannelContext->getShippingMethod()->getName(), $shippingMethodChangedError->getOldShippingMethodName());
         } elseif ($blockShippingMethod) {
             static::assertSame(1, $shippingMethodBlockedCount);
         }
@@ -203,8 +203,8 @@ class StorefrontCartFacadeTest extends TestCase
             static::assertCount(1, $changedPaymentMethodErrors);
             /** @var PaymentMethodChangedError $paymentMethodChangedError */
             $paymentMethodChangedError = $changedPaymentMethodErrors->first();
-            static::assertSame($salesChannelContext->getPaymentMethod()->getName(), $paymentMethodChangedError->getOldPaymentMethodName());
-            static::assertNotSame($salesChannelContext->getPaymentMethod()->getName(), $paymentMethodChangedError->getNewPaymentMethodName());
+            static::assertSame($salesChannelContext->getPaymentMethod()->getName(), $paymentMethodChangedError->getNewPaymentMethodName());
+            static::assertNotSame($salesChannelContext->getPaymentMethod()->getName(), $paymentMethodChangedError->getOldPaymentMethodName());
         } elseif ($blockPaymentMethod) {
             static::assertSame(1, $paymentMethodBlockedCount);
         }

@@ -455,7 +455,7 @@
         <service id="Shopware\Storefront\Page\Cms\DefaultMediaResolver" decorates="Shopware\Core\Content\Media\Cms\DefaultMediaResolver">
             <argument type="service" id="Shopware\Storefront\Page\Cms\DefaultMediaResolver.inner"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
-            <argument type="service" id="twig.extension.assets"/>
+            <argument type="service" id="assets.packages"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Cache\CacheStore" public="true">

@@ -2,16 +2,17 @@
 
 namespace Shopware\Core\Content\Media\Cms;
 
+use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 class DefaultMediaResolver extends AbstractDefaultMediaResolver
 {
-    private string $projectDir;
+    private FilesystemInterface $filesystem;
 
-    public function __construct(string $projectDir)
+    public function __construct(FilesystemInterface $filesystem)
     {
-        $this->projectDir = $projectDir;
+        $this->filesystem = $filesystem;
     }
 
     public function getDecorated(): AbstractDefaultMediaResolver
@@ -21,13 +22,13 @@ class DefaultMediaResolver extends AbstractDefaultMediaResolver
 
     public function getDefaultCmsMediaEntity(string $mediaAssetFilePath): ?MediaEntity
     {
-        $filePath = $this->projectDir . '/bundles/' . $mediaAssetFilePath;
+        $filePath = '/bundles/' . $mediaAssetFilePath;
 
-        if (!file_exists($filePath)) {
+        if (!$this->filesystem->has($filePath)) {
             return null;
         }
 
-        $mimeType = mime_content_type($filePath);
+        $mimeType = $this->filesystem->getMimetype($filePath);
         $pathInfo = pathinfo($filePath);
 
         if (!$mimeType || !\array_key_exists('extension', $pathInfo)) {

@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Page\Cms;
 use Shopware\Core\Content\Media\Cms\AbstractDefaultMediaResolver;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
-use Symfony\Bridge\Twig\Extension\AssetExtension;
+use Symfony\Component\Asset\Packages;
 
 class DefaultMediaResolver extends AbstractDefaultMediaResolver
 {
@@ -13,15 +13,15 @@ class DefaultMediaResolver extends AbstractDefaultMediaResolver
 
     private Translator $translator;
 
-    private AssetExtension $assetExtension;
+    private Packages $packages;
 
     private AbstractDefaultMediaResolver $decorated;
 
-    public function __construct(AbstractDefaultMediaResolver $decorated, Translator $translator, AssetExtension $assetExtension)
+    public function __construct(AbstractDefaultMediaResolver $decorated, Translator $translator, Packages $packages)
     {
         $this->decorated = $decorated;
         $this->translator = $translator;
-        $this->assetExtension = $assetExtension;
+        $this->packages = $packages;
     }
 
     public function getDecorated(): AbstractDefaultMediaResolver
@@ -37,6 +37,7 @@ class DefaultMediaResolver extends AbstractDefaultMediaResolver
             return null;
         }
 
+        $package = $this->packages->getPackage('asset');
         $snippetName = $snippetPath . '.' . $media->getFileName();
 
         // add translations to the media entity with a given snippet path
@@ -46,7 +47,7 @@ class DefaultMediaResolver extends AbstractDefaultMediaResolver
         ]);
 
         // add the asset url
-        $media->setUrl($this->assetExtension->getAssetUrl('/bundles/' . $mediaAssetFilePath));
+        $media->setUrl($package->getUrl('/bundles/' . $mediaAssetFilePath));
 
         return $media;
     }

@@ -1,18 +1,23 @@
 <?php declare(strict_types=1);
 
+use League\Flysystem\FilesystemInterface;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Cms\DefaultMediaResolver;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class DefaultMediaResolverTest extends TestCase
 {
-    private const FIXTURES_DIRECTORY = '/../fixtures';
+    use IntegrationTestBehaviour;
 
     private DefaultMediaResolver $mediaResolver;
 
+    private FilesystemInterface $publicFilesystem;
+
     public function setUp(): void
     {
-        $this->mediaResolver = new DefaultMediaResolver(__DIR__ . self::FIXTURES_DIRECTORY);
+        $this->publicFilesystem = $this->getPublicFilesystem();
+        $this->mediaResolver = new DefaultMediaResolver($this->publicFilesystem);
     }
 
     public function testGetDefaultMediaEntityWithoutValidFileName(): void
@@ -24,6 +29,7 @@ class DefaultMediaResolverTest extends TestCase
 
     public function testGetDefaultMediaEntityWithValidFileName(): void
     {
+        $this->publicFilesystem->put('/bundles/core/assets/default/cms/shopware.jpg', '');
         $media = $this->mediaResolver->getDefaultCmsMediaEntity('core/assets/default/cms/shopware.jpg');
 
         static::assertInstanceOf(MediaEntity::class, $media);

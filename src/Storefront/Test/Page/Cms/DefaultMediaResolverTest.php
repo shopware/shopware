@@ -19,7 +19,7 @@ class DefaultMediaResolverTest extends TestCase
 
     public function setUp(): void
     {
-        $assetExtension = $this->getContainer()->get('twig.extension.assets');
+        $packages = $this->getContainer()->get('assets.packages');
 
         $translator = $this->createConfiguredMock(
             Translator::class,
@@ -29,7 +29,7 @@ class DefaultMediaResolverTest extends TestCase
         );
 
         $this->decorated = $this->createMock(AbstractDefaultMediaResolver::class);
-        $this->mediaResolver = new DefaultMediaResolver($this->decorated, $translator, $assetExtension);
+        $this->mediaResolver = new DefaultMediaResolver($this->decorated, $translator, $packages);
     }
 
     public function testGetDefaultMediaEntityWithoutValidFileName(): void

@@ -276,7 +276,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Media\Cms\DefaultMediaResolver">
-            <argument>%kernel.project_dir%/public</argument>
+            <argument type="service" id="shopware.filesystem.public"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Cms\ImageCmsElementResolver">

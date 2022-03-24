@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Flow\Dispatching\Action;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Document\DocumentService;
+use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
@@ -33,6 +34,9 @@ class SendMailAction extends FlowAction
 {
     public const ACTION_NAME = MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION;
     public const MAIL_CONFIG_EXTENSION = 'mail-attachments';
+    private const RECIPIENT_CONFIG_ADMIN = 'admin';
+    private const RECIPIENT_CONFIG_CUSTOM = 'custom';
+    private const RECIPIENT_CONFIG_CONTACT_FORM_MAIL = 'contactFormMail';
 
     private EntityRepositoryInterface $mailTemplateRepository;
 
@@ -154,6 +158,11 @@ class SendMailAction extends FlowAction
         $data = new DataBag();
 
         $recipients = $this->getRecipients($eventConfig['recipient'], $mailEvent);
+
+        if (empty($recipients)) {
+            return;
+        }
+
         $data->set('recipients', $recipients);
         $data->set('senderName', $mailTemplate->getTranslation('senderName'));
         $data->set('salesChannelId', $mailEvent->getSalesChannelId());
@@ -336,9 +345,9 @@ class SendMailAction extends FlowAction
     private function getRecipients(array $recipients, MailAware $mailEvent): array
     {
         switch ($recipients['type']) {
-            case 'custom':
+            case self::RECIPIENT_CONFIG_CUSTOM:
                 return $recipients['data'];
-            case 'admin':
+            case self::RECIPIENT_CONFIG_ADMIN:
                 $admins = $this->connection->fetchAllAssociative(
                     'SELECT first_name, last_name, email FROM user WHERE admin = true'
                 );
@@ -348,6 +357,17 @@ class SendMailAction extends FlowAction
                 }
 
                 return $emails;
+            case self::RECIPIENT_CONFIG_CONTACT_FORM_MAIL:
+                if (!$mailEvent instanceof ContactFormEvent) {
+                    return [];
+                }
+                $data = $mailEvent->getContactFormData();
+
+                if (!\array_key_exists('email', $data)) {
+                    return [];
+                }
+
+                return [$data['email'] => ($data['firstName'] ?? '') . ' ' . ($data['lastName'] ?? '')];
             default:
                 return $mailEvent->getMailStruct()->getRecipients();
         }

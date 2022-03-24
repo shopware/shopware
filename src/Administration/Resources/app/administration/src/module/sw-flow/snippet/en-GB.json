@@ -194,6 +194,7 @@
         "labelCustomer": "Customer",
         "labelAdmin": "Admin",
         "labelCustom": "Custom",
+        "labelContactFormMail": "Contact form confirmation",
         "labelRecipient": "Recipient",
         "placeholderRecipient": "Select email recipient ...",
         "labelLatestDocuments": "Add (latest) documents",

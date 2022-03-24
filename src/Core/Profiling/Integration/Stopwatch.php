@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Profiling\Integration;
 
@@ -16,7 +16,10 @@ class Stopwatch implements ProfilerInterface
         $this->stopwatch = $stopwatch;
     }
 
-    public function trace(string $title, \Closure $closure, string $category = 'shopware')
+    /**
+     * @return mixed
+     */
+    public function trace(string $title, \Closure $closure, string $category, array $tags)
     {
         if (!class_exists('\Symfony\Component\Stopwatch\Stopwatch') || $this->stopwatch === null) {
             return $closure();

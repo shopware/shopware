@@ -63,7 +63,7 @@ class CheckoutFinishPageLoader
             $page->getMetaInformation()->setRobots('noindex,follow');
         }
 
-        Profiler::trace('finish-page-order-loading', function() use ($page, $request, $salesChannelContext) {
+        Profiler::trace('finish-page-order-loading', function () use ($page, $request, $salesChannelContext): void {
             $page->setOrder($this->getOrder($request, $salesChannelContext));
         });
 

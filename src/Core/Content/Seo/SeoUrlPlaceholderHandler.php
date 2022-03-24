@@ -46,7 +46,7 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
 
     public function replace(string $content, string $host, SalesChannelContext $context): string
     {
-        return Profiler::trace('seo-url-replacer', function() use ($content, $host, $context) {
+        return Profiler::trace('seo-url-replacer', function () use ($content, $host, $context) {
             $matches = [];
 
             if (preg_match_all('/' . self::DOMAIN_PLACEHOLDER . '[^#]*#/', $content, $matches)) {

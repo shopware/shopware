@@ -68,14 +68,15 @@ class Profiling extends Bundle
 
     private function registerProfilers(): void
     {
-        foreach ($this->container->getParameter('shopware.profiler.integrations') as $profiler) {
-            $profiler = $this->container->get($profiler);
+        /** @var string $profilerClass */
+        foreach ($this->container->getParameter('shopware.profiler.integrations') as $profilerClass) {
+            $profiler = $this->container->get($profilerClass);
 
             if (!$profiler instanceof ProfilerInterface) {
                 throw new \RuntimeException(\sprintf(
                     'All configured profilers need to implement the %s interface, but service "%s" does not implement it.',
                     ProfilerInterface::class,
-                    $profiler
+                    $profilerClass
                 ));
             }
 

@@ -99,7 +99,7 @@ class CartRuleLoader implements ResetInterface
 
     private function load(SalesChannelContext $context, Cart $cart, CartBehavior $behaviorContext, bool $new): RuleLoaderResult
     {
-        return Profiler::trace('cart-rule-loader', function() use ($context, $cart, $behaviorContext, $new) {
+        return Profiler::trace('cart-rule-loader', function () use ($context, $cart, $behaviorContext, $new) {
             $rules = $this->loadRules($context->getContext());
 
             // save all rules for later usage

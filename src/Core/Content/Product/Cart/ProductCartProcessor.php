@@ -75,7 +75,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
     public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void
     {
-        Profiler::trace('cart::product::collect', function() use ($data, $original, $context, $behavior) {
+        Profiler::trace('cart::product::collect', function () use ($data, $original, $context, $behavior): void {
             $lineItems = $this->getProducts($original->getLineItems());
 
             $items = array_column($lineItems, 'item');
@@ -126,7 +126,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
      */
     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
     {
-        Profiler::trace('cart::product::process', function() use ($data, $original, $toCalculate, $context) {
+        Profiler::trace('cart::product::process', function () use ($data, $original, $toCalculate, $context): void {
             $hash = $this->generator->getSalesChannelContextHash($context);
 
             $items = $original->getLineItems()->filterFlatByType(LineItem::PRODUCT_LINE_ITEM_TYPE);

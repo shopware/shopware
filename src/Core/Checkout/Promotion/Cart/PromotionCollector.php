@@ -73,7 +73,7 @@ class PromotionCollector implements CartDataCollectorInterface
      */
     public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void
     {
-        Profiler::trace('cart::promotion::collect', function() use ($data, $original, $context, $behavior) {
+        Profiler::trace('cart::promotion::collect', function () use ($data, $original, $context, $behavior): void {
             // The promotions have a special function:
             // If the user comes to the shop via a promotion link, a discount is to be placed in the cart.
             // However, this cannot be applied directly, because it does not yet have any items in the cart.

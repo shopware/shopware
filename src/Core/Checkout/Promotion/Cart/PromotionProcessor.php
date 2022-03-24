@@ -43,7 +43,7 @@ class PromotionProcessor implements CartProcessorInterface
      */
     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
     {
-        Profiler::trace('cart::promotion::process', function() use ($data, $original, $toCalculate, $context, $behavior) {
+        Profiler::trace('cart::promotion::process', function () use ($data, $original, $toCalculate, $context, $behavior): void {
             // always make sure we have
             // the line item group builder for our
             // line item group rule inside the cart data

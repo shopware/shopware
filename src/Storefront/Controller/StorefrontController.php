@@ -57,7 +57,7 @@ abstract class StorefrontController extends AbstractController
         }
         $this->container->get('event_dispatcher')->dispatch($event);
 
-        $response = Profiler::trace('twig-rendering', function() use ($view, $event) {
+        $response = Profiler::trace('twig-rendering', function () use ($view, $event) {
             return $this->render($view, $event->getParameters(), new StorefrontResponse());
         });
 

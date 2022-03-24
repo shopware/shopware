@@ -550,7 +550,7 @@ class Configuration implements ConfigurationInterface
         return $rootNode;
     }
 
-    private function createProfilerSection()
+    private function createProfilerSection(): ArrayNodeDefinition
     {
         $treeBuilder = new TreeBuilder('profiler');
 

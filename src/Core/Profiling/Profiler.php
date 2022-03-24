@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Profiling;
 
@@ -18,16 +18,27 @@ abstract class Profiler
      */
     private static array $profilers = [];
 
-    public static function trace(string $name, \Closure $closure, string $category = 'shopware')
+    /**
+     * Tags will be added to each trace
+     *
+     * @var string[]
+     */
+    private static array $tags = [];
+
+    /**
+     * @return mixed
+     */
+    public static function trace(string $name, \Closure $closure, string $category = 'shopware', array $tags = [])
     {
-        $pointer = static function() use ($closure) {
+        $pointer = static function () use ($closure) {
             return $closure();
         };
 
+        $tags = array_merge(self::$tags, $tags);
         // we have to chain the profilers here: `return Stopwatch::trace(Tideways::trace(...));`
         foreach (self::$profilers as $profiler) {
-            $pointer = static function() use ($profiler, $name, $pointer, $category) {
-                return $profiler->trace($name, $pointer, $category);
+            $pointer = static function () use ($profiler, $name, $pointer, $category, $tags) {
+                return $profiler->trace($name, $pointer, $category, $tags);
             };
         }
 
@@ -37,5 +48,15 @@ abstract class Profiler
     public static function register(ProfilerInterface $profiler): void
     {
         self::$profilers[] = $profiler;
+    }
+
+    public static function addTag(string $key, string $value): void
+    {
+        self::$tags[$key] = $value;
+    }
+
+    public static function removeTag(string $key): void
+    {
+        unset(self::$tags[$key]);
     }
 }

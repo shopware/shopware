@@ -104,7 +104,7 @@ class CachedCategoryRoute extends AbstractCategoryRoute
      */
     public function load(string $navigationId, Request $request, SalesChannelContext $context): CategoryRouteResponse
     {
-        return Profiler::trace('category-route', function() use ($navigationId, $request, $context) {
+        return Profiler::trace('category-route', function () use ($navigationId, $request, $context) {
             if ($context->hasState(...$this->states)) {
                 return $this->getDecorated()->load($navigationId, $request, $context);
             }

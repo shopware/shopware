@@ -166,7 +166,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
     public function handleResult(ProductListingResultEvent $event): void
     {
-        Profiler::trace('product-listing::feature-subscriber', function() use ($event) {
+        Profiler::trace('product-listing::feature-subscriber', function () use ($event): void {
             $this->groupOptionAggregations($event);
 
             $this->addCurrentFilters($event);

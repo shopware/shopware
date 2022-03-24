@@ -78,7 +78,7 @@ class GenericPageLoader implements GenericPageLoaderInterface
      */
     public function load(Request $request, SalesChannelContext $context): Page
     {
-        return Profiler::trace('generic-page-loader', function() use ($request, $context) {
+        return Profiler::trace('generic-page-loader', function () use ($request, $context) {
             $page = new Page();
 
             if ($request->isXmlHttpRequest()) {

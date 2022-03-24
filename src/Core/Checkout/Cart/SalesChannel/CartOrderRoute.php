@@ -111,12 +111,11 @@ class CartOrderRoute extends AbstractCartOrderRoute
         $this->addCustomerComment($calculatedCart, $data);
         $this->addAffiliateTracking($calculatedCart, $data);
 
-        $preOrderPayment = Profiler::trace('checkout-order::pre-payment', function() use ($calculatedCart, $data, $context) {
+        $preOrderPayment = Profiler::trace('checkout-order::pre-payment', function () use ($calculatedCart, $data, $context) {
             return $this->preparedPaymentService->handlePreOrderPayment($calculatedCart, $data, $context);
         });
 
-
-        $orderId = Profiler::trace('checkout-order::order-persist', function() use ($calculatedCart, $context) {
+        $orderId = Profiler::trace('checkout-order::order-persist', function () use ($calculatedCart, $context) {
             return $this->orderPersister->persist($calculatedCart, $context);
         });
 
@@ -136,7 +135,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
         $this->eventDispatcher->dispatch(new CheckoutOrderPlacedCriteriaEvent($criteria, $context));
 
         /** @var OrderEntity|null $orderEntity */
-        $orderEntity = Profiler::trace('checkout-order::order-loading', function() use ($criteria, $context) {
+        $orderEntity = Profiler::trace('checkout-order::order-loading', function () use ($criteria, $context) {
             return $this->orderRepository->search($criteria, $context->getContext())->first();
         });
 
@@ -150,13 +149,13 @@ class CartOrderRoute extends AbstractCartOrderRoute
             $context->getSalesChannel()->getId()
         );
 
-        Profiler::trace('checkout-order::event-listeners', function() use ($event) {
+        Profiler::trace('checkout-order::event-listeners', function () use ($event): void {
             $this->eventDispatcher->dispatch($event);
         });
 
         $this->cartPersister->delete($context->getToken(), $context);
 
-        Profiler::trace('checkout-order::post-payment', function() use ($orderEntity, $data, $context, $preOrderPayment) {
+        Profiler::trace('checkout-order::post-payment', function () use ($orderEntity, $data, $context, $preOrderPayment): void {
             $this->preparedPaymentService->handlePostOrderPayment($orderEntity, $data, $context, $preOrderPayment);
         });
 

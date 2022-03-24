@@ -2,23 +2,24 @@
 
 namespace Shopware\Core\Profiling\Integration;
 
-/**
- * @internal experimental atm
- */
-class Tideways implements ProfilerInterface
+use DDTrace\GlobalTracer;
+
+class Datadog implements ProfilerInterface
 {
     /**
      * @return mixed
      */
     public function trace(string $title, \Closure $closure, string $category, array $tags)
     {
-        if (!class_exists('Tideways\Profiler')) {
+        if (!class_exists(GlobalTracer::class)) {
             return $closure();
         }
 
-        $tags = array_merge(['title' => $title], $tags);
-        $span = \Tideways\Profiler::createSpan($category);
-        $span->annotate($tags);
+        /** @see DDTrace\Tag::SERVICE_NAME */
+        $tags = array_merge(['service.name' => $category], $tags);
+        $span = GlobalTracer::get()->startSpan($title, [
+            'tags' => $tags,
+        ]);
 
         $result = $closure();
 

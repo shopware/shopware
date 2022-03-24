@@ -64,7 +64,7 @@ class CartLineItemController extends StorefrontController
      */
     public function deleteLineItem(Cart $cart, string $id, Request $request, SalesChannelContext $context): Response
     {
-        return Profiler::trace('cart::delete-line-item', function() use ($cart, $id, $request, $context) {
+        return Profiler::trace('cart::delete-line-item', function () use ($cart, $id, $request, $context) {
             try {
                 if (!$cart->has($id)) {
                     throw new LineItemNotFoundException($id);
@@ -93,7 +93,7 @@ class CartLineItemController extends StorefrontController
      */
     public function addPromotion(Cart $cart, Request $request, SalesChannelContext $context): Response
     {
-        return Profiler::trace('cart::add-promotion', function() use ($cart, $request, $context) {
+        return Profiler::trace('cart::add-promotion', function () use ($cart, $request, $context) {
             try {
                 $code = (string) $request->request->get('code');
 
@@ -135,7 +135,7 @@ class CartLineItemController extends StorefrontController
      */
     public function changeQuantity(Cart $cart, string $id, Request $request, SalesChannelContext $context): Response
     {
-        return Profiler::trace('cart::change-quantity', function() use ($cart, $id, $request, $context) {
+        return Profiler::trace('cart::change-quantity', function () use ($cart, $id, $request, $context) {
             try {
                 $quantity = $request->get('quantity');
 
@@ -169,7 +169,7 @@ class CartLineItemController extends StorefrontController
      */
     public function addProductByNumber(Request $request, SalesChannelContext $context): Response
     {
-        return Profiler::trace('cart::add-product-by-number', function() use ($request, $context) {
+        return Profiler::trace('cart::add-product-by-number', function () use ($request, $context) {
             $number = (string) $request->request->get('number');
 
             if (!$number) {
@@ -233,7 +233,7 @@ class CartLineItemController extends StorefrontController
      */
     public function addLineItems(Cart $cart, RequestDataBag $requestDataBag, Request $request, SalesChannelContext $context): Response
     {
-        return Profiler::trace('cart::add-line-item', function() use ($cart, $requestDataBag, $request, $context) {
+        return Profiler::trace('cart::add-line-item', function () use ($cart, $requestDataBag, $request, $context) {
             /** @var RequestDataBag|null $lineItems */
             $lineItems = $requestDataBag->get('lineItems');
             if (!$lineItems) {

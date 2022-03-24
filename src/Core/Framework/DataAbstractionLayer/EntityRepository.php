@@ -107,7 +107,7 @@ class EntityRepository implements EntityRepositoryInterface
             return $this->_search($criteria, $context);
         }
 
-        return Profiler::trace($criteria->getTitle(), function() use ($criteria, $context) {
+        return Profiler::trace($criteria->getTitle(), function () use ($criteria, $context) {
             return $this->_search($criteria, $context);
         }, 'repository');
     }
@@ -295,5 +295,4 @@ class EntityRepository implements EntityRepositoryInterface
 
         return $result;
     }
-
 }

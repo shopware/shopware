@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Profiling\Integration;
 
@@ -7,5 +7,8 @@ namespace Shopware\Core\Profiling\Integration;
  */
 interface ProfilerInterface
 {
-    public function trace(string $title, \Closure $closure, string $category = 'shopware');
+    /**
+     * @return mixed
+     */
+    public function trace(string $title, \Closure $closure, string $category, array $tags);
 }

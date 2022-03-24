@@ -60,7 +60,7 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
 
     public function get(SalesChannelContextServiceParameters $parameters): SalesChannelContext
     {
-        return Profiler::trace('sales-channel-context', function() use ($parameters) {
+        return Profiler::trace('sales-channel-context', function () use ($parameters) {
             $token = $parameters->getToken();
 
             $session = $this->contextPersister->load($token, $parameters->getSalesChannelId());

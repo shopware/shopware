@@ -53,7 +53,7 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
 
     public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void
     {
-        Profiler::trace('cart::delivery::collect', function() use ($data, $original, $context) {
+        Profiler::trace('cart::delivery::collect', function () use ($data, $original, $context): void {
             $default = $context->getShippingMethod()->getId();
 
             if (!$data->has(self::buildKey($default))) {
@@ -94,7 +94,7 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
 
     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
     {
-        Profiler::trace('cart::delivery::process', function() use ($data, $original, $toCalculate, $context, $behavior) {
+        Profiler::trace('cart::delivery::process', function () use ($data, $original, $toCalculate, $context, $behavior): void {
             $deliveries = $this->builder->build($toCalculate, $data, $context, $behavior);
 
             $delivery = $deliveries->first();

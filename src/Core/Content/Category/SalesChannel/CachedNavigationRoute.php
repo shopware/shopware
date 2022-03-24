@@ -133,7 +133,7 @@ Instead of passing uuids, you can also use one of the following aliases for the 
      */
     public function load(string $activeId, string $rootId, Request $request, SalesChannelContext $context, Criteria $criteria): NavigationRouteResponse
     {
-        return Profiler::trace('navigation-route', function() use ($activeId, $rootId, $request, $context, $criteria) {
+        return Profiler::trace('navigation-route', function () use ($activeId, $rootId, $request, $context, $criteria) {
             if ($context->hasState(...$this->states)) {
                 return $this->getDecorated()->load($activeId, $rootId, $request, $context, $criteria);
             }

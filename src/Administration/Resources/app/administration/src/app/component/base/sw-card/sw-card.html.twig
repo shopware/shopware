@@ -46,20 +46,20 @@
             </div>
 
             <slot name="tabs"></slot>
+        </div>
 
-            {% block sw_card_toolbar %}
-            <div
-                v-if="!!$slots.toolbar"
-                class="sw-card__toolbar"
-            >
-                {% block sw_card_toolbar_inner %}
-                <slot name="toolbar">
-                    {% block sw_card_slot_toolbar %}{% endblock %}
-                </slot>
-                {% endblock %}
-            </div>
+        {% block sw_card_toolbar %}
+        <div
+            v-if="!!$slots.toolbar"
+            class="sw-card__toolbar"
+        >
+            {% block sw_card_toolbar_inner %}
+            <slot name="toolbar">
+                {% block sw_card_slot_toolbar %}{% endblock %}
+            </slot>
             {% endblock %}
         </div>
+        {% endblock %}
 
         {% block sw_card_content %}
         <div class="sw-card__content">

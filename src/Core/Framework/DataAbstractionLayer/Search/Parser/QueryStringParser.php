@@ -12,7 +12,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NorFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
@@ -36,21 +39,35 @@ class QueryStringParser
                 }
 
                 return new EqualsFilter(self::buildFieldName($definition, $query['field']), $query['value']);
+            case 'nand':
+                return new NandFilter(
+                    self::parseQueries($definition, $path, $exception, $query['queries'])
+                );
+            case 'nor':
+                return new NorFilter(
+                    self::parseQueries($definition, $path, $exception, $query['queries'])
+                );
+            case 'not':
+                return new NotFilter(
+                    $query['operator'] ?? 'AND',
+                    self::parseQueries($definition, $path, $exception, $query['queries'])
+                );
+            case 'and':
+                return new AndFilter(
+                    self::parseQueries($definition, $path, $exception, $query['queries'])
+                );
+            case 'or':
+                return new OrFilter(
+                    self::parseQueries($definition, $path, $exception, $query['queries'])
+                );
             case 'multi':
-                $queries = [];
                 $operator = MultiFilter::CONNECTION_AND;
 
                 if (isset($query['operator']) && mb_strtoupper($query['operator']) === MultiFilter::CONNECTION_OR) {
                     $operator = MultiFilter::CONNECTION_OR;
                 }
 
-                foreach ($query['queries'] as $index => $subQuery) {
-                    try {
-                        $queries[] = self::fromArray($definition, $subQuery, $exception, $path . '/queries/' . $index);
-                    } catch (InvalidFilterQueryException $ex) {
-                        $exception->add($ex, $ex->getPath());
-                    }
-                }
+                $queries = self::parseQueries($definition, $path, $exception, $query['queries']);
 
                 return new MultiFilter($operator, $queries);
             case 'contains':
@@ -83,13 +100,7 @@ class QueryStringParser
                 }
 
                 return new SuffixFilter(self::buildFieldName($definition, $query['field']), $query['value']);
-            case 'not':
-                return new NotFilter(
-                    $query['operator'] ?? 'AND',
-                    array_map(function (array $query) use ($path, $exception, $definition) {
-                        return self::fromArray($definition, $query, $exception, $path);
-                    }, $query['queries'])
-                );
+
             case 'range':
                 return new RangeFilter(self::buildFieldName($definition, $query['field']), $query['parameters']);
             case 'until':
@@ -209,6 +220,21 @@ class QueryStringParser
             default:
                 throw new \RuntimeException(sprintf('Unsupported filter type %s', \get_class($query)));
         }
+    }
+
+    private static function parseQueries(EntityDefinition $definition, string $path, SearchRequestException $exception, array $queries): array
+    {
+        $parsed = [];
+
+        foreach ($queries as $index => $subQuery) {
+            try {
+                $parsed[] = self::fromArray($definition, $subQuery, $exception, $path . '/queries/' . $index);
+            } catch (InvalidFilterQueryException $ex) {
+                $exception->add($ex, $ex->getPath());
+            }
+        }
+
+        return $parsed;
     }
 
     private static function getFilterByRelativeTime(string $fieldName, array $query, string $path): MultiFilter

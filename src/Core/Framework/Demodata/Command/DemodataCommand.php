@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Demodata\DemodataRequest;
 use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Demodata\Event\DemodataRequestCreatedEvent;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
+use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -76,6 +77,7 @@ class DemodataCommand extends Command
         $this->addOption('media-attributes', null, InputOption::VALUE_REQUIRED, 'Media attribute count');
         $this->addOption('flows', 'fl', InputOption::VALUE_OPTIONAL, 'Flows count', '0');
         $this->addOption('rules', 'R', InputOption::VALUE_OPTIONAL, 'Rules count', '25');
+        $this->addOption('tags', null, InputOption::VALUE_OPTIONAL, 'Tags count', '50');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -93,6 +95,7 @@ class DemodataCommand extends Command
 
         $request = new DemodataRequest();
 
+        $request->add(TagDefinition::class, (int) $input->getOption('tags'));
         $request->add(RuleDefinition::class, (int) $input->getOption('rules'));
         $request->add(MediaDefinition::class, (int) $input->getOption('media'));
         $request->add(CustomerDefinition::class, (int) $input->getOption('customers'));

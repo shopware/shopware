@@ -74,6 +74,8 @@ class ProductGenerator implements DemodataGeneratorInterface
 
         $manufacturers = $this->getIds('product_manufacturer');
 
+        $tags = $this->getIds('tag');
+
         $combinations = [];
         for ($i = 0; $i <= 20; ++$i) {
             $combinations[] = $this->buildCombinations($properties);
@@ -87,7 +89,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
         $payload = [];
         for ($i = 0; $i < $count; ++$i) {
-            $product = $this->createSimpleProduct($taxes, $categories, $manufacturers);
+            $product = $this->createSimpleProduct($taxes, $categories, $manufacturers, $tags);
 
             $product['prices'] = $this->faker->randomElement($prices);
 
@@ -209,7 +211,8 @@ class ProductGenerator implements DemodataGeneratorInterface
     private function createSimpleProduct(
         EntitySearchResult $taxes,
         array $categories,
-        array $manufacturer
+        array $manufacturer,
+        array $tags
     ): array {
         $price = $this->faker->randomFloat(2, 1, 1000);
         $purchasePrice = $this->faker->randomFloat(2, 1, 1000);
@@ -231,6 +234,7 @@ class ProductGenerator implements DemodataGeneratorInterface
             'categories' => [
                 ['id' => $this->faker->randomElement($categories)],
             ],
+            'tags' => $this->getTags($tags),
             'stock' => $this->faker->numberBetween(1, 50),
         ];
     }
@@ -272,6 +276,26 @@ class ProductGenerator implements DemodataGeneratorInterface
         }
 
         return $prices;
+    }
+
+    private function getTags(array $tags): array
+    {
+        $tagAssignments = [];
+
+        if (!empty($tags)) {
+            $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit, false);
+
+            if (!empty($chosenTags)) {
+                $tagAssignments = array_map(
+                    function ($id) {
+                        return ['id' => $id];
+                    },
+                    $chosenTags
+                );
+            }
+        }
+
+        return $tagAssignments;
     }
 
     private function getProperties(): array

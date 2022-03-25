@@ -13,7 +13,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NorFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
@@ -34,6 +37,40 @@ class QueryStringParserTest extends TestCase
     {
         $this->expectException(InvalidFilterQueryException::class);
         QueryStringParser::fromArray($this->getContainer()->get(ProductDefinition::class), ['foo' => 'bar'], new SearchRequestException());
+    }
+
+    /**
+     * @dataProvider testParserProvider
+     */
+    public function testParser(array $payload, Filter $expected): void
+    {
+        $result = QueryStringParser::fromArray(
+            $this->getContainer()->get(ProductDefinition::class),
+            $payload,
+            new SearchRequestException()
+        );
+
+        static::assertEquals($expected, $result);
+    }
+
+    public static function testParserProvider(): \Generator
+    {
+        yield 'Test and filter' => [
+            ['type' => 'and', 'queries' => [['type' => 'equals', 'field' => 'name', 'value' => 'foo']]],
+            new AndFilter([new EqualsFilter('product.name', 'foo')]),
+        ];
+        yield 'Test or filter' => [
+            ['type' => 'or', 'queries' => [['type' => 'equals', 'field' => 'name', 'value' => 'foo']]],
+            new OrFilter([new EqualsFilter('product.name', 'foo')]),
+        ];
+        yield 'Test nor filter' => [
+            ['type' => 'nor', 'queries' => [['type' => 'equals', 'field' => 'name', 'value' => 'foo']]],
+            new NorFilter([new EqualsFilter('product.name', 'foo')]),
+        ];
+        yield 'Test nand filter' => [
+            ['type' => 'nand', 'queries' => [['type' => 'equals', 'field' => 'name', 'value' => 'foo']]],
+            new NandFilter([new EqualsFilter('product.name', 'foo')]),
+        ];
     }
 
     /**

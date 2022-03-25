@@ -4,6 +4,9 @@ namespace Shopware\Core\Profiling\Integration;
 
 use DDTrace\GlobalTracer;
 
+/**
+ * @internal experimental atm
+ */
 class Datadog implements ProfilerInterface
 {
     /**
@@ -14,8 +17,7 @@ class Datadog implements ProfilerInterface
         if (!class_exists(GlobalTracer::class)) {
             return $closure();
         }
-
-        /** @see DDTrace\Tag::SERVICE_NAME */
+        /** @see \DDTrace\Tag::SERVICE_NAME */
         $tags = array_merge(['service.name' => $category], $tags);
         $span = GlobalTracer::get()->startSpan($title, [
             'tags' => $tags,

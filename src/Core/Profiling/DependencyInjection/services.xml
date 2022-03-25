@@ -3,13 +3,24 @@
 <container xmlns="http://symfony.com/schema/dic/services"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
-
     <services>
-        <service id="Shopware\Core\Profiling\Integration\Stopwatch" public="true">
+        <service id="Shopware\Core\Profiling\Integration\Stopwatch">
             <argument type="service" id="debug.stopwatch" on-invalid="null"/>
+
+            <tag name="shopware.profiler" integration="Symfony"/>
         </service>
 
-        <service id="Shopware\Core\Profiling\Integration\Tideways" public="true">
+        <service id="Shopware\Core\Profiling\Integration\Tideways">
+            <tag name="shopware.profiler" integration="Tideways"/>
+        </service>
+
+        <service id="Shopware\Core\Profiling\Integration\Datadog">
+            <tag name="shopware.profiler" integration="Datadog"/>
+        </service>
+
+        <service id="Shopware\Core\Profiling\Profiler" public="true">
+            <argument type="tagged_iterator" tag="shopware.profiler" index-by="integration"/>
+            <argument>%shopware.profiler.integrations%</argument>
         </service>
 
         <service id="Shopware\Core\Profiling\Doctrine\ConnectionProfiler">

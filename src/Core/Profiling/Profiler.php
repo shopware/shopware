@@ -7,7 +7,7 @@ use Shopware\Core\Profiling\Integration\ProfilerInterface;
 /**
  * @internal experimental atm
  */
-abstract class Profiler
+class Profiler
 {
     /**
      * Profilers will be activated over the shopware.yaml file
@@ -24,6 +24,16 @@ abstract class Profiler
      * @var string[]
      */
     private static array $tags = [];
+
+    /**
+     * @param string[] $activeProfilers
+     */
+    public function __construct(\Traversable $profilers, array $activeProfilers)
+    {
+        $profilers = iterator_to_array($profilers);
+        self::$profilers = array_intersect_key($profilers, array_flip($activeProfilers));
+        self::$tags = [];
+    }
 
     /**
      * @return mixed
@@ -43,11 +53,6 @@ abstract class Profiler
         }
 
         return $pointer();
-    }
-
-    public static function register(ProfilerInterface $profiler): void
-    {
-        self::$profilers[] = $profiler;
     }
 
     public static function addTag(string $key, string $value): void

@@ -8,4 +8,4 @@ shopware:
         enable_url_validation: false
 
     profiler:
-        integrations: ['Shopware\Core\Profiling\Integration\Stopwatch']
+        integrations: ['Symfony']

@@ -4,7 +4,6 @@ namespace Shopware\Core\Profiling;
 
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Kernel;
-use Shopware\Core\Profiling\Integration\ProfilerInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
@@ -45,8 +44,10 @@ class Profiling extends Bundle
     public function boot(): void
     {
         parent::boot();
-        // profiler need to be registered on every request, therefore this can not happen as compiler pass
-        $this->registerProfilers();
+        // The profiler registers all profiler integrations in the constructor
+        // Therefor we need to get the service once to initialize it
+        // @phpstan-ignore-next-line ProfilerBundle is only available in env=dev, so the service seems to be not available for phpstan
+        $this->container->get(Profiler::class);
     }
 
     private function buildConfig(ContainerBuilder $container, $environment): void
@@ -64,23 +65,5 @@ class Profiling extends Bundle
 
         $configLoader->load($confDir . '/{packages}/*' . Kernel::CONFIG_EXTS, 'glob');
         $configLoader->load($confDir . '/{packages}/' . $environment . '/*' . Kernel::CONFIG_EXTS, 'glob');
-    }
-
-    private function registerProfilers(): void
-    {
-        /** @var string $profilerClass */
-        foreach ($this->container->getParameter('shopware.profiler.integrations') as $profilerClass) {
-            $profiler = $this->container->get($profilerClass);
-
-            if (!$profiler instanceof ProfilerInterface) {
-                throw new \RuntimeException(\sprintf(
-                    'All configured profilers need to implement the %s interface, but service "%s" does not implement it.',
-                    ProfilerInterface::class,
-                    $profilerClass
-                ));
-            }
-
-            Profiler::register($profiler);
-        }
     }
 }

@@ -17,7 +17,7 @@ ___
 # Upgrade Information
 ## Better profiling integration
 Shopware now supports better profiling for multiple integrations.
-To activate profiling and a specific integration, add the corresponding Profiler-class to the `shopware.profiler.integrations` parameter in your shopware.yaml file.
+To activate profiling and a specific integration, add the corresponding integration name to the `shopware.profiler.integrations` parameter in your shopware.yaml file.
 ___
 # Next Major Version Changes
 ## New Profiling pattern

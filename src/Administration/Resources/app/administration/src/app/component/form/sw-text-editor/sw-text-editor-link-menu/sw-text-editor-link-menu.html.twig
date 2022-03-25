@@ -7,6 +7,7 @@
             v-model="linkCategory"
             :label="$tc('sw-text-editor-toolbar.link.labelType')"
             require
+            @change="onSelectFieldChange"
         >
             {% block sw_text_editor_toolbar_button_link_menu_content_type_options %}
             <option value="link">

@@ -160,7 +160,7 @@ Component.register('sw-text-editor-link-menu', {
                 case 'detail':
                     return `${this.seoUrlReplacePrefix}/detail/${this.linkTarget}#`;
                 case 'category':
-                    return `category/${this.seoUrlReplacePrefix}/${this.linkTarget}#`;
+                    return `${this.seoUrlReplacePrefix}/navigation/${this.linkTarget}#`;
                 case 'email':
                     return `mailto:${this.linkTarget}`;
                 case 'phone':
@@ -199,6 +199,10 @@ Component.register('sw-text-editor-link-menu', {
             this.$emit('button-click', {
                 type: 'linkRemove',
             });
+        },
+
+        onSelectFieldChange(): void {
+            this.linkTarget = '';
         },
     },
 });

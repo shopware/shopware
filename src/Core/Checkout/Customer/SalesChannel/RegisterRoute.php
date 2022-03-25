@@ -529,6 +529,7 @@ See the Guide ""Register a customer"" for more information on customer registrat
     private function mapAddressData(DataBag $addressData): array
     {
         $mappedData = $addressData->only(
+            'title',
             'firstName',
             'lastName',
             'salutationId',

@@ -1,6 +1,6 @@
-# 2022-03-25 - Available stock
+# 2022-03-25 - Available stock improvements
 
-Currently, the available stock calculation is performed on every update of a product. This is true if the product is updated via the API but also if it is ordered via the store api route. When an order is placed, this is triggered by `Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdater::lineItemWritten` and performs an update of the available stock by subtracting the stock with the quantity of open orders. If there are many open orders in the storage, this can lead to a bottleneck if many orders are executed at the same time, with the same products.
+Currently, the available stock calculation is performed on every update of a product. This is true if the product is updated via the API but also if it is ordered via the store api route. When an order is placed, this is triggered by `StockUpdater::lineItemWritten` and performs an update of the available stock by subtracting the stock with the quantity of open orders. If there are many open orders in the storage, this can lead to a bottleneck if many orders are executed at the same time, with the same products.
 
 We have solved this problem by updating the available stock directly in the `CheckoutOrderPlaced` event with the ordered quantity:
 
@@ -50,8 +50,7 @@ public function lineItemWritten(EntityWrittenEvent $event): void
 }
 ```
 
-In addition to this optimization, we only perform a stock update if one of the three relevant fields (`stock`, `minPurchase`, `isCloseout`) has changed.
-This is checked in the `ProductIndexer` within the `update` method:
+In addition to this optimization, we only perform a stock update if one of the three relevant fields (`stock`, `minPurchase`, `isCloseout`) has changed. This is checked in the `ProductIndexer` within the `update` method:
 ```php
 $stocks = $event->getPrimaryKeysWithPropertyChange(ProductDefinition::ENTITY_NAME, ['stock', 'isCloseout', 'minPurchase']);
 $this->stockUpdater->update($stocks, $event->getContext());

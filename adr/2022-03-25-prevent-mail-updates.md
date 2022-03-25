@@ -1,6 +1,6 @@
 # 2022-03-25 - Prevent mail updates 
 
-In order to guarantee an autocompletion for the different mail templates in the administration UI, we currently have a mechanism, which writes the current mail as a template into the database when sending a mail:
+In order to guarantee an autocompletion for the different mail templates in the administration UI, we currently have a mechanism, which writes the current mail into the database when sending a mail:
 
 ```php
 <?php declare(strict_types=1);

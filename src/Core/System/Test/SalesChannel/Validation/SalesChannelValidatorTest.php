@@ -26,7 +26,7 @@ class SalesChannelValidatorTest extends TestCase
     /**
      * @dataProvider getInsertValidationProvider
      */
-    public function testInsertValidation(array $inserts, array $invalids = []): void
+    public function testInsertValidation(array $inserts, array $invalids = [], array $valids = []): void
     {
         $exception = null;
 
@@ -40,6 +40,10 @@ class SalesChannelValidatorTest extends TestCase
         if (!$invalids) {
             static::assertNull($exception);
 
+            $this->getSalesChannelRepository()->delete([
+                $valids,
+            ], Context::createDefaultContext());
+
             return;
         }
 
@@ -50,22 +54,45 @@ class SalesChannelValidatorTest extends TestCase
             $expectedError = sprintf(self::INSERT_VALIDATION_MESSAGE, $invalid);
             static::assertStringContainsString($expectedError, $message);
         }
+
+        $this->getSalesChannelRepository()->delete([
+            $valids,
+        ], Context::createDefaultContext());
     }
 
     public function getInsertValidationProvider(): \Generator
     {
         $nonDefaultLanguageId = $this->getNonDefaultLanguageId();
 
+        $valid1 = Uuid::randomHex();
+
         yield 'Payload with single valid entry' => [
             [
-                $this->getSalesChannelData(Uuid::randomHex(), Defaults::LANGUAGE_SYSTEM, [$nonDefaultLanguageId, Defaults::LANGUAGE_SYSTEM]),
+                $this->getSalesChannelData($valid1, Defaults::LANGUAGE_SYSTEM, [$nonDefaultLanguageId, Defaults::LANGUAGE_SYSTEM]),
+            ],
+            [],
+            [
+                [
+                    'id' => $valid1,
+                ],
             ],
         ];
 
+        $valid1 = Uuid::randomHex();
+        $valid2 = Uuid::randomHex();
         yield 'Payload with multiple valid entries' => [
             [
-                $this->getSalesChannelData(Uuid::randomHex(), Defaults::LANGUAGE_SYSTEM, [Defaults::LANGUAGE_SYSTEM, $nonDefaultLanguageId]),
-                $this->getSalesChannelData(Uuid::randomHex(), Defaults::LANGUAGE_SYSTEM, [Defaults::LANGUAGE_SYSTEM]),
+                $this->getSalesChannelData($valid1, Defaults::LANGUAGE_SYSTEM, [Defaults::LANGUAGE_SYSTEM, $nonDefaultLanguageId]),
+                $this->getSalesChannelData($valid2, Defaults::LANGUAGE_SYSTEM, [Defaults::LANGUAGE_SYSTEM]),
+            ],
+            [],
+            [
+                [
+                    'id' => $valid1,
+                ],
+                [
+                    'id' => $valid2,
+                ],
             ],
         ];
 
@@ -89,25 +116,37 @@ class SalesChannelValidatorTest extends TestCase
             [$invalidId1, $invalidId2],
         ];
 
+        $valid1 = Uuid::randomHex();
         $invalidId1 = Uuid::randomHex();
         $invalidId2 = Uuid::randomHex();
 
         yield 'Payload with mixed entries' => [
             [
-                $this->getSalesChannelData(Uuid::randomHex(), Defaults::LANGUAGE_SYSTEM, [Defaults::LANGUAGE_SYSTEM, $nonDefaultLanguageId]),
+                $this->getSalesChannelData($valid1, Defaults::LANGUAGE_SYSTEM, [Defaults::LANGUAGE_SYSTEM, $nonDefaultLanguageId]),
                 $this->getSalesChannelData($invalidId1, Defaults::LANGUAGE_SYSTEM, [$nonDefaultLanguageId]),
                 $this->getSalesChannelData($invalidId2, Defaults::LANGUAGE_SYSTEM),
             ],
             [$invalidId1, $invalidId2],
+            [
+                [
+                    'id' => $valid1,
+                ],
+            ],
         ];
     }
 
     /**
      * @dataProvider getUpdateValidationProvider
      */
-    public function testUpdateValidation(array $updates, array $invalids = []): void
+    public function testUpdateValidation(array $updates, array $invalids = [], array $inserts = []): void
     {
         $exception = null;
+
+        foreach ($inserts as $id) {
+            $this->getSalesChannelRepository()->create([
+                $this->getSalesChannelData($id, Defaults::LANGUAGE_SYSTEM, [Defaults::LANGUAGE_SYSTEM]),
+            ], Context::createDefaultContext());
+        }
 
         try {
             $this->getSalesChannelRepository()
@@ -136,11 +175,6 @@ class SalesChannelValidatorTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
-        $this->getSalesChannelRepository()->create([
-            $this->getSalesChannelData($id1, Defaults::LANGUAGE_SYSTEM, [Defaults::LANGUAGE_SYSTEM]),
-            $this->getSalesChannelData($id2, Defaults::LANGUAGE_SYSTEM, [Defaults::LANGUAGE_SYSTEM]),
-        ], Context::createDefaultContext());
-
         $nonDefaultLanguageId = $this->getNonDefaultLanguageId();
 
         yield 'Update default language ids because they are in the language list' => [
@@ -153,6 +187,11 @@ class SalesChannelValidatorTest extends TestCase
                     'id' => $id2,
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
                 ],
+            ],
+            [],
+            [
+                $id1,
+                $id2,
             ],
         ];
 
@@ -168,6 +207,7 @@ class SalesChannelValidatorTest extends TestCase
                 ],
             ],
             [$id1, $id2],
+            [$id1, $id2],
         ];
 
         yield 'Update one valid language and throw one exception' => [
@@ -182,6 +222,7 @@ class SalesChannelValidatorTest extends TestCase
                 ],
             ],
             [$id2],
+            [$id1, $id2],
         ];
 
         yield 'Update default language id and languages in same time' => [
@@ -192,6 +233,8 @@ class SalesChannelValidatorTest extends TestCase
                     'languages' => [['id' => $nonDefaultLanguageId]],
                 ],
             ],
+            [],
+            [$id1, $id2],
         ];
     }
 
@@ -251,6 +294,10 @@ class SalesChannelValidatorTest extends TestCase
             'salesChannelId' => $id,
             'languageId' => Defaults::LANGUAGE_SYSTEM,
         ]], $context);
+
+        $this->getSalesChannelRepository()->delete([[
+            'id' => $id,
+        ]], Context::createDefaultContext());
     }
 
     public function testOnlyStorefrontAndHeadlessSalesChannelsWillBeSupported(): void
@@ -268,6 +315,10 @@ class SalesChannelValidatorTest extends TestCase
             ->fetchOne('SELECT COUNT(*) FROM sales_channel_language WHERE sales_channel_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
 
         static::assertSame(0, $count);
+
+        $this->getSalesChannelRepository()->delete([[
+            'id' => $id,
+        ]], Context::createDefaultContext());
     }
 
     private function getSalesChannelData(string $id, string $languageId, array $languages = []): array

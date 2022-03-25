@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1620820321AddDefaultDomainForHeadlessSaleschannel;
@@ -21,8 +22,13 @@ class Migration1620820321AddDefaultDomainForHeadlessSaleschannelTest extends Tes
     public function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
-
         $this->removeAddedDefaultDomains();
+    }
+
+    public function tearDown(): void
+    {
+        $this->removeAddedDefaultDomains();
+        $this->removeAddedSalesChannel();
     }
 
     public function testItAddsDefaultDomainToHeadlessSalesChannel(): void
@@ -77,6 +83,18 @@ class Migration1620820321AddDefaultDomainForHeadlessSaleschannelTest extends Tes
         ');
     }
 
+    private function removeAddedSalesChannel(): void
+    {
+        $ids = $this->connection->fetchAllAssociative('
+            SELECT id FROM `sales_channel`
+            WHERE `short_name` = "API Test"
+        ');
+
+        /** @var EntityRepositoryInterface $salesChannelRepository */
+        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        //$salesChannelRepository->delete([$ids], Context::createDefaultContext());
+    }
+
     private function addSalesChannel(string $salesChannelType): string
     {
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
@@ -88,6 +106,7 @@ class Migration1620820321AddDefaultDomainForHeadlessSaleschannelTest extends Tes
             [
                 'id' => $id,
                 'typeId' => $salesChannelType,
+                'shortName' => 'API Test',
                 'name' => 'API Test case sales channel',
                 'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
                 'languageId' => Defaults::LANGUAGE_SYSTEM,

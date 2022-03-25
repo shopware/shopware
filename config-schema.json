@@ -90,8 +90,17 @@
             "properties": {
                 "integrations": {
                     "type": "array",
+                    "uniqueItems": true,
                     "items": {
-                        "type": "string"
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "enum": ["Symfony", "Datadog", "Tideways"]
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ]
                     }
                 }
             },

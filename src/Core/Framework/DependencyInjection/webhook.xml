@@ -21,6 +21,7 @@
             <argument type="service" id="Shopware\Core\Framework\Webhook\WebhookDispatcher"/>
 
             <tag name="kernel.event_subscriber"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory" lazy="true">

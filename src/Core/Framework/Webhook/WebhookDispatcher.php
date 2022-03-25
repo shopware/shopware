@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Shopware\Core\Profiling\Profiler;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -193,12 +194,16 @@ class WebhookDispatcher implements EventDispatcherInterface
         $userLocale = $this->getAppLocaleProvider()->getLocaleFromContext($context);
 
         if ($this->isAdminWorkerEnabled) {
-            $this->callWebhooksSynchronous($webhooksForEvent, $event, $affectedRoleIds, $languageId, $userLocale);
+            Profiler::trace('webhook::dispatch-sync', function () use ($userLocale, $languageId, $affectedRoleIds, $event, $webhooksForEvent): void {
+                $this->callWebhooksSynchronous($webhooksForEvent, $event, $affectedRoleIds, $languageId, $userLocale);
+            });
 
             return;
         }
 
-        $this->dispatchWebhooksToQueue($webhooksForEvent, $event, $affectedRoleIds, $languageId, $userLocale);
+        Profiler::trace('webhook::dispatch-async', function () use ($userLocale, $languageId, $affectedRoleIds, $event, $webhooksForEvent): void {
+            $this->dispatchWebhooksToQueue($webhooksForEvent, $event, $affectedRoleIds, $languageId, $userLocale);
+        });
     }
 
     private function getWebhooks(): WebhookCollection

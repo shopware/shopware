@@ -29,6 +29,8 @@ class CacheResponseSubscriberTest extends TestCase
 
     private const IP = '127.0.0.1';
 
+    private static array $hashes = [];
+
     public function testNoHeadersAreSetIfCacheIsDisabled(): void
     {
         $subscriber = new CacheResponseSubscriber(
@@ -64,7 +66,7 @@ class CacheResponseSubscriberTest extends TestCase
     /**
      * @dataProvider cashHashProvider
      */
-    public function testGenerateCashHashWithItemsInCart($customer, Cart $cart, bool $hasCookie): void
+    public function testGenerateCashHashWithItemsInCart($customer, Cart $cart, bool $hasCookie, ?string $hashName = null): void
     {
         $service = $this->createMock(CartService::class);
         $service->method('getCart')->willReturn($cart);
@@ -106,6 +108,27 @@ class CacheResponseSubscriberTest extends TestCase
 
         if ($hasCookie) {
             static::assertNotNull($cookie->getValue());
+            if ($hashName) {
+                if (!isset(self::$hashes[$hashName])) {
+                    self::$hashes[$hashName] = $cookie->getValue();
+                }
+
+                foreach (self::$hashes as $name => $value) {
+                    if ($hashName === $name) {
+                        static::assertEquals(
+                            $value,
+                            $cookie->getValue(),
+                            \sprintf('Hashes for state "%s" did not match, got "%s", but expected "%s"', $hashName, $cookie->getValue(), $value)
+                        );
+                    } else {
+                        static::assertNotEquals(
+                            $value,
+                            $cookie->getValue(),
+                            \sprintf('Hashes for state "%s" and state "%s" should not match, but did match.', $hashName, $name)
+                        );
+                    }
+                }
+            }
         } else {
             static::assertNull($cookie->getValue());
         }
@@ -174,9 +197,10 @@ class CacheResponseSubscriberTest extends TestCase
         $filledCart->add(new LineItem('test', 'test', 'test'));
 
         yield 'Test with no logged in customer' => [null, $emptyCart, false];
-        yield 'Test with logged in customer' => [$customer, $emptyCart, true];
-        yield 'Test with filled cart' => [null, $filledCart, true];
-        yield 'Test with filled cart and logged in customer' => [$customer, $filledCart, true];
+        yield 'Test with filled cart' => [null, $filledCart, true, 'not-logged-in'];
+        // all logged in customer should share the same cache hash if no rules match
+        yield 'Test with logged in customer' => [$customer, $emptyCart, true, 'logged-in'];
+        yield 'Test with filled cart and logged in customer' => [$customer, $filledCart, true, 'logged-in'];
     }
 
     public function maintenanceRequest()

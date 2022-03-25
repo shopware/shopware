@@ -6,6 +6,7 @@ const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const { chunk } = Shopware.Utils.array;
 const { mapState, mapGetters } = Component.getComponentHelper();
+const { cloneDeep } = Shopware.Utils.object;
 
 Component.register('sw-bulk-edit-product', {
     template,
@@ -742,7 +743,7 @@ Component.register('sw-bulk-edit-product', {
             let hasRegulationPrice = false;
 
             Object.keys(this.bulkEditProduct).forEach(key => {
-                const bulkEditField = this.bulkEditProduct[key];
+                const bulkEditField = cloneDeep(this.bulkEditProduct[key]);
                 if (!bulkEditField.isChanged) {
                     return;
                 }

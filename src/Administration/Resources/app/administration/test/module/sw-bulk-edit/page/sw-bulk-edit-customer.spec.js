@@ -402,7 +402,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
 
         const changeCustomField = syncData[1];
         expect(changeCustomField.field).toBe('customFields');
-        expect(changeCustomField.value).toBe(wrapper.vm.bulkEditData.customFields.value);
+        expect(changeCustomField.value).toStrictEqual(wrapper.vm.bulkEditData.customFields.value);
     });
 
     it('should show account card', async () => {

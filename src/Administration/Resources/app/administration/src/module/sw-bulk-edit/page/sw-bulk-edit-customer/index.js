@@ -5,6 +5,7 @@ import swBulkEditState from '../../state/sw-bulk-edit.state';
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { chunk } = Shopware.Utils.array;
+const { cloneDeep } = Shopware.Utils.object;
 
 Component.register('sw-bulk-edit-customer', {
     template,
@@ -226,7 +227,7 @@ Component.register('sw-bulk-edit-customer', {
             };
 
             Object.keys(this.bulkEditData).forEach(key => {
-                const bulkEditField = this.bulkEditData[key];
+                const bulkEditField = cloneDeep(this.bulkEditData[key]);
 
                 let bulkEditValue = this.customer[key];
 

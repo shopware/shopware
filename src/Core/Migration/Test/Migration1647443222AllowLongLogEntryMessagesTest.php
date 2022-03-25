@@ -67,16 +67,7 @@ class Migration1647443222AllowLongLogEntryMessagesTest extends TestCase
 
         (new Migration1647443222AllowLongLogEntryMessages())->update($connection);
 
-        $messageColumn = $connection->fetchAssociative('
-            SELECT DATA_TYPE
-            FROM INFORMATION_SCHEMA.COLUMNS
-            WHERE
-             TABLE_SCHEMA = :dbName AND
-             TABLE_NAME   = "log_entry" AND
-             COLUMN_NAME  = "message"
-        ', ['dbName' => $connection->getDatabase()]);
-
-        static::assertEquals('longtext', $messageColumn['DATA_TYPE']);
+        $this->checkLogEntryMessageColumnType($connection);
     }
 
     public function testMigrationCanRunMultipleTimes(): void
@@ -87,6 +78,20 @@ class Migration1647443222AllowLongLogEntryMessagesTest extends TestCase
         (new Migration1647443222AllowLongLogEntryMessages())->update($connection);
         (new Migration1647443222AllowLongLogEntryMessages())->update($connection);
 
-        static::assertTrue(true);
+        $this->checkLogEntryMessageColumnType($connection);
+    }
+
+    private function checkLogEntryMessageColumnType(Connection $connection): void
+    {
+        $messageColumn = $connection->fetchAssociative('
+            SELECT DATA_TYPE
+            FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE
+             TABLE_SCHEMA = :dbName AND
+             TABLE_NAME   = "log_entry" AND
+             COLUMN_NAME  = "message"
+        ', ['dbName' => $connection->getDatabase()]);
+
+        static::assertEquals('longtext', $messageColumn['DATA_TYPE']);
     }
 }

@@ -1,6 +1,6 @@
 ---
 title: Fix order generation in demodata
-issue: NEXT-20621
+issue: NEXT-20766
 author: Maximilian Ruesch
 author_email: maximilian.ruesch@pickware.de
 author_github: maximilianruesch

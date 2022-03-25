@@ -142,10 +142,11 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
 
         // Assign root category in tree field
         cy.get('.sw-category-tree__input-field').focus();
-        cy.get('.sw-category-tree-field__results').should('be.visible');
+        cy.get('.sw-category-tree-field__results_popover').should('be.visible');
         cy.get('.sw-tree-item__element').contains('Home').parent().parent()
             .find('.sw-field__checkbox')
             .click();
+        cy.get('.sw-modal__title').click();
         cy.get('.sw-category-tree-field__selected-label').contains('Home').should('be.visible');
 
         // Confirm layout assignment

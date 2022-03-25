@@ -68,7 +68,7 @@ describe('Sales Channel: Test product assignment operations', () => {
         // Assign root category in tree field
         cy.get('.sw-category-tree__input-field').focus().type('Home');
         // wait for the result list to update
-        cy.get('.sw-category-tree-field__results').contains('Home');
+        cy.get('.sw-category-tree-field__results_popover').contains('Home');
         cy.get('.sw-category-tree__input-field').focus().type('{enter}');
 
         cy.get(productPage.elements.productSaveAction).click();

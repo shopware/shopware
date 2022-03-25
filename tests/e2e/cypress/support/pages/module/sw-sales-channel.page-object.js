@@ -20,7 +20,7 @@ export default class SalesChannelPageObject {
         cy.get(this.elements.salesChannelNameInput).typeAndCheck(salesChannelName);
 
         cy.get('.sw-sales-channel-detail__select-navigation-category-id .sw-block-field__block .sw-category-tree__input-field').click();
-        cy.get('.sw-category-tree-field__results .sw-tree__content')
+        cy.get('.sw-category-tree-field__results_popover .sw-tree__content')
             .contains('.sw-tree-item__element', 'Home')
             .find('.sw-field__checkbox input')
             .click({force: true});

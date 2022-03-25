@@ -324,7 +324,10 @@ Component.register('sw-category-tree-field', {
             let clickedOutside = true;
 
             // check if the user clicked inside the dropdown
-            if (target.closest('.sw-category-tree-field') === this.$refs.swCategoryTreeField) {
+            if (
+                target.closest('.sw-category-tree-field') === this.$refs.swCategoryTreeField ||
+                target.closest('.sw-category-tree-field__results_popover')
+            ) {
                 clickedOutside = false;
             } else if (target instanceof SVGElement || target.parentNode instanceof SVGElement) {
                 // check for clicking on svg arrows

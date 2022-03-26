@@ -2,9 +2,13 @@
     {% set showCounter = showCounter ?? true %}
 
     {% if showCounter %}
-        <span class="header-wishlist-icon">
-            {% sw_icon 'heart' %}
+        {% block layout_header_actions_wishlist_widget_icon %}
+            <span class="header-wishlist-icon">
+            {% block layout_header_actions_wishlist_widget_icon_include %}
+                {% sw_icon 'heart' %}
+            {% endblock %}
         </span>
+        {% endblock %}
     {% endif %}
 
     {% set wishlistStorageOptions = {
@@ -17,11 +21,13 @@
 
     {% set wishlistWidgetOptions = { showCounter: showCounter } %}
 
-    <span class="badge {{ bgClass }}-primary header-wishlist-badge"
-          id="wishlist-basket"
-          data-wishlist-storage="true"
-          data-wishlist-storage-options="{{ wishlistStorageOptions|json_encode }}"
-          data-wishlist-widget="true"
-          data-wishlist-widget-options="{{ wishlistWidgetOptions|json_encode }}"
-    ></span>
+    {% block layout_header_actions_wishlist_widget_badge %}
+        <span class="badge {{ bgClass }}-primary header-wishlist-badge"
+              id="wishlist-basket"
+              data-wishlist-storage="true"
+              data-wishlist-storage-options="{{ wishlistStorageOptions|json_encode }}"
+              data-wishlist-widget="true"
+              data-wishlist-widget-options="{{ wishlistWidgetOptions|json_encode }}"
+        ></span>
+    {% endblock %}
 {% endblock %}

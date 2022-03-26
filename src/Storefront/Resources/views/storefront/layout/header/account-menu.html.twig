@@ -4,32 +4,55 @@
     <div class="account-menu">
         {% block layout_header_actions_account_widget_dropdown_header %}
             {% if not context.customer.guest %}
-                <div class="dropdown-header account-menu-header">
-                    {{ "account.myAccount"|trans|sw_sanitize }}
-                </div>
+                {% block layout_header_actions_account_widget_dropdown_header_label %}
+                    <div class="dropdown-header account-menu-header">
+                        {% block layout_header_actions_account_widget_dropdown_header_label_text %}
+                            {{ "account.myAccount"|trans|sw_sanitize }}
+                        {% endblock %}
+                    </div>
+                {% endblock %}
             {% endif %}
         {% endblock %}
 
         {% block layout_header_actions_account_widget_dropdown_login %}
             {% if not context.customer %}
-                <div class="account-menu-login">
-                    <a href="{{ path('frontend.account.login.page') }}"
-                       title="{{ "account.loginSubmit"|trans|striptags }}"
-                       class="btn btn-primary account-menu-login-button">
-                        {{ "account.loginSubmit"|trans|sw_sanitize }}
-                    </a>
+                {% block layout_header_actions_account_widget_dropdown_actions %}
+                    <div class="account-menu-login">
+                        {% block layout_header_actions_account_widget_dropdown_actions_login_label %}
+                            <a href="{{ path('frontend.account.login.page') }}"
+                               title="{{ "account.loginSubmit"|trans|striptags }}"
+                               class="btn btn-primary account-menu-login-button">
+                                {% block layout_header_actions_account_widget_dropdown_actions_login_label_text %}
+                                    {{ "account.loginSubmit"|trans|sw_sanitize }}
+                                {% endblock %}
+                            </a>
+                        {% endblock %}
 
-                    <div class="account-menu-register">
-                        {{ "account.orRegister"|trans|sw_sanitize }} <a href="{{ path('frontend.account.login.page') }}"
-                                                            title="{{ "account.orRegisterLink"|trans|striptags }}">{{ "account.orRegisterLink"|trans|striptags }}</a>
+                        {% block layout_header_actions_account_widget_dropdown_actions_register %}
+                            <div class="account-menu-register">
+                                {% block layout_header_actions_account_widget_dropdown_actions_register_text %}
+                                    {{ "account.orRegister"|trans|sw_sanitize }}
+                                {% endblock %}
+                                {% block layout_header_actions_account_widget_dropdown_actions_register_link %}
+                                    <a href="{{ path('frontend.account.login.page') }}"
+                                       title="{{ "account.orRegisterLink"|trans|striptags }}">
+                                        {% block layout_header_actions_account_widget_dropdown_actions_register_link_text %}
+                                            {{ "account.orRegisterLink"|trans|striptags }}
+                                        {% endblock %}
+                                    </a>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
                     </div>
-                </div>
+                {% endblock %}
             {% endif %}
         {% endblock %}
 
         {% block layout_header_actions_account_widget_dropdown_links %}
             <div class="account-menu-links">
-                {% sw_include '@Storefront/storefront/page/account/sidebar.html.twig' with {'headerWidget': true} %}
+                {% block layout_header_actions_account_widget_dropdown_links_include %}
+                    {% sw_include '@Storefront/storefront/page/account/sidebar.html.twig' with {'headerWidget': true} %}
+                {% endblock %}
             </div>
         {% endblock %}
     </div>

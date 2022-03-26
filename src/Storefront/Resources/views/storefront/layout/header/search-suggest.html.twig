@@ -15,29 +15,37 @@
                                         <div class="row align-items-center {{ gridNoGuttersClass }}">
                                             {% block layout_search_suggest_result_image %}
                                                 <div class="col-auto search-suggest-product-image-container">
-                                                    {% if product.cover.media.url %}
-                                                        {% sw_thumbnails 'search-suggest-product-image-thumbnails' with {
-                                                            media: product.cover.media,
-                                                            sizes: {
-                                                                'default': '100px'
-                                                            },
-                                                            attributes: {
-                                                                'class': 'search-suggest-product-image',
-                                                                'alt': (product.cover.media.translated.alt ?: ''),
-                                                                'title': (product.cover.media.translated.title ?: '')
-                                                            }
-                                                        } %}
-                                                    {% else %}
-                                                        {% sw_icon 'placeholder' style {
-                                                            'size': 'lg'
-                                                        } %}
-                                                    {% endif %}
+                                                    {% block layout_search_suggest_result_image_container %}
+                                                        {% if product.cover.media.url %}
+                                                            {% block layout_search_suggest_result_image_thumbnails %}
+                                                                {% sw_thumbnails 'search-suggest-product-image-thumbnails' with {
+                                                                    media: product.cover.media,
+                                                                    sizes: {
+                                                                        'default': '100px'
+                                                                    },
+                                                                    attributes: {
+                                                                        'class': 'search-suggest-product-image',
+                                                                        'alt': (product.cover.media.translated.alt ?: ''),
+                                                                        'title': (product.cover.media.translated.title ?: '')
+                                                                    }
+                                                                } %}
+                                                            {% endblock %}
+                                                        {% else %}
+                                                            {% block layout_search_suggest_result_image_placeholder %}
+                                                                {% sw_icon 'placeholder' style {
+                                                                    'size': 'lg'
+                                                                } %}
+                                                            {% endblock %}
+                                                        {% endif %}
+                                                    {% endblock %}
                                                 </div>
                                             {% endblock %}
 
                                             {% block layout_search_suggest_result_name %}
                                                 <div class="col search-suggest-product-name">
-                                                    {{ product.translated.name }}
+                                                    {% block layout_search_suggest_result_name_text %}
+                                                        {{ product.translated.name }}
+                                                    {% endblock %}
                                                 </div>
                                             {% endblock %}
 
@@ -53,16 +61,22 @@
                                                     {% if product.calculatedPrices.count > 1 %}
                                                         {{ "listing.listingTextFrom"|trans|sw_sanitize }}
                                                     {% endif %}
-                                                    <span class="search-suggest-product-price">
-                                                        {{ price.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
-                                                    </span>
+
+                                                    {% block layout_search_suggest_result_price_unit_price %}
+                                                        <span class="search-suggest-product-price">
+                                                            {% block layout_search_suggest_result_price_unit_price_text %}
+                                                                {{ price.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+                                                            {% endblock %}
+                                                        </span>
+                                                    {% endblock %}
 
                                                     {% if price.referencePrice is not null %}
-                                                        <br><small class="search-suggest-product-reference-price">({{ price.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ price.referencePrice.referenceUnit }}&nbsp;{{ price.referencePrice.unitName }})</small>
-                                                    {% endif %}
-
-                                                    {% if price.regulationPrice.price is not null %}
-                                                        <small class="search-suggest-product-list-price">{{ "general.listPricePreviously"|trans({'%price%': price.regulationPrice.price|currency }) }}{{ "general.star"|trans|sw_sanitize }}</small>
+                                                        {% block layout_search_suggest_result_price_content %}
+                                                            <br>
+                                                            <small class="search-suggest-product-reference-price">({{ price.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }}
+                                                                / {{ price.referencePrice.referenceUnit }}
+                                                                &nbsp;{{ price.referencePrice.unitName }})</small>
+                                                        {% endblock %}
                                                     {% endif %}
                                                 </div>
                                             {% endblock %}
@@ -78,33 +92,43 @@
                     {% if page.searchResult.total == 0 %}
                         {% block layout_search_suggest_no_result %}
                             <li class="search-suggest-no-result">
-                                {{ "header.searchNoResult"|trans|sw_sanitize }}
+                                {% block layout_search_suggest_no_result_content %}
+                                    {{ "header.searchNoResult"|trans|sw_sanitize }}
+                                {% endblock %}
                             </li>
                         {% endblock %}
                     {% else %}
 
                         {% block layout_search_suggest_result_total_result %}
                             <li class="js-result search-suggest-total">
-                                <div class="row align-items-center {{ gridNoGuttersClass }}">
-                                    {% block layout_search_suggest_result_total_link %}
-                                        <div class="col">
-                                            <a href="{{ path('frontend.search.page') }}?search={{ page.searchTerm }}"
-                                               title="{{ "header.searchAllResults"|trans|striptags }}"
-                                               class="search-suggest-total-link">
-                                                {% sw_icon 'arrow-head-right' style { 'size': 'sm' } %}
-                                                {{ "header.searchAllResults"|trans|sw_sanitize }}
-                                            </a>
-                                        </div>
-                                    {% endblock %}
+                                {% block layout_search_suggest_result_total_result_row %}
+                                    <div class="row align-items-center {{ gridNoGuttersClass }}">
+                                        {% block layout_search_suggest_result_total_link %}
+                                            <div class="col">
+                                                {% block layout_search_suggest_result_total_link_element %}
+                                                    <a href="{{ path('frontend.search.page') }}?search={{ page.searchTerm }}"
+                                                       title="{{ "header.searchAllResults"|trans|striptags }}"
+                                                       class="search-suggest-total-link">
+                                                        {% block layout_search_suggest_result_total_link_content %}
+                                                            {% sw_icon 'arrow-head-right' style { 'size': 'sm' } %}
+                                                            {{ "header.searchAllResults"|trans|sw_sanitize }}
+                                                        {% endblock %}
+                                                    </a>
+                                                {% endblock %}
+                                            </div>
+                                        {% endblock %}
 
-                                    {% block layout_search_suggest_result_total_count %}
-                                        <div class="col-auto search-suggest-total-count">
-                                            {{ "header.searchResults"|trans({
-                                                '%count%': page.searchResult.total,
-                                            })|sw_sanitize }}
-                                        </div>
-                                    {% endblock %}
-                                </div>
+                                        {% block layout_search_suggest_result_total_count %}
+                                            <div class="col-auto search-suggest-total-count">
+                                                {% block layout_search_suggest_result_total_count_text %}
+                                                    {{ "header.searchResults"|trans({
+                                                        '%count%': page.searchResult.total,
+                                                    })|sw_sanitize }}
+                                                {% endblock %}
+                                            </div>
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
                             </li>
                         {% endblock %}
                     {% endif %}

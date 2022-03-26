@@ -25,15 +25,19 @@
                                         aria-haspopup="true"
                                         aria-expanded="false">
                                     {% block layout_header_actions_currency_widget_dropdown_toggle_name %}
-                                        {{ page.header.activeCurrency.symbol }}
-                                        <span class="top-bar-nav-text">{{ page.header.activeCurrency.translated.name }}</span>
+                                        {% block layout_header_actions_currency_widget_dropdown_toggle_name_symbol %}
+                                            {{ page.header.activeCurrency.symbol }}
+                                        {% endblock %}
+                                        {% block layout_header_actions_currency_widget_dropdown_toggle_name_text %}
+                                            <span class="top-bar-nav-text">{{ page.header.activeCurrency.translated.name }}</span>
+                                        {% endblock %}
                                     {% endblock %}
                                 </button>
                             {% endblock %}
 
                             {% block layout_header_actions_currency_widget_form_items %}
                                 <div class="top-bar-list dropdown-menu dropdown-menu-right"
-                                    aria-labelledby="currenciesDropdown-{{ position }}">
+                                     aria-labelledby="currenciesDropdown-{{ position }}">
                                     {% for currency in page.header.currencies %}
                                         {% block layout_header_actions_currency_widget_form_items_element %}
                                             <div class="top-bar-list-item dropdown-item{% if currency.id is same as(page.header.activeCurrency.id) %} item-checked{% endif %}"
@@ -47,8 +51,13 @@
                                                                    value="{{ currency.id }}"
                                                                    name="currencyId"
                                                                    type="radio"
-                                                                {% if currency.id is same as(page.header.activeCurrency.id) %} checked{% endif %}>
-                                                            {{ currency.symbol }} {{ currency.translated.shortName }}
+                                                                    {% if currency.id is same as(page.header.activeCurrency.id) %} checked{% endif %}>
+                                                                {% block layout_header_actions_currency_widget_form_items_element_symbol %}
+                                                                    {{ currency.symbol }}
+                                                                {% endblock %}
+                                                                {% block layout_header_actions_currency_widget_form_items_element_text %}
+                                                                    {{ currency.translated.shortName }}
+                                                                {% endblock %}
                                                         {% endblock %}
                                                     </label>
                                                 {% endblock %}

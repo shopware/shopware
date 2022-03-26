@@ -9,28 +9,42 @@
         <div class="top-bar-nav-item top-bar-menu">
             {% block layout_header_actions_service_menu_list %}
                 <div class="service-menu dropdown">
-                    <button class="btn dropdown-toggle top-bar-nav-btn"
-                            type="button"
-                            id="serviceMenuDropdown-{{ position }}"
-                            {{ dataBsToggleAttr }}="dropdown"
-                            aria-haspopup="true"
-                            aria-expanded="false">
-                        {% sw_icon 'help' %}
-                        <span class="top-bar-nav-text">{{ "header.indexLinkService"|trans|sw_sanitize }}</span>
-                    </button>
+                    {% block layout_header_actions_service_menu_list_button %}
+                        <button class="btn dropdown-toggle top-bar-nav-btn"
+                                type="button"
+                                id="serviceMenuDropdown-{{ position }}"
+                                {{ dataBsToggleAttr }}="dropdown"
+                                aria-haspopup="true"
+                                aria-expanded="false">
+                        {% block layout_header_actions_service_menu_list_button_icon %}
+                            {% sw_icon 'help' %}
+                        {% endblock %}
+                        {% block layout_header_actions_service_menu_list_button_text %}
+                            <span class="top-bar-nav-text">{{ "header.indexLinkService"|trans|sw_sanitize }}</span>
+                        {% endblock %}
+                        </button>
+                    {% endblock %}
                     {% block layout_header_actions_service_menu_items %}
                         <div class="dropdown-menu dropdown-menu-right"
                              aria-labelledby="serviceMenuDropdown-{{ position }}">
-                            {% for category in page.header.serviceMenu %}
+                            {% block layout_header_actions_service_menu_items_loop %}
+                                {% for category in page.header.serviceMenu %}
 
-                                {# @deprecated tag:v6.5.0 - Use "category.translated.externalLink" directly or category_url function instead. #}
-                                {% set externalLink = category.translated.externalLink %}
+                                    {# @deprecated tag:v6.5.0 - Use "category.translated.externalLink" directly or category_url function instead. #}
+                                    {% set externalLink = category.translated.externalLink %}
 
-                                <a class="top-bar-list-item dropdown-item"
-                                   href="{{ category_url(category) }}"
-                                   {% if category_linknewtab(category) %}target="_blank"{% endif %}
-                                   title="{{ category.translated.name }}">{{ category.translated.name }}</a>
-                            {% endfor %}
+                                    {% block layout_header_actions_service_menu_item %}
+                                        <a class="top-bar-list-item dropdown-item"
+                                           href="{{ category_url(category) }}"
+                                           {% if category_linknewtab(category) %}target="_blank"{% endif %}
+                                           title="{{ category.translated.name }}">
+                                            {% block layout_header_actions_service_menu_item_text %}
+                                                {{ category.translated.name }}
+                                            {% endblock %}
+                                        </a>
+                                    {% endblock %}
+                                {% endfor %}
+                            {% endblock %}
                         </div>
                     {% endblock %}
                 </div>

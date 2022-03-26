@@ -1,56 +1,64 @@
-{% set searchWidgetOptions = {
-    searchWidgetMinChars: page.header.activeLanguage.productSearchConfig.minSearchLength ?: 3
-} %}
-
 {% block layout_header_search %}
     <div class="collapse"
          id="searchCollapse">
-        <div class="header-search">
-            <form action="{{ path('frontend.search.page') }}"
-                  method="get"
-                  data-search-form="true"
-                  data-search-widget-options='{{ searchWidgetOptions|json_encode }}'
-                  data-url="{{ path('frontend.search.suggest') }}?search="
-                  class="header-search-form">
-                {% block layout_header_search_input_group %}
-                    <div class="input-group">
-                        {% block layout_header_search_input %}
-                            <input type="search"
-                                   name="search"
-                                   class="form-control header-search-input"
-                                   autocomplete="off"
-                                   autocapitalize="off"
-                                   placeholder="{{ "header.searchPlaceholder"|trans|striptags }}"
-                                   aria-label="{{ "header.searchPlaceholder"|trans|striptags }}"
-                                   value="{{ page.searchTerm }}"
-                            >
-                        {% endblock %}
+        {% block layout_header_search_collapse %}
+            <div class="header-search">
+                {% block layout_header_search_form %}
+                    <form action="{{ path('frontend.search.page') }}"
+                          method="get"
+                          data-search-form="true"
+                          data-search-widget-options='{{ searchWidgetOptions|json_encode }}'
+                          data-url="{{ path('frontend.search.suggest') }}?search="
+                          class="header-search-form">
+                        {% block layout_header_search_input_group %}
+                            <div class="input-group">
+                                {% block layout_header_search_input %}
+                                    <input type="search"
+                                           name="search"
+                                           class="form-control header-search-input"
+                                           autocomplete="off"
+                                           autocapitalize="off"
+                                           placeholder="{{ "header.searchPlaceholder"|trans|striptags }}"
+                                           aria-label="{{ "header.searchPlaceholder"|trans|striptags }}"
+                                           value="{{ page.searchTerm }}"
+                                    >
+                                {% endblock %}
 
-                        {% block layout_header_search_button %}
-                            {# @deprecated tag:v6.5.0 - Bootstrap v5 removes `input-group-append` wrapper and uses elements as direct children of `input-group` #}
-                            {% if feature('v6.5.0.0') %}
-                                <button type="submit"
-                                        class="btn header-search-btn"
-                                        aria-label="{{ "header.searchButton"|trans|striptags }}">
-                                    <span class="header-search-icon">
-                                        {% sw_icon 'search' %}
-                                    </span>
-                                </button>
-                            {% else %}
-                                <div class="input-group-append">
-                                    <button type="submit"
-                                            class="btn header-search-btn"
-                                            aria-label="{{ "header.searchButton"|trans|striptags }}">
-                                        <span class="header-search-icon">
-                                            {% sw_icon 'search' %}
-                                        </span>
-                                    </button>
-                                </div>
-                            {% endif %}
+                                {% block layout_header_search_button %}
+                                    {# @deprecated tag:v6.5.0 - Bootstrap v5 removes `input-group-append` wrapper and uses elements as direct children of `input-group` #}
+                                    {% if feature('v6.5.0.0') %}
+                                        <button type="submit"
+                                                class="btn header-search-btn"
+                                                aria-label="{{ "header.searchButton"|trans|striptags }}">
+                                            {% block layout_header_search_button_old_content %}
+                                                <span class="header-search-icon">
+                                                    {% block layout_header_search_button_old_icon %}
+                                                        {% sw_icon 'search' %}
+                                                    {% endblock %}
+                                                </span>
+                                            {% endblock %}
+                                        </button>
+                                    {% else %}
+                                        <div class="input-group-append">
+                                            <button type="submit"
+                                                    class="btn header-search-btn"
+                                                    aria-label="{{ "header.searchButton"|trans|striptags }}">
+                                                {% block layout_header_search_button_content %}
+                                                    <span class="header-search-icon">
+                                                        {% block layout_header_search_button_icon %}
+                                                            {% sw_icon 'search' %}
+                                                        {% endblock %}
+                                                    </span>
+                                                {% endblock %}
+                                            </button>
+                                        </div>
+                                    {% endif %}
+                                {% endblock %}
+                            </div>
                         {% endblock %}
-                    </div>
+                    </form>
                 {% endblock %}
-            </form>
-        </div>
+            </div>
+        {% endblock %}
     </div>
 {% endblock %}

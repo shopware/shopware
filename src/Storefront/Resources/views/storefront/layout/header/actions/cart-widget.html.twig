@@ -1,11 +1,17 @@
 {% block layout_header_actions_cart_widget %}
     <span class="header-cart-icon">
-        {% sw_icon 'bag' %}
+        {% block layout_header_actions_cart_widget_icon %}
+            {% sw_icon 'bag' %}
+        {% endblock %}
     </span>
     {% if page.cart.lineItems|length > 0 %}
-        <span class="badge {{ bgClass }}-primary header-cart-badge">{{ page.cart.lineItems|length }}</span>
+        {% block layout_header_actions_cart_widget_badge %}
+            <span class="badge {{ bgClass }}-primary header-cart-badge">{{ page.cart.lineItems|length }}</span>
+        {% endblock %}
     {% endif %}
     <span class="header-cart-total">
-        {{ page.cart.price.positionPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+        {% block layout_header_actions_cart_widget_total %}
+            {{ page.cart.price.positionPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+        {% endblock %}
     </span>
 {% endblock %}

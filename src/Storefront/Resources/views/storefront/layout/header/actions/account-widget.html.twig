@@ -10,14 +10,18 @@
                     aria-expanded="false"
                     aria-label="{{ "account.myAccount"|trans|striptags }}"
                     title="{{ "account.myAccount"|trans|striptags }}">
-                {% sw_icon 'avatar' %}
+                {% block layout_header_actions_account_widget_dropdown_button_content %}
+                    {% sw_icon 'avatar' %}
+                {% endblock %}
             </button>
         {% endblock %}
 
         {% block layout_header_actions_account_widget_dropdown_menu %}
             <div class="dropdown-menu dropdown-menu-right account-menu-dropdown js-account-menu-dropdown"
                  aria-labelledby="accountWidget">
-                {% sw_include '@Storefront/storefront/layout/header/account-menu.html.twig' %}
+                {% block layout_header_actions_account_widget_dropdown_menu_include %}
+                    {% sw_include '@Storefront/storefront/layout/header/account-menu.html.twig' %}
+                {% endblock %}
             </div>
         {% endblock %}
     </div>

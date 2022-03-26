@@ -352,6 +352,7 @@
       "generatedListContextMenuEdit": "Bearbeiten",
       "generatedListContextMenuDelete": "Löschen",
       "generatedListDeleteModalMessage": "Möchtest Du die Variante löschen?",
+      "generatedListDeleteModalMessagePlural": "Möchten Sie diese Varianten löschen?",
       "generatedListDeleteModalButtonCancel": "Abbrechen",
       "generatedListDeleteModalButtonDelete": "Löschen",
       "generatedListMessageSaveSuccess": "Die Variante wurde gespeichert.",

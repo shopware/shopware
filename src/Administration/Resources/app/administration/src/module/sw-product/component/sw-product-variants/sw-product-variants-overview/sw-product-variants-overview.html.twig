@@ -119,10 +119,12 @@
 
     {% block sw_product_variants_overview_data_grid %}
     <sw-data-grid
+        ref="variantGrid"
         class="sw-product-variants-overview__data-grid"
         :data-source="variants"
         :columns="variantColumns"
         :show-settings="true"
+        :show-selection="acl.can('product.deleter')"
         :sort-by="sortBy"
         :sort-direction="sortDirection"
         :is-loading="isLoading"
@@ -337,45 +339,6 @@
         </template>
         {% endblock %}
 
-        {% block sw_product_variants_overview_data_grid_action_modals %}
-        <template
-            slot="action-modals"
-            slot-scope="{ item }"
-        >
-            <sw-modal
-                v-if="showDeleteModal === item.id"
-                :title="$tc('global.default.warning')"
-                variant="small"
-                @modal-close="onCloseDeleteModal"
-            >
-
-                <p class="sw-product-variants-overview__modal--confirm-delete-text">
-                    {{ $tc('sw-product.variations.generatedListDeleteModalMessage') }}
-                </p>
-
-                <template slot="modal-footer">
-                    {% block sw_product_variants_overview_data_grid_action_modals_buttons %}
-                    <sw-button
-                        size="small"
-                        :disabled="modalLoading"
-                        @click="onCloseDeleteModal"
-                    >
-                        {{ $tc('sw-product.variations.generatedListDeleteModalButtonCancel') }}
-                    </sw-button>
-                    <sw-button
-                        variant="danger"
-                        size="small"
-                        :disabled="modalLoading"
-                        @click="onConfirmDelete(item)"
-                    >
-                        {{ $tc('sw-product.variations.generatedListDeleteModalButtonDelete') }}
-                    </sw-button>
-                    {% endblock %}
-                </template>
-            </sw-modal>
-        </template>
-        {% endblock %}
-
         {% block sw_product_variants_overview_actions %}
         <template
             slot="actions"
@@ -435,6 +398,12 @@
             {% endblock %}
 
             {% block sw_product_variants_overview_bulk_delete %}
+            <span
+                class="link link-danger sw-product-variants-overview__bulk-delete-action"
+                @click="onClickBulkDelete"
+            >
+                {{ $tc('global.default.delete') }}
+            </span>
             {% endblock %}
         </template>
         {% endblock %}
@@ -541,5 +510,50 @@
     </sw-data-grid>
     {% endblock %}
 
+    {% block sw_product_variants_overview_data_grid_action_modals %}
+    <sw-modal
+        v-if="showDeleteModal"
+        class="sw-product-variants-overview__delete-modal"
+        :title="$tc('global.default.warning')"
+        variant="small"
+        @modal-close="onCloseDeleteModal"
+    >
+
+        <p
+            v-if="toBeDeletedVariantIds.length > 1"
+            class="sw-product-variants-overview__modal--confirm-delete-text"
+        >
+            {{ $tc('sw-product.variations.generatedListDeleteModalMessagePlural') }}
+        </p>
+
+        <p
+            v-else
+            class="sw-product-variants-overview__modal--confirm-delete-text"
+        >
+            {{ $tc('sw-product.variations.generatedListDeleteModalMessage') }}
+        </p>
+
+        <template #modal-footer>
+            {% block sw_product_variants_overview_data_grid_action_modals_buttons %}
+            <sw-button
+                class="sw-product-variants-overview__modal--cancel-button"
+                size="small"
+                :disabled="modalLoading"
+                @click="onCloseDeleteModal"
+            >
+                {{ $tc('sw-product.variations.generatedListDeleteModalButtonCancel') }}
+            </sw-button>
+            <sw-button
+                variant="danger"
+                size="small"
+                :disabled="modalLoading"
+                @click="onConfirmDelete"
+            >
+                {{ $tc('sw-product.variations.generatedListDeleteModalButtonDelete') }}
+            </sw-button>
+            {% endblock %}
+        </template>
+    </sw-modal>
+    {% endblock %}
 </div>
 {% endblock %}

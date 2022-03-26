@@ -352,6 +352,7 @@
       "generatedListContextMenuEdit": "Edit",
       "generatedListContextMenuDelete": "Delete",
       "generatedListDeleteModalMessage": "Do you really want to delete this variant?",
+      "generatedListDeleteModalMessagePlural": "Do you really want to delete these variants?",
       "generatedListDeleteModalButtonCancel": "Cancel",
       "generatedListDeleteModalButtonDelete": "Delete",
       "generatedListMessageSaveSuccess": "Variant has been saved.",

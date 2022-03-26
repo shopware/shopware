@@ -37,8 +37,10 @@ Component.register('sw-product-variants-overview', {
             activeFilter: [],
             includeOptions: [],
             filterWindowOpen: false,
-            toBeDeletedVariantId: null,
             showBulkEditModal: false,
+            toBeDeletedVariantIds: [],
+            // @deprecated tag:v6.5.0 - Will be removed
+            toBeDeletedVariantId: null,
         };
     },
 
@@ -125,7 +127,8 @@ Component.register('sw-product-variants-overview', {
 
         canBeDeletedCriteria() {
             const criteria = new Criteria();
-            criteria.addFilter(Criteria.equals('canonicalProductId', this.toBeDeletedVariantId));
+            const variantIds = this.toBeDeletedVariantIds.map(variant => variant.id);
+            criteria.addFilter(Criteria.equalsAny('canonicalProductId', variantIds));
 
             return criteria;
         },
@@ -440,7 +443,9 @@ Component.register('sw-product-variants-overview', {
         },
 
         onVariationDelete(item) {
-            this.showDeleteModal = item.id;
+            this.showDeleteModal = true;
+
+            this.toBeDeletedVariantIds.push(item);
         },
 
         onInlineEditSave(variation) {
@@ -486,17 +491,20 @@ Component.register('sw-product-variants-overview', {
 
         onCloseDeleteModal() {
             this.showDeleteModal = false;
+            this.toBeDeletedVariantIds = [];
         },
 
+        /* eslint-disable no-unused-vars */
+        /* @deprecated tag:v6.5.0 item parameter will no longer required */
         onConfirmDelete(item) {
             this.modalLoading = true;
             this.showDeleteModal = false;
-            this.toBeDeletedVariantId = item.id;
+            const variantIds = this.toBeDeletedVariantIds.map(variant => variant.id);
 
-            this.canVariantBeDeleted(item.id).then(canBeDeleted => {
+            this.canVariantBeDeleted().then(canBeDeleted => {
                 if (!canBeDeleted) {
                     this.modalLoading = false;
-                    this.toBeDeletedVariantId = null;
+                    this.toBeDeletedVariantIds = [];
 
                     this.createNotificationError({
                         message: this.$tc('sw-product.variations.generatedListMessageDeleteErrorCanonicalUrl'),
@@ -505,14 +513,15 @@ Component.register('sw-product-variants-overview', {
                     return;
                 }
 
-                this.productRepository.delete(item.id).then(() => {
+                this.productRepository.syncDeleted(variantIds).then(() => {
                     this.modalLoading = false;
-                    this.toBeDeletedVariantId = null;
+                    this.toBeDeletedVariantIds = [];
 
                     this.createNotificationSuccess({
                         message: this.$tc('sw-product.variations.generatedListMessageDeleteSuccess'),
                     });
 
+                    this.$refs.variantGrid.resetSelection();
                     this.getList();
                 });
             });
@@ -551,6 +560,13 @@ Component.register('sw-product-variants-overview', {
                     parentId: this.product.id,
                 },
             });
+        },
+
+        onClickBulkDelete() {
+            const gridSelection = this.$refs.variantGrid.selection;
+            this.toBeDeletedVariantIds = Object.values(gridSelection);
+
+            this.showDeleteModal = true;
         },
     },
 });

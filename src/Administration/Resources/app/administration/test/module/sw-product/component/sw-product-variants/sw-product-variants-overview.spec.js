@@ -45,12 +45,17 @@ function createWrapper(privileges = []) {
         stubs: {
             'sw-container': true,
             'sw-simple-search-field': true,
-            'sw-button': true,
+            'sw-button': {
+                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
+            },
             'sw-icon': true,
             'sw-context-menu': true,
             'sw-tree': true,
             'sw-data-grid': true,
-            'sw-pagination': true
+            'sw-pagination': true,
+            'sw-modal': {
+                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>'
+            },
         }
     });
 }
@@ -109,5 +114,14 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
 
         const dataGrid = wrapper.find('.sw-product-variants-overview__data-grid');
         expect(dataGrid.attributes()['allow-inline-edit']).toBeFalsy();
+    });
+
+    it('should enable selection deleting of list variants', async () => {
+        const wrapper = createWrapper([
+            'product.deleter'
+        ]);
+
+        const dataGrid = wrapper.find('.sw-product-variants-overview__data-grid');
+        expect(dataGrid.attributes()['show-selection']).toBeTruthy();
     });
 });

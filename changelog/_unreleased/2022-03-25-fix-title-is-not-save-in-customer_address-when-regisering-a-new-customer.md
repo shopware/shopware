@@ -1,5 +1,5 @@
 ---
-title: Fix title is not save in customer_address when regisering a new customer
+title: Fixed storing of the title when registering a new customer
 issue: NEXT-20624
 author: Huy Truong
 author_email: huytdq94@gmail.com

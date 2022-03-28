@@ -2,6 +2,10 @@
 
 describe('User: Test crud operations', () => {
     beforeEach(() => {
+        cy.clearCookies();
+        cy.clearCookie('bearerAuth');
+        cy.clearCookie('refreshBearerAuth');
+
         cy.loginViaApi()
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/users/permissions/index`);
@@ -10,11 +14,6 @@ describe('User: Test crud operations', () => {
 
     it('@settings: create and delete user', () => {
         // Requests we want to wait for later
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/search/user`,
-            method: 'POST'
-        }).as('searchCall');
-
         cy.intercept({
             url: `${Cypress.env('apiPath')}/user`,
             method: 'POST'
@@ -82,6 +81,24 @@ describe('User: Test crud operations', () => {
 
         // should be able to delete the user
         cy.get('a.smart-bar__back-btn').click();
+
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/user`,
+            method: 'POST'
+        }).as('userSearchCall');
+
+        cy.get('.sw-users-permissions-user-listing .sw-simple-search-field')
+            .type('abraham');
+
+        cy.wait('@userSearchCall').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.get('.sw-users-permissions-user-listing .sw-data-grid__row--0')
+            .contains('abraham');
 
         cy.clickContextMenuItem(
             '.sw-settings-user-list__user-delete-action',
@@ -233,5 +250,9 @@ describe('User: Test crud operations', () => {
         cy.get('.sw-settings-user-detail__grid-password .sw-field__error')
             .should('be.visible')
             .contains('This field must not be empty.');
+
+        cy.clearCookies();
+        cy.clearCookie('bearerAuth');
+        cy.clearCookie('refreshBearerAuth');
     });
 });

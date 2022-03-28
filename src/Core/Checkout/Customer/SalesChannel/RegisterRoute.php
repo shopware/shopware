@@ -39,6 +39,8 @@ use Shopware\Core\System\Country\Exception\CountryNotFoundException;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -76,6 +78,8 @@ class RegisterRoute extends AbstractRegisterRoute
 
     private SalesChannelRepositoryInterface $countryRepository;
 
+    private SalesChannelContextServiceInterface $contextService;
+
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
@@ -86,7 +90,8 @@ class RegisterRoute extends AbstractRegisterRoute
         EntityRepositoryInterface $customerRepository,
         SalesChannelContextPersister $contextPersister,
         SalesChannelRepositoryInterface $countryRepository,
-        Connection $connection
+        Connection $connection,
+        SalesChannelContextServiceInterface $contextService
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->numberRangeValueGenerator = $numberRangeValueGenerator;
@@ -98,6 +103,7 @@ class RegisterRoute extends AbstractRegisterRoute
         $this->contextPersister = $contextPersister;
         $this->countryRepository = $countryRepository;
         $this->connection = $connection;
+        $this->contextService = $contextService;
     }
 
     public function getDecorated(): AbstractRegisterRoute
@@ -269,33 +275,52 @@ See the Guide ""Register a customer"" for more information on customer registrat
 
         if ($customerEntity->getDoubleOptInRegistration()) {
             $this->eventDispatcher->dispatch($this->getDoubleOptInEvent($customerEntity, $context, $data->get('storefrontUrl'), $data->get('redirectTo')));
-        } elseif (!$customerEntity->getGuest()) {
-            $this->eventDispatcher->dispatch(new CustomerRegisterEvent($context, $customerEntity));
-        } else {
-            $this->eventDispatcher->dispatch(new GuestCustomerRegisterEvent($context, $customerEntity));
+
+            // We don't want to leak the hash in store-api
+            $customerEntity->setHash('');
+
+            return new CustomerResponse($customerEntity);
         }
 
         $response = new CustomerResponse($customerEntity);
 
-        if (!$customerEntity->getDoubleOptInRegistration()) {
-            $newToken = $this->contextPersister->replace($context->getToken(), $context);
+        $newToken = $this->contextPersister->replace($context->getToken(), $context);
 
-            $this->contextPersister->save(
-                $newToken,
-                [
-                    'customerId' => $customerEntity->getId(),
-                    'billingAddressId' => null,
-                    'shippingAddressId' => null,
-                ],
+        $this->contextPersister->save(
+            $newToken,
+            [
+                'customerId' => $customerEntity->getId(),
+                'billingAddressId' => null,
+                'shippingAddressId' => null,
+            ],
+            $context->getSalesChannel()->getId(),
+            $customerEntity->getId()
+        );
+
+        $new = $this->contextService->get(
+            new SalesChannelContextServiceParameters(
                 $context->getSalesChannel()->getId(),
+                $newToken,
+                $context->getLanguageId(),
+                $context->getCurrencyId(),
+                $context->getDomainId(),
+                $context->getContext(),
                 $customerEntity->getId()
-            );
+            )
+        );
 
-            $event = new CustomerLoginEvent($context, $customerEntity, $newToken);
-            $this->eventDispatcher->dispatch($event);
+        $new->addState(...$context->getStates());
 
-            $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $newToken);
+        if (!$customerEntity->getGuest()) {
+            $this->eventDispatcher->dispatch(new CustomerRegisterEvent($new, $customerEntity));
+        } else {
+            $this->eventDispatcher->dispatch(new GuestCustomerRegisterEvent($new, $customerEntity));
         }
+
+        $event = new CustomerLoginEvent($new, $customerEntity, $newToken);
+        $this->eventDispatcher->dispatch($event);
+
+        $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $newToken);
 
         // We don't want to leak the hash in store-api
         $customerEntity->setHash('');

@@ -88,6 +88,7 @@
                 "update_on_order": {
                     "type": "boolean"
                 }
+            }
         },
         "admin_worker": {
             "type": "object",

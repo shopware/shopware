@@ -19,7 +19,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
 use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
-use Shopware\Core\System\StateMachine\Exception\StateMachineWithoutInitialStateException;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 use Shopware\Core\Test\TestDefaults;
@@ -119,18 +118,6 @@ EOF;
         $context = Context::createDefaultContext();
 
         $this->stateMachineRegistry->getStateMachine('wusel', $context);
-    }
-
-    public function testStateMachineMustHaveInitialState(): void
-    {
-        $context = Context::createDefaultContext();
-        $this->createStateMachineWithoutInitialState($context);
-
-        $stateMachine = $this->stateMachineRegistry->getStateMachine($this->stateMachineWithoutInitialName, $context);
-        static::assertNotNull($stateMachine);
-
-        $this->expectException(StateMachineWithoutInitialStateException::class);
-        $this->stateMachineRegistry->getInitialState($this->stateMachineWithoutInitialName, $context);
     }
 
     public function testStateMachineShouldIncludeRelations(): void

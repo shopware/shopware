@@ -35,7 +35,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -60,8 +60,6 @@ class PreparedPaymentServiceTest extends TestCase
 
     private OrderTransactionStateHandler $orderTransactionStateHandler;
 
-    private StateMachineRegistry $stateMachineRegistry;
-
     protected function setUp(): void
     {
         // Previous tests may build the local cache of \Shopware\Core\System\StateMachine\StateMachineRegistry, shutdown the Kernel to rebuild the container
@@ -72,7 +70,6 @@ class PreparedPaymentServiceTest extends TestCase
 
         $this->paymentService = $this->getContainer()->get(PreparedPaymentService::class);
         $this->orderTransactionStateHandler = $this->getContainer()->get(OrderTransactionStateHandler::class);
-        $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
         $this->orderRepository = $this->getRepository(OrderDefinition::ENTITY_NAME);
         $this->customerRepository = $this->getRepository(CustomerDefinition::ENTITY_NAME);
         $this->orderTransactionRepository = $this->getRepository(OrderTransactionDefinition::ENTITY_NAME);
@@ -243,7 +240,7 @@ class PreparedPaymentServiceTest extends TestCase
             'id' => $id,
             'orderId' => $orderId,
             'paymentMethodId' => $paymentMethodId,
-            'stateId' => $this->stateMachineRegistry->getInitialState(OrderTransactionStates::STATE_MACHINE, $context)->getId(),
+            'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderTransactionStates::STATE_MACHINE),
             'amount' => new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
             'payload' => '{}',
         ];
@@ -274,7 +271,7 @@ class PreparedPaymentServiceTest extends TestCase
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
             ],
-            'stateId' => $this->stateMachineRegistry->getInitialState(OrderTransactionStates::STATE_MACHINE, $context)->getId(),
+            'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderTransactionStates::STATE_MACHINE),
             'paymentMethodId' => $paymentMethodId,
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1.0,

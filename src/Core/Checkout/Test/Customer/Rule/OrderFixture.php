@@ -13,7 +13,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\Test\EntityFixturesBase;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
@@ -26,7 +26,6 @@ trait OrderFixture
 
     private function getOrderData(string $orderId, Context $context): array
     {
-        $stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
         $orderCustomerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
         $orderLineItemId = Uuid::randomHex();
@@ -40,7 +39,7 @@ trait OrderFixture
                 'orderNumber' => $orderNumber,
                 'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
                 'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                'stateId' => $stateMachineRegistry->getInitialState(OrderStates::STATE_MACHINE, $context)->getId(),
+                'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE),
                 'versionId' => Defaults::LIVE_VERSION,
                 'paymentMethodId' => $this->getValidPaymentMethodId(),
                 'currencyId' => Defaults::CURRENCY,
@@ -49,7 +48,7 @@ trait OrderFixture
                 'orderDateTime' => '2019-04-01 08:36:43.267',
                 'deliveries' => [
                     [
-                        'stateId' => $stateMachineRegistry->getInitialState(OrderDeliveryStates::STATE_MACHINE, $context)->getId(),
+                        'stateId' => $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderDeliveryStates::STATE_MACHINE),
                         'shippingMethodId' => $this->getValidShippingMethodId(),
                         'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
                         'shippingDateEarliest' => date(\DATE_ISO8601),

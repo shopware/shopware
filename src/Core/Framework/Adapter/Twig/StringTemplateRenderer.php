@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Shopware\Core\Framework\Adapter\Twig\Exception\StringTemplateRenderingException;
 use Shopware\Core\Framework\Context;
+use Twig\Cache\FilesystemCache;
 use Twig\Environment;
 use Twig\Error\Error;
 use Twig\Extension\CoreExtension;
@@ -15,17 +16,22 @@ class StringTemplateRenderer
 
     private Environment $platformTwig;
 
-    public function __construct(Environment $environment)
+    private string $cacheDir;
+
+    public function __construct(Environment $environment, string $cacheDir)
     {
         $this->platformTwig = $environment;
+        $this->cacheDir = $cacheDir;
         $this->initialize();
     }
 
     public function initialize(): void
     {
         // use private twig instance here, because we use custom template loader
-        $this->twig = new TwigEnvironment(new ArrayLoader());
-        $this->twig->setCache(false);
+        $this->twig = new TwigEnvironment(new ArrayLoader(), [
+            'cache' => new FilesystemCache($this->cacheDir . '/string-template-renderer'),
+        ]);
+
         $this->disableTestMode();
         foreach ($this->platformTwig->getExtensions() as $extension) {
             if ($this->twig->hasExtension(\get_class($extension))) {

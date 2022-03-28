@@ -29,7 +29,8 @@ class MailServiceTest extends TestCase
     public function testPluginsCanExtendMailData(): void
     {
         $renderer = new TestRenderer(
-            $this->getContainer()->get('twig')
+            $this->getContainer()->get('twig'),
+            $this->getContainer()->getParameter('kernel.cache_dir')
         );
 
         $mailService = new MailService(

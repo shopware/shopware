@@ -17,7 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -33,24 +33,24 @@ class PaymentTransactionChainProcessor
 
     private PaymentHandlerRegistry $paymentHandlerRegistry;
 
-    private StateMachineRegistry $stateMachineRegistry;
-
     private SystemConfigService $systemConfigService;
+
+    private InitialStateIdLoader $initialStateIdLoader;
 
     public function __construct(
         TokenFactoryInterfaceV2 $tokenFactory,
         EntityRepositoryInterface $orderRepository,
         RouterInterface $router,
         PaymentHandlerRegistry $paymentHandlerRegistry,
-        StateMachineRegistry $stateMachineRegistry,
-        SystemConfigService $systemConfigService
+        SystemConfigService $systemConfigService,
+        InitialStateIdLoader $initialStateIdLoader
     ) {
         $this->tokenFactory = $tokenFactory;
         $this->orderRepository = $orderRepository;
         $this->router = $router;
         $this->paymentHandlerRegistry = $paymentHandlerRegistry;
-        $this->stateMachineRegistry = $stateMachineRegistry;
         $this->systemConfigService = $systemConfigService;
+        $this->initialStateIdLoader = $initialStateIdLoader;
     }
 
     /**
@@ -91,10 +91,7 @@ class PaymentTransactionChainProcessor
         }
 
         $transactions = $transactions->filterByStateId(
-            $this->stateMachineRegistry->getInitialState(
-                OrderTransactionStates::STATE_MACHINE,
-                $salesChannelContext->getContext()
-            )->getId()
+            $this->initialStateIdLoader->get(OrderTransactionStates::STATE_MACHINE)
         );
 
         $transaction = $transactions->last();

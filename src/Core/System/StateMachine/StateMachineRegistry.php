@@ -95,6 +95,8 @@ class StateMachineRegistry
     }
 
     /**
+     * @deprecated tag:v6.5.0 - Use `\Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader::get` instead
+     *
      * @throws InconsistentCriteriaIdsException
      * @throws StateMachineNotFoundException
      * @throws StateMachineWithoutInitialStateException

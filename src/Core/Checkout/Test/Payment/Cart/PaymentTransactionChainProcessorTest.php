@@ -1,7 +1,6 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
-namespace Payment\Cart;
+namespace Shopware\Core\Checkout\Test\Payment\Cart;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
@@ -22,8 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
-use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -57,8 +55,8 @@ class PaymentTransactionChainProcessorTest extends TestCase
             $orderRepository,
             $this->createMock(RouterInterface::class),
             $this->createMock(PaymentHandlerRegistry::class),
-            $this->createMock(StateMachineRegistry::class),
-            $this->createMock(SystemConfigService::class)
+            $this->createMock(SystemConfigService::class),
+            $this->createMock(InitialStateIdLoader::class)
         );
 
         static::expectException(InvalidOrderException::class);
@@ -106,21 +104,18 @@ class PaymentTransactionChainProcessorTest extends TestCase
             ->method('getHandlerForPaymentMethod')
             ->willReturn(null);
 
-        $stateMachineEntity = new StateMachineStateEntity();
-        $stateMachineEntity->setId($this->ids->get('order-state'));
-
-        $stateMachineRegistry = $this->createMock(StateMachineRegistry::class);
-        $stateMachineRegistry
-            ->method('getInitialState')
-            ->willReturn($stateMachineEntity);
+        $initialStateIdLoader = $this->createMock(InitialStateIdLoader::class);
+        $initialStateIdLoader
+            ->method('get')
+            ->willReturn($this->ids->get('order-state'));
 
         $processor = new PaymentTransactionChainProcessor(
             $this->createMock(TokenFactoryInterfaceV2::class),
             $orderRepository,
             $this->createMock(RouterInterface::class),
             $paymentHandlerRegistry,
-            $stateMachineRegistry,
-            $this->createMock(SystemConfigService::class)
+            $this->createMock(SystemConfigService::class),
+            $initialStateIdLoader
         );
 
         static::expectException(UnknownPaymentMethodException::class);

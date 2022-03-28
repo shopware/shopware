@@ -28,6 +28,12 @@ Component.register('sw-text-editor-toolbar-button', {
         },
     },
 
+    data() {
+        return {
+            flyoutClasses: [],
+        };
+    },
+
     computed: {
         classes() {
             return {
@@ -96,6 +102,20 @@ Component.register('sw-text-editor-toolbar-button', {
             const positionClass = `is--${position}`;
 
             return [positionClass];
+        },
+
+        onChildMounted() {
+            const flyoutMenu = this.$refs?.flyoutMenu;
+
+            if (!flyoutMenu || this.flyoutClasses.includes('is--left', 'is--right')) {
+                return;
+            }
+
+            const flyoutMenuRightBound = flyoutMenu.getBoundingClientRect().right;
+            const windowRightBound = this.$root.$el.getBoundingClientRect().right;
+
+            const isOutOfRightBound = flyoutMenuRightBound - windowRightBound > 0;
+            this.flyoutClasses = isOutOfRightBound ? ['is--left'] : ['is--right'];
         },
 
         getTooltipConfig(buttonConfig, child) {

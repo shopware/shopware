@@ -684,14 +684,14 @@ Component.register('sw-bulk-edit-product', {
         },
 
         definePricesBulkEdit() {
-            this.product.price = [{
+            this.product.price ??= [{
                 currencyId: this.currency.id,
                 net: null,
                 linked: true,
                 gross: null,
             }];
 
-            this.product.purchasePrices = [{
+            this.product.purchasePrices ??= [{
                 currencyId: this.currency.id,
                 net: null,
                 linked: true,

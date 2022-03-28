@@ -97,14 +97,7 @@
         flex-basis: 100%;
         padding: 30px;
         background-color: $color-gray-100;
-        border: 1px solid $color-gray-300;
-    }
-
-    &.has--subtitle,
-    &.has--title {
-        .sw-card__toolbar {
-            margin-top: 12px;
-        }
+        border-bottom: 1px solid $color-gray-300;
     }
 
     &.has--header {

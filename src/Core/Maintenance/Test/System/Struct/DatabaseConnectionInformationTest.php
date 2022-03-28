@@ -3,17 +3,17 @@
 namespace Shopware\Core\Maintenance\Test\System\Struct;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 
 class DatabaseConnectionInformationTest extends TestCase
 {
-    /**
-     * @backupGlobals enabled
-     */
+    use EnvTestBehaviour;
+
     public function testItDecodesSpecialCharsInDbPasswordsFromEnv(): void
     {
-        unset($_SERVER['DATABASE_URL'], $_ENV['DATABASE_URL']);
-        putenv('DATABASE_URL=mysql://user:ultra%3Fsecure%23@mysql:3306/test_db');
+        $this->setEnvVars(['DATABASE_URL' => 'mysql://user:ultra%3Fsecure%23@mysql:3306/test_db']);
+
         $dbConnectionInformation = DatabaseConnectionInformation::fromEnv();
 
         static::assertEquals('ultra?secure#', $dbConnectionInformation->getPassword());
@@ -29,5 +29,14 @@ class DatabaseConnectionInformationTest extends TestCase
         ]);
 
         static::assertEquals('mysql://user:ultra%3Fsecure%23@mysql:3306/test_db', $dbConnectionInformation->asDsn());
+    }
+
+    public function testItAllowsAnEmptyDbPassword(): void
+    {
+        $this->setEnvVars(['DATABASE_URL' => 'mysql://user:@mysql:3306/test_db']);
+
+        $dbConnectionInformation = DatabaseConnectionInformation::fromEnv();
+
+        static::assertEquals('mysql://user:@mysql:3306/test_db', $dbConnectionInformation->asDsn());
     }
 }

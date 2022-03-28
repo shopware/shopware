@@ -200,6 +200,7 @@ Component.register('sw-entity-many-to-many-select', {
 
             if (this.criteria) {
                 this.searchCriteria.filters = this.criteria.filters;
+                this.searchCriteria.sortings = this.criteria.sortings;
             }
 
             return this.searchRepository.search(this.searchCriteria, Shopware.Context.api)

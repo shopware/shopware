@@ -49,7 +49,7 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
 
         ksort($options);
 
-        $key = md5(implode('-', [$name, json_encode($options)]));
+        $key = implode('-', [$name, md5(json_encode($options, \JSON_THROW_ON_ERROR))]);
 
         $value = $this->cache->get($key, function (ItemInterface $item) use ($name, $token, $salesChannelId, $options) {
             $context = $this->tracer->trace($name, function () use ($token, $salesChannelId, $options) {

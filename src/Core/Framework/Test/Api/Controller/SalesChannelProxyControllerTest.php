@@ -1121,7 +1121,7 @@ class SalesChannelProxyControllerTest extends TestCase
                 $response = $browser->getResponse()->getContent();
                 $response = json_decode($response, true);
 
-                static::assertArrayHasKey('errors', $response);
+                static::assertArrayHasKey('errors', $response, print_r($response, true));
                 static::assertEquals('FRAMEWORK__MISSING_PRIVILEGE_ERROR', $response['errors'][0]['code'] ?? null);
                 static::assertStringContainsString(
                     $testOrderOnly ? CreditOrderLineItemListener::ACL_ORDER_CREATE_DISCOUNT_PRIVILEGE : 'order_line_item:create',

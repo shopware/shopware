@@ -67,7 +67,10 @@
             {% endblock %}
 
             {% block sw_page_smart_bar_content %}
-            <div class="smart-bar__content">
+            <div
+                class="smart-bar__content"
+                :style="smartBarContentStyle"
+            >
                 {% block sw_page_smart_bar_content_header %}
                 <div class="smart-bar__header">
                     <slot name="smart-bar-header">

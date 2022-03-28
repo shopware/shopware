@@ -86,7 +86,6 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
         justify-content: space-between;
         align-items: center;
         grid-column: header-content-start / header-content-end;
-        grid-row: 2;
 
         @media screen and (max-width: 1360px) {
             padding: 15px;

@@ -128,6 +128,14 @@ Component.register('sw-page', {
         additionalEventListeners() {
             return this.$listeners;
         },
+
+        smartBarContentStyle() {
+            const rowNumber = this.showSearchBar ? 2 : 1;
+
+            return {
+                'grid-row': rowNumber,
+            };
+        },
     },
 
     created() {

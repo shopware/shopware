@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import type { Module } from 'vuex';
-import type { extensions, extension } from '@shopware-ag/admin-extension-sdk/es/privileges/privilege-resolver';
+import type { extension } from '@shopware-ag/admin-extension-sdk/es/privileges/privilege-resolver';
+import type { extensions } from '@shopware-ag/admin-extension-sdk/es/channel';
 import type AclService from '../service/acl.service';
 
 export interface Extension {

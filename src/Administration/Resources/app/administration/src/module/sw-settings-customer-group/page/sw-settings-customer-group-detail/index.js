@@ -69,6 +69,25 @@ Component.register('sw-settings-customer-group-detail', {
             return this.repositoryFactory.create('seo_url');
         },
 
+        seoUrlCriteria() {
+            const criteria = new Criteria();
+
+            if (this.customerGroup?.registrationSalesChannels.length) {
+                const salesChannelIds = this.customerGroup.registrationSalesChannels?.getIds();
+
+                criteria.addFilter(Criteria.equalsAny('salesChannelId', salesChannelIds));
+            }
+
+            criteria.addFilter(Criteria.equals('pathInfo', `/customer-group-registration/${this.customerGroupId}`));
+            criteria.addFilter(Criteria.equals('languageId', Shopware.Context.api.languageId));
+            criteria.addFilter(Criteria.equals('isCanonical', true));
+            criteria.addAssociation('salesChannel.domains');
+            criteria.addGroupField('seoPathInfo');
+            criteria.addGroupField('salesChannelId');
+
+            return criteria;
+        },
+
         entityDescription() {
             return this.placeholder(
                 this.customerGroup,
@@ -140,6 +159,9 @@ Component.register('sw-settings-customer-group-detail', {
         'customerGroup.registrationTitle'() {
             this.registrationTitleError = null;
         },
+        'customerGroup.registrationSalesChannels'() {
+            this.loadSeoUrls();
+        },
     },
 
     created() {
@@ -169,15 +191,11 @@ Component.register('sw-settings-customer-group-detail', {
         },
 
         async loadSeoUrls() {
-            const criteria = new Criteria();
-            criteria.addFilter(Criteria.equals('pathInfo', `/customer-group-registration/${this.customerGroupId}`));
-            criteria.addFilter(Criteria.equals('languageId', Shopware.Context.api.languageId));
-            criteria.addFilter(Criteria.equals('isCanonical', true));
-            criteria.addAssociation('salesChannel.domains');
-            criteria.addGroupField('seoPathInfo');
-            criteria.addGroupField('salesChannelId');
-
-            this.seoUrls = await this.seoUrlRepository.search(criteria);
+            if (!this.customerGroup?.registrationSalesChannels.length) {
+                this.seoUrls = [];
+                return;
+            }
+            this.seoUrls = await this.seoUrlRepository.search(this.seoUrlCriteria);
         },
 
         loadCustomFieldSets() {

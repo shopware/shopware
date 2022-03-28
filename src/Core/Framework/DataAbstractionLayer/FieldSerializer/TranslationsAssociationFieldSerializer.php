@@ -82,7 +82,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
             if (!isset($value[$languageId])) {
                 $value[$languageId] = $fields;
             } else {
-                $value[$languageId] = array_merge($value[$identifier], $value[$languageId]);
+                $value[$languageId] = array_merge($value[$languageId], $value[$identifier]);
             }
 
             unset($value[$identifier]);

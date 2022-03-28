@@ -29,14 +29,19 @@ class TranslatedFieldSerializer implements FieldSerializerInterface
 
         if (\is_array($value) && $translatedField instanceof JsonField === false) {
             foreach ($value as $translationKey => $translationValue) {
-                $data['translations'][$translationKey][$key] = $translationValue;
+                if (!isset($data['translations'][$translationKey][$key])) {
+                    $data['translations'][$translationKey][$key] = $translationValue;
+                }
             }
 
             return $data;
         }
 
-        // use the default language from the context
-        $data['translations'][$parameters->getContext()->getContext()->getLanguageId()][$key] = $value;
+        $contextLanguage = $parameters->getContext()->getContext()->getLanguageId();
+        if (!isset($data['translations'][$contextLanguage][$key])) {
+            // use the default language from the context
+            $data['translations'][$contextLanguage][$key] = $value;
+        }
 
         return $data;
     }

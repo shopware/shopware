@@ -580,34 +580,6 @@ class WriterTest extends TestCase
             $this->createWriteContext()
         );
 
-//        'POST auth/login' => [
-//            'localeList' => ''
-//        ];
-//
-//        'POST login/auth/language/' {locale: en} => [
-//
-//        ];
-//
-//        'GET /product/abc' => [
-//            'id' => $this->id,
-//            'name' => '', // aus implicit,
-//            'translations' => [],
-//
-//        ];
-//
-//        'GET /product/abc/translation/?' => 'indexAction'
-//        'GET /product/abc/translation/%s' => 'detailAction'
-//
-//        'GET /product/abc/translation/en' => [
-//            'productId' => 'abc',
-//            'languageId' => '2d905256e75149678dd5a32a81b94f1f',
-//            'metaTitle' => 'bar',
-//            'name' => '',
-//            [...]
-//        ]
-//
-//        'POST /product/abc' => [];
-
         $product = $this->connection->fetchAssoc('SELECT * FROM product WHERE id=:id', ['id' => $this->idBytes]);
         $productTranslations = $this->connection->fetchAll('SELECT * FROM product_translation WHERE product_id= :id', ['id' => $this->idBytes]);
 
@@ -628,7 +600,7 @@ class WriterTest extends TestCase
                 static::assertNull($translation['meta_title']);
                 static::assertNull($translation['keywords']);
             } else {
-                static::assertSame('2ABC', $translation['name']);
+                static::assertSame('bar', $translation['name']);
                 static::assertSame('foo', $translation['description']);
                 static::assertSame('bar', $translation['meta_title']);
                 static::assertSame('fiz,baz', $translation['keywords']);

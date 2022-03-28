@@ -3,7 +3,8 @@
 namespace Shopware\Storefront\Framework\Cache\ReverseProxy;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\ServerException;
+use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -20,6 +21,8 @@ class RedisReverseProxyGateway extends AbstractReverseProxyGateway
     private int $concurrency;
 
     private string $banMethod;
+
+    private array $banHeaders;
 
     /**
      * @var \Redis|\RedisCluster
@@ -49,13 +52,14 @@ LUA;
     /**
      * @param \Redis|\RedisCluster $redis
      */
-    public function __construct(array $hosts, int $concurrency, string $banMethod, $redis)
+    public function __construct(array $hosts, int $concurrency, string $banMethod, array $banHeaders, $redis, Client $client)
     {
         $this->hosts = $hosts;
-        $this->client = new Client();
+        $this->client = $client;
         $this->concurrency = $concurrency;
         $this->banMethod = $banMethod;
         $this->redis = $redis;
+        $this->banHeaders = $banHeaders;
     }
 
     /**
@@ -85,14 +89,18 @@ LUA;
 
         foreach ($urls as $url) {
             foreach ($this->hosts as $host) {
-                $list[] = new Request($this->banMethod, $host . $url);
+                $list[] = new Request($this->banMethod, $host . $url, $this->banHeaders);
             }
         }
 
         $pool = new Pool($this->client, $list, [
             'concurrency' => $this->concurrency,
-            'reject' => function (RequestException $reason): void {
-                throw new \RuntimeException(sprintf('BAN request failed to %s failed with error: %s', $reason->getRequest()->getUri()->__toString(), $reason->getMessage()));
+            'rejected' => function (TransferException $reason): void {
+                if ($reason instanceof ServerException) {
+                    throw new \RuntimeException(sprintf('BAN request failed to %s failed with error: %s', $reason->getRequest()->getUri()->__toString(), $reason->getMessage()), 0, $reason);
+                }
+
+                throw $reason;
             },
         ]);
 

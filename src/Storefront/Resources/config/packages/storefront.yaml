@@ -9,6 +9,7 @@ storefront:
         hosts: [ "http://varnish" ]
         max_parallel_invalidations: 2
         redis_url: "redis://redis"
+        purge_all:
 
     http_cache:
         ignored_url_parameters:

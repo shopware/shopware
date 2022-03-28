@@ -11,12 +11,11 @@
                 },
                 "shopware": {
                     "$ref": "#/definitions/shopware"
+                },
+                "storefront": {
+                    "$ref": "#/definitions/storefront"
                 }
             },
-            "required": [
-                "parameters",
-                "shopware"
-            ],
             "title": "Root"
         },
         "parameters": {
@@ -180,7 +179,10 @@
                     "type": "string"
                 },
                 "limits": {
-                    "type": ["object", "array"]
+                    "type": [
+                        "object",
+                        "array"
+                    ]
                 }
             },
             "title": "Rate limiter config"
@@ -284,7 +286,10 @@
             "title": "Cache invalidation states",
             "items": {
                 "type": "string",
-                "enum": ["logged-in", "cart-filled"]
+                "enum": [
+                    "logged-in",
+                    "cart-filled"
+                ]
             }
         },
         "cart": {
@@ -379,7 +384,10 @@
             "title": "Filesystem"
         },
         "file_system_type": {
-            "type": ["object", "null"],
+            "type": [
+                "object",
+                "null"
+            ],
             "additionalProperties": true
         },
         "html_sanitizer": {
@@ -464,11 +472,17 @@
             "additionalProperties": true,
             "properties": {
                 "type": {
-                    "enum": ["mysql", "redis", "array"],
+                    "enum": [
+                        "mysql",
+                        "redis",
+                        "array"
+                    ],
                     "type": "string"
                 }
             },
-            "required": ["type"],
+            "required": [
+                "type"
+            ],
             "allOf": [
                 {
                     "if": {
@@ -488,10 +502,14 @@
                                         "type": "string"
                                     }
                                 },
-                                "required": ["url"]
+                                "required": [
+                                    "url"
+                                ]
                             }
                         },
-                        "required": ["config"]
+                        "required": [
+                            "config"
+                        ]
                     }
                 }
             ],
@@ -561,6 +579,129 @@
                 }
             },
             "title": "Sales channel context"
+        },
+        "storefront": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "csrf": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean",
+                            "default": true,
+                            "title": "Toggles CSRF"
+                        },
+                        "mode": {
+                            "type": "string",
+                            "enum": [
+                                "ajax",
+                                "twig"
+                            ],
+                            "default": "twig",
+                            "title": "CSRF implementation type"
+                        }
+                    },
+                    "title": "CSRF configuration for the PHP storefront"
+                },
+                "reverse_proxy": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "ban_method": {
+                            "type": "string",
+                            "default": "BAN",
+                            "title": "HTTP method used to purge the cache at the remote server"
+                        },
+                        "ban_headers": {
+                            "type": [
+                                "object",
+                                "null"
+                            ],
+                            "title": "The headers that should be send on a single purge"
+                        },
+                        "hosts": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "title": "List of reverse proxy servers"
+                        },
+                        "max_parallel_invalidations": {
+                            "type": "integer",
+                            "default": 2,
+                            "title": "Max parallel requests to the external server"
+                        },
+                        "redis_url": {
+                            "type": "string",
+                            "title": "Redis URL"
+                        },
+                        "purge_all": {
+                            "type": [
+                                "object",
+                                "null"
+                            ],
+                            "additionalProperties": false,
+                            "properties": {
+                                "ban_method": {
+                                    "type": "string",
+                                    "default": "BAN",
+                                    "title": "HTTP method used to purge the cache at the remote server"
+                                },
+                                "ban_headers": {
+                                    "type": [
+                                        "object",
+                                        "null"
+                                    ],
+                                    "title": "The headers that should be send on a single purge"
+                                },
+                                "urls": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "title": "Reverse proxy configuration"
+                },
+                "http_cache": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "ignored_url_parameters": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "title": "Http cache configuration"
+                },
+                "theme": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "config_loader_id": {
+                            "type": "string"
+                        },
+                        "theme_path_builder_id": {
+                            "type": "string"
+                        },
+                        "available_theme_provider": {
+                            "type": "string"
+                        }
+                    },
+                    "title": "Theme loader configuration"
+                }
+            },
+            "title": "Storefront bundle configuration"
         }
     }
 }

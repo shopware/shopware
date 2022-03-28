@@ -10,6 +10,7 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageSliderItemStruct;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ImageSliderStruct;
+use Shopware\Core\Content\Media\Cms\AbstractDefaultMediaResolver;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
@@ -19,6 +20,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
 {
+    private AbstractDefaultMediaResolver $mediaResolver;
+
+    public function __construct(AbstractDefaultMediaResolver $mediaResolver)
+    {
+        $this->mediaResolver = $mediaResolver;
+    }
+
     public function getType(): string
     {
         return 'image-slider';
@@ -27,7 +35,7 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
     public function collect(CmsSlotEntity $slot, ResolverContext $resolverContext): ?CriteriaCollection
     {
         $sliderItemsConfig = $slot->getFieldConfig()->get('sliderItems');
-        if ($sliderItemsConfig === null || $sliderItemsConfig->isMapped()) {
+        if ($sliderItemsConfig === null || $sliderItemsConfig->isMapped() || $sliderItemsConfig->isDefault()) {
             return null;
         }
 
@@ -61,6 +69,12 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
         if ($sliderItemsConfig->isStatic()) {
             foreach ($sliderItemsConfig->getArrayValue() as $sliderItem) {
                 $this->addMedia($slot, $imageSlider, $result, $sliderItem);
+            }
+        }
+
+        if ($sliderItemsConfig->isDefault()) {
+            foreach ($sliderItemsConfig->getArrayValue() as $sliderItem) {
+                $this->addDefaultMediaToImageSlider($imageSlider, $sliderItem);
             }
         }
 
@@ -124,6 +138,19 @@ class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
             return;
         }
 
+        $imageSliderItem->setMedia($media);
+        $imageSlider->addSliderItem($imageSliderItem);
+    }
+
+    private function addDefaultMediaToImageSlider(ImageSliderStruct $imageSlider, array $config): void
+    {
+        $media = $this->mediaResolver->getDefaultCmsMediaEntity($config['fileName']);
+
+        if ($media === null) {
+            return;
+        }
+
+        $imageSliderItem = new ImageSliderItemStruct();
         $imageSliderItem->setMedia($media);
         $imageSlider->addSliderItem($imageSliderItem);
     }

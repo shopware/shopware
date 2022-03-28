@@ -402,9 +402,13 @@ Component.register('sw-cms-sidebar', {
                     }
                 }
 
+                const slotDefaultData = slotConfig.default?.data;
+                if ([slotDefaultData?.media?.source, slotDefaultData?.sliderItems?.source].includes('default')) {
+                    element.config = Object.assign({}, element.config, slotDefaultData);
+                }
+
                 newBlock.slots.add(element);
             });
-
             this.page.sections[section.position].blocks.splice(dropData.dropIndex, 0, newBlock);
 
             this.$emit('block-stage-drop');

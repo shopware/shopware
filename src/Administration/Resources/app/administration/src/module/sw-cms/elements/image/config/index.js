@@ -50,6 +50,7 @@ Component.register('sw-cms-el-config-image', {
             const mediaEntity = await this.mediaRepository.get(targetId);
 
             this.element.config.media.value = mediaEntity.id;
+            this.element.config.media.source = 'static';
 
             this.updateElementData(mediaEntity);
 
@@ -71,6 +72,7 @@ Component.register('sw-cms-el-config-image', {
         onSelectionChanges(mediaEntity) {
             const media = mediaEntity[0];
             this.element.config.media.value = media.id;
+            this.element.config.media.source = 'static';
 
             this.updateElementData(media);
 
@@ -79,10 +81,8 @@ Component.register('sw-cms-el-config-image', {
 
         updateElementData(media = null) {
             const mediaId = media === null ? null : media.id;
-
             if (!this.element.data) {
-                this.$set(this.element, 'data', { mediaId });
-                this.$set(this.element, 'data', { media });
+                this.$set(this.element, 'data', { mediaId, media });
             } else {
                 this.$set(this.element.data, 'mediaId', mediaId);
                 this.$set(this.element.data, 'media', media);

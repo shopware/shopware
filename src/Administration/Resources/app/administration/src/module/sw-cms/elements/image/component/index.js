@@ -1,3 +1,4 @@
+import CMS from '../../../constant/sw-cms.constant';
 import template from './sw-cms-el-image.html.twig';
 import './sw-cms-el-image.scss';
 
@@ -34,17 +35,25 @@ Component.register('sw-cms-el-image', {
         },
 
         mediaUrl() {
+            const fallBackImageFileName = CMS.MEDIA.previewMountain.slice(CMS.MEDIA.previewMountain.lastIndexOf('/') + 1);
+            const staticFallBackImage = this.assetFilter(`administration/static/img/cms/${fallBackImageFileName}`);
             const elemData = this.element.data.media;
-            const mediaSource = this.element.config.media.source;
+            const elemConfig = this.element.config.media;
 
-            if (mediaSource === 'mapped') {
-                const demoMedia = this.getDemoValue(this.element.config.media.value);
+            if (elemConfig.source === 'mapped') {
+                const demoMedia = this.getDemoValue(elemConfig.value);
 
                 if (demoMedia?.url) {
                     return demoMedia.url;
                 }
 
-                return this.assetFilter('administration/static/img/cms/preview_mountain_large.jpg');
+                return staticFallBackImage;
+            }
+
+            if (elemConfig.source === 'default') {
+                // use only the filename
+                const fileName = elemConfig.value.slice(elemConfig.value.lastIndexOf('/') + 1);
+                return this.assetFilter(`/administration/static/img/cms/${fileName}`);
             }
 
             if (elemData?.id) {
@@ -52,10 +61,10 @@ Component.register('sw-cms-el-image', {
             }
 
             if (elemData?.url) {
-                return this.assetFilter(elemData.url);
+                return this.assetFilter(elemConfig.url);
             }
 
-            return this.assetFilter('administration/static/img/cms/preview_mountain_large.jpg');
+            return staticFallBackImage;
         },
 
         assetFilter() {

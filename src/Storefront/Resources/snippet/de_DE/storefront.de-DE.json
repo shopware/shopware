@@ -633,6 +633,40 @@
       "vimeo": {
         "privacyNotice": "Mit dem Aufruf des Videos erklären Sie sich einverstanden, dass Ihre Daten an %platform% übermittelt werden und das Sie die <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> gelesen haben.",
         "acceptButtonLabel": "Akzeptieren"
+      },
+      "defaultMedia": {
+        "preview_camera_large": {
+          "title": "Kamera",
+          "alt": "Alte Kodak-Fotokamera mit Lederschutzhülle und Lederriemen"
+        },
+        "preview_camera_small": {
+          "title": "Kamera",
+          "alt": "Alte Kodak-Fotokamera mit Lederschutzhülle und Lederriemen"
+        },
+        "preview_glasses_large": {
+          "title": "Sonnenbrille",
+          "alt": "Sonnenbrille mit goldenem Gestell auf reflektierendem Marmoruntergrund"
+        },
+        "preview_glasses_small": {
+          "title": "Sonnenbrille",
+          "alt": "Sonnenbrille mit goldenem Gestell auf reflektierendem Marmoruntergrund"
+        },
+        "preview_mountain_large": {
+          "title": "Schneebedeckter Berg",
+          "alt": "Felsiger Gebirgskamm mit schneebedeckten Gipfeln"
+        },
+        "preview_mountain_small": {
+          "title": "Schneebedeckter Berg",
+          "alt": "Felsiger Gebirgskamm mit schneebedeckten Gipfeln"
+        },
+        "preview_plant_large": {
+          "title": "Pflanze",
+          "alt": "Sukkulente in weißem Topf vor hellblauem Hintergrund"
+        },
+        "preview_plant_small": {
+          "title": "Pflanze",
+          "alt": "Sukkulente in weißem Topf vor hellblauem Hintergrund"
+        }
       }
     }
   }

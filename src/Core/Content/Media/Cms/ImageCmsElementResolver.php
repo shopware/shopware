@@ -16,6 +16,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 class ImageCmsElementResolver extends AbstractCmsElementResolver
 {
+    public const CMS_DEFAULT_ASSETS_PATH = '/bundles/storefront/assets/default/cms/';
+
+    private AbstractDefaultMediaResolver $mediaResolver;
+
+    public function __construct(AbstractDefaultMediaResolver $mediaResolver)
+    {
+        $this->mediaResolver = $mediaResolver;
+    }
+
     public function getType(): string
     {
         return 'image';
@@ -24,7 +33,13 @@ class ImageCmsElementResolver extends AbstractCmsElementResolver
     public function collect(CmsSlotEntity $slot, ResolverContext $resolverContext): ?CriteriaCollection
     {
         $mediaConfig = $slot->getFieldConfig()->get('media');
-        if ($mediaConfig === null || $mediaConfig->isMapped() || $mediaConfig->getValue() === null) {
+
+        if (
+            $mediaConfig === null
+            || $mediaConfig->isMapped()
+            || $mediaConfig->isDefault()
+            || $mediaConfig->getValue() === null
+        ) {
             return null;
         }
 
@@ -74,6 +89,14 @@ class ImageCmsElementResolver extends AbstractCmsElementResolver
         FieldConfig $config,
         ResolverContext $resolverContext
     ): void {
+        if ($config->isDefault()) {
+            $media = $this->mediaResolver->getDefaultCmsMediaEntity($config->getStringValue());
+
+            if ($media) {
+                $image->setMedia($media);
+            }
+        }
+
         if ($config->isMapped() && $resolverContext instanceof EntityResolverContext) {
             /** @var MediaEntity|null $media */
             $media = $this->resolveEntityValue($resolverContext->getEntity(), $config->getStringValue());

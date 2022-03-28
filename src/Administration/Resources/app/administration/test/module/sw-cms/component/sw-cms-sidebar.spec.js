@@ -113,17 +113,49 @@ function createWrapper() {
         provide: {
             repositoryFactory: {
                 create: () => ({
-                    create: () => ({
-                        id: null,
-                        slots: []
-                    }),
+                    create: () => {
+                        const mockCollection = [];
+                        mockCollection.add = function add(e) { this.push(e); };
+                        return {
+                            id: null,
+                            slots: mockCollection
+                        };
+                    },
                     save: () => {}
                 })
             },
             cmsService: {
-                getCmsBlockRegistry: () => ({
-                    'foo-bar': {}
-                })
+                getCmsBlockRegistry: () => {
+                    return {
+                        image: {
+                            name: 'image',
+                            label: 'sw-cms.blocks.image.image.label',
+                            category: 'image',
+                            component: 'sw-cms-block-image',
+                            previewComponent: 'sw-cms-preview-image',
+                            defaultConfig: {
+                                marginBottom: '20px',
+                                marginTop: '20px',
+                                marginLeft: '20px',
+                                marginRight: '20px',
+                                sizingMode: 'boxed'
+                            },
+                            slots: {
+                                image: {
+                                    type: 'image',
+                                    default: {
+                                        config: {
+                                            displayMode: { source: 'static', value: 'standard' }
+                                        },
+                                        data: {
+                                            media: { value: 'preview_mountain_large.jpg', source: 'default' }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    };
+                }
             }
         }
     });
@@ -313,5 +345,127 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
         expect(layoutTypeSelect.attributes().disabled).toBeFalsy();
         expect(productPageOption.attributes().disabled).toBeTruthy();
+    });
+
+    it('should apply default data when dropping new elements', async () => {
+        const wrapper = createWrapper();
+
+        const dragData = {
+            block: {
+                name: 'image',
+                label: 'sw-cms.blocks.image.image.label',
+                category: 'image',
+                component: 'sw-cms-block-image',
+                previewComponent: 'sw-cms-preview-image',
+                defaultConfig: {
+                    marginBottom: '20px',
+                    marginTop: '20px',
+                    marginLeft: '20px',
+                    marginRight: '20px',
+                    sizingMode: 'boxed'
+                },
+                slots: {
+                    image: {
+                        type: 'image',
+                        default: {
+                            config: {
+                                displayMode: {
+                                    source: 'static',
+                                    value: 'standard'
+                                }
+                            },
+                            data: {
+                                media: {}
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        const dropData = {
+            dropIndex: 0,
+            section: {
+                position: 0,
+                type: 'default',
+                locked: false,
+                name: null,
+                sizingMode: 'boxed',
+                mobileBehavior: 'wrap',
+                backgroundColor: null,
+                backgroundMediaId: null,
+                backgroundMediaMode: 'cover',
+                cssClass: null,
+                pageId: 'd4bab66b8ef349469e1b7faf48ad08f2',
+                customFields: null,
+                versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
+                cmsPageVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
+                createdAt: '2022-02-15T14:35:19.754+00:00',
+                updatedAt: null,
+                apiAlias: null,
+                id: '19cc1c1505694be886e19652ad247c6b',
+                blocks: []
+            },
+            sectionPosition: 'main'
+        };
+
+        wrapper.vm.onBlockStageDrop(dragData, dropData);
+
+        const combinedData = JSON.stringify(wrapper.vm.page);
+
+        const expectedData = JSON.stringify({
+            sections: [
+                {
+                    id: '1111',
+                    type: 'sidebar',
+                    blocks: [
+                        {
+                            id: null,
+                            slots: [
+                                {
+                                    id: null,
+                                    slots: [],
+                                    blockId: null,
+                                    slot: 'image',
+                                    type: 'image',
+                                    config: {
+                                        displayMode: {
+                                            source: 'static',
+                                            value: 'standard'
+                                        },
+                                        media: {
+                                            value: 'preview_mountain_large.jpg',
+                                            source: 'default'
+                                        }
+                                    },
+                                    data: {
+                                        media: {
+                                            value: 'preview_mountain_large.jpg',
+                                            source: 'default'
+                                        }
+                                    }
+                                }
+                            ],
+                            type: 'image',
+                            position: 0,
+                            sectionPosition: 'main',
+                            sectionId: '19cc1c1505694be886e19652ad247c6b',
+                            marginBottom: '20px',
+                            marginTop: '20px',
+                            marginLeft: '20px',
+                            marginRight: '20px',
+                            sizingMode: 'boxed'
+                        }
+                    ]
+                },
+                {
+                    id: '2222',
+                    type: 'sidebar',
+                    blocks: []
+                }
+            ]
+        });
+
+        expect(combinedData).toBe(expectedData);
     });
 });

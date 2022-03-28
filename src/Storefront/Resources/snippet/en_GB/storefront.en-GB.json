@@ -633,6 +633,40 @@
       "vimeo": {
         "privacyNotice": "By viewing the video you agree that your data will be transferred to %platform% and that you have read the <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Privacy policy\">Privacy policy</a>.",
         "acceptButtonLabel": "Accept"
+      },
+      "defaultMedia": {
+        "preview_camera_large": {
+          "title": "Camera",
+          "alt": "Vintage kodak photo camera with leather sheath and strap"
+        },
+        "preview_camera_small": {
+          "title": "Camera",
+          "alt": "Vintage kodak photo camera with leather sheath and strap"
+        },
+        "preview_glasses_large": {
+          "title": "Sunglasses",
+          "alt": "Gold frame sunglasses on reflective marble surface"
+        },
+        "preview_glasses_small": {
+          "title": "Sunglasses",
+          "alt": "Gold frame sunglasses on reflective marble surface"
+        },
+        "preview_mountain_large": {
+          "title": "Snow-covered mountains",
+          "alt": "Rocky mountain ridge with snow-covered tops"
+        },
+        "preview_mountain_small": {
+          "title": "Snow-covered mountains",
+          "alt": "Rocky mountain ridge with snow-covered tops"
+        },
+        "preview_plant_large": {
+          "title": "Plant",
+          "alt": "Succulent in a white pot in front of light blue background"
+        },
+        "preview_plant_small": {
+          "title": "Plant",
+          "alt": "Succulent in a white pot in front of light blue background"
+        }
       }
     }
   }

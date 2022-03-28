@@ -39,12 +39,15 @@
                                     <strong>{{ payment.translated.name }}</strong>
                                     {% if payment.translated.description %}
                                         {% set paymentDescription = payment.translated.description|raw %}
+                                        {% set paymentDescriptionTitle = payment.translated.description|striptags|raw %}
 
                                         {% if not payment.id is same as(selectedPaymentMethodId) %}
                                             {% set paymentDescription = (paymentDescription|length > 75 ? paymentDescription[:75] ~ ' ...' : paymentDescription) %}
                                         {% endif %}
 
-                                        <p title="{{ payment.translated.description|raw }}">{{ paymentDescription }}</p>
+                                        {% block component_payment_method_description_text %}
+                                            <p title="{{ paymentDescriptionTitle }}">{{ paymentDescription }}</p>
+                                        {% endblock %}
                                     {% endif %}
                                 </div>
                             {% endblock %}

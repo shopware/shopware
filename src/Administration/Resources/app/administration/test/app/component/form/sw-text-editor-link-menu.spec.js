@@ -9,7 +9,7 @@ const prepareLinkDataProvider = [{
 }, {
     value: 'aaaaaaa524604ccbad6042edce3ac799',
     type: 'category',
-    result: `category/${seoDomainPrefix}/aaaaaaa524604ccbad6042edce3ac799#`,
+    result: `${seoDomainPrefix}/navigation/aaaaaaa524604ccbad6042edce3ac799#`,
 }, {
     value: 'test@shopware.com',
     type: 'email',

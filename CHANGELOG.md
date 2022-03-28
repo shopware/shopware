@@ -73,6 +73,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-20600 - Changed empty h5 to div.h5 for seo purpose](/changelog/release-6-4-10-0/2022-03-15-changed-empty-h5-to-div-h5-for-seo-purpose.md) ([Melvin Achterhuis](https://github.com/MelvinAchterhuis))
 *  [NEXT-19689 - Fix review display in cms product detail page](/changelog/release-6-4-10-0/2022-03-15-fix-review-display-in-cms-product-detail-page.md)
 *  [NEXT-19804 - Loosen tight connection between list and regulation price](/changelog/release-6-4-10-0/2022-03-18-loosen-tight-connection-between-list-and-regulation-price.md)
+*  [NEXT-20783 - Fix category links made in text-editor via link flyout](/changelog/release-6-4-10-0/2022-03-25-fix-category-links-made-in-text-editor-via-link-flyout.md)
 *  [NEXT-19461 - Frequently used and Recently searched should work for all bubbles](/changelog/release-6-4-10-0/2022-1-10-frequently-used-and-recently-searched-should-work-for-all-bubbles.md)
 
 ## 6.4.9.0

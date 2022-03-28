@@ -160,7 +160,7 @@ shopware:
             expire_days: 30
 
     mail:
-        update_on_order: true
+        update_mail_variables_on_send: true
 
     cart:
         compress: false

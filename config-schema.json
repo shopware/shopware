@@ -85,10 +85,12 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "update_on_order": {
-                    "type": "boolean"
+                "update_mail_variables_on_send": {
+                    "type": "boolean",
+                    "title": "Configure mail template variable update on each mail sending. This setting should be disabled on productive installations. "
                 }
-            }
+            },
+            "title": "Mail Template configuration, Available since 6.4.11.0"
         },
         "admin_worker": {
             "type": "object",

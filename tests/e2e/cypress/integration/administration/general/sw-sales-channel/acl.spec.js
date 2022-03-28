@@ -79,9 +79,9 @@ describe('Sales Channel: Test acl', () => {
         cy.get('.sw-admin-menu__headline').contains('Sales Channel');
 
         cy.get('.sw-admin-menu__headline-action').click();
-        cy.get('.sw-sales-channel-modal__title').contains('Add Sales Channel');
+        cy.get('.sw-sales-channel-modal .sw-modal__title').contains('Add Sales Channel');
         cy.get(`${page.elements.gridRow}--0 .sw-sales-channel-modal-grid__item-name`).click();
-        cy.get('.sw-sales-channel-modal__title').contains('Storefront - details');
+        cy.get('.sw-sales-channel-modal .sw-modal__title').contains('Storefront - details');
         cy.get('.sw-sales-channel-modal__add-sales-channel-action').click();
 
         // Fill in form and save new sales channel

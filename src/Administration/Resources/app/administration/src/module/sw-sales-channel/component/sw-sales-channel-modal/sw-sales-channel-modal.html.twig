@@ -1,30 +1,18 @@
 {% block sw_sales_channel_modal %}
 <sw-modal
     class="sw-sales-channel-modal"
+    :title="$tc(modalTitle)"
     @modal-close="onCloseModal"
 >
 
+    {# @deprecated tag:v6.5.0 - property will be used #}
     {% block sw_sales_channel_modal_header %}
     <template slot="modal-header">
-        {% block sw_sales_channel_modal_header_title %}
-        <h4 class="sw-sales-channel-modal__title">
-            {{ modalTitle }}
-        </h4>
-        {% endblock %}
+        {# @deprecated tag:v6.5.0 - property will be used #}
+        {% block sw_sales_channel_modal_header_title %}{% endblock %}
 
-        {% block sw_sales_channel_modal_header_close %}
-        <button
-            class="sw-modal__close"
-            :title="$tc('global.sw-modal.labelClose')"
-            :aria-label="$tc('global.sw-modal.labelClose')"
-            @click.prevent="onCloseModal"
-        >
-            <sw-icon
-                name="small-default-x-line-medium"
-                small
-            />
-        </button>
-        {% endblock %}
+        {# @deprecated tag:v6.5.0 - X of original component will be used #}
+        {% block sw_sales_channel_modal_header_close %}{% endblock %}
     </template>
     {% endblock %}
 

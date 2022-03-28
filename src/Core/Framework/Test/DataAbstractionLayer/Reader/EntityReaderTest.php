@@ -2454,13 +2454,14 @@ class EntityReaderTest extends TestCase
             ->name('Test Product')
             ->price(50, 50);
 
+        $ids->context->setConsiderInheritance(true);
 
         $productRepository = $this->getContainer()->get('product.repository');
         $productRepository->create([
             $product->build(),
         ], $ids->context);
 
-        $criteria = new Criteria();
+        $criteria = new Criteria([$ids->get('p1')]);
         $criteria
             ->getAssociation('media')
             ->setLimit(1);

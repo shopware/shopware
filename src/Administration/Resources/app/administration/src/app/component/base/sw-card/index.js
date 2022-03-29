@@ -58,8 +58,6 @@ Component.register('sw-card', {
                 || !!this.subtitle
                 || !!this.$slots.subtitle
                 || !!this.$scopedSlots.subtitle
-                || !!this.$slots.toolbar
-                || !!(typeof this.$scopedSlots.toolbar === 'function' && this.$scopedSlots.toolbar())
                 || !!this.$slots.avatar
                 || !!this.$scopedSlots.avatar;
         },

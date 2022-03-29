@@ -69,10 +69,13 @@ class CartOrderRoute extends AbstractCartOrderRoute
      * @OA\Post(
      *      path="/checkout/order",
      *      summary="Create an order from a cart",
-     *      description="Creates a new order from the current cart and deletes the cart.",
+     *      description="Creates a new order from the current cart and deletes the cart.
+
+If you are using the [prepared payment flow](https://developer.shopware.com/docs/concepts/commerce/checkout-concept/payments#2.1-prepare-payment-optional), this endpoint also receives additional transaction details. The exact name of the parameters depends on the implementation of the corresponding *payment handler*.",
      *      operationId="createOrder",
      *      tags={"Store API", "Order"},
      *      @OA\RequestBody(
+     *          description="Contains additional metadata which is stored together with the order. It can also contain payment transaction details.",
      *          @OA\JsonContent(
      *              @OA\Property(
      *                  property="customerComment",

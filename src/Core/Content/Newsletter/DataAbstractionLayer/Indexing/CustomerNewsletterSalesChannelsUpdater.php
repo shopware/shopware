@@ -126,4 +126,44 @@ SQL;
 
         $this->update(Uuid::fromBytesToHexList($customerIds), true);
     }
+
+    public function updateCustomerEmailRecipient(array $ids): void
+    {
+        $ids = array_unique($ids);
+
+        $customers = $this->connection->fetchAllAssociative(
+            'SELECT newsletter_sales_channel_ids, email FROM customer WHERE id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($ids)],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
+
+        $parameters = [];
+
+        foreach ($customers as $customer) {
+            if (!$customer['newsletter_sales_channel_ids']) {
+                continue;
+            }
+
+            $parameters[] = [
+                'newsletter_ids' => array_keys(
+                    json_decode((string) $customer['newsletter_sales_channel_ids'], true)
+                ),
+                'email' => $customer['email'],
+            ];
+        }
+
+        if (empty($parameters)) {
+            return;
+        }
+
+        foreach ($parameters as $parameter) {
+            RetryableQuery::retryable($this->connection, function () use ($parameter): void {
+                $this->connection->executeUpdate(
+                    'UPDATE newsletter_recipient SET email = (:email) WHERE id IN (:ids)',
+                    ['ids' => Uuid::fromHexToBytesList($parameter['newsletter_ids']), 'email' => $parameter['email']],
+                    ['ids' => Connection::PARAM_STR_ARRAY],
+                );
+            });
+        }
+    }
 }

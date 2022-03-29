@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
@@ -60,7 +61,7 @@ class ChangeEmailRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
     }
@@ -75,7 +76,7 @@ class ChangeEmailRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('VIOLATION::CUSTOMER_PASSWORD_NOT_CORRECT', $response['errors'][0]['code']);
@@ -93,7 +94,7 @@ class ChangeEmailRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('VIOLATION::CUSTOMER_PASSWORD_NOT_CORRECT', $response['errors'][0]['code']);
@@ -112,7 +113,7 @@ class ChangeEmailRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayNotHasKey('errors', $response);
         static::assertTrue($response['success']);
@@ -125,7 +126,7 @@ class ChangeEmailRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertSame('test@fooware.de', $response['email']);
     }
@@ -160,7 +161,7 @@ class ChangeEmailRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayNotHasKey('errors', $response);
         static::assertTrue($response['success']);
@@ -173,7 +174,7 @@ class ChangeEmailRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertSame($newEmail, $response['email']);
     }
@@ -195,7 +196,7 @@ class ChangeEmailRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertEquals(400, $this->browser->getResponse()->getStatusCode());
@@ -210,9 +211,56 @@ class ChangeEmailRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
 
         static::assertNotEquals($newEmail, $response['email']);
+    }
+
+    public function testChangeSuccessWithNewsletterRecipient(): void
+    {
+        $this->browser
+            ->request(
+                'GET',
+                '/store-api/account/customer',
+                [
+                ]
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/newsletter/subscribe',
+                [
+                    'email' => $response['email'],
+                    'option' => 'direct',
+                    'storefrontUrl' => 'http://localhost',
+                ]
+            );
+
+        $count = (int) $this->getContainer()->get(Connection::class)
+            ->fetchColumn('SELECT COUNT(*) FROM newsletter_recipient WHERE status = "direct" AND email = ?', [$response['email']]);
+        static::assertSame(1, $count);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/change-email',
+                [
+                    'password' => 'shopware',
+                    'email' => 'test@fooware.de',
+                    'emailConfirmation' => 'test@fooware.de',
+                ]
+            );
+
+        $count = (int) $this->getContainer()->get(Connection::class)
+            ->fetchColumn('SELECT COUNT(*) FROM newsletter_recipient WHERE status = "direct" AND email = ?', [$response['email']]);
+        static::assertSame(0, $count);
+
+        $email = $this->getContainer()->get(Connection::class)
+            ->fetchColumn('SELECT email FROM newsletter_recipient WHERE status = "direct" AND email = "test@fooware.de"');
+        static::assertSame($email, 'test@fooware.de');
     }
 
     private function createCustomer(string $password, ?string $email = null): string

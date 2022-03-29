@@ -97,6 +97,7 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
         $criteria
             ->addAssociation('salesChannel')
             ->addAssociation('salesChannelDomain.salesChannel')
+            ->addAssociation('salesChannelDomain.language.locale')
             ->addAssociation('productStream.filters.queries')
             ->setLimit(1);
 

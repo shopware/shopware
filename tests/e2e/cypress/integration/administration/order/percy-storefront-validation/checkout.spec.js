@@ -48,8 +48,7 @@ describe('Checkout: Visual tests', () => {
 
         // Off canvas
         cy.get('.offcanvas').should('be.visible');
-        cy.wait('@cartInfo')
-            .its('response.statusCode').should('equal', 200);
+        cy.wait('@cartInfo').its('response.statusCode').should('within', 200, 204);
         cy.get('.loader').should('not.exist');
 
         // Take snapshot for visual testing on desktop

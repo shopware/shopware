@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Test\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -26,6 +27,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -385,19 +387,47 @@ class CheckoutControllerTest extends TestCase
         static::assertArrayHasKey(CheckoutFinishPageLoadedHook::HOOK_NAME, $traces);
     }
 
-    public function testCheckoutInfoWidgetLoadedHookScriptsAreExecuted(): void
+    public function testCheckoutInfoWidget(): void
     {
         $contextToken = Uuid::randomHex();
 
-        $this->fillCart($contextToken);
+        $cartService = $this->getContainer()->get(CartService::class);
+        $cart = $cartService->createNew($contextToken);
+
+        $productId = $this->createProduct();
+        $salesChannelContext = $this->createSalesChannelContext($contextToken);
+
+        $cart = $cartService->add(
+            $cart,
+            [new LineItem('lineItem1', LineItem::PRODUCT_LINE_ITEM_TYPE, $productId)],
+            $salesChannelContext
+        );
+
+        $request = $this->createRequest($salesChannelContext);
+
+        $response = $this->getContainer()->get(CheckoutController::class)->info($request, $salesChannelContext);
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertStringContainsString((string) $cart->getPrice()->getTotalPrice(), $response->getContent());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertArrayHasKey(CheckoutInfoWidgetLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testCheckoutInfoWidgetSkipsCalculationAndRenderIfCartIsEmpty(): void
+    {
+        Feature::skipTestIfInActive('v6.5.0.0', $this);
+
+        $contextToken = Uuid::randomHex();
+
+        $cartService = $this->getContainer()->get(CartService::class);
+        $cartService->createNew($contextToken);
 
         $salesChannelContext = $this->createSalesChannelContext($contextToken);
         $request = $this->createRequest($salesChannelContext);
 
-        $this->getContainer()->get(CheckoutController::class)->info($request, $salesChannelContext);
-
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
-        static::assertArrayHasKey(CheckoutInfoWidgetLoadedHook::HOOK_NAME, $traces);
+        $response = $this->getContainer()->get(CheckoutController::class)->info($request, $salesChannelContext);
+        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertEmpty($response->getContent());
     }
 
     public function testCheckoutOffcanvasWidgetLoadedHookScriptsAreExecuted(): void

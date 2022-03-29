@@ -59,7 +59,7 @@ describe('Checkout: Visual tests', () => {
         cy.get('.offcanvas').should('not.be.visible');
 
         // wait for cart info
-        cy.wait('@cartInfo').its('response.statusCode').should('equals', 200);
+        cy.wait('@cartInfo').its('response.statusCode').should('within', 200, 204);
         cy.get('.loader').should('not.exist');
 
         //  total should now be updated

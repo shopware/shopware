@@ -138,7 +138,7 @@ describe('Wishlist: for wishlist page', () => {
 
             cy.wait('@add-to-cart').its('response.statusCode').should('equal', 302);
 
-            cy.wait('@checkoutInfo').its('response.statusCode').should('equal', 200);
+            cy.wait('@checkoutInfo').its('response.statusCode').should('within', 200, 204);
             cy.get('.offcanvas.is-open.cart-offcanvas').should('exist');
             cy.get('.offcanvas.is-open.cart-offcanvas').find('.cart-item-label').contains(product.name);
 

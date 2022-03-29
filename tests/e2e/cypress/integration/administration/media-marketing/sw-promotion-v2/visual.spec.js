@@ -112,7 +112,7 @@ describe('Promotion v2: Visual tests', () => {
         cy.get('.btn-buy').click();
 
         cy.get('.offcanvas').should('be.visible');
-        cy.wait('@cartInfo').its('response.statusCode').should('equal', 200);
+        cy.wait('@cartInfo').its('response.statusCode').should('within', 200, 204);
 
         cy.get('.loader').should('not.exist');
 

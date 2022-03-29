@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
@@ -16,6 +17,7 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentService;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -251,6 +253,11 @@ class CheckoutController extends StorefrontController
      */
     public function info(Request $request, SalesChannelContext $context): Response
     {
+        $cart = $this->cartService->getCart($context->getToken(), $context);
+        if ($cart->getLineItems()->count() <= 0 && Feature::isActive('v6.5.0.0')) {
+            return new Response(null, Response::HTTP_NO_CONTENT);
+        }
+
         $page = $this->offcanvasCartPageLoader->load($request, $context);
 
         $this->hook(new CheckoutInfoWidgetLoadedHook($page, $context));

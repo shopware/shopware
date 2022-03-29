@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Test\Cart;
 
-use Composer\Repository\RepositoryInterface;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\AfterLineItemAddedEvent;
@@ -44,25 +43,13 @@ class CartServiceTest extends TestCase
     use TaxAddToSalesChannelTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
 
-    /**
-     * @var RepositoryInterface
-     */
-    private $customerRepository;
+    private EntityRepositoryInterface $customerRepository;
 
-    /**
-     * @var AccountService|null
-     */
-    private $accountService;
+    private ?AccountService $accountService;
 
-    /**
-     * @var Connection|null
-     */
-    private $connection;
+    private ?Connection $connection;
 
-    /**
-     * @var string
-     */
-    private $productId;
+    private string $productId;
 
     protected function setUp(): void
     {

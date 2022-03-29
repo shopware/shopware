@@ -30,4 +30,16 @@ class DatabaseConnectionInformationTest extends TestCase
 
         static::assertEquals('mysql://user:ultra%3Fsecure%23@mysql:3306/test_db', $dbConnectionInformation->asDsn());
     }
+
+    /**
+     * @backupGlobals enabled
+     */
+    public function testItAllowsAnEmptyDbPassword(): void
+    {
+        unset($_SERVER['DATABASE_URL'], $_ENV['DATABASE_URL']);
+        putenv('DATABASE_URL=mysql://user:@mysql:3306/test_db');
+        $dbConnectionInformation = DatabaseConnectionInformation::fromEnv();
+
+        static::assertEquals('mysql://user:@mysql:3306/test_db', $dbConnectionInformation->asDsn());
+    }
 }

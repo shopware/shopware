@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator;
+use Shopware\Core\Checkout\Document\DocumentGenerator\StornoGenerator;
 use Shopware\Core\Checkout\Document\FileGenerator\PdfGenerator;
 use Shopware\Core\Checkout\Document\GeneratedDocument;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -169,6 +170,67 @@ class InvoiceServiceTest extends TestCase
             )),
             preg_replace('/\xc2\xa0/', ' ', $processedTemplate)
         );
+    }
+
+    public function testGenerateStornoWithDifferentTaxes(): void
+    {
+        $stornoGenerator = $this->getContainer()->get(StornoGenerator::class);
+        $pdfGenerator = $this->getContainer()->get(PdfGenerator::class);
+
+        $possibleTaxes = [7, 19, 22];
+        //generates one line item for each tax
+        $cart = $this->generateDemoCart($possibleTaxes);
+        $orderId = $this->persistCart($cart);
+        /** @var OrderEntity $order */
+        $order = $this->getOrderById($orderId);
+
+        $documentConfiguration = DocumentConfigurationFactory::mergeConfiguration(
+            new DocumentConfiguration(),
+            [
+                'displayLineItems' => true,
+                'itemsPerPage' => 10,
+                'displayFooter' => true,
+                'displayHeader' => true,
+            ]
+        );
+        $context = Context::createDefaultContext();
+
+        $processedTemplate = $stornoGenerator->generate(
+            $order,
+            $documentConfiguration,
+            $context
+        );
+
+        static::assertLessThanOrEqual(0, $order->getPrice()->getTotalPrice());
+        static::assertLessThanOrEqual(0, $order->getPrice()->getRawTotal());
+        static::assertStringContainsString('<html>', $processedTemplate);
+        static::assertStringContainsString('</html>', $processedTemplate);
+        static::assertStringContainsString($order->getLineItems()->first()->getLabel(), $processedTemplate);
+        static::assertStringContainsString($order->getLineItems()->last()->getLabel(), $processedTemplate);
+        static::assertStringContainsString(
+            $this->currencyFormatter->formatCurrencyByLanguage(
+                $order->getAmountTotal(),
+                $order->getCurrency()->getIsoCode(),
+                $context->getLanguageId(),
+                $context
+            ),
+            $processedTemplate
+        );
+        foreach ($possibleTaxes as $possibleTax) {
+            static::assertStringContainsString(
+                sprintf('plus %d%% VAT', $possibleTax),
+                $processedTemplate
+            );
+        }
+
+        $generatedDocument = new GeneratedDocument();
+        $generatedDocument->setHtml($processedTemplate);
+
+        $generatorOutput = $pdfGenerator->generate($generatedDocument);
+        static::assertNotEmpty($generatorOutput);
+
+        $finfo = new \finfo(\FILEINFO_MIME_TYPE);
+        static::assertEquals('application/pdf', $finfo->buffer($generatorOutput));
     }
 
     public function testGenerateWithShippingAddress(): void

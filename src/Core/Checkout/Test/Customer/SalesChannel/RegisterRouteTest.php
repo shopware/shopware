@@ -69,6 +69,7 @@ class RegisterRouteTest extends TestCase
 
     public function testRegistration(): void
     {
+        $registrationData = $this->getRegistrationData();
         $this->browser
             ->request(
                 'POST',
@@ -76,12 +77,14 @@ class RegisterRouteTest extends TestCase
                 [],
                 [],
                 ['CONTENT_TYPE' => 'application/json'],
-                json_encode($this->getRegistrationData())
+                json_encode($registrationData)
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame('customer', $response['apiAlias']);
+        static::assertSame($registrationData['title'], $response['defaultBillingAddress']['title']);
+        static::assertSame($registrationData['shippingAddress']['title'], $response['defaultShippingAddress']['title']);
         static::assertNotEmpty($response['addresses']);
         static::assertNotEmpty($response['salutation']);
         static::assertNotEmpty($response['defaultBillingAddress']);
@@ -925,6 +928,7 @@ class RegisterRouteTest extends TestCase
                 'salutationId' => $this->getValidSalutationId(),
                 'firstName' => 'Test 2',
                 'lastName' => 'Example 2',
+                'title' => 'Prof.',
                 'street' => 'Examplestreet 111',
                 'zipcode' => '12341',
                 'city' => 'Berlin',

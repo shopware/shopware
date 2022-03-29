@@ -237,8 +237,7 @@ Component.register('sw-product-detail-variants', {
                 return;
             }
 
-            this.productProperties.splice(0, this.productProperties.length);
-            this.productProperties.push(...newProperties);
+            this.productProperties.splice(0, this.productProperties.length, ...newProperties);
         },
 
     },

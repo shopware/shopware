@@ -43,7 +43,13 @@ class RedisCartPersister extends AbstractCartPersister
         /** @var string|bool|array $value */
         $value = $this->redis->get('cart-' . $token);
 
-        if ($value === false || !\is_array($value)) {
+        if ($value === false || !\is_string($value)) {
+            throw new CartTokenNotFoundException($token);
+        }
+
+        try {
+            $value = \unserialize($value);
+        } catch (\Exception $e) {
             throw new CartTokenNotFoundException($token);
         }
 
@@ -105,7 +111,7 @@ class RedisCartPersister extends AbstractCartPersister
         $this->delete($oldToken, $context);
     }
 
-    private function serializeCart(Cart $cart, SalesChannelContext $context): array
+    private function serializeCart(Cart $cart, SalesChannelContext $context): string
     {
         $errors = $cart->getErrors();
         $data = $cart->getData();
@@ -120,6 +126,6 @@ class RedisCartPersister extends AbstractCartPersister
         $cart->setErrors($errors);
         $cart->setData($data);
 
-        return ['compressed' => $this->compress, 'content' => $content];
+        return \serialize(['compressed' => $this->compress, 'content' => $content]);
     }
 }

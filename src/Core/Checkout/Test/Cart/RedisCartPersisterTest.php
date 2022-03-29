@@ -26,7 +26,7 @@ class RedisCartPersisterTest extends TestCase
         $redis = $this->createMock(\Redis::class);
         $redis->expects(static::once())
             ->method('set')
-            ->with(static::equalTo('cart-' . $token), static::equalTo(['compressed' => true, 'content' => $content]));
+            ->with(static::equalTo('cart-' . $token), static::equalTo(\serialize(['compressed' => true, 'content' => $content])));
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -49,7 +49,7 @@ class RedisCartPersisterTest extends TestCase
         $redis->expects(static::once())
             ->method('get')
             ->with(static::equalTo('cart-' . $token))
-            ->willReturn(['compressed' => true, 'content' => $content]);
+            ->willReturn(\serialize(['compressed' => true, 'content' => $content]));
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -89,7 +89,7 @@ class RedisCartPersisterTest extends TestCase
         $compressedRedis = $this->createMock(\Redis::class);
         $compressedRedis->expects(static::once())
             ->method('set')
-            ->with(static::equalTo('cart-' . $token), static::equalTo(['compressed' => true, 'content' => $content]));
+            ->with(static::equalTo('cart-' . $token), static::equalTo(\serialize(['compressed' => true, 'content' => $content])));
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -105,7 +105,7 @@ class RedisCartPersisterTest extends TestCase
         $uncompressedRedis->expects(static::once())
             ->method('get')
             ->with(static::equalTo('cart-' . $token))
-            ->willReturn(['compressed' => true, 'content' => $content]);
+            ->willReturn(\serialize(['compressed' => true, 'content' => $content]));
 
         $context = $this->createMock(SalesChannelContext::class);
 

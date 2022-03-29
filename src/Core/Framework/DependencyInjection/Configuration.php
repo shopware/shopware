@@ -543,7 +543,7 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
-            ->booleanNode('update_on_order')->defaultTrue()->end()
+            ->booleanNode('update_mail_variables_on_send')->defaultTrue()->end()
             ->end();
 
         return $rootNode;

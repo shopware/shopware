@@ -21,6 +21,8 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\EqualTo;
@@ -51,16 +53,20 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
      */
     private $contextPersister;
 
+    private SalesChannelContextServiceInterface $contextService;
+
     public function __construct(
         EntityRepositoryInterface $customerRepository,
         EventDispatcherInterface $eventDispatcher,
         DataValidator $validator,
-        SalesChannelContextPersister $contextPersister
+        SalesChannelContextPersister $contextPersister,
+        SalesChannelContextServiceInterface $contextService
     ) {
         $this->customerRepository = $customerRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->validator = $validator;
         $this->contextPersister = $contextPersister;
+        $this->contextService = $contextService;
     }
 
     public function getDecorated(): AbstractRegisterConfirmRoute
@@ -150,12 +156,6 @@ Learn more about double opt-in registration in our guide ""Register a customer""
             $context->getContext()
         );
 
-        if ($customer->getGuest()) {
-            $this->eventDispatcher->dispatch(new GuestCustomerRegisterEvent($context, $customer));
-        } else {
-            $this->eventDispatcher->dispatch(new CustomerRegisterEvent($context, $customer));
-        }
-
         $newToken = $this->contextPersister->replace($context->getToken(), $context);
 
         $this->contextPersister->save(
@@ -169,20 +169,40 @@ Learn more about double opt-in registration in our guide ""Register a customer""
             $customer->getId()
         );
 
+        $new = $this->contextService->get(
+            new SalesChannelContextServiceParameters(
+                $context->getSalesChannel()->getId(),
+                $newToken,
+                $context->getLanguageId(),
+                $context->getCurrencyId(),
+                $context->getDomainId(),
+                $context->getContext(),
+                $customer->getId()
+            )
+        );
+
+        $new->addState(...$context->getStates());
+
+        if ($customer->getGuest()) {
+            $this->eventDispatcher->dispatch(new GuestCustomerRegisterEvent($new, $customer));
+        } else {
+            $this->eventDispatcher->dispatch(new CustomerRegisterEvent($new, $customer));
+        }
+
         $criteria = new Criteria([$customer->getId()]);
         $criteria->addAssociation('addresses');
         $criteria->addAssociation('salutation');
         $criteria->setLimit(1);
 
         $customer = $this->customerRepository
-            ->search($criteria, $context->getContext())
+            ->search($criteria, $new->getContext())
             ->first();
 
         \assert($customer instanceof CustomerEntity);
 
         $response = new CustomerResponse($customer);
 
-        $event = new CustomerLoginEvent($context, $customer, $newToken);
+        $event = new CustomerLoginEvent($new, $customer, $newToken);
         $this->eventDispatcher->dispatch($event);
 
         $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $newToken);

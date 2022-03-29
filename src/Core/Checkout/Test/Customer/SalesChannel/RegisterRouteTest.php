@@ -7,12 +7,15 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerConfirmRegisterUrlEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
+use Shopware\Core\Checkout\Customer\Rule\CustomerLoggedInRule;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -111,6 +114,43 @@ class RegisterRouteTest extends TestCase
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('contextToken', $response);
+    }
+
+    public function testRegisterEventWithCustomerRules(): void
+    {
+        $ids = new IdsCollection();
+
+        $rule = [
+            'id' => $ids->create('rule'),
+            'name' => 'Test rule',
+            'priority' => 1,
+            'conditions' => [
+                ['type' => (new CustomerLoggedInRule())->getName(), 'value' => ['isLoggedIn' => true]],
+            ],
+        ];
+
+        $this->getContainer()->get('rule.repository')->create([$rule], Context::createDefaultContext());
+
+        $ruleIds = null;
+        $this->getContainer()->get('event_dispatcher')->addListener(CustomerRegisterEvent::class, static function (CustomerRegisterEvent $event) use (&$ruleIds): void {
+            $ruleIds = $event->getSalesChannelContext()->getRuleIds();
+        });
+
+        $this->browser->request('POST', '/store-api/account/register', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode($this->getRegistrationData()));
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertArrayHasKey('apiAlias', $response, \print_r($response, true));
+        static::assertSame('customer', $response['apiAlias']);
+
+        $this->browser->request('POST', '/store-api/account/login', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode(['email' => 'teg-reg@example.com', 'password' => '12345678']));
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertArrayHasKey('contextToken', $response);
+
+        static::assertNotNull($ruleIds, 'Register event was not dispatched');
+        static::assertContains($ids->get('rule'), $ruleIds, 'Context was not reloaded');
     }
 
     /**
@@ -353,6 +393,50 @@ class RegisterRouteTest extends TestCase
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('contextToken', $response);
+    }
+
+    public function testDoubleOptinContextReloadForEvents(): void
+    {
+        $ids = new IdsCollection();
+
+        $rule = [
+            'id' => $ids->create('rule'),
+            'name' => 'Test rule',
+            'priority' => 1,
+            'conditions' => [
+                ['type' => (new CustomerLoggedInRule())->getName(), 'value' => ['isLoggedIn' => true]],
+            ],
+        ];
+
+        $this->getContainer()->get('rule.repository')->create([$rule], Context::createDefaultContext());
+
+        $ruleIds = null;
+        $this->getContainer()->get('event_dispatcher')->addListener(CustomerRegisterEvent::class, static function (CustomerRegisterEvent $event) use (&$ruleIds): void {
+            $ruleIds = $event->getSalesChannelContext()->getRuleIds();
+        });
+
+        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+
+        $systemConfig->set('core.loginRegistration.doubleOptInRegistration', true);
+
+        $this->browser->request('POST', '/store-api/account/register', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode($this->getRegistrationData()));
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertSame('customer', $response['apiAlias']);
+
+        $customerId = $response['id'];
+
+        $criteria = new Criteria([$customerId]);
+        /** @var CustomerEntity $customer */
+        $customer = $this->customerRepository->search($criteria, Context::createDefaultContext())->first();
+
+        $this->browser->request('POST', '/store-api/account/register-confirm', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode(['hash' => $customer->getHash(), 'em' => sha1('teg-reg@example.com')]));
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        static::assertNotNull($ruleIds, 'Register event was not dispatched');
+        static::assertContains($ids->get('rule'), $ruleIds, 'Context was not reloaded');
     }
 
     public function testDoubleOptinChangedUrl(): void

@@ -395,6 +395,8 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
 
         const customOption = wrapper.find('.sw-select-option--custom');
         expect(customOption.exists()).toBeTruthy();
+        const contactFormMailOption = wrapper.find('.sw-select-option--contactFormMail');
+        expect(contactFormMailOption.exists()).toBeTruthy();
         const standardOption = wrapper.find('.sw-select-option--default');
         expect(standardOption.exists()).toBeTruthy();
         const adminOption = wrapper.find('.sw-select-option--admin');

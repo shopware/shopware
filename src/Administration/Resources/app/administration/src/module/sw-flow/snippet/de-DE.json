@@ -194,6 +194,7 @@
         "labelCustomer": "Kunde",
         "labelAdmin": "Administrator",
         "labelCustom": "Eigener Empfänger",
+        "labelContactFormMail": "Kontaktformular-Bestätigung",
         "labelRecipient": "Empfänger",
         "placeholderRecipient": "E-Mail-Empfänger auswählen ...",
         "labelLatestDocuments": "(Neueste) Dokumente hinzufügen",

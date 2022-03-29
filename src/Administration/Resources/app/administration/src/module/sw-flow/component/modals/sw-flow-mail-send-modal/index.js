@@ -86,6 +86,15 @@ Component.register('sw-flow-mail-send-modal', {
             ];
         },
 
+        recipientContactFormMail() {
+            return [
+                {
+                    value: 'contactFormMail',
+                    label: this.$tc('sw-flow.modals.mail.labelContactFormMail'),
+                },
+            ];
+        },
+
         entityAware() {
             return ['CustomerAware', 'UserAware', 'OrderAware', 'CustomerGroupAware'];
         },
@@ -104,6 +113,7 @@ Component.register('sw-flow-mail-send-modal', {
             if (this.triggerEvent.name === 'contact_form.send') {
                 return [
                     ...this.recipientDefault,
+                    ...this.recipientContactFormMail,
                     ...this.recipientAdmin,
                     ...this.recipientCustom,
                 ];

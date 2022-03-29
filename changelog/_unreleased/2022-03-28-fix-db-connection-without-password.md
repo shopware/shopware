@@ -1,6 +1,6 @@
 ---
 title: Fix database connection without password.
-issue: ?
+issue: NEXT-20842
 author: Daniel Sturm
 author_github: dsturm
 ---

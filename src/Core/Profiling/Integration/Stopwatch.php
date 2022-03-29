@@ -16,21 +16,21 @@ class Stopwatch implements ProfilerInterface
         $this->stopwatch = $stopwatch;
     }
 
-    /**
-     * @return mixed
-     */
-    public function trace(string $title, \Closure $closure, string $category, array $tags)
+    public function start(string $title, string $category, array $tags): void
     {
         if (!class_exists('\Symfony\Component\Stopwatch\Stopwatch') || $this->stopwatch === null) {
-            return $closure();
+            return;
         }
 
         $this->stopwatch->start($title, $category);
+    }
 
-        $result = $closure();
+    public function stop(string $title): void
+    {
+        if (!class_exists('\Symfony\Component\Stopwatch\Stopwatch') || $this->stopwatch === null) {
+            return;
+        }
 
         $this->stopwatch->stop($title);
-
-        return $result;
     }
 }

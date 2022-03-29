@@ -9,24 +9,34 @@ use DDTrace\GlobalTracer;
  */
 class Datadog implements ProfilerInterface
 {
-    /**
-     * @return mixed
-     */
-    public function trace(string $title, \Closure $closure, string $category, array $tags)
+    private array $spans = [];
+
+    public function start(string $title, string $category, array $tags): void
     {
         if (!class_exists(GlobalTracer::class)) {
-            return $closure();
+            return;
         }
+
         /** @see \DDTrace\Tag::SERVICE_NAME */
         $tags = array_merge(['service.name' => $category], $tags);
         $span = GlobalTracer::get()->startSpan($title, [
             'tags' => $tags,
         ]);
 
-        $result = $closure();
+        $this->spans[$title] = $span;
+    }
 
-        $span->finish();
+    public function stop(string $title): void
+    {
+        if (!class_exists(GlobalTracer::class)) {
+            return;
+        }
 
-        return $result;
+        $span = $this->spans[$title] ?? null;
+
+        if ($span) {
+            $span->finish();
+            unset($this->spans[$title]);
+        }
     }
 }

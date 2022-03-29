@@ -7,23 +7,31 @@ namespace Shopware\Core\Profiling\Integration;
  */
 class Tideways implements ProfilerInterface
 {
-    /**
-     * @return mixed
-     */
-    public function trace(string $title, \Closure $closure, string $category, array $tags)
+    private array $spans = [];
+
+    public function start(string $title, string $category, array $tags): void
     {
         if (!class_exists('Tideways\Profiler')) {
-            return $closure();
+            return;
         }
 
         $tags = array_merge(['title' => $title], $tags);
         $span = \Tideways\Profiler::createSpan($category);
         $span->annotate($tags);
+        $this->spans[$title] = $span;
+    }
 
-        $result = $closure();
+    public function stop(string $title): void
+    {
+        if (!class_exists('Tideways\Profiler')) {
+            return;
+        }
 
-        $span->finish();
+        $span = $this->spans[$title] ?? null;
 
-        return $result;
+        if ($span) {
+            $span->finish();
+            unset($this->spans[$title]);
+        }
     }
 }

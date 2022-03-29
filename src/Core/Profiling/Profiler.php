@@ -26,6 +26,11 @@ class Profiler
     private static array $tags = [];
 
     /**
+     * @var string[]
+     */
+    private static array $openTraces = [];
+
+    /**
      * @param string[] $activeProfilers
      */
     public function __construct(\Traversable $profilers, array $activeProfilers)
@@ -33,6 +38,8 @@ class Profiler
         $profilers = iterator_to_array($profilers);
         self::$profilers = array_intersect_key($profilers, array_flip($activeProfilers));
         self::$tags = [];
+
+        register_shutdown_function(fn () => self::cleanup());
     }
 
     /**
@@ -40,19 +47,51 @@ class Profiler
      */
     public static function trace(string $name, \Closure $closure, string $category = 'shopware', array $tags = [])
     {
-        $pointer = static function () use ($closure) {
-            return $closure();
-        };
-
         $tags = array_merge(self::$tags, $tags);
-        // we have to chain the profilers here: `return Stopwatch::trace(Tideways::trace(...));`
-        foreach (self::$profilers as $profiler) {
-            $pointer = static function () use ($profiler, $name, $pointer, $category, $tags) {
-                return $profiler->trace($name, $pointer, $category, $tags);
-            };
+
+        try {
+            foreach (self::$profilers as $profiler) {
+                $profiler->start($name, $category, $tags);
+            }
+
+            $result = $closure();
+        } finally {
+            foreach (self::$profilers as $profiler) {
+                $profiler->stop($name);
+            }
         }
 
-        return $pointer();
+        return $result;
+    }
+
+    public static function start(string $title, string $category, array $tags): void
+    {
+        self::$openTraces[] = $title;
+        $tags = array_merge(self::$tags, $tags);
+
+        foreach (self::$profilers as $profiler) {
+            $profiler->start($title, $category, $tags);
+        }
+    }
+
+    public static function stop(string $title): void
+    {
+        foreach (self::$profilers as $profiler) {
+            $profiler->stop($title);
+        }
+
+        unset(self::$openTraces[$title]);
+    }
+
+    public static function cleanup(): void
+    {
+        foreach (self::$openTraces as $name) {
+            foreach (self::$profilers as $profiler) {
+                $profiler->stop($name);
+            }
+        }
+
+        self::$openTraces = [];
     }
 
     public static function addTag(string $key, string $value): void

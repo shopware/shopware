@@ -7,8 +7,7 @@ namespace Shopware\Core\Profiling\Integration;
  */
 interface ProfilerInterface
 {
-    /**
-     * @return mixed
-     */
-    public function trace(string $title, \Closure $closure, string $category, array $tags);
+    public function start(string $title, string $category, array $tags): void;
+
+    public function stop(string $title): void;
 }

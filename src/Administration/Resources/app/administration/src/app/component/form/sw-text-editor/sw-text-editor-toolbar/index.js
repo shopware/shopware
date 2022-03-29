@@ -83,6 +83,14 @@ Component.register('sw-text-editor-toolbar', {
                 });
             },
         },
+
+        position: {
+            handler(newValue) {
+                if (newValue.top.replace('px', '') < 0) {
+                    this.closeExpandedMenu();
+                }
+            },
+        },
     },
 
     created() {

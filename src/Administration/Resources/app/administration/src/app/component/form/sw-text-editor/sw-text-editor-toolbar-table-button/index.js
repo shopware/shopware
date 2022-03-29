@@ -32,7 +32,15 @@ Component.register('sw-text-editor-toolbar-table-button', {
         };
     },
 
+    mounted() {
+        this.mountedComponent();
+    },
+
     methods: {
+        mountedComponent() {
+            this.$emit('mounted');
+        },
+
         onMouseOverColumn(event, data) {
             if (!event.target) {
                 return;

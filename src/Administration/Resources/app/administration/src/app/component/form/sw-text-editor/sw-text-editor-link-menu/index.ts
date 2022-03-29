@@ -93,9 +93,17 @@ Component.register('sw-text-editor-link-menu', {
         this.createdComponent();
     },
 
+    mounted(): void {
+        this.mountedComponent();
+    },
+
     methods: {
         createdComponent(): void {
             this.categoryCollection = this.getEmptyCategoryCollection();
+        },
+
+        mountedComponent(): void {
+            this.$emit('mounted');
         },
 
         getCategoryCollection(categoryId: string): Promise<EntityCollectionType> {
@@ -147,7 +155,7 @@ Component.register('sw-text-editor-link-menu', {
             };
         },
 
-        replaceCategorySelection(category: {id: string}): void {
+        replaceCategorySelection(category: { id: string }): void {
             this.linkTarget = category.id;
         },
 

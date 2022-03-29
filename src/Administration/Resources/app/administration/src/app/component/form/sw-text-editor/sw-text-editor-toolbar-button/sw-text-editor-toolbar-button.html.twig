@@ -95,11 +95,14 @@
 
     {% block sw_text_editor_toolbar_button_link_menu %}
     <div
-        v-if="buttonConfig.type === 'link' && buttonConfig.expanded"
+        v-else-if="buttonConfig.type === 'link' && buttonConfig.expanded"
+        ref="flyoutMenu"
         class="sw-text-editor-toolbar-button__children"
+        :class="flyoutClasses"
     >
         <sw-text-editor-link-menu
             :button-config="buttonConfig"
+            @mounted="onChildMounted"
             @button-click="handleButtonClick"
         />
     </div>
@@ -107,12 +110,15 @@
 
     {% block sw_text_editor_toolbar_button_table %}
     <div
-        v-if="buttonConfig.type === 'table' && buttonConfig.expanded"
+        v-else-if="buttonConfig.type === 'table' && buttonConfig.expanded"
+        ref="flyoutMenu"
         class="sw-text-editor-toolbar-button__children sw-text-editor-toolbar-button__table-menu"
+        :class="flyoutClasses"
     >
         {% block sw_text_editor_toolbar_button_table_menu_content %}
         <sw-text-editor-toolbar-table-button
             :button-config="buttonConfig"
+            @mounted="onChildMounted"
             @table-create="handleButtonClick(buttonConfig)"
         />
         {% endblock %}

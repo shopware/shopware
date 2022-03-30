@@ -170,7 +170,7 @@ Instead of passing uuids, you can also use one of the following aliases for the 
             new ContainsFilter('path', '|' . $rootId . '|'),
             new RangeFilter('level', [
                 RangeFilter::GT => $rootLevel,
-                RangeFilter::LTE => $rootLevel + $depth,
+                RangeFilter::LTE => $rootLevel + $depth + 1,
             ])
         );
 

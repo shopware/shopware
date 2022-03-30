@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
@@ -225,6 +226,152 @@ class SendMailActionTest extends TestCase
 
         static::assertIsObject($mailFilterEvent);
         static::assertEquals(1, $mailService->calls);
+    }
+
+    /**
+     * @dataProvider sendMailContactFormProvider
+     */
+    public function testSendContactFormMail(bool $hasEmail, bool $hasFname, bool $hasLname): void
+    {
+        $criteria = new Criteria();
+        $criteria->setLimit(1);
+
+        $context = Context::createDefaultContext();
+
+        $context->addExtension(MailSendSubscriber::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(false, [], []));
+
+        $mailTemplateId = $this->getContainer()
+            ->get('mail_template.repository')
+            ->searchIds($criteria, $context)
+            ->firstId();
+
+        $this->getContainer()->get(Connection::class)->executeStatement(
+            'UPDATE mail_template SET mail_template_type_id = null WHERE id =:id',
+            [
+                'id' => Uuid::fromHexToBytes($mailTemplateId),
+            ]
+        );
+
+        static::assertNotEmpty($mailTemplateId);
+
+        $config = array_filter([
+            'mailTemplateId' => $mailTemplateId,
+            'recipient' => [
+                'type' => 'contactFormMail',
+            ],
+        ]);
+        $data = new DataBag();
+        if ($hasEmail) {
+            $data->set('email', 'test@example.com');
+        }
+        if ($hasFname) {
+            $data->set('firstName', 'Shopware');
+        }
+        if ($hasLname) {
+            $data->set('lastName', 'AG');
+        }
+        $event = new ContactFormEvent($context, Defaults::SALES_CHANNEL, new MailRecipientStruct(['test2@example.com' => 'Shopware ag 2']), $data);
+
+        $mailService = new TestEmailService();
+        $subscriber = new SendMailAction(
+            $mailService,
+            $this->getContainer()->get('mail_template.repository'),
+            $this->getContainer()->get(MediaService::class),
+            $this->getContainer()->get('media.repository'),
+            $this->getContainer()->get('document.repository'),
+            $this->getContainer()->get(DocumentService::class),
+            $this->getContainer()->get('logger'),
+            $this->getContainer()->get('event_dispatcher'),
+            $this->getContainer()->get('mail_template_type.repository'),
+            $this->getContainer()->get(Translator::class),
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get(LanguageLocaleCodeProvider::class),
+            true
+        );
+
+        $mailFilterEvent = null;
+        $this->getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
+            $mailFilterEvent = $event;
+        });
+
+        $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
+
+        if ($hasEmail) {
+            static::assertIsObject($mailFilterEvent);
+            static::assertEquals(1, $mailService->calls);
+            static::assertEquals([$data->get('email') => $data->get('firstName') . ' ' . $data->get('lastName')], $mailService->data['recipients']);
+        } else {
+            static::assertIsNotObject($mailFilterEvent);
+            static::assertEquals(0, $mailService->calls);
+        }
+    }
+
+    public function testSendContactFormMailType(): void
+    {
+        $criteria = new Criteria();
+        $criteria->setLimit(1);
+
+        $context = Context::createDefaultContext();
+
+        $context->addExtension(MailSendSubscriber::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(false, [], []));
+
+        $mailTemplateId = $this->getContainer()
+            ->get('mail_template.repository')
+            ->searchIds($criteria, $context)
+            ->firstId();
+
+        $this->getContainer()->get(Connection::class)->executeStatement(
+            'UPDATE mail_template SET mail_template_type_id = null WHERE id =:id',
+            [
+                'id' => Uuid::fromHexToBytes($mailTemplateId),
+            ]
+        );
+
+        static::assertNotEmpty($mailTemplateId);
+
+        $config = array_filter([
+            'mailTemplateId' => $mailTemplateId,
+            'recipient' => [
+                'type' => 'contactFormMail',
+            ],
+        ]);
+
+        $event = new CheckoutOrderPlacedEvent($context, new OrderEntity(), Defaults::SALES_CHANNEL);
+
+        $mailService = new TestEmailService();
+        $subscriber = new SendMailAction(
+            $mailService,
+            $this->getContainer()->get('mail_template.repository'),
+            $this->getContainer()->get(MediaService::class),
+            $this->getContainer()->get('media.repository'),
+            $this->getContainer()->get('document.repository'),
+            $this->getContainer()->get(DocumentService::class),
+            $this->getContainer()->get('logger'),
+            $this->getContainer()->get('event_dispatcher'),
+            $this->getContainer()->get('mail_template_type.repository'),
+            $this->getContainer()->get(Translator::class),
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get(LanguageLocaleCodeProvider::class),
+            true
+        );
+
+        $mailFilterEvent = null;
+        $this->getContainer()->get('event_dispatcher')->addListener(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
+            $mailFilterEvent = $event;
+        });
+
+        $subscriber->handle(new FlowEvent('test', new FlowState($event), $config));
+
+        static::assertIsNotObject($mailFilterEvent);
+        static::assertEquals(0, $mailService->calls);
+    }
+
+    public function sendMailContactFormProvider(): iterable
+    {
+        yield 'Test send mail has data valid' => [true, true, true];
+        yield 'Test send mail contact form without email' => [false, true, true];
+        yield 'Test send mail contact form without firstName' => [true, false, true];
+        yield 'Test send mail contact form without lastName' => [true, false, true];
     }
 
     public function testSendMailWithConfigIsNull(): void

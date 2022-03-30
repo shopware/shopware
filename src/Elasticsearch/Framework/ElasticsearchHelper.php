@@ -77,10 +77,6 @@ class ElasticsearchHelper
             throw $exception;
         }
 
-        if ($this->environment !== 'dev') {
-            return false;
-        }
-
         if ($this->throwException) {
             throw $exception;
         }

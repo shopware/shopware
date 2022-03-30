@@ -28,6 +28,16 @@ class DocumentBaseConfigSalesChannelDefinition extends EntityDefinition
         return '6.0.0.0';
     }
 
+    public function getCollectionClass(): string
+    {
+        return DocumentBaseConfigSalesChannelCollection::class;
+    }
+
+    public function getEntityClass(): string
+    {
+        return DocumentBaseConfigSalesChannelEntity::class;
+    }
+
     protected function getParentDefinitionClass(): ?string
     {
         return DocumentBaseConfigDefinition::class;

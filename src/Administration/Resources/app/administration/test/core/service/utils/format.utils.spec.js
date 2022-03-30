@@ -149,6 +149,10 @@ describe('src/core/service/utils/format.utils.js', () => {
 
             Shopware.Context.app.systemCurrencyISOCode = 'EUR';
         });
+
+        it('should only have a max of 2 digits', () => {
+            expect(currencyFilter(42.12345, 'EUR')).toBe('€42.12');
+        });
     });
 
     describe('toISODate', () => {

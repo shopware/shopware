@@ -33,7 +33,7 @@ export function currency(val: number, sign: string, decimalPlaces: number, addit
         maximumFractionDigits: decimalPlaces,
     } : {
         minimumFractionDigits: 2,
-        maximumFractionDigits: 20,
+        maximumFractionDigits: 2,
     };
 
     const opts = {

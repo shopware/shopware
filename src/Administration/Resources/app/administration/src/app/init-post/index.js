@@ -6,8 +6,10 @@ import initUserInformation from './user-information.init';
 import initLanguage from './language.init';
 import initWorker from './worker.init';
 import initMarketing from './marketing.init';
+import initCookies from './cookie.init';
 
 export default {
+    cookies: initCookies,
     language: initLanguage,
     userInformation: initUserInformation,
     worker: initWorker,

@@ -352,6 +352,12 @@ Component.register('sw-product-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-product-detail__product',
+                path: 'product',
+                scope: this,
+            });
+
             Shopware.State.dispatch('cmsPageState/resetCmsPageState');
 
             // when create

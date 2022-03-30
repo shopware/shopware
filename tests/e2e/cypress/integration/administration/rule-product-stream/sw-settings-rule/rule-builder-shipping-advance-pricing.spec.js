@@ -21,7 +21,7 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
     });
 
     // NEXT-19686 - Flaky, use select helper commands
-    it.skip('@package @rule: should use rule builder with the shipping method', () => {
+    it('@package @rule: should use rule builder with the shipping method', () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/rule`,
             method: 'POST'
@@ -111,20 +111,23 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
         cy.url().should('include', 'dashboard/index');
         cy.goToSalesChannelDetail('Storefront');
+
         cy.get('.sw-sales-channel-detail__select-shipping-methods').scrollIntoView();
-        cy.get('.sw-sales-channel-detail__select-shipping-methods').then(($body) => {
-            if (!$body.text().includes('Shipping to Netherlands')) {
-                cy.get('.sw-sales-channel-detail__select-shipping-methods .sw-select-selection-list__input').should('be.visible')
-                    .type('Shipping to Netherlands');
-                cy.wait('@getShippingMethod').its('response.statusCode').should('equal', 200);
-                // wait for ending loading state
-                cy.get('.sw-loader').should('not.exist');
-                cy.get('.sw-skeleton').should('not.exist');
-                // now it should be safe to select the element in the flyout
-                cy.contains('.sw-select-result-list__item-list', 'Shipping to Netherlands').click();
-                cy.wait('@getShippingMethod').its('response.statusCode').should('equal', 200);
-            }
+        cy.get('.sw-sales-channel-detail__select-shipping-methods .sw-select-selection-list__input').should('be.visible')
+            .type('Shipping to Netherlands');
+        cy.wait('@getShippingMethod');
+        cy.get('.sw-select-result-list__item-list .sw-select-option--0').should('be.visible');
+        cy.wait('@getShippingMethod');
+        // wait for ending loading state
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+        // now it should be safe to select the element in the flyout
+        cy.get('.sw-select-result-list__item-list .sw-select-option--0').should('be.visible');
+        cy.get('.sw-select-result-list__item-list .sw-select-option--0 .sw-highlight-text__highlight').contains('Shipping to Netherlands')
+        cy.get('.sw-select-result-list__item-list .sw-select-option--0').click({
+            force: true,
         });
+        cy.get('.sw-sales-channel-detail__select-shipping-methods .sw-select-selection-list__item-holder').should('contain', 'Shipping to Netherlands');
         cy.get('.sw-sales-channel-detail__save-action').click();
         cy.wait('@getSalesChannel').its('response.statusCode').should('equal', 200);
 

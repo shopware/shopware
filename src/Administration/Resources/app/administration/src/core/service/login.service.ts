@@ -28,7 +28,8 @@ export interface LoginService {
     addOnLoginListener: (listener: () => void) => void,
     getStorageKey: () => string,
     notifyOnLoginListener: () => (void[] | null),
-    verifyUserToken: (password: string) => Promise<string>
+    verifyUserToken: (password: string) => Promise<string>,
+    getStorage: () => CookieStorage,
 }
 
 export default function createLoginService(
@@ -58,6 +59,7 @@ export default function createLoginService(
         getStorageKey,
         notifyOnLoginListener,
         verifyUserToken,
+        getStorage,
     };
 
     /**
@@ -336,16 +338,6 @@ export default function createLoginService(
      * Returns a CookieStorage instance with the right domain and path from the context.
      */
     function cookieStorageFactory(): CookieStorage {
-        let domain;
-
-        if (typeof window === 'object') {
-            domain = window.location.hostname;
-        } else {
-            // eslint-disable-next-line no-restricted-globals
-            const url = new URL(self.location.origin);
-            domain = url.hostname;
-        }
-
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const path = context.basePath! + context.pathInfo!;
 
@@ -353,10 +345,17 @@ export default function createLoginService(
         return new CookieStorage(
             {
                 path: path,
-                domain: domain,
+                domain: null,
                 secure: false, // only allow HTTPs
                 sameSite: 'Strict', // Should be Strict
             },
         );
+    }
+
+    /**
+     * Returns the current cookie storage
+     */
+    function getStorage(): CookieStorage {
+        return cookieStorage;
     }
 }

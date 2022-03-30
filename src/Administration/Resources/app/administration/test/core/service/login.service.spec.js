@@ -1,6 +1,7 @@
 import LoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';
+import { CookieStorage } from 'cookie-storage';
 
 const getClientMock = () => {
     const client = createHTTPClient();
@@ -381,5 +382,14 @@ describe('core/service/login.service.js', () => {
 
         expect(clientMock.history.post[1]).toBeDefined();
         expect(JSON.parse(clientMock.history.post[1].data).grant_type).toEqual('refresh_token');
+    });
+
+    it('should return CookieStorage', () => {
+        const { loginService } = loginServiceFactory();
+
+        expect(typeof loginService.getStorage).toBe('function');
+
+        const storage = loginService.getStorage();
+        expect(storage instanceof CookieStorage).toBe(true);
     });
 });

@@ -11,20 +11,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class Processor
 {
-    /**
-     * @var Validator
-     */
-    private $validator;
+    private Validator $validator;
 
-    /**
-     * @var AmountCalculator
-     */
-    private $amountCalculator;
+    private AmountCalculator $amountCalculator;
 
-    /**
-     * @var TransactionProcessor
-     */
-    private $transactionProcessor;
+    private TransactionProcessor $transactionProcessor;
 
     /**
      * @var CartProcessorInterface[]
@@ -89,7 +80,9 @@ class Processor
 
     private function runProcessors(Cart $original, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void
     {
-        if ($original->getLineItems()->count() <= 0 && Feature::isActive('v6.5.0.0')) {
+        if ($original->getLineItems()->count() <= 0
+            && (Feature::isActive('v6.5.0.0') || Feature::isActive('PERFORMANCE_TWEAKS'))
+        ) {
             $cart->addErrors(...array_values($original->getErrors()->getPersistent()->getElements()));
 
             $cart->setExtensions($original->getExtensions());

@@ -51,50 +51,23 @@ class CheckoutController extends StorefrontController
 {
     private const REDIRECTED_FROM_SAME_ROUTE = 'redirected';
 
-    /**
-     * @var CartService
-     */
-    private $cartService;
+    private CartService $cartService;
 
-    /**
-     * @var CheckoutCartPageLoader
-     */
-    private $cartPageLoader;
+    private CheckoutCartPageLoader $cartPageLoader;
 
-    /**
-     * @var CheckoutConfirmPageLoader
-     */
-    private $confirmPageLoader;
+    private CheckoutConfirmPageLoader $confirmPageLoader;
 
-    /**
-     * @var CheckoutFinishPageLoader
-     */
-    private $finishPageLoader;
+    private CheckoutFinishPageLoader $finishPageLoader;
 
-    /**
-     * @var OrderService
-     */
-    private $orderService;
+    private OrderService $orderService;
 
-    /**
-     * @var PaymentService
-     */
-    private $paymentService;
+    private PaymentService $paymentService;
 
-    /**
-     * @var OffcanvasCartPageLoader
-     */
-    private $offcanvasCartPageLoader;
+    private OffcanvasCartPageLoader $offcanvasCartPageLoader;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $config;
+    private SystemConfigService $config;
 
-    /**
-     * @var AbstractLogoutRoute
-     */
-    private $logoutRoute;
+    private AbstractLogoutRoute $logoutRoute;
 
     public function __construct(
         CartService $cartService,
@@ -254,7 +227,9 @@ class CheckoutController extends StorefrontController
     public function info(Request $request, SalesChannelContext $context): Response
     {
         $cart = $this->cartService->getCart($context->getToken(), $context);
-        if ($cart->getLineItems()->count() <= 0 && Feature::isActive('v6.5.0.0')) {
+        if ($cart->getLineItems()->count() <= 0
+            && (Feature::isActive('v6.5.0.0') || Feature::isActive('PERFORMANCE_TWEAKS'))
+        ) {
             return new Response(null, Response::HTTP_NO_CONTENT);
         }
 

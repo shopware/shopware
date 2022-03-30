@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+namespace Shopware\Core\Content\Test\Media\Cms;
+
 use League\Flysystem\FilesystemInterface;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Cms\DefaultMediaResolver;

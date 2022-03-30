@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+namespace Shopware\Storefront\Test\Page\Cms;
+
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Cms\AbstractDefaultMediaResolver;
 use Shopware\Core\Content\Media\MediaEntity;

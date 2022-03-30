@@ -110,7 +110,8 @@ class WebhookDispatcherTest extends TestCase
 
         $payload = json_decode($body, true);
         static::assertArrayHasKey('timestamp', $payload);
-        unset($payload['timestamp']);
+        static::assertArrayHasKey('eventId', $payload['source']);
+        unset($payload['timestamp'], $payload['source']['eventId']);
 
         static::assertEquals([
             'data' => [
@@ -175,7 +176,8 @@ class WebhookDispatcherTest extends TestCase
 
             $payload = json_decode($request->getBody()->getContents(), true);
             static::assertArrayHasKey('timestamp', $payload);
-            unset($payload['timestamp']);
+            static::assertArrayHasKey('eventId', $payload['source']);
+            unset($payload['timestamp'], $payload['source']['eventId']);
 
             static::assertEquals(
                 [
@@ -272,9 +274,9 @@ class WebhookDispatcherTest extends TestCase
 
         $payload = json_decode($body, true);
         $actualUpdatedFields = $payload['data']['payload'][0]['updatedFields'];
-        unset($payload['data']['payload'][0]['updatedFields']);
         static::assertArrayHasKey('timestamp', $payload);
-        unset($payload['timestamp']);
+        static::assertArrayHasKey('eventId', $payload['source']);
+        unset($payload['data']['payload'][0]['updatedFields'], $payload['timestamp'], $payload['source']['eventId']);
 
         static::assertEquals([
             'data' => [
@@ -483,7 +485,8 @@ class WebhookDispatcherTest extends TestCase
 
         $data = json_decode($body, true);
         static::assertArrayHasKey('timestamp', $data);
-        unset($data['timestamp']);
+        static::assertArrayHasKey('eventId', $data['source']);
+        unset($data['timestamp'], $data['source']['eventId']);
 
         static::assertEquals([
             'data' => [
@@ -701,7 +704,8 @@ class WebhookDispatcherTest extends TestCase
         static::assertEquals('first', $data['data']['payload']['customer']['firstName']);
         static::assertEquals('last', $data['data']['payload']['customer']['lastName']);
         static::assertArrayHasKey('timestamp', $data);
-        unset($data['timestamp'], $data['data']['payload']['customer']);
+        static::assertArrayHasKey('eventId', $data['source']);
+        unset($data['timestamp'], $data['data']['payload']['customer'], $data['source']['eventId']);
         static::assertEquals([
             'data' => [
                 'payload' => [
@@ -918,7 +922,8 @@ class WebhookDispatcherTest extends TestCase
 
         $data = json_decode($body, true);
         static::assertArrayHasKey('timestamp', $data);
-        unset($data['timestamp']);
+        static::assertArrayHasKey('eventId', $data['source']);
+        unset($data['timestamp'], $data['source']['eventId']);
 
         static::assertEquals([
             'data' => [
@@ -1061,7 +1066,97 @@ class WebhookDispatcherTest extends TestCase
 
         $data = json_decode($body, true);
         static::assertArrayHasKey('timestamp', $data);
-        unset($data['timestamp']);
+        static::assertArrayHasKey('eventId', $data['source']);
+        unset($data['timestamp'], $data['source']['eventId']);
+
+        static::assertEquals([
+            'data' => [
+                'payload' => [],
+                'event' => AppDeletedEvent::NAME,
+            ],
+            'source' => [
+                'url' => $this->shopUrl,
+                'appVersion' => '0.0.1',
+                'shopId' => $this->shopIdProvider->getShopId(),
+            ],
+        ], $data);
+
+        static::assertEquals(
+            hash_hmac('sha256', $body, 's3cr3t'),
+            $request->getHeaderLine('shopware-shop-signature')
+        );
+
+        static::assertNotEmpty($request->getHeaderLine('sw-version'));
+        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
+    }
+
+    public function testDispatchesAllAppLifecycleSynchronously(): void
+    {
+        $aclRoleId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+
+        $appRepository = $this->getContainer()->get('app.repository');
+        $appRepository->create([[
+            'id' => $appId,
+            'name' => 'SwagApp',
+            'active' => true,
+            'path' => __DIR__ . '/Manifest/_fixtures/test',
+            'version' => '0.0.1',
+            'label' => 'test',
+            'accessToken' => 'test',
+            'appSecret' => 's3cr3t',
+            'integration' => [
+                'label' => 'test',
+                'writeAccess' => false,
+                'accessKey' => 'api access key',
+                'secretAccessKey' => 'test',
+            ],
+            'aclRole' => [
+                'id' => $aclRoleId,
+                'name' => 'SwagApp',
+            ],
+            'webhooks' => [
+                [
+                    'name' => 'hook1',
+                    'eventName' => AppDeletedEvent::NAME,
+                    'url' => 'https://test.com',
+                ],
+            ],
+        ]], Context::createDefaultContext());
+
+        $this->appendNewResponse(new Response(200));
+
+        $event = new AppDeletedEvent($appId, Context::createDefaultContext());
+
+        $webhookDispatcher = new WebhookDispatcher(
+            $this->getContainer()->get('event_dispatcher'),
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get('shopware.app_system.guzzle'),
+            $this->shopUrl,
+            $this->getContainer(),
+            $this->getContainer()->get(HookableEventFactory::class),
+            Kernel::SHOPWARE_FALLBACK_VERSION,
+            $this->bus,
+            false
+        );
+
+        $this->bus->expects(static::never())
+            ->method('dispatch');
+
+        $webhookDispatcher->dispatch($event);
+
+        /** @var Request $request */
+        $request = $this->getLastRequest();
+
+        static::assertEquals('POST', $request->getMethod());
+        $body = $request->getBody()->getContents();
+        static::assertJson($body);
+
+        $data = json_decode($body, true);
+        static::assertArrayHasKey('timestamp', $data);
+        static::assertArrayHasKey('eventId', $data['source']);
+        unset($data['timestamp'], $data['source']['eventId']);
 
         static::assertEquals([
             'data' => [
@@ -1146,7 +1241,8 @@ class WebhookDispatcherTest extends TestCase
 
         $data = json_decode($body, true);
         static::assertArrayHasKey('timestamp', $data);
-        unset($data['timestamp']);
+        static::assertArrayHasKey('eventId', $data['source']);
+        unset($data['timestamp'], $data['source']['eventId']);
 
         static::assertEquals([
             'data' => [
@@ -1241,7 +1337,10 @@ class WebhookDispatcherTest extends TestCase
         $this->bus->expects(static::once())
             ->method('dispatch')
             ->with(static::callback(function (WebhookEventMessage $message) use ($payload, $appId, $webhookId, $shopwareVersion) {
-                static::assertEquals($payload, $message->getPayload());
+                $actualPayload = $message->getPayload();
+                static::assertArrayHasKey('eventId', $actualPayload['source']);
+                unset($actualPayload['source']['eventId']);
+                static::assertEquals($payload, $actualPayload);
                 static::assertEquals($appId, $message->getAppId());
                 static::assertEquals($webhookId, $message->getWebhookId());
                 static::assertEquals($shopwareVersion, $message->getShopwareVersion());
@@ -1371,7 +1470,10 @@ class WebhookDispatcherTest extends TestCase
         $this->bus->expects(static::once())
             ->method('dispatch')
             ->with(static::callback(function (WebhookEventMessage $message) use ($payload, $webhookId, $shopwareVersion) {
-                static::assertEquals($payload, $message->getPayload());
+                $actualPayload = $message->getPayload();
+                static::assertArrayHasKey('eventId', $actualPayload['source']);
+                unset($actualPayload['source']['eventId']);
+                static::assertEquals($payload, $actualPayload);
                 static::assertEquals($webhookId, $message->getWebhookId());
                 static::assertEquals($shopwareVersion, $message->getShopwareVersion());
                 static::assertNull($message->getAppId());

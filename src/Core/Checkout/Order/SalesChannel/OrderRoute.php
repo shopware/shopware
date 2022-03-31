@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\Adapter\Database\ReplicaConnection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -89,6 +90,8 @@ class OrderRoute extends AbstractOrderRoute
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): OrderRouteResponse
     {
+        ReplicaConnection::ensurePrimary();
+
         $criteria->addFilter(new EqualsFilter('order.salesChannelId', $context->getSalesChannel()->getId()));
 
         $criteria->getAssociation('documents')

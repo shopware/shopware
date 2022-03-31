@@ -193,7 +193,9 @@ class WebhookDispatcher implements EventDispatcherInterface
         $languageId = $context->getLanguageId();
         $userLocale = $this->getAppLocaleProvider()->getLocaleFromContext($context);
 
-        if ($this->isAdminWorkerEnabled) {
+        // If the admin worker is enabled we send all events synchronously, as we can't guarantee timely delivery otherwise.
+        // Additionally, all app lifecycle events are sent synchronously as those can lead to nasty race conditions otherwise.
+        if ($this->isAdminWorkerEnabled || $event instanceof AppDeletedEvent || $event instanceof AppChangedEvent) {
             Profiler::trace('webhook::dispatch-sync', function () use ($userLocale, $languageId, $affectedRoleIds, $event, $webhooksForEvent): void {
                 $this->callWebhooksSynchronous($webhooksForEvent, $event, $affectedRoleIds, $languageId, $userLocale);
             });
@@ -333,7 +335,7 @@ class WebhookDispatcher implements EventDispatcherInterface
                 continue;
             }
 
-            $webhookEventId = Uuid::randomHex();
+            $webhookEventId = $webhookData['source']['eventId'];
 
             $appId = $webhook->getApp() !== null ? $webhook->getApp()->getId() : null;
             $secret = $webhook->getApp() !== null ? $webhook->getApp()->getAppSecret() : null;
@@ -365,6 +367,7 @@ class WebhookDispatcher implements EventDispatcherInterface
 
         $source = [
             'url' => $this->shopUrl,
+            'eventId' => Uuid::randomHex(),
         ];
 
         if ($webhook->getApp() !== null) {

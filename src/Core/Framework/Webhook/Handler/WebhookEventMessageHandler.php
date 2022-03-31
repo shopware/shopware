@@ -7,6 +7,7 @@ use GuzzleHttp\Exception\RequestException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
 use Shopware\Core\Framework\MessageQueue\Exception\MessageFailedException;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
@@ -96,12 +97,17 @@ class WebhookEventMessageHandler extends AbstractMessageHandler
                 ],
             ], $context);
 
-            $this->webhookRepository->update([
-                [
-                    'id' => $message->getWebhookId(),
-                    'errorCount' => 0,
-                ],
-            ], $context);
+            try {
+                $this->webhookRepository->update([
+                    [
+                        'id' => $message->getWebhookId(),
+                        'errorCount' => 0,
+                    ],
+                ], $context);
+            } catch (WriteTypeIntendException $e) {
+                // may happen if app or webhook got deleted in the meantime,
+                // we don't need to update the erro-count in that case, so we can ignore the error
+            }
         } catch (\Throwable $e) {
             $payload = [
                 'id' => $message->getWebhookEventId(),

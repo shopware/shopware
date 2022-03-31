@@ -77,9 +77,34 @@
                 },
                 "mail": {
                     "$ref": "#/definitions/mail"
+                },
+                "profiler": {
+                  "$ref": "#/definitions/profiler"
                 }
             },
             "title": "Shopware"
+        },
+        "profiler": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "integrations": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "enum": ["Symfony", "Datadog", "Tideways"]
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ]
+                    }
+                }
+            },
+            "title": "Enabled profiler, available since 6.4.11.0"
         },
         "mail": {
             "type": "object",

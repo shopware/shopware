@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -110,46 +111,49 @@ class ProductDetailRoute extends AbstractProductDetailRoute
      */
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductDetailRouteResponse
     {
-        $productId = $this->findBestVariant($productId, $context);
+        return Profiler::trace('product-detail-route', function () use ($productId, $request, $context, $criteria) {
+            $productId = $this->findBestVariant($productId, $context);
 
-        $this->addFilters($context, $criteria);
+            $this->addFilters($context, $criteria);
 
-        $criteria->setIds([$productId]);
+            $criteria->setIds([$productId]);
+            $criteria->setTitle('product-detail-route');
 
-        $product = $this->productRepository
-            ->search($criteria, $context)
-            ->first();
+            $product = $this->productRepository
+                ->search($criteria, $context)
+                ->first();
 
-        if (!$product instanceof SalesChannelProductEntity) {
-            throw new ProductNotFoundException($productId);
-        }
+            if (!$product instanceof SalesChannelProductEntity) {
+                throw new ProductNotFoundException($productId);
+            }
 
-        $product->setSeoCategory(
-            $this->breadcrumbBuilder->getProductSeoCategory($product, $context)
-        );
-
-        $configurator = $this->configuratorLoader->load($product, $context);
-
-        $pageId = $product->getCmsPageId();
-
-        if ($pageId) {
-            // clone product to prevent recursion encoding (see NEXT-17603)
-            $resolverContext = new EntityResolverContext($context, $request, $this->productDefinition, clone $product);
-
-            $pages = $this->cmsPageLoader->load(
-                $request,
-                $this->createCriteria($pageId, $request),
-                $context,
-                $product->getTranslation('slotConfig'),
-                $resolverContext
+            $product->setSeoCategory(
+                $this->breadcrumbBuilder->getProductSeoCategory($product, $context)
             );
 
-            if ($page = $pages->first()) {
-                $product->setCmsPage($page);
-            }
-        }
+            $configurator = $this->configuratorLoader->load($product, $context);
 
-        return new ProductDetailRouteResponse($product, $configurator);
+            $pageId = $product->getCmsPageId();
+
+            if ($pageId) {
+                // clone product to prevent recursion encoding (see NEXT-17603)
+                $resolverContext = new EntityResolverContext($context, $request, $this->productDefinition, clone $product);
+
+                $pages = $this->cmsPageLoader->load(
+                    $request,
+                    $this->createCriteria($pageId, $request),
+                    $context,
+                    $product->getTranslation('slotConfig'),
+                    $resolverContext
+                );
+
+                if ($page = $pages->first()) {
+                    $product->setCmsPage($page);
+                }
+            }
+
+            return new ProductDetailRouteResponse($product, $configurator);
+        });
     }
 
     private function addFilters(SalesChannelContext $context, Criteria $criteria): void
@@ -180,6 +184,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             ->addSorting(new FieldSorting('product.available'))
             ->setLimit(1);
 
+        $criteria->setTitle('product-detail-route::find-best-variant');
         $variantId = $this->productRepository->searchIds($criteria, $context);
 
         return $variantId->firstId() ?? $productId;

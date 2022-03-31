@@ -32,6 +32,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -165,23 +166,25 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
     public function handleResult(ProductListingResultEvent $event): void
     {
-        $this->groupOptionAggregations($event);
+        Profiler::trace('product-listing::feature-subscriber', function () use ($event): void {
+            $this->groupOptionAggregations($event);
 
-        $this->addCurrentFilters($event);
+            $this->addCurrentFilters($event);
 
-        $result = $event->getResult();
+            $result = $event->getResult();
 
-        /** @var ProductSortingCollection $sortings */
-        $sortings = $result->getCriteria()->getExtension('sortings');
-        $currentSortingKey = $this->getCurrentSorting($sortings, $event->getRequest())->getKey();
+            /** @var ProductSortingCollection $sortings */
+            $sortings = $result->getCriteria()->getExtension('sortings');
+            $currentSortingKey = $this->getCurrentSorting($sortings, $event->getRequest())->getKey();
 
-        $result->setSorting($currentSortingKey);
+            $result->setSorting($currentSortingKey);
 
-        $result->setAvailableSortings($sortings);
+            $result->setAvailableSortings($sortings);
 
-        $result->setPage($this->getPage($event->getRequest()));
+            $result->setPage($this->getPage($event->getRequest()));
 
-        $result->setLimit($this->getLimit($event->getRequest(), $event->getSalesChannelContext()));
+            $result->setLimit($this->getLimit($event->getRequest(), $event->getSalesChannelContext()));
+        });
     }
 
     public function removeScoreSorting(ProductListingResultEvent $event): void
@@ -299,6 +302,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     private function getAvailableSortings(Request $request, Context $context): EntityCollection
     {
         $criteria = new Criteria();
+        $criteria->setTitle('product-listing::load-sortings');
         $availableSortings = $request->get('availableSortings');
         $availableSortingsFilter = [];
 

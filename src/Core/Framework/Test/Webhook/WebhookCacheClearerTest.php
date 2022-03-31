@@ -16,6 +16,19 @@ class WebhookCacheClearerTest extends TestCase
         ], WebhookCacheClearer::getSubscribedEvents());
     }
 
+    public function testReset(): void
+    {
+        $dispatcherMock = $this->createMock(WebhookDispatcher::class);
+        $dispatcherMock->expects(static::once())
+            ->method('clearInternalWebhookCache');
+
+        $dispatcherMock->expects(static::once())
+            ->method('clearInternalPrivilegesCache');
+
+        $cacheClearer = new WebhookCacheClearer($dispatcherMock);
+        $cacheClearer->reset();
+    }
+
     public function testClearWebhookCache(): void
     {
         $dispatcherMock = $this->createMock(WebhookDispatcher::class);

@@ -64,7 +64,9 @@ class BuildBreadcrumbExtension extends AbstractExtension
             return [];
         }
 
-        $categories = $this->categoryRepository->search(new Criteria($categoryIds), $context)->getEntities();
+        $criteria = new Criteria($categoryIds);
+        $criteria->setTitle('breadcrumb-extension');
+        $categories = $this->categoryRepository->search($criteria, $context)->getEntities();
 
         $breadcrumb = [];
         foreach ($categoryIds as $categoryId) {

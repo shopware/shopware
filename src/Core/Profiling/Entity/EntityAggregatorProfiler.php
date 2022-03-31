@@ -7,36 +7,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
-use Symfony\Component\Stopwatch\Stopwatch;
 
+/**
+ * @deprecated tag:v6.5.0 - Will be removed, use the static Profiler::trace method to directly trace functions
+ */
 class EntityAggregatorProfiler implements EntityAggregatorInterface
 {
-    /**
-     * @var EntityAggregatorInterface
-     */
-    private $decorated;
+    private EntityAggregatorInterface $decorated;
 
-    /**
-     * @var Stopwatch
-     */
-    private $stopwatch;
-
-    public function __construct(EntityAggregatorInterface $decorated, Stopwatch $stopwatch)
+    public function __construct(EntityAggregatorInterface $decorated)
     {
         $this->decorated = $decorated;
-        $this->stopwatch = $stopwatch;
     }
 
     public function aggregate(EntityDefinition $definition, Criteria $criteria, Context $context): AggregationResultCollection
     {
-        $title = $criteria->getTitle() ?? $definition->getEntityName();
-
-        $this->stopwatch->start('aggregate:' . $title);
-
-        $data = $this->decorated->aggregate($definition, $criteria, $context);
-
-        $this->stopwatch->stop('aggregate:' . $title);
-
-        return $data;
+        return $this->decorated->aggregate($definition, $criteria, $context);
     }
 }

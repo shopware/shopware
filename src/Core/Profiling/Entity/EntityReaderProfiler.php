@@ -7,36 +7,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Symfony\Component\Stopwatch\Stopwatch;
 
+/**
+ * @deprecated tag:v6.5.0 - Will be removed, use the static Profiler::trace method to directly trace functions
+ */
 class EntityReaderProfiler implements EntityReaderInterface
 {
-    /**
-     * @var EntityReaderInterface
-     */
-    private $decorated;
+    private EntityReaderInterface $decorated;
 
-    /**
-     * @var Stopwatch
-     */
-    private $stopwatch;
-
-    public function __construct(EntityReaderInterface $decorated, Stopwatch $stopwatch)
+    public function __construct(EntityReaderInterface $decorated)
     {
         $this->decorated = $decorated;
-        $this->stopwatch = $stopwatch;
     }
 
     public function read(EntityDefinition $definition, Criteria $criteria, Context $context): EntityCollection
     {
-        $title = $criteria->getTitle() ?? $definition->getEntityName();
-
-        $this->stopwatch->start('read:' . $title);
-
-        $data = $this->decorated->read($definition, $criteria, $context);
-
-        $this->stopwatch->stop('read:' . $title);
-
-        return $data;
+        return $this->decorated->read($definition, $criteria, $context);
     }
 }

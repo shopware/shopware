@@ -301,6 +301,7 @@ class MailService extends AbstractMailService
             return [];
         }
         $criteria = new Criteria($data['mediaIds']);
+        $criteria->setTitle('mail-service::resolve-media-ids');
         $media = null;
         $mediaRepository = $this->mediaRepository;
         $context->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($criteria, $mediaRepository, &$media): void {
@@ -319,6 +320,7 @@ class MailService extends AbstractMailService
     private function getSalesChannelDomainCriteria(string $salesChannelId, Context $context): Criteria
     {
         $criteria = new Criteria([$salesChannelId]);
+        $criteria->setTitle('mail-service::resolve-sales-channel-domain');
         $criteria->addAssociation('mailHeaderFooter');
         $criteria->getAssociation('domains')
             ->addFilter(

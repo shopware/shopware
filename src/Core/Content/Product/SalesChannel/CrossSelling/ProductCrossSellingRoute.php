@@ -117,6 +117,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
     private function loadCrossSellings(string $productId, SalesChannelContext $context): ProductCrossSellingCollection
     {
         $criteria = new Criteria();
+        $criteria->setTitle('product-cross-selling-route');
         $criteria
             ->addAssociation('assignedProducts')
             ->addFilter(new EqualsFilter('product.id', $productId))

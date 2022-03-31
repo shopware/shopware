@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
+use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -62,7 +63,9 @@ class CheckoutFinishPageLoader
             $page->getMetaInformation()->setRobots('noindex,follow');
         }
 
-        $page->setOrder($this->getOrder($request, $salesChannelContext));
+        Profiler::trace('finish-page-order-loading', function () use ($page, $request, $salesChannelContext): void {
+            $page->setOrder($this->getOrder($request, $salesChannelContext));
+        });
 
         $page->setChangedPayment((bool) $request->get('changedPayment', false));
 

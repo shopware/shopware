@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -98,77 +99,79 @@ class CartRuleLoader implements ResetInterface
 
     private function load(SalesChannelContext $context, Cart $cart, CartBehavior $behaviorContext, bool $new): RuleLoaderResult
     {
-        $rules = $this->loadRules($context->getContext());
+        return Profiler::trace('cart-rule-loader', function () use ($context, $cart, $behaviorContext, $new) {
+            $rules = $this->loadRules($context->getContext());
 
-        // save all rules for later usage
-        $all = $rules;
+            // save all rules for later usage
+            $all = $rules;
 
-        $ids = $new ? $rules->getIds() : $cart->getRuleIds();
+            $ids = $new ? $rules->getIds() : $cart->getRuleIds();
 
-        // update rules in current context
-        $context->setRuleIds($ids);
+            // update rules in current context
+            $context->setRuleIds($ids);
 
-        $iteration = 1;
+            $iteration = 1;
 
-        $timestamps = $cart->getLineItems()->fmap(function (LineItem $lineItem) {
-            if ($lineItem->getDataTimestamp() === null) {
-                return null;
-            }
+            $timestamps = $cart->getLineItems()->fmap(function (LineItem $lineItem) {
+                if ($lineItem->getDataTimestamp() === null) {
+                    return null;
+                }
 
-            return $lineItem->getDataTimestamp()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        });
+                return $lineItem->getDataTimestamp()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+            });
 
-        // start first cart calculation to have all objects enriched
-        $cart = $this->processor->process($cart, $context, $behaviorContext);
-
-        do {
-            $compare = $cart;
-
-            if ($iteration > self::MAX_ITERATION) {
-                break;
-            }
-
-            // filter rules which matches to current scope
-            $rules = $rules->filterMatchingRules($cart, $context);
-
-            // update matching rules in context
-            $context->setRuleIds($rules->getIds());
-
-            // calculate cart again
+            // start first cart calculation to have all objects enriched
             $cart = $this->processor->process($cart, $context, $behaviorContext);
 
-            // check if the cart changed, in this case we have to recalculate the cart again
-            $recalculate = $this->cartChanged($cart, $compare);
+            do {
+                $compare = $cart;
 
-            // check if rules changed for the last calculated cart, in this case we have to recalculate
-            $ruleCompare = $all->filterMatchingRules($cart, $context);
+                if ($iteration > self::MAX_ITERATION) {
+                    break;
+                }
 
-            if (!$rules->equals($ruleCompare)) {
-                $recalculate = true;
-                $rules = $ruleCompare;
+                // filter rules which matches to current scope
+                $rules = $rules->filterMatchingRules($cart, $context);
+
+                // update matching rules in context
+                $context->setRuleIds($rules->getIds());
+
+                // calculate cart again
+                $cart = $this->processor->process($cart, $context, $behaviorContext);
+
+                // check if the cart changed, in this case we have to recalculate the cart again
+                $recalculate = $this->cartChanged($cart, $compare);
+
+                // check if rules changed for the last calculated cart, in this case we have to recalculate
+                $ruleCompare = $all->filterMatchingRules($cart, $context);
+
+                if (!$rules->equals($ruleCompare)) {
+                    $recalculate = true;
+                    $rules = $ruleCompare;
+                }
+
+                ++$iteration;
+            } while ($recalculate);
+
+            $cart = $this->validateTaxFree($context, $cart, $behaviorContext);
+
+            $index = 0;
+            foreach ($rules as $rule) {
+                ++$index;
+                $this->logger->info(
+                    sprintf('#%s Rule detection: %s with priority %s (id: %s)', $index, $rule->getName(), $rule->getPriority(), $rule->getId())
+                );
             }
 
-            ++$iteration;
-        } while ($recalculate);
+            $context->setRuleIds($rules->getIds());
 
-        $cart = $this->validateTaxFree($context, $cart, $behaviorContext);
+            // save the cart if errors exist, so the errors get persisted
+            if ($cart->getErrors()->count() > 0 || $this->updated($cart, $timestamps)) {
+                $this->cartPersister->save($cart, $context);
+            }
 
-        $index = 0;
-        foreach ($rules as $rule) {
-            ++$index;
-            $this->logger->info(
-                sprintf('#%s Rule detection: %s with priority %s (id: %s)', $index, $rule->getName(), $rule->getPriority(), $rule->getId())
-            );
-        }
-
-        $context->setRuleIds($rules->getIds());
-
-        // save the cart if errors exist, so the errors get persisted
-        if ($cart->getErrors()->count() > 0 || $this->updated($cart, $timestamps)) {
-            $this->cartPersister->save($cart, $context);
-        }
-
-        return new RuleLoaderResult($cart, $rules);
+            return new RuleLoaderResult($cart, $rules);
+        });
     }
 
     private function loadRules(Context $context): RuleCollection

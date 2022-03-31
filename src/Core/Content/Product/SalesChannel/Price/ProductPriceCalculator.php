@@ -293,9 +293,12 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator implements R
             return $this->units;
         }
 
+        $criteria = new Criteria();
+        $criteria->setTitle('product-price-calculator::units');
+
         /** @var UnitCollection $units */
         $units = $this->unitRepository
-            ->search(new Criteria(), $context->getContext())
+            ->search($criteria, $context->getContext())
             ->getEntities();
 
         return $this->units = $units;

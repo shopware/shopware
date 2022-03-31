@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Error\AutoPromotionNotFoundError;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
+use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class PromotionProcessor implements CartProcessorInterface
@@ -42,47 +43,45 @@ class PromotionProcessor implements CartProcessorInterface
      */
     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
     {
-        // always make sure we have
-        // the line item group builder for our
-        // line item group rule inside the cart data
-        $toCalculate->getData()->set(LineItemGroupBuilder::class, $this->groupBuilder);
+        Profiler::trace('cart::promotion::process', function () use ($data, $original, $toCalculate, $context, $behavior): void {
+            // always make sure we have
+            // the line item group builder for our
+            // line item group rule inside the cart data
+            $toCalculate->getData()->set(LineItemGroupBuilder::class, $this->groupBuilder);
 
-        // if we are in recalculation,
-        // we must not re-add any promotions. just leave it as it is.
-        if ($behavior->hasPermission(self::SKIP_PROMOTION)) {
-            $items = $original->getLineItems()->filterType(self::LINE_ITEM_TYPE);
-            foreach ($items as $item) {
-                $toCalculate->add($item);
-            }
-
-            return;
-        }
-
-        // if there is no collected promotion we may return - nothing to calculate!
-        if (!$data->has(self::DATA_KEY)) {
-            $lineItemPromotions = $original->getLineItems()->filterType(self::LINE_ITEM_TYPE);
-            foreach ($lineItemPromotions as $lineItemPromotion) {
-                if (empty($lineItemPromotion->getReferencedId())) {
-                    $toCalculate->addErrors(
-                        new AutoPromotionNotFoundError($lineItemPromotion->getLabel() ?? $lineItemPromotion->getId())
-                    );
+            // if we are in recalculation,
+            // we must not re-add any promotions. just leave it as it is.
+            if ($behavior->hasPermission(self::SKIP_PROMOTION)) {
+                $items = $original->getLineItems()->filterType(self::LINE_ITEM_TYPE);
+                foreach ($items as $item) {
+                    $toCalculate->add($item);
                 }
+
+                return;
             }
 
-            return;
-        }
+            // if there is no collected promotion we may return - nothing to calculate!
+            if (!$data->has(self::DATA_KEY)) {
+                $lineItemPromotions = $original->getLineItems()->filterType(self::LINE_ITEM_TYPE);
+                foreach ($lineItemPromotions as $lineItemPromotion) {
+                    if (empty($lineItemPromotion->getReferencedId())) {
+                        $toCalculate->addErrors(
+                            new AutoPromotionNotFoundError($lineItemPromotion->getLabel() ?? $lineItemPromotion->getId())
+                        );
+                    }
+                }
 
-        /** @var LineItemCollection $discountLineItems */
-        $discountLineItems = $data->get(self::DATA_KEY);
+                return;
+            }
 
-        // calculate the whole cart with the
-        // new list of created promotion discount line items
-        $this->promotionCalculator->calculate(
-            new LineItemCollection($discountLineItems),
-            $original,
-            $toCalculate,
-            $context,
-            $behavior
-        );
+            /** @var LineItemCollection $discountLineItems */
+            $discountLineItems = $data->get(self::DATA_KEY);
+
+            // calculate the whole cart with the
+            // new list of created promotion discount line items
+            $items = new LineItemCollection($discountLineItems);
+
+            $this->promotionCalculator->calculate($items, $original, $toCalculate, $context, $behavior);
+        }, 'cart');
     }
 }

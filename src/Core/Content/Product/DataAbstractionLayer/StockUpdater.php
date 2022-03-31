@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -105,11 +106,15 @@ class StockUpdater implements EventSubscriberInterface
             $this->connection->prepare('UPDATE product SET available_stock = available_stock - :quantity WHERE id = :id')
         );
 
-        foreach ($ids as $id => $quantity) {
-            $query->execute(['id' => Uuid::fromHexToBytes((string) $id), 'quantity' => $quantity]);
-        }
+        Profiler::trace('order::update-stock', static function () use ($query, $ids): void {
+            foreach ($ids as $id => $quantity) {
+                $query->execute(['id' => Uuid::fromHexToBytes((string) $id), 'quantity' => $quantity]);
+            }
+        });
 
-        $this->updateAvailableFlag(\array_keys($ids), $event->getContext());
+        Profiler::trace('order::update-flag', function () use ($ids, $event): void {
+            $this->updateAvailableFlag(\array_keys($ids), $event->getContext());
+        });
     }
 
     /**

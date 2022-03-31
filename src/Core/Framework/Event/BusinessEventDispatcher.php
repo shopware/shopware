@@ -117,6 +117,7 @@ class BusinessEventDispatcher implements EventDispatcherInterface
         $name = $event->getName();
 
         $criteria = new Criteria();
+        $criteria->setTitle('business-events::' . $event->getName());
         $criteria->addFilter(new EqualsFilter('event_action.eventName', $name));
         $criteria->addFilter(new EqualsFilter('event_action.active', true));
 

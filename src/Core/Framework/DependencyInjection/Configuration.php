@@ -15,6 +15,7 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
+                ->append($this->createProfilerSection())
                 ->append($this->createFilesystemSection())
                 ->append($this->createCdnSection())
                 ->append($this->createApiSection())
@@ -44,7 +45,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->arrayNode('private')
-                    ->performNoDeepMerging()
+
                     ->children()
                         ->scalarNode('type')->end()
                         ->scalarNode('visibility')->end()
@@ -544,6 +545,22 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
             ->booleanNode('update_mail_variables_on_send')->defaultTrue()->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createProfilerSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('profiler');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->arrayNode('integrations')
+                    ->performNoDeepMerging()
+                    ->scalarPrototype()
+                ->end()
             ->end();
 
         return $rootNode;

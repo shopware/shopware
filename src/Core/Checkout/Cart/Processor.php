@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
+use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class Processor
@@ -56,35 +57,37 @@ class Processor
 
     public function process(Cart $original, SalesChannelContext $context, CartBehavior $behavior): Cart
     {
-        $cart = new Cart($original->getName(), $original->getToken());
-        $cart->setCustomerComment($original->getCustomerComment());
-        $cart->setAffiliateCode($original->getAffiliateCode());
-        $cart->setCampaignCode($original->getCampaignCode());
-        $cart->setBehavior($behavior);
-        $cart->addState(...$original->getStates());
+        return Profiler::trace('cart::process', function () use ($original, $context, $behavior) {
+            $cart = new Cart($original->getName(), $original->getToken());
+            $cart->setCustomerComment($original->getCustomerComment());
+            $cart->setAffiliateCode($original->getAffiliateCode());
+            $cart->setCampaignCode($original->getCampaignCode());
+            $cart->setBehavior($behavior);
+            $cart->addState(...$original->getStates());
 
-        // move data from previous calculation into new cart
-        $cart->setData($original->getData());
+            // move data from previous calculation into new cart
+            $cart->setData($original->getData());
 
-        $this->runProcessors($original, $cart, $context, $behavior);
+            $this->runProcessors($original, $cart, $context, $behavior);
 
-        if ($behavior->hookAware()) {
-            $this->executor->execute(new CartHook($cart, $context));
-        }
+            if ($behavior->hookAware()) {
+                $this->executor->execute(new CartHook($cart, $context));
+            }
 
-        $this->calculateAmount($context, $cart);
+            $this->calculateAmount($context, $cart);
 
-        $cart->addErrors(
-            ...$this->validator->validate($cart, $context)
-        );
+            $cart->addErrors(
+                ...$this->validator->validate($cart, $context)
+            );
 
-        $cart->setTransactions(
-            $this->transactionProcessor->process($cart, $context)
-        );
+            $cart->setTransactions(
+                $this->transactionProcessor->process($cart, $context)
+            );
 
-        $cart->setRuleIds($context->getRuleIds());
+            $cart->setRuleIds($context->getRuleIds());
 
-        return $cart;
+            return $cart;
+        }, 'cart');
     }
 
     private function runProcessors(Cart $original, Cart $cart, SalesChannelContext $context, CartBehavior $behavior): void

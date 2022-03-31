@@ -345,6 +345,7 @@ class BaseContextFactory extends AbstractBaseContextFactory
     private function getCashRounding(CurrencyEntity $currency, ShippingLocation $shippingLocation, Context $context): array
     {
         $criteria = new Criteria();
+        $criteria->setTitle('base-context-factory::cash-rounding');
         $criteria->setLimit(1);
         $criteria->addFilter(new EqualsFilter('currencyId', $currency->getId()));
         $criteria->addFilter(new EqualsFilter('countryId', $shippingLocation->getCountry()->getId()));

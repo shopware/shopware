@@ -271,6 +271,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         }
 
         $criteria = new Criteria();
+        $criteria->setTitle('context-factory::cash-rounding');
         $criteria->setLimit(1);
         $criteria->addFilter(new EqualsFilter('currencyId', $context->getCurrencyId()));
         $criteria->addFilter(new EqualsFilter('countryId', $shippingLocation->getCountry()->getId()));

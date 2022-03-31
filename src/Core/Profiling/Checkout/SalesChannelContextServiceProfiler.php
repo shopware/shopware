@@ -5,34 +5,21 @@ namespace Shopware\Core\Profiling\Checkout;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Stopwatch\Stopwatch;
 
+/**
+ * @deprecated tag:v6.5.0 - Will be removed, use the static Profiler::trace method to directly trace functions
+ */
 class SalesChannelContextServiceProfiler implements SalesChannelContextServiceInterface
 {
-    /**
-     * @var SalesChannelContextServiceInterface
-     */
-    private $decorated;
+    private SalesChannelContextServiceInterface $decorated;
 
-    /**
-     * @var Stopwatch
-     */
-    private $stopwatch;
-
-    public function __construct(SalesChannelContextServiceInterface $decorated, Stopwatch $stopwatch)
+    public function __construct(SalesChannelContextServiceInterface $decorated)
     {
         $this->decorated = $decorated;
-        $this->stopwatch = $stopwatch;
     }
 
     public function get(SalesChannelContextServiceParameters $parameters): SalesChannelContext
     {
-        $this->stopwatch->start('context-generation');
-
-        $context = $this->decorated->get($parameters);
-
-        $this->stopwatch->stop('context-generation');
-
-        return $context;
+        return $this->decorated->get($parameters);
     }
 }

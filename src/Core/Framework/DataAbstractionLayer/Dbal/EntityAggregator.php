@@ -543,7 +543,10 @@ class EntityAggregator implements EntityAggregatorInterface
 
         $repository = $this->registry->getRepository($aggregation->getEntity());
 
-        $entities = $repository->search(new Criteria($ids), $context);
+        $criteria = new Criteria($ids);
+        $criteria->setTitle($aggregation->getName() . '-aggregation');
+
+        $entities = $repository->search($criteria, $context);
 
         return new EntityResult($aggregation->getName(), $entities->getEntities());
     }

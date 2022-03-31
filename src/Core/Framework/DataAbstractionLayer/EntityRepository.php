@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Profiling\Profiler;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class EntityRepository implements EntityRepositoryInterface
@@ -102,65 +103,20 @@ class EntityRepository implements EntityRepositoryInterface
 
     public function search(Criteria $criteria, Context $context): EntitySearchResult
     {
-        $criteria = clone $criteria;
-        $aggregations = null;
-        if ($criteria->getAggregations()) {
-            $aggregations = $this->aggregate($criteria, $context);
+        if (!$criteria->getTitle()) {
+            return $this->_search($criteria, $context);
         }
 
-        if (!RepositorySearchDetector::isSearchRequired($this->definition, $criteria)) {
-            $this->eventDispatcher->dispatch(
-                new EntitySearchedEvent($criteria, $this->definition, $context)
-            );
-            $entities = $this->read($criteria, $context);
-
-            return new EntitySearchResult($this->definition->getEntityName(), $entities->count(), $entities, $aggregations, $criteria, $context);
-        }
-
-        $ids = $this->searchIds($criteria, $context);
-
-        if (empty($ids->getIds())) {
-            $collection = $this->definition->getCollectionClass();
-
-            return new EntitySearchResult($this->definition->getEntityName(), $ids->getTotal(), new $collection(), $aggregations, $criteria, $context);
-        }
-
-        $readCriteria = $criteria->cloneForRead($ids->getIds());
-
-        $entities = $this->read($readCriteria, $context);
-
-        $search = $ids->getData();
-
-        /** @var Entity $element */
-        foreach ($entities as $element) {
-            if (!\array_key_exists($element->getUniqueIdentifier(), $search)) {
-                continue;
-            }
-
-            $data = $search[$element->getUniqueIdentifier()];
-            unset($data['id']);
-
-            if (empty($data)) {
-                continue;
-            }
-
-            $element->addExtension('search', new ArrayEntity($data));
-        }
-
-        $result = new EntitySearchResult($this->definition->getEntityName(), $ids->getTotal(), $entities, $aggregations, $criteria, $context);
-        $result->addState(...$ids->getStates());
-
-        $event = new EntitySearchResultLoadedEvent($this->definition, $result);
-        $this->eventDispatcher->dispatch($event, $event->getName());
-
-        return $result;
+        return Profiler::trace($criteria->getTitle(), function () use ($criteria, $context) {
+            return $this->_search($criteria, $context);
+        }, 'repository');
     }
 
     public function aggregate(Criteria $criteria, Context $context): AggregationResultCollection
     {
         $criteria = clone $criteria;
 
-        $result = $this->aggregator->aggregate($this->definition, clone $criteria, $context);
+        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
 
         $event = new EntityAggregationResultLoadedEvent($this->definition, $result, $context);
         $this->eventDispatcher->dispatch($event, $event->getName());
@@ -172,9 +128,7 @@ class EntityRepository implements EntityRepositoryInterface
     {
         $criteria = clone $criteria;
 
-        $this->eventDispatcher->dispatch(
-            new EntitySearchedEvent($criteria, $this->definition, $context)
-        );
+        $this->eventDispatcher->dispatch(new EntitySearchedEvent($criteria, $this->definition, $context));
 
         $result = $this->searcher->search($this->definition, $criteria, $context);
 
@@ -267,6 +221,8 @@ class EntityRepository implements EntityRepositoryInterface
 
     private function read(Criteria $criteria, Context $context): EntityCollection
     {
+        $criteria = clone $criteria;
+
         $entities = $this->reader->read($this->definition, $criteria, $context);
 
         if ($this->eventFactory === null) {
@@ -282,5 +238,61 @@ class EntityRepository implements EntityRepositoryInterface
         $this->eventDispatcher->dispatch($event);
 
         return $entities;
+    }
+
+    private function _search(Criteria $criteria, Context $context): EntitySearchResult
+    {
+        $criteria = clone $criteria;
+        $aggregations = null;
+        if ($criteria->getAggregations()) {
+            $aggregations = $this->aggregate($criteria, $context);
+        }
+
+        if (!RepositorySearchDetector::isSearchRequired($this->definition, $criteria)) {
+            $this->eventDispatcher->dispatch(
+                new EntitySearchedEvent($criteria, $this->definition, $context)
+            );
+            $entities = $this->read($criteria, $context);
+
+            return new EntitySearchResult($this->definition->getEntityName(), $entities->count(), $entities, $aggregations, $criteria, $context);
+        }
+
+        $ids = $this->searchIds($criteria, $context);
+
+        if (empty($ids->getIds())) {
+            $collection = $this->definition->getCollectionClass();
+
+            return new EntitySearchResult($this->definition->getEntityName(), $ids->getTotal(), new $collection(), $aggregations, $criteria, $context);
+        }
+
+        $readCriteria = $criteria->cloneForRead($ids->getIds());
+
+        $entities = $this->read($readCriteria, $context);
+
+        $search = $ids->getData();
+
+        /** @var Entity $element */
+        foreach ($entities as $element) {
+            if (!\array_key_exists($element->getUniqueIdentifier(), $search)) {
+                continue;
+            }
+
+            $data = $search[$element->getUniqueIdentifier()];
+            unset($data['id']);
+
+            if (empty($data)) {
+                continue;
+            }
+
+            $element->addExtension('search', new ArrayEntity($data));
+        }
+
+        $result = new EntitySearchResult($this->definition->getEntityName(), $ids->getTotal(), $entities, $aggregations, $criteria, $context);
+        $result->addState(...$ids->getStates());
+
+        $event = new EntitySearchResultLoadedEvent($this->definition, $result);
+        $this->eventDispatcher->dispatch($event, $event->getName());
+
+        return $result;
     }
 }

@@ -3,13 +3,11 @@
 namespace Shopware\Core\Framework\Webhook;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
-class WebhookCacheClearer implements EventSubscriberInterface
+class WebhookCacheClearer implements EventSubscriberInterface, ResetInterface
 {
-    /**
-     * @var WebhookDispatcher
-     */
-    private $dispatcher;
+    private WebhookDispatcher $dispatcher;
 
     public function __construct(WebhookDispatcher $dispatcher)
     {
@@ -22,6 +20,16 @@ class WebhookCacheClearer implements EventSubscriberInterface
             'webhook.written' => 'clearWebhookCache',
             'acl_role.written' => 'clearPrivilegesCache',
         ];
+    }
+
+    /**
+     * Reset can not be handled by the Dispatcher itself, as it may be in the middle of a decoration chain
+     * Therefore tagging that service directly won't work
+     */
+    public function reset(): void
+    {
+        $this->clearWebhookCache();
+        $this->clearPrivilegesCache();
     }
 
     public function clearWebhookCache(): void

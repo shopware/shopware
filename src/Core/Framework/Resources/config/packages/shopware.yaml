@@ -4,6 +4,8 @@ parameters:
     APP_URL: "%env(string:APP_URL)%"
 
 shopware:
+    profiler:
+        integrations: []
     filesystem:
         private:
             type: "local"

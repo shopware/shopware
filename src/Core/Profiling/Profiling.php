@@ -41,6 +41,15 @@ class Profiling extends Bundle
         $loader->load('services.xml');
     }
 
+    public function boot(): void
+    {
+        parent::boot();
+        // The profiler registers all profiler integrations in the constructor
+        // Therefor we need to get the service once to initialize it
+        // @phpstan-ignore-next-line ProfilerBundle is only available in env=dev, so the service seems to be not available for phpstan
+        $this->container->get(Profiler::class);
+    }
+
     private function buildConfig(ContainerBuilder $container, $environment): void
     {
         $locator = new FileLocator('Resources/config');

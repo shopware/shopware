@@ -40,7 +40,7 @@ class QueryStringParserTest extends TestCase
     }
 
     /**
-     * @dataProvider testParserProvider
+     * @dataProvider parserProvider
      */
     public function testParser(array $payload, Filter $expected): void
     {
@@ -53,7 +53,7 @@ class QueryStringParserTest extends TestCase
         static::assertEquals($expected, $result);
     }
 
-    public static function testParserProvider(): \Generator
+    public static function parserProvider(): \Generator
     {
         yield 'Test and filter' => [
             ['type' => 'and', 'queries' => [['type' => 'equals', 'field' => 'name', 'value' => 'foo']]],

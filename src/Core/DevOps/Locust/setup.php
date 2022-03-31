@@ -19,7 +19,7 @@ $details = $connection->fetchFirstColumn("SELECT CONCAT('/', seo_path_info) FROM
 
 $keywords = $connection->fetchFirstColumn('SELECT keyword FROM product_keyword_dictionary');
 
-$products = $connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id, product_number as productNumber FROM product');
+$products = $connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id, product_number as productNumber FROM product ' . $limit);
 
 $salesChannel = $connection->fetchAssociative(
     'SELECT LOWER(HEX(country_id)) as countryId FROM sales_channel WHERE type_id = :type',

@@ -801,7 +801,7 @@ Component.register('sw-bulk-edit-product', {
             });
 
             if (priceField) {
-                this.$set(priceField.value[0], 'listPrice', this.validatePrice(this.product.listPrice[0]));
+                this.$set(priceField.value[0], 'listPrice', this.product.listPrice[0]);
             }
         },
 
@@ -811,24 +811,8 @@ Component.register('sw-bulk-edit-product', {
             });
 
             if (priceField) {
-                this.$set(priceField.value[0], 'regulationPrice', this.validatePrice(this.product.regulationPrice[0]));
+                this.$set(priceField.value[0], 'regulationPrice', this.product.regulationPrice[0]);
             }
-        },
-
-        validatePrice(price) {
-            if (!price || (!price.gross && !price.net)) {
-                return null;
-            }
-
-            if (!price.gross) {
-                price.gross = 0;
-            }
-
-            if (!price.net) {
-                price.net = 0;
-            }
-
-            return price;
         },
 
         openModal() {

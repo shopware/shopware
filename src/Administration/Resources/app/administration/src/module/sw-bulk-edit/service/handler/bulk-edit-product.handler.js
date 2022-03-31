@@ -3,6 +3,7 @@ import BulkEditBaseHandler from './bulk-edit-base.handler';
 const types = Shopware.Utils.types;
 const { Service, Application } = Shopware;
 const { Criteria } = Shopware.Data;
+const { cloneDeep } = Shopware.Utils.object;
 
 /**
  * @class
@@ -29,7 +30,7 @@ class BulkEditProductHandler extends BulkEditBaseHandler {
             await this.getProducts();
         }
 
-        if (this.shouldRecalculateTax(taxId)) {
+        if (this.shouldRecalculateTax(taxId, price, purchasePrices)) {
             updatedPricePayload = await this.recalculatePrices(taxId, price, purchasePrices);
 
             payload = payload.filter(change => change.field !== 'taxId');
@@ -75,7 +76,7 @@ class BulkEditProductHandler extends BulkEditBaseHandler {
     }
 
     isNullPrice(price, purchasePrices) {
-        return !price || !price[0].listPrice || !purchasePrices;
+        return !price || !price[0].listPrice || !price[0].regulationPrice || !purchasePrices;
     }
 
     mapProductPricesToSyncPayload(syncPayload, updatePricePayload) {
@@ -108,6 +109,7 @@ class BulkEditProductHandler extends BulkEditBaseHandler {
     async recalculatePrices(taxId, inputPrice, inputPurchasePrices) {
         const updatePriceTax = {};
         const updateListPriceTax = {};
+        const updateRegulationPriceTax = {};
         const updatePurchasePriceTax = {};
 
         const products = this.products.filter(product => product.taxId !== taxId);
@@ -133,6 +135,16 @@ class BulkEditProductHandler extends BulkEditBaseHandler {
                 }
             }
 
+            if (!inputPrice || !inputPrice[0].regulationPrice) {
+                const productRegulationPrice = product.price?.filter(price => price.regulationPrice?.linked)?.map(
+                    price => this.getRecalculatePrice(price.regulationPrice),
+                );
+
+                if (!types.isEmpty(productRegulationPrice)) {
+                    updateRegulationPriceTax[product.id] = productRegulationPrice;
+                }
+            }
+
             if (!inputPurchasePrices) {
                 const productPurchasePrice = product.purchasePrices?.filter(price => price.linked)?.map(
                     price => this.getRecalculatePrice(price),
@@ -147,17 +159,20 @@ class BulkEditProductHandler extends BulkEditBaseHandler {
         const results = await Promise.all([
             this.calculatePrices(taxId, updatePriceTax),
             this.calculatePrices(taxId, updateListPriceTax),
+            this.calculatePrices(taxId, updateRegulationPriceTax),
             this.calculatePrices(taxId, updatePurchasePriceTax),
         ]);
 
         const calculatedPrices = results[0];
         const calculatedListPrices = results[1];
-        const calculatedPurchasePrices = results[2];
+        const calculatedRegulationPrices = results[2];
+        const calculatedPurchasePrices = results[3];
         const reformatted = [];
 
         products.forEach((product) => {
             const calculatedPrice = calculatedPrices[product.id] ?? [];
             const calculatedListPrice = calculatedListPrices[product.id] ?? [];
+            const calculatedRegulationPrice = calculatedRegulationPrices[product.id] ?? [];
             const calculatedPurchasePrice = calculatedPurchasePrices[product.id] ?? [];
             const currentPrice = {
                 id: product.id,
@@ -165,7 +180,12 @@ class BulkEditProductHandler extends BulkEditBaseHandler {
             };
 
             if (product.price) {
-                currentPrice.price = this.getCalculatedPrices(product.price, calculatedPrice, calculatedListPrice);
+                currentPrice.price = this.getCalculatedPrices(
+                    product.price,
+                    calculatedPrice,
+                    calculatedListPrice,
+                    calculatedRegulationPrice,
+                );
             }
 
             if (product.purchasePrices) {
@@ -193,16 +213,21 @@ class BulkEditProductHandler extends BulkEditBaseHandler {
         return this.calculatePriceService.calculatePrices(taxId, prices);
     }
 
-    getCalculatedPrices(dbPrices, calculatedPrices, calculatedListPrices = []) {
+    getCalculatedPrices(dbPrices, calculatedPrices, calculatedListPrices = [], calculatedRegulationPrices = []) {
         const price = [];
         dbPrices.forEach(dbPrice => {
-            const { currencyId, listPrice } = dbPrice;
+            const { currencyId, listPrice, regulationPrice } = dbPrice;
             if (dbPrice.linked && calculatedPrices[currencyId]) {
                 dbPrice.net = dbPrice.gross - this.getTax(calculatedPrices[currencyId].calculatedTaxes);
             }
 
             if (listPrice?.linked && calculatedListPrices[currencyId]) {
                 dbPrice.listPrice.net = listPrice.gross - this.getTax(calculatedListPrices[currencyId].calculatedTaxes);
+            }
+
+            if (regulationPrice?.linked && calculatedRegulationPrices[currencyId]) {
+                const regulationPriceTaxes = calculatedRegulationPrices[currencyId].calculatedTaxes;
+                dbPrice.regulationPrice.net = regulationPrice.gross - this.getTax(regulationPriceTaxes);
             }
 
             price.push(dbPrice);
@@ -262,20 +287,26 @@ class BulkEditProductHandler extends BulkEditBaseHandler {
     }
 
     getPrice(inputPrice, dbPrice) {
-        inputPrice = this.formatPrice(inputPrice, dbPrice);
         const dbListPrice = dbPrice?.listPrice;
+        const dbRegulationPrice = dbPrice?.regulationPrice;
+        let currentPrice = cloneDeep(inputPrice);
+        currentPrice = this.formatPrice(currentPrice, dbPrice);
 
-        if (inputPrice.listPrice) {
-            inputPrice.listPrice = this.formatPrice(inputPrice.listPrice, dbListPrice);
-
-            return inputPrice;
+        // Set listPrice as the input value if exist, otherwise, set listPrice as the old value in the DB
+        if (currentPrice.listPrice) {
+            currentPrice.listPrice = this.formatPrice(currentPrice.listPrice, dbListPrice);
+        } else if (dbListPrice) {
+            currentPrice.listPrice = dbListPrice;
         }
 
-        if (dbListPrice) {
-            inputPrice.listPrice = dbListPrice;
+        // Set regulationPrice as the input value if exist, otherwise, set regulationPrice as the old value in the DB
+        if (currentPrice.regulationPrice) {
+            currentPrice.regulationPrice = this.formatPrice(currentPrice.regulationPrice, dbRegulationPrice);
+        } else if (dbRegulationPrice) {
+            currentPrice.regulationPrice = dbRegulationPrice;
         }
 
-        return inputPrice;
+        return currentPrice;
     }
 
     formatPrice(price, dbPrice) {

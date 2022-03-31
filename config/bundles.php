@@ -13,7 +13,7 @@ return [
     Shopware\Core\System\System::class => ['all' => true],
     Shopware\Core\Content\Content::class => ['all' => true],
     Shopware\Core\Checkout\Checkout::class => ['all' => true],
-    Shopware\Core\Profiling\Profiling::class => ['dev' => true],
+    Shopware\Core\Profiling\Profiling::class => ['all' => true],
     Shopware\Core\DevOps\DevOps::class => ['all' => true],
     Shopware\Core\Maintenance\Maintenance::class => ['all' => true],
     Shopware\Administration\Administration::class => ['all' => true],

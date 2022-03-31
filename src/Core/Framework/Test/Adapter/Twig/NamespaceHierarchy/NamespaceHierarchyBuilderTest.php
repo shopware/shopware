@@ -67,6 +67,7 @@ class NamespaceHierarchyBuilderTest extends TestCase
             'Elasticsearch',
             'Storefront',
             'Administration',
+            'Profiling',
             'Framework',
         ];
         // Remove not installed core bundles from hierarchy

@@ -22,17 +22,6 @@ class Profiling extends Bundle
         /** @var string $environment */
         $environment = $container->getParameter('kernel.environment');
 
-        /** @var array<string, string> $bundles */
-        $bundles = $container->getParameter('kernel.bundles');
-
-        if (!isset($bundles['WebProfilerBundle'])) {
-            if ($environment === 'dev') {
-                throw new \RuntimeException('Profiling bundle requires WebProfilerBundle to work');
-            }
-
-            return;
-        }
-
         parent::build($container);
 
         $this->buildConfig($container, $environment);
@@ -46,7 +35,6 @@ class Profiling extends Bundle
         parent::boot();
         // The profiler registers all profiler integrations in the constructor
         // Therefor we need to get the service once to initialize it
-        // @phpstan-ignore-next-line ProfilerBundle is only available in env=dev, so the service seems to be not available for phpstan
         $this->container->get(Profiler::class);
     }
 

@@ -66,7 +66,7 @@ class TranslationTest extends TestCase
     public function testDefaultAndExplicitSystem(): void
     {
         $this->assertTranslation(
-            ['name' => 'default'],
+            ['name' => 'system'],
             [
                 'name' => 'default',
                 'translations' => [

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Write;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationEntity;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotDefinition;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
@@ -203,12 +204,12 @@ class TranslationTest extends TestCase
             'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
             'translations' => [
                 'en-GB' => [
-                    'name' => $name,
-                    'shortName' => 'should be overwritten',
+                    'shortName' => $shortName,
                 ],
 
                 Defaults::LANGUAGE_SYSTEM => [
-                    'shortName' => $shortName,
+                    'name' => $name,
+                    'shortName' => 'should be overwritten',
                 ],
             ],
         ];
@@ -823,5 +824,161 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
         /** @var CmsSlotEntity $slot */
         $slot = $searchResult->getEntities()->get($page['sections'][0]['blocks'][0]['slots'][2]['id']);
         static::assertNull($slot->getConfig());
+    }
+
+    public function testTranslationValuesHavePriorityOverDefaultValueWithIsoCodes(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'name' => 'default',
+            'translations' => [
+                'en-GB' => [
+                    'name' => 'en translation',
+                ],
+                'de-DE' => [
+                    'name' => 'de übersetzung',
+                ],
+            ],
+        ];
+
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('category.repository');
+
+        $repository->create([$data], $context);
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('translations');
+
+        /** @var CategoryEntity $category */
+        $category = $repository->search($criteria, $context)->first();
+
+        /** @var CategoryTranslationEntity $enTranslation */
+        $enTranslation = $category->getTranslations()->filterByLanguageId(Defaults::LANGUAGE_SYSTEM)->first();
+        static::assertEquals('en translation', $enTranslation->getName());
+
+        /** @var CategoryTranslationEntity $deTranslation */
+        $deTranslation = $category->getTranslations()->filterByLanguageId($this->getDeDeLanguageId())->first();
+        static::assertEquals('de übersetzung', $deTranslation->getName());
+    }
+
+    public function testTranslationValuesHavePriorityOverDefaultValueWithIds(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'name' => 'default',
+            'translations' => [
+                Defaults::LANGUAGE_SYSTEM => [
+                    'name' => 'en translation',
+                ],
+                $this->getDeDeLanguageId() => [
+                    'name' => 'de übersetzung',
+                ],
+            ],
+        ];
+
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('category.repository');
+
+        $repository->create([$data], $context);
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('translations');
+
+        /** @var CategoryEntity $category */
+        $category = $repository->search($criteria, $context)->first();
+
+        /** @var CategoryTranslationEntity $enTranslation */
+        $enTranslation = $category->getTranslations()->filterByLanguageId(Defaults::LANGUAGE_SYSTEM)->first();
+        static::assertEquals('en translation', $enTranslation->getName());
+
+        /** @var CategoryTranslationEntity $deTranslation */
+        $deTranslation = $category->getTranslations()->filterByLanguageId($this->getDeDeLanguageId())->first();
+        static::assertEquals('de übersetzung', $deTranslation->getName());
+    }
+
+    public function testTranslationValuesHavePriorityOverDefaultValuesWithIds(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'name' => [
+                Defaults::LANGUAGE_SYSTEM => 'default',
+            ],
+            'translations' => [
+                Defaults::LANGUAGE_SYSTEM => [
+                    'name' => 'en translation',
+                ],
+                $this->getDeDeLanguageId() => [
+                    'name' => 'de übersetzung',
+                ],
+            ],
+        ];
+
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('category.repository');
+
+        $repository->create([$data], $context);
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('translations');
+
+        /** @var CategoryEntity $category */
+        $category = $repository->search($criteria, $context)->first();
+
+        /** @var CategoryTranslationEntity $enTranslation */
+        $enTranslation = $category->getTranslations()->filterByLanguageId(Defaults::LANGUAGE_SYSTEM)->first();
+        static::assertEquals('en translation', $enTranslation->getName());
+
+        /** @var CategoryTranslationEntity $deTranslation */
+        $deTranslation = $category->getTranslations()->filterByLanguageId($this->getDeDeLanguageId())->first();
+        static::assertEquals('de übersetzung', $deTranslation->getName());
+    }
+
+    public function testDefaultValueWithLocaleHasPriorityOverTranslationValueWithId(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'name' => [
+                'en-GB' => 'default',
+            ],
+            'translations' => [
+                Defaults::LANGUAGE_SYSTEM => [
+                    'name' => 'en translation',
+                ],
+                $this->getDeDeLanguageId() => [
+                    'name' => 'de übersetzung',
+                ],
+            ],
+        ];
+
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('category.repository');
+
+        $repository->create([$data], $context);
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('translations');
+
+        /** @var CategoryEntity $category */
+        $category = $repository->search($criteria, $context)->first();
+
+        /** @var CategoryTranslationEntity $enTranslation */
+        $enTranslation = $category->getTranslations()->filterByLanguageId(Defaults::LANGUAGE_SYSTEM)->first();
+        static::assertEquals('default', $enTranslation->getName());
+
+        /** @var CategoryTranslationEntity $deTranslation */
+        $deTranslation = $category->getTranslations()->filterByLanguageId($this->getDeDeLanguageId())->first();
+        static::assertEquals('de übersetzung', $deTranslation->getName());
     }
 }

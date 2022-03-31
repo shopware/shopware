@@ -23,6 +23,10 @@
         if: '$CI_MERGE_REQUEST_EVENT_TYPE == null
           || $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
 
-
+    # match if long running but only if failure is allowed
+    long-running-allow-failure:
+      if: '$ALLOW_FAILURE == "true" && (
+              $CI_MERGE_REQUEST_EVENT_TYPE == null
+           || $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train")'
 
 

@@ -70,6 +70,9 @@ PHP coverage:
         FEATURE_ALL: "major"
         GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
     rules:
+        # do not run in merge trains - PHP Full should cover all tests
+        - if: $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"
+          when: never
         - !reference [.rules, skip]
         - !reference [.rules, run]
         - changes:
@@ -127,6 +130,8 @@ PHP Full:
     rules:
         - !reference [.rules, skip]
         - !reference [.rules, run]
+        - if: !reference [.rules, long-running-allow-failure, if]
+          allow_failure: true
         # run if it's merge train and has changes or scheduled
         - if: !reference [.rules, long-running, if]
           changes:
@@ -135,24 +140,20 @@ PHP Full:
             - '**/*.{php,xml,yaml,json,js,twig}'
             - 'adr/*'
             - .gitlab/stages/02-unit.yml
-        - if: '$ALLOW_FAILURE == "true" || $CI_PIPELINE_SOURCE == "schedule"'
-          allow_failure: true
-        - if: '$DEPENDENCY_DEV == "true" && $CI_PIPELINE_SOURCE == "schedule"'
-          when: never
     parallel:
         matrix:
             -   MYSQL_IMAGE: mariadb:10.4
                 DEV_IMAGE: shopware/development:8.0-composer-2
-                FEATURE_ALL: [ "false", "minor" ]
+                FEATURE_ALL: 'false'
             -   MYSQL_IMAGE:
                     - mysql:5.7
                     - mariadb:10.3
                 DEV_IMAGE: shopware/development:8.0-composer-2
-                FEATURE_ALL: [ "false", "minor", "major" ]
+                FEATURE_ALL: [ "false", "major" ]
             -   MYSQL_IMAGE:
                     - mysql:8.0
                 DEV_IMAGE: [ "shopware/development:7.4-composer-2", "shopware/development:8.0-composer-2", "shopware/development:8.1-composer-2" ]
-                FEATURE_ALL: [ "false", "minor", "major" ]
+                FEATURE_ALL: [ "false", "major" ]
                 MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
             -   MYSQL_IMAGE: mariadb:10.4
                 DEV_IMAGE: shopware/development:7.4-composer-2
@@ -191,9 +192,16 @@ PHP Full:
         - FAILED=0
         - >
             for SUITE in $TEST_SUITES; do
-                composer run phpunit -- --testsuite=$SUITE --log-junit phpunit.$SUITE.junit.xml --colors=never || FAILED=1
+                if [[ $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" || 0 ]]; then
+                  composer run phpunit -- --testsuite=$SUITE --log-junit phpunit.$SUITE.junit.xml --colors=never --stop-on-failure;
+                else
+                  composer run phpunit -- --testsuite=$SUITE --log-junit phpunit.$SUITE.junit.xml --colors=never || FAILED=1
+                fi
             done
         - '[[ $FAILED -eq 0 ]]'
+    after_script:
+      - !reference [.scripts, handle-failed-merge-train, after_script]
+      - !reference [.upload-junit-xml, after_script]
     artifacts:
         when: always
         paths:

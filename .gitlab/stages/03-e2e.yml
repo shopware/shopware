@@ -2,7 +2,7 @@
 
 E2E:
     extends:
-        - .long-running
+       - .long-running
     stage: E2E
     needs: []
     services:
@@ -27,7 +27,7 @@ E2E:
                     - "cypress/integration/administration/content/**/*,cypress/integration/administration/general/**/*,cypress/integration/administration/order/**/*,cypress/integration/administration/rule-product-stream/**/*"
                     - "cypress/integration/storefront/**/*"
                 BROWSER: 'chrome'
-                FEATURE_ALL: ["false", "minor", "major"]
+                FEATURE_ALL: ["false", "major"]
             # firefox
             -   TEST_DIRECTORY:
                     - "cypress/integration/administration/settings/**/*"
@@ -37,6 +37,10 @@ E2E:
                 BROWSER: 'firefox'
                 FEATURE_ALL: 'false'
     script:
+        - >
+          if [[ $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" ]]; then
+            export CYPRESS_INTERRUPT_ON_ERROR="true"
+          fi
         - composer run init:e2e
         - composer run e2e:prepare
         - composer run e2e:cypress -- run
@@ -44,7 +48,8 @@ E2E:
             --spec "$TEST_DIRECTORY"
             --headless
     after_script:
-        - mkdir $CI_PROJECT_DIR/var/log/e2e
+        - !reference [.scripts, handle-failed-merge-train, after_script]
+        - mkdir $CI_PROJECT_DIR/var/log/e2e || true
         - composer run npm:e2e -- run combine-reports
         - composer run npm:e2e -- run generate-report
         - mv tests/E2E/cypress/results/single-reports/*.xml var/log/e2e/ || true
@@ -59,7 +64,7 @@ E2E:
 
 E2E install NL:
     extends:
-        - .long-running
+      - .long-running
     stage: E2E
     needs: [ ]
     services:
@@ -109,11 +114,16 @@ E2E install NL:
             --headless
         - .gitlab/bin/install_store_plugin.bash SwagLanguagePack SwagPayPal
         - composer run e2e:prepare
+        - >
+          if [[ $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train" ]]; then
+            export CYPRESS_INTERRUPT_ON_ERROR="true"
+          fi
         - composer run e2e:cypress -- run
             --browser chrome
             --spec "cypress/integration/scenarios/**/*.spec.js"
             --headless
     after_script:
+        - !reference [ .scripts, handle-failed-merge-train, after_script ]
         - mkdir -p $CI_PROJECT_DIR/var/log/e2e $CI_PROJECT_DIR/src/Recovery/Test/e2e/cypress/mochareports || true
         - composer run npm:e2e -- run combine-reports
         - composer run npm:e2e -- run generate-report

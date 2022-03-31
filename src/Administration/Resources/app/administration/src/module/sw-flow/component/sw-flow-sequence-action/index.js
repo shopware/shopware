@@ -358,19 +358,22 @@ Component.register('sw-flow-sequence-action', {
         getSetOrderStateDescription(config) {
             const description = [];
             if (config.order) {
-                const orderStatus = this.stateMachineState.find(item => item.technicalName === config.order);
+                const orderStatus = this.stateMachineState.find(item => item.technicalName === config.order
+                && item.stateMachine.technicalName === 'order.state');
                 const orderStatusName = orderStatus?.translated?.name || '';
                 description.push(`${this.$tc('sw-flow.modals.status.labelOrderStatus')}: ${orderStatusName}`);
             }
 
             if (config.order_delivery) {
-                const deliveryStatus = this.stateMachineState.find(item => item.technicalName === config.order_delivery);
+                const deliveryStatus = this.stateMachineState.find(item => item.technicalName === config.order_delivery
+                    && item.stateMachine.technicalName === 'order_delivery.state');
                 const deliveryStatusName = deliveryStatus?.translated?.name || '';
                 description.push(`${this.$tc('sw-flow.modals.status.labelDeliveryStatus')}: ${deliveryStatusName}`);
             }
 
             if (config.order_transaction) {
-                const paymentStatus = this.stateMachineState.find(item => item.technicalName === config.order_transaction);
+                const paymentStatus = this.stateMachineState.find(item => item.technicalName === config.order_transaction
+                    && item.stateMachine.technicalName === 'order_transaction.state');
                 const paymentStatusName = paymentStatus?.translated?.name || '';
                 description.push(`${this.$tc('sw-flow.modals.status.labelPaymentStatus')}: ${paymentStatusName}`);
             }

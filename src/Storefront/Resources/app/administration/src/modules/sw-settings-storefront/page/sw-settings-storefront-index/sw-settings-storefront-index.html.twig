@@ -1,0 +1,61 @@
+{% block sw_settings_storefront_index %}
+<sw-page class="sw-settings-storefront">
+
+    {% block sw_settings_storefront_smart_bar_header %}
+    <template slot="smart-bar-header">
+        {% block sw_settings_storefront_smart_bar_header_title %}
+        <h2>
+            {% block sw_settings_storefront_smart_bar_header_title_text %}
+            {{ $tc('sw-settings.index.title') }}
+            <sw-icon
+                name="small-arrow-medium-right"
+                small
+            />
+            {{ $tc('sw-settings-storefront.general.textHeadline') }}
+            {% endblock %}
+        </h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_storefront_smart_bar_actions %}
+    <template slot="smart-bar-actions">
+        {% block sw_settings_storefront_actions_save %}
+        <sw-button-process
+            :is-loading="isLoading"
+            :process-success="isSaveSuccessful"
+            variant="primary"
+            @process-finish="onSaveFinish"
+            @click="savestorefrontSettings"
+        >
+            {{ $tc('global.default.save') }}
+        </sw-button-process>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_storefront_content %}
+    <template slot="content">
+        <sw-card-view>
+            <sw-skeleton v-if="isLoading" />
+
+            {% block sw_settings_storefront %}
+            <sw-card
+                position-identifier="sw-settings-storefront--settings"
+                :title="$tc('sw-settings-storefront.configuration.cardTitle')"
+                class="sw-settings-storefront__input-fields"
+            >
+
+                {% block sw_settings_storefront_smtp_settings %}
+                    <sw-settings-storefront-configuration
+                        :storefront-settings="storefrontSettings"
+                    />
+                {% endblock %}
+
+            </sw-card>
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

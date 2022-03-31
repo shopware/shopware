@@ -1,22 +1,23 @@
-{% block utilities_icon %}
+{%- block utilities_icon -%}
     {% set styles = [ size, color, rotation, flip, class ] %}
 
-    {% if pack is not defined %}
+    {%- if pack is not defined -%}
         {% set pack = 'default' %}
-    {% endif %}
+    {%- endif -%}
 
-    {% if namespace is not defined %}
+    {%- if namespace is not defined -%}
         {% set namespace = 'Storefront' %}
-    {% endif %}
+    {%- endif -%}
 
-    {% if themeIconConfig[pack] is defined %}
+    {%- if themeIconConfig[pack] is defined -%}
         <span class="icon icon-{{ pack }} icon-{{ pack }}-{{ name }}{% for entry in styles %}{% if entry != "" %} icon-{{ entry }}{% endif %}{% endfor %}">
-            {{ source('@' ~ themeIconConfig[pack].namespace ~ '/../' ~ themeIconConfig[pack].path ~'/'~ name ~ '.svg', ignore_missing = true) }}
+            {% set icon =  source('@' ~ themeIconConfig[pack].namespace ~ '/../' ~ themeIconConfig[pack].path ~'/'~ name ~ '.svg', ignore_missing = true) %}
+            {{ icon|sw_icon_cache|raw }}
         </span>
-    {% else %}
-        <span
-            class="icon icon-{{ name }}{% for entry in styles %}{% if entry != "" %} icon-{{ entry }}{% endif %}{% endfor %}">
-                {{ source('@' ~ namespace ~ '/../app/storefront/dist/assets/icon/'~ pack ~'/'~ name ~'.svg', ignore_missing = true) }}
+    {%- else -%}
+        <span class="icon icon-{{ name }}{% for entry in styles %}{% if entry != "" %} icon-{{ entry }}{% endif %}{% endfor %}">
+            {% set icon = source('@' ~ namespace ~ '/../app/storefront/dist/assets/icon/'~ pack ~'/'~ name ~'.svg', ignore_missing = true) %}
+            {{ icon|sw_icon_cache|raw }}
         </span>
-    {% endif %}
-{% endblock %}
+    {%- endif -%}
+{%- endblock -%}

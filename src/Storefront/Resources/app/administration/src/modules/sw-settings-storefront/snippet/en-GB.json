@@ -1,0 +1,17 @@
+{
+  "sw-settings-storefront": {
+    "general": {
+      "mainMenuItemGeneral": "Storefront",
+      "textHeadline": "Storefront",
+      "description": "Settings for the storefront",
+      "helpText": "For more information look at <a target=\"_blank\" href='https://docs.shopware.com/en/shopware-6-de'>documentation</a>"
+    },
+    "configuration": {
+      "cardTitle": "Storefront configuration",
+      "iconCache": "Activate icon cache",
+      "iconCacheToolTip": "Controls whether icons are only delivered once per storefront page and additional usages will only be referenced by the icons id."
+    },
+    "helpText": "For more information please check out the <a target=\"_blank\", href=\"https://docs.shopware.com/en/shopware-6-en\">documentation.</a>"
+  }
+}
+

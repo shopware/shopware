@@ -13,10 +13,12 @@ use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Profiling\Profiler;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\Router;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
+use Shopware\Storefront\Framework\Twig\Extension\IconCacheTwigFilter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -57,9 +59,21 @@ abstract class StorefrontController extends AbstractController
         }
         $this->container->get('event_dispatcher')->dispatch($event);
 
+        $iconCacheEnabled = $this->getSystemConfigService()->get('core.storefrontSettings.iconCache');
+
+        /** @deprecated tag:v6.5.0 - icon cache will be true by default. */
+        if ($iconCacheEnabled || (Feature::isActive('v6.5.0.0') && $iconCacheEnabled === null)) {
+            IconCacheTwigFilter::enable();
+        }
+
         $response = Profiler::trace('twig-rendering', function () use ($view, $event) {
             return $this->render($view, $event->getParameters(), new StorefrontResponse());
         });
+
+        /** @deprecated tag:v6.5.0 - icon cache will be true by default. */
+        if ($iconCacheEnabled || (Feature::isActive('v6.5.0.0') && $iconCacheEnabled === null)) {
+            IconCacheTwigFilter::disable();
+        }
 
         if (!$response instanceof StorefrontResponse) {
             throw new \RuntimeException('Symfony render implementation changed. Providing a response is no longer supported');
@@ -237,5 +251,10 @@ abstract class StorefrontController extends AbstractController
     protected function hook(Hook $hook): void
     {
         $this->container->get(ScriptExecutor::class)->execute($hook);
+    }
+
+    protected function getSystemConfigService(): SystemConfigService
+    {
+        return $this->container->get(SystemConfigService::class);
     }
 }

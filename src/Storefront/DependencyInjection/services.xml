@@ -135,6 +135,11 @@
             <tag name="twig.extension"/>
         </service>
 
+        <service id="Shopware\Storefront\Framework\Twig\Extension\IconCacheTwigFilter" public="false">
+            <tag name="twig.extension"/>
+        </service>
+
+
         <service id="Shopware\Storefront\Framework\Twig\Extension\CsrfFunctionExtension">
             <tag name="twig.extension"/>
         </service>

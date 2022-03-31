@@ -10,7 +10,12 @@
     {% set blank = 5 - full - half  %}
 
     {% block component_review_rating_output %}
-        <span class="product-review-rating">
+        {# @deprecated tag:v6.5.0 - span will be a div because a span should not contain divs #}
+        {% if feature('v6.5.0.0') %}
+            <div class="product-review-rating">
+        {% else %}
+            <span class="product-review-rating">
+        {% endif %}
 
             {% if full > 0 %}
                 {% for star in range(1,full) %}
@@ -33,6 +38,11 @@
                     } %}
                 {% endfor %}
             {% endif %}
-        </span>
+        {# @deprecated tag:v6.5.0 - span will be a div #}
+        {% if feature('v6.5.0.0') %}
+            </div>
+        {% else %}
+            </span>
+        {% endif %}
     {% endblock %}
 {% endblock %}

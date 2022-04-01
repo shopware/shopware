@@ -199,7 +199,7 @@ The subscription is only successful, if the /newsletter/confirm route is called 
      */
     public function subscribe(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl = true): NoContentResponse
     {
-        /* @feature-deprecated (flag:FEATURE_NEXT_16200) remove the if conditio, keep its body */
+        /* @feature-deprecated (flag:FEATURE_NEXT_16200) remove the if condition, keep its body */
         if (Feature::isActive('FEATURE_NEXT_16200')) {
             $doubleOptInDomain = $this->systemConfigService->getString(
                 'core.newsletter.doubleOptInDomain',

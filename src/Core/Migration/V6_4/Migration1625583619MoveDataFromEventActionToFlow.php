@@ -119,6 +119,7 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
             if ($flowValue['rule_ids'] !== null) {
                 $ruleIds = explode(',', $flowValue['rule_ids']);
                 // migrate multiple rules from event_action to the if conditions in the new flow
+                $isTrueCase = $flowSequenceParentId === null ? 0 : 1;
                 foreach (Uuid::fromHexToBytesList($ruleIds) as $ruleId) {
                     $flowSequenceId = Uuid::randomBytes();
 
@@ -128,25 +129,38 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
                         $ruleId,
                         $flowSequenceParentId,
                         null,
-                        $flowSequenceParentId === null ? 0 : 1,
+                        $isTrueCase,
                         $createdAt
                     );
 
+                    if ($flowValue['action_name']) {
+                        $flowSequences[] = $this->buildSequenceData(
+                            Uuid::randomBytes(),
+                            $flowId,
+                            null,
+                            $flowSequenceId,
+                            $flowValue['action_name'],
+                            1,
+                            $createdAt,
+                            $this->getNewConfig($flowValue['config'])
+                        );
+                    }
+                    $isTrueCase = 0;
                     $flowSequenceParentId = $flowSequenceId;
                 }
+            } else {
+                // add a flow_sequence that contain action_name to trigger the new flow
+                $flowSequences[] = $this->buildSequenceData(
+                    Uuid::randomBytes(),
+                    $flowId,
+                    null,
+                    $flowSequenceParentId,
+                    $flowValue['action_name'],
+                    $flowSequenceParentId === null ? 0 : 1,
+                    $createdAt,
+                    $this->getNewConfig($flowValue['config'])
+                );
             }
-
-            // add a flow_sequence that contain action_name to trigger the new flow
-            $flowSequences[] = $this->buildSequenceData(
-                Uuid::randomBytes(),
-                $flowId,
-                null,
-                $flowSequenceParentId,
-                $flowValue['action_name'],
-                $flowSequenceParentId === null ? 0 : 1,
-                $createdAt,
-                $this->getNewConfig($flowValue['config'])
-            );
 
             foreach ($flowSequences as $flowSequence) {
                 $this->flowSequenceQueue[] = $flowSequence;

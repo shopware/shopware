@@ -29,12 +29,21 @@ export default class CountryStateSelectPlugin extends Plugin {
         const countryStateSelect = DomAccess.querySelector(this.el, countryStateSelectSelector);
         const initialCountryId = DomAccess.getDataAttribute(countrySelect, initialCountryAttribute);
         const initialCountryStateId = DomAccess.getDataAttribute(countryStateSelect, initialCountryStateAttribute);
+        const countrySelectCurrentOption = countrySelect.options[countrySelect.selectedIndex];
+        const vatIdRequired = !!DomAccess.getDataAttribute(countrySelectCurrentOption, this.options.vatIdRequired, false);
+        const vatIdInput = document.querySelector(this.options.vatIdFieldInput);
 
         countrySelect.addEventListener('change', this.onChangeCountry.bind(this));
 
-        if (initialCountryId) {
-            this.requestStateData(initialCountryId, initialCountryStateId);
+        if (!initialCountryId) {
+            return;
         }
+        this.requestStateData(initialCountryId, initialCountryStateId);
+
+        if (!vatIdInput) {
+            return;
+        }
+        this._updateRequiredVatId(vatIdInput, vatIdRequired);
     }
 
     onChangeCountry(event) {
@@ -70,15 +79,15 @@ export default class CountryStateSelectPlugin extends Plugin {
         if (vatIdRequired) {
             vatIdFieldInput.setAttribute('required', 'required');
 
-            if (label.innerText.substr(-1, 1) !== '*') {
-                label.innerText = `${label.innerText}*`;
+            if (label.textContent.substr(-1, 1) !== '*') {
+                label.textContent = `${label.textContent}*`;
             }
 
             return;
         }
 
-        if (label.innerText.substr(-1, 1) === '*') {
-            label.innerText = label.innerText.substr(0, label.innerText.length -1);
+        if (label.textContent.substr(-1, 1) === '*') {
+            label.textContent = label.textContent.substr(0, label.textContent.length -1);
         }
 
         vatIdFieldInput.removeAttribute('required');

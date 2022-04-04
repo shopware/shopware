@@ -68,15 +68,27 @@ describe('Storefront: test registration with country settings & invalid inputs',
             method: 'POST'
         }).as('getCountrySettings');
 
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/country/**`,
+            method: 'PATCH'
+        }).as('saveCountrySettings');
+
         // Country settings
         cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Netherlands');
         cy.wait('@getCountrySettings').its('response.statusCode').should('equal', 200);
-        cy.get(`.sw-data-grid__cell--name`).contains('Netherlands').click();
+        cy.get(`.sw-data-grid__cell--name`).contains('Netherlands').click({ force: true });
+
+        // Ensure we are on detail page of country "Netherlands"
+        cy.get('.smart-bar__header h2').contains('Netherlands').should('be.visible');
         cy.get('[name="sw-field--country-vatIdRequired"]').check();
         cy.get('.sw-button-process__content').click();
+        cy.wait('@saveCountrySettings').its('response.statusCode').should('equal', 204);
         cy.wait('@getCountrySettings').its('response.statusCode').should('equal', 200);
         cy.get('.sw-loader').should('not.exist');
+
+        // Ensure vatIdRequired is checked
+        cy.get('[name="sw-field--country-vatIdRequired"]').should('be.checked');
 
         // Should not validate registration with empty VAT-ID
         cy.visit('/account/register');
@@ -92,7 +104,8 @@ describe('Storefront: test registration with country settings & invalid inputs',
         cy.get('#billingAddressAddressZipcode').typeAndCheckStorefront('12345');
         cy.get('#billingAddressAddressCity').typeAndCheckStorefront('Test city');
         cy.get('#billingAddressAddressCountry').select('Netherlands');
-        cy.get('[for="vatIds"]').scrollIntoView().contains('VAT Reg.No.*').should('be.visible');
+        cy.get('#vatIds').scrollIntoView();
+        cy.get('#vatIds').should('have.attr', 'required');
         cy.get('.btn.btn-lg.btn-primary').click();
         cy.url().should('include', 'account/register');
     });

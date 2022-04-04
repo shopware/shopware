@@ -4,6 +4,10 @@ shopware:
       - name: v6.5.0.0
         default: false
         major: true
+      - name: PERFORMANCE_TWEAKS
+        default: false
+        major: true
+        description: "Performance improvements that include a breaking change"
       - name: FEATURE_NEXT_1797
         default: false
         major: true

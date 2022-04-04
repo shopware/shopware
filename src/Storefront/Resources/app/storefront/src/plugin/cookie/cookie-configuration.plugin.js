@@ -203,6 +203,7 @@ export default class CookieConfiguration extends Plugin {
     _onOffCanvasOpened(callback) {
         this._registerOffCanvasEvents();
         this._setInitialState();
+        this._setInitialOffcanvasState();
         PluginManager.initializePlugins();
 
         if (typeof callback === 'function') {
@@ -220,14 +221,15 @@ export default class CookieConfiguration extends Plugin {
     }
 
     /**
-     * Get current cookie configuration and preselect coherent checkboxes
-     * Required cookies are already checked in the template
+     * Sets the `lastState` of the current cookie configuration, either passed as
+     * parameter `cookies`, otherwise it is loaded by parsing the DOM of the off
+     * canvas sidebar
      *
+     * @param {?Array} cookies
      * @private
      */
-    _setInitialState() {
-        const offCanvas = this._getOffCanvas();
-        const cookies = this._getCookies('all');
+    _setInitialState(cookies = null) {
+        cookies = cookies || this._getCookies('all');
         const activeCookies = [];
         const inactiveCookies = [];
 
@@ -244,6 +246,16 @@ export default class CookieConfiguration extends Plugin {
             active: activeCookies,
             inactive: inactiveCookies,
         };
+    }
+
+    /**
+     * Preselect coherent checkboxes in the off canvas sidebar
+     *
+     * @private
+     */
+    _setInitialOffcanvasState() {
+        const activeCookies = this.lastState.active;
+        const offCanvas = this._getOffCanvas();
 
         activeCookies.forEach(activeCookie => {
             const target = offCanvas.querySelector(`[data-cookie="${activeCookie}"]`);
@@ -442,7 +454,6 @@ export default class CookieConfiguration extends Plugin {
             return;
         }
 
-
         ElementLoadingIndicatorUtil.create(this.el);
 
         const url = window.router['frontend.cookie.offcanvas'];
@@ -481,10 +492,12 @@ export default class CookieConfiguration extends Plugin {
     /**
      * This will set and refresh all registered cookies.
      *
+     * @param {?Document} offCanvas
      * @private
      */
     _handleAcceptAll(offCanvas = null) {
         const allCookies = this._getCookies('all', offCanvas);
+        this._setInitialState(allCookies);
         const { cookiePreference } = this.options;
 
         allCookies.forEach(({ cookie, value, expiration }) => {
@@ -505,7 +518,7 @@ export default class CookieConfiguration extends Plugin {
      * Always excludes "required" cookies, since they are assumed to be set separately.
      *
      * @param type
-     * @param offCanvas
+     * @param {?Document} offCanvas
      * @returns {Array}
      * @private
      */

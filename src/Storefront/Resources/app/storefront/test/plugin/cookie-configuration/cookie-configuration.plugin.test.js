@@ -49,6 +49,7 @@ describe('CookieConfiguration plugin tests', () => {
         plugin = new CookieConfiguration(container);
 
         plugin._setInitialState();
+        plugin._setInitialOffcanvasState();
     });
 
     afterEach(() => {
@@ -169,6 +170,7 @@ describe('CookieConfiguration plugin tests', () => {
         CookieStorage.setItem(optionalAndInactive[0], optionalAndInactive[0], 30);
 
         plugin._setInitialState();
+        plugin._setInitialOffcanvasState();
 
         expect(plugin.lastState.active).toEqual([...requiredAndActive, optionalAndInactive[0]]);
         expect(CookieStorage.getItem(optionalAndInactive[0])).toBeTruthy();

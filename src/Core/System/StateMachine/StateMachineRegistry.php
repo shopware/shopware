@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\StateMachine;
 
+use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -300,6 +301,15 @@ class StateMachineRegistry
             // Desired transition found
             if ($transition->getFromStateMachineState()->getId() === $fromStateId) {
                 return $transition->getToStateMachineState();
+            }
+        }
+
+        if ($context->hasState(SetOrderStateAction::FORCE_TRANSITION)) {
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('technicalName', $transitionName));
+            $criteria->addFilter(new EqualsFilter('stateMachineId', $stateMachine->getId()));
+            if ($toPlace = $this->stateMachineStateRepository->search($criteria, $context)->first()) {
+                return $toPlace;
             }
         }
 

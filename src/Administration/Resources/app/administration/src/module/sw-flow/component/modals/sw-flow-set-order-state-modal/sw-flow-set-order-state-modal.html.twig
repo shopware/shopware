@@ -35,6 +35,15 @@
         :placeholder="$tc('sw-flow.modals.status.placeholderOrderStatus')"
     />
     {% endblock %}
+
+    {% block sw_flow_set_order_state_modal_force_transition %}
+    <sw-checkbox-field
+        v-model="config.force_transition"
+        class="sw-flow-set-order-state-modal__force-transition"
+        :label="$tc('sw-flow.modals.status.forceTransition')"
+        :help-text="$tc('sw-flow.modals.status.forceTransitionHelpText')"
+    />
+    {% endblock %}
     {% endblock %}
 
     {% block sw_flow_set_order_state_modal_footer %}

@@ -1,5 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-flow/component/modals/sw-flow-set-order-state-modal';
+import 'src/app/component/form/sw-checkbox-field';
+import 'src/app/component/form/field-base/sw-base-field';
 
 import Vuex from 'vuex';
 import flowState from 'src/module/sw-flow/state/flow.state';
@@ -80,7 +82,11 @@ function createWrapper() {
                         </option>
                     </select>`,
                 props: ['value', 'options']
-            }
+            },
+            'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
+            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-help-text': true,
+            'sw-field-error': true,
         }
     });
 }
@@ -112,6 +118,9 @@ describe('module/sw-flow/component/sw-flow-set-order-state-modal', () => {
         const orderSelect = wrapper.find('.sw-flow-set-order-state-modal__order-status');
         await orderSelect.setValue('in_progress');
 
+        const forceTransitionCheckBox = wrapper.find('.sw-flow-set-order-state-modal__force-transition input');
+        await forceTransitionCheckBox.setChecked(true);
+
         const saveButton = wrapper.find('.sw-flow-set-order-state-modal__save-button');
         await saveButton.trigger('click');
 
@@ -119,7 +128,8 @@ describe('module/sw-flow/component/sw-flow-set-order-state-modal', () => {
             config: {
                 order: 'in_progress',
                 order_delivery: 'shipped',
-                order_transaction: 'paid'
+                order_transaction: 'paid',
+                force_transition: true,
             }
         }]);
     });

@@ -41,7 +41,7 @@ Component.register('sw-flow-set-order-state-modal', {
         },
 
         stateMachineStateCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, null);
             criteria.addSorting({ field: 'name', order: 'ASC' });
             criteria.addAssociation('stateMachine');
             criteria.addFilter(

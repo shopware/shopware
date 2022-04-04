@@ -51,8 +51,6 @@ class DatabaseConfigLoaderTest extends TestCase
 
     public function testMediaConfigurationLoading(): void
     {
-        static::markTestSkipped('NEXT-20034');
-
         self::setUpMedia();
 
         $theme = [[
@@ -94,10 +92,10 @@ class DatabaseConfigLoaderTest extends TestCase
         $mediaURL = EnvironmentHelper::getVariable('APP_URL') . '/media/fd/01/0e/testImage.png';
 
         if (!Feature::isActive('FEATURE_NEXT_19048')) {
-            static::assertEquals($mediaURL, $themeConfig['media-field']['value']);
+            static::assertEquals($mediaURL, $themeConfig['media-field']['value'], 'If This Failes, please update NEXT-20034 and inform s.sluiter directly!');
         }
 
-        static::assertEquals($mediaURL, $themeConfig['fields']['media-field']['value']);
+        static::assertEquals($mediaURL, $themeConfig['fields']['media-field']['value'], 'If This Failes, please update NEXT-20034 and inform s.sluiter directly!');
     }
 
     public function testEmptyMediaConfigurationLoading(): void

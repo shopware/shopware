@@ -50,6 +50,7 @@
         <service id="Shopware\Core\Framework\Demodata\Generator\CategoryGenerator">
             <argument type="service" id="category.repository"/>
             <argument type="service" id="cms_page.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection" />
 
             <tag name="shopware.demodata_generator"/>
         </service>
@@ -57,6 +58,13 @@
         <service id="Shopware\Core\Framework\Demodata\Generator\ProductManufacturerGenerator">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
             <argument type="service" id="Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition" />
+
+            <tag name="shopware.demodata_generator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Demodata\Generator\TagGenerator">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
+            <argument type="service" id="Shopware\Core\System\Tag\TagDefinition" />
 
             <tag name="shopware.demodata_generator"/>
         </service>
@@ -91,6 +99,7 @@
             <argument type="service" id="media_default_folder.repository" />
             <argument type="service" id="media_folder.repository" />
             <argument type="service" id="Shopware\Core\Content\Media\MediaDefinition"/>
+            <argument type="service" id="Doctrine\DBAL\Connection" />
 
             <tag name="shopware.demodata_generator"/>
         </service>

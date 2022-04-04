@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Doctrine\DBAL\Connection;
+use Faker\Generator;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartCalculator;
@@ -27,35 +28,17 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class OrderGenerator implements DemodataGeneratorInterface
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var AbstractSalesChannelContextFactory
-     */
-    private $contextFactory;
+    private AbstractSalesChannelContextFactory$contextFactory;
 
-    /**
-     * @var CartService
-     */
-    private $cartService;
+    private CartService $cartService;
 
-    /**
-     * @var OrderConverter
-     */
-    private $orderConverter;
+    private OrderConverter $orderConverter;
 
-    /**
-     * @var EntityWriterInterface
-     */
-    private $writer;
+    private EntityWriterInterface $writer;
 
-    /**
-     * @var OrderDefinition
-     */
-    private $orderDefinition;
+    private OrderDefinition $orderDefinition;
 
     private array $contexts = [];
 
@@ -64,6 +47,8 @@ class OrderGenerator implements DemodataGeneratorInterface
     private DeliveryProcessor $deliveryProcessor;
 
     private CartCalculator $cartCalculator;
+
+    private Generator $faker;
 
     public function __construct(
         Connection $connection,
@@ -101,11 +86,13 @@ LEFT JOIN product_translation trans ON product.id = trans.product_id
 LIMIT 150
 SQL;
 
+        $this->faker = $context->getFaker();
         $salesChannelIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM sales_channel');
 
         $products = $this->connection->fetchAll($sql);
         $customerIds = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM customer LIMIT 10');
         $customerIds = array_column($customerIds, 'id');
+        $tags = $this->getIds('tag');
         $writeContext = WriteContext::createFromContext($context->getContext());
 
         $context->getConsole()->progressStart($numberOfItems);
@@ -161,6 +148,7 @@ SQL;
             $tempOrder = $this->orderConverter->convertToOrder($cart, $salesChannelContext, new OrderConversionContext());
 
             $tempOrder['orderDateTime'] = (new \DateTime())->modify('-' . random_int(0, 30) . ' days')->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+            $tempOrder['tags'] = $this->getTags($tags);
 
             $orders[] = $tempOrder;
 
@@ -176,6 +164,33 @@ SQL;
         }
 
         $context->getConsole()->progressFinish();
+    }
+
+    private function getTags(array $tags): array
+    {
+        $tagAssignments = [];
+
+        if (!empty($tags)) {
+            $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit, false);
+
+            if (!empty($chosenTags)) {
+                $tagAssignments = array_map(
+                    function ($id) {
+                        return ['id' => $id];
+                    },
+                    $chosenTags
+                );
+            }
+        }
+
+        return $tagAssignments;
+    }
+
+    private function getIds(string $table): array
+    {
+        $ids = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id FROM ' . $table . ' LIMIT 500');
+
+        return array_column($ids, 'id');
     }
 
     private function getContext(string $customerId, array $salesChannelIds): SalesChannelContext

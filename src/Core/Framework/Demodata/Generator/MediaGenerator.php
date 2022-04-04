@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Demodata\Generator;
 
+use Doctrine\DBAL\Connection;
+use Faker\Generator;
 use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderEntity;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
@@ -19,40 +21,23 @@ use Symfony\Component\Finder\Finder;
 
 class MediaGenerator implements DemodataGeneratorInterface
 {
-    /**
-     * @var EntityWriterInterface
-     */
-    private $writer;
+    private EntityWriterInterface $writer;
 
-    /**
-     * @var FileSaver
-     */
-    private $mediaUpdater;
+    private FileSaver $mediaUpdater;
 
-    /**
-     * @var FileNameProvider
-     */
-    private $fileNameProvider;
+    private FileNameProvider $fileNameProvider;
 
-    /**
-     * @var array
-     */
-    private $tmpImages = [];
+    private array $tmpImages = [];
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $defaultFolderRepository;
+    private EntityRepositoryInterface $defaultFolderRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $folderRepository;
+    private EntityRepositoryInterface $folderRepository;
 
-    /**
-     * @var MediaDefinition
-     */
-    private $mediaDefinition;
+    private MediaDefinition $mediaDefinition;
+
+    private Generator $faker;
+
+    private Connection $connection;
 
     public function __construct(
         EntityWriterInterface $writer,
@@ -60,7 +45,8 @@ class MediaGenerator implements DemodataGeneratorInterface
         FileNameProvider $fileNameProvider,
         EntityRepositoryInterface $defaultFolderRepository,
         EntityRepositoryInterface $folderRepository,
-        MediaDefinition $mediaDefinition
+        MediaDefinition $mediaDefinition,
+        Connection $connection
     ) {
         $this->writer = $writer;
         $this->mediaUpdater = $mediaUpdater;
@@ -68,6 +54,7 @@ class MediaGenerator implements DemodataGeneratorInterface
         $this->defaultFolderRepository = $defaultFolderRepository;
         $this->folderRepository = $folderRepository;
         $this->mediaDefinition = $mediaDefinition;
+        $this->connection = $connection;
     }
 
     public function getDefinition(): string
@@ -78,10 +65,12 @@ class MediaGenerator implements DemodataGeneratorInterface
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
     {
         $context->getConsole()->progressStart($numberOfItems);
+        $this->faker = $context->getFaker();
 
         $writeContext = WriteContext::createFromContext($context->getContext());
 
         $mediaFolderId = $this->getOrCreateDefaultFolder($context);
+        $tags = $this->getIds('tag');
 
         for ($i = 0; $i < $numberOfItems; ++$i) {
             $file = $this->getRandomFile($context);
@@ -94,6 +83,7 @@ class MediaGenerator implements DemodataGeneratorInterface
                         'id' => $mediaId,
                         'title' => "File #{$i}: {$file}",
                         'mediaFolderId' => $mediaFolderId,
+                        'tags' => $this->getTags($tags),
                     ],
                 ],
                 $writeContext
@@ -120,6 +110,33 @@ class MediaGenerator implements DemodataGeneratorInterface
         }
 
         $context->getConsole()->progressFinish();
+    }
+
+    private function getTags(array $tags): array
+    {
+        $tagAssignments = [];
+
+        if (!empty($tags)) {
+            $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit, false);
+
+            if (!empty($chosenTags)) {
+                $tagAssignments = array_map(
+                    function ($id) {
+                        return ['id' => $id];
+                    },
+                    $chosenTags
+                );
+            }
+        }
+
+        return $tagAssignments;
+    }
+
+    private function getIds(string $table): array
+    {
+        $ids = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id FROM ' . $table . ' LIMIT 500');
+
+        return array_column($ids, 'id');
     }
 
     private function getRandomFile(DemodataContext $context): string

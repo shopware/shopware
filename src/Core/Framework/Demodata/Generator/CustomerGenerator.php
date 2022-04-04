@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
+use Faker\Generator;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -17,35 +18,19 @@ use Shopware\Core\Test\TestDefaults;
 
 class CustomerGenerator implements DemodataGeneratorInterface
 {
-    /**
-     * @var EntityWriterInterface
-     */
-    private $writer;
+    private EntityWriterInterface $writer;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerGroupRepository;
+    private EntityRepositoryInterface $customerGroupRepository;
 
-    /**
-     * @var NumberRangeValueGeneratorInterface
-     */
-    private $numberRangeValueGenerator;
+    private NumberRangeValueGeneratorInterface $numberRangeValueGenerator;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var array
-     */
-    private $salutationIds;
+    private array $salutationIds = [];
 
-    /**
-     * @var CustomerDefinition
-     */
-    private $customerDefinition;
+    private CustomerDefinition $customerDefinition;
+
+    private Generator $faker;
 
     public function __construct(
         EntityWriterInterface $writer,
@@ -68,6 +53,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
 
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
     {
+        $this->faker = $context->getFaker();
         $this->createCustomers($numberOfItems, $context);
 
         try {
@@ -162,6 +148,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
 
         $netCustomerGroupId = $this->createNetCustomerGroup($context->getContext());
         $customerGroups = [TestDefaults::FALLBACK_CUSTOMER_GROUP, $netCustomerGroupId];
+        $tags = $this->getIds('tag');
 
         $salesChannelIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM sales_channel');
 
@@ -208,6 +195,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
                 'defaultBillingAddressId' => $addresses[array_rand($addresses)]['id'],
                 'defaultShippingAddressId' => $addresses[array_rand($addresses)]['id'],
                 'addresses' => $addresses,
+                'tags' => $this->getTags($tags),
             ];
 
             $payload[] = $customer;
@@ -235,6 +223,33 @@ class CustomerGenerator implements DemodataGeneratorInterface
         $titles = ['', 'Dr.', 'Dr. med.', 'Prof.', 'Prof. Dr.'];
 
         return $titles[array_rand($titles)];
+    }
+
+    private function getTags(array $tags): array
+    {
+        $tagAssignments = [];
+
+        if (!empty($tags)) {
+            $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit, false);
+
+            if (!empty($chosenTags)) {
+                $tagAssignments = array_map(
+                    function ($id) {
+                        return ['id' => $id];
+                    },
+                    $chosenTags
+                );
+            }
+        }
+
+        return $tagAssignments;
+    }
+
+    private function getIds(string $table): array
+    {
+        $ids = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id FROM ' . $table . ' LIMIT 500');
+
+        return array_column($ids, 'id');
     }
 
     private function getRandomSalutationId(): string

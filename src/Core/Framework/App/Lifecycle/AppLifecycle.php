@@ -429,7 +429,9 @@ class AppLifecycle extends AbstractAppLifecycle
         }
 
         if (\count($dataUpdate) > 0) {
-            $this->aclRoleRepository->update($dataUpdate, $context);
+            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($dataUpdate): void {
+                $this->aclRoleRepository->update($dataUpdate, $context);
+            });
         }
     }
 

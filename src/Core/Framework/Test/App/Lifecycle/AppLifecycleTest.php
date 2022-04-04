@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
-use Shopware\Core\Framework\Api\Context\SystemSource;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockEntity;
 use Shopware\Core\Framework\App\AppCollection;
@@ -68,7 +68,11 @@ class AppLifecycleTest extends TestCase
 
         $this->appLifecycle = $this->getContainer()->get(AppLifecycle::class);
 
-        $this->context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
+        $userRepository = $this->getContainer()->get('user.repository');
+        $userId = $userRepository->searchIds(new Criteria(), Context::createDefaultContext())->firstId();
+        $source = new AdminApiSource($userId);
+        $source->setIsAdmin(true);
+        $this->context = Context::createDefaultContext($source);
 
         $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
 

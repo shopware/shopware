@@ -5,6 +5,14 @@ const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 
+/**
+ * @public
+ * @description Customer custom item for the condition-tree. This component must be a child of sw-condition-tree.
+ * @status prototype
+ * @example-type code-only
+ * @component-example
+ * <sw-condition-customer-custom-field :condition="condition"></sw-condition-customer-custom-field>
+ */
 Component.extend('sw-condition-customer-custom-field', 'sw-condition-base', {
     template,
 

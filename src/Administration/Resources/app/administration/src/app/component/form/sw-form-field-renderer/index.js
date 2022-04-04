@@ -2,7 +2,6 @@ import template from './sw-form-field-renderer.html.twig';
 
 const { Component, Mixin } = Shopware;
 const { types } = Shopware.Utils;
-
 /**
  * @public
  * @status ready
@@ -15,55 +14,55 @@ const { types } = Shopware.Utils;
  * @component-example
  * {# Datepicker #}
  * <sw-form-field-renderer
- *         type="datetime"
- *         v-model="yourValue">
+ *     v-model="yourValue"
+ *     type="datetime">
  * </sw-form-field-renderer>
  *
  * {# Text field #}
  * <sw-form-field-renderer
- *         type="string"
- *         v-model="yourValue">
+ *     v-model="yourValue"
+ *     type="string">
  * </sw-form-field-renderer>
  *
  * {# sw-number-field #}
  * <sw-form-field-renderer
- *         :config="{
- *             componentName: 'sw-field',
- *             type: 'number',
- *             numberType: 'float'
- *         }"
- *         v-model="yourValue">
+ *     v-model="yourValue"
+ *     :config="{
+ *         componentName: 'sw-field',
+ *         type: 'number',
+ *         numberType: 'float'
+ *     }">
  * </sw-form-field-renderer>
  *
  * {# sw-select - multi #}
  * <sw-form-field-renderer
- *         :config="{
- *             componentName: 'sw-multi-select',
- *             label: {
- *                 'en-GB': 'Multi Select'
- *             },
- *             multi: true,
- *             options: [
- *                 { value: 'option1', label: { 'en-GB': 'One' } },
- *                 { value: 'option2', label: 'Two' },
- *                 { value: 'option3', label: { 'en-GB': 'Three', 'de-DE': 'Drei' } }
- *             ]
- *         }"
- *         v-model="yourValue">
+ *     v-model="yourValue"
+ *     :config="{
+ *         componentName: 'sw-multi-select',
+ *         label: {
+ *             'en-GB': 'Multi Select'
+ *         },
+ *         multi: true,
+ *         options: [
+ *             { value: 'option1', label: { 'en-GB': 'One' } },
+ *             { value: 'option2', label: 'Two' },
+ *             { value: 'option3', label: { 'en-GB': 'Three', 'de-DE': 'Drei' } }
+ *         ]
+ *     }">
  * </sw-form-field-renderer>
  *
  * {# sw-select - single #}
  * <sw-form-field-renderer
- *         :componentName: 'sw-single-select',
- *         :config="{
- *             label: 'Single Select',
- *             options: [
- *                 { value: 'option1', label: { 'en-GB': 'One' } },
- *                 { value: 'option2', label: 'Two' },
- *                 { value: 'option3', label: { 'en-GB': 'Three', 'de-DE': 'Drei' } }
- *             ]
- *         }"
- *         v-model="yourValue">
+ *     v-model="yourValue"
+ *     :componentName: 'sw-single-select',
+ *     :config="{
+ *         label: 'Single Select',
+ *         options: [
+ *             { value: 'option1', label: { 'en-GB': 'One' } },
+ *             { value: 'option2', label: 'Two' },
+ *             { value: 'option3', label: { 'en-GB': 'Three', 'de-DE': 'Drei' } }
+ *         ]
+ *     }">
  * </sw-form-field-renderer>
  */
 Component.register('sw-form-field-renderer', {

@@ -9,10 +9,10 @@ const { Component } = Shopware;
  * @example-type code-only
  * @component-example
  * <sw-sidebar-item
- *     title="Product"
- *     icon="default-symbol-products"
- *     hasSimpleBadge
- *     badgeType='error'>
+ *         title="Product"
+ *         icon="default-symbol-products"
+ *         hasSimpleBadge
+ *         badgeType='error'>
  *     Product in sidebar
  * </sw-sidebar-item>
  */

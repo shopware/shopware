@@ -12,26 +12,26 @@ const { dom } = Shopware.Utils;
  * @example-type static
  * @component-example
  * <sw-page style="height: 550px; border: 1px solid #D8DDE6;">
- *     <template slot="search-bar">
+ *     <template #search-bar>
  *         <sw-search-bar>
  *         </sw-search-bar>
  *     </template>
- *     <template slot="smart-bar-header">
+ *     <template #smart-bar-header>
  *         <h2>Lorem ipsum page</h2>
  *     </template>
- *     <template slot="smart-bar-actions">
+ *     <template #smart-bar-actions>
  *         <sw-button variant="primary">
  *             Action
  *         </sw-button>
  *     </template>
- *     <template slot="side-content">
+ *     <template #side-content>
  *         <sw-card-view>
  *             <sw-card>
  *                 Lorem ipsum dolor sit amet, consetetur sadipscing elitr
  *             </sw-card>
  *         </sw-card-view>
  *     </template>
- *     <template slot="content">
+ *     <template #content>
  *         <sw-card-view>
  *             <sw-card title="Card1" large></sw-card>
  *             <sw-card title="Card2" large></sw-card>

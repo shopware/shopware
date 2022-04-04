@@ -9,10 +9,11 @@ const { Criteria } = Shopware.Data;
  * @description The <u>sw-select-rule-create</u> component is used to create or select a rule.
  * @example-type code-only
  * @component-example
- * <sw-select-rule-create ruleId="0fd38734776f41e9a1ba431f1667e677"
- * ruleFilter="ruleFilter"
- * @save-rule="onSaveRule"
- * @dismiss-rule="onDismissRule">
+ * <sw-select-rule-create
+ *     ruleId="0fd38734776f41e9a1ba431f1667e677"
+ *     ruleFilter="ruleFilter"
+ *     \@save-rule="onSaveRule"
+ *     \@dismiss-rule="onDismissRule">
  * </sw-select-rule-create>
  */
 Component.register('sw-select-rule-create', {

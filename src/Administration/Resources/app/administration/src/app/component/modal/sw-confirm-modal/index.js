@@ -12,9 +12,9 @@ const { Component } = Shopware;
  *     class="sw-my-component__confirm-delete-modal"
  *     type="delete"
  *     :text="Are you sure you want to delete this?"
- *     @confirm="onConfirmCodeDelete(item.id)"
- *     @close="onCloseDeleteModal"
- *     @cancel="onCloseDeleteModal">
+ *     \@confirm="onConfirmCodeDelete(item.id)"
+ *     \@close="onCloseDeleteModal"
+ *     \@cancel="onCloseDeleteModal">
  * </sw-confirm-modal>
  */
 Component.register('sw-confirm-modal', {

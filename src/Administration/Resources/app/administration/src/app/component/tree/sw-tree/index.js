@@ -27,7 +27,7 @@ const { debounce, sort } = Shopware.Utils;
  *         { id: 4, name: 'Example #4', childCount: 0, parentId: null, afterId: 3 },
  *         { id: 5, name: 'Example #5', childCount: 0, parentId: null, afterId: 4 },
  *     ]">
- *     <template slot="items" slot-scope="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute }">
+ *     <template #items="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute }">
  *         <sw-tree-item
  *             v-for="(item, index) in treeItems"
  *             :key="item.id"

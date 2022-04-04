@@ -6,12 +6,12 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @status ready
- * @description The <u>sw-sidebar-media-item</u> component is used everywhere you need media objects outside of the media
+ * @description The <u>sw-sidebar-media-item</u> component is used everywhere you need media objects outside the media
  * manager. Use the additional properties to filter the shown media.
  * @example-type code-only
  * @component-example
  * <sw-sidebar-media-item>
- *    <template slot="context-menu-items" slot-scope="media">
+ *    <template #context-menu-items="media">
  *       <sw-context-menu-item @click="onAddItemToProduct(media.mediaItem)">
  *          Lorem ipsum dolor sit amet
  *       </sw-context-menu-item>

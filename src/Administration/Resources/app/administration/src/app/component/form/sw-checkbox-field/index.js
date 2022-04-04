@@ -10,7 +10,7 @@ const utils = Shopware.Utils;
  * @status ready
  * @example-type static
  * @component-example
- * <sw-checkbox-field label="Name" v-model="aBooleanProperty"></sw-checkbox-field>
+ * <sw-checkbox-field v-model="aBooleanProperty" label="Name"></sw-checkbox-field>
  */
 Component.register('sw-checkbox-field', {
     template,

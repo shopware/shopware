@@ -9,7 +9,7 @@ const { Component } = Shopware;
  * @status ready
  * @example-type static
  * @component-example
- * <sw-switch-field label="Name" v-model="aBooleanProperty"></sw-switch-field>
+ * <sw-switch-field v-model="aBooleanProperty" label="Name"></sw-switch-field>
  */
 Component.extend('sw-switch-field', 'sw-checkbox-field', {
     template,

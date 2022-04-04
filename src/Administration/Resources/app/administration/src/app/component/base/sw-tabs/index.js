@@ -12,15 +12,12 @@ const dom = Shopware.Utils.dom;
  * @example-type static
  * @component-example
  * <sw-tabs>
- *
  *     <sw-tabs-item>
  *         Explore
  *     </sw-tabs-item>
- *
  *     <sw-tabs-item>
  *         My Plugins
  *     </sw-tabs-item>
- *
  * </sw-tabs>
  */
 Component.register('sw-tabs', {

@@ -10,9 +10,7 @@ const { Component } = Shopware;
  * @example-type static
  * @see sw-category-detail
  * @component-example
- *  <sw-discard-changes-modal v-if="showDiscardChangesModal"
- *                            @keep-editing="keepEditing"
- *                            @discard-changes="discardChanges">
+ *  <sw-discard-changes-modal v-if="showDiscardChangesModal" @keep-editing="keepEditing" @discard-changes="discardChanges">
  *  </sw-discard-changes-modal>
  */
 Component.register('sw-discard-changes-modal', {

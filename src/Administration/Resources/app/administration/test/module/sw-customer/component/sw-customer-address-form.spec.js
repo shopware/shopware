@@ -104,4 +104,28 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
         const stateSelect = wrapper.find('.sw-customer-address-form__state-select');
         expect(stateSelect.exists()).toBeTruthy();
     });
+
+    it('should display company, department and vat fields when switching to business type', async () => {
+        const wrapper = createWrapper();
+        await wrapper.setProps({
+            customer: {
+                accountType: 'business',
+            },
+            address: {}
+        });
+
+        expect(wrapper.find('[label="sw-customer.addressForm.labelCompany"]').exists()).toBeTruthy();
+        expect(wrapper.find('[label="sw-customer.addressForm.labelDepartment"]').exists()).toBeTruthy();
+    });
+
+    it('should hide commercial inputs when switching to private type', async () => {
+        const wrapper = createWrapper();
+        await wrapper.setProps({
+            customer: {
+                accountType: 'private'
+            }
+        });
+        expect(wrapper.find('[label="sw-customer.addressForm.labelCompany"]').exists()).toBeFalsy();
+        expect(wrapper.find('[label="sw-customer.addressForm.labelDepartment"]').exists()).toBeFalsy();
+    });
 });

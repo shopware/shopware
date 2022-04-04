@@ -52,9 +52,20 @@
                                 columns="1fr 1fr"
                                 gap="10px"
                             >
+                                {% block sw_customer_card_account_type_field %}
+                                <sw-single-select
+                                    v-model="customer.accountType"
+                                    class="sw-customer-card__account-type-select"
+                                    :label="$tc('sw-customer.customerType.labelAccountType')"
+                                    :placeholder="$tc('sw-customer.customerType.placeholderAccountType')"
+                                    :options="accountTypeOptions"
+                                />
+                                {% endblock %}
+
                                 {% block sw_customer_card_metadata_customer_name_editor_salutation %}
                                 <sw-entity-single-select
                                     v-model="customer.salutationId"
+                                    class="sw-customer-card__salutation-select"
                                     entity="salutation"
                                     label-property="displayName"
                                     :label="$tc('sw-customer.card.labelSalutation')"
@@ -101,7 +112,10 @@
 
                             {% block sw_customer_card_metadata_customer_name_editor_company %}
                             <sw-text-field
+                                v-if="isBusinessAccountType"
                                 v-model="customer.company"
+                                required
+                                :error="customerCompanyError"
                                 :label="$tc('sw-customer.card.labelCompany')"
                                 :placeholder="$tc('sw-customer.card.placeholderCompany')"
                             />
@@ -112,7 +126,7 @@
 
                         {% block sw_customer_card_vat_ids %}
                         <sw-text-field
-                            v-if="editMode"
+                            v-if="editMode && isBusinessAccountType"
                             v-model="customer.vatIds[0]"
                             name="vatId"
                             :label="$tc('sw-customer.card.labelVatId')"

@@ -1,6 +1,7 @@
 import template from './sw-customer-card.html.twig';
 import './sw-customer-card.scss';
 import errorConfig from '../../error-config.json';
+import CUSTOMER from '../../constant/sw-customer.constant';
 
 const { Component, Mixin, Defaults } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
@@ -75,7 +76,19 @@ Component.register('sw-customer-card', {
             return criteria;
         },
 
-        ...mapPropertyErrors('customer', errorConfig['sw.customer.detail.base'].customer),
+        ...mapPropertyErrors('customer', [...errorConfig['sw.customer.detail.base'].customer, 'company']),
+
+        accountTypeOptions() {
+            return [{
+                value: CUSTOMER.ACCOUNT_TYPE_PRIVATE, label: this.$tc('sw-customer.customerType.labelPrivate'),
+            }, {
+                value: CUSTOMER.ACCOUNT_TYPE_BUSINESS, label: this.$tc('sw-customer.customerType.labelBusiness'),
+            }];
+        },
+
+        isBusinessAccountType() {
+            return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
+        },
     },
 
     methods: {

@@ -2,6 +2,8 @@ import template from './sw-customer-base-form.html.twig';
 import './sw-customer-base-form.scss';
 import errorConfig from '../../error-config.json';
 
+import CUSTOMER from '../../constant/sw-customer.constant';
+
 const { Component, Defaults } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
@@ -27,6 +29,18 @@ Component.register('sw-customer-base-form', {
             ]));
 
             return criteria;
+        },
+
+        accountTypeOptions() {
+            return [{
+                value: CUSTOMER.ACCOUNT_TYPE_PRIVATE, label: this.$tc('sw-customer.customerType.labelPrivate'),
+            }, {
+                value: CUSTOMER.ACCOUNT_TYPE_BUSINESS, label: this.$tc('sw-customer.customerType.labelBusiness'),
+            }];
+        },
+
+        isBusinessAccountType() {
+            return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
         },
     },
 

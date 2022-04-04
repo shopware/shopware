@@ -140,6 +140,8 @@ describe('Customer: Test ACL privileges', () => {
         });
 
         // Add customer group
+        cy.get('.sw-customer-base-form__account-type-select')
+            .typeSingleSelectAndCheck('Commercial', '.sw-customer-base-form__account-type-select');
 
         cy.get('.sw-customer-base-form__salutation-select')
             .typeSingleSelectAndCheck('Mr.', '.sw-customer-base-form__salutation-select');
@@ -232,6 +234,9 @@ describe('Customer: Test ACL privileges', () => {
             cy.visit(`${Cypress.env('admin')}#/sw/customer/create`);
         });
 
+        cy.get('.sw-customer-base-form__account-type-select')
+            .typeSingleSelectAndCheck('Commercial', '.sw-customer-base-form__account-type-select');
+
         cy.get('.sw-customer-base-form__salutation-select')
             .typeSingleSelectAndCheck('Mr.', '.sw-customer-base-form__salutation-select');
 
@@ -280,6 +285,9 @@ describe('Customer: Test ACL privileges', () => {
         ]).then(() => {
             cy.visit(`${Cypress.env('admin')}#/sw/customer/create`);
         });
+
+        cy.get('.sw-customer-base-form__account-type-select')
+            .typeSingleSelectAndCheck('Commercial', '.sw-customer-base-form__account-type-select');
 
         cy.get('.sw-customer-base-form__salutation-select')
             .typeSingleSelectAndCheck('Mr.', '.sw-customer-base-form__salutation-select');

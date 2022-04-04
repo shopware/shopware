@@ -44,6 +44,9 @@ describe('Customer: Test crud operations', () => {
         // Fill in basic data
         cy.get('a[href="#/sw/customer/create"]').click();
 
+        cy.get('.sw-customer-base-form__account-type-select')
+            .typeSingleSelectAndCheck('Commercial', '.sw-customer-base-form__account-type-select');
+
         cy.get('.sw-customer-base-form__salutation-select')
             .typeSingleSelectAndCheck('Mr.', '.sw-customer-base-form__salutation-select');
 

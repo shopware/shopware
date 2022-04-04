@@ -60,6 +60,8 @@ describe('Create customer via UI, product via API and make a manual order', ()=>
         cy.fixture('customer-scenario3').then(customer => {
             cy.get('.sw-button.sw-button--primary.sw-customer-list__button-create').click();
             cy.get('h2').contains('Nieuwe klant').should('be.visible');
+            cy.get('.sw-customer-base-form__account-type-select')
+                .typeSingleSelectAndCheck('Commercial', '.sw-customer-base-form__account-type-select');
             cy.get('.sw-customer-base-form__salutation-select')
                 .typeSingleSelectAndCheck('Mr.', '.sw-customer-base-form__salutation-select');
             cy.get('input[name=sw-field--customer-firstName]').type(customer.firstName);

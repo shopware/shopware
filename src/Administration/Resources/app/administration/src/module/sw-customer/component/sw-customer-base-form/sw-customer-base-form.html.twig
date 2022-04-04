@@ -4,6 +4,16 @@
         columns="repeat(auto-fit, minmax(250px, 1fr))"
         gap="0px 32px"
     >
+        {% block sw_customer_base_form_account_type_field %}
+        <sw-single-select
+            v-model="customer.accountType"
+            class="sw-customer-base-form__account-type-select"
+            :label="$tc('sw-customer.customerType.labelAccountType')"
+            :placeholder="$tc('sw-customer.customerType.placeholderAccountType')"
+            :options="accountTypeOptions"
+        />
+        {% endblock %}
+
         <sw-container
             columns="1fr 1fr"
             class="sw-customer-base-form__first-item sw-customer-base-form__first-item--full"
@@ -75,6 +85,7 @@
 
         {% block sw_customer_base_form_vat_id_field %}
         <sw-text-field
+            v-if="isBusinessAccountType"
             id="vatId"
             v-model="customer.vatIds[0]"
             name="vatId"

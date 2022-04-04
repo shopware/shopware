@@ -9,12 +9,12 @@ const { Component } = Shopware;
  * @example-type code-only
  * @component-example
  * <sw-snippet-field-edit-modal
- * :snippets="snippets"
- * :snippetSets="snippetSets"
- * :translationKey="snippet"
- * :fieldType="fieldType"
- * @modal-close="closeEditModal"
- * @save="onSave">
+ *     :snippets="snippets"
+ *     :snippetSets="snippetSets"
+ *     :translationKey="snippet"
+ *     :fieldType="fieldType"
+ *     \@modal-close="closeEditModal"
+ *     \@save="onSave">
  * </sw-snippet-field-edit-modal>
  */
 Component.register('sw-snippet-field-edit-modal', {

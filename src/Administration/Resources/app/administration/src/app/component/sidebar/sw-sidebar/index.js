@@ -8,7 +8,7 @@ const { Component } = Shopware;
  * @status ready
  * @example-type static
  * @component-example
- * <sw-sidebar slot="sidebar">
+ * <sw-sidebar #sidebar>
  *     <sw-sidebar-item title="Refresh" icon="default-arrow-360-left"></sw-sidebar-item>
  * </sw-sidebar>
  */

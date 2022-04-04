@@ -3,6 +3,14 @@ import template from './sw-condition-days-since-last-order.html.twig';
 const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
+/**
+ * @public
+ * @description "Days since last order" item for the condition-tree. This component must be a child of sw-condition-tree.
+ * @status prototype
+ * @example-type code-only
+ * @component-example
+ * <sw-condition-days-since-last-order :condition="condition"></sw-condition-days-since-last-order>
+ */
 Component.extend('sw-condition-days-since-last-order', 'sw-condition-base', {
     template,
 

@@ -17,8 +17,9 @@ const { dom } = Shopware.Utils;
  *     :showSelectionIndicator="false"
  *     :isList="false">
  *
- *       <sw-context-menu-item @click="showDetails(mediaItem)"
- *             slot="additional-context-menu-items">
+ *       <sw-context-menu-item
+ *            #additional-context-menu-items
+ *            \@click="showDetails(mediaItem)">
  *          Lorem ipsum dolor sit amet
  *       </sw-context-menu-item>
  * </sw-media-media-item>

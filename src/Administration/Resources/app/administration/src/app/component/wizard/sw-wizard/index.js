@@ -10,7 +10,7 @@ const { Component } = Shopware;
  * Please use `sw-wizard-page` for the different wizard pages. When a more sophisticated wizard page is necessary,
  * please extend the default `sw-wizard-page`.
  * @status ready
- * @example-type static
+ * @example-type code-only
  * @component-example
  * <sw-wizard :showDotNavigation="true">
  *     <sw-wizard-page position="1" title="Example #1">

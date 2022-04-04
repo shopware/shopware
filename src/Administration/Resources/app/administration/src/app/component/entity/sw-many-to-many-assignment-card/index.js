@@ -15,8 +15,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
  *     :entityCollection="entity.association"
  *     :localMode="entity.isNew()"
  *     :searchableFields="['entity.fieldName', 'entity.otherFieldName']">
- *
- * <sw-many-to-many-assignment-card>
+ * </sw-many-to-many-assignment-card>
  */
 Component.register('sw-many-to-many-assignment-card', {
     template,

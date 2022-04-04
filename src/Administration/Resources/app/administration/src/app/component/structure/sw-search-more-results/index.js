@@ -10,7 +10,7 @@ const { Component, Application } = Shopware;
  * @status ready
  * @example-type code-only
  * @component-example
- * <sw-search-more-results :result="{entity: 'customer', total: 5}" :term="query">
+ * <sw-search-more-results :result="{ entity: 'customer', total: 5 }" :term="query">
  * </sw-search-more-results>
  */
 Component.register('sw-search-more-results', {

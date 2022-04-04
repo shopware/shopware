@@ -13,7 +13,7 @@ const { warn } = Shopware.Utils.debug;
  * @example-type code-only
  * @component-example
  * <sw-language-info
- *  :entityDescription="Produkt 1">
+ *     :entityDescription="Produkt 1">
  * </sw-language-info>
  */
 Component.register('sw-language-info', {

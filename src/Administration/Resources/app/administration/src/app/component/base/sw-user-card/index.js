@@ -31,7 +31,7 @@ const { Component } = Shopware;
  *     city: 'Anytown',
  *     country: { name: 'Germany' }
  * }">
- * <template slot="actions">
+ * <template #actions>
  *     <sw-button size="small" disabled>
  *         <sw-icon name="small-pencil" small></sw-icon>
  *         Edit user

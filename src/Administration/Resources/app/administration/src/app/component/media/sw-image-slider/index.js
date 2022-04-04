@@ -9,22 +9,21 @@ const { Component, Filter } = Shopware;
  * @example-type static
  * @component-example
  * <sw-image-slider
- *         :images="[
- *             {
- *                 src: 'my/path/to/asset/test.png',
- *                 description: 'This Image is awesome!'
- *             },
- *             'my/path/to/asset/test2.png',
- *             'http://external.path/to/asset/test3.png',
- *             {
- *                 src: 'http://external.path/to/asset/test4.png',
- *             }
- *         ]"
- *         :canvas-width="600"
- *         :canvas-height="300"
- *         overflow="visible"
- *         navigation-type="all"
- *         enable-descriptions
+ *     :images="[
+ *         {
+ *             src: 'https://www.shopware.com/media/unknown/29/03/ce/shopware_logo_white_on_blue.svg',
+ *             description: 'This Image is awesome!'
+ *         },
+ *         'https://www.shopware.com/media/image/5e/98/6d/small-differentiator-illustration-01.png',
+ *         {
+ *             src: 'https://www.shopware.com/media/image/72/44/fd/image-material.jpg',
+ *         }
+ *     ]"
+ *     :canvas-width="600"
+ *     :canvas-height="300"
+ *     overflow="visible"
+ *     navigation-type="all"
+ *     enable-descriptions
  * ></sw-image-slider>
  */
 Component.register('sw-image-slider', {

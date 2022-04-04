@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Script\Execution;
 
 use Psr\Log\LoggerInterface;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\Script\Debugging\Debug;
@@ -52,6 +53,10 @@ class ScriptExecutor
 
     public function execute(Hook $hook): void
     {
+        if (EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false)) {
+            return;
+        }
+
         if ($hook instanceof InterfaceHook) {
             throw new \RuntimeException(sprintf(
                 'Tried to execute InterfaceHook "%s", butInterfaceHooks should not be executed, execute the functions of the hook instead',

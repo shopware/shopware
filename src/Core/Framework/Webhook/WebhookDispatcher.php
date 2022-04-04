@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use GuzzleHttp\Client;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Event\AppChangedEvent;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
@@ -93,6 +94,10 @@ class WebhookDispatcher implements EventDispatcherInterface
     public function dispatch($event, ?string $eventName = null): object
     {
         $event = $this->dispatcher->dispatch($event, $eventName);
+
+        if (EnvironmentHelper::getVariable('DISABLE_EXTENSIONS', false)) {
+            return $event;
+        }
 
         foreach ($this->eventFactory->createHookablesFor($event) as $hookable) {
             $context = Context::createDefaultContext();

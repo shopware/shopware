@@ -42,6 +42,11 @@ if ($trustedHosts) {
 $request = Request::createFromGlobals();
 
 $kernel = new HttpKernel($appEnv, $debug, $classLoader);
+
+if ($_SERVER['COMPOSER_PLUGIN_LOADER'] ?? $_SERVER['DISABLE_EXTENSIONS'] ?? false) {
+    $kernel->setPluginLoader(new \Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader($classLoader));
+}
+
 $result = $kernel->handle($request);
 
 $result->getResponse()->send();

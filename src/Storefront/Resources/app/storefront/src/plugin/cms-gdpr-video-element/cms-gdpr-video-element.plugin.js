@@ -33,9 +33,6 @@ export default class CmsGdprVideoElement extends Plugin {
         this._client = new HttpClient();
         this.backdropElement = this.createElementBackdrop();
         this.el.appendChild(this.backdropElement);
-
-        const modalTrigger = this.el.querySelector(this.options.modalTriggerSelector);
-        modalTrigger.addEventListener('click', this.onClickHandleAjaxModal.bind(this))
     }
 
     /**
@@ -120,6 +117,8 @@ export default class CmsGdprVideoElement extends Plugin {
      * Event handler which will be fired when the user clicks on the privacy link in the overlay text. The method
      * fetches the information from the URL provided in the `data-url` property.
      *
+     * @deprecated tag:v6.5.0 - No longer in use, will be removed with 6.5.0
+     *
      * @param {Event} event
      * @returns {void}
      */
@@ -133,6 +132,8 @@ export default class CmsGdprVideoElement extends Plugin {
     /**
      * After the HTTP client fetched the information from the server, we're opening up a modal box and fill it
      * with the response we got.
+     *
+     * @deprecated tag:v6.5.0 - No longer in use, will be removed with 6.5.0
      *
      * @param {String} response
      * @returns {void}

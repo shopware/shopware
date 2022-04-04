@@ -42,7 +42,7 @@ describe('CookieConfiguration plugin tests', () => {
                     get: () => [],
                 };
             },
-            initializePlugins: null,
+            initializePlugins: () => jest.fn(),
         };
 
         const container = document.createElement('div');
@@ -182,13 +182,13 @@ describe('CookieConfiguration plugin tests', () => {
 
         expect(CookieStorage.getItem(optionalAndInactive[0])).toBeFalsy();
     });
-    
+
     test('Ensure that it sets the `loadIntoMemory` flag is set if the accept all button is pressed ', () => {
         const jestFn = jest.fn()
         plugin._httpClient.get = jestFn;
-    
+
         plugin._acceptAllCookiesFromCookieBar();
-           
+
         expect(jestFn).toHaveBeenCalledWith('https://shop.example.com/offcanvas', expect.any(Function));
     });
 });

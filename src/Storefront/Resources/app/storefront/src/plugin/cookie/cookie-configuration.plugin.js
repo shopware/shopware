@@ -23,7 +23,6 @@ import Plugin from 'src/plugin-system/plugin.class';
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
 import AjaxOffCanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
-import AjaxModalExtension from 'src/utility/modal-extension/ajax-modal-extension.util';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 import HttpClient from 'src/service/http-client.service';
 import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-loading-indicator.util';
@@ -56,8 +55,6 @@ export default class CookieConfiguration extends Plugin {
             active: [],
             inactive: [],
         };
-
-        this.ajaxModalExtension = null;
 
         this._httpClient = new HttpClient();
 
@@ -186,8 +183,6 @@ export default class CookieConfiguration extends Plugin {
     closeOffCanvas(callback) {
         AjaxOffCanvas.close();
 
-        this.ajaxModalExtension = null;
-
         if (typeof callback === 'function') {
             callback();
         }
@@ -201,10 +196,8 @@ export default class CookieConfiguration extends Plugin {
      */
     _onOffCanvasOpened(callback) {
         this._registerOffCanvasEvents();
-
-        this.ajaxModalExtension = new AjaxModalExtension(false);
-
         this._setInitialState();
+        PluginManager.initializePlugins();
 
         if (typeof callback === 'function') {
             callback();
@@ -439,7 +432,7 @@ export default class CookieConfiguration extends Plugin {
         if (!loadIntoMemory) {
             this._handleAcceptAll();
             this.closeOffCanvas();
-                
+
             return;
         }
 

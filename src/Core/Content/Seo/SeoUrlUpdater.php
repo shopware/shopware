@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 
 /**
@@ -184,28 +183,13 @@ class SeoUrlUpdater
         /** @var LanguageEntity $language */
         foreach ($languages as $language) {
             $languageId = $language->getId();
-            $languageChains[$languageId] = $this->getLanguageIdChain($languageId);
+            $languageChains[$languageId] = [
+                $languageId,
+                $language->getParentId(),
+                Defaults::LANGUAGE_SYSTEM,
+            ];
         }
 
         return $languageChains;
-    }
-
-    private function getLanguageIdChain(string $languageId): array
-    {
-        return [
-            $languageId,
-            $this->getParentLanguageId($languageId),
-            Defaults::LANGUAGE_SYSTEM,
-        ];
-    }
-
-    private function getParentLanguageId(string $languageId): ?string
-    {
-        // TODO: optimize to one query
-        $result = $this->connection
-            ->executeQuery('SELECT LOWER(HEX(parent_id)) FROM language WHERE id = :id', ['id' => Uuid::fromHexToBytes($languageId)])
-            ->fetchColumn();
-
-        return $result ? (string) $result : null;
     }
 }

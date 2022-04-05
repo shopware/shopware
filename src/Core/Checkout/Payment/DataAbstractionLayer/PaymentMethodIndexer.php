@@ -53,7 +53,7 @@ class PaymentMethodIndexer extends EntityIndexer
             return null;
         }
 
-        return new EntityIndexingMessage(array_values($ids), $iterator->getOffset());
+        return new PaymentMethodIndexingMessage(array_values($ids), $iterator->getOffset());
     }
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
@@ -64,7 +64,7 @@ class PaymentMethodIndexer extends EntityIndexer
             return null;
         }
 
-        return new EntityIndexingMessage(array_values($updates), null, $event->getContext());
+        return new PaymentMethodIndexingMessage(array_values($updates), null, $event->getContext());
     }
 
     public function handle(EntityIndexingMessage $message): void

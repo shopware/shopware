@@ -25,7 +25,9 @@ describe('Captcha: Google ReCaptcha', () => {
         cy.setCookie('_GRECAPTCHA', '1');
     });
 
-    it('@captcha: grecaptcha is loaded when V2 or V3 activated', () => {
+    // NEXT-20973 - Hangs sometimes, might be caused by the rate limit
+    // https://developers.google.com/recaptcha/docs/faq#are-there-any-qps-or-daily-limits-on-my-use-of-recaptcha
+    it.skip('@captcha: grecaptcha is loaded when V2 or V3 activated', () => {
         setActiveCaptchas({
             'googleReCaptchaV2': {
                 'isActive': false,
@@ -70,7 +72,8 @@ describe('Captcha: Google ReCaptcha', () => {
         });
     });
 
-    it('@captcha: register form show google captcha v2 checkbox', () => {
+    // NEXT-20973
+    it.skip('@captcha: register form show google captcha v2 checkbox', () => {
         setActiveCaptchas({
             googleReCaptchaV2: {
                 name: 'googleReCaptchaV2',
@@ -91,7 +94,8 @@ describe('Captcha: Google ReCaptcha', () => {
         })
     });
 
-    it('@captcha: contact form show google captcha v2 checkbox', () => {
+    // NEXT-20973
+    it.skip('@captcha: contact form show google captcha v2 checkbox', () => {
         setActiveCaptchas({
             googleReCaptchaV2: {
                 name: 'googleReCaptchaV2',
@@ -127,7 +131,8 @@ describe('Captcha: Google ReCaptcha', () => {
         })
     });
 
-    it('@captcha: register form show google captcha v2 invisible and v3', () => {
+    // NEXT-20973
+    it.skip('@captcha: register form show google captcha v2 invisible and v3', () => {
         setActiveCaptchas({
             googleReCaptchaV2: {
                 name: 'googleReCaptchaV2',

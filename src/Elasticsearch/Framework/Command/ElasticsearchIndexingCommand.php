@@ -4,6 +4,7 @@ namespace Shopware\Elasticsearch\Framework\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\ConsoleProgressTrait;
+use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,11 +21,14 @@ class ElasticsearchIndexingCommand extends Command
 
     private MessageBusInterface $messageBus;
 
-    public function __construct(ElasticsearchIndexer $indexer, MessageBusInterface $messageBus)
+    private CreateAliasTaskHandler $aliasHandler;
+
+    public function __construct(ElasticsearchIndexer $indexer, MessageBusInterface $messageBus, CreateAliasTaskHandler $aliasHandler)
     {
         parent::__construct();
         $this->indexer = $indexer;
         $this->messageBus = $messageBus;
+        $this->aliasHandler = $aliasHandler;
     }
 
     /**
@@ -33,7 +37,8 @@ class ElasticsearchIndexingCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setDescription('Reindex all entities to elasticsearch');
+            ->setDescription('Reindex all entities to elasticsearch')
+            ->addOption('no-queue', null, null, 'Do not use the queue for indexing');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -42,8 +47,19 @@ class ElasticsearchIndexingCommand extends Command
 
         $offset = null;
         while ($message = $this->indexer->iterate($offset)) {
-            $this->messageBus->dispatch($message);
             $offset = $message->getOffset();
+
+            if ($input->getOption('no-queue')) {
+                $this->indexer->handle($message);
+
+                continue;
+            }
+
+            $this->messageBus->dispatch($message);
+        }
+
+        if ($input->getOption('no-queue')) {
+            $this->aliasHandler->run();
         }
 
         return self::SUCCESS;

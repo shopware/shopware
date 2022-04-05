@@ -103,6 +103,7 @@
         <service id="Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand">
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer"/>
             <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler"/>
 
             <tag name="console.command"/>
         </service>

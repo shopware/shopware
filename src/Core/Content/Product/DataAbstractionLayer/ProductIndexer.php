@@ -8,15 +8,18 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Profiling\Profiler;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -128,10 +131,14 @@ class ProductIndexer extends EntityIndexer
             return null;
         }
 
-        $this->inheritanceUpdater->update(ProductDefinition::ENTITY_NAME, $updates, $event->getContext());
+        Profiler::trace('product:indexer:inheritance', function () use ($updates, $event): void {
+            $this->inheritanceUpdater->update(ProductDefinition::ENTITY_NAME, $updates, $event->getContext());
+        });
 
         $stocks = $event->getPrimaryKeysWithPropertyChange(ProductDefinition::ENTITY_NAME, ['stock', 'isCloseout', 'minPurchase']);
-        $this->stockUpdater->update($stocks, $event->getContext());
+        Profiler::trace('product:indexer:stock', function () use ($stocks, $event): void {
+            $this->stockUpdater->update($stocks, $event->getContext());
+        });
 
         $message = new ProductIndexingMessage(array_values($updates), null, $event->getContext());
         $message->addSkip(self::INHERITANCE_UPDATER, self::STOCK_UPDATER);
@@ -148,6 +155,8 @@ class ProductIndexer extends EntityIndexer
         foreach (\array_chunk($delayed, 50) as $chunk) {
             $child = new ProductIndexingMessage($chunk, null, $event->getContext());
             $child->setIndexer($this->getName());
+            EntityIndexerRegistry::addSkips($child, $event->getContext());
+
             $this->messageBus->dispatch($child);
         }
 
@@ -177,60 +186,81 @@ class ProductIndexer extends EntityIndexer
         $context = $message->getContext();
 
         if ($message->allow(self::INHERITANCE_UPDATER)) {
-            $this->inheritanceUpdater->update(ProductDefinition::ENTITY_NAME, $ids, $context);
+            Profiler::trace('product:indexer:inheritance', function () use ($ids, $context): void {
+                $this->inheritanceUpdater->update(ProductDefinition::ENTITY_NAME, $ids, $context);
+            });
         }
 
         if ($message->allow(self::STOCK_UPDATER)) {
-            $this->stockUpdater->update($ids, $context);
+            Profiler::trace('product:indexer:stock', function () use ($ids, $context): void {
+                $this->stockUpdater->update($ids, $context);
+            });
         }
 
         if ($message->allow(self::VARIANT_LISTING_UPDATER)) {
-            $this->variantListingUpdater->update($parentIds, $context);
+            Profiler::trace('product:indexer:variant-listing', function () use ($parentIds, $context): void {
+                $this->variantListingUpdater->update($parentIds, $context);
+            });
         }
 
         if ($message->allow(self::CHILD_COUNT_UPDATER)) {
-            $this->childCountUpdater->update(ProductDefinition::ENTITY_NAME, $parentIds, $context);
+            Profiler::trace('product:indexer:child-count', function () use ($parentIds, $context): void {
+                $this->childCountUpdater->update(ProductDefinition::ENTITY_NAME, $parentIds, $context);
+            });
         }
 
         if ($message->allow(self::STREAM_UPDATER)) {
-            $this->streamUpdater->updateProducts($ids, $context);
+            Profiler::trace('product:indexer:streams', function () use ($ids, $context): void {
+                $this->streamUpdater->updateProducts($ids, $context);
+            });
         }
 
         if ($message->allow(self::MANY_TO_MANY_ID_FIELD_UPDATER)) {
-            $this->manyToManyIdFieldUpdater->update(ProductDefinition::ENTITY_NAME, $ids, $context);
+            Profiler::trace('product:indexer:many-to-many', function () use ($ids, $context): void {
+                $this->manyToManyIdFieldUpdater->update(ProductDefinition::ENTITY_NAME, $ids, $context);
+            });
         }
 
         if ($message->allow(self::CATEGORY_DENORMALIZER_UPDATER)) {
-            $this->categoryDenormalizer->update($ids, $context);
+            Profiler::trace('product:indexer:category', function () use ($ids, $context): void {
+                $this->categoryDenormalizer->update($ids, $context);
+            });
         }
 
         if ($message->allow(self::CHEAPEST_PRICE_UPDATER)) {
-            $this->cheapestPriceUpdater->update($parentIds, $context);
+            Profiler::trace('product:indexer:cheapest-price', function () use ($parentIds, $context): void {
+                $this->cheapestPriceUpdater->update($parentIds, $context);
+            });
         }
 
         if ($message->allow(self::RATING_AVERAGE_UPDATER)) {
-            $this->ratingAverageUpdater->update($parentIds, $context);
+            Profiler::trace('product:indexer:rating', function () use ($parentIds, $context): void {
+                $this->ratingAverageUpdater->update($parentIds, $context);
+            });
         }
 
         if ($message->allow(self::SEARCH_KEYWORD_UPDATER)) {
-            $this->searchKeywordUpdater->update($ids, $context);
+            Profiler::trace('product:indexer:search-keywords', function () use ($ids, $context): void {
+                $this->searchKeywordUpdater->update($ids, $context);
+            });
         }
 
-        $this->connection->executeStatement(
-            'UPDATE product SET updated_at = :now WHERE id IN (:ids)',
-            [
-                'ids' => Uuid::fromHexToBytesList($ids),
-                'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            ],
-            ['ids' => Connection::PARAM_STR_ARRAY]
-        );
+        RetryableQuery::retryable($this->connection, function () use ($ids): void {
+            $this->connection->executeStatement(
+                'UPDATE product SET updated_at = :now WHERE id IN (:ids)',
+                ['ids' => Uuid::fromHexToBytesList($ids), 'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
+                ['ids' => Connection::PARAM_STR_ARRAY]
+            );
+        });
 
         // @deprecated tag:v6.5.0 - parentIds and childrenIds will be removed - event methods will be removed too
         $parentIds = $this->getParentIds($ids);
 
         $childrenIds = $this->getChildrenIds($ids);
 
-        $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $childrenIds, $parentIds, $context, $message->getSkip()));
+        Profiler::trace('product:indexer:event', function () use ($ids, $childrenIds, $parentIds, $context, $message): void {
+            $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $childrenIds, $parentIds, $context, $message->getSkip()));
+        });
     }
 
     public function getOptions(): array

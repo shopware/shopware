@@ -126,7 +126,7 @@ for the next request. `finish: true` in the response indicates that the indexer 
             return new JsonResponse(['finish' => true]);
         }
 
-        $message->setSkip($indexingSkips);
+        $message->addSkip(...$indexingSkips);
 
         if ($indexer) {
             $indexer->handle($message);
@@ -166,7 +166,7 @@ for the next request. `finish: true` in the response indicates that the indexer 
 
         $message = new ProductIndexingMessage($ids, null);
         $message->setIndexer('product.indexer');
-        $message->setSkip($skips);
+        $message->addSkip(...$skips);
 
         $this->messageBus->dispatch($message);
 

@@ -76,7 +76,7 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
 
             while ($message = $indexer->iterate($offset)) {
                 $message->setIndexer($indexer->getName());
-                $message->setSkip($skip);
+                $message->addSkip(...$skip);
 
                 $this->sendOrHandle($message, $useQueue);
 
@@ -108,13 +108,6 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
             return;
         }
 
-        $skips = [];
-        if ($context->hasExtension(self::EXTENSION_INDEXER_SKIP)) {
-            /** @var ArrayStruct $skip */
-            $skip = $context->getExtension(self::EXTENSION_INDEXER_SKIP);
-            $skips = $skip->all();
-        }
-
         $useQueue = $this->useQueue($context);
 
         foreach ($this->indexer as $indexer) {
@@ -125,12 +118,23 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
             }
 
             $message->setIndexer($indexer->getName());
-            $message->setSkip($skips);
+            self::addSkips($message, $context);
 
             $this->sendOrHandle($message, $useQueue);
         }
 
         $this->working = false;
+    }
+
+    public static function addSkips(EntityIndexingMessage $message, Context $context): void
+    {
+        if (!$context->hasExtension(self::EXTENSION_INDEXER_SKIP)) {
+            return;
+        }
+        /** @var ArrayStruct $skip */
+        $skip = $context->getExtension(self::EXTENSION_INDEXER_SKIP);
+
+        $message->addSkip(...$skip->all());
     }
 
     public function handle($message): void
@@ -228,7 +232,7 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
         }
 
         $message->setIndexer($indexer->getName());
-        $message->setSkip($skip);
+        $message->addSkip(...$skip);
 
         $this->sendOrHandle($message, $useQueue);
 

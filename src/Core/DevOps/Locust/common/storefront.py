@@ -58,8 +58,7 @@ class Storefront:
             'number': product['number']
         })
 
-        if self.context.ajax_calls:
-            self.__offcanvas_cart()
+        self.__offcanvas_cart()
 
         return self.go_to_cart()
 
@@ -230,12 +229,14 @@ class Storefront:
             'redirectTo': 'frontend.checkout.cart.page',
             'number': number
         })
-        if self.context.ajax_calls:
-            self.__offcanvas_cart()
+
+        self.__offcanvas_cart()
 
     def __ajax_requests(self):
-        if self.context.ajax_calls:
+        if self.context.track_ajax_requests:
             self.client.get('/widgets/checkout/info', name=self.__build_name('ajax-cart-widget'))
+        else:
+            requests.get(self.env['url'] + '/widgets/checkout/info')
 
     def __offcanvas_cart(self):
         self.client.get('/checkout/offcanvas', name=self.__build_name('ajax-cart-offcanvas'))

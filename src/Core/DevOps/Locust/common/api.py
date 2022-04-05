@@ -1,8 +1,8 @@
 import random
 import json
 import uuid
+from faker import Faker
 import time
-import requests
 from locust.exception import RescheduleTask
 
 class Api:
@@ -47,10 +47,44 @@ class Api:
             'indexing-skip': []
         }
 
-    def update_stock(self):
+    def import_products(self, count):
+        products = []
+
+        while len(products) < count:
+            products.append(self.__generate_product())
+
+        operations = [
+            { 'key': 'product-import', 'action': 'upsert', 'entity': 'product', 'payload': products }
+        ]
+
+        self._sync(operations, self.headers, '_api-product-imports')
+
+    def __generate_product(self):
+        fake = Faker()
+
+        return {
+            'name': fake.name(),
+            'description': fake.text(),
+            'productNumber': str(uuid.uuid4()),
+            'active': True,
+            'price': [
+                { 'currencyId': 'b7d2554b0ce847cd82f3ac9bd1c0dfca', 'gross': random.randint(100, 1000), 'net': random.randint(100, 1000), 'linked': False }
+            ],
+            'visibilities': [
+                { 'salesChannelId': self.context.imports['salesChannelId'], 'visibility': 30 }
+            ],
+            'taxId': self.context.imports['taxId'],
+            'stock': random.randint(1, 100),
+            'isCloseout': random.choice([True, False]),
+            'categories': random.sample(self.context.imports['categories'], 3),
+            'properties': random.sample(self.context.imports['properties'], 3),
+            'media': random.sample(self.context.imports['media'], 5)
+        }
+
+    def update_stock(self, count):
         updates = []
 
-        ids = self.__get_ids(25)
+        ids = self.__get_ids(count)
         for id in ids:
             updates.append({ 'id': id, 'stock': random.randint(0, 100) })
 
@@ -66,10 +100,10 @@ class Api:
 
         self._sync(operations, headers, '_api-stock-update')
 
-    def update_prices(self):
+    def update_prices(self, count):
         updates = []
 
-        ids = self.__get_ids(25)
+        ids = self.__get_ids(count)
         for id in ids:
             updates.append({
                 'id': id,

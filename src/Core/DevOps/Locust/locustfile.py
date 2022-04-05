@@ -13,19 +13,35 @@ from common.api import Api
 
 context = Context()
 
-class Erp(FastHttpUser):
-    fixed_count = 1
+class ApiImports(FastHttpUser):
+#     fixed_count = 1
 
     def on_start(self):
         self.api = Api(self.client, context)
 
     @task
     def call_api(self):
-        if (context.erp == False):
-            return
+        self.api.import_products(10)
 
-        self.api.update_prices()
-        self.api.update_stock()
+class ApiStock(FastHttpUser):
+#     fixed_count = 1
+
+    def on_start(self):
+        self.api = Api(self.client, context)
+
+    @task
+    def call_api(self):
+        self.api.update_stock(25)
+
+class ApiPrices(FastHttpUser):
+#     fixed_count = 1
+
+    def on_start(self):
+        self.api = Api(self.client, context)
+
+    @task
+    def call_api(self):
+        self.api.update_prices(15)
 
 class Visitor(FastHttpUser):
     wait_time = between(2, 5)
@@ -33,47 +49,6 @@ class Visitor(FastHttpUser):
 
     @task(3)
     def listing(self):
-        page = Storefront(self.client, context)
-        page.go_to_listing()
-        page.view_products(2)
-
-        page.go_to_listing()
-        if (context.allow_filter == True):
-            page.add_manufacturer_filter()
-
-        page.select_sorting()
-        page.go_to_next_page()
-        page.view_products(3)
-
-        page.go_to_listing()
-        if (context.allow_filter == True):
-            page.add_property_filter()
-
-        page.go_to_next_page()
-        page.view_products(2)
-
-    @task(1)
-    def search(self):
-        page = Storefront(self.client, context)
-        page.do_search()
-        page.view_products(2)
-
-        page.go_to_next_page()
-        page.view_products(2)
-        page.go_to_next_page()
-
-        if (context.allow_filter == True):
-            page.add_manufacturer_filter()
-
-        page.select_sorting()
-        page.view_products(3)
-
-class Surfer(FastHttpUser):
-    wait_time = between(2, 5)
-    weight = 6
-
-    @task
-    def surf(self):
         page = Storefront(self.client, context)
 
         # search products over listings
@@ -88,8 +63,7 @@ class Surfer(FastHttpUser):
 
         # sort listing and use properties to filter
         page.select_sorting()
-        if (context.allow_filter == True):
-            page.add_property_filter()
+        page.add_property_filter()
 
         page.view_products(1)
         page.go_to_next_page()
@@ -99,12 +73,26 @@ class Surfer(FastHttpUser):
         page.view_products(2)
 
         # use property filter to find products
-        if (context.allow_filter == True):
-            page.add_property_filter()
+        page.add_property_filter()
 
         # take a look to the top three hits
         page.view_products(3)
         page.go_to_next_page()
+
+    @task(2)
+    def search(self):
+        page = Storefront(self.client, context)
+        page.do_search()
+        page.view_products(2)
+
+        page.go_to_next_page()
+        page.view_products(2)
+        page.go_to_next_page()
+
+        page.add_manufacturer_filter()
+
+        page.select_sorting()
+        page.view_products(3)
 
 class SurfWithOrder(FastHttpUser):
     wait_time = between(2, 5)
@@ -130,8 +118,7 @@ class SurfWithOrder(FastHttpUser):
 
         # sort listing and use properties to filter
         page.select_sorting()
-        if (context.allow_filter == True):
-            page.add_property_filter()
+        page.add_property_filter()
 
         page.view_products(1)
         page.go_to_next_page()
@@ -142,9 +129,8 @@ class SurfWithOrder(FastHttpUser):
         page.do_search()
         page.view_products(2)
 
-        if (context.allow_filter == True):
-            # use property filter to find products
-            page.add_property_filter()
+        # use property filter to find products
+        page.add_property_filter()
 
         # take a look to the top three hits
         page.view_products(3)

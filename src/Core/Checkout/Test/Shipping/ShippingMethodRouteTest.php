@@ -85,6 +85,30 @@ class ShippingMethodRouteTest extends TestCase
         static::assertEmpty($response['elements'][0]['availabilityRule']);
     }
 
+    public function testSortOrder(): void
+    {
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/shipping-method',
+                [
+                ]
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        $ids = array_column($response['elements'], 'id');
+
+        static::assertEquals(
+            [
+                $this->ids->get('shipping2'),
+                $this->ids->get('shipping'),
+                $this->ids->get('shipping3'),
+            ],
+            $ids
+        );
+    }
+
     public function testIncludes(): void
     {
         $this->browser
@@ -176,7 +200,7 @@ class ShippingMethodRouteTest extends TestCase
             [
                 'id' => $this->ids->create('shipping2'),
                 'active' => true,
-                'position' => 1,
+                'position' => -5,
                 'bindShippingfree' => false,
                 'name' => 'test',
                 'availabilityRule' => [
@@ -205,7 +229,7 @@ class ShippingMethodRouteTest extends TestCase
             [
                 'id' => $this->ids->create('shipping3'),
                 'active' => true,
-                'position' => 1,
+                'position' => 3,
                 'bindShippingfree' => false,
                 'name' => 'test',
                 'availabilityRule' => [

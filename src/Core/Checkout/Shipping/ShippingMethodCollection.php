@@ -55,6 +55,9 @@ class ShippingMethodCollection extends EntityCollection
      * If a different default shipping method is defined, it will be sorted second
      * All other shipping methods keep their respective sorting
      */
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed.
+     */
     public function sortShippingMethodsByPreference(SalesChannelContext $context): void
     {
         $ids = array_merge(

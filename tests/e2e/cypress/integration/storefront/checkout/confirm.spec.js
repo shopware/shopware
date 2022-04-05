@@ -343,4 +343,57 @@ describe('Test payment and shipping methods selection', () => {
 
         cy.get('.product-name').contains(product.name);
     });
+
+    it('@base @confirm: should have correct order of shipping methods', () => {
+        cy.window().then((win) => {
+            const salesChannels = [
+                { id: win.salesChannelId }
+            ];
+
+            cy.createShippingFixture({ name: 'Test Method #1', position: -1, salesChannels})
+                .then(() => {
+                    return cy.createShippingFixture({ name: 'Test Method #2', position: 3, salesChannels});
+                })
+                .then(() => {
+                    return cy.createShippingFixture({ name: 'Test Method #3', position: -2, salesChannels});
+                })
+                .then(() => {
+                    const page = new CheckoutPageObject();
+
+                    // add product to cart
+                    cy.get('.header-search-input')
+                        .should('be.visible')
+                        .type(product.name);
+                    cy.contains('.search-suggest-product-name', product.name).click();
+                    cy.get('.product-detail-buy .btn-buy').click();
+
+                    // Off canvas
+                    cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
+                    cy.get(`${page.elements.cartItem}-label`).contains(product.name);
+
+                    // Go to cart
+                    cy.get('.offcanvas-cart-actions [href="/checkout/confirm"]').click();
+
+                    // check for correct collapsed state at page initialization
+                    cy.get(`${page.elements.shippingMethodsContainer}`)
+                        .should('be.visible')
+                        .children('.shipping-method')
+                        .should('have.length', 5);
+
+
+                    const expectedOrder = {
+                        0: 'Test Method #3',    // position: -2
+                        1: 'Test Method #1',    // position: -1
+                        2: 'Express',           // position: 1
+                        3: 'Standard',          // position: 1
+                        4: 'Test Method #2',    // position: 3
+                    }
+
+                    cy.get(`${page.elements.shippingMethodsContainer} .shipping-method-description`)
+                        .each(($div, index) => {
+                            expect($div.text().trim()).to.equal(expectedOrder[index]);
+                        });
+                });
+            });
+    });
 });

@@ -3,6 +3,7 @@ import sys
 import time
 from locust import FastHttpUser, task, between, constant,tag
 from bs4 import BeautifulSoup
+import locust_plugins
 
 sys.path.append(os.path.dirname(__file__) + '/..')
 

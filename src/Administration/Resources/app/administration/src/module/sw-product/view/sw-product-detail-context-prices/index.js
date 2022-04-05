@@ -20,6 +20,12 @@ Component.register('sw-product-detail-context-prices', {
             required: false,
             default: false,
         },
+        canSetLoadingRules: {
+            type: Boolean,
+            required: false,
+            // eslint-disable-next-line vue/no-boolean-default
+            default: true,
+        },
     },
 
     data() {
@@ -205,7 +211,9 @@ Component.register('sw-product-detail-context-prices', {
                 ]),
             );
 
-            Shopware.State.commit('swProductDetail/setLoading', ['rules', true]);
+            if (this.canSetLoadingRules) {
+                Shopware.State.commit('swProductDetail/setLoading', ['rules', true]);
+            }
             this.ruleRepository.search(ruleCriteria).then((res) => {
                 this.rules = res;
                 this.totalRules = res.total;

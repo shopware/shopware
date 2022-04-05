@@ -435,6 +435,7 @@ Component.register('sw-bulk-edit-product', {
                 config: {
                     componentName: 'sw-entity-tag-select',
                     entityCollection: this.product.tags,
+                    entityName: 'tag',
                     allowOverwrite: true,
                     allowClear: true,
                     allowAdd: true,
@@ -1192,7 +1193,7 @@ Component.register('sw-bulk-edit-product', {
                 return;
             }
             if (item.name === 'categories') {
-                this.$set(this.product, 'categories', parentProductFrozen.categories);
+                this.setProductAssociation(item.name, parentProductFrozen);
                 return;
             }
             if (item.name === 'media') {
@@ -1200,7 +1201,7 @@ Component.register('sw-bulk-edit-product', {
                 return;
             }
             if (item.name === 'prices') {
-                this.setProductAssociation(item.name);
+                this.setProductAssociation(item.name, parentProductFrozen);
                 return;
             }
             if (item.name === 'properties') {

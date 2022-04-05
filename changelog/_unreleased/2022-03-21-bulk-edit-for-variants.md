@@ -76,3 +76,5 @@ issue: NEXT-19387
 * Deprecated `beforeDestroy` property in `sw-product-detail` component.
 * Added `beforeUnmount` property in `sw-product-detail` component.
 * Changed `onBulkEditItems` method in `sw-product-list` component.
+* Added `canSetLoadingRules` prop in `sw-product-detail-context-prices` component.
+* Changed `mountedComponent` method in `sw-product-detail-context-prices` component to set rules loading if needed.

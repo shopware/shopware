@@ -159,7 +159,7 @@
                             :placeholder="$tc('sw-bulk-edit.product.advancedPrices.selectRule')"
                             :criteria="ruleCriteria"
                             entity-name="rule"
-                            :entity-collection="entity[formField.name]"
+                            :entity-collection="!!bulkEditProduct[formField.name].isInherited ? [] : entity[formField.name]"
                             :disabled="!!bulkEditProduct[formField.name].isInherited"
                             @change="onRuleChange"
                         >
@@ -193,7 +193,10 @@
                     :title="$tc('sw-bulk-edit.product.advancedPrices.cardTitle')"
                     @modal-close="displayAdvancePricesModal = false"
                 >
-                    <sw-product-detail-context-prices :is-set-default-price="true" />
+                    <sw-product-detail-context-prices
+                        :is-set-default-price="true"
+                        :can-set-loading-rules="false"
+                    />
 
                     {% block sw_bulk_edit_product_content_advanced_prices_modal_footer %}
                     <template #modal-footer>

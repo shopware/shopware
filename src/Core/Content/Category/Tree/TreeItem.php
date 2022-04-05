@@ -8,6 +8,11 @@ use Shopware\Core\Framework\Struct\Struct;
 class TreeItem extends Struct
 {
     /**
+     * @internal public to allow AfterSort::sort()
+     */
+    public ?string $afterId;
+
+    /**
      * @var CategoryEntity
      */
     protected $category;
@@ -21,11 +26,18 @@ class TreeItem extends Struct
     {
         $this->category = $category;
         $this->children = $children;
+        $this->afterId = $category ? $category->getAfterCategoryId() : null;
+    }
+
+    public function getId(): string
+    {
+        return $this->category->getId();
     }
 
     public function setCategory(CategoryEntity $category): void
     {
         $this->category = $category;
+        $this->afterId = $category->getAfterCategoryId();
     }
 
     public function getCategory(): CategoryEntity

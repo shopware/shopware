@@ -10,6 +10,7 @@ use Shopware\Core\Content\Category\SalesChannel\AbstractNavigationRoute;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Util\AfterSort;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -71,49 +72,39 @@ class NavigationLoader implements NavigationLoaderInterface
         return $event->getNavigation();
     }
 
-    private function getTree(?string $parentId, CategoryCollection $categories, ?CategoryEntity $active): Tree
+    private function getTree(?string $rootId, CategoryCollection $categories, ?CategoryEntity $active): Tree
     {
-        $tree = $this->buildTree($parentId, $categories->getElements());
-
-        return new Tree($active, $tree);
-    }
-
-    /**
-     * @param CategoryEntity[] $categories
-     *
-     * @return TreeItem[]
-     */
-    private function buildTree(?string $parentId, array $categories): array
-    {
-        $children = new CategoryCollection();
-        foreach ($categories as $key => $category) {
-            if ($category->getParentId() !== $parentId) {
-                continue;
-            }
-
-            unset($categories[$key]);
-
-            $children->add($category);
-        }
-
-        $children->sortByPosition();
-
+        $parents = [];
         $items = [];
-        foreach ($children as $child) {
-            if (!$child->getActive() || !$child->getVisible()) {
+        foreach ($categories as $category) {
+            $item = clone $this->treeItem;
+            $item->setCategory($category);
+
+            $parents[$category->getParentId()][] = $item;
+            $items[$category->getId()] = $item;
+        }
+
+        foreach ($parents as $parentId => $children) {
+            $sorted = AfterSort::sort($children);
+
+            $filtered = \array_filter($sorted, static function (TreeItem $filter) {
+                return $filter->getCategory()->getActive() && $filter->getCategory()->getVisible();
+            });
+
+            if (empty($parentId)) {
                 continue;
             }
 
-            $item = clone $this->treeItem;
-            $item->setCategory($child);
-
-            $item->setChildren(
-                $this->buildTree($child->getId(), $categories)
-            );
-
-            $items[$child->getId()] = $item;
+            $item = $items[$parentId];
+            $item->setChildren($filtered);
         }
 
-        return $items;
+        $root = $parents[$rootId];
+
+        if (empty($root)) {
+            throw new \RuntimeException('Root category not found ' . $rootId);
+        }
+
+        return new Tree($active, $root);
     }
 }

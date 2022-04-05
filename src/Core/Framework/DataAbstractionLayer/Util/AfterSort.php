@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Util;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\Struct\Struct;
 
 class AfterSort
 {
@@ -13,7 +13,7 @@ class AfterSort
         }
 
         // pre-sort elements to pull elements without an after id parent to the front
-        uasort($elements, function (Entity $a, Entity $b) use ($propertyName) {
+        uasort($elements, function (Struct $a, Struct $b) use ($propertyName) {
             $aValue = $a->$propertyName;
             $bValue = $b->$propertyName;
             if ($aValue === $bValue && $aValue === null) {

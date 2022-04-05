@@ -81,13 +81,13 @@ class ThemePrepareIconsCommandTest extends TestCase
             'package' => 'default',
         ]);
 
-        static::assertStringContainsString('Start Icon preparation', $commandTester->getDisplay());
+        static::assertStringContainsString('StartIconpreparation', $this->minimizedOutput($commandTester->getDisplay()));
 
-        static::assertStringContainsString('simplexml_load_string(): Entity: line 1: parser error', $commandTester->getDisplay());
+        static::assertStringContainsString('simplexml_load_string():Entity:line1:parsererror', $this->minimizedOutput($commandTester->getDisplay()));
 
-        static::assertStringContainsString('mandIconsPath/invalid.svg', $commandTester->getDisplay());
+        static::assertStringContainsString('mandIconsPath/invalid.svg', $this->minimizedOutput($commandTester->getDisplay()));
 
-        static::assertStringContainsString('[OK] Processed 1 icons', $commandTester->getDisplay());
+        static::assertStringContainsString('Processed1icons', $this->minimizedOutput($commandTester->getDisplay()));
 
         $expectedIcon = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24" viewBox="0 0 24 24">'
 . '<defs>'
@@ -152,5 +152,10 @@ class ThemePrepareIconsCommandTest extends TestCase
 
         static::assertSame($expectedIcon, file_get_contents($this->testDir . 'processed/valid.svg'));
         static::assertFileDoesNotExist($this->testDir . 'processed/invalid.svg');
+    }
+
+    private function minimizedOutput(string $output): string
+    {
+        return str_replace(' ', '', str_replace("\n", '', $output));
     }
 }

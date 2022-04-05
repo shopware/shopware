@@ -51,7 +51,7 @@ class ThemePrepareIconsCommand extends Command
             );
         }
 
-        echo $cleanup = $input->getOption('cleanup') === 'true';
+        $cleanup = $input->getOption('cleanup') === 'true';
 
         if ($cleanup) {
             $this->io->writeln(
@@ -60,7 +60,7 @@ class ThemePrepareIconsCommand extends Command
         }
 
         $this->io = new SymfonyStyle($input, $output);
-        echo __DIR__;
+
         $this->io->writeln('Start Icon preparation');
         $svgReader = new SVGReader();
         @mkdir($path . 'processed/');

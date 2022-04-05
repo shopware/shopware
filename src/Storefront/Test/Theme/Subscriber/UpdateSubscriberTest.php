@@ -42,7 +42,6 @@ class UpdateSubscriberTest extends TestCase
         $themeService->expects(static::atLeast(2))
             ->method('compileThemeById')
             ->willReturnCallback(function ($themeId, $c) use (&$themes, $context) {
-                echo $themeId . 'one' . \PHP_EOL;
                 $this->assertEquals($context, $c);
                 $compiledThemes = [];
                 if (isset($themes['otherTheme']) && $themes['otherTheme']['id'] === $themeId) {

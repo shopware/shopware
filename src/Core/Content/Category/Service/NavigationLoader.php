@@ -80,31 +80,25 @@ class NavigationLoader implements NavigationLoaderInterface
             $item = clone $this->treeItem;
             $item->setCategory($category);
 
-            $parents[$category->getParentId()][] = $item;
+            $parents[$category->getParentId()][$category->getId()] = $item;
             $items[$category->getId()] = $item;
         }
 
         foreach ($parents as $parentId => $children) {
+            if (empty($parentId)) {
+                continue;
+            }
+
             $sorted = AfterSort::sort($children);
 
             $filtered = \array_filter($sorted, static function (TreeItem $filter) {
                 return $filter->getCategory()->getActive() && $filter->getCategory()->getVisible();
             });
 
-            if (empty($parentId)) {
-                continue;
-            }
-
             $item = $items[$parentId];
             $item->setChildren($filtered);
         }
 
-        $root = $parents[$rootId];
-
-        if (empty($root)) {
-            throw new \RuntimeException('Root category not found ' . $rootId);
-        }
-
-        return new Tree($active, $root);
+        return new Tree($active, $parents[$rootId] ?? []);
     }
 }

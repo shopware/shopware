@@ -281,8 +281,12 @@ Instead of passing uuids, you can also use one of the following aliases for the 
     private function addVisibilityCounts(string $rootId, int $rootLevel, int $depth, CategoryCollection $levels, SalesChannelContext $context): void
     {
         $counts = [];
-        foreach ($levels as $level) {
-            $parentId = $level->getParentId();
+        foreach ($levels as $category) {
+            if (!$category->getActive() || !$category->getVisible()) {
+                continue;
+            }
+
+            $parentId = $category->getParentId();
             $counts[$parentId] = $counts[$parentId] ?? 0;
             ++$counts[$parentId];
         }

@@ -4,11 +4,13 @@ namespace Shopware\Core\Content\Test\Category\Service;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
 use Shopware\Core\Content\Category\Service\NavigationLoader;
 use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
+use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -45,8 +47,12 @@ class NavigationLoaderTest extends TestCase
             $this->createMock(NavigationRoute::class)
         );
 
-        /** @var TreeItem[] $treeItems */
-        $treeItems = ReflectionHelper::getMethod(NavigationLoader::class, 'buildTree')->invoke($loader, '1', $this->createSimpleTree());
+        /** @var Tree $tree */
+        $categories = $this->createSimpleTree();
+
+        $tree = ReflectionHelper::getMethod(NavigationLoader::class, 'getTree')->invoke($loader, '1', new CategoryCollection($categories), \array_shift($categories));
+
+        $treeItems = $tree->getTree();
 
         static::assertCount(3, $treeItems);
         static::assertCount(2, $treeItems['1.1']->getChildren());
@@ -104,18 +110,15 @@ class NavigationLoaderTest extends TestCase
 
     public function testLoadDeepNestedTree(): void
     {
-        $category1_1_1Id = Uuid::randomHex();
-        $category1_1_1_1Id = Uuid::randomHex();
-
         $this->createCategoryTree();
         $this->repository->upsert([
             [
-                'id' => $category1_1_1Id,
+                'id' => $this->ids->get('category_1_1_1'),
                 'parentId' => $this->ids->get('category1_1'),
                 'name' => 'category 1.1.1',
                 'children' => [
                     [
-                        'id' => $category1_1_1_1Id,
+                        'id' => $this->ids->get('category_1_1_1_1'),
                         'name' => 'category 1.1.1.1',
                     ],
                 ],
@@ -125,9 +128,9 @@ class NavigationLoaderTest extends TestCase
         $context = Generator::createSalesChannelContext();
         $context->getSalesChannel()->setNavigationCategoryId($this->ids->get('rootId'));
 
-        $tree = $this->navigationLoader->load($category1_1_1_1Id, $context, $this->ids->get('rootId'));
+        $tree = $this->navigationLoader->load($this->ids->get('category_1_1_1_1'), $context, $this->ids->get('rootId'));
 
-        static::assertNotNull($tree->getChildren($category1_1_1Id));
+        static::assertNotNull($tree->getChildren($this->ids->get('category_1_1_1')));
     }
 
     public function testLoadDifferentDepth(): void
@@ -213,6 +216,7 @@ class NavigationLoaderTest extends TestCase
     private function createSimpleTree(): array
     {
         return [
+            new TestTreeAware('1', null),
             new TestTreeAware('1.1', '1'),
             new TestTreeAware('1.1.1', '1.1'),
             new TestTreeAware('1.1.2', '1.1'),
@@ -289,7 +293,7 @@ class NavigationLoaderTest extends TestCase
 
 class TestTreeAware extends CategoryEntity
 {
-    public function __construct(string $id, string $parentId)
+    public function __construct(string $id, ?string $parentId)
     {
         $this->id = $id;
         $this->parentId = $parentId;

@@ -32,8 +32,11 @@ class AfterSort
         });
 
         // add first element to sorted list as this will be the absolute first item
-        $sorted = [array_shift($elements)];
-        $lastId = $sorted[0]->getId();
+        $first = array_shift($elements);
+
+        $sorted = [$first->getId() => $first];
+
+        $lastId = $first->getId();
 
         while (\count($elements) > 0) {
             foreach ($elements as $index => $element) {
@@ -42,7 +45,7 @@ class AfterSort
                 }
 
                 // find the next element in the chain and set it as the new parent
-                $sorted[] = $element;
+                $sorted[$element->getId()] = $element;
                 $lastId = $element->getId();
                 unset($elements[$index]);
 
@@ -52,7 +55,7 @@ class AfterSort
 
             // chain is broken, continue with next element as parent
             $nextItem = array_shift($elements);
-            $sorted[] = $nextItem;
+            $sorted[$nextItem->getId()] = $nextItem;
 
             if (!\count($elements)) {
                 break;

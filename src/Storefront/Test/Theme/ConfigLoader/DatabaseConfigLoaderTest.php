@@ -51,6 +51,8 @@ class DatabaseConfigLoaderTest extends TestCase
 
     public function testMediaConfigurationLoading(): void
     {
+        static::markTestSkipped('NEXT-20034');
+
         self::setUpMedia();
 
         $theme = [[

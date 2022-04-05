@@ -54,7 +54,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
         $payload = [];
         $lastId = null;
         for ($i = 0; $i < $numberOfItems; ++$i) {
-            $cat = $this->createCategory($context, $pageIds, $tags, $rootCategoryId, $lastId, random_int(2, 5), 1);
+            $cat = $this->createCategory($context, $pageIds, $tags, $rootCategoryId, $lastId, random_int(3, 6), 1);
             $payload[] = $cat;
             $lastId = $cat['id'];
         }
@@ -91,7 +91,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
             return $cat;
         }
 
-        $cat['children'] = $this->createCategories($context, $pageIds, $tags, random_int(2, 5), $id, $max, $current);
+        $cat['children'] = $this->createCategories($context, $pageIds, $tags, random_int(3, 6), $id, $max, $current);
 
         return array_filter($cat);
     }

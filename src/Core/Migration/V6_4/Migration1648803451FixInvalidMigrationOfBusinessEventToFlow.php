@@ -3,12 +3,21 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Flow\Aggregate\FlowSequence\FlowSequenceDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class Migration1648803451FixInvalidMigrationOfBusinessEventToFlow extends MigrationStep
 {
+    private array $sequenceActions = [];
+
+    private array $sequenceDelete = [];
+
+    private array $sequenceUpdate = [];
+
     public function getCreationTimestamp(): int
     {
         return 1648803451;
@@ -16,101 +25,143 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlow extends Migrat
 
     public function update(Connection $connection): void
     {
-        $invalidFlows = $connection->fetchAllAssociative(
-            'SELECT DISTINCT HEX(`flow`.`id`) as id
+        $invalidSequence = $connection->fetchAllAssociative(
+            'SELECT DISTINCT HEX(`flow`.`id`),
+                `flow_sequence`.`id`,
+                `flow_sequence`.`flow_id`,
+                `flow_sequence`.`parent_id`,
+                `flow_sequence`.`true_case`,
+                `flow_sequence`.`rule_id`,
+                `flow_sequence`.`parent_id`,
+                `flow_sequence`.`action_name`,
+                `flow_sequence`.`config`,
+                `flow_sequence`.`position`,
+                `flow_sequence`.`created_at`
             FROM `event_action_rule`
                 JOIN `event_action`
                     ON `event_action_rule`.`event_action_id` = `event_action`.`id`
                 JOIN `flow`
                     ON `event_action`.`migrated_flow_id` = `flow`.`id`
+                JOIN `flow_sequence`
+                    ON `flow`.`id` = `flow_sequence`.`flow_id`
             WHERE `flow`.`updated_at` IS NULL;'
         );
 
-        foreach ($invalidFlows as $invalidFlow) {
-            $flowSequences = $connection->fetchAllAssociative(
-                'SELECT * FROM `flow_sequence` WHERE HEX(`flow_id`) = :flowId',
-                [
-                    'flowId' => $invalidFlow['id'],
-                ]
-            );
-            $action = array_values(array_filter($flowSequences, function ($sequence) {
+        $invalidSequenceGroup = FetchModeHelper::group($invalidSequence);
+
+        $createdAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+        $saleChannelRule = array_column($connection->fetchAllAssociative('SELECT `rule_id` FROM `sales_channel_rule`'), 'rule_id');
+
+        foreach ($invalidSequenceGroup as $sequence) {
+            $actionSequence = array_values(array_filter($sequence, function ($sequence) {
                 return $sequence['action_name'] !== null;
-            }));
+            }))[0];
 
-            $parentCondition = array_values(array_filter($flowSequences, function ($sequence) {
+            $parentCondition = array_values(array_filter($sequence, function ($sequence) {
                 return $sequence['rule_id'] !== null && $sequence['parent_id'] === null;
-            }));
+            }))[0];
 
-            $parentId = $parentCondition[0]['id'];
+            $parentId = $parentCondition['id'];
 
-            $saleChannelRule = $connection->fetchOne(
-                'SELECT 1 FROM `sales_channel_rule` WHERE `rule_id` = :ruleId',
-                [
-                    'ruleId' => $parentCondition[0]['rule_id'],
-                ]
-            );
+            $hasSaleChannelRule = \in_array($parentCondition['rule_id'], $saleChannelRule, true);
 
             $trueCase = true;
-            if (!$saleChannelRule) {
-                $connection->executeStatement(
-                    'UPDATE `flow_sequence` SET `parent_id` = :parentId, `true_case` = :trueCase WHERE `id` = :id',
-                    [
-                        'parentId' => $parentId,
-                        'trueCase' => $trueCase,
-                        'id' => $action[0]['id'],
-                    ]
+            if (!$hasSaleChannelRule) {
+                $this->sequenceUpdate[] = $this->buildSequenceData(
+                    $actionSequence['id'],
+                    $parentId,
+                    $trueCase,
                 );
+
                 $trueCase = false;
             } else {
-                $connection->executeStatement(
-                    'DELETE FROM `flow_sequence` WHERE `id` = :id',
-                    [
-                        'id' => $action[0]['id'],
-                    ]
+                $this->sequenceDelete[] = $this->buildSequenceData(
+                    $actionSequence['id']
                 );
             }
 
-            $childrenCondition = array_values(array_filter($flowSequences, function ($sequence) {
+            $childrenCondition = array_values(array_filter($sequence, function ($sequence) {
                 return $sequence['rule_id'] !== null && $sequence['parent_id'] !== null;
             }));
 
             foreach ($childrenCondition as $child) {
-                $connection->executeStatement(
-                    'UPDATE `flow_sequence` SET `parent_id` = :parentId, `true_case` = :trueCase WHERE `id` = :id',
-                    [
-                        'parentId' => $parentId,
-                        'trueCase' => $trueCase,
-                        'id' => $child['id'],
-                    ]
+                $this->sequenceUpdate[] = $this->buildSequenceData(
+                    $child['id'],
+                    $parentId,
+                    $trueCase,
                 );
 
                 $parentId = $child['id'];
                 $trueCase = false;
 
-                $connection->executeStatement(
-                    'INSERT INTO `flow_sequence` (id, flow_id, parent_id, rule_id, action_name, config, position, display_group, true_case, custom_fields, created_at, updated_at)
-                    VALUES (:id, :flow_id, :parent_id, :rule_id, :action_name, :config, :position, :display_group, :true_case, :custom_fields, :created_at, :updated_at)',
-                    [
-                        'id' => Uuid::randomBytes(),
-                        'flow_id' => $action[0]['flow_id'],
-                        'parent_id' => $parentId,
-                        'rule_id' => $action[0]['rule_id'],
-                        'action_name' => $action[0]['action_name'],
-                        'config' => $action[0]['config'],
-                        'position' => $action[0]['position'],
-                        'display_group' => $action[0]['display_group'],
-                        'true_case' => 1,
-                        'custom_fields' => $action[0]['custom_fields'],
-                        'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                        'updated_at' => null,
-                    ]
+                $this->sequenceActions[] = $this->buildSequenceData(
+                    Uuid::randomBytes(),
+                    $parentId,
+                    true,
+                    $actionSequence['flow_id'],
+                    $actionSequence['rule_id'],
+                    $actionSequence['action_name'],
+                    $createdAt,
+                    $actionSequence['config'],
                 );
             }
+        }
+
+        $queue = new MultiInsertQueryQueue($connection);
+
+        foreach ($this->sequenceActions as $data) {
+            $queue->addInsert(FlowSequenceDefinition::ENTITY_NAME, $data);
+        }
+
+        $queue->execute();
+
+        foreach ($this->sequenceUpdate as $sequence) {
+            $connection->executeStatement(
+                'UPDATE `flow_sequence` SET `parent_id` = :parentId, `true_case` = :trueCase WHERE `id` = :id',
+                [
+                    'parentId' => $sequence['parent_id'],
+                    'trueCase' => $sequence['true_case'],
+                    'id' => $sequence['id'],
+                ]
+            );
+        }
+
+        foreach ($this->sequenceDelete as $sequence) {
+            $connection->executeStatement(
+                'DELETE FROM `flow_sequence` WHERE `id` = :id',
+                [
+                    'id' => $sequence['id'],
+                ]
+            );
         }
     }
 
     public function updateDestructive(Connection $connection): void
     {
         // implement update destructive
+    }
+
+    private function buildSequenceData(
+        string $id,
+        ?string $parentId = null,
+        ?bool $trueCase = null,
+        ?string $flowId = null,
+        ?string $ruleId = null,
+        ?string $actionName = null,
+        ?string $createdAt = null,
+        ?string $config = null
+    ): array {
+        return [
+            'id' => $id,
+            'parent_id' => $parentId,
+            'true_case' => $trueCase,
+            'flow_id' => $flowId,
+            'rule_id' => $ruleId,
+            'action_name' => $actionName,
+            'position' => 1,
+            'created_at' => $createdAt,
+            'config' => $config,
+        ];
     }
 }

@@ -182,46 +182,7 @@ Instead of passing uuids, you can also use one of the following aliases for the 
         /** @var CategoryCollection $levels */
         $levels = $this->categoryRepository->search($criteria, $context)->getEntities();
 
-        // Count visible children that are already included in the original query
-        foreach ($levels as $level) {
-            $count = $levels->filter(function (CategoryEntity $category) use ($level) {
-                return $category->getParentId() === $level->getId() && $category->getVisible() && $category->getActive();
-            })->count();
-            $level->setVisibleChildCount($count);
-        }
-
-        // Fetch additional level of categories for counting visible children that are NOT included in the original query
-        $criteria = new Criteria();
-        $criteria->addFilter(
-            new ContainsFilter('path', '|' . $rootId . '|'),
-            new EqualsFilter('level', $rootLevel + $depth + 1),
-            new EqualsFilter('active', true),
-            new EqualsFilter('visible', true)
-        );
-
-        $criteria->addAggregation(
-            new TermsAggregation('category-ids', 'parentId', null, null, new CountAggregation('visible-children-count', 'id'))
-        );
-
-        $termsResult = $this->categoryRepository
-            ->aggregate($criteria, $context)
-            ->get('category-ids');
-
-        if ($termsResult instanceof TermsResult) {
-            foreach ($termsResult->getBuckets() as $bucket) {
-                $key = $bucket->getKey();
-
-                if ($key === null) {
-                    continue;
-                }
-
-                $parent = $levels->get($key);
-
-                if ($parent instanceof CategoryEntity) {
-                    $parent->setVisibleChildCount($bucket->getCount());
-                }
-            }
-        }
+        $this->addVisibilityCounts($rootId, $rootLevel, $depth, $levels, $context);
 
         return $levels;
     }
@@ -315,5 +276,53 @@ Instead of passing uuids, you can also use one of the following aliases for the 
         }
 
         return false;
+    }
+
+    private function addVisibilityCounts(string $rootId, int $rootLevel, int $depth, CategoryCollection $levels, SalesChannelContext $context): void
+    {
+        $counts = [];
+        foreach ($levels as $level) {
+            $parentId = $level->getParentId();
+            $counts[$parentId] = $counts[$parentId] ?? 0;
+            ++$counts[$parentId];
+        }
+        foreach ($levels as $category) {
+            $category->setVisibleChildCount($counts[$category->getId()] ?? 0);
+        }
+
+        // Fetch additional level of categories for counting visible children that are NOT included in the original query
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new ContainsFilter('path', '|' . $rootId . '|'),
+            new EqualsFilter('level', $rootLevel + $depth + 1),
+            new EqualsFilter('active', true),
+            new EqualsFilter('visible', true)
+        );
+
+        $criteria->addAggregation(
+            new TermsAggregation('category-ids', 'parentId', null, null, new CountAggregation('visible-children-count', 'id'))
+        );
+
+        $termsResult = $this->categoryRepository
+            ->aggregate($criteria, $context)
+            ->get('category-ids');
+
+        if (!($termsResult instanceof TermsResult)) {
+            return;
+        }
+
+        foreach ($termsResult->getBuckets() as $bucket) {
+            $key = $bucket->getKey();
+
+            if ($key === null) {
+                continue;
+            }
+
+            $parent = $levels->get($key);
+
+            if ($parent instanceof CategoryEntity) {
+                $parent->setVisibleChildCount($bucket->getCount());
+            }
+        }
     }
 }

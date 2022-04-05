@@ -133,7 +133,7 @@ Returns a success indicating a successful initialisation of the reset flow.",
 
         $customerIdCriteria = new Criteria();
         $customerIdCriteria->addFilter(new EqualsFilter('customerId', $customerId));
-        $customerIdCriteria->addAssociation('customer');
+        $customerIdCriteria->addAssociation('customer.salutation');
 
         $repoContext = $context->getContext();
 

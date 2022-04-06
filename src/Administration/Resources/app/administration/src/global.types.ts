@@ -31,6 +31,18 @@ interface SubContainer<ContainerName extends string> {
     $list(): (keyof Bottle.IContainer[ContainerName])[];
 }
 
+type SalutationFilterEntityType = {
+    salutation: {
+        id: string,
+        salutationKey: string,
+        displayName: string
+    },
+    title: string,
+    firstName: string,
+    lastName: string,
+    [key: string]: unknown
+};
+
 // declare global types
 declare global {
     /**
@@ -127,7 +139,7 @@ declare global {
         date: (value: string, options: Intl.DateTimeFormatOptions) => string,
         'file-size': $TSFixMeFunction,
         'media-name': $TSFixMeFunction,
-        salutation: $TSFixMeFunction,
+        salutation: (entity: SalutationFilterEntityType, fallbackSnippet: string) => string,
         'stock-color-variant': $TSFixMeFunction
         striphtml: (value: string) => string,
         'thumbnail-size': $TSFixMeFunction,

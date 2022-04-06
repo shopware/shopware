@@ -995,6 +995,12 @@ Component.register('sw-bulk-edit-product', {
                     change.mappingReferenceField = 'ruleId';
                 }
 
+                if (this.isChild && change.value !== null && types.isArray(change.value)) {
+                    change.value.forEach(association => {
+                        delete association.id;
+                    });
+                }
+
                 this.bulkEditSelected.push(change);
             });
 

@@ -47,6 +47,10 @@ class CreditNoteGeneratorTest extends TestCase
     use TaxAddToSalesChannelTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
 
+    public const CUSTOMER_GROUP_GROSS = false;
+
+    public const CUSTOMER_GROUP_NET = true;
+
     /**
      * @var SalesChannelContext
      */
@@ -74,29 +78,102 @@ class CreditNoteGeneratorTest extends TestCase
         $this->context = Context::createDefaultContext();
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->currencyFormatter = $this->getContainer()->get(CurrencyFormatter::class);
+    }
 
-        $priceRuleId = Uuid::randomHex();
-        $customerId = $this->createCustomer();
-        $shippingMethodId = $this->createShippingMethod($priceRuleId);
-        $paymentMethodId = $this->createPaymentMethod($priceRuleId);
+    public function testGenerateCreditNotWithCustomerGroupNet(): void
+    {
+        $this->setSalesChannelContext(self::CUSTOMER_GROUP_NET);
 
-        $this->addCountriesToSalesChannel();
-
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
-            Uuid::randomHex(),
-            TestDefaults::SALES_CHANNEL,
+        $this->getContainer()->get('customer.repository')->update([
             [
-                SalesChannelContextService::CUSTOMER_ID => $customerId,
-                SalesChannelContextService::SHIPPING_METHOD_ID => $shippingMethodId,
-                SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId,
+                'id' => $this->salesChannelContext->getCustomer()->getId(),
+                'groupId' => $this->createNetCustomerGroup(),
+            ],
+        ], $this->salesChannelContext->getContext());
+
+        $creditNoteService = $this->getContainer()->get(CreditNoteGenerator::class);
+
+        $possibleTax = 7;
+        $cart = $this->generateDemoCart([$possibleTax]);
+        $creditPrice = -100;
+
+        $cart = $this->generateCreditItems($cart, [$creditPrice]);
+
+        $orderId = $this->persistCart($cart);
+        /** @var OrderEntity $order */
+        $order = $this->getOrderById($orderId);
+
+        $documentConfiguration = DocumentConfigurationFactory::mergeConfiguration(
+            new DocumentConfiguration(),
+            [
+                'displayLineItems' => true,
+                'itemsPerPage' => 10,
+                'displayFooter' => true,
+                'displayHeader' => true,
             ]
         );
+        $context = Context::createDefaultContext();
 
-        $this->salesChannelContext->setRuleIds([$priceRuleId]);
+        $creditNoteService->generate(
+            $order,
+            $documentConfiguration,
+            $context
+        );
+
+        static::assertEquals($order->getPrice()->getTotalPrice(), \abs($possibleTax) + \abs($creditPrice));
+        static::assertEquals($order->getAmountNet(), \abs($creditPrice));
+    }
+
+    public function testGenerateCreditNotWithCustomerGroupGross(): void
+    {
+        $this->setSalesChannelContext(self::CUSTOMER_GROUP_GROSS);
+
+        $this->getContainer()->get('customer.repository')->update([
+            [
+                'id' => $this->salesChannelContext->getCustomer()->getId(),
+                'groupId' => $this->createGrossCustomerGroup(),
+            ],
+        ], $this->salesChannelContext->getContext());
+
+        $creditNoteService = $this->getContainer()->get(CreditNoteGenerator::class);
+
+        $possibleTax = 7;
+        $cart = $this->generateDemoCart([$possibleTax]);
+        $creditPrice = -100;
+
+        $cart = $this->generateCreditItems($cart, [$creditPrice]);
+
+        $orderId = $this->persistCart($cart);
+        /** @var OrderEntity $order */
+        $order = $this->getOrderById($orderId);
+
+        $documentConfiguration = DocumentConfigurationFactory::mergeConfiguration(
+            new DocumentConfiguration(),
+            [
+                'displayLineItems' => true,
+                'itemsPerPage' => 10,
+                'displayFooter' => true,
+                'displayHeader' => true,
+            ]
+        );
+        $context = Context::createDefaultContext();
+
+        $creditNoteService->generate(
+            $order,
+            $documentConfiguration,
+            $context
+        );
+
+        $taxAmount = $order->getLineItems()->getPrices()->sum()->getCalculatedTaxes()->getAmount();
+
+        static::assertEquals($order->getPrice()->getTotalPrice(), -$creditPrice);
+        static::assertEquals($order->getAmountNet(), -($creditPrice - $taxAmount));
     }
 
     public function testGenerateWithDifferentTaxes(): void
     {
+        $this->setSalesChannelContext();
+
         $creditNoteService = $this->getContainer()->get(CreditNoteGenerator::class);
         $pdfGenerator = $this->getContainer()->get(PdfGenerator::class);
 
@@ -163,6 +240,77 @@ class CreditNoteGeneratorTest extends TestCase
 
         $finfo = new \finfo(\FILEINFO_MIME_TYPE);
         static::assertEquals('application/pdf', $finfo->buffer($generatorOutput));
+    }
+
+    private function setSalesChannelContext(bool $customerGroupNet = false): void
+    {
+        $priceRuleId = Uuid::randomHex();
+        $options = [];
+        if ($customerGroupNet) {
+            $options = [
+                'groupId' => $this->createNetCustomerGroup(),
+            ];
+        }
+
+        $customerId = $this->createCustomer($options);
+        $shippingMethodId = $this->createShippingMethod($priceRuleId);
+        $paymentMethodId = $this->createPaymentMethod($priceRuleId);
+
+        $this->addCountriesToSalesChannel();
+
+        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+            Uuid::randomHex(),
+            TestDefaults::SALES_CHANNEL,
+            [
+                SalesChannelContextService::CUSTOMER_ID => $customerId,
+                SalesChannelContextService::SHIPPING_METHOD_ID => $shippingMethodId,
+                SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId,
+            ]
+        );
+
+        $this->salesChannelContext->setRuleIds([$priceRuleId]);
+    }
+
+    private function createNetCustomerGroup(): string
+    {
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'displayGross' => false,
+            'translations' => [
+                'en-GB' => [
+                    'name' => 'Net price customer group',
+                ],
+                'de-DE' => [
+                    'name' => 'Nettopreis-Kundengruppe',
+                ],
+            ],
+        ];
+
+        $this->getContainer()->get('customer_group.repository')->create([$data], Context::createDefaultContext());
+
+        return $id;
+    }
+
+    private function createGrossCustomerGroup(): string
+    {
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'displayGross' => true,
+            'translations' => [
+                'en-GB' => [
+                    'name' => 'Standard customer group',
+                ],
+                'de-DE' => [
+                    'name' => 'Standard-Kundengruppe',
+                ],
+            ],
+        ];
+
+        $this->getContainer()->get('customer_group.repository')->create([$data], Context::createDefaultContext());
+
+        return $id;
     }
 
     /**
@@ -238,7 +386,7 @@ class CreditNoteGeneratorTest extends TestCase
         return $orderId;
     }
 
-    private function createCustomer(): string
+    private function createCustomer(array $options = []): string
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -271,6 +419,8 @@ class CreditNoteGeneratorTest extends TestCase
                 ],
             ],
         ];
+
+        $customer = array_merge($customer, $options);
 
         $this->getContainer()->get('customer.repository')->upsert([$customer], $this->context);
 

@@ -74,14 +74,25 @@ class CreditNoteGenerator implements DocumentGeneratorInterface
             $tax->setTax($tax->getTax() !== 0.0 ? -$tax->getTax() : 0.0);
         }
 
-        $price = new CartPrice(
-            -($totalPrice - $taxAmount),
-            -$totalPrice,
-            -$order->getPositionPrice(),
-            $taxes,
-            $creditItemsCalculatedPrice->getTaxRules(),
-            $order->getTaxStatus()
-        );
+        if ($order->getPrice()->hasNetPrices()) {
+            $price = new CartPrice(
+                -$totalPrice,
+                -($totalPrice + $taxAmount),
+                -$order->getPositionPrice(),
+                $taxes,
+                $creditItemsCalculatedPrice->getTaxRules(),
+                $order->getTaxStatus()
+            );
+        } else {
+            $price = new CartPrice(
+                -($totalPrice - $taxAmount),
+                -$totalPrice,
+                -$order->getPositionPrice(),
+                $taxes,
+                $creditItemsCalculatedPrice->getTaxRules(),
+                $order->getTaxStatus()
+            );
+        }
 
         $order->setLineItems($creditItems);
         $order->setPrice($price);

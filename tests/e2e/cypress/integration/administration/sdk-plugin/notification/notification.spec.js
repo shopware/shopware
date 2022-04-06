@@ -11,15 +11,10 @@ describe('SDK Tests: Notification', ()=> {
                 return cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             })
             .then(() => {
-                cy.onlyOnFeature('FEATURE_NEXT_17950');
-
                 cy.intercept({
                     url: `${Cypress.env('apiPath')}/search/locale`,
                     method: 'POST'
                 }).as('searchLocale');
-
-                cy.get('.sw-dashboard-statistics__card-headline')
-                    .should('be.visible');
 
                 cy.get('.sw-loader').should('not.exist');
                 cy.get('.sw-skeleton').should('not.exist');
@@ -40,8 +35,6 @@ describe('SDK Tests: Notification', ()=> {
     });
 
     it('@sdk: dispatch a notification', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.log('Go to extension page')
 
         cy.get('.sw-admin-menu__item--sw-order')

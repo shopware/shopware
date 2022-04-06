@@ -11,15 +11,11 @@ describe('Category: SDK Test', ()=> {
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
 
-                cy.onlyOnFeature('FEATURE_NEXT_17950');
-
                 cy.getSDKiFrame('sw-main-hidden')
                     .should('exist');
             });
     });
     it('@sdk: modals', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         const Page = new ProductPageObject();
 
         cy.contains('.smart-bar__content', 'Products');

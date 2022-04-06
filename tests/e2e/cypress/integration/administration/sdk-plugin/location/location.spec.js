@@ -34,16 +34,12 @@ describe('SDK Tests: Location', ()=> {
                 cy.get('.sw-loader').should('not.exist');
                 cy.get('.sw-skeleton').should('not.exist');
 
-                cy.onlyOnFeature('FEATURE_NEXT_17950');
-
                 cy.getSDKiFrame('sw-main-hidden')
                     .should('exist');
             })
     });
 
     it('@sdk: update the height of the location iFrame', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.log('Go to specifications tab');
 
         cy.contains('.sw-tabs-item', 'Specifications')
@@ -75,8 +71,6 @@ describe('SDK Tests: Location', ()=> {
     })
 
     it('@sdk: start auto resizing of the iFrame height', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.log('Go to specifications tab');
 
         cy.contains('.sw-tabs-item', 'Specifications')

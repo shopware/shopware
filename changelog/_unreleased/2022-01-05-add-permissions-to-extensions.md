@@ -1,7 +1,6 @@
 ---
 title: Add permissions to extensions
 issue: NEXT-18126
-flag: FEATURE_NEXT_17950
 author: Sebastian Seggewiss
 author_email: s.seggewiss@shopware.com
 author_github: @seggewiss

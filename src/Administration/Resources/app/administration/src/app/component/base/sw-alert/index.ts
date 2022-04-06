@@ -1,7 +1,12 @@
+import type { NotificationType } from 'src/app/mixin/notification.mixin';
+import type { PropType } from 'vue';
 import template from './sw-alert.html.twig';
 import './sw-alert.scss';
 
 const { Component } = Shopware;
+type AppearanceType = 'default' | 'notification' | 'system';
+type CssClassesObject = { [key: string]: boolean };
+type CssClasses = Array<string | CssClassesObject> | CssClassesObject;
 
 /**
  * @description
@@ -20,15 +25,17 @@ Component.register('sw-alert', {
 
     props: {
         variant: {
-            type: String,
+            type: String as PropType<NotificationType>,
+            required: false,
             default: 'info',
             validValues: ['info', 'warning', 'error', 'success'],
-            validator(value) {
+            validator(value: string): boolean {
                 return ['info', 'warning', 'error', 'success'].includes(value);
             },
         },
         appearance: {
-            type: String,
+            type: String as PropType<AppearanceType>,
+            required: false,
             default: 'default',
             validValues: ['default', 'notification', 'system'],
             validator(value) {
@@ -59,8 +66,8 @@ Component.register('sw-alert', {
         },
     },
     computed: {
-        alertIcon() {
-            const iconConfig = {
+        alertIcon(): string {
+            const iconConfig: { [type: string]: string } = {
                 info: 'default-badge-info',
                 warning: 'default-badge-warning',
                 error: 'default-badge-error',
@@ -70,11 +77,11 @@ Component.register('sw-alert', {
             return iconConfig[this.variant] || 'default-bell-bell';
         },
 
-        hasActionSlot() {
+        hasActionSlot(): boolean {
             return !!this.$slots.actions;
         },
 
-        alertClasses() {
+        alertClasses(): CssClasses {
             return [
                 `sw-alert--${this.variant}`,
                 `sw-alert--${this.appearance}`,
@@ -87,7 +94,7 @@ Component.register('sw-alert', {
             ];
         },
 
-        alertBodyClasses() {
+        alertBodyClasses(): CssClasses {
             return {
                 'sw-alert__body--icon': this.showIcon,
                 'sw-alert__body--closable': this.closable,

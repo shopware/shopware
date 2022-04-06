@@ -218,4 +218,8 @@ declare module 'vue/types/options' {
             helpText?: string,
         }
     }
+
+    interface PropOptions<T=any> {
+        validValues?: T[]
+    }
 }

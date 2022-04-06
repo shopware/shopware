@@ -4,15 +4,11 @@ describe('Category: SDK Test', ()=> {
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/index/shop`);
 
-                cy.onlyOnFeature('FEATURE_NEXT_17950');
-
                 cy.getSDKiFrame('sw-main-hidden')
                     .should('exist');
             });
     });
     it('@sdk: add settings without searchbar', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.get('.sw-settings__content-header')
             .contains('Settings');
         cy.get('.sw-loader')
@@ -38,8 +34,6 @@ describe('Category: SDK Test', ()=> {
             .should('not.exist');
     });
     it('@sdk: add settings with searchbar', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.get('.sw-settings')
             .click();
         cy.get('.sw-settings__tab-plugins')

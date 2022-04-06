@@ -11,15 +11,10 @@ describe('SDK Tests: Context', ()=> {
                 return cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             })
             .then(() => {
-                cy.onlyOnFeature('FEATURE_NEXT_17950');
-
                 cy.intercept({
                     url: `${Cypress.env('apiPath')}/search/locale`,
                     method: 'POST'
                 }).as('searchLocale');
-
-                cy.get('.sw-dashboard-statistics__card-headline')
-                    .should('be.visible');
 
                 cy.get('.sw-loader').should('not.exist');
                 cy.get('.sw-skeleton').should('not.exist');
@@ -40,8 +35,6 @@ describe('SDK Tests: Context', ()=> {
     });
 
     it('@sdk: get current language', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.log('Go to extension page')
 
         cy.get('.sw-card-view__content')
@@ -70,8 +63,6 @@ describe('SDK Tests: Context', ()=> {
     })
 
     it('@sdk: subscribe on language changes', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.log('Change the language of the current user');
 
         cy.get('.sw-card-view__content')
@@ -108,8 +99,6 @@ describe('SDK Tests: Context', ()=> {
     })
 
     it('@sdk: get current environment', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.log('Go to extension page');
 
         cy.get('.sw-card-view__content')
@@ -135,8 +124,6 @@ describe('SDK Tests: Context', ()=> {
     })
 
     it('@sdk: get current locale', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.log('Go to extension page');
 
         cy.get('.sw-card-view__content')
@@ -165,8 +152,6 @@ describe('SDK Tests: Context', ()=> {
     })
 
     it('@sdk: subscribe on locale changes', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.log('Change the locale of the current user');
 
         cy.get('.sw-admin-menu__user-name')
@@ -202,8 +187,6 @@ describe('SDK Tests: Context', ()=> {
     })
 
     it('@sdk: get current shopware version', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.log('Go to extension page');
 
         cy.get('.sw-card-view__content')
@@ -230,8 +213,6 @@ describe('SDK Tests: Context', ()=> {
     })
 
     it('@sdk: get app information', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.log('Go to extension page');
 
         cy.get('.sw-card-view__content')
@@ -260,8 +241,6 @@ describe('SDK Tests: Context', ()=> {
     })
 
     it('@sdk: get module information', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.log('Go to extension page');
 
         cy.get('.sw-card-view__content')

@@ -21,7 +21,6 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Plugin;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
@@ -342,7 +341,7 @@ class InfoController extends AbstractController
             $baseUrl = $this->getBaseUrl($bundle, $package, $bundleDirectoryName);
 
             if (empty($styles) && empty($scripts)) {
-                if (!Feature::isActive('FEATURE_NEXT_17950') || $baseUrl === null) {
+                if ($baseUrl === null) {
                     continue;
                 }
             }
@@ -350,16 +349,9 @@ class InfoController extends AbstractController
             $assets[$bundle->getName()] = [
                 'css' => $styles,
                 'js' => $scripts,
+                'baseUrl' => $baseUrl,
+                'type' => 'plugin',
             ];
-
-            if (Feature::isActive('FEATURE_NEXT_17950')) {
-                $assets[$bundle->getName()]['baseUrl'] = $baseUrl;
-                $assets[$bundle->getName()]['type'] = 'plugin';
-            }
-        }
-
-        if (!Feature::isActive('FEATURE_NEXT_17950')) {
-            return $assets;
         }
 
         /** @var AppEntity $app */

@@ -11,15 +11,10 @@ describe('SDK Tests: Window', ()=> {
                 return cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             })
             .then(() => {
-                cy.onlyOnFeature('FEATURE_NEXT_17950');
-
                 cy.intercept({
                     url: `${Cypress.env('apiPath')}/search/locale`,
                     method: 'POST'
                 }).as('searchLocale');
-
-                cy.get('.sw-dashboard-statistics__card-headline')
-                    .should('be.visible');
 
                 cy.get('.sw-loader').should('not.exist');
                 cy.get('.sw-skeleton').should('not.exist');
@@ -40,8 +35,6 @@ describe('SDK Tests: Window', ()=> {
     });
 
     it('@sdk: redirect to another URL', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.log('Go to extension page')
 
         cy.get('.sw-admin-menu__item--sw-order')
@@ -68,8 +61,6 @@ describe('SDK Tests: Window', ()=> {
     })
 
     it('@sdk: reload page', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.log('Go to extension page')
 
         cy.get('.sw-admin-menu__item--sw-order')
@@ -95,8 +86,6 @@ describe('SDK Tests: Window', ()=> {
     })
 
     it('@sdk: push router', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.log('Go to extension page')
 
         cy.get('.sw-admin-menu__item--sw-order')

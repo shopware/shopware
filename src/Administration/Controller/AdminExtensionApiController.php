@@ -15,8 +15,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -51,8 +49,6 @@ class AdminExtensionApiController extends AbstractController
      */
     public function runAction(RequestDataBag $requestDataBag, Context $context): Response
     {
-        Feature::throwException('FEATURE_NEXT_17950', 'Feature is not active', false);
-
         $appName = $requestDataBag->get('appName');
         $criteria = new Criteria();
         $criteria->addFilter(

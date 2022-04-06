@@ -6,8 +6,6 @@ describe('Category: SDK Test', ()=> {
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/extension/my-extensions/listing/`);
 
-                cy.onlyOnFeature('FEATURE_NEXT_17950');
-
                 cy.getSDKiFrame('sw-main-hidden')
                     .should('exist');
 
@@ -20,8 +18,6 @@ describe('Category: SDK Test', ()=> {
     });
 
     it('@sdk: add main module', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.get('.sw-meteor-page__smart-bar-title')
             .should('be.visible');
         cy.get('.sw-meteor-page__smart-bar-title')
@@ -43,8 +39,6 @@ describe('Category: SDK Test', ()=> {
     });
 
     it('@sdk: check main module with searchbar', ()=> {
-        cy.onlyOnFeature('FEATURE_NEXT_17950');
-
         cy.get('.sw-meteor-page__smart-bar-title')
             .should('be.visible');
         cy.get('.sw-meteor-page__smart-bar-title')

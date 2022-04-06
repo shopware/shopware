@@ -115,9 +115,11 @@ describe('Bulk Edit - Products', () => {
         cy.get('.sw-product-category-form__visibility_field').contains('E2E install test');
 
         cy.contains('specificaties').click();
+        cy.get('.sw-product-properties__card .sw-card__title').scrollIntoView();
         cy.get('.sw-product-properties__card .sw-card__title').should('be.visible');
         cy.get('.sw-data-grid__cell--name > .sw-data-grid__cell-content').should('be.visible');
 
+        cy.contains('SEO').scrollIntoView();
         cy.contains('SEO').click();
         cy.get('[placeholder="Voer een meta title in ..."]')
             .should('have.value', 'The best products ever');
@@ -136,10 +138,13 @@ describe('Bulk Edit - Products', () => {
         cy.get('.sw-product-deliverability__min-purchase [type]').should('have.value', '10');
         cy.get('.sw-product-category-form__visibility_field').contains('E2E install test');
 
+        cy.contains('specificaties').scrollIntoView();
         cy.contains('specificaties').click();
+        cy.get('.sw-product-properties__card .sw-card__title').scrollIntoView();
         cy.get('.sw-product-properties__card .sw-card__title').should('be.visible');
         cy.get('.sw-data-grid__cell--name > .sw-data-grid__cell-content').should('be.visible');
 
+        cy.contains('SEO').scrollIntoView();
         cy.contains('SEO').click();
         cy.get('[placeholder="Voer een meta title in ..."]')
             .should('have.value', 'The best products ever');

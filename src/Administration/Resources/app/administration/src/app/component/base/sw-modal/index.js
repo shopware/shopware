@@ -27,6 +27,12 @@ Component.register('sw-modal', {
             default: '',
         },
 
+        subtitle: {
+            type: String,
+            default: null,
+            required: false,
+        },
+
         size: {
             type: String,
             default: '',

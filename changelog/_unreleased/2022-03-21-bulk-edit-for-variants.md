@@ -23,7 +23,7 @@ issue: NEXT-19387
 * Added the following data variables in `sw-bulk-edit-product` component:
     * `parentProductFrozen`
     * `isComponentMounted`
-* Deprecated `beforeDestroy` property in `sw-bulk-edit-product` component.
+* Removed `beforeDestroy` property in `sw-bulk-edit-product` component.
 * Added `beforeUnmount` property in `sw-bulk-edit-product` component.
 * Changed `createdComponent` method in `sw-bulk-edit-product` component.
 * Added the following methods in `sw-bulk-edit-product` component:
@@ -73,7 +73,7 @@ issue: NEXT-19387
 * Added the following blocks in `sw-product-variants-overview` component template:
     * `sw_product_variants_overview_bulk`
     * `sw_product_variants_overview_bulk_edit_modal`
-* Deprecated `beforeDestroy` property in `sw-product-detail` component.
+* Removed `beforeDestroy` property in `sw-product-detail` component.
 * Added `beforeUnmount` property in `sw-product-detail` component.
 * Changed `onBulkEditItems` method in `sw-product-list` component.
 * Added `canSetLoadingRules` prop in `sw-product-detail-context-prices` component.

@@ -16,7 +16,7 @@
       "messageEmptyTitle": "Keine Produkte für die Mehrfachänderung ausgewählt",
       "messageEmptySubline": "Gehe zurück und wähle Produkte aus.",
       "alertInheritance": {
-        "message": "These products have inherited fields. The contents of inherited fields are drawn form the respective parent product. You can activate and deactivate inheritances by clicking on the chain symbol."
+        "message": "Diese Varianten besitzen vererbte Felder. Der Inhalt der vererbten Felder wird vom jeweiligen Hauptprodukt übernommen. Sie können Vererbungen aktivieren und deaktivieren, indem Sie auf das Kettensymbol anklicken."
       },
       "generalInformation": {
         "cardTitle": "Allgemeine Informationen",
@@ -42,19 +42,26 @@
           "changeLabel": "Ändern: Steuersatz",
           "placeholderTax": "Steuersatz auswählen ..."
         },
+        "isPriceInherited": {
+          "changeLabel": "Ändern: Preisvererbung"
+        },
         "price": {
+          "label": "Preis",
           "changeLabel": "Ändern: Preis",
           "placeholderPrice": "Preis eingeben ..."
         },
         "purchasePrices": {
+          "label": "Einkaufspreis",
           "changeLabel": "Ändern: Einkaufspreis",
           "placeholderPurchasePrices": "Einkaufspreis eingeben ..."
         },
         "listPrice": {
+          "label": "Streichpreis",
           "changeLabel": "Ändern: Streichpreis",
           "placeholderListPrice": "Streichpreis eingeben ..."
         },
         "regulationPrice": {
+          "label": "Günstigster Preis (letzten 30 Tage)",
           "changeLabel": "Ändern: Günstigster Preis (letzten 30 Tage)",
           "placeholderRegulationPrice": "Günstigsten Preis eingeben ..."
         }
@@ -197,6 +204,9 @@
         "cardTitle": "Zusatzfelder",
         "changeLabel": "Ändern: {name}"
       }
+    },
+    "variant": {
+      "textTitle": "Mehrfachänderung: {variantTotal} Variante | Mehrfachänderung: {variantTotal} Varianten"
     },
     "modal": {
       "confirm": {

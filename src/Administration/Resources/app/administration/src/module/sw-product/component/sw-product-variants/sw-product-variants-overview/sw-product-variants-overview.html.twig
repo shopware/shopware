@@ -399,6 +399,7 @@
 
             {% block sw_product_variants_overview_bulk_delete %}
             <span
+                v-if="acl.can('product.deleter')"
                 class="link link-danger sw-product-variants-overview__bulk-delete-action"
                 @click="onClickBulkDelete"
             >
@@ -520,17 +521,12 @@
     >
 
         <p
-            v-if="toBeDeletedVariantIds.length > 1"
             class="sw-product-variants-overview__modal--confirm-delete-text"
         >
-            {{ $tc('sw-product.variations.generatedListDeleteModalMessagePlural') }}
-        </p>
-
-        <p
-            v-else
-            class="sw-product-variants-overview__modal--confirm-delete-text"
-        >
-            {{ $tc('sw-product.variations.generatedListDeleteModalMessage') }}
+            {{ toBeDeletedVariantIds.length > 1
+                ? $tc('sw-product.variations.generatedListDeleteModalMessagePlural')
+                : $tc('sw-product.variations.generatedListDeleteModalMessage')
+            }}
         </p>
 
         <template #modal-footer>

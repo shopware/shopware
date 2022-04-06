@@ -197,7 +197,7 @@ Component.register('sw-bulk-edit-product', {
         },
 
         pricesFormFields() {
-            return [{
+            const fields = [{
                 name: 'taxId',
                 canInherit: this.isChild,
                 config: {
@@ -209,53 +209,79 @@ Component.register('sw-bulk-edit-product', {
                 },
             }, {
                 name: 'price',
-                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-price-field',
                     price: this.product.price,
                     taxRate: this.taxRate,
                     currency: this.currency,
-                    changeLabel: this.$tc('sw-bulk-edit.product.prices.price.changeLabel'),
+                    changeLabel: this.isChild
+                        ? this.$tc('sw-bulk-edit.product.prices.price.label')
+                        : this.$tc('sw-bulk-edit.product.prices.price.changeLabel'),
                     placeholder: this.$tc('sw-bulk-edit.product.prices.price.placeholderPrice'),
-                    disabled: this.bulkEditProduct?.price?.isInherited,
+                    disabled: this.isChild
+                        ? this.bulkEditProduct?.isPriceInherited?.isInherited
+                        : false,
                 },
             }, {
                 name: 'purchasePrices',
-                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-price-field',
                     price: this.product.purchasePrices,
                     taxRate: this.taxRate,
                     currency: this.currency,
-                    changeLabel: this.$tc('sw-bulk-edit.product.prices.purchasePrices.changeLabel'),
+                    changeLabel: this.isChild
+                        ? this.$tc('sw-bulk-edit.product.prices.purchasePrices.label')
+                        : this.$tc('sw-bulk-edit.product.prices.purchasePrices.changeLabel'),
                     placeholder: this.$tc('sw-bulk-edit.product.prices.purchasePrices.placeholderPurchasePrices'),
-                    disabled: this.bulkEditProduct?.purchasePrices?.isInherited,
+                    disabled: this.isChild
+                        ? this.bulkEditProduct?.isPriceInherited?.isInherited
+                        : false,
                 },
             }, {
                 name: 'listPrice',
-                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-price-field',
                     price: this.product.listPrice,
                     taxRate: this.taxRate,
                     currency: this.currency,
-                    changeLabel: this.$tc('sw-bulk-edit.product.prices.listPrice.changeLabel'),
+                    changeLabel: this.isChild
+                        ? this.$tc('sw-bulk-edit.product.prices.listPrice.label')
+                        : this.$tc('sw-bulk-edit.product.prices.listPrice.changeLabel'),
                     placeholder: this.$tc('sw-bulk-edit.product.prices.listPrice.placeholderListPrice'),
-                    disabled: this.isDisabledListPrice || this.bulkEditProduct?.listPrice?.isInherited,
+                    disabled: this.isChild
+                        ? this.bulkEditProduct?.isPriceInherited?.isInherited
+                        : this.isDisabledListPrice,
                 },
             }, {
                 name: 'regulationPrice',
-                canInherit: this.isChild,
                 config: {
                     componentName: 'sw-price-field',
                     price: this.product.regulationPrice,
                     taxRate: this.taxRate,
                     currency: this.currency,
-                    changeLabel: this.$tc('sw-bulk-edit.product.prices.regulationPrice.changeLabel'),
+                    changeLabel: this.isChild
+                        ? this.$tc('sw-bulk-edit.product.prices.regulationPrice.label')
+                        : this.$tc('sw-bulk-edit.product.prices.regulationPrice.changeLabel'),
                     placeholder: this.$tc('sw-bulk-edit.product.prices.regulationPrice.placeholderRegulationPrice'),
-                    disabled: this.isDisabledRegulationPrice || this.bulkEditProduct?.regulationPrice?.isInherited,
+                    disabled: this.isChild
+                        ? this.bulkEditProduct?.isPriceInherited?.isInherited
+                        : this.isDisabledRegulationPrice,
                 },
             }];
+
+            if (this.isChild) {
+                const isPriceInherited = {
+                    name: 'isPriceInherited',
+                    canInherit: this.isChild,
+                    config: {
+                        componentName: '',
+                        changeLabel: this.$tc('sw-bulk-edit.product.prices.isPriceInherited.changeLabel'),
+                    },
+                };
+                fields.splice(1, 0, isPriceInherited);
+            }
+
+            return fields;
         },
 
         advancedPricesFormFields() {
@@ -709,16 +735,67 @@ Component.register('sw-bulk-edit-product', {
                 this.$set(this.bulkEditProduct.visibilities, 'value', productVisibilities);
             },
         },
+        'bulkEditProduct.isPriceInherited.isChanged': {
+            handler(isChanged) {
+                if (!this.isChild) {
+                    return;
+                }
+
+                this.$set(this.bulkEditProduct.price, 'isChanged', isChanged);
+                this.$set(this.bulkEditProduct.purchasePrices, 'isChanged', isChanged);
+                this.$set(this.bulkEditProduct.listPrice, 'isChanged', isChanged);
+                this.$set(this.bulkEditProduct.regulationPrice, 'isChanged', isChanged);
+            },
+        },
+        'bulkEditProduct.isPriceInherited.isInherited': {
+            handler(isInherited) {
+                if (!this.isChild) {
+                    return;
+                }
+
+                this.$set(this.bulkEditProduct.price, 'isInherited', isInherited);
+                this.$set(this.bulkEditProduct.purchasePrices, 'isInherited', isInherited);
+                this.$set(this.bulkEditProduct.listPrice, 'isInherited', isInherited);
+                this.$set(this.bulkEditProduct.regulationPrice, 'isInherited', isInherited);
+            },
+        },
+        'product.listPrice': {
+            deep: true,
+            handler(listPrice) {
+                if (!this.isChild) {
+                    return;
+                }
+                if (!this.bulkEditProduct?.price?.value?.length) {
+                    return;
+                }
+                if (this.bulkEditProduct?.price?.value[0]?.listPrice) {
+                    return;
+                }
+
+                this.$set(this.bulkEditProduct.price.value[0], 'listPrice', listPrice[0]);
+            },
+        },
+        'product.regulationPrice': {
+            deep: true,
+            handler(regulationPrice) {
+                if (!this.isChild) {
+                    return;
+                }
+                if (!this.bulkEditProduct?.price?.value?.length) {
+                    return;
+                }
+                if (this.bulkEditProduct?.price?.value[0]?.regulationPrice) {
+                    return;
+                }
+
+                this.$set(this.bulkEditProduct.price.value[0], 'regulationPrice', regulationPrice[0]);
+            },
+        },
     },
 
     beforeCreate() {
         Shopware.State.registerModule('swProductDetail', swProductDetailState);
     },
-
-    /**
-     * @deprecated tag:v6.5.0 - Can be removed, use "beforeUnmount" instead.
-    */
-    beforeDestroy() {},
 
     beforeUnmount() {
         Shopware.State.unregisterModule('swProductDetail');
@@ -1157,12 +1234,6 @@ Component.register('sw-bulk-edit-product', {
 
         onInheritanceRestore(item) {
             const parentProductFrozen = JSON.parse(this.parentProductFrozen);
-            const emptyPrice = {
-                currencyId: this.currency.id,
-                net: null,
-                linked: true,
-                gross: null,
-            };
 
             this.$set(this.bulkEditProduct[item.name], 'isInherited', true);
             this.$set(this.bulkEditProduct[item.name], 'value', parentProductFrozen[item.name]);
@@ -1172,30 +1243,32 @@ Component.register('sw-bulk-edit-product', {
                 this.$set(this.product, 'taxId', parentProductFrozen.taxId);
                 return;
             }
-            if (item.name === 'price') {
+            if (item.name === 'isPriceInherited') {
                 this.$set(this.product.price, 0, parentProductFrozen.price[0]);
-                return;
-            }
-            if (item.name === 'purchasePrices') {
                 this.$set(this.product.purchasePrices, 0, parentProductFrozen.purchasePrices[0]);
-                return;
-            }
-            if (item.name === 'listPrice') {
+
                 const listPrice = !types.isEmpty(parentProductFrozen.price[0].listPrice)
                     ? parentProductFrozen.price[0].listPrice
-                    : emptyPrice;
-
+                    : {
+                        currencyId: this.currency.id,
+                        net: null,
+                        linked: true,
+                        gross: null,
+                    };
                 this.$set(this.product, 'listPrice', [listPrice]);
                 this.$set(this.product.price[0], 'listPrice', listPrice);
-                return;
-            }
-            if (item.name === 'regulationPrice') {
+
                 const regulationPrice = !types.isEmpty(parentProductFrozen.price[0].regulationPrice)
                     ? parentProductFrozen.price[0].regulationPrice
-                    : emptyPrice;
-
+                    : {
+                        currencyId: this.currency.id,
+                        net: null,
+                        linked: true,
+                        gross: null,
+                    };
                 this.$set(this.product, 'regulationPrice', [regulationPrice]);
                 this.$set(this.product.price[0], 'regulationPrice', regulationPrice);
+
                 return;
             }
             if (item.name === 'categories') {

@@ -31,6 +31,7 @@ function createWrapper() {
 
 describe('sw-bulk-edit-product-visibility', () => {
     let wrapper;
+    const consoleError = console.error;
 
     beforeAll(() => {
         Shopware.State.registerModule('swProductDetail', {
@@ -52,10 +53,12 @@ describe('sw-bulk-edit-product-visibility', () => {
     });
 
     beforeEach(() => {
+        console.error = jest.fn();
         wrapper = createWrapper();
     });
 
     afterEach(() => {
+        console.error = consoleError;
         wrapper.destroy();
     });
 

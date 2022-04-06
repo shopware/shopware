@@ -1,5 +1,10 @@
 {% block sw_bulk_edit_product %}
-<sw-page class="sw-bulk-edit-product">
+<sw-page
+    :class="{
+        'sw-bulk-edit-product': true,
+        'is--variant': isChild,
+    }"
+>
     {% block sw_bulk_edit_product_search_bar %}
     <template #search-bar>
         <sw-search-bar />
@@ -25,7 +30,12 @@
     {% block sw_bulk_edit_product_smart_bar_header %}
     <template #smart-bar-header>
         {% block sw_bulk_edit_product_smart_bar_header_title %}
-        <h2>{{ $tc('sw-bulk-edit.product.textTitle', selectedIds.length, { productTotal: selectedIds.length }) }}</h2>
+        <h2>
+            {{ isChild
+                ? $tc('sw-bulk-edit.variant.textTitle', selectedIds.length, { variantTotal: selectedIds.length })
+                : $tc('sw-bulk-edit.product.textTitle', selectedIds.length, { productTotal: selectedIds.length })
+            }}
+        </h2>
         {% endblock %}
     </template>
     {% endblock %}

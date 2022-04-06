@@ -16,7 +16,7 @@
       "messageEmptyTitle": "No products selected for bulk edit",
       "messageEmptySubline": "Please go back and select some products",
       "alertInheritance": {
-        "message": "These products have inherited fields. The contents of inherited fields are drawn form the respective parent product. You can activate and deactivate inheritances by clicking on the chain symbol."
+        "message": "These variants have inherited fields. The contents of inherited fields are drawn form the respective parent product. You can activate and deactivate inheritances by clicking on the chain symbol."
       },
       "generalInformation": {
         "cardTitle": "General information",
@@ -42,19 +42,26 @@
           "changeLabel": "Change: Tax rate",
           "placeholderTax": "Select tax rate..."
         },
+        "isPriceInherited": {
+          "changeLabel": "Change: Price inheritance"
+        },
         "price": {
+          "label": "Price",
           "changeLabel": "Change: Price",
           "placeholderPrice": "Enter price..."
         },
         "purchasePrices": {
+          "label": "Purchase price",
           "changeLabel": "Change: Purchase price",
           "placeholderPurchasePrices": "Enter purchase price..."
         },
         "listPrice": {
+          "label": "List price",
           "changeLabel": "Change: List price",
           "placeholderListPrice": "Enter list price..."
         },
         "regulationPrice": {
+          "label": "Cheapest price (last 30 days)",
           "changeLabel": "Change: Cheapest price (last 30 days)",
           "placeholderRegulationPrice": "Enter Cheapest price..."
         }
@@ -197,6 +204,9 @@
         "cardTitle": "Custom fields",
         "changeLabel": "Change: {name}"
       }
+    },
+    "variant": {
+      "textTitle": "Bulk edit: {variantTotal} variant | Bulk edit: {variantTotal} variants"
     },
     "modal": {
       "confirm": {

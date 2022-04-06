@@ -81,7 +81,7 @@
             firstRunWizard: {{ firstRunWizard ? 'true' : 'false' }},
             systemCurrencyId: '{{ systemCurrencyId }}',
             systemCurrencyISOCode: '{{ systemCurrencyISOCode }}',
-            disableExtensions: '{{ disableExtensions }}'
+            disableExtensions: {{ disableExtensions ? 'true' : 'false' }}
         }
     });
 </script>

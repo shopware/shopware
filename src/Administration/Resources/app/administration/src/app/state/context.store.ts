@@ -34,6 +34,7 @@ interface ContextState {
         firstRunWizard: null | boolean,
         systemCurrencyISOCode: null | string,
         systemCurrencyId: null | string,
+        disableExtensions: boolean,
     },
     api: {
         apiPath: null | string,
@@ -73,6 +74,7 @@ const ContextStore: Module<ContextState, VuexRootState> = {
             firstRunWizard: null,
             systemCurrencyId: null,
             systemCurrencyISOCode: null,
+            disableExtensions: false,
         },
         api: {
             apiPath: null,
@@ -187,6 +189,18 @@ const ContextStore: Module<ContextState, VuexRootState> = {
             state: ContextState,
             { key, value }: { key: K, value: ContextState['app'][K] },
         ) {
+            if (value === 'true') {
+                state.app[key] = true as ContextState['app'][K];
+
+                return;
+            }
+
+            if (value === 'false') {
+                state.app[key] = false as ContextState['app'][K];
+
+                return;
+            }
+
             state.app[key] = value;
         },
 

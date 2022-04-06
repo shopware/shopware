@@ -1232,7 +1232,8 @@ describe('src/app/component/structure/sw-search-bar', () => {
             title: 'sw-dashboard.general.mainMenuItemGeneral',
             name: 'dashboard',
             privilege: undefined,
-            action: false
+            action: false,
+            display: true,
         });
 
         expect({

@@ -66,7 +66,7 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlow extends Migrat
 
             $hasSaleChannelRule = \in_array($parentCondition['rule_id'], $saleChannelRule, true);
 
-            $trueCase = true;
+            $trueCase = 1;
             if (!$hasSaleChannelRule) {
                 $this->sequenceUpdate[] = $this->buildSequenceData(
                     $actionSequence['id'],
@@ -74,7 +74,7 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlow extends Migrat
                     $trueCase,
                 );
 
-                $trueCase = false;
+                $trueCase = 0;
             } else {
                 $this->sequenceDelete[] = $this->buildSequenceData(
                     $actionSequence['id']
@@ -93,12 +93,12 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlow extends Migrat
                 );
 
                 $parentId = $child['id'];
-                $trueCase = false;
+                $trueCase = 0;
 
                 $this->sequenceActions[] = $this->buildSequenceData(
                     Uuid::randomBytes(),
                     $parentId,
-                    true,
+                    1,
                     $actionSequence['flow_id'],
                     $actionSequence['rule_id'],
                     $actionSequence['action_name'],
@@ -127,14 +127,19 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlow extends Migrat
             );
         }
 
-        foreach ($this->sequenceDelete as $sequence) {
-            $connection->executeStatement(
-                'DELETE FROM `flow_sequence` WHERE `id` = :id',
-                [
-                    'id' => $sequence['id'],
-                ]
-            );
+        if (empty($this->sequenceDelete)) {
+            return;
         }
+
+        $connection->executeStatement(
+            'DELETE FROM `flow_sequence` WHERE `id` IN (:ids)',
+            [
+                'ids' => array_column($this->sequenceDelete, 'id'),
+            ],
+            [
+                'ids' => Connection::PARAM_STR_ARRAY,
+            ]
+        );
     }
 
     public function updateDestructive(Connection $connection): void
@@ -145,7 +150,7 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlow extends Migrat
     private function buildSequenceData(
         string $id,
         ?string $parentId = null,
-        ?bool $trueCase = null,
+        ?int $trueCase = null,
         ?string $flowId = null,
         ?string $ruleId = null,
         ?string $actionName = null,

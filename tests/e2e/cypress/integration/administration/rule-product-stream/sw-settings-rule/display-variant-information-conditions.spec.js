@@ -54,7 +54,7 @@ describe('Rule builder: Test display variant information at condition', () => {
                     });
 
                     selectResultList.should('be.visible');
-                    selectResultList.find('.sw-select-result').should('have.length', 4);
+                    selectResultList.find('.sw-select-result').should('have.length', 5);
                     selectResultList.find('.sw-product-variant-info__specification').as('variant-info');
                     cy.get('@variant-info').should('contain', 'red');
                     cy.get('@variant-info').should('contain', 'green');

@@ -113,7 +113,7 @@ describe('Dynamic product group: Test ACL privileges', () => {
 
             cy.get('.sw-product-stream-value .sw-entity-multi-select').click();
 
-            cy.get('.sw-select-result')
+            cy.contains('.sw-select-result', 'Product name')
                 .should('be.visible')
                 .click();
 
@@ -166,7 +166,7 @@ describe('Dynamic product group: Test ACL privileges', () => {
 
             cy.get('.sw-product-stream-value .sw-entity-single-select__selection').click();
 
-            cy.get('.sw-select-result').click();
+            cy.contains('.sw-select-result', 'Product name').click();
 
             // save product sorting
             cy.get('.sw-button-process').click();

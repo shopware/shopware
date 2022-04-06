@@ -18,6 +18,12 @@ Component.register('sw-card-filter', {
             required: false,
             default: 500,
         },
+
+        initialSearchTerm: {
+            type: String,
+            required: false,
+            default: '',
+        },
     },
 
     data() {
@@ -50,7 +56,15 @@ Component.register('sw-card-filter', {
         },
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            this.term = `${this.initialSearchTerm}`;
+        },
+
         onSearchTermChange() {
             if (Feature.isActive('FEATURE_NEXT_16271')) {
                 this.$emit('sw-card-filter-term-change', this.term);

@@ -510,6 +510,17 @@
         "you": "Du"
       }
     },
+    "sw-entity-advanced-selection-modal": {
+      "link": "Erweiterte Auswahl verwenden",
+      "title": "Erweiterte Auswahl: {entity}",
+      "searchPlaceholder": "Suchen ...",
+      "filter": "Filter",
+      "resetFilters": "Filter zurücksetzen",
+      "applySelection": "Auswahl anwenden",
+      "entity": {
+        "product": "Produkte"
+      }
+    },
     "sw-entity-multi-select": {
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden."
     },
@@ -1244,6 +1255,7 @@
   },
   "sw-empty-state": {
     "messageNoResultTitle": "Nichts gefunden",
+    "messageNoResultSublineSimple": "Bearbeite Deine Filter, oder Suchbegriffe um Ergebnisse zu finden.",
     "messageNoResultSubline": "Bearbeite Deine Filter, oder Suchbegriffe um Ergebnisse zu finden. Bitte überprüfe auch die Konfiguration Deiner Suche.",
     "messageNoResultSublineBefore": "Bearbeite Deine Filter, oder Suchbegriffe um Ergebnisse zu finden. Bitte überprüfe auch",
     "messageNoResultSublineLink": "die Konfiguration",

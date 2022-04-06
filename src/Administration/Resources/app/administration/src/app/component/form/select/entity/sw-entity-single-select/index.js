@@ -114,6 +114,13 @@ Component.register('sw-entity-single-select', {
                 return this.$tc('global.sw-single-select.labelEntity');
             },
         },
+        advancedSelectionComponent: {
+            type: String,
+            required: false,
+            default() {
+                return '';
+            },
+        },
     },
 
     data() {
@@ -128,6 +135,7 @@ Component.register('sw-entity-single-select', {
             lastSelection: null,
             entityExists: true,
             newEntityName: '',
+            isAdvancedSelectionModalVisible: false,
         };
     },
 
@@ -152,6 +160,18 @@ Component.register('sw-entity-single-select', {
          */
         results() {
             return this.resultCollection;
+        },
+
+        isAdvancedSelectionActive() {
+            return this.advancedSelectionComponent && Component.getComponentRegistry().has(this.advancedSelectionComponent);
+        },
+
+        advancedSelectionInitialSearchTerm() {
+            if (this.singleSelection && this.tryGetSearchText(this.singleSelection) === this.searchTerm) {
+                return '';
+            }
+
+            return this.searchTerm;
         },
     },
 
@@ -529,6 +549,20 @@ Component.register('sw-entity-single-select', {
             this.resultCollection = this.resultCollection.filter(entity => {
                 return entity.id !== -1;
             });
+        },
+
+        openAdvancedSelectionModal() {
+            this.isAdvancedSelectionModalVisible = true;
+        },
+
+        closeAdvancedSelectionModal() {
+            this.isAdvancedSelectionModalVisible = false;
+        },
+
+        onAdvancedSelectionSubmit(selectedItems) {
+            if (selectedItems.length > 0) {
+                this.setValue(selectedItems[0]);
+            }
         },
     },
 });

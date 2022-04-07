@@ -81,13 +81,17 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
     {
         $criteria
             ->addFilter(new EqualsFilter('active', true))
-            ->addSorting(new FieldSorting('position'), new FieldSorting('name', FieldSorting::ASCENDING))
             ->addAssociation('media');
+
+        if (empty($criteria->getSorting())) {
+            $criteria->addSorting(new FieldSorting('position'), new FieldSorting('name', FieldSorting::ASCENDING));
+        }
 
         $result = $this->shippingMethodRepository->search($criteria, $context);
 
         /** @var ShippingMethodCollection $shippingMethods */
         $shippingMethods = $result->getEntities();
+        $shippingMethods->sortShippingMethodsByPreference($context);
 
         if ($request->query->getBoolean('onlyAvailable', false)) {
             $shippingMethods = $shippingMethods->filterByActiveRules($context);

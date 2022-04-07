@@ -55,6 +55,7 @@ class ShippingMethodDefinition extends EntityDefinition
     {
         return [
             'taxType' => ShippingMethodEntity::TAX_TYPE_AUTO,
+            'position' => ShippingMethodEntity::POSITION_DEFAULT,
         ];
     }
 

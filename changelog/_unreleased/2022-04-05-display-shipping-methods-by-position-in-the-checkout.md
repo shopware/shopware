@@ -6,5 +6,4 @@ author_email: m.velt@shopware.com
 author_github: @raknison
 ---
 # Core
-* Deprecated `\Shopware\Core\Checkout\Shipping\ShippingMethodCollection::sortShippingMethodsByPreference()`
 * Changed in `Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute::load()` the sorting of shipping method collections returned by its corresponding routes.

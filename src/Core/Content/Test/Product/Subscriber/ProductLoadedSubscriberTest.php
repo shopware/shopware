@@ -1328,6 +1328,161 @@ class ProductLoadedSubscriberTest extends TestCase
             }
         }
     }
+
+    /**
+     * @dataProvider getProductVariantNameData
+     */
+    public function testProductVariantName(array $product, array $variantProduct, bool $inheritedName): void
+    {
+        $productId = $product['id'];
+        $context = Context::createDefaultContext();
+
+        $this->getContainer()->get('product.repository')
+            ->create([$product, $variantProduct], $context);
+
+        $context = new Context(
+            new SystemSource(),
+            [],
+            Defaults::CURRENCY,
+        );
+
+        $criteria = new Criteria([$productId]);
+        $criteria->addAssociation('children');
+
+        /** @var ProductEntity $productEntity */
+        $productEntity = $this->getContainer()
+            ->get('product.repository')
+            ->search($criteria, $context)
+            ->first();
+
+        $subscriber = $this->getContainer()->get(ProductSubscriber::class);
+        $productLoadedEvent = new EntityLoadedEvent($this->getContainer()->get(ProductDefinition::class), [$productEntity], $context);
+        $subscriber->loaded($productLoadedEvent);
+
+        $variant = $productEntity->getChildren()->first();
+
+        if ($inheritedName) {
+            static::assertSame($productEntity->getName(), $variant->getName());
+        } else {
+            static::assertSame('variant-name', $variant->getName());
+            static::assertSame('test-product', $productEntity->getName());
+        }
+    }
+
+    public function getProductVariantNameData(): array
+    {
+        $ids = new TestDataCollection();
+        $product = [
+            'id' => $ids->get('product'),
+            'name' => 'test-product',
+            'productNumber' => $ids->get('product'),
+            'stock' => 10,
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+            ],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'options' => [
+                [
+                    'id' => $ids->get('red'),
+                    'name' => 'red',
+                    'group' => ['id' => $ids->get('color'), 'name' => 'color'],
+                ],
+                [
+                    'id' => $ids->get('xl'),
+                    'name' => 'xl',
+                    'group' => ['id' => $ids->get('size'), 'name' => 'size'],
+                ],
+            ],
+        ];
+
+        return [
+            'variant with the inherited name' => [
+                [
+                    'id' => $ids->get('product'),
+                    'name' => 'test-product',
+                    'productNumber' => $ids->get('product'),
+                    'stock' => 10,
+                    'price' => [
+                        ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+                    ],
+                    'tax' => ['name' => 'test', 'taxRate' => 15],
+                    'options' => [
+                        [
+                            'id' => $ids->get('red'),
+                            'name' => 'red',
+                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
+                        ],
+                        [
+                            'id' => $ids->get('xl'),
+                            'name' => 'xl',
+                            'group' => ['id' => $ids->get('size'), 'name' => 'size'],
+                        ],
+                    ],
+                ],
+                [
+                    'id' => $ids->get('variant_product'),
+                    'parentId' => $ids->get('product'),
+                    'productNumber' => $ids->get('variant_product'),
+                    'stock' => 10,
+                    'price' => [
+                        ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+                    ],
+                    'tax' => ['name' => 'test', 'taxRate' => 15],
+                    'options' => [
+                        [
+                            'id' => $ids->get('red'),
+                            'name' => 'red',
+                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
+                        ],
+                    ],
+                ],
+                true,
+            ],
+            'variant with the own name' => [
+                [
+                    'id' => $ids->get('product'),
+                    'name' => 'test-product',
+                    'productNumber' => $ids->get('product'),
+                    'stock' => 10,
+                    'price' => [
+                        ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+                    ],
+                    'tax' => ['name' => 'test', 'taxRate' => 15],
+                    'options' => [
+                        [
+                            'id' => $ids->get('red'),
+                            'name' => 'red',
+                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
+                        ],
+                        [
+                            'id' => $ids->get('xl'),
+                            'name' => 'xl',
+                            'group' => ['id' => $ids->get('size'), 'name' => 'size'],
+                        ],
+                    ],
+                ],
+                [
+                    'id' => $ids->get('variant_product'),
+                    'parentId' => $ids->get('product'),
+                    'name' => 'variant-name',
+                    'productNumber' => $ids->get('variant_product'),
+                    'stock' => 10,
+                    'price' => [
+                        ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+                    ],
+                    'tax' => ['name' => 'test', 'taxRate' => 15],
+                    'options' => [
+                        [
+                            'id' => $ids->get('red'),
+                            'name' => 'red',
+                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
+                        ],
+                    ],
+                ],
+                false,
+            ],
+        ];
+    }
 }
 
 class ListPriceTestCase

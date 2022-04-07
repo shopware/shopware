@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\AbstractProductVariationBuilder;
 use Shopware\Core\Content\Product\AbstractPropertyGroupSorter;
 use Shopware\Core\Content\Product\AbstractSalesChannelProductBuilder;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalculator;
@@ -65,6 +66,22 @@ class ProductSubscriber implements EventSubscriberInterface
 
     public function loaded(EntityLoadedEvent $event): void
     {
+        $products = new ProductCollection($event->getEntities());
+
+        /** @var ProductEntity $product */
+        foreach ($event->getEntities() as $product) {
+            if ($product->getParentId() === null || $product->getName() !== null) {
+                continue;
+            }
+
+            $parentProduct = $products->get($product->getParentId());
+            if (!$parentProduct instanceof ProductEntity) {
+                continue;
+            }
+
+            $product->setName($parentProduct->getName());
+        }
+
         $this->entityLoaded($event->getEntities(), $event->getContext());
     }
 

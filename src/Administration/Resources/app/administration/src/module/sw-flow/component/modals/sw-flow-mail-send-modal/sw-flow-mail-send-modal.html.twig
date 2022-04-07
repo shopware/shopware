@@ -2,6 +2,7 @@
 <sw-modal
     class="sw-flow-mail-send-modal"
     :title="$tc('sw-flow.modals.mail.titleSendMail')"
+    :closable="false"
     @modal-close="onClose"
 >
     {% block sw_flow_mail_send_modal_recipient %}

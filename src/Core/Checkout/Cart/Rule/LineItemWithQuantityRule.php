@@ -5,11 +5,11 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
-use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemWithQuantityRule extends Rule
 {
@@ -54,20 +54,8 @@ class LineItemWithQuantityRule extends Rule
     {
         return [
             'id' => [new NotBlank(), new Uuid()],
-            'quantity' => [new NotBlank(), new Type('int')],
-            'operator' => [
-                new NotBlank(),
-                new Choice(
-                    [
-                        self::OPERATOR_EQ,
-                        self::OPERATOR_LTE,
-                        self::OPERATOR_GTE,
-                        self::OPERATOR_NEQ,
-                        self::OPERATOR_GT,
-                        self::OPERATOR_LT,
-                    ]
-                ),
-            ],
+            'quantity' => RuleConstraints::int(),
+            'operator' => RuleConstraints::numericOperators(false),
         ];
     }
 
@@ -86,29 +74,6 @@ class LineItemWithQuantityRule extends Rule
             return true;
         }
 
-        $quantity = $lineItem->getQuantity();
-
-        switch ($this->operator) {
-            case self::OPERATOR_GTE:
-                return $quantity >= $this->quantity;
-
-            case self::OPERATOR_LTE:
-                return $quantity <= $this->quantity;
-
-            case self::OPERATOR_GT:
-                return $quantity > $this->quantity;
-
-            case self::OPERATOR_LT:
-                return $quantity < $this->quantity;
-
-            case self::OPERATOR_EQ:
-                return $quantity === $this->quantity;
-
-            case self::OPERATOR_NEQ:
-                return $quantity !== $this->quantity;
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return RuleComparison::numeric($lineItem->getQuantity(), $this->quantity, $this->operator);
     }
 }

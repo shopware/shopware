@@ -5,9 +5,8 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemClearanceSaleRule extends Rule
 {
@@ -50,7 +49,7 @@ class LineItemClearanceSaleRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'clearanceSale' => [new NotBlank(), new Type('bool')],
+            'clearanceSale' => RuleConstraints::bool(),
         ];
     }
 

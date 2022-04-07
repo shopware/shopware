@@ -3,12 +3,10 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 class LineItemRule extends Rule
 {
@@ -57,8 +55,8 @@ class LineItemRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'identifiers' => [new NotBlank(), new ArrayOfUuid()],
-            'operator' => [new NotBlank(), new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
+            'identifiers' => RuleConstraints::uuids(),
+            'operator' => RuleConstraints::uuidOperators(false),
         ];
     }
 
@@ -70,7 +68,7 @@ class LineItemRule extends Rule
     private function lineItemMatches(LineItem $lineItem): bool
     {
         $parentId = $lineItem->getPayloadValue('parentId');
-        if ($parentId !== null && $this->matchId($parentId)) {
+        if ($parentId !== null && RuleComparison::uuids([$parentId], $this->identifiers, $this->operator)) {
             return true;
         }
 
@@ -79,24 +77,6 @@ class LineItemRule extends Rule
             return false;
         }
 
-        return $this->matchId($referencedId);
-    }
-
-    private function matchId(string $uuid): bool
-    {
-        if ($this->identifiers === null) {
-            return false;
-        }
-
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                return \in_array($uuid, $this->identifiers, true);
-
-            case self::OPERATOR_NEQ:
-                return !\in_array($uuid, $this->identifiers, true);
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return RuleComparison::uuids([$referencedId], $this->identifiers, $this->operator);
     }
 }

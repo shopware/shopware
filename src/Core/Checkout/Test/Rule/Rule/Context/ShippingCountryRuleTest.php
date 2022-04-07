@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -142,7 +143,7 @@ class ShippingCountryRuleTest extends TestCase
             $rule->match(new CartRuleScope($cart, $context));
         } catch (UnsupportedOperatorException $e) {
             static::assertSame(ShippingCountryRule::OPERATOR_GTE, $e->getOperator());
-            static::assertSame(ShippingCountryRule::class, $e->getClass());
+            static::assertSame(RuleComparison::class, $e->getClass());
         }
     }
 

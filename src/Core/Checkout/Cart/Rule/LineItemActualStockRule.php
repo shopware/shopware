@@ -6,10 +6,9 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemActualStockRule extends Rule
 {
@@ -52,20 +51,8 @@ class LineItemActualStockRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'operator' => [
-                new NotBlank(),
-                new Choice(
-                    [
-                        self::OPERATOR_NEQ,
-                        self::OPERATOR_GTE,
-                        self::OPERATOR_LTE,
-                        self::OPERATOR_EQ,
-                        self::OPERATOR_GT,
-                        self::OPERATOR_LT,
-                    ]
-                ),
-            ],
-            'stock' => [new NotBlank(), new Type('int')],
+            'operator' => RuleConstraints::numericOperators(false),
+            'stock' => RuleConstraints::int(),
         ];
     }
 
@@ -83,27 +70,6 @@ class LineItemActualStockRule extends Rule
             return false;
         }
 
-        switch ($this->operator) {
-            case self::OPERATOR_GTE:
-                return $actualStock >= $this->stock;
-
-            case self::OPERATOR_LTE:
-                return $actualStock <= $this->stock;
-
-            case self::OPERATOR_GT:
-                return $actualStock > $this->stock;
-
-            case self::OPERATOR_LT:
-                return $actualStock < $this->stock;
-
-            case self::OPERATOR_EQ:
-                return $actualStock === $this->stock;
-
-            case self::OPERATOR_NEQ:
-                return $actualStock !== $this->stock;
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return RuleComparison::numeric($actualStock, $this->stock, $this->operator);
     }
 }

@@ -5,10 +5,9 @@ namespace Shopware\Core\Checkout\Customer\Rule;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Validator\Constraints\NotNull;
-use Symfony\Component\Validator\Constraints\Type;
 
 class IsNewsletterRecipientRule extends Rule
 {
@@ -40,7 +39,7 @@ class IsNewsletterRecipientRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'isNewsletterRecipient' => [new NotNull(), new Type('bool')],
+            'isNewsletterRecipient' => RuleConstraints::bool(true),
         ];
     }
 

@@ -3,12 +3,10 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 class BillingCountryRule extends Rule
 {
@@ -39,37 +37,26 @@ class BillingCountryRule extends Rule
             return false;
         }
 
-        $id = $customer->getActiveBillingAddress()->getCountry()->getId();
-
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                return $id !== null && \in_array($id, $this->countryIds, true);
-
-            case self::OPERATOR_NEQ:
-                return !\in_array($id, $this->countryIds, true);
-
-            case self::OPERATOR_EMPTY:
-                return empty($id);
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
+        $countryId = $customer->getActiveBillingAddress()->getCountry()->getId();
+        $parameter = [$countryId];
+        if ($countryId === '') {
+            $parameter = [];
         }
+
+        return RuleComparison::uuids($parameter, $this->countryIds, $this->operator);
     }
 
     public function getConstraints(): array
     {
         $constraints = [
-            'operator' => [
-                new NotBlank(),
-                new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ, self::OPERATOR_EMPTY]),
-            ],
+            'operator' => RuleConstraints::uuidOperators(),
         ];
 
         if ($this->operator === self::OPERATOR_EMPTY) {
             return $constraints;
         }
 
-        $constraints['countryIds'] = [new NotBlank(), new ArrayOfUuid()];
+        $constraints['countryIds'] = RuleConstraints::uuids();
 
         return $constraints;
     }

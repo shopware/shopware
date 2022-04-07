@@ -310,7 +310,7 @@ class PaymentMethodRuleTest extends TestCase
     public function testExpectUnsupportedOperatorException(): void
     {
         $paymentMethodRule = new PaymentMethodRule();
-        $paymentMethodRule->assign(['operator' => 'FOO', 'paymentMethodsIds' => []]);
+        $paymentMethodRule->assign(['operator' => 'FOO', 'paymentMethodIds' => []]);
 
         $paymentMethodEntity = $this->createMock(PaymentMethodEntity::class);
         $paymentMethodEntity->method('getId')->willReturn(Uuid::randomHex());
@@ -324,7 +324,7 @@ class PaymentMethodRuleTest extends TestCase
         );
 
         $this->expectException(UnsupportedOperatorException::class);
-        $this->expectExceptionMessage('Unsupported operator FOO in Shopware\\Core\\Checkout\\Cart\\Rule\\PaymentMethodRule');
+        $this->expectExceptionMessage('Unsupported operator FOO in Shopware\Core\Framework\Rule\RuleComparison');
 
         $paymentMethodRule->match($ruleScope);
     }

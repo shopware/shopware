@@ -4,12 +4,10 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @major-deprecated (flag:FEATURE_NEXT_17016) This rule will be removed. Use the LineItemRule instead.
@@ -50,23 +48,14 @@ class LineItemsInCartRule extends Rule
             return $element->getReferencedId() ?: null;
         }, $elements);
 
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                return !empty(array_intersect($identifiers, $this->identifiers));
-
-            case self::OPERATOR_NEQ:
-                return empty(array_intersect($identifiers, $this->identifiers));
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return RuleComparison::uuids($identifiers, $this->identifiers, $this->operator);
     }
 
     public function getConstraints(): array
     {
         return [
-            'identifiers' => [new NotBlank(), new ArrayOfUuid()],
-            'operator' => [new NotBlank(), new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
+            'identifiers' => RuleConstraints::uuids(),
+            'operator' => RuleConstraints::uuidOperators(false),
         ];
     }
 

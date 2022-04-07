@@ -296,10 +296,10 @@ class LineItemDimensionWidthRuleTest extends TestCase
     public function testConstraints(): void
     {
         $expectedOperators = [
-            Rule::OPERATOR_NEQ,
-            Rule::OPERATOR_GTE,
-            Rule::OPERATOR_LTE,
             Rule::OPERATOR_EQ,
+            Rule::OPERATOR_LTE,
+            Rule::OPERATOR_GTE,
+            Rule::OPERATOR_NEQ,
             Rule::OPERATOR_GT,
             Rule::OPERATOR_LT,
             Rule::OPERATOR_EMPTY,

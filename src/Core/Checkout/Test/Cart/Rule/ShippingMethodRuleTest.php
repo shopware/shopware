@@ -310,7 +310,7 @@ class ShippingMethodRuleTest extends TestCase
     public function testExpectUnsupportedOperatorException(): void
     {
         $shippingMethodRule = new ShippingMethodRule();
-        $shippingMethodRule->assign(['operator' => 'FOO', 'shippingMethodsIds' => []]);
+        $shippingMethodRule->assign(['operator' => 'FOO', 'shippingMethodIds' => []]);
 
         $shippingMethod = $this->createMock(ShippingMethodEntity::class);
         $shippingMethod->method('getId')->willReturn(Uuid::randomHex());
@@ -324,7 +324,7 @@ class ShippingMethodRuleTest extends TestCase
         );
 
         $this->expectException(UnsupportedOperatorException::class);
-        $this->expectExceptionMessage('Unsupported operator FOO in Shopware\\Core\\Checkout\\Cart\\Rule\\ShippingMethodRule');
+        $this->expectExceptionMessage('Unsupported operator FOO in Shopware\Core\Framework\Rule\RuleComparison');
 
         $shippingMethodRule->match($ruleScope);
     }

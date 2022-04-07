@@ -4,9 +4,8 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
 class CartTaxDisplayRule extends Rule
 {
@@ -26,7 +25,7 @@ class CartTaxDisplayRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'taxDisplay' => [new NotBlank(), new Type('string')],
+            'taxDisplay' => RuleConstraints::string(),
         ];
     }
 

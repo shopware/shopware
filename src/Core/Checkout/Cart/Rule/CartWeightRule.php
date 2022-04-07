@@ -3,13 +3,10 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Shopware\Core\Framework\Util\FloatComparator;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
 class CartWeightRule extends Rule
 {
@@ -36,49 +33,14 @@ class CartWeightRule extends Rule
             return false;
         }
 
-        $cartWeight = $this->calculateCartWeight($scope->getCart());
-
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                return FloatComparator::equals($cartWeight, $this->weight);
-
-            case self::OPERATOR_NEQ:
-                return FloatComparator::notEquals($cartWeight, $this->weight);
-
-            case self::OPERATOR_GT:
-                return FloatComparator::greaterThan($cartWeight, $this->weight);
-
-            case self::OPERATOR_LT:
-                return FloatComparator::lessThan($cartWeight, $this->weight);
-
-            case self::OPERATOR_GTE:
-                return FloatComparator::greaterThanOrEquals($cartWeight, $this->weight);
-
-            case self::OPERATOR_LTE:
-                return FloatComparator::lessThanOrEquals($cartWeight, $this->weight);
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return RuleComparison::numeric($this->calculateCartWeight($scope->getCart()), $this->weight, $this->operator);
     }
 
     public function getConstraints(): array
     {
         return [
-            'weight' => [new NotBlank(), new Type('numeric')],
-            'operator' => [
-                new NotBlank(),
-                new Choice(
-                    [
-                        self::OPERATOR_EQ,
-                        self::OPERATOR_LTE,
-                        self::OPERATOR_GTE,
-                        self::OPERATOR_NEQ,
-                        self::OPERATOR_GT,
-                        self::OPERATOR_LT,
-                    ]
-                ),
-            ],
+            'weight' => RuleConstraints::float(),
+            'operator' => RuleConstraints::numericOperators(false),
         ];
     }
 

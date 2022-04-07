@@ -3,12 +3,10 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 class LineItemPropertyRule extends Rule
 {
@@ -53,8 +51,8 @@ class LineItemPropertyRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'identifiers' => [new NotBlank(), new ArrayOfUuid()],
-            'operator' => [new NotBlank(), new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
+            'identifiers' => RuleConstraints::uuids(),
+            'operator' => RuleConstraints::uuidOperators(false),
         ];
     }
 
@@ -62,18 +60,8 @@ class LineItemPropertyRule extends Rule
     {
         $properties = $lineItem->getPayloadValue('propertyIds') ?? [];
         $options = $lineItem->getPayloadValue('optionIds') ?? [];
-
         $ids = array_merge($properties, $options);
 
-        $diff = array_intersect($ids, $this->identifiers);
-
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                return !empty($diff);
-            case self::OPERATOR_NEQ:
-                return empty($diff);
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return RuleComparison::uuids($ids, $this->identifiers, $this->operator);
     }
 }

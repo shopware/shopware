@@ -31,6 +31,14 @@
                 @change-sales-channel-id="onSalesChannelChanged"
             />
         </template>
+        <template v-if="hasCssFields">
+            {% block sw_system_config_content_compile_notice %}
+            <sw-alert variant="warning">
+                {{ $tc('sw-settings.system-config.compileNotice') }}
+            </sw-alert>
+
+            {% endblock %}
+        </template>
         <template v-if="!isLoading">
             <template v-for="element in card.elements">
                 <slot
@@ -51,6 +59,7 @@
                                 :key="props.isInheritField + props.isInherited"
                                 :disabled="props.isInherited"
                                 :value="props.currentValue"
+                                :help-text="(element.config.css ? $tc('sw-settings.system-config.scssHelpText') + element.config.css : '')"
                                 @input="props.updateCurrentValue"
                                 @change="props.updateCurrentValue"
                             />

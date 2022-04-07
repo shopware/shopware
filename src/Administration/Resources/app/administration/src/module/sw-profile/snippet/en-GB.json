@@ -93,7 +93,8 @@
           "alt": "Alt text",
           "tagsName": "Tags",
           "title": "Title",
-          "fileName": "Name"
+          "fileName": "Name",
+          "mediaFolderName": "Folder"
         },
         "landing_page": {
           "name": "Name",

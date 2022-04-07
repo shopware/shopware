@@ -244,6 +244,9 @@ export default function SearchPreferencesService({ userConfigRepository: _userCo
             if (item.fieldName.includes('country.name')) {
                 lastFieldName = 'countryName';
             }
+            if (item.fieldName.includes('mediaFolder.name')) {
+                lastFieldName = 'mediaFolderName';
+            }
 
             fieldsGroup[lastFieldName] ??= {
                 group: [],

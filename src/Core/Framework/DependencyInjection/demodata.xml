@@ -84,6 +84,12 @@
             <tag name="shopware.demodata_generator"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Demodata\Generator\PromotionGenerator">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <tag name="shopware.demodata_generator"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Demodata\Generator\FlowGenerator">
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
@@ -118,11 +124,8 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter" />
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
             <argument type="service" id="Shopware\Core\Checkout\Order\OrderDefinition" />
-
-            <tag name="shopware.demodata_generator"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AmountCalculator"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartCalculator"/>
+            <tag name="shopware.demodata_generator"/>
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\CustomFieldGenerator">

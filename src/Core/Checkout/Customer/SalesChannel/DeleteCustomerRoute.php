@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\Event\CustomerDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
@@ -12,7 +11,6 @@ use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -20,22 +18,12 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DeleteCustomerRoute extends AbstractDeleteCustomerRoute
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EntityRepositoryInterface $customerRepository;
 
     public function __construct(
-        EntityRepositoryInterface $customerRepository,
-        EventDispatcherInterface $eventDispatcher
+        EntityRepositoryInterface $customerRepository
     ) {
         $this->customerRepository = $customerRepository;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getDecorated(): AbstractDeleteCustomerRoute
@@ -62,9 +50,6 @@ class DeleteCustomerRoute extends AbstractDeleteCustomerRoute
     public function delete(SalesChannelContext $context, CustomerEntity $customer): NoContentResponse
     {
         $this->customerRepository->delete([['id' => $customer->getId()]], $context->getContext());
-
-        $event = new CustomerDeletedEvent($context, $customer);
-        $this->eventDispatcher->dispatch($event);
 
         return new NoContentResponse();
     }

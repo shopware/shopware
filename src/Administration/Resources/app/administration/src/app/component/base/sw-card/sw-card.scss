@@ -54,6 +54,7 @@
     .sw-card__header {
         display: flex;
         flex-wrap: wrap;
+        align-items: center;
         gap: 12px;
         background-color: $color-white;
         padding: 24px;
@@ -91,6 +92,10 @@
         color: $color-darkgray-50;
         font-size: $font-size-small;
         line-height: 18px;
+    }
+
+    .sw-card__titles-right-slot {
+        margin-left: auto;
     }
 
     .sw-card__toolbar {

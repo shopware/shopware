@@ -29,8 +29,8 @@ class ThemePrepareIconsCommandTest extends TestCase
 
     public function setUp(): void
     {
-        $this->testDir = str_replace('/platform', '', $this->getContainer()->getParameter('kernel.project_dir'))
-            . '/platform/src/Storefront/Test/Theme/fixtures/ThemePrepareIconsCommandIconsPath/';
+        $this->testDir = $this->getContainer()->getParameter('storefrontRoot')
+            . '/Test/Theme/fixtures/ThemePrepareIconsCommandIconsPath/';
         static::assertDirectoryExists($this->testDir, 'Testdir: ' . $this->testDir . ' not found!');
         @array_map('unlink', glob($this->testDir . 'processed/*'));
         @rmdir($this->testDir . 'processed');
@@ -83,7 +83,7 @@ class ThemePrepareIconsCommandTest extends TestCase
 
         static::assertStringContainsString('Start Icon preparation', $commandTester->getDisplay());
 
-        static::assertStringContainsString('[WARNING] simplexml_load_string(): Entity: line 1: parser error', $commandTester->getDisplay());
+        static::assertStringContainsString('simplexml_load_string(): Entity: line 1: parser error', $commandTester->getDisplay());
 
         static::assertStringContainsString('mandIconsPath/invalid.svg', $commandTester->getDisplay());
 

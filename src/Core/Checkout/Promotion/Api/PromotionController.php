@@ -12,11 +12,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"api"})
+ * @Route(defaults={"_routeScope"={"api"}})
  */
 class PromotionController extends AbstractController
 {
@@ -32,10 +31,7 @@ class PromotionController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/_action/promotion/codes/generate-fixed", name="api.action.promotion.codes.generate-fixed", methods={"GET"})
-     * @Acl({"promotion.editor"})
-     *
-     * @throws NotFoundHttpException
+     * @Route("/api/_action/promotion/codes/generate-fixed", name="api.action.promotion.codes.generate-fixed", methods={"GET"}, defaults={"_acl"={"promotion.editor"}})
      */
     public function generateFixedCode(): Response
     {
@@ -44,10 +40,7 @@ class PromotionController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/_action/promotion/codes/generate-individual", name="api.action.promotion.codes.generate-individual", methods={"GET"})
-     * @Acl({"promotion.editor"})
-     *
-     * @throws NotFoundHttpException
+     * @Route("/api/_action/promotion/codes/generate-individual", name="api.action.promotion.codes.generate-individual", methods={"GET"}, defaults={"_acl"={"promotion.editor"}})
      */
     public function generateIndividualCodes(Request $request): Response
     {
@@ -62,10 +55,7 @@ class PromotionController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/_action/promotion/codes/replace-individual", name="api.action.promotion.codes.replace-individual", methods={"PATCH"})
-     * @Acl({"promotion.editor"})
-     *
-     * @throws NotFoundHttpException
+     * @Route("/api/_action/promotion/codes/replace-individual", name="api.action.promotion.codes.replace-individual", methods={"PATCH"}, defaults={"_acl"={"promotion.editor"}})
      */
     public function replaceIndividualCodes(Request $request, Context $context): Response
     {
@@ -80,10 +70,7 @@ class PromotionController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/_action/promotion/codes/add-individual", name="api.action.promotion.codes.add-individual", methods={"POST"})
-     * @Acl({"promotion.editor"})
-     *
-     * @throws NotFoundHttpException
+     * @Route("/api/_action/promotion/codes/add-individual", name="api.action.promotion.codes.add-individual", methods={"POST"}, defaults={"_acl"={"promotion.editor"}})
      */
     public function addIndividualCodes(Request $request, Context $context): Response
     {
@@ -97,10 +84,7 @@ class PromotionController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/_action/promotion/codes/preview", name="api.action.promotion.codes.preview", methods={"GET"})
-     * @Acl({"promotion.editor"})
-     *
-     * @throws NotFoundHttpException
+     * @Route("/api/_action/promotion/codes/preview", name="api.action.promotion.codes.preview", methods={"GET"}, defaults={"_acl"={"promotion.editor"}})
      */
     public function getCodePreview(Request $request): Response
     {

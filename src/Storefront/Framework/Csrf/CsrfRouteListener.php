@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Framework\Csrf;
 
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\Csrf\Exception\InvalidCsrfTokenException;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
@@ -76,11 +77,15 @@ class CsrfRouteListener implements EventSubscriberInterface
             return;
         }
 
-        /** @var RouteScope|null $routeScope */
-        $routeScope = $request->attributes->get('_routeScope');
+        /** @var RouteScope|array $scopes */
+        $scopes = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
+
+        if ($scopes instanceof RouteScope) {
+            $scopes = $scopes->getScopes();
+        }
 
         // Only check csrf token on storefront routes
-        if ($routeScope === null || !$routeScope->hasScope(StorefrontRouteScope::ID)) {
+        if (!\in_array(StorefrontRouteScope::ID, $scopes, true)) {
             return;
         }
 

@@ -41,8 +41,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @RouteScope(scopes={"store-api"})
- * @ContextTokenRequired()
+ * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=true})
  */
 class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRoute
 {
@@ -88,9 +87,7 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
      * @OA\Post(
      *      path="/account/recovery-password",
      *      summary="Send a password recovery mail",
-     *      description="This operation is Step 1 of the password reset flow. Make sure to implement Step 2 ""Reset password with recovery credentials"" in order to allow for the complete flow in your application
-
-Sends a recovery mail containing a link with credentials that allows a customer to reset their password.",
+     *      description="This operation is Step 1 of the password reset flow. Make sure to implement Step 2 ""Reset password with recovery credentials"" in order to allow for the complete flow in your application. Sends a recovery mail containing a link with credentials that allows a customer to reset their password.",
      *      operationId="sendRecoveryMail",
      *      tags={"Store API", "Profile"},
      *      @OA\RequestBody(

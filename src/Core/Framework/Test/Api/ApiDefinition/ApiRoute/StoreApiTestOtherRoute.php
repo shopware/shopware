@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"store-api"})
+ * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class StoreApiTestOtherRoute extends AbstractStoreApiTestRoute
 {
@@ -40,8 +40,7 @@ class StoreApiTestOtherRoute extends AbstractStoreApiTestRoute
      * )
      *
      * @internal (flag:FEATURE_NEXT_12345)
-     * @LoginRequired()
-     * @Route("/store-api/v{version}/testinternalother", name="store-api.test.internal.other", methods={"GET"})
+     * @Route("/store-api/v{version}/testinternalother", name="store-api.test.internal.other", methods={"GET"}, defaults={"_loginRequired"=true})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): Response
     {
@@ -62,8 +61,7 @@ class StoreApiTestOtherRoute extends AbstractStoreApiTestRoute
      *          description="Success"
      *     )
      * )
-     * @LoginRequired()
-     * @Route("/store-api/v{version}/testnotinternalother", name="store-api.test.not.internal.other", methods={"POST"})
+     * @Route("/store-api/v{version}/testnotinternalother", name="store-api.test.not.internal.other", methods={"POST"}, defaults={"_loginRequired"=true})
      */
     public function loadPost(Request $request, SalesChannelContext $context, Criteria $criteria): Response
     {
@@ -86,8 +84,7 @@ class StoreApiTestOtherRoute extends AbstractStoreApiTestRoute
      * )
      *
      * @internal
-     * @LoginRequired()
-     * @Route("/store-api/v{version}/testinternalothernoflag", name="store-api.test.internal.other.no.flag", methods={"GET"})
+     * @Route("/store-api/v{version}/testinternalothernoflag", name="store-api.test.internal.other.no.flag", methods={"GET"}, defaults={"_loginRequired"=true})
      */
     public function loadNoFlag(Request $request, SalesChannelContext $context, Criteria $criteria): Response
     {

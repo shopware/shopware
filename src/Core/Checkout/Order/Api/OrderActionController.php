@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Order\Api;
 
 use Doctrine\DBAL\Connection;
 use OpenApi\Annotations as OA;
-use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
@@ -22,7 +21,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"api"})
+ * @Route(defaults={"_routeScope"={"api"}})
  */
 class OrderActionController extends AbstractController
 {
@@ -104,8 +103,6 @@ Note: If you choose a transition that is not available, you will get an error th
      *     )
      * )
      * @Route("/api/_action/order/{orderId}/state/{transition}", name="api.action.order.state_machine.order.transition_state", methods={"POST"})
-     *
-     * @throws OrderNotFoundException
      */
     public function orderStateTransition(
         string $orderId,
@@ -205,8 +202,6 @@ Note: If you choose a transition that is not available, you will get an error th
      *     )
      * )
      * @Route("/api/_action/order_transaction/{orderTransactionId}/state/{transition}", name="api.action.order.state_machine.order_transaction.transition_state", methods={"POST"})
-     *
-     * @throws OrderNotFoundException
      */
     public function orderTransactionStateTransition(
         string $orderTransactionId,
@@ -306,8 +301,6 @@ Note: If you choose a transition which is not possible, you will get an error th
      *     )
      * )
      * @Route("/api/_action/order_delivery/{orderDeliveryId}/state/{transition}", name="api.action.order.state_machine.order_delivery.transition_state", methods={"POST"})
-     *
-     * @throws OrderNotFoundException
      */
     public function orderDeliveryStateTransition(
         string $orderDeliveryId,

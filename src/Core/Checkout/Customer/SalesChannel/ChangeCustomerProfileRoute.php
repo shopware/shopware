@@ -26,8 +26,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @RouteScope(scopes={"store-api"})
- * @ContextTokenRequired()
+ * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=true})
  */
 class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
 {
@@ -124,8 +123,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
      *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
-     * @LoginRequired(allowGuest=true)
-     * @Route(path="/store-api/account/change-profile", name="store-api.account.change-profile", methods={"POST"})
+     * @Route(path="/store-api/account/change-profile", name="store-api.account.change-profile", methods={"POST"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
      */
     public function change(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {

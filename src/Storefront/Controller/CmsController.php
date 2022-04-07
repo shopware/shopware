@@ -2,14 +2,11 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\Cms\SalesChannel\AbstractCmsRoute;
-use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -28,7 +25,7 @@ use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"storefront"})
+ * @Route(defaults={"_routeScope"={"storefront"}})
  */
 class CmsController extends StorefrontController
 {
@@ -88,10 +85,6 @@ class CmsController extends StorefrontController
      *
      * @HttpCache()
      * @Route("/widgets/cms/{id}", name="frontend.cms.page", methods={"GET", "POST"}, defaults={"id"=null, "XmlHttpRequest"=true})
-     *
-     * @throws InconsistentCriteriaIdsException
-     * @throws MissingRequestParameterException
-     * @throws PageNotFoundException
      */
     public function page(?string $id, Request $request, SalesChannelContext $salesChannelContext): Response
     {
@@ -115,11 +108,6 @@ class CmsController extends StorefrontController
      * Navigation id is required to load the slot config for the navigation
      *
      * @Route("/widgets/cms/navigation/{navigationId}", name="frontend.cms.navigation.page", methods={"GET", "POST"}, defaults={"navigationId"=null, "XmlHttpRequest"=true})
-     *
-     * @throws CategoryNotFoundException
-     * @throws MissingRequestParameterException
-     * @throws PageNotFoundException
-     * @throws InconsistentCriteriaIdsException
      */
     public function category(?string $navigationId, Request $request, SalesChannelContext $salesChannelContext): Response
     {
@@ -148,10 +136,7 @@ class CmsController extends StorefrontController
      *
      * Route to load the listing filters
      *
-     * @RouteScope(scopes={"storefront"})
-     * @Route("/widgets/cms/navigation/{navigationId}/filter", name="frontend.cms.navigation.filter", methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true})
-     *
-     * @throws MissingRequestParameterException
+     * @Route("/widgets/cms/navigation/{navigationId}/filter", name="frontend.cms.navigation.filter", methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true, "_routeScope"={"storefront"}})
      */
     public function filter(string $navigationId, Request $request, SalesChannelContext $context): Response
     {
@@ -188,11 +173,7 @@ class CmsController extends StorefrontController
      * Route to load the cms element buy box product config which assigned to the provided product id.
      * Product id is required to load the slot config for the buy box
      *
-     * @RouteScope(scopes={"storefront"})
-     * @Route("/widgets/cms/buybox/{productId}/switch", name="frontend.cms.buybox.switch", methods={"GET"}, defaults={"productId"=null, "XmlHttpRequest"=true})
-     *
-     * @throws MissingRequestParameterException
-     * @throws ProductNotFoundException
+     * @Route("/widgets/cms/buybox/{productId}/switch", name="frontend.cms.buybox.switch", methods={"GET"}, defaults={"productId"=null, "XmlHttpRequest"=true, "_routeScope"={"storefront"}})
      */
     public function switchBuyBoxVariant(string $productId, Request $request, SalesChannelContext $context): Response
     {

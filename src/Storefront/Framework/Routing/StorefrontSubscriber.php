@@ -268,9 +268,13 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @var RouteScope $scope */
-        $scope = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, new RouteScope(['scopes' => []]));
-        if (!$scope->hasScope(StorefrontRouteScope::ID)) {
+        /** @var RouteScope|array $scope */
+        $scope = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
+        if ($scope instanceof RouteScope) {
+            $scope = $scope->getScopes();
+        }
+
+        if (!\in_array(StorefrontRouteScope::ID, $scope, true)) {
             return;
         }
 

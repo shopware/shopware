@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -14,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"storefront"})
+ * @Route(defaults={"_routeScope"={"storefront"}})
  */
 class DocumentController extends StorefrontController
 {
@@ -30,10 +29,7 @@ class DocumentController extends StorefrontController
 
     /**
      * @Since("6.3.3.0")
-     * @Route("/account/order/document/{documentId}/{deepLinkCode}", name="frontend.account.order.single.document", methods={"GET"})
-     * @LoginRequired(allowGuest=true)
-     *
-     * @throws InvalidDocumentException
+     * @Route("/account/order/document/{documentId}/{deepLinkCode}", name="frontend.account.order.single.document", methods={"GET"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
      */
     public function downloadDocument(Request $request, SalesChannelContext $context): Response
     {

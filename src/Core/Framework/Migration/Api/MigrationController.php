@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"api"})
+ * @Route(defaults={"_routeScope"={"api"}})
  */
 class MigrationController extends AbstractController
 {
@@ -60,8 +60,7 @@ class MigrationController extends AbstractController
      *         description="Returns a no content response indicating a successful sync."
      *     )
      * )
-     * @Route("/api/_action/database/sync-migration", name="api.action.database.sync-migration", methods={"POST"})
-     * @Acl({"system:core:update"})
+     * @Route("/api/_action/database/sync-migration", name="api.action.database.sync-migration", methods={"POST"}, defaults={"_acl"={"system:core:update"}})
      */
     public function syncMigrations(Request $request): Response
     {
@@ -71,42 +70,41 @@ class MigrationController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0.0")
-     * @OA\Post(
-     *     path="/_action/database/migrate",
-     *     summary="Execute migrations",
-     *     description="Executes all migrations for the provided bundle name.",
-     *     operationId="migrate",
-     *     tags={"Admin API", "Database Migrations"},
-     *     @OA\RequestBody(
-     *         @OA\JsonContent(
-     *             @OA\Property(
-     *                 property="identifier",
-     *                 description="Name of the bundle whose migrations are to be synced.",
-     *                 type="string",
-     *                 default="core"
-     *             ),
-     *             @OA\Property(
-     *                 property="limit",
-     *                 description="Limit the amout of migrations to be executed. By default, there is no limit.",
-     *                 type="integer"
-     *             ),
-     *             @OA\Property(
-     *                 property="until",
-     *                 description="A timestamp that controls until which `creation_date` migrations are executed.
-By default, all migrations are executed.",
-     *                 type="integer"
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response="204",
-     *         description="Returns a no content response indicating a successful sync."
-     *     )
-     * )
-     * @Route("/api/_action/database/migrate", name="api.action.database.migrate", methods={"POST"})
-     * @Acl({"system:core:update"})
-     */
+    * @Since("6.0.0.0")
+    * @OA\Post(
+    *     path="/_action/database/migrate",
+    *     summary="Execute migrations",
+    *     description="Executes all migrations for the provided bundle name.",
+    *     operationId="migrate",
+    *     tags={"Admin API", "Database Migrations"},
+    *     @OA\RequestBody(
+    *         @OA\JsonContent(
+    *             @OA\Property(
+    *                 property="identifier",
+    *                 description="Name of the bundle whose migrations are to be synced.",
+    *                 type="string",
+    *                 default="core"
+    *             ),
+    *             @OA\Property(
+    *                 property="limit",
+    *                 description="Limit the amout of migrations to be executed. By default, there is no limit.",
+    *                 type="integer"
+    *             ),
+    *             @OA\Property(
+    *                 property="until",
+    *                 description="A timestamp that controls until which `creation_date` migrations are executed.
+    By default, all migrations are executed.",
+    *                 type="integer"
+    *             )
+    *         )
+    *     ),
+    *     @OA\Response(
+    *         response="204",
+    *         description="Returns a no content response indicating a successful sync."
+    *     )
+    * )
+     * @Route("/api/_action/database/migrate", name="api.action.database.migrate", methods={"POST"}, defaults={"_acl"={"system:core:update"}})
+    */
     public function migrate(Request $request): Response
     {
         if (!($limit = $request->request->getInt('limit'))) {
@@ -129,58 +127,57 @@ By default, all migrations are executed.",
     }
 
     /**
-     * @Since("6.0.0.0")
-     * @OA\Post(
-     *     path="/_action/database/migrate-destructive",
-     *     summary="Execute destructive migrations",
-     *     description="Executes all destructive migrations for the provided bundle name.",
-     *     operationId="migrateDestructive",
-     *     tags={"Admin API", "Database Migrations"},
-     *     @OA\RequestBody(
-     *         @OA\JsonContent(
-     *             @OA\Property(
-     *                 property="identifier",
-     *                 description="Name of the bundle whose migrations are to be synced.",
-     *                 type="string",
-     *                 default="core"
-     *             ),
-     *             @OA\Property(
-     *                 property="mode",
-     *                 description=" The mode defines what type of migrations are executed.
-* Possible values:
-* `all`: Execute all migrations
-* `blue-green`: Blue-green safe
-    * update from 6.a.* to 6.(a+1).0 -> migrations for major 6.a are NOT executed
-    * rollback from 6.(a+1).0 to 6.a.* is still possible
-    * update from 6.(a+1).0 to 6.(a+1).1 or higher - migrations for major 6.a are executed
-    * rollback possible from 6.(a+1).1 to 6.(a+1).0 possible
-    * but rollback to 6.a.* not possible anymore!
-* `safe`: Executing the migrations of the penultimate major. This should always be safe",
-     *                 enum={"all", "blue-green", "safe"},
-     *                 type="string",
-     *                 default="safe"
-     *             ),
-     *             @OA\Property(
-     *                 property="limit",
-     *                 description="Limit the amout of migrations to be executed. By default, there is no limit.",
-     *                 type="integer"
-     *             ),
-     *             @OA\Property(
-     *                 property="until",
-     *                 description="A timestamp that controls until which `creation_date` migrations are executed.
-    By default, all migrations are executed.",
-     *                 type="integer"
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response="204",
-     *         description="Returns a no content response indicating a successful sync."
-     *     )
-     * )
-     * @Route("/api/_action/database/migrate-destructive", name="api.action.database.migrate-destructive", methods={"POST"})
-     * @Acl({"system:core:update"})
-     */
+    * @Since("6.0.0.0")
+    * @OA\Post(
+    *     path="/_action/database/migrate-destructive",
+    *     summary="Execute destructive migrations",
+    *     description="Executes all destructive migrations for the provided bundle name.",
+    *     operationId="migrateDestructive",
+    *     tags={"Admin API", "Database Migrations"},
+    *     @OA\RequestBody(
+    *         @OA\JsonContent(
+    *             @OA\Property(
+    *                 property="identifier",
+    *                 description="Name of the bundle whose migrations are to be synced.",
+    *                 type="string",
+    *                 default="core"
+    *             ),
+    *             @OA\Property(
+    *                 property="mode",
+    *                 description=" The mode defines what type of migrations are executed.
+    * Possible values:
+    * `all`: Execute all migrations
+    * `blue-green`: Blue-green safe
+        * update from 6.a.* to 6.(a+1).0 -> migrations for major 6.a are NOT executed
+        * rollback from 6.(a+1).0 to 6.a.* is still possible
+        * update from 6.(a+1).0 to 6.(a+1).1 or higher - migrations for major 6.a are executed
+        * rollback possible from 6.(a+1).1 to 6.(a+1).0 possible
+        * but rollback to 6.a.* not possible anymore!
+    * `safe`: Executing the migrations of the penultimate major. This should always be safe",
+    *                 enum={"all", "blue-green", "safe"},
+    *                 type="string",
+    *                 default="safe"
+    *             ),
+    *             @OA\Property(
+    *                 property="limit",
+    *                 description="Limit the amout of migrations to be executed. By default, there is no limit.",
+    *                 type="integer"
+    *             ),
+    *             @OA\Property(
+    *                 property="until",
+    *                 description="A timestamp that controls until which `creation_date` migrations are executed.
+        By default, all migrations are executed.",
+    *                 type="integer"
+    *             )
+    *         )
+    *     ),
+    *     @OA\Response(
+    *         response="204",
+    *         description="Returns a no content response indicating a successful sync."
+    *     )
+    * )
+     * @Route("/api/_action/database/migrate-destructive", name="api.action.database.migrate-destructive", methods={"POST"}, defaults={"_acl"={"system:core:update"}})
+    */
     public function migrateDestructive(Request $request): Response
     {
         if (!($limit = $request->request->getInt('limit'))) {

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Routing;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
@@ -131,22 +132,62 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
 
     private function contextTokenRequired(Request $request): bool
     {
+        if (Feature::isActive('v6.5.0.0')) {
+            return $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED, false);
+        }
+
         if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED)) {
             return false;
         }
 
-        /** @var ContextTokenRequired $contextTokenRequiredAnnotation */
+        /** @var ContextTokenRequired|bool $contextTokenRequiredAnnotation */
         $contextTokenRequiredAnnotation = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED);
+
+        if (\is_bool($contextTokenRequiredAnnotation)) {
+            return $contextTokenRequiredAnnotation;
+        }
 
         return $contextTokenRequiredAnnotation->isRequired();
     }
 
     private function validateLogin(Request $request, SalesChannelContext $context): void
     {
-        /** @var LoginRequired|null $loginRequired */
+        if (Feature::isActive('v6.5.0.0')) {
+            if (!$request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED)) {
+                return;
+            }
+
+            if ($context->getCustomer() === null) {
+                throw new CustomerNotLoggedInException();
+            }
+
+            if ($request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST, false) === false && $context->getCustomer()->getGuest()) {
+                throw new CustomerNotLoggedInException();
+            }
+
+            return;
+        }
+
+        /** @var LoginRequired|bool|null $loginRequired */
         $loginRequired = $request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED);
 
         if ($loginRequired === null) {
+            return;
+        }
+
+        if (\is_bool($loginRequired)) {
+            if (!$loginRequired) {
+                return;
+            }
+
+            if ($context->getCustomer() === null) {
+                throw new CustomerNotLoggedInException();
+            }
+
+            if ($request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST, false) === false && $context->getCustomer()->getGuest()) {
+                throw new CustomerNotLoggedInException();
+            }
+
             return;
         }
 

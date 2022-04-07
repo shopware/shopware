@@ -21,8 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @internal
- * @RouteScope(scopes={"api"})
- * @Acl({"system.plugin_maintain"})
+ * @Route(defaults={"_routeScope"={"api"}, "_acl"={"system.plugin_maintain"}})
  */
 class ExtensionStoreActionsController extends AbstractController
 {
@@ -59,8 +58,7 @@ class ExtensionStoreActionsController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/_action/extension/upload", name="api.extension.upload", methods={"POST"})
-     * @Acl({"system.plugin_upload"})
+     * @Route("/api/_action/extension/upload", name="api.extension.upload", methods={"POST"}, defaults={"_acl"={"system.plugin_upload"}})
      */
     public function uploadExtensions(Request $request, Context $context): Response
     {

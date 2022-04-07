@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Routing;
 
+use Shopware\Core\Framework\Routing\Annotation\RouteScope as RouteScopeAnnotation;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -53,11 +54,13 @@ class CoreSubscriber implements EventSubscriberInterface
 
         $cspTemplate = $this->cspTemplates['default'] ?? '';
 
-        $scope = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE);
-        if ($scope) {
-            foreach ($scope->getScopes() as $scope) {
-                $cspTemplate = $this->cspTemplates[$scope] ?? $cspTemplate;
-            }
+        $scopes = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
+        if ($scopes instanceof RouteScopeAnnotation) {
+            $scopes = $scopes->getScopes();
+        }
+
+        foreach ($scopes as $scope) {
+            $cspTemplate = $this->cspTemplates[$scope] ?? $cspTemplate;
         }
 
         $cspTemplate = trim($cspTemplate);

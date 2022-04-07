@@ -6,12 +6,7 @@ use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
-use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
-use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
-use Shopware\Core\Checkout\Payment\Exception\InvalidTransactionException;
-use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
-use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -53,12 +48,6 @@ class PaymentController extends AbstractController
     /**
      * @Since("6.0.0.0")
      * @Route("/payment/finalize-transaction", name="payment.finalize.transaction", methods={"GET", "POST"})
-     *
-     * @throws AsyncPaymentFinalizeException
-     * @throws CustomerCanceledAsyncPaymentException
-     * @throws InvalidTransactionException
-     * @throws TokenExpiredException
-     * @throws UnknownPaymentMethodException
      */
     public function finalizeTransaction(Request $request): Response
     {

@@ -19,7 +19,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  *
- * @RouteScope(scopes={"api"})
+ * @Route(defaults={"_routeScope"={"api"}})
  */
 class AppActionController extends AbstractController
 {
@@ -56,8 +56,7 @@ class AppActionController extends AbstractController
 
     /**
      * @Since("6.3.3.0")
-     * @Route("api/app-system/action-button/run/{id}", name="api.app_system.action_button.run", methods={"POST"})
-     * @Acl({"app"})
+     * @Route("api/app-system/action-button/run/{id}", name="api.app_system.action_button.run", methods={"POST"}, defaults={"_acl"={"app"}})
      */
     public function runAction(string $id, Request $request, Context $context): Response
     {

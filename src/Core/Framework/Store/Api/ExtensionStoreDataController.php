@@ -20,8 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @internal
- * @RouteScope(scopes={"api"})
- * @Acl({"system.plugin_maintain"})
+ * @Route(defaults={"_routeScope"={"api"}, "_acl"={"system.plugin_maintain"}})
  */
 class ExtensionStoreDataController extends AbstractController
 {

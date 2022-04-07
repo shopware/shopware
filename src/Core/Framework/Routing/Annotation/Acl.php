@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Routing\Annotation;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationAnnotation;
 
 /**
+ * @deprecated tag:v6.5.0 - Use route defaults with "_acl". Example: @Route(defaults={"_acl"={"product:read"})
  * @Annotation
  */
 class Acl extends ConfigurationAnnotation

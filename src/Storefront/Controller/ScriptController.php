@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @internal
- * @RouteScope(scopes={"storefront"})
+ * @Route(defaults={"_routeScope"={"storefront"}})
  */
 class ScriptController extends StorefrontController
 {

@@ -43,9 +43,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 /**
- * @RouteScope(scopes={"api"})
- *
  * @deprecated tag:v6.5.0 will be considered internal
+ * @Route(defaults={"_routeScope"={"api"}})
  */
 class UpdateController extends AbstractController
 {
@@ -98,8 +97,7 @@ class UpdateController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/update/check", name="api.custom.updateapi.check", methods={"GET"})
-     * @Acl({"system:core:update"})
+     * @Route("/api/_action/update/check", name="api.custom.updateapi.check", methods={"GET"}, defaults={"_acl"={"system:core:update"}})
      */
     public function updateApiCheck(): JsonResponse
     {
@@ -127,8 +125,7 @@ class UpdateController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/update/check-requirements", name="api.custom.update.check_requirements", methods={"GET"})
-     * @Acl({"system:core:update"})
+     * @Route("/api/_action/update/check-requirements", name="api.custom.update.check_requirements", methods={"GET"}, defaults={"_acl"={"system:core:update"}})
      */
     public function checkRequirements(): JsonResponse
     {
@@ -139,8 +136,7 @@ class UpdateController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/update/plugin-compatibility", name="api.custom.updateapi.plugin_compatibility", methods={"GET"})
-     * @Acl({"system:core:update", "system_config:read"})
+     * @Route("/api/_action/update/plugin-compatibility", name="api.custom.updateapi.plugin_compatibility", methods={"GET"}, defaults={"_acl"={"system:core:update", "system_config:read"}})
      */
     public function pluginCompatibility(Context $context): JsonResponse
     {
@@ -151,8 +147,7 @@ class UpdateController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/update/download-latest-update", name="api.custom.updateapi.download_latest_update", methods={"GET"})
-     * @Acl({"system:core:update", "system_config:read"})
+     * @Route("/api/_action/update/download-latest-update", name="api.custom.updateapi.download_latest_update", methods={"GET"}, defaults={"_acl"={"system:core:update", "system_config:read"}})
      */
     public function downloadLatestUpdate(Request $request): JsonResponse
     {
@@ -176,8 +171,7 @@ class UpdateController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/update/unpack", name="api.custom.updateapi.unpack", methods={"GET"})
-     * @Acl({"system:core:update", "system_config:read"})
+     * @Route("/api/_action/update/unpack", name="api.custom.updateapi.unpack", methods={"GET"}, defaults={"_acl"={"system:core:update", "system_config:read"}})
      */
     public function unpack(Request $request, Context $context): JsonResponse
     {
@@ -237,8 +231,7 @@ class UpdateController extends AbstractController
 
     /**
      * @Since("6.1.0.0")
-     * @Route("/api/_action/update/deactivate-plugins", name="api.custom.updateapi.deactivate-plugins", methods={"GET"})
-     * @Acl({"system:core:update", "system_config:read"})
+     * @Route("/api/_action/update/deactivate-plugins", name="api.custom.updateapi.deactivate-plugins", methods={"GET"}, defaults={"_acl"={"system:core:update", "system_config:read"}})
      */
     public function deactivatePlugins(Request $request, Context $context): JsonResponse
     {
@@ -284,8 +277,7 @@ class UpdateController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/_action/update/finish/{token}", defaults={"auth_required"=false}, name="api.custom.updateapi.finish", methods={"GET"})
-     * @Acl({"system:core:update", "system_config:read"})
+     * @Route("/api/_action/update/finish/{token}", defaults={"auth_required"=false, "_acl"={"system:core:update", "system_config:read"}}, name="api.custom.updateapi.finish", methods={"GET"})
      */
     public function finish(string $token, Request $request, Context $context): Response
     {

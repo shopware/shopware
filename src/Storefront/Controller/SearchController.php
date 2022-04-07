@@ -20,7 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"storefront"})
+ * @Route(defaults={"_routeScope"={"storefront"}})
  */
 class SearchController extends StorefrontController
 {
@@ -95,10 +95,7 @@ class SearchController extends StorefrontController
      *
      * Route to load the listing filters
      *
-     * @RouteScope(scopes={"storefront"})
-     * @Route("/widgets/search", name="widgets.search.pagelet.v2", methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true})
-     *
-     * @throws MissingRequestParameterException
+     * @Route("/widgets/search", name="widgets.search.pagelet.v2", methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true, "_routeScope"={"storefront"}})
      */
     public function ajax(Request $request, SalesChannelContext $context): Response
     {
@@ -120,10 +117,7 @@ class SearchController extends StorefrontController
      *
      * Route to load the available listing filters
      *
-     * @RouteScope(scopes={"storefront"})
-     * @Route("/widgets/search/filter", name="widgets.search.filter", methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true})
-     *
-     * @throws MissingRequestParameterException
+     * @Route("/widgets/search/filter", name="widgets.search.filter", methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true, "_routeScope"={"storefront"}})
      */
     public function filter(Request $request, SalesChannelContext $context): Response
     {

@@ -663,5 +663,9 @@ base-uri 'self';
             <argument type="service" id="Shopware\Core\Framework\Log\Monolog\ExcludeExceptionHandler.inner"/>
             <argument>%shopware.logger.exclude_exception%</argument>
         </service>
+
+        <service id="Shopware\Core\Framework\Routing\RouteParamsCleanupListener">
+            <tag name="kernel.event_listener"/>
+        </service>
     </services>
 </container>

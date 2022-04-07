@@ -3,18 +3,14 @@
 namespace Shopware\Storefront\Controller;
 
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeCustomerProfileRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeEmailRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractDeleteCustomerRoute;
-use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -28,7 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"storefront"})
+ * @Route(defaults={"_routeScope"={"storefront"}})
  */
 class AccountProfileController extends StorefrontController
 {
@@ -66,14 +62,8 @@ class AccountProfileController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @LoginRequired()
-     * @Route("/account", name="frontend.account.home.page", methods={"GET"})
+     * @Route("/account", name="frontend.account.home.page", methods={"GET"}, defaults={"_loginRequired"=true})
      * @NoStore
-     *
-     * @throws CustomerNotLoggedInException
-     * @throws CategoryNotFoundException
-     * @throws InconsistentCriteriaIdsException
-     * @throws MissingRequestParameterException
      */
     public function index(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
@@ -86,14 +76,8 @@ class AccountProfileController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @LoginRequired()
-     * @Route("/account/profile", name="frontend.account.profile.page", methods={"GET"})
+     * @Route("/account/profile", name="frontend.account.profile.page", methods={"GET"}, defaults={"_loginRequired"=true})
      * @NoStore
-     *
-     * @throws CustomerNotLoggedInException
-     * @throws CategoryNotFoundException
-     * @throws InconsistentCriteriaIdsException
-     * @throws MissingRequestParameterException
      */
     public function profileOverview(Request $request, SalesChannelContext $context): Response
     {
@@ -110,10 +94,7 @@ class AccountProfileController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @LoginRequired()
-     * @Route("/account/profile", name="frontend.account.profile.save", methods={"POST"})
-     *
-     * @throws CustomerNotLoggedInException
+     * @Route("/account/profile", name="frontend.account.profile.save", methods={"POST"}, defaults={"_loginRequired"=true})
      */
     public function saveProfile(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
     {
@@ -133,10 +114,7 @@ class AccountProfileController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @LoginRequired()
-     * @Route("/account/profile/email", name="frontend.account.profile.email.save", methods={"POST"})
-     *
-     * @throws CustomerNotLoggedInException
+     * @Route("/account/profile/email", name="frontend.account.profile.email.save", methods={"POST"}, defaults={"_loginRequired"=true})
      */
     public function saveEmail(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
     {
@@ -158,10 +136,7 @@ class AccountProfileController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @LoginRequired()
-     * @Route("/account/profile/password", name="frontend.account.profile.password.save", methods={"POST"})
-     *
-     * @throws CustomerNotLoggedInException
+     * @Route("/account/profile/password", name="frontend.account.profile.password.save", methods={"POST"}, defaults={"_loginRequired"=true})
      */
     public function savePassword(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
     {
@@ -180,10 +155,7 @@ class AccountProfileController extends StorefrontController
 
     /**
      * @Since("6.3.3.0")
-     * @LoginRequired()
-     * @Route("/account/profile/delete", name="frontend.account.profile.delete", methods={"POST"})
-     *
-     * @throws CustomerNotLoggedInException
+     * @Route("/account/profile/delete", name="frontend.account.profile.delete", methods={"POST"}, defaults={"_loginRequired"=true})
      */
     public function deleteProfile(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {

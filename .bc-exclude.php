@@ -38,6 +38,11 @@ return [
         'The parameter \\$product of Shopware\\\\Core\\\\Content\\\\Product\\\\IsNewDetector#isNew()',
 
         'The return type of Shopware\\\\Core\\\\Framework\\\\Routing\\\\RouteEventSubscriber',
-        'These ancestors of Shopware\\\\Core\\\\Framework\\\\Script\\\\Api\\\\StoreApiCacheKeyHook have been removed'
+        'These ancestors of Shopware\\\\Core\\\\Framework\\\\Script\\\\Api\\\\StoreApiCacheKeyHook have been removed',
+
+        'The annotation "RouteScope" has been removed',
+        'The annotation "LoginRequired" has been removed',
+        'The annotation "ContextTokenRequired" has been removed',
+        'The annotation "Acl" has been removed',
     ],
 ];

@@ -29,7 +29,7 @@ use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"storefront"})
+ * @Route(defaults={"_routeScope"={"storefront"}})
  */
 class ProductController extends StorefrontController
 {
@@ -165,8 +165,7 @@ class ProductController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @LoginRequired()
-     * @Route("/product/{productId}/rating", name="frontend.detail.review.save", methods={"POST"}, defaults={"XmlHttpRequest"=true})
+     * @Route("/product/{productId}/rating", name="frontend.detail.review.save", methods={"POST"}, defaults={"XmlHttpRequest"=true, "_loginRequired"=true})
      */
     public function saveReview(string $productId, RequestDataBag $data, SalesChannelContext $context): Response
     {

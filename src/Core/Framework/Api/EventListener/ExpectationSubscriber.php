@@ -52,10 +52,14 @@ class ExpectationSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @var RouteScope $scope */
-        $scope = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE);
+        /** @var RouteScope|array $scope */
+        $scope = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
 
-        if (!$scope->hasScope(ApiRouteScope::ID)) {
+        if ($scope instanceof RouteScope) {
+            $scope = $scope->getScopes();
+        }
+
+        if (!\in_array(ApiRouteScope::ID, $scope, true)) {
             return;
         }
 

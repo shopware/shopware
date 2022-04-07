@@ -35,7 +35,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"api"})
+ * @Route(defaults={"_routeScope"={"api"}})
  */
 class InfoController extends AbstractController
 {
@@ -103,8 +103,6 @@ class InfoController extends AbstractController
      *     )
      * )
      * @Route("/api/_info/openapi3.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="api.info.openapi3", methods={"GET"})
-     *
-     * @throws \Exception
      */
     public function info(Request $request): JsonResponse
     {
@@ -117,8 +115,6 @@ class InfoController extends AbstractController
     /**
      * @Since("6.4.6.0")
      * @Route("/api/_info/queue.json", name="api.info.queue", methods={"GET"})
-     *
-     * @throws \Exception
      */
     public function queue(): JsonResponse
     {

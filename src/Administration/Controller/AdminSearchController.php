@@ -57,8 +57,7 @@ class AdminSearchController extends AbstractController
 
     /**
      * @Since("6.4.5.0")
-     * @RouteScope(scopes={"administration"})
-     * @Route("/api/_admin/search", name="api.admin.search", methods={"POST"})
+     * @Route("/api/_admin/search", name="api.admin.search", methods={"POST"}, defaults={"_routeScope"={"administration"}})
      */
     public function search(Request $request, Context $context): Response
     {

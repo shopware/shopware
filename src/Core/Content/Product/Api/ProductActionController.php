@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"api"})
+ * @Route(defaults={"_routeScope"={"api"}})
  */
 class ProductActionController extends AbstractController
 {
@@ -26,6 +26,8 @@ class ProductActionController extends AbstractController
     }
 
     /**
+     * @deprecated tag:v6.5.0 - native return type JsonResponse will be added
+     *
      * @Since("6.0.0.0")
      * @Route("/api/_action/product/{productId}/combinations", name="api.action.product.combinations", methods={"GET"})
      *

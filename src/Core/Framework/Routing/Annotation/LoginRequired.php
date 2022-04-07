@@ -6,6 +6,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @deprecated tag:v6.5.0 - Use route defaults with "_loginRequired". Example: @Route(defaults={"_loginRequired"=true)
  * Annotation for store-api/storefront
  *
  * @Annotation

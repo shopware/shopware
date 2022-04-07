@@ -18,8 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Routing\Annotation\Acl;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
@@ -38,6 +36,9 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @Route(defaults={"_routeScope"={"administration"}})
+ */
 class AdministrationController extends AbstractController
 {
     private TemplateFinder $finder;
@@ -94,7 +95,6 @@ class AdministrationController extends AbstractController
 
     /**
      * @Since("6.3.3.0")
-     * @RouteScope(scopes={"administration"})
      * @Route("/%shopware_administration.path_name%", defaults={"auth_required"=false}, name="administration.index", methods={"GET"})
      */
     public function index(Request $request, Context $context): Response
@@ -119,7 +119,6 @@ class AdministrationController extends AbstractController
 
     /**
      * @Since("6.1.0.0")
-     * @RouteScope(scopes={"administration"})
      * @Route("/api/_admin/snippets", name="api.admin.snippets", methods={"GET"})
      */
     public function snippets(Request $request): Response
@@ -136,7 +135,6 @@ class AdministrationController extends AbstractController
 
     /**
      * @Since("6.3.1.0")
-     * @RouteScope(scopes={"administration"})
      * @Route("/api/_admin/known-ips", name="api.admin.known-ips", methods={"GET"})
      */
     public function knownIps(Request $request): Response
@@ -154,12 +152,10 @@ class AdministrationController extends AbstractController
     }
 
     /**
-     * @Since("6.4.0.1")
-     * @RouteScope(scopes={"administration"})
-     * @Route("/api/_admin/reset-excluded-search-term", name="api.admin.reset-excluded-search-term", methods={"POST"})
-     * @Acl({"system_config:update", "system_config:create", "system_config:delete"})
+     * @deprecated tag:v6.5.0 - native return type JsonResponse will be added
      *
-     * @throws LanguageNotFoundException|\Doctrine\DBAL\DBALException
+     * @Since("6.4.0.1")
+     * @Route("/api/_admin/reset-excluded-search-term", name="api.admin.reset-excluded-search-term", methods={"POST"}, defaults={"_acl"={"system_config:update", "system_config:create", "system_config:delete"}})
      *
      * @return JsonResponse
      */
@@ -204,10 +200,7 @@ class AdministrationController extends AbstractController
 
     /**
      * @Since("6.4.0.1")
-     * @RouteScope(scopes={"administration"})
      * @Route("/api/_admin/check-customer-email-valid", name="api.admin.check-customer-email-valid", methods={"POST"})
-     *
-     * @throws \InvalidArgumentException|ConstraintViolationException
      */
     public function checkCustomerEmailValid(Request $request, Context $context): JsonResponse
     {
@@ -253,10 +246,7 @@ class AdministrationController extends AbstractController
 
     /**
      * @Since("6.4.2.0")
-     * @RouteScope(scopes={"administration"})
      * @Route("/api/_admin/sanitize-html", name="api.admin.sanitize-html", methods={"POST"})
-     *
-     * @throws \InvalidArgumentException
      */
     public function sanitizeHtml(Request $request, Context $context): JsonResponse
     {
@@ -273,7 +263,7 @@ class AdministrationController extends AbstractController
             );
         }
 
-        list($entityName, $propertyName) = explode('.', $field);
+        [$entityName, $propertyName] = explode('.', $field);
         $property = $this->definitionInstanceRegistry->getByEntityName($entityName)->getField($propertyName);
 
         if ($property === null) {

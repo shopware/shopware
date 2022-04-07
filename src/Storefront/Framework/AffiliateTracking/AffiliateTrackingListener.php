@@ -5,6 +5,8 @@ namespace Shopware\Storefront\Framework\AffiliateTracking;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
+use Shopware\Core\PlatformRequest;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -27,11 +29,15 @@ class AffiliateTrackingListener implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
-        /** @var RouteScope|null $routeScope */
-        $routeScope = $request->attributes->get('_routeScope');
+        /** @var RouteScope|array $scopes */
+        $scopes = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
+
+        if ($scopes instanceof RouteScope) {
+            $scopes = $scopes->getScopes();
+        }
 
         // Only process storefront routes
-        if ($routeScope && !\in_array('storefront', $routeScope->getScopes(), true)) {
+        if (!\in_array(StorefrontRouteScope::ID, $scopes, true)) {
             return;
         }
 

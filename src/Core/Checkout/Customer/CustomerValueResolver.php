@@ -20,7 +20,7 @@ class CustomerValueResolver implements ArgumentValueResolverInterface
     {
         $loginRequired = $request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED);
 
-        if (!$loginRequired instanceof LoginRequired) {
+        if (!$loginRequired instanceof LoginRequired && $loginRequired !== true) {
             $route = $request->attributes->get('_route');
 
             throw new \RuntimeException('Missing @LoginRequired annotation for route: ' . $route);

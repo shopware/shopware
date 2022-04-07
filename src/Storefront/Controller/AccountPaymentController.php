@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePaymentMethodRoute;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
@@ -21,7 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"storefront"})
+ * @Route(defaults={"_routeScope"={"storefront"}})
  */
 class AccountPaymentController extends StorefrontController
 {
@@ -39,11 +38,9 @@ class AccountPaymentController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @LoginRequired()
+     * @Route("/account/payment", name="frontend.account.payment.page", options={"seo"="false"}, methods={"GET"}, defaults={"_loginRequired"=true})
      * @Route("/account/payment", name="frontend.account.payment.page", options={"seo"="false"}, methods={"GET"})
      * @NoStore
-     *
-     * @throws CustomerNotLoggedInException
      */
     public function paymentOverview(Request $request, SalesChannelContext $context): Response
     {
@@ -56,8 +53,7 @@ class AccountPaymentController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @LoginRequired()
-     * @Route("/account/payment", name="frontend.account.payment.save", methods={"POST"})
+     * @Route("/account/payment", name="frontend.account.payment.save", methods={"POST"}, defaults={"_loginRequired"=true})
      */
     public function savePayment(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): Response
     {

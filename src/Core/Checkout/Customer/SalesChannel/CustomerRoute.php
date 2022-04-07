@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"store-api"})
+ * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class CustomerRoute extends AbstractCustomerRoute
 {
@@ -52,8 +52,7 @@ class CustomerRoute extends AbstractCustomerRoute
      *          @OA\JsonContent(ref="#/components/schemas/Customer")
      *     )
      * )
-     * @LoginRequired(allowGuest=true)
-     * @Route("/store-api/account/customer", name="store-api.account.customer", methods={"GET", "POST"})
+     * @Route("/store-api/account/customer", name="store-api.account.customer", methods={"GET", "POST"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): CustomerResponse
     {

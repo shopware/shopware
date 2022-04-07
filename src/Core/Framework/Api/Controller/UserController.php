@@ -26,7 +26,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"api"})
+ * @Route(defaults={"_routeScope"={"api"}})
  */
 class UserController extends AbstractController
 {
@@ -96,8 +96,7 @@ class UserController extends AbstractController
 
     /**
      * @Since("6.3.3.0")
-     * @Route("/api/_info/me", name="api.change.me", defaults={"auth_required"=true}, methods={"PATCH"})
-     * @Acl({"user_change_me"})
+     * @Route("/api/_info/me", name="api.change.me", defaults={"auth_required"=true, "_acl"={"user_change_me"}}, methods={"PATCH"})
      */
     public function updateMe(Context $context, Request $request, ResponseFactoryInterface $responseFactory): Response
     {
@@ -144,8 +143,7 @@ class UserController extends AbstractController
 
     /**
      * @Since("6.2.3.0")
-     * @Route("/api/user/{userId}", name="api.user.delete", defaults={"auth_required"=true}, methods={"DELETE"})
-     * @Acl({"user:delete"})
+     * @Route("/api/user/{userId}", name="api.user.delete", defaults={"auth_required"=true, "_acl"={"user:delete"}}, methods={"DELETE"})
      */
     public function deleteUser(string $userId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {
@@ -172,8 +170,7 @@ class UserController extends AbstractController
 
     /**
      * @Since("6.3.0.0")
-     * @Route("/api/user/{userId}/access-keys/{id}", name="api.user_access_keys.delete", defaults={"auth_required"=true}, methods={"DELETE"})
-     * @Acl({"user_access_key:delete"})
+     * @Route("/api/user/{userId}/access-keys/{id}", name="api.user_access_keys.delete", defaults={"auth_required"=true, "_acl"={"user_access_key:delete"}}, methods={"DELETE"})
      */
     public function deleteUserAccessKey(string $id, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {
@@ -190,8 +187,7 @@ class UserController extends AbstractController
 
     /**
      * @Since("6.2.3.0")
-     * @Route("/api/user", name="api.user.create", defaults={"auth_required"=true}, methods={"POST"})
-     * @Acl({"user:create"})
+     * @Route("/api/user", name="api.user.create", defaults={"auth_required"=true, "_acl"={"user:create"}}, methods={"POST"})
      */
     public function upsertUser(?string $userId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {
@@ -230,8 +226,7 @@ class UserController extends AbstractController
 
     /**
      * @Since("6.3.3.0")
-     * @Route("/api/user/{userId}", name="api.user.update", defaults={"auth_required"=true}, methods={"PATCH"})
-     * @Acl({"user:update"})
+     * @Route("/api/user/{userId}", name="api.user.update", defaults={"auth_required"=true, "_acl"={"user:update"}}, methods={"PATCH"})
      */
     public function updateUser(?string $userId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {
@@ -240,8 +235,7 @@ class UserController extends AbstractController
 
     /**
      * @Since("6.3.2.0")
-     * @Route("/api/acl-role", name="api.acl_role.create", defaults={"auth_required"=true}, methods={"POST"})
-     * @Acl({"acl_role:create"})
+     * @Route("/api/acl-role", name="api.acl_role.create", defaults={"auth_required"=true, "_acl"={"acl_role:create"}}, methods={"POST"})
      */
     public function upsertRole(?string $roleId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {
@@ -269,8 +263,7 @@ class UserController extends AbstractController
 
     /**
      * @Since("6.3.3.0")
-     * @Route("/api/acl-role/{roleId}", name="api.acl_role.update", defaults={"auth_required"=true}, methods={"PATCH"})
-     * @Acl({"acl_role:update"})
+     * @Route("/api/acl-role/{roleId}", name="api.acl_role.update", defaults={"auth_required"=true, "_acl"={"acl_role:update"}}, methods={"PATCH"})
      */
     public function updateRole(?string $roleId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {
@@ -279,8 +272,7 @@ class UserController extends AbstractController
 
     /**
      * @Since("6.3.3.0")
-     * @Route("/api/user/{userId}/acl-roles/{roleId}", name="api.user_role.delete", defaults={"auth_required"=true}, methods={"DELETE"})
-     * @Acl({"acl_user_role:delete"})
+     * @Route("/api/user/{userId}/acl-roles/{roleId}", name="api.user_role.delete", defaults={"auth_required"=true, "_acl"={"acl_user_role:delete"}}, methods={"DELETE"})
      */
     public function deleteUserRole(string $userId, string $roleId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {
@@ -297,8 +289,7 @@ class UserController extends AbstractController
 
     /**
      * @Since("6.3.2.0")
-     * @Route("/api/acl-role/{roleId}", name="api.acl_role.delete", defaults={"auth_required"=true}, methods={"DELETE"})
-     * @Acl({"acl_role:delete"})
+     * @Route("/api/acl-role/{roleId}", name="api.acl_role.delete", defaults={"auth_required"=true, "_acl"={"acl_role:delete"}}, methods={"DELETE"})
      */
     public function deleteRole(string $roleId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {

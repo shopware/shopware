@@ -24,8 +24,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @RouteScope(scopes={"store-api"})
- * @ContextTokenRequired()
+ * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=true})
  */
 class ChangePaymentMethodRoute extends AbstractChangePaymentMethodRoute
 {
@@ -77,8 +76,7 @@ class ChangePaymentMethodRoute extends AbstractChangePaymentMethodRoute
      *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
-     * @LoginRequired()
-     * @Route(path="/store-api/account/change-payment-method/{paymentMethodId}", name="store-api.account.set.payment-method", methods={"POST"})
+     * @Route(path="/store-api/account/change-payment-method/{paymentMethodId}", name="store-api.account.set.payment-method", methods={"POST"}, defaults={"_loginRequired"=true})
      */
     public function change(string $paymentMethodId, RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {

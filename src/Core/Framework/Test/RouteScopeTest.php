@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test;
 
 use Shopware\Core\Checkout\Payment\Controller\PaymentController;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviourTest;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\Routing\Router;
 
 class RouteScopeTest extends KernelTestBehaviourTest
@@ -30,23 +31,7 @@ class RouteScopeTest extends KernelTestBehaviourTest
                 continue;
             }
 
-            $routeMethodReflection = new \ReflectionMethod($controllerMethod[0], $controllerMethod[1]);
-            $docBlock = $routeMethodReflection->getDocComment() ?: '';
-            $pattern = "#@([a-zA-Z]+\s*)#";
-
-            preg_match_all($pattern, $docBlock, $matches, \PREG_PATTERN_ORDER);
-
-            if (!\in_array('RouteScope', $matches[1], true)) {
-                $routeClassReflection = new \ReflectionClass($controllerMethod[0]);
-                $docBlock = $routeClassReflection->getDocComment() ?: '';
-                $pattern = "#@([a-zA-Z]+\s*)#";
-
-                preg_match_all($pattern, $docBlock, $matches, \PREG_PATTERN_ORDER);
-
-                if (\in_array('RouteScope', $matches[1], true)) {
-                    continue;
-                }
-
+            if ($route->getDefault(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE) === null) {
                 $errors[] = $route->getDefault('_controller');
             }
         }

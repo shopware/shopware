@@ -17,9 +17,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"store-api"})
- *
  * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
+ * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class AccountNewsletterRecipientRoute extends AbstractAccountNewsletterRecipientRoute
 {
@@ -52,8 +51,7 @@ class AccountNewsletterRecipientRoute extends AbstractAccountNewsletterRecipient
      *          @OA\JsonContent(@OA\Items(ref="#/components/schemas/AccountNewsletterRecipientResult"))
      *     )
      * )
-     * @LoginRequired()
-     * @Route("/store-api/account/newsletter-recipient", name="store-api.newsletter.recipient", methods={"GET", "POST"})
+     * @Route("/store-api/account/newsletter-recipient", name="store-api.newsletter.recipient", methods={"GET", "POST"}, defaults={"_loginRequired"=true})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): AccountNewsletterRecipientRouteResponse
     {

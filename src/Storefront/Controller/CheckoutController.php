@@ -5,10 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
-use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
@@ -20,7 +17,6 @@ use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\Profiling\Profiler;
@@ -46,7 +42,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @RouteScope(scopes={"storefront"})
+ * @Route(defaults={"_routeScope"={"storefront"}})
  */
 class CheckoutController extends StorefrontController
 {
@@ -151,10 +147,6 @@ class CheckoutController extends StorefrontController
      * @Since("6.0.0.0")
      * @Route("/checkout/finish", name="frontend.checkout.finish.page", options={"seo"="false"}, methods={"GET"})
      * @NoStore
-     *
-     * @throws CustomerNotLoggedInException
-     * @throws MissingRequestParameterException
-     * @throws OrderNotFoundException
      */
     public function finishPage(Request $request, SalesChannelContext $context, RequestDataBag $dataBag): Response
     {
@@ -226,8 +218,6 @@ class CheckoutController extends StorefrontController
     /**
      * @Since("6.0.0.0")
      * @Route("/widgets/checkout/info", name="frontend.checkout.info", methods={"GET"}, defaults={"XmlHttpRequest"=true})
-     *
-     * @throws CartTokenNotFoundException
      */
     public function info(Request $request, SalesChannelContext $context): Response
     {
@@ -251,8 +241,6 @@ class CheckoutController extends StorefrontController
     /**
      * @Since("6.0.0.0")
      * @Route("/checkout/offcanvas", name="frontend.cart.offcanvas", options={"seo"="false"}, methods={"GET"}, defaults={"XmlHttpRequest"=true})
-     *
-     * @throws CartTokenNotFoundException
      */
     public function offcanvas(Request $request, SalesChannelContext $context): Response
     {

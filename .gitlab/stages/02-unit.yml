@@ -122,7 +122,7 @@ PHP Full:
         -   name: swaggerapi/swagger-validator-v2:v2.0.5
             alias: swagger
     variables:
-        TEST_SUITES: "docs administration storefront checkout content framework profiling migration system elasticsearch"
+        TEST_SUITES: "docs administration storefront checkout content framework profiling system elasticsearch migration"
         APP_ENV: test
         GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
         RUNNER_INSTANCE_TYPE: m5.large
@@ -163,12 +163,12 @@ PHP Full:
                 DEV_IMAGE: shopware/development:7.4-composer-2
                 FEATURE_ALL: 'false'
                 ONLY_CORE: 'true'
-                TEST_SUITES: "checkout content framework profiling migration system"
+                TEST_SUITES: "checkout content framework profiling system migration"
             -   MYSQL_IMAGE: mariadb:10.5
                 DEV_IMAGE: shopware/development:7.4-composer-2
                 FEATURE_ALL: 'false'
                 DEPENDENCY_DEV: 'true'
-                TEST_SUITES: "checkout content framework profiling migration system"
+                TEST_SUITES: "checkout content framework profiling system migration"
                 ALLOW_FAILURE: 'true'
     script:
         - >

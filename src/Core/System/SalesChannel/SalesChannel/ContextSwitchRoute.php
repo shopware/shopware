@@ -157,7 +157,12 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
         $this->validator->validate($parameters, $definition);
 
         $customer = $context->getCustomer();
-        $this->contextPersister->save($context->getToken(), $parameters, $context->getSalesChannel()->getId(), $customer ? $customer->getId() : null);
+        $this->contextPersister->save(
+            $context->getToken(),
+            $parameters,
+            $context->getSalesChannel()->getId(),
+            $customer && empty($context->getPermissions()) ? $customer->getId() : null
+        );
 
         $event = new SalesChannelContextSwitchEvent($context, $data);
         $this->eventDispatcher->dispatch($event);

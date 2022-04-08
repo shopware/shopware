@@ -2,8 +2,11 @@
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Filesystem\Filesystem;
 
 $connection = require __DIR__ . '/boot.php';
+
+$fs = new Filesystem();
 
 $env = json_decode((string) file_get_contents(__DIR__ . '/env.dist.json'), true, 512, \JSON_THROW_ON_ERROR);
 if (file_exists(__DIR__ . '/env.json')) {
@@ -17,7 +20,15 @@ $listings = $connection->fetchFirstColumn("SELECT CONCAT('/', seo_path_info) FRO
 $limit = $env['product_page_limit'] !== null ? ' LIMIT ' . (int) $env['product_page_limit'] : '';
 $details = $connection->fetchFirstColumn("SELECT CONCAT('/', seo_path_info) FROM seo_url  WHERE route_name = 'frontend.detail.page' AND is_deleted = 0 AND is_canonical = 1" . $limit);
 
-$keywords = $connection->fetchFirstColumn('SELECT keyword FROM product_keyword_dictionary');
+$keywords = array_map(static function (string $term) {
+    $terms = explode(' ', $term);
+
+    return array_filter($terms, static function (string $split) {
+        return mb_strlen($split) >= 4;
+    });
+}, $connection->fetchFirstColumn('SELECT name FROM product_translation WHERE name IS NOT NULL ' . $limit));
+
+$keywords = array_unique(array_merge(...$keywords));
 
 $products = $connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id, product_number as productNumber FROM product ' . $limit);
 
@@ -53,18 +64,19 @@ if (empty($products)) {
 }
 
 echo 'Collected: ' . count($listings) . ' listing urls' . \PHP_EOL;
-file_put_contents(__DIR__ . '/fixtures/listing_urls.json', json_encode($listings));
+$fs->dumpFile(__DIR__ . '/fixtures/listing_urls.json', json_encode($listings, \JSON_THROW_ON_ERROR));
 
 echo 'Collected: ' . count($details) . ' product urls' . \PHP_EOL;
-file_put_contents(__DIR__ . '/fixtures/product_urls.json', json_encode($details));
+$fs->dumpFile(__DIR__ . '/fixtures/product_urls.json', json_encode($details, \JSON_THROW_ON_ERROR));
 
-file_put_contents(__DIR__ . '/fixtures/sales_channel.json', json_encode($salesChannel));
+echo 'Collected: ' . count($salesChannel) . ' sales channels' . \PHP_EOL;
+$fs->dumpFile(__DIR__ . '/fixtures/sales_channel.json', json_encode($salesChannel, \JSON_THROW_ON_ERROR));
 
 echo 'Collected: ' . count($keywords) . ' keywords' . \PHP_EOL;
-file_put_contents(__DIR__ . '/fixtures/keywords.json', json_encode($keywords));
+$fs->dumpFile(__DIR__ . '/fixtures/keywords.json', json_encode($keywords, \JSON_THROW_ON_ERROR));
 
 echo 'Collected: ' . count($products) . ' products' . \PHP_EOL;
-file_put_contents(__DIR__ . '/fixtures/products.json', json_encode($products));
+$fs->dumpFile(__DIR__ . '/fixtures/products.json', json_encode($products, \JSON_THROW_ON_ERROR));
 
 echo 'Collected: ' . count($advertisements) . ' advertisements' . \PHP_EOL;
-file_put_contents(__DIR__ . '/fixtures/advertisements.json', json_encode($advertisements));
+$fs->dumpFile(__DIR__ . '/fixtures/advertisements.json', json_encode($advertisements, \JSON_THROW_ON_ERROR));

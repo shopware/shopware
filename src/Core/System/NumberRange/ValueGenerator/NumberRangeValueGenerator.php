@@ -4,6 +4,7 @@ namespace Shopware\Core\System\NumberRange\ValueGenerator;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\Exception\NoConfigurationException;
 use Shopware\Core\System\NumberRange\NumberRangeEvents;
@@ -71,6 +72,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
      */
     protected function createPreviewConfiguration(string $definition, ?string $pattern, int $start): void
     {
+        Feature::throwException('v6.5.0.0', 'NumberRangeValueGenerator::createPreviewConfiguration() will be removed.');
     }
 
     /**
@@ -78,6 +80,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
      */
     protected function readConfiguration(string $definition, Context $context, ?string $salesChannelId): void
     {
+        Feature::throwException('v6.5.0.0', 'NumberRangeValueGenerator::readConfiguration() will be removed.');
     }
 
     /**

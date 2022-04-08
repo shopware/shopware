@@ -30,7 +30,7 @@ class IncrementRedisStorage extends AbstractIncrementStorage
     }
 
     /**
-     * @inerhitDoc
+     * @inheritDoc
      * This implementation focuses on getting the next increment value in a fast, non-blocking, atomic way
      * However some tradeoffs have to be made in the case that
      * the start value of the pattern is changed and simultaneous requests to reserve the next increment are made

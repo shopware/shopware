@@ -4,6 +4,7 @@ namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStora
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\NumberRangeEntity;
@@ -30,6 +31,8 @@ class IncrementSqlStorage extends AbstractIncrementStorage implements IncrementS
      */
     public function pullState(NumberRangeEntity $configuration): string
     {
+        Feature::throwException('v6.5.0.0', 'IncrementSqlStorage::pullState() will be removed, use `reserve()` instead');
+
         $config = [
             'id' => $configuration->getId(),
             'start' => $configuration->getStart(),
@@ -44,6 +47,8 @@ class IncrementSqlStorage extends AbstractIncrementStorage implements IncrementS
      */
     public function getNext(NumberRangeEntity $configuration): string
     {
+        Feature::throwException('v6.5.0.0', 'IncrementSqlStorage::getNext() will be removed, use `preview()` instead');
+
         $config = [
             'id' => $configuration->getId(),
             'start' => $configuration->getStart(),

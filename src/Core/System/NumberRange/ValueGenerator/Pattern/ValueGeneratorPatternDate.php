@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\NumberRange\NumberRangeEntity;
 
@@ -36,6 +37,8 @@ class ValueGeneratorPatternDate extends AbstractValueGenerator implements ValueG
      */
     public function resolve(NumberRangeEntity $configuration, ?array $args = null, ?bool $preview = false): string
     {
+        Feature::throwException('v6.5.0.0', 'ValueGeneratorPatternInterface::resolve() will be removed, use `generate()` instead');
+
         $config = [
             'id' => $configuration->getId(),
             'start' => $configuration->getStart(),

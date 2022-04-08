@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\NumberRange\NumberRangeEntity;
 
 class ValueGeneratorPatternRegistry
@@ -48,6 +49,8 @@ class ValueGeneratorPatternRegistry
      */
     public function getPatternResolver(string $patternId): ?ValueGeneratorPatternInterface
     {
+        Feature::throwException('v6.5.0.0', 'ValueGeneratorPatternRegistry::getPatternResolver() will be removed, use `generatePattern()` directly.');
+
         $generator = $this->pattern[$patternId] ?? null;
         if ($generator instanceof ValueGeneratorPatternInterface) {
             return $generator;

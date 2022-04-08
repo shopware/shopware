@@ -13,34 +13,22 @@ from common.api import Api
 
 context = Context()
 
-class ApiImports(FastHttpUser):
-#     fixed_count = 1
+class Sync(FastHttpUser):
+    fixed_count = 5
 
     def on_start(self):
         self.api = Api(self.client, context)
 
     @task
-    def call_api(self):
+    def product_import(self):
         self.api.import_products(10)
 
-class ApiStock(FastHttpUser):
-#     fixed_count = 1
-
-    def on_start(self):
-        self.api = Api(self.client, context)
-
     @task
-    def call_api(self):
+    def stock_updates(self):
         self.api.update_stock(25)
 
-class ApiPrices(FastHttpUser):
-#     fixed_count = 1
-
-    def on_start(self):
-        self.api = Api(self.client, context)
-
     @task
-    def call_api(self):
+    def price_updates(self):
         self.api.update_prices(15)
 
 class Visitor(FastHttpUser):
@@ -160,12 +148,3 @@ class FastOrder(FastHttpUser):
         self.page.instant_order()
         self.page.logout()
 
-class Nvidia(FastHttpUser):
-    weight = 2
-    @task
-    def follow_advertisement(self):
-        page = Storefront(self.client, context)
-        page.register()
-        page.add_advertisement()
-        page.instant_order()
-        page.logout()

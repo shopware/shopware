@@ -99,6 +99,8 @@ class NavigationLoader implements NavigationLoaderInterface
             $item->setChildren($filtered);
         }
 
-        return new Tree($active, $parents[$rootId] ?? []);
+        $root = $parents[$rootId] ?? [];
+
+        return new Tree($active, AfterSort::sort($root));
     }
 }

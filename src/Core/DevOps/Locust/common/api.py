@@ -131,7 +131,17 @@ class Api:
 
             if response.status_code == 401:
                 self.context.refresh_token()
-                return
+                raise RescheduleTask()
+
+            text = response.json()
+
+            try:
+                if ("INSERT INTO `product_translation`" in text['errors'][0]['detail']):
+                    raise RescheduleTask()
+                if ("Deadlock found when trying to get lock" in text['errors'][0]['detail']):
+                    raise RescheduleTask()
+            except (IndexError):
+                pass
 
             raise ValueError('Sync error: ' + str(response.status_code) + ' ' + response.text)
 

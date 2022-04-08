@@ -33,9 +33,12 @@ class CustomEntityRegistrar
         }
 
         try {
-            $entities = $this->container
-                ->get(Connection::class)
-                ->fetchAllAssociative('SELECT name, fields FROM custom_entity');
+            $entities = $this->container->get(Connection::class)->fetchAllAssociative('
+                SELECT custom_entity.name, custom_entity.fields 
+                FROM custom_entity
+                    LEFT JOIN app ON app.id = custom_entity.app_id
+                WHERE custom_entity.app_id IS NULL OR app.active = 1
+            ');
         } catch (Exception $e) {
             // kernel booted without database connection, or booted for migration and custom entity table not created yet
             return;

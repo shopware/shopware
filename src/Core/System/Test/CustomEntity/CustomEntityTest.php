@@ -146,6 +146,8 @@ class CustomEntityTest extends TestCase
 
         $this->testSwagger($ids, $container);
 
+        $this->testAllowDisable();
+
         $this->getContainer()->get(Connection::class)->rollBack();
 
         self::cleanUp($container);
@@ -1054,5 +1056,13 @@ class CustomEntityTest extends TestCase
         ];
 
         static::assertEquals($expected, $app->getAclRole()->getPrivileges());
+    }
+
+    private function testAllowDisable(): void
+    {
+        $allowed = $this->getContainer()->get(Connection::class)
+            ->fetchOne('SELECT allow_disable FROM app WHERE name = :name', ['name' => 'custom-entity-test']);
+
+        static::assertFalse((bool) $allowed);
     }
 }

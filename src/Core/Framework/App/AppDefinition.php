@@ -63,6 +63,7 @@ class AppDefinition extends EntityDefinition
         return [
             'active' => false,
             'configurable' => false,
+            'allowDisable' => true,
             'modules' => [],
             'cookies' => [],
         ];
@@ -92,7 +93,7 @@ class AppDefinition extends EntityDefinition
             (new ListField('modules', 'modules', JsonField::class))->setStrict(true),
             new JsonField('main_module', 'mainModule'),
             (new ListField('cookies', 'cookies', JsonField::class))->setStrict(true),
-
+            (new BoolField('allow_disable', 'allowDisable'))->addFlags(new Required()),
             (new TranslationsAssociationField(AppTranslationDefinition::class, 'app_id'))->addFlags(new Required(), new CascadeDelete()),
             new TranslatedField('label'),
             new TranslatedField('description'),

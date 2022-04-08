@@ -133,6 +133,8 @@ class ExtensionStruct extends Struct
      */
     protected string $updateSource = self::SOURCE_LOCAL;
 
+    protected bool $allowDisable = true;
+
     public static function fromArray(array $data): ExtensionStruct
     {
         return (new self())->assign($data);
@@ -499,5 +501,15 @@ class ExtensionStruct extends Struct
     public function setUpdatedAt(?\DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function isAllowDisable(): bool
+    {
+        return $this->allowDisable;
+    }
+
+    public function setAllowDisable(bool $allowDisable): void
+    {
+        $this->allowDisable = $allowDisable;
     }
 }

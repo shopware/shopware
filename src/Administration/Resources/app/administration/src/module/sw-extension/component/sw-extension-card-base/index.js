@@ -49,6 +49,7 @@ Component.register('sw-extension-card-base', {
         extensionCardClasses() {
             return {
                 'is--deactivated': this.isInstalled && !this.extension.active,
+                'deactivate-prevented': this.isActive && !this.allowDisable,
             };
         },
 
@@ -95,6 +96,10 @@ Component.register('sw-extension-card-base', {
                     this.changeExtensionStatus();
                 }, 0);
             },
+        },
+
+        allowDisable() {
+            return this.extension.allowDisable;
         },
 
         isInstalled() {

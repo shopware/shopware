@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
@@ -40,6 +41,7 @@ use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
+use Shopware\Core\System\CustomEntity\Xml\Field\AssociationField;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -96,6 +98,8 @@ class AppLifecycle extends AbstractAppLifecycle
 
     private CustomEntitySchemaUpdater $customEntitySchemaUpdater;
 
+    private Connection $connection;
+
     public function __construct(
         EntityRepositoryInterface $appRepository,
         PermissionPersister $permissionPersister,
@@ -119,7 +123,8 @@ class AppLifecycle extends AbstractAppLifecycle
         ScriptExecutor $scriptExecutor,
         string $projectDir,
         CustomEntityPersister $customEntityPersister,
-        CustomEntitySchemaUpdater $customEntitySchemaUpdater
+        CustomEntitySchemaUpdater $customEntitySchemaUpdater,
+        Connection $connection
     ) {
         $this->appRepository = $appRepository;
         $this->permissionPersister = $permissionPersister;
@@ -144,6 +149,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->customEntityPersister = $customEntityPersister;
         $this->scriptExecutor = $scriptExecutor;
         $this->customEntitySchemaUpdater = $customEntitySchemaUpdater;
+        $this->connection = $connection;
     }
 
     public function getDecorated(): AbstractAppLifecycle
@@ -198,6 +204,7 @@ class AppLifecycle extends AbstractAppLifecycle
 
         $this->removeAppAndRole($appEntity, $context, $keepUserData, true);
         $this->assetService->removeAssetsOfBundle($appEntity->getName());
+        $this->customEntitySchemaUpdater->update();
     }
 
     private function updateApp(
@@ -265,28 +272,9 @@ class AppLifecycle extends AbstractAppLifecycle
             $this->cmsBlockPersister->updateCmsBlocks($cmsExtensions, $id, $defaultLocale, $context);
         }
 
-        $config = $this->appLoader->getConfiguration($app);
-        if ($config) {
-            $errors = $this->configValidator->validate($manifest, null);
-            $configError = $errors->first();
+        $this->updateConfigurable($app, $manifest, $install, $context);
 
-            if ($configError) {
-                // only one error can be in the returned collection
-                throw new InvalidAppConfigurationException($configError);
-            }
-
-            $this->systemConfigService->saveConfig(
-                $config,
-                $app->getName() . '.config.',
-                $install
-            );
-            $this->appRepository->update([
-                [
-                    'id' => $app->getId(),
-                    'configurable' => true,
-                ],
-            ], $context);
-        }
+        $this->updateAllowDisable($app, $context);
 
         return $app;
     }
@@ -495,5 +483,51 @@ class AppLifecycle extends AbstractAppLifecycle
                 ],
             ]);
         }
+    }
+
+    private function updateConfigurable(AppEntity $app, Manifest $manifest, bool $install, Context $context): void
+    {
+        $config = $this->appLoader->getConfiguration($app);
+        if (!$config) {
+            return;
+        }
+
+        $errors = $this->configValidator->validate($manifest, null);
+        $configError = $errors->first();
+
+        if ($configError) {
+            // only one error can be in the returned collection
+            throw new InvalidAppConfigurationException($configError);
+        }
+
+        $this->systemConfigService->saveConfig($config, $app->getName() . '.config.', $install);
+
+        $data = ['id' => $app->getId(), 'configurable' => true];
+
+        $this->appRepository->update([$data], $context);
+    }
+
+    private function updateAllowDisable(AppEntity $app, Context $context): void
+    {
+        $allow = true;
+
+        $entities = $this->connection->fetchFirstColumn(
+            'SELECT fields FROM custom_entity WHERE app_id = :id',
+            ['id' => Uuid::fromHexToBytes($app->getId())]
+        );
+
+        foreach ($entities as $fields) {
+            $fields = json_decode($fields, true, 512, \JSON_THROW_ON_ERROR);
+
+            foreach ($fields as $field) {
+                $restricted = $field['onDelete'] ?? null;
+
+                $allow = $restricted === AssociationField::RESTRICT ? false : $allow;
+            }
+        }
+
+        $data = ['id' => $app->getId(), 'allowDisable' => $allow];
+
+        $this->appRepository->update([$data], $context);
     }
 }

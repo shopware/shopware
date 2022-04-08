@@ -36,7 +36,7 @@ class IncrementSqlStorage extends AbstractIncrementStorage implements IncrementS
             'pattern' => $configuration->getPattern() ?? '',
         ];
 
-        return $this->reserve($config);
+        return (string) $this->reserve($config);
     }
 
     /**
@@ -50,11 +50,12 @@ class IncrementSqlStorage extends AbstractIncrementStorage implements IncrementS
             'pattern' => $configuration->getPattern() ?? '',
         ];
 
-        return $this->preview($config);
+        return (string) $this->preview($config);
     }
 
-    public function reserve(array $config): string
+    public function reserve(array $config): int
     {
+        $start = $config['start'] ?? 1;
         $varname = Uuid::randomHex();
         $stateId = Uuid::randomBytes();
         $this->connection->executeUpdate(
@@ -62,7 +63,7 @@ class IncrementSqlStorage extends AbstractIncrementStorage implements IncrementS
                 ON DUPLICATE KEY UPDATE
                 `last_value` = @nr' . $varname . ' := IF(`last_value`+1 > :value, `last_value`+1, :value)',
             [
-                'value' => $config['start'],
+                'value' => $start,
                 'id' => Uuid::fromHexToBytes($config['id']),
                 'stateId' => $stateId,
                 'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -73,16 +74,14 @@ class IncrementSqlStorage extends AbstractIncrementStorage implements IncrementS
 
         $lastNumber = $stmt->fetchColumn();
 
-        if ($lastNumber === null || $lastNumber === false) {
-            $nextNumber = $config['start'];
-        } else {
-            $nextNumber = $lastNumber;
+        if (!$lastNumber) {
+            return $start;
         }
 
-        return (string) $nextNumber;
+        return (int) $lastNumber;
     }
 
-    public function preview(array $config): string
+    public function preview(array $config): int
     {
         $stmt = $this->connection->executeQuery(
             'SELECT `last_value` FROM `number_range_state` WHERE number_range_id = :id',
@@ -92,13 +91,42 @@ class IncrementSqlStorage extends AbstractIncrementStorage implements IncrementS
         );
         $lastNumber = $stmt->fetchColumn();
 
-        if ($lastNumber === false || (int) $lastNumber < (int) $config['start']) {
-            $nextNumber = $config['start'];
+        $start = $config['start'] ?? 1;
+
+        if (!$lastNumber || (int) $lastNumber < $start) {
+            $nextNumber = $start;
         } else {
             $nextNumber = $lastNumber + 1;
         }
 
-        return (string) $nextNumber;
+        return $nextNumber;
+    }
+
+    public function list(): array
+    {
+        /** @var array<string, string> $states */
+        $states = $this->connection->fetchAllKeyValue('
+            SELECT LOWER(HEX(`number_range_id`)), `last_value`
+            FROM `number_range_state`
+        ');
+
+        return array_map(fn ($state) => (int) $state, $states);
+    }
+
+    public function set(string $configurationId, int $value): void
+    {
+        $stateId = Uuid::randomBytes();
+        $this->connection->executeUpdate(
+            'INSERT `number_range_state` (`id`, `last_value`, `number_range_id`, `created_at`) VALUES (:stateId, :value, :id, :createdAt)
+                ON DUPLICATE KEY UPDATE
+                `last_value` = :value',
+            [
+                'value' => $value,
+                'id' => Uuid::fromHexToBytes($configurationId),
+                'stateId' => $stateId,
+                'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]
+        );
     }
 
     public function getDecorated(): AbstractIncrementStorage

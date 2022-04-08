@@ -126,6 +126,10 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
             throw new NoConfigurationException($definition, $salesChannelId);
         }
 
+        if ($config['start']) {
+            $config['start'] = (int) $config['start'];
+        }
+
         return $config;
     }
 

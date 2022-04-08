@@ -459,6 +459,7 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
+            ->scalarNode('increment_storage')->end()
             ->scalarNode('redis_url')->end()
             ->end();
 

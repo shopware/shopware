@@ -48,10 +48,10 @@ class ValueGeneratorPatternIncrement extends AbstractValueGenerator implements V
         }
 
         if ($preview === true) {
-            return $this->incrementConnector->preview($config);
+            return (string) $this->incrementConnector->preview($config);
         }
 
-        return $this->incrementConnector->reserve($config);
+        return (string) $this->incrementConnector->reserve($config);
     }
 
     public function getDecorated(): AbstractValueGenerator

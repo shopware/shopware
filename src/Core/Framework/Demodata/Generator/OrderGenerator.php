@@ -4,16 +4,11 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 
 use Doctrine\DBAL\Connection;
 use Faker\Generator;
-use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartCalculator;
-use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConversionContext;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
-use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Defaults;
@@ -30,7 +25,7 @@ class OrderGenerator implements DemodataGeneratorInterface
 {
     private Connection $connection;
 
-    private AbstractSalesChannelContextFactory$contextFactory;
+    private AbstractSalesChannelContextFactory $contextFactory;
 
     private CartService $cartService;
 
@@ -41,10 +36,6 @@ class OrderGenerator implements DemodataGeneratorInterface
     private OrderDefinition $orderDefinition;
 
     private array $contexts = [];
-
-    private AmountCalculator $amountCalculator;
-
-    private DeliveryProcessor $deliveryProcessor;
 
     private CartCalculator $cartCalculator;
 
@@ -57,8 +48,6 @@ class OrderGenerator implements DemodataGeneratorInterface
         OrderConverter $orderConverter,
         EntityWriterInterface $writer,
         OrderDefinition $orderDefinition,
-        AmountCalculator $amountCalculator,
-        DeliveryProcessor $deliveryProcessor,
         CartCalculator $cartCalculator
     ) {
         $this->connection = $connection;
@@ -67,8 +56,6 @@ class OrderGenerator implements DemodataGeneratorInterface
         $this->orderConverter = $orderConverter;
         $this->writer = $writer;
         $this->orderDefinition = $orderDefinition;
-        $this->amountCalculator = $amountCalculator;
-        $this->deliveryProcessor = $deliveryProcessor;
         $this->cartCalculator = $cartCalculator;
     }
 
@@ -79,17 +66,10 @@ class OrderGenerator implements DemodataGeneratorInterface
 
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
     {
-        $sql = <<<'SQL'
-SELECT LOWER(HEX(product.id)) AS id, product.price, trans.name
-FROM product
-LEFT JOIN product_translation trans ON product.id = trans.product_id
-LIMIT 150
-SQL;
-
         $this->faker = $context->getFaker();
         $salesChannelIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM sales_channel');
-
-        $products = $this->connection->fetchAll($sql);
+        $productIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM `product` ORDER BY RAND() LIMIT 1000');
+        $promotionCodes = $this->connection->fetchFirstColumn('SELECT `code` FROM `promotion` ORDER BY RAND() LIMIT 1000');
         $customerIds = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM customer LIMIT 10');
         $customerIds = array_column($customerIds, 'id');
         $tags = $this->getIds('tag');
@@ -97,54 +77,43 @@ SQL;
 
         $context->getConsole()->progressStart($numberOfItems);
 
-        $lineItems = array_map(
-            function ($product) {
-                $productId = $product['id'];
-
-                return (new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId, random_int(1, 10)))
+        $productLineItems = array_map(
+            function ($productId) {
+                return (new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId, $this->faker->randomDigit() + 1))
                     ->setStackable(true)
                     ->setRemovable(true);
             },
-            $products
+            $productIds
+        );
+        $promotionLineItems = array_map(
+            function ($promotionCode) {
+                $uniqueKey = 'promotion-' . $promotionCode;
+
+                return (new LineItem($uniqueKey, LineItem::PROMOTION_LINE_ITEM_TYPE))
+                    ->setLabel($uniqueKey)
+                    ->setGood(false)
+                    ->setReferencedId($promotionCode)
+                    ->setPriceDefinition(new PercentagePriceDefinition(0));
+            },
+            $promotionCodes
         );
 
-        $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $salesChannelIds[array_rand($salesChannelIds)]);
-
-        $blueprint = $this->cartService->getCart(Uuid::randomHex(), $salesChannelContext);
-        $blueprint->addLineItems(new LineItemCollection($lineItems));
-        $blueprint->markModified();
-
-        $blueprint = $this->cartCalculator->calculate($blueprint, $salesChannelContext);
-
         $orders = [];
-
-        $lineItems = new LineItemCollection($lineItems);
 
         for ($i = 1; $i <= $numberOfItems; ++$i) {
             $customerId = $context->getFaker()->randomElement($customerIds);
 
             $salesChannelContext = $this->getContext($customerId, $salesChannelIds);
 
-            $itemCount = random_int(3, 5);
-
-            $offset = random_int(0, $lineItems->count()) - 10;
-
-            $new = $blueprint->getLineItems()->slice($offset, $itemCount);
-
             $cart = $this->cartService->createNew($salesChannelContext->getToken(), 'demo-data');
+            foreach ($this->faker->randomElements($productLineItems, random_int(3, 5)) as $lineItem) {
+                $cart->add($lineItem);
+            }
+            foreach ($this->faker->randomElements($promotionLineItems, random_int(0, 3)) as $lineItem) {
+                $cart->add($lineItem);
+            }
 
-            $dataCollection = $blueprint->getData();
-            $shippingMethod = $salesChannelContext->getShippingMethod();
-            $dataCollection->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
-            $cart->setData($dataCollection);
-
-            $cart->addLineItems($new);
-            $cart->addExtension(OrderConverter::ORIGINAL_ORDER_NUMBER, new IdStruct(Uuid::randomHex()));
-            $cart->setTransactions($blueprint->getTransactions());
-
-            $this->calculateAmount($salesChannelContext, $cart);
-            $this->deliveryProcessor->process($cart->getData(), $cart, $cart, $salesChannelContext, new CartBehavior());
-
+            $cart = $this->cartCalculator->calculate($cart, $salesChannelContext);
             $tempOrder = $this->orderConverter->convertToOrder($cart, $salesChannelContext, new OrderConversionContext());
 
             $tempOrder['orderDateTime'] = (new \DateTime())->modify('-' . random_int(0, 30) . ' days')->format(Defaults::STORAGE_DATE_TIME_FORMAT);
@@ -206,16 +175,5 @@ SQL;
         $context = $this->contextFactory->create(Uuid::randomHex(), $salesChannelIds[array_rand($salesChannelIds)], $options);
 
         return $this->contexts[$customerId] = $context;
-    }
-
-    private function calculateAmount(SalesChannelContext $context, Cart $cart): void
-    {
-        $amount = $this->amountCalculator->calculate(
-            $cart->getLineItems()->getPrices(),
-            $cart->getDeliveries()->getShippingCosts(),
-            $context
-        );
-
-        $cart->setPrice($amount);
     }
 }

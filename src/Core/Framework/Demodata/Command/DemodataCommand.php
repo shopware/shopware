@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Demodata\Command;
 
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Flow\FlowDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition;
@@ -54,6 +55,7 @@ class DemodataCommand extends Command
     protected function configure(): void
     {
         $this->addOption('products', 'p', InputOption::VALUE_REQUIRED, 'Product count', '1000');
+        $this->addOption('promotions', 'pr', InputOption::VALUE_REQUIRED, 'Promotion count', '50');
         $this->addOption('categories', 'c', InputOption::VALUE_REQUIRED, 'Category count', '10');
         $this->addOption('orders', 'o', InputOption::VALUE_REQUIRED, 'Order count', '60');
         $this->addOption('manufacturers', 'm', InputOption::VALUE_REQUIRED, 'Manufacturer count', '60');
@@ -104,6 +106,7 @@ class DemodataCommand extends Command
         $request->add(ProductManufacturerDefinition::class, (int) $input->getOption('manufacturers'));
         $request->add(ProductDefinition::class, (int) $input->getOption('products'));
         $request->add(ProductStreamDefinition::class, (int) $input->getOption('product-streams'));
+        $request->add(PromotionDefinition::class, (int) $input->getOption('promotions'));
         $request->add(OrderDefinition::class, (int) $input->getOption('orders'));
         $request->add(ProductReviewDefinition::class, (int) $input->getOption('reviews'));
         $request->add(UserDefinition::class, (int) $input->getOption('users'));

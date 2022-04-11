@@ -9,23 +9,17 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Contracts\Service\ResetInterface;
 
-class UrlGenerator implements UrlGeneratorInterface
+class UrlGenerator implements UrlGeneratorInterface, ResetInterface
 {
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
+    private RequestStack $requestStack;
 
-    /**
-     * @var string
-     */
-    private $baseUrl;
+    private ?string $baseUrl;
 
-    /**
-     * @var PathnameStrategyInterface
-     */
-    private $pathnameStrategy;
+    private PathnameStrategyInterface $pathnameStrategy;
+
+    private ?string $fallbackBaseUrl = null;
 
     public function __construct(
         PathnameStrategyInterface $pathnameStrategy,
@@ -88,22 +82,9 @@ class UrlGenerator implements UrlGeneratorInterface
         return $this->getBaseUrl() . '/' . $this->getRelativeThumbnailUrl($media, $thumbnail);
     }
 
-    private function normalizeBaseUrl(?string $baseUrl): ?string
+    public function reset(): void
     {
-        if ($baseUrl === null) {
-            return null;
-        }
-
-        return rtrim($baseUrl, '/');
-    }
-
-    private function getBaseUrl(): string
-    {
-        if (!$this->baseUrl) {
-            $this->baseUrl = $this->createFallbackUrl();
-        }
-
-        return $this->baseUrl;
+        $this->fallbackBaseUrl = null;
     }
 
     private function createFallbackUrl(): string
@@ -116,6 +97,24 @@ class UrlGenerator implements UrlGeneratorInterface
         }
 
         return (string) EnvironmentHelper::getVariable('APP_URL');
+    }
+
+    private function normalizeBaseUrl(?string $baseUrl): ?string
+    {
+        if ($baseUrl === null) {
+            return null;
+        }
+
+        return rtrim($baseUrl, '/');
+    }
+
+    private function getBaseUrl(): string
+    {
+        if (!$this->baseUrl) {
+            return $this->fallbackBaseUrl ?? $this->fallbackBaseUrl = $this->createFallbackUrl();
+        }
+
+        return $this->baseUrl;
     }
 
     private function toPathString(array $parts): string

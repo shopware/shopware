@@ -162,6 +162,8 @@
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface"/>
             <argument type="service" id="request_stack"/>
             <argument>%shopware.filesystem.public.url%</argument>
+
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Pathname\PathnameStrategy\StrategyFactory">

@@ -63,7 +63,7 @@ export default class GoogleAnalyticsPlugin extends Plugin
     handleTrackingLocation() {
         this.trackingUrl = new URL(window.location.href);
 
-        let gclid = this.trackingUrl.searchParams.get('gclid');
+        const gclid = this.trackingUrl.searchParams.get('gclid');
         if (gclid) {
             this.storage.setItem(
                 this._getGclidStorageKey(),

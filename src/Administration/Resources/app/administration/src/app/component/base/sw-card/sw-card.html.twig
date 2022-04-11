@@ -42,7 +42,11 @@
                         {{ subtitle }}
                     </div>
                 </slot>
-            {% endblock %}
+                {% endblock %}
+            </div>
+
+            <div class="sw-card__titles-right-slot">
+                <slot name="header-right"></slot>
             </div>
 
             <slot name="tabs"></slot>

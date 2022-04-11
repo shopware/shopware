@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\App\ShopId;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -13,16 +14,11 @@ class ShopIdProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use EnvTestBehaviour;
+    use AppSystemTestBehaviour;
 
-    /**
-     * @var ShopIdProvider
-     */
-    private $shopIdProvider;
+    private ShopIdProvider $shopIdProvider;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
+    private SystemConfigService $systemConfigService;
 
     public function setUp(): void
     {
@@ -61,8 +57,10 @@ class ShopIdProviderTest extends TestCase
         );
     }
 
-    public function testGetShopIdThrowsIfAppUrlIsChanged(): void
+    public function testGetShopIdThrowsIfAppUrlIsChangedAndAppsArePresent(): void
     {
+        $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
+
         $this->shopIdProvider->getShopId();
 
         $this->setEnvVars([
@@ -81,8 +79,32 @@ class ShopIdProviderTest extends TestCase
         );
     }
 
+    public function testGetShopIdUpdatesItselfIfAppUrlIsChangedAndNoAppsArePresent(): void
+    {
+        $firstShopId = $this->shopIdProvider->getShopId();
+
+        $this->setEnvVars([
+            'APP_URL' => 'http://test.com',
+        ]);
+
+        $secondShopId = $this->shopIdProvider->getShopId();
+
+        static::assertEquals([
+            'app_url' => 'http://test.com',
+            'value' => $firstShopId,
+        ], $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY));
+
+        static::assertEquals($firstShopId, $secondShopId);
+
+        static::assertNull(
+            $this->systemConfigService->get(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY)
+        );
+    }
+
     public function testItRemovesTheAppUrlChangedMarkerIfOutdated(): void
     {
+        $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
+
         $this->shopIdProvider->getShopId();
 
         $this->setEnvVars([

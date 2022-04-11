@@ -115,11 +115,15 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         }
 
         if ($context->getCustomer() || $cart->getLineItems()->count() > 0) {
-            $cookie = Cookie::create(self::CONTEXT_CACHE_COOKIE, $this->buildCacheHash($context));
-            $cookie->setSecureDefault($request->isSecure());
+            $newValue = $this->buildCacheHash($context);
 
-            $response->headers->setCookie($cookie);
-        } else {
+            if ($request->cookies->get(self::CONTEXT_CACHE_COOKIE, '') !== $newValue) {
+                $cookie = Cookie::create(self::CONTEXT_CACHE_COOKIE, $newValue);
+                $cookie->setSecureDefault($request->isSecure());
+
+                $response->headers->setCookie($cookie);
+            }
+        } elseif ($request->cookies->has(self::CONTEXT_CACHE_COOKIE)) {
             $response->headers->removeCookie(self::CONTEXT_CACHE_COOKIE);
             $response->headers->clearCookie(self::CONTEXT_CACHE_COOKIE);
         }
@@ -201,16 +205,22 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         $states = $this->getSystemStates($request, $context, $cart);
 
         if (empty($states)) {
-            $response->headers->removeCookie(self::SYSTEM_STATE_COOKIE);
-            $response->headers->clearCookie(self::SYSTEM_STATE_COOKIE);
+            if ($request->cookies->has(self::SYSTEM_STATE_COOKIE)) {
+                $response->headers->removeCookie(self::SYSTEM_STATE_COOKIE);
+                $response->headers->clearCookie(self::SYSTEM_STATE_COOKIE);
+            }
 
             return [];
         }
 
-        $cookie = Cookie::create(self::SYSTEM_STATE_COOKIE, implode(',', $states));
-        $cookie->setSecureDefault($request->isSecure());
+        $newStates = implode(',', $states);
 
-        $response->headers->setCookie($cookie);
+        if ($request->cookies->get(self::SYSTEM_STATE_COOKIE) !== $newStates) {
+            $cookie = Cookie::create(self::SYSTEM_STATE_COOKIE, $newStates);
+            $cookie->setSecureDefault($request->isSecure());
+
+            $response->headers->setCookie($cookie);
+        }
 
         return $states;
     }
@@ -219,9 +229,8 @@ class CacheResponseSubscriber implements EventSubscriberInterface
     {
         $states = [];
         $swStates = (string) $request->cookies->get(self::SYSTEM_STATE_COOKIE);
-        if ($swStates !== null) {
-            $states = explode(',', $swStates);
-            $states = array_flip($states);
+        if ($swStates !== '') {
+            $states = array_flip(explode(',', $swStates));
         }
 
         $states = $this->switchState($states, self::STATE_LOGGED_IN, $context->getCustomer() !== null);

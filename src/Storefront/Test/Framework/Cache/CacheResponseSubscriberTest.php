@@ -96,17 +96,17 @@ class CacheResponseSubscriberTest extends TestCase
 
         $subscriber->setResponseCache($event);
 
-        static::assertTrue($response->headers->has('set-cookie'));
-
-        $cookies = array_filter($response->headers->getCookies(), function (Cookie $cookie) {
-            return $cookie->getName() === CacheResponseSubscriber::CONTEXT_CACHE_COOKIE;
-        });
-
-        /** @var Cookie $cookie */
-        static::assertCount(1, $cookies);
-        $cookie = array_shift($cookies);
-
         if ($hasCookie) {
+            static::assertTrue($response->headers->has('set-cookie'));
+
+            $cookies = array_filter($response->headers->getCookies(), function (Cookie $cookie) {
+                return $cookie->getName() === CacheResponseSubscriber::CONTEXT_CACHE_COOKIE;
+            });
+
+            /** @var Cookie $cookie */
+            static::assertCount(1, $cookies);
+            $cookie = array_shift($cookies);
+
             static::assertNotNull($cookie->getValue());
             if ($hashName) {
                 if (!isset(self::$hashes[$hashName])) {
@@ -130,7 +130,7 @@ class CacheResponseSubscriberTest extends TestCase
                 }
             }
         } else {
-            static::assertNull($cookie->getValue());
+            static::assertCount(0, $response->headers->getCookies());
         }
     }
 
@@ -188,7 +188,7 @@ class CacheResponseSubscriberTest extends TestCase
         $subscriber->setResponseCache($event);
     }
 
-    public function cashHashProvider()
+    public function cashHashProvider(): iterable
     {
         $emptyCart = new Cart('empty', 'empty');
         $customer = $this->createMock(CustomerEntity::class);
@@ -203,7 +203,7 @@ class CacheResponseSubscriberTest extends TestCase
         yield 'Test with filled cart and logged in customer' => [$customer, $filledCart, true, 'logged-in'];
     }
 
-    public function maintenanceRequest()
+    public function maintenanceRequest(): iterable
     {
         yield 'Always cache requests when maintenance is inactive' => [false, [], true];
         yield 'Always cache requests when maintenance is active' => [true, [], true];

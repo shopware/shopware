@@ -70,7 +70,5 @@ class UninstallAppsStrategy extends AbstractAppUrlChangeStrategy
             }
             $this->appRepository->delete([['id' => $app->getId()]], $context);
         }
-
-        $this->systemConfigService->delete(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY);
     }
 }

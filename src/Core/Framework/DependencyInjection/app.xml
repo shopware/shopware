@@ -387,7 +387,7 @@
 
         <service id="Shopware\Core\Framework\App\Api\AppUrlChangeController" public="true">
             <argument type="service" id="Shopware\Core\Framework\App\AppUrlChangeResolver\Resolver"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -396,7 +396,6 @@
 
         <service id="Shopware\Core\Framework\App\AppUrlChangeResolver\Resolver" public="true">
             <argument type="tagged" tag="shopware.app_url_changed_resolver"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\AppUrlChangeResolver\MoveShopPermanentlyStrategy">

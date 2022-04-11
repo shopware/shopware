@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppUrlChangeResolver\Resolver;
 use Shopware\Core\Framework\App\AppUrlChangeResolver\UninstallAppsStrategy;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -15,6 +16,7 @@ class AppUrlChangeControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
+    use AppSystemTestBehaviour;
 
     public function testGetAvailableStrategies(): void
     {
@@ -30,9 +32,6 @@ class AppUrlChangeControllerTest extends TestCase
 
     public function testResolveWithExistingStrategy(): void
     {
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
-        $systemConfigService->set(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY, true);
-
         $url = '/api/app-system/app-url-change/resolve';
         $this->getBrowser()->request(
             'POST',
@@ -49,9 +48,6 @@ class AppUrlChangeControllerTest extends TestCase
 
     public function testResolveWithNotFoundStrategy(): void
     {
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
-        $systemConfigService->set(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY, true);
-
         $url = '/api/app-system/app-url-change/resolve';
         $this->getBrowser()->request(
             'POST',
@@ -71,9 +67,6 @@ class AppUrlChangeControllerTest extends TestCase
 
     public function testResolveWithoutStrategy(): void
     {
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
-        $systemConfigService->set(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY, true);
-
         $url = '/api/app-system/app-url-change/resolve';
         $this->getBrowser()->request(
             'POST',
@@ -87,10 +80,10 @@ class AppUrlChangeControllerTest extends TestCase
         static::assertEquals('Parameter "strategy" is missing.', $response['errors'][0]['detail']);
     }
 
-    public function testGetUrlDiff(): void
+    public function testGetUrlDiffWithApps(): void
     {
+        $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
-        $systemConfigService->set(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY, true);
 
         $oldUrl = 'http://old.com';
         $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, [
@@ -106,7 +99,7 @@ class AppUrlChangeControllerTest extends TestCase
         static::assertEquals(['oldUrl' => $oldUrl, 'newUrl' => $_SERVER['APP_URL']], $response);
     }
 
-    public function testGetUrlDiffWithoutUrlChange(): void
+    public function testGetUrlDiffWithoutApps(): void
     {
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
 
@@ -120,25 +113,5 @@ class AppUrlChangeControllerTest extends TestCase
         $this->getBrowser()->request('GET', $url);
 
         static::assertEquals(204, $this->getBrowser()->getResponse()->getStatusCode());
-    }
-
-    public function testGetUrlDiffWithTemporaryUrlChange(): void
-    {
-        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
-
-        // Simulates that during the app_url was different during a webhook
-        // but is now back to the old value
-        $systemConfigService->set(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY, true);
-        $oldUrl = $_SERVER['APP_URL'];
-        $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, [
-            'app_url' => $oldUrl,
-            'value' => Uuid::randomHex(),
-        ]);
-
-        $url = '/api/app-system/app-url-change/url-difference';
-        $this->getBrowser()->request('GET', $url);
-
-        static::assertEquals(204, $this->getBrowser()->getResponse()->getStatusCode());
-        static::assertNull($systemConfigService->get(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY));
     }
 }

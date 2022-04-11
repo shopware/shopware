@@ -101,7 +101,6 @@ class ReinstallAppsStrategyTest extends TestCase
         $reinstallAppsResolver->resolve($this->context);
 
         static::assertNotEquals($shopId, $this->shopIdProvider->getShopId());
-        static::assertNull($this->systemConfigService->get(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY));
 
         // assert secret access key changed
         $updatedApp = $this->getInstalledApp($this->context);
@@ -113,10 +112,10 @@ class ReinstallAppsStrategyTest extends TestCase
 
     public function testItIgnoresAppsWithoutSetup(): void
     {
-        $shopId = $this->changeAppUrl();
-
         $appDir = __DIR__ . '/../Lifecycle/Registration/_fixtures/no-setup';
         $this->loadAppsFromDir($appDir);
+
+        $shopId = $this->changeAppUrl();
 
         $registrationsService = $this->createMock(AppRegistrationService::class);
         $registrationsService->expects(static::never())
@@ -141,7 +140,6 @@ class ReinstallAppsStrategyTest extends TestCase
         $reinstallAppsResolver->resolve($this->context);
 
         static::assertNotEquals($shopId, $this->shopIdProvider->getShopId());
-        static::assertNull($this->systemConfigService->get(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY));
     }
 
     private function changeAppUrl(): string

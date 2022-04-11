@@ -3,10 +3,7 @@
 namespace Shopware\Core\Framework\App\AppUrlChangeResolver;
 
 use Shopware\Core\Framework\App\Exception\AppUrlChangeStrategyNotFoundException;
-use Shopware\Core\Framework\App\Exception\NoAppUrlChangeDetectedException;
-use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
@@ -19,25 +16,15 @@ class Resolver
     private $strategies;
 
     /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
-    /**
      * @param AbstractAppUrlChangeStrategy[] $strategies
      */
-    public function __construct(iterable $strategies, SystemConfigService $systemConfigService)
+    public function __construct(iterable $strategies)
     {
         $this->strategies = $strategies;
-        $this->systemConfigService = $systemConfigService;
     }
 
     public function resolve(string $strategyName, Context $context): void
     {
-        if (!$this->systemConfigService->get(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY)) {
-            throw new NoAppUrlChangeDetectedException();
-        }
-
         /** @var AbstractAppUrlChangeStrategy $strategy */
         foreach ($this->strategies as $strategy) {
             if ($strategy->getName() === $strategyName) {

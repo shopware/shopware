@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\Lifecycle\Registration\StoreHandshake;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Store\Services\StoreClient;
+use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
@@ -18,6 +19,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 class HandshakeFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use AppSystemTestBehaviour;
 
     public function testManifestWithSecretProducesAPrivateHandshake(): void
     {
@@ -39,6 +41,7 @@ class HandshakeFactoryTest extends TestCase
 
     public function testThrowsAppRegistrationExceptionIfAppUrlChangeWasDetected(): void
     {
+        $this->loadAppsFromDir(__DIR__ . '/../../Manifest/_fixtures/minimal');
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../../Manifest/_fixtures/minimal/manifest.xml');
 
         $shopUrl = 'test.shop.com';

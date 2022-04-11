@@ -16,7 +16,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 class ShopIdProvider
 {
     public const SHOP_ID_SYSTEM_CONFIG_KEY = 'core.app.shopId';
-    public const SHOP_DOMAIN_CHANGE_CONFIG_KEY = 'core.app.domainChange';
 
     private SystemConfigService $systemConfigService;
 
@@ -47,7 +46,6 @@ class ShopIdProvider
 
         if (EnvironmentHelper::getVariable('APP_URL') !== ($shopId['app_url'] ?? '')) {
             if ($this->hasApps()) {
-                $this->systemConfigService->set(self::SHOP_DOMAIN_CHANGE_CONFIG_KEY, true);
                 /** @var string $appUrl */
                 $appUrl = EnvironmentHelper::getVariable('APP_URL');
 
@@ -61,7 +59,6 @@ class ShopIdProvider
                 'value' => $shopId['value'],
             ]);
         }
-        $this->systemConfigService->delete(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY);
 
         return $shopId['value'];
     }

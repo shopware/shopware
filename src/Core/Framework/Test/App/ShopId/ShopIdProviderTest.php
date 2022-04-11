@@ -34,10 +34,6 @@ class ShopIdProviderTest extends TestCase
             'app_url' => $_SERVER['APP_URL'],
             'value' => $shopId,
         ], $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY));
-
-        static::assertNull(
-            $this->systemConfigService->get(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY)
-        );
     }
 
     public function testGetShopIdReturnsSameIdOnMultipleCalls(): void
@@ -51,10 +47,6 @@ class ShopIdProviderTest extends TestCase
             'app_url' => $_SERVER['APP_URL'],
             'value' => $firstShopId,
         ], $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY));
-
-        static::assertNull(
-            $this->systemConfigService->get(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY)
-        );
     }
 
     public function testGetShopIdThrowsIfAppUrlIsChangedAndAppsArePresent(): void
@@ -73,10 +65,6 @@ class ShopIdProviderTest extends TestCase
         } catch (AppUrlChangeDetectedException $e) {
             // exception is expected
         }
-
-        static::assertTrue(
-            $this->systemConfigService->get(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY)
-        );
     }
 
     public function testGetShopIdUpdatesItselfIfAppUrlIsChangedAndNoAppsArePresent(): void
@@ -95,10 +83,6 @@ class ShopIdProviderTest extends TestCase
         ], $this->systemConfigService->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY));
 
         static::assertEquals($firstShopId, $secondShopId);
-
-        static::assertNull(
-            $this->systemConfigService->get(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY)
-        );
     }
 
     public function testItRemovesTheAppUrlChangedMarkerIfOutdated(): void
@@ -121,9 +105,5 @@ class ShopIdProviderTest extends TestCase
         $this->resetEnvVars();
 
         $this->shopIdProvider->getShopId();
-
-        static::assertNull(
-            $this->systemConfigService->get(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY)
-        );
     }
 }

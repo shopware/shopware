@@ -77,7 +77,5 @@ class ReinstallAppsStrategy extends AbstractAppUrlChangeStrategy
                 new AppInstalledEvent($app, $manifest, $context)
             );
         });
-
-        $this->systemConfigService->delete(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY);
     }
 }

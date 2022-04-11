@@ -4,6 +4,7 @@ namespace Shopware\Storefront\DependencyInjection;
 
 use Shopware\Storefront\Framework\Cache\CacheStore;
 use Shopware\Storefront\Framework\Cache\ReverseProxy\AbstractReverseProxyGateway;
+use Shopware\Storefront\Framework\Cache\ReverseProxy\FastlyReverseProxyGateway;
 use Shopware\Storefront\Framework\Cache\ReverseProxy\ReverseProxyCache;
 use Shopware\Storefront\Framework\Cache\ReverseProxy\ReverseProxyCacheClearer;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
@@ -23,7 +24,12 @@ class ReverseProxyCompilerPass implements CompilerPassInterface
         }
 
         $container->removeDefinition(CacheStore::class);
+
         $container->setAlias(CacheStore::class, ReverseProxyCache::class);
         $container->getAlias(CacheStore::class)->setPublic(true);
+
+        if ($container->getParameter('storefront.reverse_proxy.fastly.enabled')) {
+            $container->setDefinition(AbstractReverseProxyGateway::class, $container->getDefinition(FastlyReverseProxyGateway::class));
+        }
     }
 }

@@ -31,6 +31,7 @@
       "placeholderName": "Set a name for this rule...",
       "placeholderDescription": "Set a description for this rule...",
       "placeholderPriority": "Set a priority for this rule...",
+      "placeholderTags": "Enter a tag...",
       "messageSaveSuccess": "The rule \"{name}\" has been saved.",
       "ruleCard": "Condition",
       "messageSaveError": "An error occurred while saving rule \"{name}\".",

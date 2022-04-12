@@ -47,25 +47,42 @@
             />
             {% endblock %}
 
-            {% block sw_settings_rule_detail_base_content_card_field_type %}
-            <sw-multi-select
-                v-if="rule"
-                v-model="moduleTypes"
-                value-property="id"
-                label-property="name"
-                :label="$tc('sw-settings-rule.detail.labelType')"
-                :disabled="!acl.can('rule.editor')"
-                :options="availableModuleTypes"
+            <sw-container
+                columns="1fr 1fr"
+                gap="0px 32px"
             >
-                <template #selection-label-property="{ item }">
-                    {{ $tc(item.name) }}
-                </template>
+                {% block sw_settings_rule_detail_base_content_card_field_type %}
+                <sw-multi-select
+                    v-if="rule"
+                    v-model="moduleTypes"
+                    class="sw-settings-rule-detail__type-field"
+                    value-property="id"
+                    label-property="name"
+                    :label="$tc('sw-settings-rule.detail.labelType')"
+                    :disabled="!acl.can('rule.editor')"
+                    :options="availableModuleTypes"
+                >
+                    <template #selection-label-property="{ item }">
+                        {{ $tc(item.name) }}
+                    </template>
 
-                <template #result-label-property="{ item }">
-                    {{ $tc(item.name) }}
-                </template>
-            </sw-multi-select>
-            {% endblock %}
+                    <template #result-label-property="{ item }">
+                        {{ $tc(item.name) }}
+                    </template>
+                </sw-multi-select>
+                {% endblock %}
+
+                {% block sw_settings_rule_detail_base_content_card_field_tags %}
+                <sw-entity-tag-select
+                    v-if="rule"
+                    v-model="rule.tags"
+                    class="sw-settings-rule-detail__tags-field"
+                    :label="$tc('global.sw-tag-field.title')"
+                    :disabled="!acl.can('rule.editor')"
+                    :placeholder="$tc('sw-settings-rule.detail.placeholderTags')"
+                />
+                {% endblock %}
+            </sw-container>
         </template>
         <sw-loader v-else />
     </sw-card>

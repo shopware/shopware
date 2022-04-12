@@ -1,0 +1,482 @@
+{% block sw_settings_list %}
+{% block sw_settings_tag_index %}
+<sw-page class="sw-settings-tag-list">
+    {% block sw_settings_tag_list_search_bar %}
+    <template slot="search-bar">
+        <sw-search-bar
+            initial-search-type="tag"
+            :placeholder="$tc('sw-settings-tag.general.placeholderSearchBar')"
+            :initial-search="term"
+            @search="onSearch"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_tag_list_smart_bar_header %}
+    <template slot="smart-bar-header">
+        {% block sw_settings_tag_list_smart_bar_header_title %}
+        <h2>
+            {% block sw_settings_tag_list_smart_bar_header_title_text %}
+            {{ $tc('sw-settings.index.title') }} <sw-icon
+                name="small-arrow-medium-right"
+                small
+            /> {{ $tc('sw-settings-tag.list.textHeadline') }}
+            {% endblock %}
+
+            {% block sw_settings_tag_list_smart_bar_header_amount %}
+            <span
+                v-if="!isLoading"
+                class="sw-page__smart-bar-amount"
+            >
+                ({{ total }})
+            </span>
+            {% endblock %}
+        </h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_tag_list_smart_bar_actions %}
+    <template slot="smart-bar-actions">
+        {% block sw_settings_tag_list_smart_bar_actions_add %}
+        <sw-button
+            v-tooltip.bottom="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('tag.creator'),
+                showOnDisabledElements: true
+            }"
+            class="sw-settings-tag-list__button-create"
+            variant="primary"
+            :disabled="!acl.can('tag.creator')"
+            @click="onDetail(null)"
+        >
+            {{ $tc('sw-settings-tag.list.buttonAddTag') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_tag_list_content %}
+    <sw-card-view slot="content">
+        {% block sw_settings_tag_list_content_card %}
+        <sw-card
+            class="sw-settings-tag-list__content"
+            position-identifier="sw-settings-tag-list-content"
+        >
+            <template #toolbar>
+                {% block sw_settings_tag_list_grid_toolbar_search %}
+                <sw-card-filter
+                    ref="swCardFilter"
+                    :placeholder="$tc('sw-settings-tag.list.searchPlaceholder')"
+                    @sw-card-filter-term-change="onSearch"
+                />
+                {% endblock %}
+                {% block sw_settings_tag_list_grid_toolbar_filter %}
+                <sw-context-button
+                    :menu-width="300"
+                    :auto-close="false"
+                    :auto-close-outside-click="true"
+                    :z-index="1000"
+                    :additional-context-menu-classes="{ 'sw-settings-tag-list__filter': true }"
+                >
+                    <template slot="button">
+                        {% block sw_settings_tag_list_grid_toolbar_filter_menu_trigger %}
+                        <sw-button
+                            class="sw-settings-tag-list__filter-menu-trigger"
+                            size="small"
+                        >
+                            <sw-icon
+                                name="small-default-stack-filter"
+                                size="16"
+                            />
+                            {{ $tc('sw-settings-tag.list.filter') }}
+                        </sw-button>
+                        <i
+                            v-if="filterCount > 0"
+                            class="filter-badge"
+                        >
+                            {{ filterCount }}
+                        </i>
+                        {% endblock %}
+                    </template>
+
+                    {% block sw_settings_tag_list_grid_toolbar_filter_header %}
+                    <h3>{{ $tc('sw-settings-tag.list.filter') }}</h3>
+                    {% endblock %}
+
+                    {% block sw_settings_tag_list_grid_toolbar_filter_divider %}
+                    <sw-context-menu-divider />
+                    {% endblock %}
+
+                    {% block sw_settings_tag_list_grid_toolbar_filter_duplicate %}
+                    <sw-switch-field
+                        v-model="duplicateFilter"
+                        :label="$tc('sw-settings-tag.list.filterDuplicate')"
+                        @change="onFilter"
+                    />
+                    {% endblock %}
+
+                    {% block sw_settings_tag_list_grid_toolbar_filter_empty %}
+                    <sw-switch-field
+                        v-model="emptyFilter"
+                        :label="$tc('sw-settings-tag.list.filterEmpty')"
+                        @change="onFilter"
+                    />
+                    {% endblock %}
+
+                    {% block sw_settings_tag_list_grid_toolbar_filter_assignment %}
+                    <sw-single-select
+                        v-model="assignmentFilter"
+                        class="sw-settings-tag-list__filter-assignment-select"
+                        size="small"
+                        :label="$tc('sw-settings-tag.list.filterAssignemnt')"
+                        :placeholder="$tc('sw-settings-tag.list.placeholderFilterAssignemnt')"
+                        :options="assignmentFilterOptions"
+                        show-clearable-button
+                        :disabled="emptyFilter"
+                        @change="onFilter"
+                    />
+                    {% endblock %}
+
+                    {% block sw_settings_tag_list_grid_toolbar_filter_footer %}
+                    <div class="sw-settings-tag-list__filter-footer">
+                        <a
+                            href="#"
+                            @click.prevent="resetFilters"
+                        >
+                            {{ $tc('sw-settings-tag.list.resetFilters') }}
+                        </a>
+                    </div>
+                    {% endblock %}
+                </sw-context-button>
+                {% endblock %}
+            </template>
+
+            <template #grid>
+                {% block sw_settings_tag_list_grid %}
+                <sw-entity-listing
+                    v-if="isLoading || total > 0"
+                    ref="swSettingsTagGrid"
+                    class="sw-settings-tag-list__grid"
+                    :items="tags"
+                    :columns="tagColumns"
+                    :repository="tagRepository"
+                    :full-page="total > 0"
+                    :plain-appearance="true"
+                    :compact-mode="true"
+                    :show-selection="true"
+                    :is-loading="isLoading"
+                    :allow-view="acl.can('tag.viewer')"
+                    :allow-edit="acl.can('tag.editor')"
+                    :allow-delete="acl.can('tag.deleter')"
+                    :disable-data-fetching="true"
+                    :sort-by="sortBy"
+                    :sort-direction="sortDirection"
+                    @column-sort="onSortColumn"
+                    @page-change="onPageChange"
+                >
+                    {% block sw_settings_tag_list_grid_bulk %}
+                    <template #bulk-additional="{ selectionCount }">
+                        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+                        <a
+                            v-if="selectionCount > 1 && acl.can('tag.creator') && acl.can('tag.deleter')"
+                            class="link"
+                            @click="showBulkMergeModal = true"
+                        >
+                            {{ $tc('sw-settings-tag.list.bulkMerge') }}
+                        </a>
+                    </template>
+                    {% endblock %}
+
+                    {% block sw_settings_tag_list_grid_bulk_merge_modal %}
+                    <template #bulk-modals-additional="{ selection, ids }">
+                        <sw-modal
+                            v-if="showBulkMergeModal"
+                            variant="large"
+                            :title="$tc('sw-settings-tag.list.bulkMergeTitle')"
+                            @modal-close="onCloseBulkMergeModal"
+                        >
+                            <slot
+                                name="bulk-modal-merge-confirm-text"
+                                v-bind="{ selection, ids }"
+                            >
+                                <sw-alert variant="info">
+                                    {{ $tc('sw-settings-tag.list.bulkMergeNotice') }}
+                                </sw-alert>
+                                <p class="sw-settings-tag-list__confirm-bulk-merge-text">
+                                    <span v-if="!bulkMergeProgress.isRunning">
+                                        {{ $tc('sw-settings-tag.list.bulkMergeMessage') }}
+                                    </span>
+                                    <span v-else>
+                                        {{ $tc('sw-settings-tag.list.bulkMerging') }}
+                                    </span>
+                                    <span
+                                        v-for="(id, index) in ids"
+                                        :key="index"
+                                        class="confirm-bulk-merge-text__label"
+                                    >
+                                        <sw-label v-tooltip="{ message: selection[id].name }">
+                                            {{ selection[id].name }}
+                                        </sw-label>&nbsp;{{ getBulkMergeMessageGlue(ids, id) }}
+                                    </span>
+                                    <span
+                                        v-if="bulkMergeProgress.isRunning"
+                                        class="confirm-bulk-merge-text__label-into"
+                                    >
+                                        <sw-label v-tooltip="{ message: duplicateName }">{{ duplicateName }}</sw-label>&nbsp;.
+                                    </span>
+                                </p>
+                                <p v-if="bulkMergeProgress.isRunning">
+                                    {{ $tc('sw-settings-tag.list.bulkMergeTimeNotice') }}
+                                </p>
+                                <p v-else>
+                                    {{ $tc('sw-settings-tag.list.bulkMergeNoUndoNotice') }}
+                                </p>
+                            </slot>
+
+                            {% block sw_settings_tag_list_merge_modal_confirm_name_input %}
+                            <slot name="bulk-modal-merge-confirm-name-input">
+                                <p
+                                    v-if="!bulkMergeProgress.isRunning"
+                                    class="sw-settings-tag-list__confirm-bulk-merge-name-input"
+                                >
+                                    <sw-text-field
+                                        v-model="duplicateName"
+                                        :label="$tc('sw-settings-tag.list.bulkMergeName')"
+                                        :placeholder="$tc('sw-settings-tag.list.placeholderTagName')"
+                                        maxlength="255"
+                                        required
+                                    />
+                                </p>
+                            </slot>
+                            {% endblock %}
+
+                            {% block sw_settings_tag_list_merge_modal_progress %}
+                            <slot name="bulk-modal-merge-progress">
+                                <div
+                                    v-if="bulkMergeProgress.isRunning"
+                                    class="sw-settings-tag-list__bulk-merge-progress"
+                                >
+                                    <sw-icon
+                                        class="sw-settings-tag-list__bulk-merge-progress-icon"
+                                        name="default-web-loading-circle"
+                                        size="44px"
+                                        small
+                                    />
+                                </div>
+                            </slot>
+                            {% endblock %}
+
+                            <template #modal-footer>
+                                <slot
+                                    name="bulk-modal-merge-footer"
+                                    v-bind="{ selection }"
+                                >
+                                    <sw-button
+                                        size="small"
+                                        @click="onCloseBulkMergeModal"
+                                    >
+                                        {{ $tc('global.default.cancel') }}
+                                    </sw-button>
+
+                                    <sw-button
+                                        variant="primary"
+                                        size="small"
+                                        :is-loading="isLoading"
+                                        :disabled="!duplicateName || bulkMergeProgress.isRunning"
+                                        @click="onMergeTags(selection)"
+                                    >
+                                        {{ $tc('sw-settings-tag.list.bulkMerge') }}
+                                    </sw-button>
+                                </slot>
+                            </template>
+                        </sw-modal>
+                    </template>
+                    {% endblock %}
+
+                    {% block sw_settings_tag_list_grid_column_default_name %}
+                    <template #column-name="{ item, column }">
+                        <sw-label v-tooltip="{ message: item.name }">
+                            {{ item.name }}
+                        </sw-label>
+                    </template>
+                    {% endblock %}
+
+                    {% block sw_settings_tag_list_grid_column_default_tag_connections %}
+                    <template #column-connections="{ item }">
+                        <span
+                            v-for="(connection, index) in getConnections(item.id)"
+                            :key="index"
+                        >
+                            <template v-if="index !== 0">,</template>
+                            <a
+                                href="#"
+                                @click.prevent="onDetail(item.id, connection.property, connection.entity)"
+                            >
+                                {{ connection.count }}
+                                {{ $tc(`sw-settings-tag.list.connections.${connection.property}`, connection.count) }}
+                            </a>
+                        </span>
+                    </template>
+                    {% endblock %}
+
+                    {% block sw_settings_tag_list_grid_columns_actions %}
+                    <template #actions="{ item }">
+                        {% block sw_settings_tag_list_grid_columns_actions_edit %}
+                        <sw-context-menu-item
+                            class="sw-settings-tag-list__edit-action"
+                            :disabled="!acl.can('tag.editor')"
+                            @click="onDetail(item.id)"
+                        >
+                            {{ $tc('sw-settings-tag.list.contextMenuEdit') }}
+                        </sw-context-menu-item>
+                        {% endblock %}
+
+                        {% block sw_settings_tag_list_grid_columns_actions_duplicate %}
+                        <sw-context-menu-item
+                            :disabled="!acl.can('tag.creator')"
+                            class="sw-settings-tag-list__duplicate-action"
+                            @click="onDuplicate(item)"
+                        >
+                            {{ $tc('sw-settings-tag.list.contextMenuDuplicate') }}
+                        </sw-context-menu-item>
+                        {% endblock %}
+
+                        {% block sw_settings_tag_list_grid_columns_actions_delete %}
+                        <sw-context-menu-item
+                            class="sw-settings-tag-list__delete-action"
+                            variant="danger"
+                            :disabled="!acl.can('tag.deleter')"
+                            @click="onDelete(item.id)"
+                        >
+                            {{ $tc('sw-settings-tag.list.contextMenuDelete') }}
+                        </sw-context-menu-item>
+                        {% endblock %}
+                    </template>
+                    {% endblock %}
+
+                    {% block sw_settings_tag_list_grid_action_modals %}
+                    <template #action-modals="{ item }">
+                        {% block sw_settings_tag_list_delete_modal %}
+                        <sw-modal
+                            v-if="showDeleteModal === item.id"
+                            :title="$tc('global.default.warning')"
+                            variant="small"
+                            @modal-close="onCloseDeleteModal"
+                        >
+                            {% block sw_settings_tag_list_delete_modal_confirm_delete_text %}
+                            <p class="sw-settings-tag-list__confirm-delete-text">
+                                {{ $tc('sw-settings-tag.list.textDeleteConfirm', 0, { name: item.name }) }}
+                            </p>
+                            {% endblock %}
+
+                            {% block sw_settings_tag_list_delete_modal_footer %}
+                            <template #modal-footer>
+                                {% block sw_settings_tag_list_delete_modal_cancel %}
+                                <sw-button
+                                    size="small"
+                                    @click="onCloseDeleteModal"
+                                >
+                                    {{ $tc('sw-settings-tag.list.buttonCancel') }}
+                                </sw-button>
+                                {% endblock %}
+
+                                {% block sw_settings_tag_list_delete_modal_confirm %}
+                                <sw-button
+                                    variant="danger"
+                                    size="small"
+                                    @click="onConfirmDelete(item.id)"
+                                >
+                                    {{ $tc('sw-settings-tag.list.buttonDelete') }}
+                                </sw-button>
+                                {% endblock %}
+                            </template>
+                            {% endblock %}
+                        </sw-modal>
+                        {% endblock %}
+
+                        {% block sw_settings_tag_list_duplicate_modal %}
+                        <sw-modal
+                            v-if="showDuplicateModal === item.id"
+                            :title="$tc('sw-settings-tag.list.contextMenuDuplicate')"
+                            variant="small"
+                            @modal-close="onCloseDuplicateModal"
+                        >
+                            {% block sw_settings_tag_list_delete_modal_confirm_duplicate_input %}
+                            <p class="sw-settings-tag-list__confirm-duplicate-input">
+                                <sw-text-field
+                                    v-model="duplicateName"
+                                    :label="$tc('sw-settings-tag.list.columnName')"
+                                    :placeholder="$tc('sw-settings-tag.list.placeholderTagName')"
+                                    maxlength="255"
+                                    required
+                                />
+                            </p>
+                            {% endblock %}
+
+                            {% block sw_settings_tag_list_duplicate_modal_footer %}
+                            <template #modal-footer>
+                                {% block sw_settings_tag_list_duplicate_modal_cancel %}
+                                <sw-button
+                                    size="small"
+                                    @click="onCloseDuplicateModal"
+                                >
+                                    {{ $tc('sw-settings-tag.list.buttonCancel') }}
+                                </sw-button>
+                                {% endblock %}
+
+                                {% block sw_settings_tag_list_duplicate_modal_confirm %}
+                                <sw-button
+                                    variant="primary"
+                                    size="small"
+                                    :disabled="!duplicateName"
+                                    @click="onConfirmDuplicate(item.id)"
+                                >
+                                    {{ $tc('sw-settings-tag.list.buttonAddTag') }}
+                                </sw-button>
+                                {% endblock %}
+                            </template>
+                            {% endblock %}
+                        </sw-modal>
+                        {% endblock %}
+
+                        {% block sw_settings_tag_list_detail_edit_modal %}
+                        <sw-settings-tag-detail-modal
+                            v-if="showDetailModal === item.id"
+                            :edited-tag="item"
+                            :counts="getCounts(item.id)"
+                            :property="detailProperty"
+                            :entity="detailEntity"
+                            @finish="onSaveFinish"
+                            @close="onCloseDetailModal"
+                        />
+                        {% endblock %}
+                    </template>
+                    {% endblock %}
+                </sw-entity-listing>
+                {% endblock %}
+
+                {% block sw_settings_tag_list_empty_state %}
+                <sw-empty-state
+                    v-else
+                    :absolute="false"
+                    :show-description="false"
+                    :title="$tc('sw-settings-tag.list.titleEmptyStateList')"
+                />
+                {% endblock %}
+
+                {% block sw_settings_tag_list_detail_add_modal %}
+                <sw-settings-tag-detail-modal
+                    v-if="showDetailModal === true"
+                    @finish="onSaveFinish"
+                    @close="onCloseDetailModal"
+                />
+                {% endblock %}
+            </template>
+        </sw-card>
+        {% endblock %}
+    </sw-card-view>
+    {% endblock %}
+</sw-page>
+{% endblock %}
+{% endblock %}

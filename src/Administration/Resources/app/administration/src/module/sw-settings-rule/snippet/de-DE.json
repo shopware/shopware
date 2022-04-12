@@ -31,6 +31,7 @@
       "placeholderName": "Lege einen Namen für diese Regel fest ...",
       "placeholderDescription": "Lege eine Beschreibung für diese Regel fest ...",
       "placeholderPriority": "Lege eine Priorität für diese Regel fest ...",
+      "placeholderTags": "Gib Tags ein ...",
       "messageSaveSuccess": "Die Regel \"{name}\" wurde erfolgreich gespeichert.",
       "ruleCard": "Bedingungen",
       "messageSaveError": "Beim Speichern der Regel \"{name}\" ist ein Fehler aufgetreten.",

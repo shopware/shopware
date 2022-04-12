@@ -49,7 +49,7 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
         // fill basic data
         cy.get('input#sw-field--rule-name').clearTypeAndCheck('Shipping to Netherlands');
         cy.get('input#sw-field--rule-priority').clearTypeAndCheck('101');
-        cy.get('.sw-field--default .sw-select__selection').typeMultiSelectAndCheck('Shipping');
+        cy.get('.sw-settings-rule-detail__type-field .sw-select__selection').typeMultiSelectAndCheck('Shipping');
 
         // fill rule data
         cy.get('.sw-condition').then((conditionElement) => {
@@ -68,7 +68,7 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
                     cy.get('.sw-select-result-list-popover-wrapper').contains('Is one of').click();
                 });
 
-            cy.get('.sw-entity-multi-select')
+            cy.get('.sw-condition .sw-entity-multi-select')
                 .typeMultiSelectAndCheck('Netherlands', {
                     searchTerm: 'Netherlands'
                 });
@@ -186,7 +186,7 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
         // fill basic data
         cy.get('input#sw-field--rule-name').clearTypeAndCheck('Dollar currency');
         cy.get('input#sw-field--rule-priority').clearTypeAndCheck('5');
-        cy.get('.sw-field--default .sw-select__selection').typeMultiSelectAndCheck('Payment');
+        cy.get('.sw-settings-rule-detail__type-field .sw-select__selection').typeMultiSelectAndCheck('Payment');
 
         // fill rule data
         cy.get('.sw-condition').then((conditionElement) => {
@@ -204,7 +204,7 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
                     cy.get('.sw-select-result-list-popover-wrapper').should('be.visible');
                     cy.get('.sw-select-result-list-popover-wrapper').contains('Is one of').click();
                 });
-            cy.get('.sw-entity-multi-select')
+            cy.get('.sw-condition .sw-entity-multi-select')
                 .typeMultiSelectAndCheck('US-Dollar', {
                     searchTerm: 'US-Dollar'
                 });

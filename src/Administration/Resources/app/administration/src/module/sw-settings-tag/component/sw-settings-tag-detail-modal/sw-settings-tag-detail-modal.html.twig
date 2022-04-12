@@ -1,0 +1,100 @@
+{% block sw_settings_tag_detail_modal %}
+<sw-modal
+    class="sw-settings-tag-detail-modal"
+    :class="{ 'is--auto-height': initialTab === 'general' }"
+    :title="title"
+    :is-loading="isLoading"
+    variant="full"
+    @modal-close="$emit('close')"
+>
+    {% block sw_settings_tag_detail_modal_tabs %}
+    <sw-tabs
+        position-identifier="sw-settings-tag-detail-modal"
+        :small="false"
+        :default-item="initialTab"
+        @new-item-active="active => this.initialTab = active.name"
+    >
+        <template #default="{ active }">
+            {% block sw_settings_tag_detail_modal_tabs_general %}
+            <sw-tabs-item
+                :title="$tc('sw-settings-tag.detail.generalTab')"
+                :active-tab="active"
+                name="general"
+            >
+                {{ $tc('sw-settings-tag.detail.generalTab') }}
+            </sw-tabs-item>
+            {% endblock %}
+
+            {% block sw_settings_tag_detail_modal_tabs_assignments %}
+            <sw-tabs-item
+                :title="$tc('sw-settings-tag.detail.assignmentsTab')"
+                :active-tab="active"
+                name="assignments"
+            >
+                {{ $tc('sw-settings-tag.detail.assignmentsTab') }}
+            </sw-tabs-item>
+            {% endblock %}
+        </template>
+
+        <template #content="{ active }">
+            <template v-if="active === 'general'">
+                {% block sw_settings_tag_detail_modal_tabs_general_tab %}
+                <p class="sw-settings-tag-detail-modal__tag-name">
+                    <sw-text-field
+                        id="sw-field--tag-name"
+                        v-model="tag.name"
+                        name="sw-field--tag-name"
+                        :label="$tc('sw-settings-tag.list.columnName')"
+                        :placeholder="$tc('sw-settings-tag.list.placeholderTagName')"
+                        :error="tagNameError"
+                        maxlength="255"
+                        required
+                    />
+                </p>
+                {% endblock %}
+            </template>
+
+            <template v-if="active === 'assignments'">
+                {% block sw_settings_tag_detail_modal_tabs_assignments_tab %}
+                <sw-settings-tag-detail-assignments
+                    :tag="tag"
+                    :initial-counts="computedCounts"
+                    :to-be-added="assignmentsToBeAdded"
+                    :to-be-deleted="assignmentsToBeDeleted"
+                    :property="property"
+                    :entity="entity"
+                    @add-assignment="addAssignment"
+                    @remove-assignment="removeAssignment"
+                />
+                {% endblock %}
+            </template>
+        </template>
+    </sw-tabs>
+    {% endblock %}
+
+    {% block sw_settings_tag_detail_modal_footer %}
+    <template #modal-footer>
+        {% block sw_settings_tag_detail_modal_cancel %}
+        <sw-button
+            size="small"
+            @click="$emit('close')"
+        >
+            {{ $tc('sw-settings-tag.list.buttonCancel') }}
+        </sw-button>
+        {% endblock %}
+
+        {% block sw_settings_tag_detail_modal_confirm %}
+        <sw-button
+            variant="primary"
+            size="small"
+            :disabled="!allowSave"
+            :is-loading="isLoading"
+            @click="onSave"
+        >
+            {{ $tc('sw-settings-tag.detail.buttonSave') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Event\EventAction\EventActionCollection;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\System\Tag\TagCollection;
 
 class RuleEntity extends Entity
 {
@@ -111,6 +112,11 @@ class RuleEntity extends Entity
      * @var FlowSequenceCollection|null
      */
     protected $flowSequences;
+
+    /**
+     * @var TagCollection|null
+     */
+    protected $tags;
 
     /**
      * @var PromotionCollection|null
@@ -296,6 +302,16 @@ class RuleEntity extends Entity
     public function setFlowSequences(FlowSequenceCollection $flowSequences): void
     {
         $this->flowSequences = $flowSequences;
+    }
+
+    public function getTags(): ?TagCollection
+    {
+        return $this->tags;
+    }
+
+    public function setTags(TagCollection $tags): void
+    {
+        $this->tags = $tags;
     }
 
     /**

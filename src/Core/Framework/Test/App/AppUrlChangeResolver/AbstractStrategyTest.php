@@ -7,8 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppUrlChangeResolver\AbstractAppUrlChangeStrategy;
 use Shopware\Core\Framework\App\AppUrlChangeResolver\Resolver;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeStrategyNotFoundException;
-use Shopware\Core\Framework\App\Exception\NoAppUrlChangeDetectedException;
-use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -27,15 +25,9 @@ class AbstractStrategyTest extends TestCase
      */
     private $secondStrategy;
 
-    /**
-     * @var Resolver
-     */
-    private $appUrlChangedResolverStrategy;
+    private Resolver $appUrlChangedResolverStrategy;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
+    private SystemConfigService $systemConfigService;
 
     public function setUp(): void
     {
@@ -52,25 +44,11 @@ class AbstractStrategyTest extends TestCase
         $this->appUrlChangedResolverStrategy = new Resolver([
             $this->firstStrategy,
             $this->secondStrategy,
-        ], $this->systemConfigService);
-    }
-
-    public function testItThrowsWhenAppUrlChangeIsNotDetected(): void
-    {
-        $this->firstStrategy->expects(static::never())
-            ->method('resolve');
-
-        $this->secondStrategy->expects(static::never())
-            ->method('resolve');
-
-        static::expectException(NoAppUrlChangeDetectedException::class);
-        $this->appUrlChangedResolverStrategy->resolve('FirstStrategy', Context::createDefaultContext());
+        ]);
     }
 
     public function testItCallsRightStrategy(): void
     {
-        $this->systemConfigService->set(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY, true);
-
         $this->firstStrategy->expects(static::once())
             ->method('resolve');
 
@@ -82,8 +60,6 @@ class AbstractStrategyTest extends TestCase
 
     public function testItThrowsOnUnknownStrategy(): void
     {
-        $this->systemConfigService->set(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY, true);
-
         $this->firstStrategy->expects(static::never())
             ->method('resolve');
 

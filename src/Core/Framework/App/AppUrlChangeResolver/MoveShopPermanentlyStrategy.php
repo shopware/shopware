@@ -72,7 +72,5 @@ class MoveShopPermanentlyStrategy extends AbstractAppUrlChangeStrategy
         $this->forEachInstalledApp($context, function (Manifest $manifest, AppEntity $app, Context $context): void {
             $this->reRegisterApp($manifest, $app, $context);
         });
-
-        $this->systemConfigService->delete(ShopIdProvider::SHOP_DOMAIN_CHANGE_CONFIG_KEY);
     }
 }

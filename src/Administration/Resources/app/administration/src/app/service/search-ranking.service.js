@@ -53,10 +53,17 @@ export default function createSearchRankingService() {
      * @param {String} searchTerm
      * @param {Object} criteriaCollection
      * @param {number} defaultLimit
+     * @param {number} defaultTotalCountMode
      *
      * @returns {Object}
      */
-    function buildGlobalSearchQueries(userSearchPreference, searchTerm, criteriaCollection = {}, defaultLimit = 25) {
+    function buildGlobalSearchQueries(
+        userSearchPreference,
+        searchTerm,
+        criteriaCollection = {},
+        defaultLimit = 25,
+        defaultTotalCountMode = 1,
+    ) {
         if (!_isValidTerm(searchTerm) || _isEmptyObject(userSearchPreference)) {
             return {};
         }
@@ -72,6 +79,7 @@ export default function createSearchRankingService() {
             const queryScores = _buildQueryScores(fields, searchTerm);
 
             const criteria = criteriaCollection[entity] ?? new Criteria().setLimit(defaultLimit);
+            criteria.setTotalCountMode(defaultTotalCountMode);
 
             query[entity] = _addSearchQueries(queryScores, criteria).parse();
         });

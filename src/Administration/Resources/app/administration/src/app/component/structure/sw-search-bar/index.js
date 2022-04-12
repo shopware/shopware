@@ -153,7 +153,8 @@ Component.register('sw-search-bar', {
 
         criteriaCollection() {
             return {
-                product: new Criteria().setLimit(this.searchLimit).addAssociation('options.group'),
+                // Set limit as `searchLimit + 1` to check if more than `searchLimit` results are returned
+                product: new Criteria().setLimit(this.searchLimit + 1).addAssociation('options.group'),
             };
         },
 
@@ -410,7 +411,7 @@ Component.register('sw-search-bar', {
         doListSearch: utils.debounce(function debouncedSearch() {
             const searchTerm = this.searchTerm.trim();
             this.$emit('search', searchTerm);
-        }, 400),
+        }, 750),
 
         doListSearchWithContainer: utils.debounce(function debouncedSearch() {
             const searchTerm = this.searchTerm.trim();
@@ -419,7 +420,7 @@ Component.register('sw-search-bar', {
             } else {
                 this.showResultsContainer = false;
             }
-        }, 400),
+        }, 750),
 
         doGlobalSearch: utils.debounce(function debouncedSearch() {
             const searchTerm = this.searchTerm.trim();
@@ -429,7 +430,7 @@ Component.register('sw-search-bar', {
                 this.showResultsContainer = false;
                 this.showResultsSearchTrends = false;
             }
-        }, 400),
+        }, 750),
 
         async loadResults(searchTerm) {
             this.isLoading = true;
@@ -456,11 +457,13 @@ Component.register('sw-search-bar', {
                 return;
             }
 
+            // Set limit as `searchLimit + 1` to check if more than `searchLimit` results are returned
             const queries = this.searchRankingService.buildGlobalSearchQueries(
                 this.userSearchPreference,
                 searchTerm,
                 this.criteriaCollection,
-                this.searchLimit,
+                this.searchLimit + 1,
+                0,
             );
             const response = await this.searchService.searchQuery(queries, { 'sw-inheritance': true });
             const data = response.data;
@@ -473,7 +476,7 @@ Component.register('sw-search-bar', {
                 if (data[entity].total > 0) {
                     const item = data[entity];
 
-                    item.entities = Object.values(item.data);
+                    item.entities = Object.values(item.data).slice(0, this.searchLimit);
                     item.entity = entity;
 
                     this.results = [
@@ -506,14 +509,14 @@ Component.register('sw-search-bar', {
             const entityName = this.searchTypes[this.currentSearchType].entityName;
             const repository = this.repositoryFactory.create(entityName);
 
-            let criteria = new Criteria();
-
-            criteria = this.criteriaCollection.hasOwnProperty(entityName)
+            let criteria = this.criteriaCollection.hasOwnProperty(entityName)
                 ? this.criteriaCollection[entityName]
                 : new Criteria();
 
             criteria.setTerm(searchTerm);
-            criteria.setLimit(10);
+            // Set limit as `searchLimit + 1` to check if more than `searchLimit` results are returned
+            criteria.setLimit(this.searchLimit + 1);
+            criteria.setTotalCountMode(0);
             const searchRankingFields = await this.searchRankingService.getSearchFieldsByEntity(entityName);
             if (!searchRankingFields || Object.keys(searchRankingFields).length < 1) {
                 entityResults.total = 0;
@@ -537,7 +540,7 @@ Component.register('sw-search-bar', {
             repository.search(criteria, { ...Shopware.Context.api, inheritance: true }).then((response) => {
                 entityResults.total = response.total;
                 entityResults.entity = this.currentSearchType;
-                entityResults.entities = response;
+                entityResults.entities = response.slice(0, this.searchLimit);
 
                 this.results.push(entityResults);
                 this.isLoading = false;

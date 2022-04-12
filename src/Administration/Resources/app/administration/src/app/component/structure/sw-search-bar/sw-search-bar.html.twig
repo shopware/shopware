@@ -171,9 +171,11 @@
                                 />
                                 {% endblock %}
 
+                                {# @deprecated tag:v6.5.0 - `result` parameter will be removed #}
                                 {% block sw_search_bar_results_list_bar_item_more_results %}
                                 <sw-search-more-results
                                     :result="entity"
+                                    :entity="entity.entity"
                                     :term="searchTerm"
                                 />
                                 {% endblock %}

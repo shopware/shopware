@@ -10,7 +10,7 @@ const { Component, Application } = Shopware;
  * @status ready
  * @example-type code-only
  * @component-example
- * <sw-search-more-results :result="{ entity: 'customer', total: 5 }" :term="query">
+ * <sw-search-more-results :result="{ entity: 'customer', total: 5 }" :entity="customer" :term="query">
  * </sw-search-more-results>
  */
 Component.register('sw-search-more-results', {
@@ -21,9 +21,17 @@ Component.register('sw-search-more-results', {
     ],
 
     props: {
+        // @deprecated tag:v6.5.0 - `result` will be removed
         result: {
-            required: true,
+            required: false,
             type: Object,
+            default: null,
+        },
+        // @deprecated tag:v6.5.0 - required will be true
+        entity: {
+            required: false,
+            type: String,
+            default: '',
         },
         term: {
             type: String,
@@ -42,12 +50,11 @@ Component.register('sw-search-more-results', {
          */
         searchTypeRoute() {
             if (
-                !this.result ||
-                !this.result.entity ||
-                !this.searchTypes[this.result.entity] ||
-                !this.searchTypes[this.result.entity].listingRoute
+                !this.entity ||
+                !this.searchTypes[this.entity] ||
+                !this.searchTypes[this.entity].listingRoute
             ) {
-                const module = this.moduleFactory.getModuleByEntityName(this.result.entity);
+                const module = this.moduleFactory.getModuleByEntityName(this.entity);
 
                 if (module?.manifest?.routes?.index) {
                     return module.manifest.routes.index.name;
@@ -60,7 +67,7 @@ Component.register('sw-search-more-results', {
                 return '';
             }
 
-            return this.searchTypes[this.result.entity].listingRoute;
+            return this.searchTypes[this.entity].listingRoute;
         },
 
         searchTypes() {
@@ -68,12 +75,10 @@ Component.register('sw-search-more-results', {
         },
 
         searchContent() {
-            const { total, entity } = this.result;
-
             return this.$tc(
                 'global.sw-search-more-results.labelShowResultsInModuleV2',
                 0,
-                { count: total, entityName: this.$tc(`global.entities.${entity}`, 0).toLowerCase() },
+                { entityName: this.$tc(`global.entities.${this.entity}`, 0).toLowerCase() },
             );
         },
     },

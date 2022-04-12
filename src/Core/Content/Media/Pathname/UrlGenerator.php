@@ -90,8 +90,12 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
     private function createFallbackUrl(): string
     {
         $request = $this->requestStack->getMainRequest();
-        if ($request) {
+        if ($request && $request->getHttpHost() !== '' && $request->getHttpHost() !== ':') {
             $basePath = $request->getSchemeAndHttpHost() . $request->getBasePath();
+
+            if (parse_url($basePath) === false) {
+                return (string) EnvironmentHelper::getVariable('APP_URL');
+            }
 
             return rtrim($basePath, '/');
         }

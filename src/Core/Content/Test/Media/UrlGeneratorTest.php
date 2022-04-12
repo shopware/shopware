@@ -9,6 +9,7 @@ use Shopware\Core\Content\Media\Pathname\PathnameStrategy\FilenamePathnameStrate
 use Shopware\Core\Content\Media\Pathname\UrlGenerator;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 class UrlGeneratorTest extends TestCase
@@ -23,6 +24,24 @@ class UrlGeneratorTest extends TestCase
             ]
         );
         $urlGenerator = new UrlGenerator(new FilenamePathnameStrategy(), new RequestStack());
+        static::assertSame(
+            EnvironmentHelper::getVariable('APP_URL', 'http://localhost:8000') . '/media/d0/b3/24/file.jpg',
+            $urlGenerator->getAbsoluteMediaUrl($mediaEntity)
+        );
+    }
+
+    public function testMediaUrlWithEmptyRequest(): void
+    {
+        $mediaEntity = new MediaEntity();
+        $mediaEntity->assign(
+            [
+                'id' => Uuid::randomHex(),
+                'fileName' => 'file.jpg',
+            ]
+        );
+        $requestStack = new RequestStack();
+        $requestStack->push(new Request());
+        $urlGenerator = new UrlGenerator(new FilenamePathnameStrategy(), $requestStack);
         static::assertSame(
             EnvironmentHelper::getVariable('APP_URL', 'http://localhost:8000') . '/media/d0/b3/24/file.jpg',
             $urlGenerator->getAbsoluteMediaUrl($mediaEntity)

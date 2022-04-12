@@ -18,6 +18,10 @@ Thumbs.db
 /vendor/*
 /composer.lock
 
+# Symfony-CLI
+php.ini
+.php-version
+
 # Caches/Proxies
 .php_cs
 .php_cs.cache

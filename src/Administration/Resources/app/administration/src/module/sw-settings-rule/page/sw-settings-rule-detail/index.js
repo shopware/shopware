@@ -58,6 +58,13 @@ Component.register('sw-settings-rule-detail', {
             return this.repositoryFactory.create('rule');
         },
 
+        ruleCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('tags');
+
+            return criteria;
+        },
+
         conditionRepository() {
             if (!this.rule) {
                 return null;
@@ -136,7 +143,7 @@ Component.register('sw-settings-rule-detail', {
             this.isLoading = true;
             this.conditions = null;
 
-            return this.ruleRepository.get(ruleId, Context.api).then((rule) => {
+            return this.ruleRepository.get(ruleId, Context.api, this.ruleCriteria).then((rule) => {
                 this.rule = rule;
                 return this.loadConditions();
             });

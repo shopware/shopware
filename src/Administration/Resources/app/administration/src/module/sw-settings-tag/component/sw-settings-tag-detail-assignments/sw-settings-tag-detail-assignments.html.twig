@@ -1,0 +1,240 @@
+{% block sw_settings_tag_detail_assignments %}
+<div class="sw-settings-tag-detail-assignments">
+    {% block sw_settings_tag_detail_assignments_card %}
+    <sw-card
+        class="sw-settings-tag-detail-assignments__card"
+        position-identifier="sw-settings-tag-detail-assignments-card"
+        large
+    >
+        <template #toolbar>
+            {% block sw_settings_tag_detail_assignments_toolbar %}
+            <sw-card-filter
+                :placeholder="$tc('sw-settings-tag.detail.assignments.searchPlaceholder')"
+                @sw-card-filter-term-change="onTermChange"
+            />
+            {% endblock %}
+        </template>
+
+        {% block sw_settings_tag_detail_assignments_header %}
+        <sw-container columns="1fr 1fr">
+            {% block sw_settings_tag_detail_assignments_header_selected_filter %}
+            <sw-card-section
+                class="sw-settings-tag-detail-assignments__filter-selected"
+                divider="bottom"
+            >
+                <sw-switch-field
+                    v-model="showSelected"
+                    :disabled="isLoading"
+                    :label="$tc('sw-settings-tag.detail.assignments.showSelected')"
+                />
+            </sw-card-section>
+            {% endblock %}
+            {% block sw_settings_tag_detail_assignments_header_total_selected %}
+            <sw-card-section
+                class="sw-settings-tag-detail-assignments__total-selected"
+                divider="bottom"
+            >
+                {{ totalAssignments }} {{ $tc('sw-settings-tag.detail.assignments.selected') }}
+            </sw-card-section>
+            {% endblock %}
+        </sw-container>
+        {% endblock %}
+
+        <template #grid>
+            {% block sw_settings_tag_detail_assignments_grid %}
+            <sw-container columns="300px 1fr">
+                <sw-card-section divider="right">
+                    {% block sw_settings_tag_detail_assignments_associations_grid %}
+                    <sw-data-grid
+                        class="sw-settings-tag-detail-assignments__associations-grid"
+                        :data-source="assignmentAssociations"
+                        :columns="assignmentAssociationsColumns"
+                        :v-bind="$attrs"
+                        :show-selection="false"
+                        :show-actions="false"
+                        :show-header="false"
+                        :plain-appearance="true"
+                        :full-page="true"
+                        item-identifier-property="entity"
+                    >
+                        <template #column-name="{ item }">
+                            {% block sw_settings_tag_detail_assignments_associations_grid_column_name %}
+                            <sw-button
+                                class="associations-grid__row"
+                                :class="{ 'is--selected': item.entity === selectedEntity }"
+                                @click.prevent="onAssignmentChange(item)"
+                            >
+                                <sw-icon
+                                    v-if="item.entity === selectedEntity"
+                                    name="multicolor-folder-tree-open"
+                                    multicolor
+                                    small
+                                />
+                                <sw-icon
+                                    v-else
+                                    name="multicolor-folder-tree"
+                                    multicolor
+                                    small
+                                />
+                                <span>
+                                    {{ item.name }}
+                                </span>
+                                <span
+                                    v-if="getCount(item.assignment)"
+                                    class="associations-grid__count"
+                                >
+                                    {{ getCount(item.assignment) }}
+                                    {{ $tc('sw-settings-tag.detail.assignments.assignments', getCount(item.assignment)) }}
+                                </span>
+                            </sw-button>
+                            {% endblock %}
+                        </template>
+
+                        <template #actions="{ item }">
+                        </template>
+                    </sw-data-grid>
+                    {% endblock %}
+                </sw-card-section>
+                <sw-card-section>
+                    {% block sw_settings_tag_detail_assignments_entities_grid %}
+                    <sw-entity-listing
+                        :key="entitiesGridKey"
+                        class="sw-settings-tag-detail-assignments__entities-grid"
+                        :items="entities"
+                        :columns="entitiesColumns"
+                        :repository="entityRepository"
+                        :plain-appearance="true"
+                        :compact-mode="true"
+                        :show-selection="true"
+                        :show-actions="false"
+                        :show-header="true"
+                        :is-loading="isLoading"
+                        :disable-data-fetching="true"
+                        :pre-selection="selectedAssignments"
+                        :allow-inline-edit="false"
+                        :allow-delete="false"
+                        @page-change="onPageChange"
+                        @select-item="onSelectionChange"
+                    >
+                        <template #selection-content="{ item, isSelected, selectItem, itemIdentifierProperty }">
+                            {% block sw_settings_tag_detail_assignments_entities_grid_selection_content %}
+                            <div class="sw-data-grid__cell-content">
+                                {% block sw_settings_tag_detail_assignments_entities_grid_select_item_checkbox %}
+                                <sw-checkbox-field
+                                    v-if="isInherited(item.id, item.parentId)"
+                                    :key="`${itemIdentifierProperty}-inherited`"
+                                    :value="hasInheritedTag(item.id, item.parentId)"
+                                    :disabled="true"
+                                />
+                                <sw-checkbox-field
+                                    v-else
+                                    :key="itemIdentifierProperty"
+                                    :value="isSelected(item[itemIdentifierProperty])"
+                                    @change="selectItem($event, item)"
+                                />
+                                {% endblock %}
+                            </div>
+                            {% endblock %}
+                        </template>
+
+                        <template #column-name="{ item, selectItem }">
+                            {% block sw_settings_tag_detail_assignments_entities_grid_column_inheritance_switch %}
+                            <sw-inheritance-switch
+                                v-if="isInheritable && item.parentId && parentHasTags(item.id, item.parentId)"
+                                :is-inherited="isInherited(item.id, item.parentId)"
+                                :disabled="!isInherited(item.id, item.parentId)"
+                                @inheritance-remove="selectItem(true, item)"
+                            />
+                            {% endblock %}
+                            {% block sw_settings_tag_detail_assignments_entities_grid_column_name_product %}
+                            <sw-product-variant-info
+                                v-if="selectedEntity === 'product'"
+                                :variations="item.variation"
+                            >
+                                <sw-highlight-text
+                                    :search-term="term"
+                                    :text="item.translated.name || item.name"
+                                />
+                            </sw-product-variant-info>
+                            {% endblock %}
+                            {% block sw_settings_tag_detail_assignments_entities_grid_column_name_category %}
+                            <template
+                                v-else-if="selectedEntity === 'category'"
+                            >
+                                <sw-highlight-text
+                                    :search-term="term"
+                                    :text="item.translated ? item.translated.name : item.name"
+                                />
+                                <sw-highlight-text
+                                    v-if="item.breadcrumb && item.breadcrumb.length > 1"
+                                    :text="item.breadcrumb.join(' / ')"
+                                />
+                            </template>
+                            {% endblock %}
+                            {% block sw_settings_tag_detail_assignments_entities_grid_column_name_customer %}
+                            <template
+                                v-else-if="selectedEntity === 'customer'"
+                            >
+                                <sw-highlight-text
+                                    :search-term="term"
+                                    :text="`${item.firstName} ${item.lastName}`"
+                                />
+                                <sw-highlight-text
+                                    :search-term="term"
+                                    :text="item.customerNumber"
+                                />
+                            </template>
+                            {% endblock %}
+                            {% block sw_settings_tag_detail_assignments_entities_grid_column_name_order %}
+                            <template
+                                v-else-if="selectedEntity === 'order'"
+                            >
+                                <sw-highlight-text
+                                    :search-term="term"
+                                    :text="`${item.orderCustomer.firstName} ${item.orderCustomer.lastName}`"
+                                />
+                                <sw-highlight-text
+                                    :search-term="term"
+                                    :text="item.orderNumber"
+                                />
+                            </template>
+                            {% endblock %}
+                            {% block sw_settings_tag_detail_assignments_entities_grid_column_name_media %}
+                            <template
+                                v-else-if="selectedEntity === 'media'"
+                            >
+                                <sw-media-preview-v2
+                                    :source="item.id"
+                                    :media-is-private="item.private"
+                                />
+                                <sw-highlight-text
+                                    :search-term="term"
+                                    :text="`${item.fileName}.${item.fileExtension}`"
+                                />
+                            </template>
+                            {% endblock %}
+                            {% block sw_settings_tag_detail_assignments_entities_grid_column_name_newsletter_recipient %}
+                            <sw-highlight-text
+                                v-else-if="selectedEntity === 'newsletter_recipient'"
+                                :search-term="term"
+                                :text="`${item.firstName} ${item.lastName}`"
+                            />
+                            {% endblock %}
+                            {% block sw_settings_tag_detail_assignments_entities_grid_column_name_default %}
+                            <sw-highlight-text
+                                v-else
+                                :search-term="term"
+                                :text="item.translated ? item.translated.name : item.name"
+                            />
+                            {% endblock %}
+                        </template>
+                    </sw-entity-listing>
+                    {% endblock %}
+                </sw-card-section>
+            </sw-container>
+            {% endblock %}
+        </template>
+    </sw-card>
+    {% endblock %}
+</div>
+{% endblock %}

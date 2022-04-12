@@ -28,6 +28,11 @@
     {{ $tc('global.default.delete') }}
 </a>
 {% endblock %}
+
+<slot
+    name="bulk-additional"
+    v-bind="{ selectionCount }"
+></slot>
 {% endblock %}
 
 {% block sw_data_grid_slot_bulk_modals %}
@@ -89,6 +94,11 @@
     </template>
 </sw-modal>
 {% endblock %}
+
+<slot
+    name="bulk-modals-additional"
+    v-bind="{ selection, ids: Object.keys(selection) }"
+></slot>
 {% endblock %}
 
 {% block sw_data_grid_slot_actions %}

@@ -13,7 +13,8 @@ function createWrapper(privileges = []) {
             'sw-condition-tree': true,
             'sw-container': true,
             'sw-field': true,
-            'sw-multi-select': true
+            'sw-multi-select': true,
+            'sw-entity-tag-select': true
         },
         propsData: {
             conditionRepository: {},

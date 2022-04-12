@@ -9,5 +9,11 @@
             <tag name="shopware.entity.definition"/>
             <tag name="shopware.composite_search.definition" priority="200"/>
         </service>
+
+        <service id="Shopware\Core\System\Tag\Service\FilterTagIdsService" public="true">
+            <argument type="service" id="Shopware\Core\System\Tag\TagDefinition"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaQueryBuilder"/>
+        </service>
     </services>
 </container>

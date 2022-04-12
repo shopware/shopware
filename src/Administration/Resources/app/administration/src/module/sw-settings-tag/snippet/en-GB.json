@@ -1,0 +1,71 @@
+{
+  "sw-settings-tag": {
+    "general": {
+      "mainMenuItemGeneral": "Tags",
+      "placeholderSearchBar": "Search tags..."
+    },
+    "list": {
+      "textHeadline": "Tags",
+      "textDeleteConfirm": "Are you sure you want to delete the tag \"{name}\"?",
+      "columnName": "Tag",
+      "columnConnections": "Assignments",
+      "buttonAddTag": "Add tag",
+      "contextMenuEdit": "Edit tag",
+      "contextMenuDuplicate": "Duplicate tag",
+      "contextMenuDelete": "Delete tag",
+      "messageDeleteSuccess": "Tag \"{name}\" deleted.",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete",
+      "titleEmptyStateList": "No tags found.",
+      "searchPlaceholder": "Search tags...",
+      "filter": "Filter",
+      "filterAssignemnt": "Filter by assigned entity",
+      "placeholderFilterAssignemnt": "Search assignments...",
+      "filterEmpty": "Show unassigned tags only",
+      "filterDuplicate": "Show duplicate tags only",
+      "resetFilters": "Reset filters",
+      "bulkMerge": "Merge",
+      "bulkMergeTitle": "Merge tags",
+      "bulkMergeMessage": "Are you sure you want to merge",
+      "bulkMergeMessageAnd": "and",
+      "bulkMergeMessageFinal": "?",
+      "bulkMergeName": "New tag",
+      "bulkMerging": "Merging",
+      "bulkMergeNotice": "Please wait until the merge process is complete. This may take a while. If you close the browser tab or cancel the process prematurely, not all changes will be applied and existing tags remain unchanged. You can rerun the merge process at any time.",
+      "bulkMergeNoUndoNotice": "This action cannot be undone.",
+      "bulkMergeTimeNotice": "Depending on the number of entities assigned, this process may take some time.",
+      "bulkMergeInto": "into",
+      "placeholderTagName": "Enter tag name...",
+      "connections": {
+        "products": "Products | product | products",
+        "media": "Media | media | media",
+        "categories": "Categories | category | categories",
+        "customers": "Customers | customer | customers",
+        "orders": "Orders | order | orders",
+        "shippingMethods": "Shipping methods | shipping method | shipping methods",
+        "newsletterRecipients": "Newsletter recipients | newsletter recipient | newsletter recipients",
+        "landingPages": "Landing pages | landing page | landing pages",
+        "rules": "Rules | rule | rules"
+      }
+    },
+    "detail": {
+      "editTitle": "Edit \"{name}\"",
+      "generalTab": "General",
+      "assignmentsTab": "Assignments",
+      "buttonSave": "Save",
+      "assignments": {
+        "searchPlaceholder": "Search entities...",
+        "assignments": "assigned",
+        "selected": "assigned entities",
+        "showSelected": "Hide unassigned entities"
+      }
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "tag": {
+        "label": "Tags"
+      }
+    }
+  }
+}

@@ -32,11 +32,14 @@ class SalesChannelContextPersister
         $this->lifetimeInterval = $lifetimeInterval ?? 'P1D';
     }
 
-    public function save(string $token, array $parameters, string $salesChannelId, ?string $customerId = null): void
+    public function save(string $token, array $newParameters, string $salesChannelId, ?string $customerId = null): void
     {
         $existing = $this->load($token, $salesChannelId, $customerId);
 
-        $parameters = array_replace_recursive($existing, $parameters);
+        $parameters = array_replace_recursive($existing, $newParameters);
+        if (isset($newParameters['permissions']) && $newParameters['permissions'] === []) {
+            $parameters['permissions'] = [];
+        }
 
         unset($parameters['token']);
 

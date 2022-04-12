@@ -56,7 +56,7 @@ describe('Product: Visual tests', () => {
 
         cy.get('.sw-loader').should('not.exist');
         const save = Cypress.env('locale') === 'en-GB' ? 'Save' : 'Speichern';
-        cy.get(page.elements.productSaveAction).contains(save);
+        cy.get(page.elements.productSaveAction).contains(save).trigger('mouseout').trigger('mouseleave');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Product detail base`, '.sw-product-detail-base');
 

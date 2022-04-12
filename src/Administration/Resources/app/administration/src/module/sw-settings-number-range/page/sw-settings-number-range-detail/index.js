@@ -134,10 +134,16 @@ Component.register('sw-settings-number-range-detail', {
             return this.repositoryFactory.create('sales_channel');
         },
 
+        /**
+         * @deprecated tag:v6.5.0 will be removed, as the state can also be stored in redis, use `numberRangeService` instead
+         */
         numberRangeStateRepository() {
             return this.repositoryFactory.create('number_range_state');
         },
 
+        /**
+         * @deprecated tag:v6.5.0 will be removed, as the state can also be stored in redis, use `numberRangeService` instead
+         */
         numberRangeStateCriteria() {
             const criteria = new Criteria();
 
@@ -266,16 +272,19 @@ Component.register('sw-settings-number-range-detail', {
         },
 
         getState() {
-            return this.numberRangeStateRepository.search(this.numberRangeStateCriteria)
-                .then((numberRangeStates) => {
-                    if (numberRangeStates.total === 1) {
-                        this.state = numberRangeStates[0].lastValue;
-                        return Promise.resolve();
-                    }
-
-                    this.state = this.numberRange.start;
+            return this.numberRangeService.previewPattern(
+                this.numberRange.type.technicalName,
+                '{n}',
+                0,
+            ).then((response) => {
+                if (response.number > 1) {
+                    this.state = response.number - 1;
                     return Promise.resolve();
-                });
+                }
+
+                this.state = this.numberRange.start;
+                return Promise.resolve();
+            });
         },
 
         loadSalesChannels() {

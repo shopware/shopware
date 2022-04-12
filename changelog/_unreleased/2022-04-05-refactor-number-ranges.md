@@ -17,6 +17,10 @@ issue: NEXT-20673
 * Added `\Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageRegistry` to get the configured increment store, and migrate data between stores.
 * Added `number-range:migrate` console command to migrate data between storage engines per CLI.
 ___
+# Administration
+* Changed `sw-settings-number-range-detail` to not fetch the current number range state always from the database, but rather use the preview functionality to get the current state.
+* Deprecated computed properties `numberRangeStateRepository` and `numberRangeStateCriteria` from component `sw-settings-number-range-detail` as those are not used anymore. Please use the `numberRangeService` to get the current state instead.
+___
 # Upgrade Information
 ## Redis store for number range increments
 You can now generate the number range increments using redis instead of the Database.

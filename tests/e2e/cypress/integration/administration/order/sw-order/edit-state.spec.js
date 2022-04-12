@@ -121,7 +121,7 @@ describe('Order: Test order state', () => {
         cy.wait('@stateMachineTypeStateCall').its('response.statusCode').should('equal', 200);
 
         page.setOrderState({
-            stateTitle: 'In progress',
+            stateTitle: 'In Progress',
             type: 'order',
             signal: 'progress',
             call: 'process'
@@ -321,14 +321,14 @@ describe('Order: Test order state', () => {
 
         // Set order status to "In progess"
         page.setOrderState({
-            stateTitle: 'In progress',
+            stateTitle: 'In Progress',
             type: 'order',
             scope: 'history-card',
             call: 'process'
         });
 
         page.checkOrderHistoryEntry({
-            stateTitle: 'In progress',
+            stateTitle: 'In Progress',
             type: 'order',
             signal: 'progress',
         });

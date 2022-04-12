@@ -42,7 +42,7 @@ describe('Flow builder: set order status testing', () => {
             .typeSingleSelect('Set status', '.sw-flow-sequence-action__selection-action');
         cy.get('.sw-flow-set-order-state-modal').should('be.visible');
 
-        cy.get('#sw-field--config-order').select('In progress')
+        cy.get('#sw-field--config-order').select('In Progress')
             .should('have.value', 'in_progress');
 
         cy.get('#sw-field--config-order_transaction').select('In Progress')
@@ -100,13 +100,13 @@ describe('Flow builder: set order status testing', () => {
         cy.get('.sw-loader').should('not.exist');
 
         cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get('.sw-order-state-select__order-state').contains('Order status: In progress');
+            cy.get('.sw-order-state-select__order-state').contains('Order status: In Progress');
             cy.get('.sw-order-state-select__payment-state').contains('Payment status: In Progress');
             cy.get('.sw-order-state-select__delivery-state').contains('Delivery status: Shipped');
         });
 
         cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get('.sw-order-state-select-v2 .sw-single-select[label="Order status"]').contains('In progress');
+            cy.get('.sw-order-state-select-v2 .sw-single-select[label="Order status"]').contains('In Progress');
             cy.get('.sw-order-state-select-v2 .sw-single-select[label="Payment status"]').contains('In Progress');
             cy.get('.sw-order-state-select-v2 .sw-single-select[label="Delivery status"]').contains('Shipped');
         });

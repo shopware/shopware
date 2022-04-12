@@ -498,4 +498,45 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         expect(sequencesState[0].position).toEqual(2);
         expect(sequencesState[1].position).toEqual(1);
     });
+
+    it('should correct label in set order state description', async () => {
+        Shopware.State.commit('swFlowState/setStateMachineState', [
+            {
+                technicalName: 'in_progress',
+                stateMachine: {
+                    technicalName: 'order_delivery.state'
+                },
+                translated: {
+                    name: 'In progress'
+                }
+            },
+            {
+                technicalName: 'in_progress',
+                stateMachine: {
+                    technicalName: 'order.state'
+                },
+                translated: {
+                    name: 'In Progress'
+                }
+            }
+        ]);
+
+        const wrapper = createWrapper({
+            sequence: {
+                id: '2',
+                ruleId: null,
+                parentId: '1',
+                position: 1,
+                displayGroup: 1,
+                trueCase: false,
+                config: {
+                    order: 'in_progress'
+                },
+                actionName: ACTION.SET_ORDER_STATE
+            }
+        });
+
+        const description = wrapper.find('.sw-flow-sequence-action__action-description');
+        expect(description.text()).toContain('sw-flow.modals.status.labelOrderStatus: In Progress');
+    });
 });

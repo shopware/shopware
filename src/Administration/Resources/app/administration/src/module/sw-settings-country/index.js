@@ -6,6 +6,7 @@ import './component/sw-settings-country-general';
 import './component/sw-settings-country-state';
 import './component/sw-settings-country-currency-dependent-modal';
 import './component/sw-settings-country-currency-hamburger-menu';
+import './component/sw-settings-country-address-handling';
 
 import './acl';
 
@@ -62,6 +63,14 @@ Module.register('sw-settings-country', {
                     },
                 },
 
+                'address-handling': {
+                    component: 'sw-settings-country-address-handling',
+                    path: 'address-handling',
+                    meta: {
+                        parentPath: 'sw.settings.country.index',
+                        privileges: ['country.editor', 'country.creator'],
+                    },
+                },
             },
         },
         create: {
@@ -95,6 +104,14 @@ Module.register('sw-settings-country', {
                     },
                 },
 
+                'address-handling': {
+                    component: 'sw-settings-country-address-handling',
+                    path: 'address-handling',
+                    meta: {
+                        parentPath: 'sw.settings.country.index',
+                        privileges: 'country.creator',
+                    },
+                },
             },
         },
     },

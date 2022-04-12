@@ -2,7 +2,8 @@
   "sw-settings-country": {
     "page": {
       "generalTab": "Einstellungen",
-      "stateTab": "Länder/Regionen"
+      "stateTab": "Länder/Regionen",
+      "addressHandlingTab": "Address handling"
     },
     "general": {
       "mainMenuItemGeneral": "Länder",

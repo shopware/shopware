@@ -30,20 +30,52 @@
         </service>
 
         <!-- Value Generator -->
-        <service class="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementSqlStorage"
-                 id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageInterface">
+        <service id="Shopware\Core\System\NumberRange\Command\MigrateIncrementStorageCommand">
+            <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageRegistry"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementSqlStorage">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
 
-            <tag name="shopware.value_generator_connector"/>
+            <tag name="shopware.value_generator_connector" storage="SQL"/>
+        </service>
+
+        <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage">
+            <factory service="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageRegistry"
+                     method="getStorage"/>
+        </service>
+
+        <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageInterface"
+                 alias="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage">
+            <deprecated>tag:v6.5.0 "%alias_id%" service alias is deprecated, use "Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementSqlStorage" instead.</deprecated>
+        </service>
+
+        <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementRedisStorage">
+            <argument type="service" id="shopware.cart.redis"/>
+            <argument type="service" id="lock.factory"/>
+            <argument type="service" id="number_range.repository"/>
+
+            <tag name="shopware.value_generator_connector" storage="Redis"/>
+        </service>
+
+        <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageRegistry">
+            <argument type="tagged" tag="shopware.value_generator_connector" index-by="storage"/>
+            <argument>%shopware.number_range.increment_storage%</argument>
+        </service>
+
+        <service id="shopware.number_range.redis" class="Redis">
+            <factory class="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory" method="createConnection"/>
+            <argument>%shopware.number_range.redis_url%</argument>
         </service>
 
         <service class="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGenerator"
                  id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"
                  public="true">
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry" />
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface" />
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\System\NumberRange\NumberRangeDefinition"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry">
@@ -51,7 +83,7 @@
         </service>
 
         <service id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternIncrement">
-            <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageInterface" />
+            <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage" />
             <tag name="shopware.value_generator_pattern"/>
         </service>
 

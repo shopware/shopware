@@ -3,40 +3,65 @@ declare(strict_types=1);
 
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern;
 
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\System\NumberRange\NumberRangeEntity;
+
 class ValueGeneratorPatternRegistry
 {
     /**
-     * @var ValueGeneratorPatternInterface[]
+     * @var ValueGeneratorPatternInterface[]|AbstractValueGenerator[]
      */
     private $pattern = [];
 
+    public function __construct(iterable $patterns)
+    {
+        /** @var ValueGeneratorPatternInterface|AbstractValueGenerator $pattern */
+        foreach ($patterns as $pattern) {
+            $this->pattern[$pattern->getPatternId()] = $pattern;
+        }
+    }
+
     /**
-     * @var ValueGeneratorPatternInterface[]
+     * @param array{id: string, pattern: string, start: ?int} $config
      */
-    private $mapped;
-
-    public function __construct(iterable $pattern)
+    public function generatePattern(string $pattern, string $patternPart, array $config, ?array $args = null, ?bool $preview = false): string
     {
-        $this->pattern = $pattern;
-    }
+        $generator = $this->pattern[$pattern] ?? null;
 
-    public function getPatternResolver(string $patternId): ?ValueGeneratorPatternInterface
-    {
-        $this->mapPatternResolvers();
-
-        return $this->mapped[$patternId] ?? null;
-    }
-
-    private function mapPatternResolvers(): array
-    {
-        if ($this->mapped === null) {
-            $this->mapped = [];
-
-            foreach ($this->pattern as $singlePattern) {
-                $this->mapped[$singlePattern->getPatternId()] = $singlePattern;
-            }
+        if (!$generator) {
+            return $patternPart;
         }
 
-        return $this->mapped;
+        /**
+         * @deprecated tag:v6.5.0 whole if part can be removed if we remove the ValueGeneratorPatternInterface
+         */
+        if (!$generator instanceof AbstractValueGenerator) {
+            $entity = $this->getEntityFromConfig($config);
+
+            return $generator->resolve($entity, $args, $preview);
+        }
+
+        return $generator->generate($config, $args, $preview);
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 will be removed
+     */
+    public function getPatternResolver(string $patternId): ?ValueGeneratorPatternInterface
+    {
+        Feature::throwException('v6.5.0.0', 'ValueGeneratorPatternRegistry::getPatternResolver() will be removed, use `generatePattern()` directly.');
+
+        $generator = $this->pattern[$patternId] ?? null;
+        if ($generator instanceof ValueGeneratorPatternInterface) {
+            return $generator;
+        }
+
+        return null;
+    }
+
+    private function getEntityFromConfig(array $config): NumberRangeEntity
+    {
+        return (new NumberRangeEntity())
+            ->assign($config);
     }
 }

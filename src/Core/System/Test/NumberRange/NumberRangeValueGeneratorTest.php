@@ -7,13 +7,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\System\NumberRange\NumberRangeDefinition;
-use Shopware\Core\System\NumberRange\NumberRangeEntity;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGenerator;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternDate;
@@ -24,15 +21,9 @@ class NumberRangeValueGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     protected function setUp(): void
     {
@@ -131,40 +122,22 @@ class NumberRangeValueGeneratorTest extends TestCase
 
     private function getGenerator(string $pattern): NumberRangeValueGenerator
     {
-        $patternReg = $this->getContainer()->get(ValueGeneratorPatternRegistry::class);
-
-        $patternRegMock = $this->createMock(ValueGeneratorPatternRegistry::class);
         $incrPattern = $this->createMock(ValueGeneratorPatternIncrement::class);
-        $incrPattern->method('resolve')->willReturn('5');
+        $incrPattern->method('getPatternId')->willReturn('n');
+        $incrPattern->method('generate')->willReturn('5');
 
-        $patternRegMock->method('getPatternResolver')->willReturnCallback(
-            static function ($arg) use ($incrPattern, $patternReg) {
-                if ($arg === 'n') {
-                    return $incrPattern;
-                }
+        $patternReg = new ValueGeneratorPatternRegistry([$incrPattern, new ValueGeneratorPatternDate()]);
 
-                return $patternReg->getPatternResolver($arg);
-            }
-        );
+        $connection = $this->createMock(Connection::class);
+        $connection->expects(static::once())
+            ->method('fetchAssociative')
+            ->willReturn(['id' => Uuid::randomHex(), 'pattern' => $pattern, 'start' => 1]);
 
-        $configuration = new NumberRangeEntity();
-        $configuration->setUniqueIdentifier('asdasdsad');
-        $configuration->setPattern($pattern);
-        $configuration->setStart(1);
-
-        $entityReader = $this->createMock(EntityReaderInterface::class);
-        $entityReader->expects(static::once())->method('read')->willReturn(
-            new EntityCollection([$configuration])
-        );
-
-        $generator = new NumberRangeValueGenerator(
-            $patternRegMock,
-            $entityReader,
+        return new NumberRangeValueGenerator(
+            $patternReg,
             $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->get(NumberRangeDefinition::class)
+            $connection,
         );
-
-        return $generator;
     }
 
     private function setupDatabase(): void

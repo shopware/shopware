@@ -169,6 +169,10 @@ shopware:
         expire_days: 120
         redis_url: false
 
+    number_range:
+        increment_storage: "SQL"
+        redis_url: false
+
     sales_channel_context:
         expire_days: 120
 

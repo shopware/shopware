@@ -3196,11 +3196,6 @@ parameters:
 			path: src/Core/System/NumberRange/ValueGenerator/NumberRangeValueGenerator.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternRegistry\\:\\:\\$pattern \\(array\\<Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternInterface\\>\\) does not accept iterable\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/ValueGeneratorPatternRegistry.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelType\\\\SalesChannelTypeEntity\\:\\:getCoverUrl\\(\\) should return string but returns string\\|null\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/Aggregate/SalesChannelType/SalesChannelTypeEntity.php

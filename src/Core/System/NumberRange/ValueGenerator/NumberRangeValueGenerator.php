@@ -2,79 +2,61 @@
 
 namespace Shopware\Core\System\NumberRange\ValueGenerator;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeEntity;
 use Shopware\Core\System\NumberRange\Exception\NoConfigurationException;
-use Shopware\Core\System\NumberRange\NumberRangeDefinition;
-use Shopware\Core\System\NumberRange\NumberRangeEntity;
 use Shopware\Core\System\NumberRange\NumberRangeEvents;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
 {
-    /**
-     * @var NumberRangeEntity
-     */
-    private $configuration;
+    private ValueGeneratorPatternRegistry $valueGeneratorPatternRegistry;
 
-    /**
-     * @var ValueGeneratorPatternRegistry
-     */
-    private $valueGeneratorPatternRegistry;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var EntityReaderInterface
-     */
-    private $entityReader;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var NumberRangeDefinition
-     */
-    private $numberRangeDefinition;
+    private Connection $connection;
 
     public function __construct(
         ValueGeneratorPatternRegistry $valueGeneratorPatternRegistry,
-        EntityReaderInterface $entityReader,
         EventDispatcherInterface $eventDispatcher,
-        NumberRangeDefinition $numberRangeDefinition
+        Connection $connection
     ) {
-        $this->entityReader = $entityReader;
         $this->valueGeneratorPatternRegistry = $valueGeneratorPatternRegistry;
         $this->eventDispatcher = $eventDispatcher;
-        $this->numberRangeDefinition = $numberRangeDefinition;
+        $this->connection = $connection;
     }
 
     public function getValue(string $type, Context $context, ?string $salesChannelId, bool $preview = false): string
     {
-        $this->readConfiguration($type, $context, $salesChannelId);
+        $config = $this->getConfiguration($type, $salesChannelId);
 
-        $parsedPattern = $this->parsePattern($this->configuration->getPattern());
+        $parsedPattern = $this->parsePattern($config['pattern']);
 
-        $generatedValue = $this->generate($parsedPattern, $preview);
+        $generatedValue = $this->generate($parsedPattern, $config, $preview);
 
         return $this->endEvent($generatedValue, $type, $context, $salesChannelId, $preview);
     }
 
     public function previewPattern(string $definition, ?string $pattern, int $start): string
     {
-        $this->createPreviewConfiguration($definition, $pattern, $start);
+        $config = $this->getConfiguration($definition, null);
+        $config['start'] = $start;
 
-        $parsedPattern = $this->parsePattern($this->configuration->getPattern());
+        if (!$pattern) {
+            $pattern = $config['pattern'];
+        }
 
-        return $this->generate($parsedPattern, true);
+        $parsedPattern = $this->parsePattern($pattern);
+
+        return $this->generate($parsedPattern, $config, true);
     }
 
+    /**
+     * @deprecated tag:v6.5.0 will be made private
+     */
     protected function parsePattern(?string $pattern): ?array
     {
         return preg_split(
@@ -85,85 +67,25 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
         );
     }
 
-    protected function readConfiguration(string $definition, Context $context, ?string $salesChannelId): void
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(
-            new MultiFilter(
-                MultiFilter::CONNECTION_OR,
-                [
-                    new MultiFilter(
-                        MultiFilter::CONNECTION_AND,
-                        [
-                            new EqualsFilter('number_range.numberRangeSalesChannels.salesChannelId', $salesChannelId),
-                            new EqualsFilter('number_range.type.technicalName', $definition),
-                        ]
-                    ),
-                    new MultiFilter(
-                        MultiFilter::CONNECTION_AND,
-                        [
-                            new EqualsFilter('number_range.type.global', 1),
-                            new EqualsFilter('number_range.type.technicalName', $definition),
-                        ]
-                    ),
-                ]
-            )
-        );
-        $criteria->setLimit(1);
-
-        $configurationCollection = $this->entityReader->read(
-            $this->numberRangeDefinition,
-            $criteria,
-            $context
-        );
-
-        if ($configurationCollection->count() === 1) {
-            $this->configuration = $configurationCollection->first();
-
-            return;
-        }
-
-        //get Fallback Configuration
-        $criteria = new Criteria();
-        $criteria->addFilter(
-            new MultiFilter(
-                MultiFilter::CONNECTION_AND,
-                [
-                    new EqualsFilter('number_range.global', 1),
-                    new EqualsFilter('number_range.type.technicalName', $definition),
-                ]
-            )
-        );
-        $criteria->setLimit(1);
-
-        $configurationCollection = $this->entityReader->read(
-            $this->numberRangeDefinition,
-            $criteria,
-            $context
-        );
-
-        if ($configurationCollection->count() === 1) {
-            $this->configuration = $configurationCollection->first();
-        } else {
-            throw new NoConfigurationException($definition, $salesChannelId);
-        }
-    }
-
+    /**
+     * @deprecated tag:v6.5.0 will be removed
+     */
     protected function createPreviewConfiguration(string $definition, ?string $pattern, int $start): void
     {
-        $entity = new NumberRangeTypeEntity();
-        $entity->setTechnicalName($definition);
-        $entity->setGlobal(true);
-        $this->configuration = new NumberRangeEntity();
-        $this->configuration->setId(Uuid::randomHex());
-        $this->configuration->setName('preview');
-        $this->configuration->setType($entity);
-        $this->configuration->setCreatedAt(new \DateTime());
-        $this->configuration->setUpdatedAt(new \DateTime());
-        $this->configuration->setPattern($pattern);
-        $this->configuration->setStart($start);
+        Feature::throwException('v6.5.0.0', 'NumberRangeValueGenerator::createPreviewConfiguration() will be removed.');
     }
 
+    /**
+     * @deprecated tag:v6.5.0 will be removed
+     */
+    protected function readConfiguration(string $definition, Context $context, ?string $salesChannelId): void
+    {
+        Feature::throwException('v6.5.0.0', 'NumberRangeValueGenerator::readConfiguration() will be removed.');
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 will be made private
+     */
     protected function endEvent(string $generatedValue, string $type, Context $context, ?string $salesChannelId, bool $preview): string
     {
         /** @var NumberRangeGeneratedEvent $generatedEvent */
@@ -175,7 +97,49 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
         return $generatedEvent->getGeneratedValue();
     }
 
-    private function generate(?array $parsedPattern, ?bool $preview = false): string
+    /**
+     * @return array{id: string, pattern: string, start: ?int}
+     */
+    private function getConfiguration(string $definition, ?string $salesChannelId): array
+    {
+        if ($salesChannelId) {
+            /** @var array{id: string, pattern: string, start: ?int}|false $config */
+            $config = $this->connection->fetchAssociative('
+                SELECT LOWER(HEX(`number_range`.`id`)) AS `id`, `number_range`.`pattern`, `number_range`.`start`
+                FROM number_range
+                INNER JOIN number_range_type ON number_range_type.id = number_range.type_id
+                LEFT JOIN number_range_sales_channel ON number_range.id = number_range_sales_channel.number_range_id
+                WHERE `number_range_type`.`technical_name` = :typeName AND (
+                    number_range_sales_channel.sales_channel_id = :salesChannelId OR number_range_type.global = 1 OR number_range.global = 1
+                )
+                ORDER BY number_range.global ASC, number_range_type.global ASC
+            ', ['typeName' => $definition, 'salesChannelId' => Uuid::fromHexToBytes($salesChannelId)]);
+        } else {
+            /** @var array{id: string, pattern: string, start: ?int}|false $config */
+            $config = $this->connection->fetchAssociative('
+                SELECT LOWER(HEX(`number_range`.`id`)) AS `id`, `number_range`.`pattern`, `number_range`.`start`
+                FROM number_range
+                INNER JOIN number_range_type ON number_range_type.id = number_range.type_id
+                WHERE `number_range_type`.`technical_name` = :typeName AND (number_range_type.global = 1 OR number_range.global = 1)
+                ORDER BY number_range.global ASC
+            ', ['typeName' => $definition]);
+        }
+
+        if (!$config) {
+            throw new NoConfigurationException($definition, $salesChannelId);
+        }
+
+        if ($config['start']) {
+            $config['start'] = (int) $config['start'];
+        }
+
+        return $config;
+    }
+
+    /**
+     * @param array{id: string, pattern: string, start: ?int} $config
+     */
+    private function generate(?array $parsedPattern, array $config, ?bool $preview = false): string
     {
         $generated = '';
         $startPattern = false;
@@ -193,13 +157,8 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
             if ($startPattern === true) {
                 $patternArg = explode('_', $patternPart);
                 $pattern = array_shift($patternArg);
-                $patternResolver = $this->valueGeneratorPatternRegistry->getPatternResolver($pattern);
-                if ($patternResolver) {
-                    $generated .= $patternResolver->resolve($this->configuration, $patternArg, $preview);
-                } else {
-                    // throw warning...
-                    $generated .= $patternPart;
-                }
+                $generated .= $this->valueGeneratorPatternRegistry->generatePattern($pattern, $patternPart, $config, $patternArg, $preview);
+
                 $startPattern = false;
 
                 continue;

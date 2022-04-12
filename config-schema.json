@@ -63,6 +63,9 @@
                 "cart": {
                     "$ref": "#/definitions/cart"
                 },
+                "number_range": {
+                    "$ref": "#/definitions/number_range"
+                },
                 "sales_channel_context": {
                     "$ref": "#/definitions/sales_channel_context"
                 },
@@ -337,6 +340,30 @@
                 }
             },
             "title": "Cart"
+        },
+        "number_range": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "increment_storage": {
+                    "description": "The storage engine used for the increments. Note that you need to configure a `redis_url` if you want to use the `Redis` storage.",
+                    "anyOf": [
+                        {
+                            "type": "string",
+                            "enum": ["SQL", "Redis"]
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "default": "SQL"
+                },
+                "redis_url": {
+                    "type": "string",
+                    "description": "The redis url to connect to. All number range states will be saved in Redis instead of sql"
+                }
+            },
+            "title": "Number Range"
         },
         "cdn": {
             "type": "object",

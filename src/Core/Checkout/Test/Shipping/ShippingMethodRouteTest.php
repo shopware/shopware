@@ -85,6 +85,60 @@ class ShippingMethodRouteTest extends TestCase
         static::assertEmpty($response['elements'][0]['availabilityRule']);
     }
 
+    public function testSortOrderWithDefault(): void
+    {
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/shipping-method',
+                [
+                ]
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        $ids = array_column($response['elements'], 'id');
+
+        static::assertEquals(
+            [
+                $this->ids->get('shipping'),    // position  1 (selected method & sales-channel default)
+                $this->ids->get('shipping3'),   // position -3
+                $this->ids->get('shipping2'),   // position  5
+            ],
+            $ids
+        );
+    }
+
+    public function testSortOrderWithSelectedShippingMethod(): void
+    {
+        $this->browser->request(
+            'PATCH',
+            '/store-api/context',
+            ['shippingMethodId' => $this->ids->get('shipping2')]
+        );
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/shipping-method',
+                [
+                ]
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        $ids = array_column($response['elements'], 'id');
+
+        static::assertEquals(
+            [
+                $this->ids->get('shipping2'),   // position  5 (selected method)
+                $this->ids->get('shipping'),    // position  1 (sales-channel default)
+                $this->ids->get('shipping3'),   // position -3
+            ],
+            $ids
+        );
+    }
+
     public function testIncludes(): void
     {
         $this->browser
@@ -147,6 +201,7 @@ class ShippingMethodRouteTest extends TestCase
             [
                 'id' => $this->ids->create('shipping'),
                 'active' => true,
+                'position' => 1,
                 'bindShippingfree' => false,
                 'name' => 'test',
                 'availabilityRule' => [
@@ -175,6 +230,7 @@ class ShippingMethodRouteTest extends TestCase
             [
                 'id' => $this->ids->create('shipping2'),
                 'active' => true,
+                'position' => 5,
                 'bindShippingfree' => false,
                 'name' => 'test',
                 'availabilityRule' => [
@@ -203,6 +259,7 @@ class ShippingMethodRouteTest extends TestCase
             [
                 'id' => $this->ids->create('shipping3'),
                 'active' => true,
+                'position' => -3,
                 'bindShippingfree' => false,
                 'name' => 'test',
                 'availabilityRule' => [

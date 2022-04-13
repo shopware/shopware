@@ -35,6 +35,8 @@ describe('Shipping: Test crud operations', () => {
         cy.get(page.elements.smartBarBack).click({ force: true });
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).should('be.visible')
             .contains('Automated test shipping');
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--position`).should('be.visible')
+            .contains('1');
     });
 
     it('@base @settings: update and read shipping method', () => {
@@ -62,6 +64,8 @@ describe('Shipping: Test crud operations', () => {
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--name`).should('be.visible')
             .contains('Wasserpost');
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--position`).should('be.visible')
+            .contains('1');
     });
 
     it('@base @settings: delete shipping method', () => {

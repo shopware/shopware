@@ -1351,6 +1351,7 @@
     "shipping_method.id",
     "shipping_method.name",
     "shipping_method.active",
+    "shipping_method.position",
     "shipping_method.customFields",
     "shipping_method.mediaId",
     "shipping_method.deliveryTimeId",

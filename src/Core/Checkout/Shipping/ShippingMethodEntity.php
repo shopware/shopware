@@ -23,6 +23,7 @@ class ShippingMethodEntity extends Entity
     public const TAX_TYPE_AUTO = 'auto';
     public const TAX_TYPE_FIXED = 'fixed';
     public const TAX_TYPE_HIGHEST = 'highest';
+    public const POSITION_DEFAULT = 1;
 
     /**
      * @var string|null
@@ -33,6 +34,11 @@ class ShippingMethodEntity extends Entity
      * @var bool
      */
     protected $active;
+
+    /**
+     * @var int
+     */
+    protected $position;
 
     /**
      * @var string|null
@@ -142,6 +148,16 @@ class ShippingMethodEntity extends Entity
     public function setActive(bool $active): void
     {
         $this->active = $active;
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
     }
 
     public function getDescription(): ?string

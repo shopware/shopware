@@ -343,4 +343,129 @@ describe('Test payment and shipping methods selection', () => {
 
         cy.get('.product-name').contains(product.name);
     });
+
+    it('@base @confirm: should have correct order of shipping methods', () => {
+        cy.window().then((win) => {
+            const salesChannels = [
+                { id: win.salesChannelId }
+            ];
+
+            const SHIPPING_METHOD_STANDARD = 'Standard';
+            const SHIPPING_METHOD_EXPRESS = 'Express';
+
+            let defaultShippingMethodId = null;
+            let initialShippingMethods = {};
+
+            /**
+             * since the assignment of the default shipping method for the sales-channel
+             * in the migration is not deterministic. so, we first need to find out what
+             * the state is in order to build the correct assertions
+             */
+            cy.searchViaAdminApi({
+                endpoint: 'sales-channel',
+                data: {
+                    field: 'name',
+                    value: 'Storefront',
+                }
+            }).then((salesChannel) => {
+                defaultShippingMethodId = salesChannel.attributes.shippingMethodId;
+
+                return cy.searchViaAdminApi({
+                    endpoint: 'shipping-method',
+                    data: {
+                        field: 'name',
+                        value: SHIPPING_METHOD_STANDARD,
+                    }
+                });
+            }).then((standardShippingMethod) => {
+                const {id} = standardShippingMethod;
+
+                initialShippingMethods[id] = SHIPPING_METHOD_STANDARD;
+
+                return cy.searchViaAdminApi({
+                    endpoint: 'shipping-method',
+                    data: {
+                        field: 'name',
+                        value: SHIPPING_METHOD_EXPRESS,
+                    }
+                })
+            }).then((expressShippingMethod) => {
+                const {id} = expressShippingMethod;
+
+                initialShippingMethods[id] = SHIPPING_METHOD_EXPRESS;
+                initialShippingMethods[id] = SHIPPING_METHOD_EXPRESS;
+
+                cy.createShippingFixture({ name: 'Test Method #1', position: -1, salesChannels})
+                    .then(() => {
+                        return cy.createShippingFixture({ name: 'Test Method #2', position: 3, salesChannels});
+                    })
+                    .then(() => {
+                        return cy.createShippingFixture({ name: 'Test Method #3', position: -2, salesChannels});
+                    })
+                    .then(() => {
+                        return cy.createShippingFixture({ name: 'Test Method #4', position: 4, salesChannels});
+                    })
+                    .then(() => {
+                        const page = new CheckoutPageObject();
+
+                        // add product to cart
+                        cy.get('.header-search-input')
+                            .should('be.visible')
+                            .type(product.name);
+                        cy.contains('.search-suggest-product-name', product.name).click();
+                        cy.get('.product-detail-buy .btn-buy').click();
+
+                        // Off canvas
+                        cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
+                        cy.get(`${page.elements.cartItem}-label`).contains(product.name);
+
+                        // Go to cart
+                        cy.get('.offcanvas-cart-actions [href="/checkout/confirm"]').click();
+
+                        // check for correct collapsed state at page initialization
+                        cy.get(`${page.elements.shippingMethodsContainer}`)
+                            .should('be.visible')
+                            .children('.shipping-method')
+                            .should('have.length', 5);
+
+                        cy.get(`${page.elements.shippingMethodsCollapseContainer}`).should('exist');
+                        cy.get(`${page.elements.shippingMethodsCollapseContainer} > .shipping-method`).should('not.be.visible');
+                        cy.get(`${page.elements.shippingMethodsCollapseTrigger}`)
+                            .should('be.visible')
+                            .should('contain', 'Show more');
+
+                        // click collapse trigger to show other payment methods
+                        cy.get(`${page.elements.shippingMethodsCollapseTrigger}`).click();
+                        cy.get(`${page.elements.shippingMethodsCollapseContainer} > .shipping-method`).should('be.visible');
+                        cy.get(`${page.elements.shippingMethodsCollapseTrigger}`).should('contain', 'Show less');
+
+                        // click it again to collapse methods again
+                        cy.get(`${page.elements.shippingMethodsCollapseTrigger}`).click();
+                        cy.get(`${page.elements.shippingMethodsCollapseContainer}`).should('exist'); // wait for collapse to finish transition
+                        cy.get(`${page.elements.shippingMethodsCollapseContainer} > .shipping-method`).should('not.be.visible');
+                        cy.get(`${page.elements.shippingMethodsCollapseTrigger}`).should('contain', 'Show more');
+
+                        const defaultShippingMethodName = initialShippingMethods[defaultShippingMethodId];
+                        const remainingShippingMethod = defaultShippingMethodName === SHIPPING_METHOD_STANDARD
+                            ? SHIPPING_METHOD_EXPRESS : SHIPPING_METHOD_STANDARD;
+
+                        const expectedOrder = {
+                            0: defaultShippingMethodName,   // position:  1
+                            1: 'Test Method #3',            // position: -2
+                            2: 'Test Method #1',            // position: -1
+                            3: remainingShippingMethod,     // position:  1
+                            4: 'Test Method #2',            // position:  3
+                            5: 'Test Method #4',            // position:  4
+                        }
+
+                        cy.get(`${page.elements.shippingMethodsContainer} .shipping-method-description`)
+                            .each(($div, index) => {
+                                expect($div.text().trim()).to.equal(expectedOrder[index]);
+                            });
+                    });
+                });
+            });
+
+
+    });
 });

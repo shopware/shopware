@@ -84,7 +84,7 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
             ->addAssociation('media');
 
         if (empty($criteria->getSorting())) {
-            $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
+            $criteria->addSorting(new FieldSorting('position'), new FieldSorting('name', FieldSorting::ASCENDING));
         }
 
         $result = $this->shippingMethodRepository->search($criteria, $context);

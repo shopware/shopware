@@ -247,6 +247,12 @@ parameters:
             count: 1
             path: src/Core/Checkout/Test/Cart/Facade/CartFacadeTest.php
 
+        # Method will get third parameter in 6.5
+        -
+            message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\AbstractReverseProxyGateway\\:\\:tag\\(\\) invoked with 3 parameters, 2 required\\.$#"
+            count: 1
+            path: src/Storefront/Framework/Cache/ReverseProxy/ReverseProxyCache.php
+
 services:
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Decoratable\DecoratableImplementsInterfaceRule

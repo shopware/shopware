@@ -8,9 +8,20 @@ use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use function sprintf;
 
 class RedisReverseProxyGateway extends AbstractReverseProxyGateway
 {
+    /**
+     * @var array{'method': string, 'headers': array<string, string>}
+     */
+    protected array $singlePurge;
+
+    /**
+     * @var array{'method': string, 'headers': array<string, string>, 'urls': string[]}
+     */
+    protected array $entirePurge;
+
     /**
      * @var string[]
      */
@@ -19,10 +30,6 @@ class RedisReverseProxyGateway extends AbstractReverseProxyGateway
     private Client $client;
 
     private int $concurrency;
-
-    private string $banMethod;
-
-    private array $banHeaders;
 
     /**
      * @var \Redis|\RedisCluster
@@ -51,21 +58,23 @@ LUA;
 
     /**
      * @param \Redis|\RedisCluster $redis
+     * @param array{'method': string, 'headers': array<string, string>} $singlePurge
+     * @param array{'method': string, 'headers': array<string, string>, 'urls': string[]} $entirePurge
      */
-    public function __construct(array $hosts, int $concurrency, string $banMethod, array $banHeaders, $redis, Client $client)
+    public function __construct(array $hosts, array $singlePurge, array $entirePurge, int $concurrency, $redis, Client $client)
     {
         $this->hosts = $hosts;
         $this->client = $client;
         $this->concurrency = $concurrency;
-        $this->banMethod = $banMethod;
         $this->redis = $redis;
-        $this->banHeaders = $banHeaders;
+        $this->singlePurge = $singlePurge;
+        $this->entirePurge = $entirePurge;
     }
 
     /**
      * @param string[] $tags
      */
-    public function tag(array $tags, string $url): void
+    public function tag(array $tags, string $url/*, Response $response */): void
     {
         foreach ($tags as $tag) {
             $this->redis->lPush($tag, $url);
@@ -89,13 +98,37 @@ LUA;
 
         foreach ($urls as $url) {
             foreach ($this->hosts as $host) {
-                $list[] = new Request($this->banMethod, $host . $url, $this->banHeaders);
+                $list[] = new Request($this->singlePurge['method'], $host . $url, $this->singlePurge['headers']);
             }
         }
 
         $pool = new Pool($this->client, $list, [
             'concurrency' => $this->concurrency,
             'rejected' => function (TransferException $reason): void {
+                if ($reason instanceof ServerException) {
+                    throw new \RuntimeException(sprintf('BAN request failed to %s failed with error: %s', $reason->getRequest()->getUri()->__toString(), $reason->getMessage()), 0, $reason);
+                }
+
+                throw $reason;
+            },
+        ]);
+
+        $pool->promise()->wait();
+    }
+
+    public function banAll(): void
+    {
+        $list = [];
+
+        foreach ($this->entirePurge['urls'] as $url) {
+            foreach ($this->hosts as $host) {
+                $list[] = new Request($this->entirePurge['method'], $host . $url, $this->entirePurge['headers']);
+            }
+        }
+
+        $pool = new Pool($this->client, $list, [
+            'concurrency' => $this->concurrency,
+            'rejected' => function (\Throwable $reason): void {
                 if ($reason instanceof ServerException) {
                     throw new \RuntimeException(sprintf('BAN request failed to %s failed with error: %s', $reason->getRequest()->getUri()->__toString(), $reason->getMessage()), 0, $reason);
                 }

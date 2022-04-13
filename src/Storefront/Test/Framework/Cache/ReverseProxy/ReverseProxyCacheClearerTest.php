@@ -7,6 +7,7 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use Shopware\Storefront\Framework\Cache\ReverseProxy\RedisReverseProxyGateway;
 use Shopware\Storefront\Framework\Cache\ReverseProxy\ReverseProxyCacheClearer;
 
 class ReverseProxyCacheClearerTest extends TestCase
@@ -15,19 +16,38 @@ class ReverseProxyCacheClearerTest extends TestCase
 
     private Client $client;
 
+    private RedisReverseProxyGateway $gateway;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->mockHandler = new MockHandler();
         $this->client = new Client(['handler' => HandlerStack::create($this->mockHandler)]);
+        $this->gateway = new RedisReverseProxyGateway(
+            ['http://localhost'],
+            ['method' => 'BAN', 'headers' => []],
+            ['method' => 'PURGE', 'headers' => ['foo' => '1'], 'urls' => ['/']],
+            3,
+            $this->createMock(\Redis::class),
+            $this->client
+        );
     }
 
     public function testClear(): void
     {
         $this->mockHandler->append(new Response(200));
 
-        $clearer = new ReverseProxyCacheClearer($this->client, ['http://localhost'], 'PURGE', [], ['/'], 1);
+        $this->gateway = new RedisReverseProxyGateway(
+            ['http://localhost'],
+            ['method' => 'BAN', 'headers' => []],
+            ['method' => 'PURGE', 'headers' => [], 'urls' => ['/']],
+            3,
+            $this->createMock(\Redis::class),
+            $this->client
+        );
+
+        $clearer = new ReverseProxyCacheClearer($this->gateway);
         $clearer->clear('noop');
 
         static::assertSame('PURGE', $this->mockHandler->getLastRequest()->getMethod());
@@ -39,7 +59,7 @@ class ReverseProxyCacheClearerTest extends TestCase
     {
         $this->mockHandler->append(new Response(200));
 
-        $clearer = new ReverseProxyCacheClearer($this->client, ['http://localhost'], 'PURGE', ['foo' => 1], ['/'], 1);
+        $clearer = new ReverseProxyCacheClearer($this->gateway);
         $clearer->clear('noop');
 
         static::assertSame('PURGE', $this->mockHandler->getLastRequest()->getMethod());
@@ -51,7 +71,7 @@ class ReverseProxyCacheClearerTest extends TestCase
     {
         $this->mockHandler->append(new Response(500));
 
-        $clearer = new ReverseProxyCacheClearer($this->client, ['http://localhost'], 'PURGE', ['foo' => 1], ['/'], 1);
+        $clearer = new ReverseProxyCacheClearer($this->gateway);
 
         static::expectException(\RuntimeException::class);
         $clearer->clear('noop');
@@ -63,7 +83,7 @@ class ReverseProxyCacheClearerTest extends TestCase
             throw new \RuntimeException('foo');
         });
 
-        $clearer = new ReverseProxyCacheClearer($this->client, ['http://localhost'], 'PURGE', ['foo' => 1], ['/'], 1);
+        $clearer = new ReverseProxyCacheClearer($this->gateway);
 
         static::expectException(\RuntimeException::class);
         $clearer->clear('noop');

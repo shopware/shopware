@@ -71,7 +71,7 @@ class ReverseProxyCache implements StoreInterface
 
         $response->headers->set(CacheResponseSubscriber::INVALIDATION_STATES_HEADER, \implode(',', $states));
 
-        $this->gateway->tag(array_values($tags), $request->attributes->get(RequestTransformer::ORIGINAL_REQUEST_URI));
+        $this->gateway->tag(array_values($tags), $request->attributes->get(RequestTransformer::ORIGINAL_REQUEST_URI), $response);
 
         return '';
     }

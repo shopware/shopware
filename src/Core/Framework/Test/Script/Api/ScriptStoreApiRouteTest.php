@@ -117,6 +117,15 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertEquals($expected, $response);
     }
 
+    public function testScriptExecutionViaGet(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures');
+
+        $this->browser->request('GET', '/store-api/script/repository-test');
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+    }
+
     public function testInsufficientPermissionException(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');

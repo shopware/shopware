@@ -30,7 +30,7 @@ class StoreApiCacheKeyHook extends OptionalFunctionHook implements SalesChannelC
 
     private string $name;
 
-    private ?string $cacheKey;
+    private ?string $cacheKey = null;
 
     public function __construct(string $name, array $request, array $query, SalesChannelContext $salesChannelContext)
     {

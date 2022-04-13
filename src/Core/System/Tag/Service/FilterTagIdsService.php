@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -39,20 +40,14 @@ class FilterTagIdsService
     {
         $query = $this->getIdsQuery($criteria, $context);
         $duplicateFilter = $request->get('duplicateFilter', false);
+        $emptyFilter = $request->get('emptyFilter', false);
+
+        if ($emptyFilter) {
+            $this->addEmptyFilter($query);
+        }
 
         if ($duplicateFilter) {
-            $subQuery = (new QueryBuilder($this->connection))
-                ->select(['name'])
-                ->from('tag')
-                ->groupBy('name')
-                ->having('COUNT(`name`) > 1');
-
-            $query->innerJoin(
-                '`tag`',
-                sprintf('(%s)', $subQuery->getSQL()),
-                'duplicate',
-                'duplicate.`name` = `tag`.`name`'
-            );
+            $this->addDuplicateFilter($query);
         }
 
         $ids = $query->execute()->fetchFirstColumn();
@@ -122,5 +117,40 @@ class FilterTagIdsService
 
             break;
         }
+    }
+
+    private function addEmptyFilter(QueryBuilder $query): void
+    {
+        /** @var ManyToManyAssociationField[] $manyToManyFields */
+        $manyToManyFields = $this->tagDefinition->getFields()->filter(function (Field $field) {
+            return $field instanceof ManyToManyAssociationField;
+        });
+
+        foreach ($manyToManyFields as $manyToManyField) {
+            $mappingTable = EntityDefinitionQueryHelper::escape($manyToManyField->getMappingDefinition()->getEntityName());
+            $mappingLocalColumn = EntityDefinitionQueryHelper::escape($manyToManyField->getMappingLocalColumn());
+
+            $subQuery = (new QueryBuilder($this->connection))
+                ->select([$mappingLocalColumn])
+                ->from($mappingTable);
+
+            $query->andWhere($query->expr()->notIn('`tag`.`id`', sprintf('(%s)', $subQuery->getSQL())));
+        }
+    }
+
+    private function addDuplicateFilter(QueryBuilder $query): void
+    {
+        $subQuery = (new QueryBuilder($this->connection))
+            ->select(['name'])
+            ->from('tag')
+            ->groupBy('name')
+            ->having('COUNT(`name`) > 1');
+
+        $query->innerJoin(
+            '`tag`',
+            sprintf('(%s)', $subQuery->getSQL()),
+            'duplicate',
+            'duplicate.`name` = `tag`.`name`'
+        );
     }
 }

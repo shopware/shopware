@@ -11,14 +11,14 @@ export default class TagApiService extends ApiService {
 
     /**
      * @param params: RequestParams
-     * @param duplicateFilter: Boolean
+     * @param filters: Object
      * @param additionalHeaders: Object
      * @returns {*} - ApiService.handleResponse(response)
      */
-    filterIds(params, duplicateFilter = false, additionalHeaders = {}) {
+    filterIds(params, filters = {}, additionalHeaders = {}) {
         return this.httpClient.post(
             '_admin/tag-filter-ids',
-            { ...params, ...{ duplicateFilter } },
+            { ...params, ...filters },
             {
                 headers: this.getBasicHeaders(additionalHeaders),
             },

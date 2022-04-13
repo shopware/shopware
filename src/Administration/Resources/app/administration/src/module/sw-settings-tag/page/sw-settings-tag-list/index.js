@@ -85,14 +85,6 @@ Component.register('sw-settings-tag-list', {
                 ]));
             }
 
-            if (this.emptyFilter) {
-                const emptyFilters = [];
-                this.assignmentFilterOptions.forEach(({ value }) => {
-                    emptyFilters.push(Criteria.equals(`tag.${value}.id`, null));
-                });
-                criteria.addFilter(Criteria.multi('AND', emptyFilters));
-            }
-
             return criteria;
         },
 
@@ -155,8 +147,11 @@ Component.register('sw-settings-tag-list', {
                 this.$refs.swCardFilter.term = this.term ?? '';
             }
 
-            if (this.duplicateFilter || this.sortBy === 'connections') {
-                this.tagApiService.filterIds(this.tagCriteria.parse(), this.duplicateFilter).then(({ total, ids }) => {
+            if (this.duplicateFilter || this.emptyFilter || this.sortBy === 'connections') {
+                this.tagApiService.filterIds(this.tagCriteria.parse(), {
+                    duplicateFilter: this.duplicateFilter,
+                    emptyFilter: this.emptyFilter,
+                }).then(({ total, ids }) => {
                     this.total = total;
 
                     if (total === 0) {

@@ -24,6 +24,7 @@ return [
         'The return type of Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Command\\\\Changelog(Check|Change|Create)Command#execute\(\) changed from no type to int',
         'Symfony\\\\Component\\\\HttpFoundation\\\\Response::\\$statusTexts',
         'Symfony\\\\Component\\\\HttpKernel\\\\Kernel#\\$bundles',
+        'The return type of Symfony\\\\Component\\\\Console\\\\Command\\\\Command#configure\(\) changed from no type to void', // The method has no return type by default but it most likely will add one in the future, so it should be added now. However, doing so can be considered a BC change as any extended class needs to add the return type now.
 
         // OpenAPI library update
         'The return type of Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi\\\\DeactivateValidationAnalysis#validate',

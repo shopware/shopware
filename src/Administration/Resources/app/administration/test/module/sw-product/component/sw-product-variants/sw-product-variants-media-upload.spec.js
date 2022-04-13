@@ -150,10 +150,12 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         const entities = [
             {
                 mediaId: 'mediaId1',
+                media: 'media1',
                 id: 'id1'
             },
             {
                 mediaId: 'mediaId2',
+                media: 'media2',
                 id: 'id2'
             }
         ];
@@ -187,7 +189,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
 
         const cover = wrapper.find('.sw-product-variants-media-upload__preview-cover sw-media-preview-v2-stub');
 
-        expect(cover.attributes().source).toBe('mediaId2');
+        expect(cover.attributes().source).toBe('media2');
 
         const images = wrapper.findAll('.sw-product-variants-media-upload__images .sw-product-variants-media-upload__image');
         const media = images.at(0);
@@ -291,6 +293,41 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         expect(wrapper.vm.source.media).toEqual(expect.arrayContaining(newMedia));
 
         wrapper.vm.addMedia.mockRestore();
+    });
+
+    it('should reject duplicated media', async () => {
+        await wrapper.vm.$nextTick();
+
+        const entities = [{ productId: 101, mediaId: 'mediaId', position: 0 }];
+        const newMedia = [{ id: 'id', fileName: 'fileName', fileSize: 101 }];
+
+        await wrapper.setProps({
+            source: {
+                id: 'id',
+                media: new EntityCollection('', '', {}, null, entities)
+            }
+        });
+
+        await wrapper.vm.addMedia(newMedia[0]);
+        await expect(wrapper.vm.addMedia(newMedia[0])).rejects.toEqual(newMedia[0]);
+    });
+
+    it('should not be able to add duplicated uploaded media', async () => {
+        await wrapper.vm.$nextTick();
+
+        const entities = [{ productId: 101, mediaId: 'mediaId', position: 0 }];
+
+        await wrapper.setProps({
+            source: {
+                id: 'id',
+                media: new EntityCollection('', '', {}, null, entities)
+            }
+        });
+
+        await wrapper.vm.onUploadMediaSuccessful({ targetId: 'targetId' });
+        await wrapper.vm.onUploadMediaSuccessful({ targetId: 'targetId' });
+
+        expect(wrapper.vm.source.media).toHaveLength(2);
     });
 
     it('should not be able to add a new media', async () => {

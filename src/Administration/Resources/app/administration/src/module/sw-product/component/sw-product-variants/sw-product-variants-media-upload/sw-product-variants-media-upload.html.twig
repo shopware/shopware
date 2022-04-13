@@ -19,7 +19,7 @@
                     {% block sw_product_variants_media_upload_cover_image %}
                     <sw-media-preview-v2
                         class="sw-product-variants-media-upload__cover-image"
-                        :source="cover ? cover.mediaId : product.cover.mediaId"
+                        :source="coverImageSource"
                     />
                     {% endblock %}
                 </div>
@@ -51,7 +51,7 @@
                             :key="item.id"
                             class="sw-media-upload-v2__preview"
                             :class="{ 'is--cover': isCover(item), 'is--disabled': disabled }"
-                            :source="item.mediaId"
+                            :source="item.media && item.productId ? item.media : item.mediaId"
                         />
                         {% endblock %}
 

@@ -49,4 +49,21 @@ describe('app/service/media-default-folder.service.js', () => {
             expect(id).toEqual('defaultFolderId');
         });
     });
+
+    it('getDefaultFolderId function should return a response faster when called with the same argument', () => {
+        const mediaDefaultFolderService = MediaDefaultFolderService();
+
+        const startNotSaved = performance.now();
+        mediaDefaultFolderService.getDefaultFolderId('product');
+        const endNotSaved = performance.now();
+
+        const startSaved = performance.now();
+        mediaDefaultFolderService.getDefaultFolderId('product');
+        const endSaved = performance.now();
+
+        const savedResponse = endSaved - startSaved;
+        const notSavedResponse = endNotSaved - startNotSaved;
+
+        expect(savedResponse).toBeLessThan(notSavedResponse);
+    });
 });

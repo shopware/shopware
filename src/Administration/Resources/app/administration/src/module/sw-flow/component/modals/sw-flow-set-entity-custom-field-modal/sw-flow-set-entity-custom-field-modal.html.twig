@@ -26,6 +26,7 @@
             class="sw-flow-set-entity-custom-field-modal__custom-field-set"
             entity="custom_field_set"
             required
+            :label-property="labelProperty"
             :disabled="!entity"
             :criteria="customFieldSetCriteria"
             :label="$tc('sw-flow.modals.setEntityCustomField.customFieldSet')"
@@ -49,6 +50,7 @@
             class="sw-flow-set-entity-custom-field-modal__custom-field"
             entity="custom_field"
             required
+            :label-property="labelProperty"
             :label="$tc('sw-flow.modals.setEntityCustomField.customField')"
             :disabled="!customFieldSetId"
             :criteria="customFieldCriteria"

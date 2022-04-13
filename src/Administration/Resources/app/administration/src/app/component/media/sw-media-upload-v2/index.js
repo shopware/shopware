@@ -253,6 +253,10 @@ Component.register('sw-media-upload-v2', {
         },
 
         onDragEnter() {
+            if (this.disabled) {
+                return;
+            }
+
             this.isDragActive = true;
         },
 

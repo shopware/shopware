@@ -76,6 +76,8 @@ Component.register('sw-settings-cache-index', {
                 'sales_channel.indexer': [
                     'sales_channel.many-to-many',
                 ],
+                'flow.indexer': [],
+                'newsletter_recipient.indexer': [],
             },
         };
     },

@@ -113,6 +113,16 @@
           "title": "Import/Export",
           "message": "Data is being imported/exported.",
           "messageSuccess": "All imports/exports finished."
+        },
+        "flow": {
+          "title": "Info/Success",
+          "message": "Indexing flows.",
+          "messageSuccess": "Flows have been indexed."
+        },
+        "newsletterRecipient": {
+          "title": "Info/Success",
+          "message": "Indexing newsletter recipients.",
+          "messageSuccess": "Newsletter recipients have been indexed."
         }
       },
       "plugin-updates-listener": {

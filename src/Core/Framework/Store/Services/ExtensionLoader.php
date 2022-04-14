@@ -315,8 +315,14 @@ class ExtensionLoader
         $permissions = [];
 
         foreach ($appPrivileges as $privilege) {
-            $entityAndOperation = explode(':', $privilege);
-            $permissions[] = array_combine(['entity', 'operation'], $entityAndOperation);
+            if (substr_count($privilege, ':') === 1) {
+                $entityAndOperation = explode(':', $privilege);
+                $permissions[] = array_combine(['entity', 'operation'], $entityAndOperation);
+
+                continue;
+            }
+
+            $permissions[] = ['operation' => $privilege, 'entity' => 'additional_privileges'];
         }
 
         return $permissions;

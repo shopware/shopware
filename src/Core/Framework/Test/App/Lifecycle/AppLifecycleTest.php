@@ -1121,7 +1121,7 @@ class AppLifecycleTest extends TestCase
 
         $privileges = json_decode($privileges, true);
 
-        static::assertCount(15, $privileges);
+        static::assertCount(16, $privileges);
 
         static::assertContains('product:read', $privileges);
         static::assertContains('product:create', $privileges);
@@ -1138,6 +1138,7 @@ class AppLifecycleTest extends TestCase
         static::assertContains('custom_field_set:read', $privileges);
         static::assertContains('custom_field_set:update', $privileges);
         static::assertContains('order:read', $privileges);
+        static::assertContains('user_change_me', $privileges);
     }
 
     private function assertDefaultCustomFields(string $appId): void

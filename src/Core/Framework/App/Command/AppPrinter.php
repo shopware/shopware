@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -86,6 +87,12 @@ class AppPrinter
 
     public function printPermissions(Manifest $app, ShopwareStyle $io, bool $install): void
     {
+        $permission = $app->getPermissions();
+
+        if (!$permission) {
+            return;
+        }
+
         $io->caution(
             sprintf(
                 'App "%s" should be %s but requires following permissions:',
@@ -94,28 +101,22 @@ class AppPrinter
             )
         );
 
-        $this->printPermissionTable($io, $this->reducePermissions($app));
+        $this->printPermissionTable($io, $permission);
     }
 
-    private function reducePermissions(Manifest $app): array
-    {
-        $permissions = [];
-        foreach ($app->getPermissions()->getPermissions() as $resource => $privileges) {
-            foreach ($privileges as $privilege) {
-                $permissions[$resource][] = self::PRIVILEGE_TO_HUMAN_READABLE[$privilege];
-            }
-        }
-
-        return $permissions;
-    }
-
-    private function printPermissionTable(ShopwareStyle $io, array $permissions): void
+    private function printPermissionTable(ShopwareStyle $io, Permissions $permissions): void
     {
         $permissionTable = [];
-        foreach ($permissions as $resource => $privileges) {
+        foreach ($this->reducePermissions($permissions) as $resource => $privileges) {
             $permissionTable[] = [
                 $resource,
                 implode(', ', array_unique($privileges)),
+            ];
+        }
+        foreach ($permissions->getAdditionalPrivileges() as $additionalPrivilege) {
+            $permissionTable[] = [
+                '',
+                $additionalPrivilege,
             ];
         }
 
@@ -123,5 +124,17 @@ class AppPrinter
             ['Resource', 'Privileges'],
             $permissionTable
         );
+    }
+
+    private function reducePermissions(Permissions $permissions): array
+    {
+        $reduced = [];
+        foreach ($permissions->getPermissions() as $resource => $privileges) {
+            foreach ($privileges as $privilege) {
+                $reduced[$resource][] = self::PRIVILEGE_TO_HUMAN_READABLE[$privilege];
+            }
+        }
+
+        return $reduced;
     }
 }

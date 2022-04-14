@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Kernel;
+use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Asset\PackageInterface;
@@ -55,6 +56,8 @@ class InfoController extends AbstractController
 
     private Connection $connection;
 
+    private AppUrlVerifier $appUrlVerifier;
+
     /**
      * @param array{administration?: string} $cspTemplates
      *
@@ -68,6 +71,7 @@ class InfoController extends AbstractController
         BusinessEventCollector $eventCollector,
         IncrementGatewayRegistry $incrementGatewayRegistry,
         Connection $connection,
+        AppUrlVerifier $appUrlVerifier,
         ?FlowActionCollector $flowActionCollector = null,
         bool $enableUrlFeature = true,
         array $cspTemplates = []
@@ -82,6 +86,7 @@ class InfoController extends AbstractController
         $this->eventCollector = $eventCollector;
         $this->incrementGatewayRegistry = $incrementGatewayRegistry;
         $this->connection = $connection;
+        $this->appUrlVerifier = $appUrlVerifier;
     }
 
     /**
@@ -192,8 +197,9 @@ class InfoController extends AbstractController
      * @Route("/api/_info/config", name="api.info.config", methods={"GET"})
      *
      * @deprecated tag:v6.5.0 $context param will be required
+     * @deprecated tag:v6.5.0 $request param will be required
      */
-    public function config(?Context $context = null): JsonResponse
+    public function config(?Context $context = null, ?Request $request = null): JsonResponse
     {
         if (!$context) {
             Feature::triggerDeprecationOrThrow(
@@ -202,6 +208,11 @@ class InfoController extends AbstractController
             );
 
             $context = Context::createDefaultContext();
+        }
+
+        $appUrlReachable = true;
+        if ($request) {
+            $appUrlReachable = $this->appUrlVerifier->isAppUrlReachable($request);
         }
 
         return new JsonResponse([
@@ -214,6 +225,7 @@ class InfoController extends AbstractController
             'bundles' => $this->getBundles($context),
             'settings' => [
                 'enableUrlFeature' => $this->enableUrlFeature,
+                'appUrlReachable' => $appUrlReachable,
             ],
         ]);
     }

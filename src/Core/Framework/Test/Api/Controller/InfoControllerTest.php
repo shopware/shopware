@@ -28,6 +28,7 @@ use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
+use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Symfony\Component\Asset\Package;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
@@ -52,6 +53,7 @@ class InfoControllerTest extends TestCase
             'bundles' => [],
             'settings' => [
                 'enableUrlFeature' => true,
+                'appUrlReachable' => true,
             ],
         ];
 
@@ -70,6 +72,8 @@ class InfoControllerTest extends TestCase
         foreach (array_keys($expected) as $key) {
             static::assertArrayHasKey($key, $decodedResponse);
         }
+
+        static::assertEquals($expected['settings'], $decodedResponse['settings']);
 
         unset($expected['settings']);
         $expectedJson = json_encode($expected);
@@ -325,6 +329,7 @@ class InfoControllerTest extends TestCase
             $this->getContainer()->get('shopware.increment.gateway.registry'),
             $this->getContainer()->get(Connection::class),
             $eventCollector,
+            $this->getContainer()->get(AppUrlVerifier::class),
             true,
             []
         );

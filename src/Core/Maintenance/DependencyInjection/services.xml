@@ -59,6 +59,13 @@
 
         <service id="Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator"/>
 
+        <service id="Shopware\Core\Maintenance\System\Service\AppUrlVerifier">
+            <argument type="service" id="shopware.maintenance.client"/>
+            <argument>%kernel.environment%</argument>
+        </service>
+
+        <service id="shopware.maintenance.client" class="GuzzleHttp\Client"/>
+
         <service id="Shopware\Core\Maintenance\System\Service\ShopConfigurator">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>

@@ -383,6 +383,7 @@ class InfoControllerTest extends TestCase
             $this->getContainer()->get('shopware.increment.gateway.registry'),
             $this->getContainer()->get(Connection::class),
             $eventCollector,
+            $this->getContainer()->get(AppUrlVerifier::class),
             true,
             []
         );

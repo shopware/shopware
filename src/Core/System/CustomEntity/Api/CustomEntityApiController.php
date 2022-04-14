@@ -5,6 +5,8 @@ namespace Shopware\Core\System\CustomEntity\Api;
 use Shopware\Core\Framework\Api\Controller\ApiController;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
+use Shopware\Core\System\CustomEntity\Exception\CustomEntityNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -24,9 +26,13 @@ class CustomEntityApiController extends ApiController
      */
     public function detail(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
-        $entityName = 'custom-entity-' . $entityName;
+        $entity = 'custom-entity-' . $entityName;
 
-        return parent::detail($request, $context, $responseFactory, $entityName, $path);
+        try {
+            return parent::detail($request, $context, $responseFactory, $entity, $path);
+        } catch (DefinitionNotFoundException $e) {
+            throw new CustomEntityNotFoundException($entityName);
+        }
     }
 
     /**
@@ -39,9 +45,13 @@ class CustomEntityApiController extends ApiController
      */
     public function searchIds(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
-        $entityName = 'custom-entity-' . $entityName;
+        $entity = 'custom-entity-' . $entityName;
 
-        return parent::searchIds($request, $context, $responseFactory, $entityName, $path);
+        try {
+            return parent::searchIds($request, $context, $responseFactory, $entity, $path);
+        } catch (DefinitionNotFoundException $e) {
+            throw new CustomEntityNotFoundException($entityName);
+        }
     }
 
     /**
@@ -54,9 +64,13 @@ class CustomEntityApiController extends ApiController
      */
     public function search(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
-        $entityName = 'custom-entity-' . $entityName;
+        $entity = 'custom-entity-' . $entityName;
 
-        return parent::search($request, $context, $responseFactory, $entityName, $path);
+        try {
+            return parent::search($request, $context, $responseFactory, $entity, $path);
+        } catch (DefinitionNotFoundException $e) {
+            throw new CustomEntityNotFoundException($entityName);
+        }
     }
 
     /**
@@ -69,9 +83,13 @@ class CustomEntityApiController extends ApiController
      */
     public function list(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
-        $entityName = 'custom-entity-' . $entityName;
+        $entity = 'custom-entity-' . $entityName;
 
-        return parent::list($request, $context, $responseFactory, $entityName, $path);
+        try {
+            return parent::list($request, $context, $responseFactory, $entity, $path);
+        } catch (DefinitionNotFoundException $e) {
+            throw new CustomEntityNotFoundException($entityName);
+        }
     }
 
     /**
@@ -84,9 +102,13 @@ class CustomEntityApiController extends ApiController
      */
     public function create(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
-        $entityName = 'custom-entity-' . $entityName;
+        $entity = 'custom-entity-' . $entityName;
 
-        return parent::create($request, $context, $responseFactory, $entityName, $path);
+        try {
+            return parent::create($request, $context, $responseFactory, $entity, $path);
+        } catch (DefinitionNotFoundException $e) {
+            throw new CustomEntityNotFoundException($entityName);
+        }
     }
 
     /**
@@ -99,9 +121,13 @@ class CustomEntityApiController extends ApiController
      */
     public function update(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
-        $entityName = 'custom-entity-' . $entityName;
+        $entity = 'custom-entity-' . $entityName;
 
-        return parent::update($request, $context, $responseFactory, $entityName, $path);
+        try {
+            return parent::update($request, $context, $responseFactory, $entity, $path);
+        } catch (DefinitionNotFoundException $e) {
+            throw new CustomEntityNotFoundException($entityName);
+        }
     }
 
     /**
@@ -114,8 +140,12 @@ class CustomEntityApiController extends ApiController
      */
     public function delete(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
-        $entityName = 'custom-entity-' . $entityName;
+        $entity = 'custom-entity-' . $entityName;
 
-        return parent::delete($request, $context, $responseFactory, $entityName, $path);
+        try {
+            return parent::delete($request, $context, $responseFactory, $entity, $path);
+        } catch (DefinitionNotFoundException $e) {
+            throw new CustomEntityNotFoundException($entityName);
+        }
     }
 }

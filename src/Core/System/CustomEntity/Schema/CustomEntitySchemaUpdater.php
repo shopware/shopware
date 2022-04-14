@@ -108,6 +108,7 @@ class CustomEntitySchemaUpdater
         $translation->setComment(self::COMMENT);
         $translation->addColumn($name . '_id', Types::BINARY, $binary);
         $translation->addColumn('language_id', Types::BINARY, $binary);
+        $translation->setPrimaryKey([$name . '_id', 'language_id']);
 
         $fk = 'fk_ce_' . $translation->getName() . '_root';
         $translation->addForeignKeyConstraint($table, [$name . '_id'], ['id'], ['onUpdate' => 'cascade', 'onDelete' => 'cascade'], $fk);

@@ -46,10 +46,10 @@ class Migration1649315608AllowDisableTest extends TestCase
     private function hasColumn(string $table, string $columnName): bool
     {
         return \count(array_filter(
-                $this->connection->getSchemaManager()->listTableColumns($table),
-                static function (Column $column) use ($columnName): bool {
-                    return $column->getName() === $columnName;
-                }
-            )) > 0;
+            $this->connection->getSchemaManager()->listTableColumns($table),
+            static function (Column $column) use ($columnName): bool {
+                return $column->getName() === $columnName;
+            }
+        )) > 0;
     }
 }

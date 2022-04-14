@@ -5,7 +5,6 @@ namespace Shopware\Core\Migration\Test;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1639122665AddCustomEntities;
 

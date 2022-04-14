@@ -1137,8 +1137,13 @@ Component.register('sw-cms-detail', {
             this.showLayoutAssignmentModal = true;
         },
 
-        closeLayoutAssignmentModal() {
+        closeLayoutAssignmentModal(saveAfterClose = false) {
             this.showLayoutAssignmentModal = false;
+            if (saveAfterClose) {
+                this.$nextTick(() => {
+                    this.onSaveEntity();
+                });
+            }
         },
 
         /** @deprecated tag:v6.5.0 method can be removed completely */

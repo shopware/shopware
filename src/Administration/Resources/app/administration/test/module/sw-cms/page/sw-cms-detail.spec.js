@@ -261,6 +261,44 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         expect(wrapper.find('sw-cms-layout-assignment-modal-stub').exists()).toBeFalsy();
     });
 
+    it('should not show layout assignment when saving and not coming from create wizard', async () => {
+        global.activeAclRoles = [
+            'cms.editor',
+        ];
+
+        const wrapper = createWrapper();
+        const SaveSpy = jest.spyOn(wrapper.vm.pageRepository, 'save');
+
+        await wrapper.vm.$nextTick();
+
+        await wrapper.setData({
+            isLoading: false,
+            page: {
+                name: 'My custom layout',
+                type: 'product_list',
+                categories: new EntityCollection(null, null, null, new Criteria()),
+                sections: [
+                    {
+                        name: 'Section 1',
+                        blocks: [
+                            {
+                                name: 'Test block',
+                                type: 'product-listing',
+                                slots: []
+                            }
+                        ]
+                    }
+                ]
+            }
+        });
+
+        wrapper.vm.closeLayoutAssignmentModal(true);
+
+        await wrapper.vm.$nextTick();
+
+        expect(SaveSpy).toHaveBeenCalledTimes(1);
+    });
+
     it('should show the missing element modal when saving a product detail page layout', async () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();

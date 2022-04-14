@@ -156,7 +156,7 @@ function createWrapper(layoutType = 'product_list', privileges = []) {
     });
 }
 
-describe('module/sw-cms/component/sw-cms-sidebar', () => {
+describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     it('should be a Vue.js component', () => {
         const wrapper = createWrapper();
 
@@ -169,11 +169,14 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         expect(wrapper.find('.sw-cms-layout-assignment-modal__category-select').exists()).toBeTruthy();
     });
 
-    it('should emit modal close event', async () => {
+    it('should emit modal confirm and close event', async () => {
         const wrapper = createWrapper();
 
-        wrapper.vm.onModalClose();
+        wrapper.vm.onConfirm();
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
 
+        expect(wrapper.emitted('confirm')).toBeTruthy();
         expect(wrapper.emitted('modal-close')).toBeTruthy();
     });
 

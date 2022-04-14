@@ -96,13 +96,12 @@
     {% block sw_text_editor_toolbar_button_link_menu %}
     <div
         v-else-if="buttonConfig.type === 'link' && buttonConfig.expanded"
-        ref="flyoutMenu"
+        ref="flyoutLinkMenu"
         class="sw-text-editor-toolbar-button__children"
-        :class="flyoutClasses"
+        :style="dynamicPositionStyle"
     >
         <sw-text-editor-link-menu
             :button-config="buttonConfig"
-            @mounted="onChildMounted"
             @button-click="handleButtonClick"
         />
     </div>

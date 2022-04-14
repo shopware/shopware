@@ -54,7 +54,7 @@ $sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 0.5);
         content: '';
         position: absolute;
         top: -5px;
-        left: 10px;
+        left: var(--arrow-position, 10px);
         height: 8px;
         width: 8px;
         transform: rotate(45deg);

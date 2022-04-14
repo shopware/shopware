@@ -31,6 +31,9 @@ Component.register('sw-text-editor-toolbar-button', {
     data() {
         return {
             flyoutClasses: [],
+            flyoutLinkLeftOffset: 0,
+            flyoutLinkMenu: {},
+            arrowPosition: 10,
         };
     },
 
@@ -45,6 +48,20 @@ Component.register('sw-text-editor-toolbar-button', {
         tooltipAppearance() {
             return this.isInlineEdit ? 'light' : 'dark';
         },
+
+        dynamicPositionStyle() {
+            return `left: ${this.flyoutLinkLeftOffset}px; --arrow-position: ${this.arrowPosition}px`;
+        },
+    },
+
+    updated() {
+        this.flyoutLinkMenu = this.$refs?.flyoutLinkMenu;
+        this.getLinkMenuPosition();
+        window.addEventListener('resize', this.getLinkMenuPosition);
+    },
+
+    beforeDestroy() {
+        window.removeEventListener('resize', this.getLinkMenuPosition);
     },
 
     methods: {
@@ -127,6 +144,26 @@ Component.register('sw-text-editor-toolbar-button', {
                 showDelay: buttonConfig.tooltipShowDelay || 100,
                 hideDelay: buttonConfig.tooltipHideDelay || 100,
             };
+        },
+
+        getLinkMenuPosition() {
+            const linkIcon = document.querySelector('.sw-text-editor-toolbar-button__type-link');
+            const linkIconWidth = linkIcon.clientWidth;
+            const linkIconRightBound = linkIcon.getBoundingClientRect().right;
+
+            const flyoutLinkMenuWidth = this.flyoutLinkMenu.clientWidth;
+
+            const linkflyoutMenuRightBound = linkIconRightBound - linkIconWidth + flyoutLinkMenuWidth;
+            const windowRightBound = this.$root.$el.getBoundingClientRect().right;
+
+            const isOutOfRightBound = windowRightBound - linkflyoutMenuRightBound;
+            if (isOutOfRightBound < 0) {
+                this.flyoutLinkLeftOffset = isOutOfRightBound - 50;
+                this.arrowPosition = Math.abs(this.flyoutLinkLeftOffset) + 10;
+            } else {
+                this.flyoutLinkLeftOffset = 0;
+                this.arrowPosition = 10;
+            }
         },
     },
 });

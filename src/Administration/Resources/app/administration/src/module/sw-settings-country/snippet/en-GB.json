@@ -58,7 +58,15 @@
       "labelVatIdRequired": "VAT Reg.No. required",
       "helpTextLabelVatIdRequired": "Please keep in mind the global switch in \"Settings > Login/registration\".",
       "titleOptions": "Options",
-      "currencyDependentValues": "Currency dependent values"
+      "currencyDependentValues": "Currency dependent values",
+      "labelPostalCodeRequired": "Postal code required",
+      "labelCheckPostalCodePattern": "Validation postal code",
+      "labelCheckAdvancedPostalCodePattern": "Advanced validation rules",
+      "labelAdvancedPostalCodePattern": "Postal code",
+      "labelCheckDefaultAddressFormat": "Use default address format",
+      "labelAddressFormatPlain": "Format",
+      "titleFormatting": "Formatting",
+      "helpTextCheckPostalCodePattern": "Validates postal code for focus countries"
     }
   },
   "sw-country-state-detail": {

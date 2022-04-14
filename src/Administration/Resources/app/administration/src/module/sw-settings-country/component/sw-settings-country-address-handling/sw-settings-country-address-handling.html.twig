@@ -1,2 +1,93 @@
 {% block sw_settings_country_address_handling %}
+<div class="sw-settings-country-address-handling">
+    {% block sw_settings_country_address_handling_options_card %}
+    <sw-card
+        position-identifier="sw-settings-country-address-handling-options"
+        :title="$tc('sw-settings-country.detail.titleOptions')"
+        :is-loading="isLoading"
+    >
+        {% block sw_settings_country_address_handling_options_card_field_force_state_on_registration %}
+        <sw-switch-field
+            v-model="country.forceStateInRegistration"
+            class="sw-settings-country-address-handling__option-items"
+            bordered
+            :disabled="!acl.can('country.editor')"
+            :label="$tc('sw-settings-country.detail.labelForceStateInRegistration')"
+        />
+        {% endblock %}
+
+        {% block sw_settings_country_address_handling_options_card_field_postal_code_required %}
+        <sw-switch-field
+            v-model="country.postalCodeRequired"
+            class="sw-settings-country-address-handling__option-items"
+            bordered
+            :disabled="!acl.can('country.editor')"
+            :label="$tc('sw-settings-country.detail.labelPostalCodeRequired')"
+        />
+        {% endblock %}
+
+        {% block sw_settings_country_address_handling_options_card_field_check_postal_code_pattern %}
+        <sw-switch-field
+            v-model="country.checkPostalCodePattern"
+            class="sw-settings-country-address-handling__option-items"
+            bordered
+            :disabled="!acl.can('country.editor')"
+            :label="$tc('sw-settings-country.detail.labelCheckPostalCodePattern')"
+            :help-text="$tc('sw-settings-country.detail.helpTextCheckPostalCodePattern')"
+        />
+        {% endblock %}
+
+        {% block sw_settings_country_address_handling_options_card_field_check_advanced_postal_code_pattern %}
+        <sw-switch-field
+            v-model="country.checkAdvancedPostalCodePattern"
+            class="sw-settings-country-address-handling__option-items"
+            bordered
+            :disabled="!acl.can('country.editor')"
+            :label="$tc('sw-settings-country.detail.labelCheckAdvancedPostalCodePattern')"
+        />
+        {% endblock %}
+
+        {% block  sw_settings_country_address_handling_options_card_field_advanced_postal_code_pattern %}
+        <sw-text-field
+            v-if="country.checkAdvancedPostalCodePattern"
+            v-model="country.advancedPostalCodePattern"
+            class="sw-settings-country-address-handling__text-field"
+            :disabled="!acl.can('country.editor')"
+            :label="$tc('sw-settings-country.detail.labelAdvancedPostalCodePattern')"
+        />
+        {% endblock %}
+    </sw-card>
+    {% endblock %}
+
+    {% block sw_settings_country_address_handling_formatting_card %}
+    <sw-card
+        position-identifier="sw-settings-country-address-handling-formatting"
+        :title="$tc('sw-settings-country.detail.titleFormatting')"
+        :is-loading="isLoading"
+    >
+        {% block sw_settings_country_address_handling_formatting_card_field_check_default_address_format %}
+        <sw-switch-field
+            v-model="country.useDefaultAddressFormat"
+            class="sw-settings-country-general__option-items"
+            bordered
+            :disabled="!acl.can('country.editor')"
+            :label="$tc('sw-settings-country.detail.labelCheckDefaultAddressFormat')"
+        />
+        {% endblock %}
+
+        {% block sw_settings_country_address_handling_formatting_card_field_address_format_plain %}
+        <sw-code-editor
+            ref="plainEditor"
+            v-model="country.advancedAddressFormatPlain"
+            :class="{'is--disabled': country.useDefaultAddressFormat}"
+            name="format_plain"
+            completion-mode="entity"
+            :label="$tc('sw-settings-country.detail.labelAddressFormatPlain')"
+            :editor-config="editorConfig"
+            :disabled="!acl.can('country.editor')"
+        />
+        {% endblock %}
+    </sw-card>
+    {% endblock %}
+</div>
 {% endblock %}

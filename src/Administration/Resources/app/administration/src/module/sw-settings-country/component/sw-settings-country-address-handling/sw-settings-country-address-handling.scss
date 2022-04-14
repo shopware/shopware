@@ -1,0 +1,19 @@
+@import "~scss/variables";
+
+.sw-settings-country-address-handling {
+    &__text-field {
+        border-radius: 4px;
+        border: 1px solid $color-gray-300;
+        padding: 16px;
+    }
+
+    .sw-code-editor.is--disabled .sw-code-editor__editor {
+        cursor: not-allowed;
+        pointer-events: none;
+        opacity: 0.5;
+    }
+
+    .sw-code-editor.is--disabled .ace-tm {
+        background-color: $color-gray-200;
+    }
+}

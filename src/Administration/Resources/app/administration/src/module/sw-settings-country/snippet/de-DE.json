@@ -58,7 +58,15 @@
       "labelVatIdRequired": "USt-ID ist Pflichtfeld",
       "helpTextLabelVatIdRequired": "Bitte den globalen Schalter unter \"Einstellungen > Login/Registrierung\" beachten.",
       "titleOptions": "Optionen",
-      "currencyDependentValues": "Währungsabhängige Werte"
+      "currencyDependentValues": "Währungsabhängige Werte",
+      "labelPostalCodeRequired": "Postal code required",
+      "labelCheckPostalCodePattern": "Validation postal code",
+      "labelCheckAdvancedPostalCodePattern": "Advanced validation rules",
+      "labelAdvancedPostalCodePattern": "Postal code",
+      "labelCheckDefaultAddressFormat": "Use default address format",
+      "labelAddressFormatPlain": "Format",
+      "titleFormatting": "Formatting",
+      "helpTextCheckPostalCodePattern": "Validates postal code for focus countries"
     }
   },
   "sw-country-state-detail": {

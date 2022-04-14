@@ -79,7 +79,11 @@ describe('Product creation via API and commercial customer registration', () => 
         cy.get(`.sw-data-grid__cell--name`).contains('Germany').click();
         cy.get('[name="sw-field--country-checkVatIdPattern"]').check();
         cy.get('[name="sw-field--country-vatIdRequired"]').check();
+
+        // Country handling tab
+        cy.get('.sw-settings-country__address-handling-tab').click();
         cy.get('[name="sw-field--country-forceStateInRegistration"]').check();
+
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
         cy.get('.sw-skeleton').should('not.exist');

@@ -133,6 +133,18 @@ class CountryEntity extends Entity
      */
     protected $currencyCountryRoundings;
 
+    protected ?string $advancedAddressFormatPlain;
+
+    protected bool $postalCodeRequired;
+
+    protected bool $checkPostalCodePattern;
+
+    protected bool $checkAdvancedPostalCodePattern;
+
+    protected bool $useDefaultAddressFormat;
+
+    protected ?string $advancedPostalCodePattern;
+
     public function getName(): ?string
     {
         return $this->name;
@@ -393,5 +405,65 @@ class CountryEntity extends Entity
     public function setCompanyTax(TaxFreeConfig $companyTax): void
     {
         $this->companyTax = $companyTax;
+    }
+
+    public function getAdvancedAddressFormatPlain(): ?string
+    {
+        return $this->advancedAddressFormatPlain;
+    }
+
+    public function setAdvancedAddressFormatPlain(?string $advancedAddressFormatPlain): void
+    {
+        $this->advancedAddressFormatPlain = $advancedAddressFormatPlain;
+    }
+
+    protected function getPostalCodeRequired(): bool
+    {
+        return $this->postalCodeRequired;
+    }
+
+    protected function setPostalCodeRequired(bool $postalCodeRequired): void
+    {
+        $this->postalCodeRequired = $postalCodeRequired;
+    }
+
+    protected function getCheckPostalCodePattern(): bool
+    {
+        return $this->checkPostalCodePattern;
+    }
+
+    protected function setCheckPostalCodePattern(bool $checkPostalCodePattern): void
+    {
+        $this->checkPostalCodePattern = $checkPostalCodePattern;
+    }
+
+    protected function getCheckAdvancedPostalCodePattern(): bool
+    {
+        return $this->checkAdvancedPostalCodePattern;
+    }
+
+    protected function setCheckAdvancedPostalCodePattern(bool $checkAdvancedPostalCodePattern): void
+    {
+        $this->checkAdvancedPostalCodePattern = $checkAdvancedPostalCodePattern;
+    }
+
+    protected function getUseDefaultAddressFormat(): bool
+    {
+        return $this->useDefaultAddressFormat;
+    }
+
+    protected function setUseDefaultAddressFormat(bool $useDefaultAddressFormat): void
+    {
+        $this->useDefaultAddressFormat = $useDefaultAddressFormat;
+    }
+
+    protected function getAdvancedPostalCodePattern(): ?string
+    {
+        return $this->advancedPostalCodePattern;
+    }
+
+    protected function setAdvancedPostalCodePattern(?string $advancedPostalCodePattern): void
+    {
+        $this->advancedPostalCodePattern = $advancedPostalCodePattern;
     }
 }

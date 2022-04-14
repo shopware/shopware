@@ -25,6 +25,8 @@ class CountryTranslationEntity extends TranslationEntity
      */
     protected $country;
 
+    protected ?string $advancedAddressFormatPlain;
+
     public function getCountryId(): string
     {
         return $this->countryId;
@@ -53,5 +55,15 @@ class CountryTranslationEntity extends TranslationEntity
     public function setCountry(CountryEntity $country): void
     {
         $this->country = $country;
+    }
+
+    public function getAdvancedAddressFormatPlain(): ?string
+    {
+        return $this->advancedAddressFormatPlain;
+    }
+
+    public function setAdvancedAddressFormatPlain(?string $advancedAddressFormatPlain): void
+    {
+        $this->advancedAddressFormatPlain = $advancedAddressFormatPlain;
     }
 }

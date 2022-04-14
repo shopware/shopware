@@ -139,7 +139,11 @@ describe('Storefront: test registration with country settings & invalid inputs',
         cy.get(`.sw-data-grid__cell--name`).contains('Germany').click();
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
+
+        // Country handling tab
+        cy.get('.sw-settings-country__address-handling-tab').click();
         cy.get('[name="sw-field--country-forceStateInRegistration"]').check();
+
         cy.get('.sw-button-process__content').click();
         cy.wait('@getCountrySettings').its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton').should('not.exist');

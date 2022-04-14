@@ -177,6 +177,8 @@ class PermissionCategorization
     private const CATEGORY_SOCIAL_SHOPPING = 'social_shopping';
     private const CATEGORY_TAG = 'tag';
     private const CATEGORY_THEME = 'theme';
+    private const CATEGORY_ADDITIONAL_PRIVILEGES = 'additional_privileges';
+
     /**
      * @see \Shopware\Storefront\Theme\ThemeDefinition::ENTITY_NAME
      */
@@ -395,6 +397,9 @@ class PermissionCategorization
             self::THEME_TRANSLATION_ENTITY_NAME,
             self::THEME_MEDIA_ENTITY_NAME,
             self::THEME_SALES_CHANNEL_ENTITY_NAME,
+        ],
+        self::CATEGORY_ADDITIONAL_PRIVILEGES => [
+            'additional_privileges',
         ],
     ];
 

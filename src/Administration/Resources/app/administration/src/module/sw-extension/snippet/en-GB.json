@@ -612,6 +612,9 @@
         "theme_media": "Media",
         "theme_sales_channel": "Sales Channel"
       }
+    },
+    "additional_privileges": {
+      "title": "Additional permissions"
     }
   },
   "sw-privileges": {

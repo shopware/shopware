@@ -49,6 +49,13 @@ Component.register('sw-extension-permissions-modal', {
                 .map(([category, permissions]) => {
                     permissions = permissions.reduce((acc, permission) => {
                         const entity = permission.entity;
+
+                        if (entity === 'additional_privileges') {
+                            acc[permission.operation] = [];
+
+                            return acc;
+                        }
+
                         acc[entity] = (acc[entity] || []).concat(permission.operation);
 
                         return acc;

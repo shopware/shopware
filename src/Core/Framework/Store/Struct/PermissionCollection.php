@@ -65,6 +65,10 @@ class PermissionCollection extends StoreCollection
     private function generatePrivileges(array $permissions): array
     {
         foreach ($permissions as $permission) {
+            if (!\array_key_exists($permission['operation'], self::PRIVILEGE_DEPENDENCE)) {
+                continue;
+            }
+
             $operations = self::PRIVILEGE_DEPENDENCE[$permission['operation']];
 
             foreach ($operations as $operation) {

@@ -16,14 +16,15 @@ class Permissions extends XmlElement
         AclRoleDefinition::PRIVILEGE_DELETE => [AclRoleDefinition::PRIVILEGE_READ],
     ];
 
-    /**
-     * @var array
-     */
-    protected $permissions;
+    protected array $permissions;
 
-    private function __construct(array $permissions)
+    protected array $additionalPrivileges;
+
+    private function __construct(array $data)
     {
-        $this->permissions = $permissions;
+        foreach ($data as $property => $value) {
+            $this->$property = $value;
+        }
     }
 
     public static function fromXml(\DOMElement $element): self
@@ -33,10 +34,14 @@ class Permissions extends XmlElement
 
     /**
      * @param array $permissions permissions as array indexed by resource
+     * @param string[] $additionalPrivileges additional non-CRUD privileges as flat list
      */
-    public static function fromArray(array $permissions): self
+    public static function fromArray(array $permissions, array $additionalPrivileges = []): self
     {
-        return new self($permissions);
+        return new self([
+            'permissions' => $permissions,
+            'additionalPrivileges' => $additionalPrivileges,
+        ]);
     }
 
     public function getPermissions(): array
@@ -51,6 +56,11 @@ class Permissions extends XmlElement
         }
     }
 
+    public function getAdditionalPrivileges(): array
+    {
+        return $this->additionalPrivileges;
+    }
+
     public function asParsedPrivileges(): array
     {
         return $this->generatePrivileges();
@@ -59,16 +69,26 @@ class Permissions extends XmlElement
     private static function parsePermissions(\DOMElement $element): array
     {
         $permissions = [];
+        $additionalPrivileges = [];
 
         foreach ($element->childNodes as $child) {
             if (!$child instanceof \DOMElement) {
                 continue;
             }
 
+            if ($child->tagName === 'permission') {
+                $additionalPrivileges[] = $child->nodeValue;
+
+                continue;
+            }
+
             $permissions[$child->nodeValue][] = $child->tagName;
         }
 
-        return $permissions;
+        return [
+            'permissions' => $permissions,
+            'additionalPrivileges' => $additionalPrivileges,
+        ];
     }
 
     private function generatePrivileges(): array
@@ -93,6 +113,6 @@ class Permissions extends XmlElement
             $privilegeValues = array_merge($privilegeValues, $newPrivileges);
         }
 
-        return $privilegeValues;
+        return array_merge($privilegeValues, $this->additionalPrivileges);
     }
 }

@@ -125,6 +125,7 @@ class AppLifecycleTest extends TestCase
 
         static::assertEquals($appId, $apps->first()->getId());
         static::assertFalse($apps->first()->isConfigurable());
+        static::assertTrue($apps->first()->getAllowDisable());
         static::assertFalse($apps->first()->getIntegration()->getAdmin());
         if (Feature::isActive('FEATURE_NEXT_17950')) {
             static::assertEquals('https://base-url.com', $apps->first()->getBaseAppUrl());
@@ -412,6 +413,7 @@ class AppLifecycleTest extends TestCase
         );
         static::assertEquals('1.0.0', $apps->first()->getVersion());
         static::assertNotEquals('test', $apps->first()->getTranslation('label'));
+        static::assertTrue($apps->first()->getAllowDisable());
 
         $this->assertDefaultActionButtons();
         $this->assertDefaultModules($apps->first());
@@ -571,6 +573,7 @@ class AppLifecycleTest extends TestCase
             static::assertEquals('https://base-url.com', $apps->first()->getBaseAppUrl());
         }
         static::assertNotEquals('test', $apps->first()->getTranslation('label'));
+        static::assertTrue($apps->first()->getAllowDisable());
 
         $this->assertDefaultActionButtons();
         $this->assertDefaultModules($apps->first());

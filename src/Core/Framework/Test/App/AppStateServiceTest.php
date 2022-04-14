@@ -110,6 +110,23 @@ class AppStateServiceTest extends TestCase
         $this->assertAppState($appId, false);
     }
 
+    public function testDeactivateThrowsIfDeactivationIsNotAllowed(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/Manifest/_fixtures/test/manifest.xml');
+        $this->appLifecycle->install($manifest, true, $this->context);
+        $appId = $this->appRepository->searchIds(new Criteria(), $this->context)->firstId();
+        $this->assertAppState($appId, true);
+        $this->appRepository->update([
+            [
+                'id' => $appId,
+                'allowDisable' => false,
+            ],
+        ], $this->context);
+
+        static::expectException(\RuntimeException::class);
+        $this->appStateService->deactivateApp($appId, $this->context);
+    }
+
     private function assertAppState(string $appId, bool $active): void
     {
         $criteria = new Criteria([$appId]);

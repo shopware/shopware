@@ -144,9 +144,7 @@ class CustomEntityTest extends TestCase
 
         $this->testInheritance($ids, $container);
 
-        $this->testSwagger($ids, $container);
-
-        $this->testAllowDisable();
+        $this->testAllowDisable(false);
 
         $this->getContainer()->get(Connection::class)->rollBack();
 
@@ -187,6 +185,29 @@ class CustomEntityTest extends TestCase
 
         static::assertFalse($schema->getTable('product')->hasColumn('custom_entity_blog_comment_products_reverse_id'));
         static::assertFalse($schema->getTable('product')->hasColumn('custom_entity_to_remove_products_reverse_id'));
+
+        static::assertFalse($schema->hasTable('custom_entity_blog_product'));
+        static::assertFalse($schema->hasTable('custom_entity_to_remove'));
+
+        self::cleanUp($this->getContainer());
+    }
+
+    public function testAllowDisableIsTrueIfNoRestrictDeleteIsUsed(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures/without-restrict-delete');
+
+        $container = KernelLifecycleManager::bootKernel()->getContainer();
+
+        $this->testAllowDisable(true);
+
+        self::cleanUp($container);
+    }
+
+    public function testDoesNotRegisterCustomEntitiesIfAppIsInactive(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures/without-restrict-delete', false);
+
+        $schema = $this->getSchema();
 
         static::assertFalse($schema->hasTable('custom_entity_blog_product'));
         static::assertFalse($schema->hasTable('custom_entity_to_remove'));
@@ -847,7 +868,7 @@ class CustomEntityTest extends TestCase
 
     private function initBlogEntity(): ContainerInterface
     {
-        $this->loadAppsFromDir(__DIR__ . '/_fixtures');
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures/custom-entity-test');
 
         $container = KernelLifecycleManager::bootKernel()->getContainer();
 
@@ -1026,10 +1047,6 @@ class CustomEntityTest extends TestCase
         }
     }
 
-    private function testSwagger(IdsCollection $ids, ContainerInterface $container): void
-    {
-    }
-
     private function testAutoPermissions(): void
     {
         $criteria = new Criteria();
@@ -1058,11 +1075,11 @@ class CustomEntityTest extends TestCase
         static::assertEquals($expected, $app->getAclRole()->getPrivileges());
     }
 
-    private function testAllowDisable(): void
+    private function testAllowDisable(bool $expected): void
     {
         $allowed = $this->getContainer()->get(Connection::class)
             ->fetchOne('SELECT allow_disable FROM app WHERE name = :name', ['name' => 'custom-entity-test']);
 
-        static::assertFalse((bool) $allowed);
+        static::assertEquals($expected, (bool) $allowed);
     }
 }

@@ -6,24 +6,28 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1639122665AddCustomEntities;
 
 class Migration1639122665AddCustomEntitiesTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use KernelTestBehaviour;
 
     public function testExecuteMultipleTimes(): void
     {
-        $migration = new Migration1639122665AddCustomEntities();
-        $migration->update($this->getContainer()->get(Connection::class));
+        $connection = $this->getContainer()->get(Connection::class);
+        $connection->executeStatement('DROP TABLE `custom_entity`');
 
         $migration = new Migration1639122665AddCustomEntities();
-        $migration->update($this->getContainer()->get(Connection::class));
+        $migration->update($connection);
+
+        $migration = new Migration1639122665AddCustomEntities();
+        $migration->update($connection);
 
         $e = null;
 
         try {
-            $this->getContainer()->get(Connection::class)->fetchOne('SELECT id FROM custom_entity');
+            $connection->fetchOne('SELECT id FROM custom_entity');
         } catch (Exception $e) {
         }
 

@@ -13,10 +13,10 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
     beforeEach(() => {
         cy.loginViaApi()
             .then(() => {
-                return cy.createDefaultFixture('rule', { id: defaultRuleId, name: 'Default Rule' });
+                return cy.createDefaultFixture('rule', { id: defaultRuleId, name: 'Default Rule' }, 'rule-simple-condition');
             })
             .then(() => {
-                return cy.createDefaultFixture('rule', { id: ruleId });
+                return cy.createDefaultFixture('rule', { id: ruleId, name: 'Ruler' }, 'rule-simple-condition');
             })
             .then(() => {
                 return cy.createDefaultFixture('delivery-time', { id: deliveryTimeId });
@@ -45,6 +45,9 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/rule/detail/${ruleId}`);
+                // wait for ending loading state
+                cy.get('.sw-skeleton').should('not.exist');
+                cy.get('.sw-loader').should('not.exist');
             });
     });
 

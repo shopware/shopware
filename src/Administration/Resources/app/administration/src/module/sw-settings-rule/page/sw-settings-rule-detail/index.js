@@ -185,7 +185,7 @@ Component.register('sw-settings-rule-detail', {
         },
 
         unsavedDataLeaveHandler(to, from, next) {
-            if (!this.feature.isActive('v6.5.0.0') /* || this.rule.isNew() */) {
+            if (!this.feature.isActive('v6.5.0.0')) {
                 next();
                 return;
             }

@@ -235,6 +235,12 @@
       "confirmation": {
         "textConfirmChangeTrigger": "Bist Du sicher, dass Du das Trigger-Ereignis ändern willst? <br> Der Flow wird zurückgesetzt, sobald Du auf Bestätigen klickst."
       }
+    },
+    "leavePageModal": {
+      "headline": "Warnung",
+      "description": "Es existieren ungespeicherte Änderungen. Soll die Seite trotzdem verlassen werden?",
+      "confirmButton": "Seite verlassen",
+      "cancelButton": "Auf Seite bleiben"
     }
   },
   "sw-privileges": {

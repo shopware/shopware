@@ -32,6 +32,14 @@
 
     {% block sw_flow_content %}
     <template #content>
+        {% block sw_flow_leave_page_modal %}
+        <sw-flow-leave-page-modal
+            v-if="showLeavePageWarningModal"
+            @page-leave-cancel="onLeaveModalClose"
+            @page-leave-confirm="onLeaveModalConfirm"
+        />
+        {% endblock %}
+
         <sw-card-view>
             {% block sw_flow_tabs_header %}
             <sw-tabs position-identifier="sw-flow-detail">

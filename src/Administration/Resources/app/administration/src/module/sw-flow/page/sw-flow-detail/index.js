@@ -34,6 +34,8 @@ Component.register('sw-flow-detail', {
         return {
             isLoading: false,
             isSaveSuccessful: false,
+            showLeavePageWarningModal: false,
+            nextRoute: null,
         };
     },
 
@@ -50,6 +52,10 @@ Component.register('sw-flow-detail', {
 
         flowRepository() {
             return this.repositoryFactory.create('flow');
+        },
+
+        flowChanges() {
+            return this.flowRepository.hasChanges(this.flow);
         },
 
         isNewFlow() {
@@ -151,6 +157,15 @@ Component.register('sw-flow-detail', {
 
     created() {
         this.createdComponent();
+    },
+
+    beforeRouteLeave(to, from, next) {
+        if (this.flowChanges) {
+            this.nextRoute = next;
+            this.showLeavePageWarningModal = true;
+        } else {
+            next();
+        }
     },
 
     beforeDestroy() {
@@ -296,6 +311,20 @@ Component.register('sw-flow-detail', {
         saveFinish() {
             this.isLoading = false;
             this.isSaveSuccessful = false;
+        },
+
+        onLeaveModalClose() {
+            this.nextRoute(false);
+            this.nextRoute = null;
+            this.showLeavePageWarningModal = false;
+        },
+
+        onLeaveModalConfirm() {
+            this.showLeavePageWarningModal = false;
+
+            this.$nextTick(() => {
+                this.nextRoute();
+            });
         },
 
         removeAllSelectors() {

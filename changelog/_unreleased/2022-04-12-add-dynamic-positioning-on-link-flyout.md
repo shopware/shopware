@@ -5,6 +5,6 @@ author: Luka Brlek
 author_email: l.brlek@shopware.com
 ---
 # Administration
-* Added `dynamicPositionStyle` as inline styling for `sw_text_editor_toolbar_button_link_menu` in `/sw-text-editor-toolbar-button/sw-text-editor-toolbar-button.html.twig` to position the link flyout dynamicaly back inside the viewport.
-* Added `getLinkMenuPosition` method in `/sw-text-editor-toolbar-button/index.js` that calculates position of the link flyout.
-* Added `--arrow-position` as CSS variable in `/sw-text-editor-toolbar-button/sw-text-editor-toolbar-button.scss` for the `sw-text-editor-toolbar-button__children:before` element to be positioned right below the toolbar link icon. 
+* Added `--flyoutLinkLeftOffset` for `.sw-text-editor-toolbar-button__children` in `sw-text-editor-toolbar-button.html.twig` to position the link flyout dynamically back inside the viewport.
+* Added `--arrow-position` in `/sw-text-editor-toolbar-button/sw-text-editor-toolbar-button.scss` for the `sw-text-editor-toolbar-button__children:before` element to be positioned right below the toolbar link icon.
+* Added `positionLinkMenu` method in `/sw-text-editor-toolbar-button/index.js` that calculates the `--flyoutLinkLeftOffset` and the `--arrow-position` css variables on resize.

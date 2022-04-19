@@ -31,9 +31,6 @@ Component.register('sw-text-editor-toolbar-button', {
     data() {
         return {
             flyoutClasses: [],
-            flyoutLinkLeftOffset: 0,
-            flyoutLinkMenu: {},
-            arrowPosition: 10,
         };
     },
 
@@ -48,23 +45,18 @@ Component.register('sw-text-editor-toolbar-button', {
         tooltipAppearance() {
             return this.isInlineEdit ? 'light' : 'dark';
         },
-
-        dynamicPositionStyle() {
-            return `left: ${this.flyoutLinkLeftOffset}px; --arrow-position: ${this.arrowPosition}px`;
-        },
     },
 
-    updated() {
-        this.flyoutLinkMenu = this.$refs?.flyoutLinkMenu;
-        this.getLinkMenuPosition();
-        window.addEventListener('resize', this.getLinkMenuPosition);
-    },
-
-    beforeDestroy() {
-        window.removeEventListener('resize', this.getLinkMenuPosition);
+    mounted() {
+        this.mountedComponent();
     },
 
     methods: {
+        mountedComponent() {
+            this.$device.onResize({
+                listener: this.positionLinkMenu,
+            });
+        },
         buttonHandler(event, button) {
             if (this.disabled) {
                 return null;
@@ -146,24 +138,35 @@ Component.register('sw-text-editor-toolbar-button', {
             };
         },
 
-        getLinkMenuPosition() {
-            const linkIcon = document.querySelector('.sw-text-editor-toolbar-button__type-link');
+        positionLinkMenu() {
+            const flyoutLinkMenu = this.$refs?.flyoutLinkMenu;
+
+            if (!(flyoutLinkMenu instanceof HTMLElement)) {
+                return;
+            }
+
+            const flyoutLinkMenuWidth = flyoutLinkMenu.clientWidth;
+
+            const linkIcon = this.$el;
             const linkIconWidth = linkIcon.clientWidth;
+
             const linkIconRightBound = linkIcon.getBoundingClientRect().right;
 
-            const flyoutLinkMenuWidth = this.flyoutLinkMenu.clientWidth;
+            const linkFlyoutMenuRightBound = linkIconRightBound - linkIconWidth + flyoutLinkMenuWidth;
+            const windowRightBound = this.$device.getViewportWidth();
 
-            const linkflyoutMenuRightBound = linkIconRightBound - linkIconWidth + flyoutLinkMenuWidth;
-            const windowRightBound = this.$root.$el.getBoundingClientRect().right;
+            const isOutOfRightBound = windowRightBound - linkFlyoutMenuRightBound;
 
-            const isOutOfRightBound = windowRightBound - linkflyoutMenuRightBound;
+            let flyoutLinkLeftOffset = 0;
+            let arrowPosition = 10;
+
             if (isOutOfRightBound < 0) {
-                this.flyoutLinkLeftOffset = isOutOfRightBound - 50;
-                this.arrowPosition = Math.abs(this.flyoutLinkLeftOffset) + 10;
-            } else {
-                this.flyoutLinkLeftOffset = 0;
-                this.arrowPosition = 10;
+                flyoutLinkLeftOffset = isOutOfRightBound - 50;
+                arrowPosition = Math.abs(flyoutLinkLeftOffset) + 10;
             }
+
+            flyoutLinkMenu.style.setProperty('--flyoutLinkLeftOffset', `${flyoutLinkLeftOffset}px`);
+            flyoutLinkMenu.style.setProperty('--arrow-position', `${arrowPosition}px`);
         },
     },
 });

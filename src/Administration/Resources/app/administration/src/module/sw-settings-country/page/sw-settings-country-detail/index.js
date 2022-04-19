@@ -50,6 +50,8 @@ Component.register('sw-settings-country-detail', {
                 value: {},
             },
             userConfigValues: {},
+            showPreviewModal: false,
+            previewData: null,
         };
     },
 
@@ -126,6 +128,9 @@ Component.register('sw-settings-country-detail', {
             ));
         },
 
+        showSidebar() {
+            return this.$route.name === 'sw.settings.country.detail.address-handling';
+        },
 
         ...mapPropertyErrors('country', ['name']),
 
@@ -152,6 +157,10 @@ Component.register('sw-settings-country-detail', {
         },
 
         loadEntityData() {
+            if (typeof this.country.isNew === 'function' && this.country.isNew()) {
+                return false;
+            }
+
             this.isLoading = true;
             return this.countryRepository.get(this.countryId).then(country => {
                 this.country = country;
@@ -162,6 +171,8 @@ Component.register('sw-settings-country-detail', {
                     this.country.states.entity,
                     this.country.states.source,
                 );
+            }).catch(() => {
+                this.isLoading = false;
             });
         },
 
@@ -208,7 +219,6 @@ Component.register('sw-settings-country-detail', {
                             this.loadUserConfig();
                         });
                 }
-
                 this.loadEntityData();
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
@@ -334,6 +344,15 @@ Component.register('sw-settings-country-detail', {
 
         onSaveModal() {
             return this.onSave();
+        },
+
+        openPreviewModal(customer) {
+            this.previewData = customer;
+            this.showPreviewModal = true;
+        },
+
+        closePreviewModal() {
+            this.showPreviewModal = false;
         },
     },
 });

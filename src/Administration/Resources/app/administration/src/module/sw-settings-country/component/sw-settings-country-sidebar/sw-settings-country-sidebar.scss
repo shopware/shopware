@@ -1,0 +1,37 @@
+@import "~scss/variables";
+
+.sw-settings-country-sidebar {
+    &__variable-item {
+        display: flex;
+        font-size: $font-size-small;
+        padding: 14px 0;
+        justify-content: space-between;
+        color: $color-darkgray-200;
+
+        &:hover {
+            background: $color-gray-50;
+            color: $color-shopware-brand-500;
+        }
+    }
+
+    .sw-sidebar-item__scrollable-container {
+        padding: 0 25px;
+    }
+
+    .sw-settings-country-sidebar__customer-variable {
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px solid $color-gray-200;
+        font-size: $font-size-small;
+        padding: 8px;
+    }
+
+    .sw-settings-country-sidebar__customer-property {
+        font-weight: $font-weight-semi-bold;
+        color: $color-darkgray-300;
+    }
+
+    .sw-settings-country-sidebar__preview-button {
+        margin-bottom: 10px;
+    }
+}

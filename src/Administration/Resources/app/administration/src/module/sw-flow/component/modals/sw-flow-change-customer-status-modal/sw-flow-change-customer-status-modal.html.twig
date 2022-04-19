@@ -2,6 +2,7 @@
 <sw-modal
     class="sw-flow-change-customer-status-modal"
     :title="$tc('sw-flow.modals.customerStatus.titleChangeCustomerStatus')"
+    :closable="false"
     @modal-close="onClose"
 >
     {% block sw_flow_change_customer_status_modal_select %}

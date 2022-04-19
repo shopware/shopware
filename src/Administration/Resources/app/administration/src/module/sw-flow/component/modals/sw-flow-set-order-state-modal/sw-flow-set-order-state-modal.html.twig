@@ -2,6 +2,7 @@
 <sw-modal
     class="sw-flow-set-order-state-modal"
     :title="$tc('sw-flow.modals.status.titleSetStatus')"
+    :closable="false"
     @modal-close="onClose"
 >
     {% block sw_flow_set_order_state_modal_content %}

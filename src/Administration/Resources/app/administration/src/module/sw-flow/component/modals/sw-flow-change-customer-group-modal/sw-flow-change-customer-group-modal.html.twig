@@ -2,6 +2,7 @@
 <sw-modal
     class="sw-flow-change-customer-group-modal"
     :title="$tc('sw-flow.modals.customerGroup.titleChangeCustomerGroup')"
+    :closable="false"
     @modal-close="onClose"
 >
     {% block sw_flow_change_customer_group_modal_select %}

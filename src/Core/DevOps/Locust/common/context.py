@@ -5,20 +5,6 @@ import json
 from os.path import exists
 
 class Context:
-    keywords: []
-    listings: []
-    product_urls: []
-    product_ids: []
-    products: []
-    numbers: []
-    register: {}
-    aggregate: False
-    wait: False
-    erp: True
-    host: None
-    ajax_calls: True
-    indexing_behavior: None
-    advertisements: []
 
     def __init__(self):
         self.env = self.__get_env()
@@ -26,37 +12,23 @@ class Context:
         self.token = self.get_token()
         self.aggregate = self.env['aggregate']
         self.wait = self.env['wait']
-        self.allow_filter = self.env['allow_filter']
-        self.ajax_calls = self.env['ajax_calls']
-        self.keywords = self.__initKeywords()
-        self.listings = self.__initListings()
-        self.product_urls = self.__initProductsUrls()
-        self.products = self.__initProducts()
-        self.advertisements = self.initAdvertisements()
+        self.track_ajax_requests = self.env['track_ajax_requests']
+        self.keywords = self.__get_json_file('/../fixtures/keywords.json')
+        self.listings = self.__get_json_file('/../fixtures/listing_urls.json')
+        self.product_urls = self.__get_json_file('/../fixtures/product_urls.json')
+        self.products = self.__get_json_file('/../fixtures/products.json')
+        self.advertisements = self.__get_json_file('/../fixtures/advertisements.json')
+        self.register = self.__get_json_file('/../fixtures/sales_channel.json')
+        self.imports = self.__get_json_file('/../fixtures/imports.json')
+
         self.numbers = self.__column(self.products, 'productNumber')
         self.product_ids = self.__column(self.products, 'id')
-        self.register = self.__initRegister()
         self.indexing_behavior = None
         self.admin_ids = []
         self.erp = self.env['erp']
 
         if (self.env['indexing_behavior'] != False):
             self.indexing_behavior = self.env['indexing_behavior']
-
-    def initAdvertisements(self):
-        return self.__get_json_file('/../fixtures/advertisements.json')
-
-    def __initListings(self):
-        return self.__get_json_file('/../fixtures/listing_urls.json')
-
-    def __initProductsUrls(self):
-        return self.__get_json_file('/../fixtures/product_urls.json')
-
-    def __initProducts(self):
-        return self.__get_json_file('/../fixtures/products.json')
-
-    def __initKeywords(self):
-        return self.__get_json_file('/../fixtures/keywords.json')
 
     def refresh_token(self):
         self.token = self.get_token()
@@ -68,9 +40,6 @@ class Context:
             return response.json()['access_token']
         else:
             raise Exception('Error: ' + response.content)
-
-    def __initRegister(self):
-        return self.__get_json_file('/../fixtures/sales_channel.json')
 
     def __get_env(self):
         env = self.__get_json_file('/../env.json')

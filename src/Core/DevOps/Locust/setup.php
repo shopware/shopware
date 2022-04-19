@@ -15,7 +15,14 @@ if (file_exists(__DIR__ . '/env.json')) {
 
 /** @var \Doctrine\DBAL\Connection $connection */
 $limit = $env['category_page_limit'] !== null ? ' LIMIT ' . (int) $env['category_page_limit'] : '';
-$listings = $connection->fetchFirstColumn("SELECT CONCAT('/', seo_path_info) FROM seo_url WHERE route_name = 'frontend.navigation.page' AND is_deleted = 0 AND is_canonical = 1" . $limit);
+
+$ids = $connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM category WHERE level <= 3 ' . $limit);
+
+$listings = $connection->fetchFirstColumn(
+    "SELECT CONCAT('/', seo_path_info) FROM seo_url WHERE route_name = 'frontend.navigation.page' AND is_deleted = 0 AND is_canonical = 1 AND foreign_key IN (:ids)",
+    ['ids' => Uuid::fromHexToBytesList($ids)],
+    ['ids' => \Doctrine\DBAL\Connection::PARAM_STR_ARRAY]
+);
 
 $limit = $env['product_page_limit'] !== null ? ' LIMIT ' . (int) $env['product_page_limit'] : '';
 $details = $connection->fetchFirstColumn("SELECT CONCAT('/', seo_path_info) FROM seo_url  WHERE route_name = 'frontend.detail.page' AND is_deleted = 0 AND is_canonical = 1" . $limit);
@@ -32,8 +39,16 @@ $keywords = array_unique(array_merge(...$keywords));
 
 $products = $connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id, product_number as productNumber FROM product ' . $limit);
 
+$properties = $connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id FROM property_group_option LIMIT 300');
+
+$media = $connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as mediaId FROM media LIMIT 100');
+
+$categories = $connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id FROM category WHERE child_count <= 1 LIMIT 100');
+
+$taxId = $connection->fetchOne('SELECT LOWER(HEX(id)) FROM tax LIMIT 1');
+
 $salesChannel = $connection->fetchAssociative(
-    'SELECT LOWER(HEX(country_id)) as countryId FROM sales_channel WHERE type_id = :type',
+    'SELECT LOWER(HEX(country_id)) as countryId, LOWER(HEX(id)) as id FROM sales_channel WHERE type_id = :type',
     ['type' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_STOREFRONT)]
 );
 
@@ -77,6 +92,18 @@ $fs->dumpFile(__DIR__ . '/fixtures/keywords.json', json_encode($keywords, \JSON_
 
 echo 'Collected: ' . count($products) . ' products' . \PHP_EOL;
 $fs->dumpFile(__DIR__ . '/fixtures/products.json', json_encode($products, \JSON_THROW_ON_ERROR));
+
+echo 'Collected: ' . count($categories) . ' categories' . \PHP_EOL;
+echo 'Collected: ' . count($properties) . ' properties' . \PHP_EOL;
+echo 'Collected: ' . count($media) . ' media' . \PHP_EOL;
+
+file_put_contents(__DIR__ . '/fixtures/imports.json', json_encode([
+    'categories' => $categories,
+    'media' => $media,
+    'properties' => $properties,
+    'salesChannelId' => $salesChannel['id'],
+    'taxId' => $taxId,
+], \JSON_THROW_ON_ERROR));
 
 echo 'Collected: ' . count($advertisements) . ' advertisements' . \PHP_EOL;
 $fs->dumpFile(__DIR__ . '/fixtures/advertisements.json', json_encode($advertisements, \JSON_THROW_ON_ERROR));

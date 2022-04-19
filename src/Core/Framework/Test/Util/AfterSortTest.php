@@ -66,7 +66,7 @@ class AfterSortTest extends TestCase
             return $entity->getName();
         }, $afterSortCollection->getElements());
 
-        static::assertEquals($expectedNames, $actualNames);
+        static::assertEquals($expectedNames, \array_values($actualNames));
     }
 
     public function testSortingInconsistentDataWithHole(): void
@@ -104,7 +104,7 @@ class AfterSortTest extends TestCase
             return $entity->getName();
         }, $entities->getElements());
 
-        static::assertEquals($expectedNames, $actualNames);
+        static::assertEquals($expectedNames, \array_values($actualNames));
     }
 
     public function testSortingInconsistentData(): void
@@ -142,7 +142,7 @@ class AfterSortTest extends TestCase
             return $entity->getName();
         }, $entities->getElements());
 
-        static::assertEquals($expectedNames, $actualNames);
+        static::assertEquals($expectedNames, \array_values($actualNames));
     }
 
     public function testSortingByAfterIdWithMultipleNullValues(): void

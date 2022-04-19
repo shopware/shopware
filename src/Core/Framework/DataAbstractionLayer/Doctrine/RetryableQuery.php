@@ -41,7 +41,7 @@ class RetryableQuery
     {
         return self::retry($this->connection, function () use ($params) {
             return $this->query->execute($params);
-        }, 1);
+        }, 0);
     }
 
     /**
@@ -92,7 +92,7 @@ class RetryableQuery
             }
 
             // randomize sleep to prevent same execution delay for multiple statements
-            usleep(random_int(10, 20));
+            usleep(20 * $counter);
 
             return self::retry($connection, $closure, $counter);
         }

@@ -54,7 +54,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
         $payload = [];
         $lastId = null;
         for ($i = 0; $i < $numberOfItems; ++$i) {
-            $cat = $this->createCategory($context, $pageIds, $tags, $rootCategoryId, $lastId, random_int(2, 5), 1);
+            $cat = $this->createCategory($context, $pageIds, $tags, $rootCategoryId, $lastId, random_int(3, 5), 1);
             $payload[] = $cat;
             $lastId = $cat['id'];
         }

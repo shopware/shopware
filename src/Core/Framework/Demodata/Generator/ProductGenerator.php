@@ -70,8 +70,6 @@ class ProductGenerator implements DemodataGeneratorInterface
 
         $ruleIds = $this->getIds('rule');
 
-        $categories = $this->getIds('category');
-
         $manufacturers = $this->getIds('product_manufacturer');
 
         $tags = $this->getIds('tag');
@@ -89,7 +87,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
         $payload = [];
         for ($i = 0; $i < $count; ++$i) {
-            $product = $this->createSimpleProduct($taxes, $categories, $manufacturers, $tags);
+            $product = $this->createSimpleProduct($taxes, $manufacturers, $tags);
 
             $product['prices'] = $this->faker->randomElement($prices);
 
@@ -211,7 +209,6 @@ class ProductGenerator implements DemodataGeneratorInterface
 
     private function createSimpleProduct(
         EntitySearchResult $taxes,
-        array $categories,
         array $manufacturer,
         array $tags
     ): array {
@@ -232,9 +229,7 @@ class ProductGenerator implements DemodataGeneratorInterface
             'active' => true,
             'height' => $this->faker->numberBetween(1, 1000),
             'width' => $this->faker->numberBetween(1, 1000),
-            'categories' => [
-                ['id' => $this->faker->randomElement($categories)],
-            ],
+            'categories' => $this->getCategoryIds(),
             'tags' => $this->getTags($tags),
             'stock' => $this->faker->numberBetween(1, 50),
         ];
@@ -336,6 +331,19 @@ class ProductGenerator implements DemodataGeneratorInterface
         $ids = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id FROM ' . $table . ' LIMIT 500');
 
         return array_column($ids, 'id');
+    }
+
+    private function getCategoryIds(): array
+    {
+        return $this->connection->fetchAllAssociative('
+            SELECT LOWER(HEX(category.id)) as id 
+            FROM category
+             LEFT JOIN product_category pc 
+               ON pc.category_id = category.id
+            WHERE category.child_count = 0
+            GROUP BY category.id
+            ORDER BY COUNT(pc.product_id) ASC
+            LIMIT ' . $this->faker->numberBetween(1, 3));
     }
 
     private function buildProperties(array $properties): array

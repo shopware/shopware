@@ -13,6 +13,11 @@ Component.register('sw-bulk-edit-product-visibility', {
             type: Object,
             required: true,
         },
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {

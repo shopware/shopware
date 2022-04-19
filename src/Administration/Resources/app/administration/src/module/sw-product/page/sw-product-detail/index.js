@@ -342,7 +342,7 @@ Component.register('sw-product-detail', {
         this.createdComponent();
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         Shopware.State.unregisterModule('swProductDetail');
     },
 

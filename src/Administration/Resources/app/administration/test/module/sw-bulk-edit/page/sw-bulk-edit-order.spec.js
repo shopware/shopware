@@ -491,4 +491,58 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         wrapper.vm.orderDocumentApiService.create.mockRestore();
     });
+
+    it('should set route meta module when component created', () => {
+        wrapper = createWrapper();
+        wrapper.vm.setRouteMetaModule = jest.fn();
+
+        wrapper.vm.createdComponent();
+        expect(wrapper.vm.setRouteMetaModule).toBeCalled();
+        expect(wrapper.vm.$route.meta.$module.color).toBe('#A092F0');
+        expect(wrapper.vm.$route.meta.$module.icon).toBe('default-shopping-paper-bag');
+
+        wrapper.vm.setRouteMetaModule.mockRestore();
+    });
+
+    it('should disable processing button', async () => {
+        wrapper = createWrapper();
+
+        await wrapper.setData({
+            isLoading: false,
+            bulkEditData: {
+                orders: {
+                    isChanged: false,
+                },
+                orderTransactions: {
+                    isChanged: false,
+                },
+                orderDeliveries: {
+                    isChanged: false,
+                },
+                statusMails: {
+                    isChanged: false,
+                },
+            },
+        });
+        expect(wrapper.find('.sw-button-process').classes()).toContain('sw-button--disabled');
+
+        await wrapper.setData({
+            isLoading: false,
+            bulkEditData: {
+                orders: {
+                    isChanged: true,
+                },
+                orderTransactions: {
+                    isChanged: false,
+                },
+                orderDeliveries: {
+                    isChanged: false,
+                },
+                statusMails: {
+                    isChanged: false,
+                },
+            },
+        });
+        expect(wrapper.find('.sw-button-process').classes()).not.toContain('sw-button--disabled');
+    });
 });

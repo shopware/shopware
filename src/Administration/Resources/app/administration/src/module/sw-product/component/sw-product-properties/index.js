@@ -10,6 +10,26 @@ Component.register('sw-product-properties', {
 
     inject: ['repositoryFactory', 'acl'],
 
+    props: {
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        isAssociation: {
+            type: Boolean,
+            required: false,
+            // eslint-disable-next-line vue/no-boolean-default
+            default: true,
+        },
+        showInheritanceSwitcher: {
+            type: Boolean,
+            required: false,
+            // eslint-disable-next-line vue/no-boolean-default
+            default: true,
+        },
+    },
+
     data() {
         return {
             groupIds: [],

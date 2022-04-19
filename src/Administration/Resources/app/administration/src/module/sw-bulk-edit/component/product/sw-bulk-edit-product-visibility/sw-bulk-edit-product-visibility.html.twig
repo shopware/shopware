@@ -16,6 +16,7 @@
                 class="sw-product-detail__select-visibility"
                 :entity-collection="currentValue"
                 :placeholder="$tc('sw-product.visibility.placeholderVisibility')"
+                :disabled="disabled"
                 @change="updateCurrentValue"
             />
         </template>
@@ -31,6 +32,7 @@
         <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <a
             class="sw-card__quick-link advanced-visibility"
+            :class="{ 'is--disabled': disabled }"
             @click="openModal"
         >
             {{ $tc('sw-product.visibility.linkAdvancedVisibility') }} <sw-icon

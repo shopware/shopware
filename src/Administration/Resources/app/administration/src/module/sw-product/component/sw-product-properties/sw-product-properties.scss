@@ -5,7 +5,8 @@
         padding: 0;
     }
 
-    &__card.is-inherited .sw-card__content {
+    &__card.is--inherited .sw-card__content,
+    &__card.is--disabled .sw-card__content {
         border-color: $color-module-purple-900;
 
         &::after {
@@ -26,7 +27,7 @@
         width: 100%;
     }
 
-    .sw-card__title.is-inherited {
+    .sw-card__title.is--inherited {
         color: $color-module-purple-900;
     }
 

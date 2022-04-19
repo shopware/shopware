@@ -2,6 +2,7 @@
 <div class="sw-bulk-edit-product-media">
     {% block sw_bulk_edit_product_media_form %}
     <sw-bulk-edit-product-media-form
+        :disabled="disabled"
         @media-open="showMediaModal = true"
     />
     {% endblock %}

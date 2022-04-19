@@ -26,7 +26,7 @@
             variant="primary"
             :is-loading="isLoading"
             :process-success="false"
-            :disabled="isLoading"
+            :disabled="isLoading || !hasChanges"
             @click="openModal"
         >
             {{ $tc('sw-bulk-edit.applyChanges') }}

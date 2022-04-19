@@ -84,7 +84,7 @@ describe('Product: Test variants', () => {
             url: 'api/_action/sync'
         }).as('deleteData');
 
-        cy.get('.sw-modal .sw-context-button__button')
+        cy.get('.sw-modal .sw-data-grid__actions-menu')
             .click();
 
         cy.get('.sw-tooltip--wrapper > .sw-context-menu-item')

@@ -64,6 +64,12 @@ Component.register('sw-multi-tag-select', {
             required: false,
             default: searchTerm => searchTerm.length > 0,
         },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {

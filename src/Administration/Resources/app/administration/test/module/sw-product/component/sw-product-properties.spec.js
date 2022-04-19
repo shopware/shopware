@@ -1,6 +1,8 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import 'src/module/sw-product/component/sw-product-properties';
+import 'src/app/component/utils/sw-inherit-wrapper';
+import 'src/app/component/base/sw-card';
 
 const { Component, State } = Shopware;
 
@@ -83,17 +85,34 @@ function createWrapper(privileges = []) {
     return shallowMount(Component.build('sw-product-properties'), {
         localVue,
         stubs: {
-            'sw-inherit-wrapper': {
+            'sw-inheritance-switch': {
+                props: ['isInherited', 'disabled'],
                 template: `
-                    <div class="sw-inherit-wrapper">
-                        <slot name="content"></slot>
-                    </div>
-                `
+                    <div class="sw-inheritance-switch">
+                        <div v-if="isInherited"
+                            class="sw-inheritance-switch--is-inherited"
+                            @click="onClickRemoveInheritance">
+                        </div>
+                        <div v-else
+                             class="sw-inheritance-switch--is-not-inherited"
+                             @click="onClickRestoreInheritance">
+                        </div>
+                    </div>`,
+                methods: {
+                    onClickRestoreInheritance() {
+                        this.$emit('inheritance-restore');
+                    },
+                    onClickRemoveInheritance() {
+                        this.$emit('inheritance-remove');
+                    }
+                }
             },
+            'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper'),
             'sw-card': {
                 template: `
                     <div class="sw-card">
                         <slot></slot>
+                        <slot name="title"></slot>
                         <slot name="grid"></slot>
                     </div>
                 `
@@ -609,5 +628,17 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
         expect(entityListing.attributes()['allow-delete']).toBe(undefined);
 
         wrapper.vm.propertyGroupRepository.search.mockRestore();
+    });
+
+    it('should hide sw-inheritance-switch component', async () => {
+        const wrapper = createWrapper();
+
+        expect(wrapper.find('.sw-inherit-wrapper').exists()).toBeTruthy();
+
+        await wrapper.setProps({
+            showInheritanceSwitcher: false
+        });
+
+        expect(wrapper.find('.sw-inherit-wrapper').exists()).toBeFalsy();
     });
 });

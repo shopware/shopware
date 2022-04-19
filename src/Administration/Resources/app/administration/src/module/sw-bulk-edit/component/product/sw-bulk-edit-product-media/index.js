@@ -14,6 +14,14 @@ Component.register('sw-bulk-edit-product-media', {
         Mixin.getByName('notification'),
     ],
 
+    props: {
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+    },
+
     data() {
         return {
             showMediaModal: false,

@@ -1,15 +1,41 @@
 {% block sw_bulk_edit_product %}
-<sw-page class="sw-bulk-edit-product">
+<sw-page
+    :class="{
+        'sw-bulk-edit-product': true,
+        'is--variant': isChild,
+    }"
+>
     {% block sw_bulk_edit_product_search_bar %}
     <template #search-bar>
         <sw-search-bar />
     </template>
     {% endblock %}
 
+    {% block sw_bulk_edit_product_smart_bar_back %}
+    <template #smart-bar-back>
+        <router-link
+            v-if="isChild"
+            class="smart-bar__back-btn"
+            :to="{ name: 'sw.product.detail.variants', params: { id: $route.params.parentId } }"
+            :style="{ 'color': $route.meta.$module?.color }"
+        >
+            <sw-icon
+                name="default-arrow-head-left"
+                small
+            />
+        </router-link>
+    </template>
+    {% endblock %}
+
     {% block sw_bulk_edit_product_smart_bar_header %}
     <template #smart-bar-header>
         {% block sw_bulk_edit_product_smart_bar_header_title %}
-        <h2>{{ $tc('sw-bulk-edit.product.textTitle', selectedIds.length, { productTotal: selectedIds.length }) }}</h2>
+        <h2>
+            {{ isChild
+                ? $tc('sw-bulk-edit.variant.textTitle', selectedIds.length, { variantTotal: selectedIds.length })
+                : $tc('sw-bulk-edit.product.textTitle', selectedIds.length, { productTotal: selectedIds.length })
+            }}
+        </h2>
         {% endblock %}
     </template>
     {% endblock %}
@@ -40,6 +66,31 @@
     {% block sw_bulk_edit_product_content %}
     <template #content>
         <sw-card-view v-if="selectedIds.length > 0 && isLoadedData">
+            {% block sw_bulk_edit_product_content_inheritance_card %}
+            <sw-card
+                v-if="isChild"
+                class="sw-bulk-edit-product__inheritance"
+                position-identifier="sw-bulk-edit-product-inheritance"
+            >
+                {% block sw_bulk_edit_product_content_inheritance_alert %}
+                <sw-alert variant="info">
+                    <template #customIcon>
+                        <div class="sw-bulk-edit-product__inheritance-icon">
+                            <sw-icon
+                                name="default-web-link"
+                                color="#7363e5"
+                                size="16"
+                            />
+                        </div>
+                    </template>
+                    <template #default>
+                        {{ $tc('sw-bulk-edit.product.alertInheritance.message') }}
+                    </template>
+                </sw-alert>
+                {% endblock %}
+            </sw-card>
+            {% endblock %}
+
             {% block sw_bulk_edit_product_content_gereral_information_card %}
             <sw-card
                 class="sw-bulk-edit-product-base__info"
@@ -51,6 +102,8 @@
                     :form-fields="generalFormFields"
                     :bulk-edit-data="bulkEditProduct"
                     :entity="product"
+                    @inheritance-restore="onInheritanceRestore"
+                    @inheritance-remove="onInheritanceRemove"
                 />
                 {% endblock %}
             </sw-card>
@@ -68,6 +121,8 @@
                     :bulk-edit-data="bulkEditProduct"
                     :entity="product"
                     @change-value="onChangePrices"
+                    @inheritance-restore="onInheritanceRestore"
+                    @inheritance-remove="onInheritanceRemove"
                 />
                 {% endblock %}
             </sw-card>
@@ -86,9 +141,17 @@
                     :entity="product"
                 >
                     <template #valueFieldWithBoxType="{ formField, entity, index }">
+                        <sw-inheritance-switch
+                            v-if="isChild"
+                            :is-inherited="bulkEditProduct[formField.name].isInherited"
+                            @inheritance-restore="onInheritanceRestore(formField)"
+                            @inheritance-remove="onInheritanceRemove(formField)"
+                        />
+
                         <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                         <a
                             v-if="['add', 'overwrite'].includes(bulkEditProduct[formField.name].type)"
+                            :class="{ 'is--disabled': !!bulkEditProduct[formField.name].isInherited }"
                             class="sw-card__quick-link"
                             @click="displayAdvancePricesModal = true"
                         >
@@ -106,7 +169,8 @@
                             :placeholder="$tc('sw-bulk-edit.product.advancedPrices.selectRule')"
                             :criteria="ruleCriteria"
                             entity-name="rule"
-                            :entity-collection="entity[formField.name]"
+                            :entity-collection="!!bulkEditProduct[formField.name].isInherited ? [] : entity[formField.name]"
+                            :disabled="!!bulkEditProduct[formField.name].isInherited"
                             @change="onRuleChange"
                         >
                             <template #selection-label-property="{ item }">
@@ -139,7 +203,10 @@
                     :title="$tc('sw-bulk-edit.product.advancedPrices.cardTitle')"
                     @modal-close="displayAdvancePricesModal = false"
                 >
-                    <sw-product-detail-context-prices :is-set-default-price="true" />
+                    <sw-product-detail-context-prices
+                        :is-set-default-price="true"
+                        :can-set-loading-rules="false"
+                    />
 
                     {% block sw_bulk_edit_product_content_advanced_prices_modal_footer %}
                     <template #modal-footer>
@@ -170,6 +237,8 @@
                     :form-fields="propertyFormFields"
                     :bulk-edit-data="bulkEditProduct"
                     :entity="product"
+                    @inheritance-restore="onInheritanceRestore"
+                    @inheritance-remove="onInheritanceRemove"
                 />
                 {% endblock %}
             </sw-card>
@@ -187,6 +256,8 @@
                     :form-fields="deliverabilityFormFields"
                     :bulk-edit-data="bulkEditProduct"
                     :entity="product"
+                    @inheritance-restore="onInheritanceRestore"
+                    @inheritance-remove="onInheritanceRemove"
                 />
                 {% endblock %}
             </sw-card>
@@ -204,6 +275,8 @@
                     :form-fields="assignmentFormFields"
                     :bulk-edit-data="bulkEditProduct"
                     :entity="product"
+                    @inheritance-restore="onInheritanceRestore"
+                    @inheritance-remove="onInheritanceRemove"
                 />
                 {% endblock %}
             </sw-card>
@@ -221,6 +294,8 @@
                     :form-fields="mediaFormFields"
                     :bulk-edit-data="bulkEditProduct"
                     :entity="product"
+                    @inheritance-restore="onInheritanceRestore"
+                    @inheritance-remove="onInheritanceRemove"
                 />
                 {% endblock %}
             </sw-card>
@@ -238,6 +313,8 @@
                     :form-fields="labellingFormFields"
                     :bulk-edit-data="bulkEditProduct"
                     :entity="product"
+                    @inheritance-restore="onInheritanceRestore"
+                    @inheritance-remove="onInheritanceRemove"
                 />
                 {% endblock %}
             </sw-card>
@@ -255,6 +332,8 @@
                     :form-fields="seoFormFields"
                     :bulk-edit-data="bulkEditProduct"
                     :entity="product"
+                    @inheritance-restore="onInheritanceRestore"
+                    @inheritance-remove="onInheritanceRemove"
                 />
                 {% endblock %}
             </sw-card>
@@ -271,6 +350,8 @@
                     :form-fields="measuresPackagingFields"
                     :bulk-edit-data="bulkEditProduct"
                     :entity="product"
+                    @inheritance-restore="onInheritanceRestore"
+                    @inheritance-remove="onInheritanceRemove"
                 />
             </sw-card>
             {% endblock %}
@@ -286,6 +367,8 @@
                     :form-fields="essentialCharacteristicsFormFields"
                     :bulk-edit-data="bulkEditProduct"
                     :entity="product"
+                    @inheritance-restore="onInheritanceRestore"
+                    @inheritance-remove="onInheritanceRemove"
                 />
             </sw-card>
             {% endblock %}
@@ -301,6 +384,8 @@
                 <sw-bulk-edit-custom-fields
                     class="sw-bulk-edit__custom-fields"
                     :sets="customFieldSets"
+                    :entity="product"
+                    :parent-entity="parentProduct"
                     @change="onCustomFieldsChange"
                 />
             </sw-card>

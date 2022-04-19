@@ -422,4 +422,52 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
         expect(changeAccountField.field).toBe('groupId');
         expect(changeAccountField.type).toBe('overwrite');
     });
+
+    it('should set route meta module when component created', () => {
+        wrapper = createWrapper();
+        wrapper.vm.setRouteMetaModule = jest.fn();
+
+        wrapper.vm.createdComponent();
+        expect(wrapper.vm.setRouteMetaModule).toBeCalled();
+        expect(wrapper.vm.$route.meta.$module.color).toBe('#F88962');
+        expect(wrapper.vm.$route.meta.$module.icon).toBe('default-avatar-multiple');
+
+        wrapper.vm.setRouteMetaModule.mockRestore();
+    });
+
+    it('should disable processing button', async () => {
+        wrapper = createWrapper();
+
+        await wrapper.setData({
+            isLoading: false,
+            bulkEditData: {
+                accept: {
+                    isChanged: false,
+                },
+                decline: {
+                    isChanged: false,
+                },
+                active: {
+                    isChanged: false,
+                },
+            },
+        });
+        expect(wrapper.find('.sw-button-process').classes()).toContain('sw-button--disabled');
+
+        await wrapper.setData({
+            isLoading: false,
+            bulkEditData: {
+                accept: {
+                    isChanged: true,
+                },
+                decline: {
+                    isChanged: false,
+                },
+                active: {
+                    isChanged: false,
+                },
+            },
+        });
+        expect(wrapper.find('.sw-button-process').classes()).not.toContain('sw-button--disabled');
+    });
 });

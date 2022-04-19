@@ -99,6 +99,7 @@ Component.register('sw-product-list', {
             productCriteria.addAssociation('cover');
             productCriteria.addAssociation('manufacturer');
             productCriteria.addAssociation('media');
+            productCriteria.addAssociation('configuratorSettings.option');
 
             this.filterCriteria.forEach(filter => {
                 productCriteria.addFilter(filter);
@@ -379,7 +380,12 @@ Component.register('sw-product-list', {
         },
 
         onBulkEditItems() {
-            this.$router.push({ name: 'sw.bulk.edit.product' });
+            this.$router.push({
+                name: 'sw.bulk.edit.product',
+                params: {
+                    parentId: 'null',
+                },
+            });
         },
 
         onBulkEditModalOpen() {

@@ -74,6 +74,10 @@ Component.register('sw-bulk-edit-order', {
             return Shopware.State.get('swBulkEdit').orderDocuments;
         },
 
+        hasChanges() {
+            return Object.values(this.bulkEditData).some((field) => field.isChanged);
+        },
+
         statusFormFields() {
             let fields = [
                 {
@@ -235,6 +239,7 @@ Component.register('sw-bulk-edit-order', {
 
     methods: {
         async createdComponent() {
+            this.setRouteMetaModule();
             this.isLoading = true;
 
             this.order = this.orderRepository.create(Shopware.Context.api);
@@ -252,6 +257,11 @@ Component.register('sw-bulk-edit-order', {
             this.isLoadedData = true;
 
             this.loadBulkEditData();
+        },
+
+        setRouteMetaModule() {
+            this.$set(this.$route.meta.$module, 'color', '#A092F0');
+            this.$set(this.$route.meta.$module, 'icon', 'default-shopping-paper-bag');
         },
 
         loadBulkEditData() {

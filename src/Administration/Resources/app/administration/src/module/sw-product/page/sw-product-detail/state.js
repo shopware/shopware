@@ -114,7 +114,7 @@ export default {
                 return true;
             }
 
-            return state.advancedModeSetting.value.advancedMode.enabled;
+            return state.advancedModeSetting.value?.advancedMode.enabled;
         },
 
         showProductCard(state, getters) {
@@ -134,7 +134,7 @@ export default {
         },
 
         advanceModeEnabled(state) {
-            return state.advancedModeSetting.value.advancedMode.enabled;
+            return state.advancedModeSetting.value?.advancedMode.enabled;
         },
     },
 

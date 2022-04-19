@@ -9,6 +9,7 @@ use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\HttpFoundation\Response;
+use function array_chunk;
 use function array_map;
 use function func_get_arg;
 use function implode;
@@ -17,6 +18,7 @@ use function sprintf;
 class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
 {
     private const API_URL = 'https://api.fastly.com';
+    private const MAX_TAG_INVALIDATION = 256;
 
     protected Client $client;
 
@@ -59,13 +61,15 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
 
     public function invalidate(array $tags): void
     {
-        $this->client->post(sprintf('%s/service/%s/purge', self::API_URL, $this->serviceId), [
-            'headers' => [
-                'Fastly-Key' => $this->apiKey,
-                'surrogate-key' => implode(' ', $this->prefixTags($tags)),
-                'fastly-soft-purge' => $this->softPurge,
-            ],
-        ]);
+        foreach (array_chunk($tags, self::MAX_TAG_INVALIDATION) as $part) {
+            $this->client->post(sprintf('%s/service/%s/purge', self::API_URL, $this->serviceId), [
+                'headers' => [
+                    'Fastly-Key' => $this->apiKey,
+                    'surrogate-key' => implode(' ', $this->prefixTags($part)),
+                    'fastly-soft-purge' => $this->softPurge,
+                ],
+            ]);
+        }
     }
 
     public function ban(array $urls): void

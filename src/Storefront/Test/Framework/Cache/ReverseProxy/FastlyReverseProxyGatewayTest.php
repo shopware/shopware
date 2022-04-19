@@ -9,6 +9,7 @@ use GuzzleHttp\Psr7\Response as GuzzleResponse;
 use PHPUnit\Framework\TestCase;
 use Shopware\Storefront\Framework\Cache\ReverseProxy\FastlyReverseProxyGateway;
 use Symfony\Component\HttpFoundation\Response;
+use function array_fill;
 
 class FastlyReverseProxyGatewayTest extends TestCase
 {
@@ -37,9 +38,10 @@ class FastlyReverseProxyGatewayTest extends TestCase
     public function testInvalidate(): void
     {
         $this->mockHandler->append(new GuzzleResponse(200, []));
+        $this->mockHandler->append(new GuzzleResponse(200, []));
 
         $gateway = new FastlyReverseProxyGateway($this->client, 'test', 'key', '0', 3, '');
-        $gateway->invalidate(['foo']);
+        $gateway->invalidate(array_fill(0, 257, 'foo'));
 
         static::assertSame('/service/test/purge', $this->mockHandler->getLastRequest()->getRequestTarget());
         static::assertSame(['foo'], $this->mockHandler->getLastRequest()->getHeader('surrogate-key'));

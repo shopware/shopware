@@ -56,7 +56,7 @@
         "doctrine/annotations": "1.13.1",
         "doctrine/dbal": "~2.13.8",
         "doctrine/inflector": "~1.4.4",
-        "dompdf/dompdf": "1.0.2",
+        "shopwarelabs/dompdf": "1.0.3",
         "enqueue/dbal": "~0.10.15",
         "enqueue/redis": "~0.10.9",
         "ezyang/htmlpurifier": "4.13.0",

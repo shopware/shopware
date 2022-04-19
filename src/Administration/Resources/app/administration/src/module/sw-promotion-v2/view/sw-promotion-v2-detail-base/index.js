@@ -88,6 +88,8 @@ Component.register('sw-promotion-v2-detail-base', {
                 return;
             }
 
+            this.loadCustomFieldSets();
+
             if (this.promotion.useCodes && this.promotion.useIndividualCodes) {
                 this.setNewCodeType(this.CODE_TYPES.INDIVIDUAL);
                 this.initialSort();
@@ -96,7 +98,6 @@ Component.register('sw-promotion-v2-detail-base', {
             }
 
             this.setNewCodeType(this.promotion.useCodes ? this.CODE_TYPES.FIXED : this.CODE_TYPES.NONE);
-            this.loadCustomFieldSets();
         },
 
         initialSort() {

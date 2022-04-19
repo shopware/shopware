@@ -470,4 +470,28 @@ describe('core/factory/module.factory.js', () => {
 
         expect(spy).not.toHaveBeenCalled();
     });
+
+    it(
+        'should not register a module when display property is false',
+        () => {
+            const module = register('1337-foo-bar', {
+                type: 'core',
+                display: false,
+                routes: {
+                    index: {
+                        path: 'index',
+                        component: 'sw-foobar-bar-index'
+                    }
+                },
+                navigation: [{
+                    icon: 'box',
+                    color: '#f00',
+                    label: 'FooIndex',
+                    path: 'sw.foobar.index'
+                }]
+            });
+
+            expect(module).toBe(false);
+        }
+    );
 });

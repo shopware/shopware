@@ -63,7 +63,8 @@ interface ModuleManifest {
         [lang: string]: unknown
     },
     name: string,
-    title: string
+    title: string,
+    display?: boolean
 }
 
 interface ModuleDefinition {
@@ -133,6 +134,14 @@ function registerModule(moduleId: string, module: ModuleManifest): false | Modul
             moduleId,
             'Abort registration.',
         );
+        return false;
+    }
+
+    if (!hasOwnProperty(module, 'display')) {
+        module.display = true;
+    }
+
+    if (!module.display) {
         return false;
     }
 

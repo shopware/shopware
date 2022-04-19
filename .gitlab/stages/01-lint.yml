@@ -157,3 +157,23 @@ NPM CI:
             - "12-alpine"
             - "14-alpine"
             - "16-alpine"
+
+rufus:
+  stage: lint
+  image: curlimages/curl:7.72.0
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
+    - when: manual
+  script:
+    - RUFUS_BRANCH=trunk
+    - PLATFORM_BRANCH="${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}"
+    - |
+      if [[ $CI_COMMIT_BRANCH = 6.* ]]; then
+        RUFUS_BRANCH=$CI_COMMIT_BRANCH
+      fi
+    - curl --request POST
+      --form "token=$CI_JOB_TOKEN"
+      --form "variables[PLATFORM_BRANCH]=${PLATFORM_BRANCH}"
+      --form "ref=${RUFUS_BRANCH}"
+      "${CI_API_V4_URL}/projects/221/trigger/pipeline"

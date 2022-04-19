@@ -4,6 +4,7 @@
     {% block sw_condition_line_item_creation_date_operator %}
     <sw-condition-operator-select
         v-bind="{ operators, condition }"
+        :plural="matchesAll"
         :disabled="disabled"
     />
     {% endblock %}

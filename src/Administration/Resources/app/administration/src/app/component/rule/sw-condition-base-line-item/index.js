@@ -62,7 +62,7 @@ Component.extend('sw-condition-base-line-item', 'sw-condition-base', {
 
         matchesAll: {
             get() {
-                return this.parentCondition.type === 'allLineItemsContainer';
+                return this.parentCondition && this.parentCondition.type === 'allLineItemsContainer';
             },
             set(matchesAll) {
                 if (matchesAll && this.parentCondition.type !== 'allLineItemsContainer') {

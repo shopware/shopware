@@ -583,17 +583,17 @@
     "sw-condition": {
       "operator": {
         "placeholder": "Select operator...",
-        "lowerThanEquals": "Is lower than / equal to",
-        "equals": "Is equal to",
-        "greaterThanEquals": "Is greater than / equal to",
-        "lowerThan": "Is less than",
-        "greaterThan": "Is greater than",
-        "notEquals": "Is not equal to",
-        "isOneOf": "Is one of",
-        "isNoneOf": "Is none of",
+        "lowerThanEquals": "Is lower than / equal to | Are lower than / equal to",
+        "equals": "Is equal to | Are equal to",
+        "greaterThanEquals": "Is greater than / equal to | Are greater than / equal to",
+        "lowerThan": "Is less than | Are less than",
+        "greaterThan": "Is greater than | Are greater than",
+        "notEquals": "Is not equal to | Are not equal to",
+        "isOneOf": "Is one of | Are one of",
+        "isNoneOf": "Is none of | Are none of",
         "gross": "Gross",
         "net": "Net",
-        "empty": "Is empty"
+        "empty": "Is empty | Are empty"
       },
       "placeholderErrorMessage": "Placeholder cannot be saved.",
       "dataErrorMessage": "Required fields not filled.",

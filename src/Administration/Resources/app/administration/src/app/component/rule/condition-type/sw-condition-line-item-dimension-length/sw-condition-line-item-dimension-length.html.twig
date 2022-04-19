@@ -3,6 +3,7 @@
     {% block sw_condition_line_item_dimension_length_field_operator %}
     <sw-condition-operator-select
         v-bind="{ operators, condition }"
+        :plural="matchesAll"
         :disabled="disabled"
     />
     {% endblock %}

@@ -30,6 +30,8 @@ class FkField extends Field implements StorageAware
      */
     protected $referenceField;
 
+    private ?string $referenceEntity = null;
+
     public function __construct(string $storageName, string $propertyName, string $referenceClass, string $referenceField = 'id')
     {
         $this->referenceClass = $referenceClass;
@@ -46,7 +48,8 @@ class FkField extends Field implements StorageAware
 
         parent::compile($registry);
 
-        $this->referenceDefinition = $registry->get($this->referenceClass);
+        $this->referenceDefinition = $registry->getByClassOrEntityName($this->referenceClass);
+        $this->referenceEntity = $this->referenceDefinition->getEntityName();
     }
 
     public function getStorageName(): string
@@ -67,6 +70,11 @@ class FkField extends Field implements StorageAware
     public function getExtractPriority(): int
     {
         return self::PRIORITY;
+    }
+
+    public function getReferenceEntity(): ?string
+    {
+        return $this->referenceEntity;
     }
 
     protected function getSerializerClass(): string

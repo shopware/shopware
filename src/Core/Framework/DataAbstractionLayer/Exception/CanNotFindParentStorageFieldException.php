@@ -11,7 +11,7 @@ class CanNotFindParentStorageFieldException extends ShopwareHttpException
     {
         parent::__construct(
             'Can not find FkField for parent property definition {{ definition }}',
-            ['definition' => $definition->getClass()]
+            ['definition' => $definition->getEntityName()]
         );
     }
 

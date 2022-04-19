@@ -67,7 +67,7 @@ abstract class EntityDefinition
 
     final public function getClass(): string
     {
-        return $this->className;
+        return static::class;
     }
 
     final public function isInstanceOf(EntityDefinition $other): bool
@@ -243,7 +243,9 @@ abstract class EntityDefinition
             return $this->parentDefinition = null;
         }
 
-        return $this->parentDefinition = $this->registry->get($parentDefinitionClass);
+        $this->parentDefinition = $this->registry->getByClassOrEntityName($parentDefinitionClass);
+
+        return $this->parentDefinition;
     }
 
     final public function getTranslationDefinition(): ?EntityDefinition
@@ -325,7 +327,7 @@ abstract class EntityDefinition
     {
         $field = $this->getFields()->get('seoUrls');
 
-        return $field instanceof OneToManyAssociationField && $field->getReferenceClass() === SeoUrlDefinition::class;
+        return $field instanceof OneToManyAssociationField && $field->getReferenceDefinition() instanceof SeoUrlDefinition;
     }
 
     public function since(): ?string

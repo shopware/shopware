@@ -65,6 +65,11 @@ class AppEntity extends Entity
     protected $version;
 
     /**
+     * @var bool
+     */
+    protected $allowDisable;
+
+    /**
      * @internal (flag:FEATURE_NEXT_17950)
      */
     protected ?string $baseAppUrl = null;
@@ -555,5 +560,15 @@ class AppEntity extends Entity
         unset($serializedData['iconRaw']);
 
         return $serializedData;
+    }
+
+    public function getAllowDisable(): bool
+    {
+        return $this->allowDisable;
+    }
+
+    public function setAllowDisable(bool $allowDisable): void
+    {
+        $this->allowDisable = $allowDisable;
     }
 }

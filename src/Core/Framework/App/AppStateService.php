@@ -89,6 +89,9 @@ class AppStateService
         if (!$app->isActive()) {
             return;
         }
+        if (!$app->getAllowDisable()) {
+            throw new \RuntimeException(\sprintf('App %s can not be deactivated. You have to uninstall the app.', $app->getName()));
+        }
 
         $this->activeAppsLoader->reset();
         // throw event before deactivating app in db as theme configs from the app need to be removed beforehand

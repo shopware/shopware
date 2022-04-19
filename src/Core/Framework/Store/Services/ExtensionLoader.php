@@ -188,6 +188,7 @@ class ExtensionLoader
             'isTheme' => $isTheme,
             'configurable' => $this->configurationService->checkConfiguration(sprintf('%s.config', $plugin->getName()), $context),
             'updatedAt' => $plugin->getUpgradedAt(),
+            'allowDisable' => true,
         ];
 
         return ExtensionStruct::fromArray($this->replaceCollections($data));
@@ -274,6 +275,7 @@ class ExtensionLoader
             'configurable' => $app->isConfigurable(),
             'privacyPolicyExtension' => $app->getPrivacyPolicyExtensions(),
             'updatedAt' => $app->getUpdatedAt(),
+            'allowDisable' => $app->getAllowDisable(),
         ];
 
         $appTranslations = $app->getTranslations();

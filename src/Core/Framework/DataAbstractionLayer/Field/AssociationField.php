@@ -27,6 +27,8 @@ abstract class AssociationField extends Field
      */
     protected $autoload = false;
 
+    protected ?string $referenceEntity = null;
+
     public function compile(DefinitionInstanceRegistry $registry): void
     {
         if ($this->referenceDefinition !== null) {
@@ -35,7 +37,9 @@ abstract class AssociationField extends Field
 
         parent::compile($registry);
 
-        $this->referenceDefinition = $registry->get($this->referenceClass);
+        $this->referenceDefinition = $registry->getByClassOrEntityName($this->referenceClass);
+        $this->referenceClass = $this->referenceDefinition->getClass();
+        $this->referenceEntity = $this->referenceDefinition->getEntityName();
     }
 
     public function getReferenceDefinition(): EntityDefinition
@@ -56,5 +60,10 @@ abstract class AssociationField extends Field
     final public function getAutoload(): bool
     {
         return $this->autoload;
+    }
+
+    public function getReferenceEntity(): ?string
+    {
+        return $this->referenceEntity;
     }
 }

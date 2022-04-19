@@ -39,12 +39,12 @@ class WriteCommandQueue
             return Uuid::fromBytesToHex($id);
         }, $primaryKey);
 
-        $hash = $senderIdentification->getClass() . ':' . md5(json_encode($primaryKey));
+        $hash = $senderIdentification->getEntityName() . ':' . md5(json_encode($primaryKey));
 
-        $this->commands[$senderIdentification->getClass()][] = $command;
+        $this->commands[$senderIdentification->getEntityName()][] = $command;
 
         $this->entityCommands[$hash][] = $command;
-        $this->definitions[$senderIdentification->getClass()] = $senderIdentification;
+        $this->definitions[$senderIdentification->getEntityName()] = $senderIdentification;
     }
 
     /**
@@ -98,7 +98,7 @@ class WriteCommandQueue
      */
     public function ensureIs(EntityDefinition $definition, string $class): void
     {
-        $commands = $this->commands[$definition->getClass()];
+        $commands = $this->commands[$definition->getEntityName()];
 
         foreach ($commands as $command) {
             if (!$command instanceof $class) {
@@ -115,7 +115,7 @@ class WriteCommandQueue
 
         sort($primaryKey);
 
-        $hash = $definition->getClass() . ':' . md5(json_encode($primaryKey));
+        $hash = $definition->getEntityName() . ':' . md5(json_encode($primaryKey));
 
         return $this->entityCommands[$hash] ?? [];
     }
@@ -147,7 +147,7 @@ class WriteCommandQueue
                     return null;
                 }
 
-                return $field->getReferenceDefinition()->getClass();
+                return $field->getReferenceDefinition()->getEntityName();
             });
 
         $requiredToManyDefinitions = array_flip($requiredToManyDefinitions);
@@ -163,7 +163,7 @@ class WriteCommandQueue
                 continue;
             }
 
-            $class = $referenceDefinition->getClass();
+            $class = $referenceDefinition->getEntityName();
 
             //check if many to one has pending commands
             if (!\array_key_exists($class, $commands)) {

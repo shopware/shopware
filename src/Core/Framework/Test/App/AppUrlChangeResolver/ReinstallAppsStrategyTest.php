@@ -7,7 +7,6 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppUrlChangeResolver\ReinstallAppsStrategy;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
-use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
@@ -18,7 +17,6 @@ use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ReinstallAppsStrategyTest extends TestCase
@@ -87,11 +85,7 @@ class ReinstallAppsStrategyTest extends TestCase
             ->with(static::isInstanceOf(AppInstalledEvent::class));
 
         $reinstallAppsResolver = new ReinstallAppsStrategy(
-            new AppLoader(
-                $appDir,
-                $this->getContainer()->getParameter('kernel.project_dir'),
-                $this->getContainer()->get(ConfigReader::class)
-            ),
+            $this->getAppLoader($appDir),
             $this->getContainer()->get('app.repository'),
             $registrationsService,
             $this->systemConfigService,
@@ -126,11 +120,7 @@ class ReinstallAppsStrategyTest extends TestCase
             ->method('dispatch');
 
         $reinstallAppsResolver = new ReinstallAppsStrategy(
-            new AppLoader(
-                $appDir,
-                $this->getContainer()->getParameter('kernel.project_dir'),
-                $this->getContainer()->get(ConfigReader::class)
-            ),
+            $this->getAppLoader($appDir),
             $this->getContainer()->get('app.repository'),
             $registrationsService,
             $this->systemConfigService,

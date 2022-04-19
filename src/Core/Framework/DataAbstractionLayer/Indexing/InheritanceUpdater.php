@@ -76,6 +76,16 @@ class InheritanceUpdater
         foreach ($associations as $association) {
             $reference = $association->getReferenceDefinition();
 
+            $flag = $association->getFlag(Inherited::class);
+
+            if (!$flag instanceof Inherited) {
+                throw new \RuntimeException(\sprintf('Association %s is not marked as inherited', $definition->getEntityName() . '.' . $association->getPropertyName()));
+            }
+
+            $foreignKey = $flag->getForeignKey() ?: ($definition->getEntityName() . '_id');
+
+            $versionKey = \substr($foreignKey, 0, -3) . '_version_id';
+
             $sql = sprintf(
                 'UPDATE #root# SET #property# = IFNULL(
                         (
@@ -95,8 +105,8 @@ class InheritanceUpdater
 
             $parameters = [
                 '#root#' => EntityDefinitionQueryHelper::escape($definition->getEntityName()),
-                '#entity_id#' => EntityDefinitionQueryHelper::escape($definition->getEntityName() . '_id'),
-                '#entity_version_id#' => EntityDefinitionQueryHelper::escape($definition->getEntityName() . '_version_id'),
+                '#entity_id#' => EntityDefinitionQueryHelper::escape($foreignKey),
+                '#entity_version_id#' => EntityDefinitionQueryHelper::escape($versionKey),
                 '#property#' => EntityDefinitionQueryHelper::escape($association->getPropertyName()),
                 '#reference#' => EntityDefinitionQueryHelper::escape($reference->getEntityName()),
             ];

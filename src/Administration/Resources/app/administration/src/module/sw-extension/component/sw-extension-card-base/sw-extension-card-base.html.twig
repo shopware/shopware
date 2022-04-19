@@ -12,7 +12,12 @@
         {% block sw_extension_card_base_activation_switch_switch %}
         <sw-switch-field
             v-model="isActive"
-            :disabled="!isInstalled"
+            v-tooltip="{
+                showDelay: 300,
+                message: $tc('sw-extension-store.component.sw-extension-card-base.allowDisableTooltip'),
+                disabled: allowDisable
+            }"
+            :disabled="!isInstalled || (isActive && !allowDisable)"
         />
         {% endblock %}
     </div>

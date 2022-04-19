@@ -3,6 +3,7 @@
 namespace Shopware\Core\System;
 
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\System\CustomEntity\CustomEntityRegistrar;
 use Shopware\Core\System\DependencyInjection\CompilerPass\RedisNumberRangeIncrementerCompilerPass;
 use Shopware\Core\System\DependencyInjection\CompilerPass\SalesChannelEntityCompilerPass;
 use Symfony\Component\Config\FileLocator;
@@ -22,6 +23,7 @@ class System extends Bundle
         $loader->load('sales_channel.xml');
         $loader->load('country.xml');
         $loader->load('currency.xml');
+        $loader->load('custom_entity.xml');
         $loader->load('locale.xml');
         $loader->load('snippet.xml');
         $loader->load('salutation.xml');
@@ -36,5 +38,12 @@ class System extends Bundle
 
         $container->addCompilerPass(new SalesChannelEntityCompilerPass());
         $container->addCompilerPass(new RedisNumberRangeIncrementerCompilerPass());
+    }
+
+    public function boot(): void
+    {
+        parent::boot();
+
+        $this->container->get(CustomEntityRegistrar::class)->register();
     }
 }

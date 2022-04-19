@@ -18,9 +18,7 @@ class ScriptTwigLoaderTest extends TestCase
         $this->script = new Script(
             'simple-function-case.twig',
             file_get_contents(__DIR__ . '/_fixtures/simple-function-case/Resources/scripts/simple-function-case/simple-function-case.twig'),
-            new \DateTimeImmutable(),
-            null,
-            []
+            new \DateTimeImmutable()
         );
 
         $this->scriptLoader = new ScriptTwigLoader($this->script);

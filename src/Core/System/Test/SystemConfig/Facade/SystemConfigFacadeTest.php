@@ -47,7 +47,7 @@ class SystemConfigFacadeTest extends TestCase
 
         $facade = $this->factory->factory(
             $hook,
-            new Script('test', '', new \DateTimeImmutable(), null)
+            new Script('test', '', new \DateTimeImmutable())
         );
 
         static::assertEquals($result, $facade->get('test.value', $salesChannelId));
@@ -145,7 +145,7 @@ class SystemConfigFacadeTest extends TestCase
 
         $facade = $this->factory->factory(
             new TestHook('test', Context::createDefaultContext()),
-            new Script('test', '', new \DateTimeImmutable(), null)
+            new Script('test', '', new \DateTimeImmutable())
         );
 
         static::expectException(\BadMethodCallException::class);

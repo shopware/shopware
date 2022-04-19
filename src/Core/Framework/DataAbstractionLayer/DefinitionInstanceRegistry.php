@@ -61,10 +61,26 @@ class DefinitionInstanceRegistry
 
     public function get(string $class): EntityDefinition
     {
-        /** @var EntityDefinition $entityDefinition */
-        $entityDefinition = $this->container->get($class);
+        try {
+            $definition = $this->container->get($class);
 
-        return $entityDefinition;
+            /** @var EntityDefinition $definition */
+            return $definition;
+        } catch (ServiceNotFoundException $e) {
+            throw new DefinitionNotFoundException($class);
+        }
+    }
+
+    /**
+     * Shorthand to get the definition instance by class and use provided key as entity name as fallback
+     */
+    public function getByClassOrEntityName(string $key): EntityDefinition
+    {
+        try {
+            return $this->get($key);
+        } catch (DefinitionNotFoundException $e) {
+            return $this->getByEntityName($key);
+        }
     }
 
     public function has(string $name): bool
@@ -147,6 +163,8 @@ class DefinitionInstanceRegistry
         }
 
         $this->definitions[$definition->getEntityName()] = $serviceId;
+
+        $this->repositoryMap[$definition->getEntityName()] = $definition->getEntityName() . '.repository';
 
         $definition->compile($this);
     }

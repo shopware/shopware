@@ -241,6 +241,7 @@
         "openExtensionLabel": "App öffnen",
         "installExtensionLabel": "App installieren",
         "labelAcceptAndInstall": "Akzeptieren und installieren",
+        "allowDisableTooltip": "Diese App verwendet eigene Datenstrukturen, die sich auf Ihr System auswirken. Die App kann daher nicht deaktiviert werden.",
         "contextMenu": {
           "getHelpLabel": "Hilfe anfragen",
           "seeDetailsLabel": "Details ansehen",

@@ -11,7 +11,7 @@ class ParentFieldNotFoundException extends ShopwareHttpException
     {
         parent::__construct(
             'Can not find parent property \'parent\' field for definition {{ definition }',
-            ['definition' => $definition->getClass()]
+            ['definition' => $definition->getEntityName()]
         );
     }
 

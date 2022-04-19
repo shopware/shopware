@@ -72,30 +72,30 @@ class WriteContext
     public static function createFromContext(Context $context): self
     {
         $self = new self($context);
-        $self->set(LanguageDefinition::class, 'id', $context->getLanguageId());
+        $self->set(LanguageDefinition::ENTITY_NAME, 'id', $context->getLanguageId());
 
         return $self;
     }
 
-    public function set(string $className, string $propertyName, string $value): void
+    public function set(string $entity, string $propertyName, string $value): void
     {
-        $this->paths[$this->buildPathName($className, $propertyName)] = $value;
+        $this->paths[$this->buildPathName($entity, $propertyName)] = $value;
     }
 
-    public function get(string $className, string $propertyName)
+    public function get(string $entity, string $propertyName)
     {
-        $path = $this->buildPathName($className, $propertyName);
+        $path = $this->buildPathName($entity, $propertyName);
 
-        if (!$this->has($className, $propertyName)) {
+        if (!$this->has($entity, $propertyName)) {
             throw new \InvalidArgumentException(sprintf('Unable to load %s: %s', $path, print_r($this->paths, true)));
         }
 
         return $this->paths[$path];
     }
 
-    public function has(string $className, string $propertyName): bool
+    public function has(string $entity, string $propertyName): bool
     {
-        $path = $this->buildPathName($className, $propertyName);
+        $path = $this->buildPathName($entity, $propertyName);
 
         return isset($this->paths[$path]);
     }
@@ -108,7 +108,7 @@ class WriteContext
     public function resetPaths(): void
     {
         $this->paths = [];
-        $this->set(LanguageDefinition::class, 'id', $this->context->getLanguageId());
+        $this->set(LanguageDefinition::ENTITY_NAME, 'id', $this->context->getLanguageId());
     }
 
     public function createWithVersionId(string $versionId): self

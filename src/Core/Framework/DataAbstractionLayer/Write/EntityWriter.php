@@ -224,6 +224,30 @@ class EntityWriter implements EntityWriterInterface
         }
     }
 
+    private function addReverseInheritedCommands(WriteCommandQueue $queue, EntityDefinition $definition, WriteContext $writeContext, array $resolved): void
+    {
+        if ($definition instanceof MappingEntityDefinition) {
+            return;
+        }
+        $cascades = $this->foreignKeyResolver->getAllReverseInherited($definition, $resolved, $writeContext->getContext());
+
+        foreach ($cascades as $affectedDefinitionClass => $keys) {
+            $affectedDefinition = $this->registry->getByEntityName($affectedDefinitionClass);
+
+            foreach ($keys as $key) {
+                if (!\is_array($key)) {
+                    $key = ['id' => $key];
+                }
+
+                $primary = EntityHydrator::encodePrimaryKey($affectedDefinition, $key, $writeContext->getContext());
+
+                $existence = new EntityExistence($affectedDefinition->getEntityName(), $primary, true, false, false, []);
+
+                $queue->add($affectedDefinition, new CascadeDeleteCommand($affectedDefinition, $primary, $existence));
+            }
+        }
+    }
+
     private function addDeleteCascadeCommands(WriteCommandQueue $queue, EntityDefinition $definition, WriteContext $writeContext, array $resolved): void
     {
         if ($definition instanceof MappingEntityDefinition) {
@@ -392,6 +416,8 @@ class EntityWriter implements EntityWriterInterface
 
         // we had some logic in the command layer (pre-validate, post-validate, indexer which listens to this events)
         // to trigger this logic for cascade deletes or set nulls, we add a fake commands for the affected rows
+        $this->addReverseInheritedCommands($commandQueue, $definition, $writeContext, $resolved);
+
         $this->addDeleteCascadeCommands($commandQueue, $definition, $writeContext, $resolved);
 
         $this->addSetNullOnDeletesCommands($commandQueue, $definition, $writeContext, $resolved);

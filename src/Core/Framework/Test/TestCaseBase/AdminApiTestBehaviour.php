@@ -76,7 +76,8 @@ trait AdminApiTestBehaviour
         ?KernelInterface $kernel = null,
         bool $enableReboot = false,
         bool $authorized = true,
-        array $scopes = []
+        array $scopes = [],
+        ?array $permissions = null
     ): KernelBrowser {
         if (!$kernel) {
             $kernel = $this->getKernel();
@@ -91,7 +92,7 @@ trait AdminApiTestBehaviour
         ]);
 
         if ($authorized) {
-            $this->authorizeBrowser($apiBrowser, $scopes);
+            $this->authorizeBrowser($apiBrowser, $scopes, $permissions);
         }
 
         return $this->kernelBrowser = $apiBrowser;
@@ -132,9 +133,9 @@ trait AdminApiTestBehaviour
     {
         $username = Uuid::randomHex();
         $password = Uuid::randomHex();
+        $userId = Uuid::randomBytes();
 
         $connection = $browser->getContainer()->get(Connection::class);
-        $userId = Uuid::randomBytes();
 
         $user = [
             'id' => $userId,
@@ -167,9 +168,8 @@ trait AdminApiTestBehaviour
         } else {
             $user['admin'] = 1;
             $user['email'] = 'admin@example.com';
-            if ($connection->fetchColumn('SELECT email FROM user WHERE email = "admin@example.com"', [], 0) !== 'admin@example.com') {
-                $connection->insert('user', $user);
-            }
+            $connection->executeStatement('DELETE FROM user WHERE email = :mail', ['mail' => 'admin@example.com']);
+            $connection->insert('user', $user);
         }
 
         $this->apiUsernames[] = $username;
@@ -266,7 +266,7 @@ trait AdminApiTestBehaviour
 
     abstract protected function getKernel(): KernelInterface;
 
-    protected function getBrowser(bool $authorized = true, array $scopes = []): KernelBrowser
+    protected function getBrowser(bool $authorized = true, array $scopes = [], ?array $permissions = null): KernelBrowser
     {
         if ($this->kernelBrowser) {
             return $this->kernelBrowser;
@@ -276,7 +276,8 @@ trait AdminApiTestBehaviour
             null,
             false,
             $authorized,
-            $scopes
+            $scopes,
+            $permissions
         );
     }
 

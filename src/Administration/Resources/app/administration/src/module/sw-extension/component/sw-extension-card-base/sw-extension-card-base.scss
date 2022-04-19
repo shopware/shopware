@@ -10,6 +10,17 @@
         }
     }
 
+    &.deactivate-prevented {
+        .sw-field--switch .sw-field--switch__input input[type=checkbox]:checked:disabled ~ .sw-field__switch-state {
+            background: $color-shopware-brand-500;
+            opacity: 0.5;
+
+            .sw-field__switch-state-knob {
+                background: $color-white;
+            }
+        }
+    }
+
     .sw-loader {
         border-radius: 8px;
     }

@@ -4,18 +4,18 @@ namespace Shopware\Core\Framework\Test\App\Lifecycle;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 
 class AppLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use AppSystemTestBehaviour;
 
     public function testLoad(): void
     {
-        $appLoader = $this->getAppLoaderForFolder(__DIR__ . '/../Manifest/_fixtures');
+        $appLoader = $this->getAppLoader(__DIR__ . '/../Manifest/_fixtures');
 
         $manifests = $appLoader->load();
 
@@ -25,7 +25,7 @@ class AppLoaderTest extends TestCase
 
     public function testLoadIgnoresInvalid(): void
     {
-        $appLoader = $this->getAppLoaderForFolder(__DIR__ . '/../Manifest/_fixtures/invalid');
+        $appLoader = $this->getAppLoader(__DIR__ . '/../Manifest/_fixtures/invalid');
 
         $manifests = $appLoader->load();
 
@@ -34,7 +34,7 @@ class AppLoaderTest extends TestCase
 
     public function testLoadCombinesFolders(): void
     {
-        $appLoader = $this->getAppLoaderForFolder(__DIR__ . '/../Manifest/_fixtures');
+        $appLoader = $this->getAppLoader(__DIR__ . '/../Manifest/_fixtures');
 
         $manifests = $appLoader->load();
 
@@ -46,7 +46,7 @@ class AppLoaderTest extends TestCase
 
     public function testGetIcon(): void
     {
-        $appLoader = $this->getAppLoaderForFolder(__DIR__ . '/../Manifest/_fixtures/test');
+        $appLoader = $this->getAppLoader(__DIR__ . '/../Manifest/_fixtures/test');
 
         $manifests = $appLoader->load();
 
@@ -61,7 +61,7 @@ class AppLoaderTest extends TestCase
 
     public function testGetIconReturnsNullOnInvalidIconPath(): void
     {
-        $appLoader = $this->getAppLoaderForFolder(__DIR__ . '/../Manifest/_fixtures/test');
+        $appLoader = $this->getAppLoader(__DIR__ . '/../Manifest/_fixtures/test');
 
         $manifests = $appLoader->load();
 
@@ -75,7 +75,7 @@ class AppLoaderTest extends TestCase
 
     public function testGetConfigurationReturnsNullIfNoConfigIsProvided(): void
     {
-        $appLoader = $this->getAppLoaderForFolder(__DIR__ . '/../Manifest/_fixtures/test');
+        $appLoader = $this->getAppLoader(__DIR__ . '/../Manifest/_fixtures/test');
 
         $path = str_replace($this->getContainer()->getParameter('kernel.project_dir') . '/', '', __DIR__ . '/../Manifest/_fixtures/test');
         $app = (new AppEntity())->assign(['path' => $path]);
@@ -85,7 +85,7 @@ class AppLoaderTest extends TestCase
 
     public function testGetConfigurationReturnsParsedConfig(): void
     {
-        $appLoader = $this->getAppLoaderForFolder(__DIR__ . '/../Manifest/_fixtures/test');
+        $appLoader = $this->getAppLoader(__DIR__ . '/../Manifest/_fixtures/test');
 
         $path = str_replace($this->getContainer()->getParameter('kernel.project_dir') . '/', '', __DIR__ . '/../Manifest/_fixtures/withConfig');
         $app = (new AppEntity())->assign(['path' => $path]);
@@ -116,7 +116,7 @@ class AppLoaderTest extends TestCase
 
     public function testGetCmsExtensions(): void
     {
-        $appLoader = $this->getAppLoaderForFolder(__DIR__ . '/../Manifest/_fixtures/test');
+        $appLoader = $this->getAppLoader(__DIR__ . '/../Manifest/_fixtures/test');
 
         $path = str_replace($this->getContainer()->getParameter('kernel.project_dir') . '/', '', __DIR__ . '/../Manifest/_fixtures/test');
         $app = (new AppEntity())->assign(['path' => $path]);
@@ -127,20 +127,11 @@ class AppLoaderTest extends TestCase
 
     public function testGetAssetPathForAppPath(): void
     {
-        $appLoader = $this->getAppLoaderForFolder(__DIR__ . '/../Manifest/_fixtures');
+        $appLoader = $this->getAppLoader(__DIR__ . '/../Manifest/_fixtures');
 
         static::assertEquals(
             $this->getContainer()->getParameter('kernel.project_dir') . '/custom/apps/test/Resources/public',
             $appLoader->getAssetPathForAppPath('custom/apps/test')
-        );
-    }
-
-    private function getAppLoaderForFolder(string $folder): AppLoader
-    {
-        return new AppLoader(
-            $folder,
-            $this->getContainer()->getParameter('kernel.project_dir'),
-            $this->getContainer()->get(ConfigReader::class)
         );
     }
 }

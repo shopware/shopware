@@ -40,7 +40,9 @@ class ReferenceVersionField extends FkField
 
         parent::compile($registry);
 
-        $this->versionReferenceDefinition = $registry->get($this->versionReferenceClass);
+        $this->versionReferenceDefinition = $registry->getByClassOrEntityName($this->versionReferenceClass);
+        $this->versionReferenceClass = $this->versionReferenceDefinition->getClass();
+
         $entity = $this->versionReferenceDefinition->getEntityName();
         $storageName = $this->storageName ?? ($entity . '_version_id');
 

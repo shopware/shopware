@@ -9,6 +9,7 @@
     "homepage": "http://www.shopware.com",
     "license": "MIT",
     "autoload": {
+        "files":["Framework/Adapter/Doctrine/Patch/AbstractAsset.php"],
         "exclude-from-classmap": [
             "*/Test/"
         ],

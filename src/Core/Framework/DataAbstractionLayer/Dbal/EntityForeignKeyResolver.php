@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -105,6 +106,29 @@ class EntityForeignKeyResolver
     public function getAffectedSetNulls(EntityDefinition $definition, array $ids, Context $context): array
     {
         return $this->fetch($definition, $ids, SetNullOnDelete::class, $context);
+    }
+
+    /**
+     * Returns a list of all entities and their primary keys which will be deleted by the mysql server
+     * Example:
+     *  [
+     *      "order_customer" => array:2 [
+     *          "cace68bdbca140b6ac43a083fb19f82b",
+     *          "50330f5531ed485fbd72ba016b20ea2a",
+     *      ]
+     *      "order_address" => array:4 [
+     *          "29d6334b01e64be28c89a5f1757fd661",
+     *          "484ef1124595434fa9b14d6d2cc1e9f8",
+     *          "601133b1173f4ca3aeda5ef64ad38355",
+     *          "9fd6c61cf9844a8984a45f4e5b55a59c",
+     *      ]
+     *  ]
+     *
+     * @throws \RuntimeException
+     */
+    public function getAllReverseInherited(EntityDefinition $definition, array $ids, Context $context): array
+    {
+        return $this->fetch($definition, $ids, ReverseInherited::class, $context);
     }
 
     /**
@@ -235,11 +259,12 @@ class EntityForeignKeyResolver
 
         if ($class === SetNullOnDelete::class) {
             // add entity prefix for the current association
-            $formatted = [$association->getReferenceDefinition()->getEntityName() . '.' . $association->getReferenceField() => $affected];
-        } else {
-            // add entity prefix for the current association
-            $formatted = [$association->getReferenceDefinition()->getEntityName() => $affected];
+            // stop recursion here, set null of an foreign key has no further impact
+            return [$association->getReferenceDefinition()->getEntityName() . '.' . $association->getReferenceField() => $affected];
         }
+
+        // add entity prefix for the current association
+        $formatted = [$association->getReferenceDefinition()->getEntityName() => $affected];
 
         // Only include entities directly associated with the definition
         if ($restrictDeleteOnlyFirstLevel && $class === RestrictDelete::class) {

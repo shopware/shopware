@@ -187,7 +187,7 @@ class WriteCommandExtractor
 
         /** @var Field&StorageAware $pkField */
         foreach ($definition->getPrimaryKeys() as $pkField) {
-            $parameters->getContext()->set($parameters->getDefinition()->getClass(), $pkField->getPropertyName(), Uuid::fromBytesToHex($pkData[$pkField->getStorageName()]));
+            $parameters->getContext()->set($parameters->getDefinition()->getEntityName(), $pkField->getPropertyName(), Uuid::fromBytesToHex($pkData[$pkField->getStorageName()]));
         }
 
         if ($definition instanceof MappingEntityDefinition) {

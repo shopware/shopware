@@ -10,11 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ManyToManyAssoc
 class ManyToManyAssociationField extends AssociationField
 {
     /**
-     * @var string
-     */
-    private $mappingDefinitionClass;
-
-    /**
      * @var EntityDefinition
      */
     private $mappingDefinition;
@@ -56,7 +51,6 @@ class ManyToManyAssociationField extends AssociationField
         parent::__construct($propertyName);
         $this->toManyDefinitionClass = $referenceDefinition;
         $this->referenceClass = $mappingDefinition;
-        $this->mappingDefinitionClass = $mappingDefinition;
         $this->mappingLocalColumn = $mappingLocalColumn;
         $this->mappingReferenceColumn = $mappingReferenceColumn;
         $this->sourceColumn = $sourceColumn;
@@ -71,8 +65,9 @@ class ManyToManyAssociationField extends AssociationField
 
         parent::compile($registry);
 
-        $this->toManyDefinition = $registry->get($this->toManyDefinitionClass);
-        $this->mappingDefinition = $registry->get($this->mappingDefinitionClass);
+        $this->toManyDefinition = $registry->getByClassOrEntityName($this->toManyDefinitionClass);
+        $this->toManyDefinitionClass = $this->toManyDefinition->getClass();
+        $this->mappingDefinition = $this->referenceDefinition;
     }
 
     public function getToManyReferenceDefinition(): EntityDefinition

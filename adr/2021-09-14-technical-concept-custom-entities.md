@@ -49,7 +49,6 @@ For routing, we have to trick a bit, because currently for each entity in the sy
 
 ### Store api integration
 * On the schema of the entity, the developer can define if this is `store_api_aware`.
-* If it is, then a store api route is provided for the entity.
-* As with the API we always register `/store-api/custom-{entity}` in the system
-* A request to this route must check if the entity exists and if this store API is aware
-* A property can be marked as `store-api-aware`. This sets the `ApiAware()` flag at the field
+* Entities which are not marked as `store_api_aware` will be removed from the response
+* We will provide no automatic generated endpoint for the entities.
+* Store api logics will be realized with the app-scripting epic

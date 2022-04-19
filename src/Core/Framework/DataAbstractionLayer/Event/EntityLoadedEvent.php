@@ -153,7 +153,7 @@ class EntityLoadedEvent extends NestedEvent implements GenericEvent
 
                     if ($reference) {
                         $associatedDefinition = $association->getReferenceDefinition();
-                        $associationClass = $associatedDefinition->getClass();
+                        $associationClass = $associatedDefinition->getEntityName();
 
                         if (!isset($events[$associationClass])) {
                             $events[$associationClass] = [
@@ -189,7 +189,7 @@ class EntityLoadedEvent extends NestedEvent implements GenericEvent
                     continue;
                 }
 
-                $referenceDefinitionClass = $referenceDefinition->getClass();
+                $referenceDefinitionClass = $referenceDefinition->getEntityName();
 
                 if (!isset($events[$referenceDefinitionClass])) {
                     $events[$referenceDefinitionClass] = [

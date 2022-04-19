@@ -72,7 +72,7 @@ class ProductBuilder
 
     protected array $media = [];
 
-    protected ?string $coverId;
+    protected ?string $coverId = null;
 
     protected ?array $cmsPage = null;
 
@@ -112,7 +112,7 @@ class ProductBuilder
 
         $this->tax = [
             'id' => $this->ids->create($key),
-            'name' => 'test',
+            'name' => $key,
             'taxRate' => $rate,
         ];
 
@@ -423,6 +423,12 @@ class ProductBuilder
 
     public function cover(string $key): ProductBuilder
     {
+        $this->media[] = [
+            'id' => $this->ids->get($key),
+            'position' => -1,
+            'media' => ['fileName' => $key],
+        ];
+
         $this->coverId = $this->ids->get($key);
 
         return $this;

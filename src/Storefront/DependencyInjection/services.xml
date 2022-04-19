@@ -635,8 +635,6 @@
             <tag name="shopware.storefront.captcha" priority="100"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Captcha\Annotation\Captcha"/>
-
         <service id="Shopware\Storefront\Framework\Routing\ResponseHeaderListener">
             <tag name="kernel.event_listener" priority="-10"/>
         </service>

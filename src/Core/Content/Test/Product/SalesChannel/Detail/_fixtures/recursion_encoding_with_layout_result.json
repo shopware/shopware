@@ -89,7 +89,7 @@
     "packUnitPlural": null,
     "tax": {
       "taxRate": 15,
-      "name": "test",
+      "name": "t1",
       "position": 0,
       "translated": [],
       "extensions": {
@@ -502,7 +502,7 @@
                       "packUnitPlural": null,
                       "tax": {
                         "taxRate": 15,
-                        "name": "test",
+                        "name": "t1",
                         "position": 0,
                         "translated": [],
                         "extensions": {
@@ -933,7 +933,7 @@
                       "packUnitPlural": null,
                       "tax": {
                         "taxRate": 15,
-                        "name": "test",
+                        "name": "t1",
                         "position": 0,
                         "translated": [],
                         "extensions": {
@@ -1333,7 +1333,7 @@
                             "packUnitPlural": null,
                             "tax": {
                               "taxRate": 15,
-                              "name": "test",
+                              "name": "t1",
                               "position": 0,
                               "translated": [],
                               "extensions": {
@@ -1481,7 +1481,7 @@
                             "packUnitPlural": null,
                             "tax": {
                               "taxRate": 15,
-                              "name": "test",
+                              "name": "t1",
                               "position": 0,
                               "translated": [],
                               "extensions": {

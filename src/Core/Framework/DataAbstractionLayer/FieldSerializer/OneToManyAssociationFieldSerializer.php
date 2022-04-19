@@ -38,10 +38,14 @@ class OneToManyAssociationFieldSerializer implements FieldSerializerInterface
             return $data;
         }
 
-        $id = $parameters->getContext()->get($parameters->getDefinition()->getClass(), $field->getLocalField());
+        $id = $parameters->getContext()->get($parameters->getDefinition()->getEntityName(), $field->getLocalField());
         $reference = $field->getReferenceDefinition();
 
         $fkField = $reference->getFields()->getByStorageName($field->getReferenceField());
+
+        if (!$fkField) {
+            throw new \RuntimeException(sprintf('Can not find fk field for accessor %s.%s', $reference->getEntityName(), $field->getReferenceField()));
+        }
 
         // allows to reset the association for a none cascade delete
         $fk = $fkField->getPropertyName();

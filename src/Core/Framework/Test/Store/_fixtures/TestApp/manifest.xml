@@ -15,5 +15,6 @@
     </meta>
     <permissions>
         <create>product</create>
+        <permission>additional:privilege</permission>
     </permissions>
 </manifest>

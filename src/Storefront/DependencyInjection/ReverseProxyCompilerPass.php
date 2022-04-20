@@ -18,6 +18,7 @@ class ReverseProxyCompilerPass implements CompilerPassInterface
             $container->removeDefinition('shopware.cache.reverse_proxy.redis');
             $container->removeDefinition(ReverseProxyCache::class);
             $container->removeDefinition(AbstractReverseProxyGateway::class);
+            $container->removeDefinition(FastlyReverseProxyGateway::class);
             $container->removeDefinition(ReverseProxyCacheClearer::class);
 
             return;

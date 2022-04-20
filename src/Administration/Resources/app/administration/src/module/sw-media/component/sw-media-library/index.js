@@ -304,9 +304,12 @@ Component.register('sw-media-library', {
             this.pageFolder += 1;
 
             const criteria = new Criteria(this.pageFolder)
-                .addFilter(Criteria.equals('parentId', this.folderId))
                 .addSorting(Criteria.sort(this.folderSorting.sortBy, this.folderSorting.sortDirection))
                 .setTerm(this.term);
+
+            if (!this.term) {
+                criteria.addFilter(Criteria.equals('parentId', this.folderId));
+            }
 
             const subFolders = await this.mediaFolderRepository.search(criteria, Context.api);
 

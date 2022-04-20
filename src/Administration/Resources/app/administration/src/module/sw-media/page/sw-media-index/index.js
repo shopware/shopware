@@ -56,6 +56,7 @@ Component.register('sw-media-index', {
 
     watch: {
         routeFolderId() {
+            this.term = null;
             this.updateFolder();
         },
     },

@@ -225,11 +225,6 @@ Component.register('sw-settings-rule-detail', {
             });
         },
 
-        openChangeModal(destination) {
-            this.nextRoute = destination;
-            this.isDisplayingSaveChangesWarning = true;
-        },
-
         onLeaveModalClose() {
             this.nextRoute = null;
             this.isDisplayingSaveChangesWarning = false;

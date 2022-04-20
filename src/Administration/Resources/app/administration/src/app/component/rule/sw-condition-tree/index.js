@@ -89,6 +89,7 @@ Component.register('sw-condition-tree', {
     data() {
         return {
             conditionTree: null,
+            initialLoadingDone: false,
         };
     },
 
@@ -186,6 +187,10 @@ Component.register('sw-condition-tree', {
             const rootCondition = this.applyRootIfNecessary();
             this.conditionTree = this.createTreeRecursive(rootCondition, this.initialConditions);
             this.emitChange([]);
+            if (!this.initialLoadingDone) {
+                this.$emit('initial-loading-done');
+                this.initialLoadingDone = true;
+            }
         },
 
         createTreeRecursive(condition, conditions) {

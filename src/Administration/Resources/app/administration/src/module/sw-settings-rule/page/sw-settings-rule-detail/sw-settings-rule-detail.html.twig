@@ -133,6 +133,7 @@
                 :condition-repository="conditionRepository"
                 :is-loading="isLoading"
                 @conditions-changed="conditionsChanged"
+                @tree-finished-loading="setTreeFinishedLoading"
             />
             {% endblock %}
         </sw-card-view>

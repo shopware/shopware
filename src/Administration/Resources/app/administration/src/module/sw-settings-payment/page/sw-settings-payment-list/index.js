@@ -5,6 +5,9 @@ const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 
+/**
+ * @deprecated tag:v6.5.0 - will be removed, use `sw-settings-payment-overview` instead
+ */
 Component.register('sw-settings-payment-list', {
     template,
 
@@ -25,6 +28,7 @@ Component.register('sw-settings-payment-list', {
             sortDirection: 'ASC',
             naturalSorting: true,
             showDeleteModal: false,
+            showDeprecatedAlert: true,
             searchConfigEntity: 'payment_method',
         };
     },

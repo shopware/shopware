@@ -1,8 +1,24 @@
 {
   "sw-settings-payment": {
     "general": {
-      "mainMenuItemGeneral": "Payment",
+      "mainMenuItemGeneral": "Payment methods",
       "placeholderSearchBar": "Search all payment methods..."
+    },
+    "overview": {
+      "deprecation-alert": {
+        "title": "Introducing a simpler design for payment methods",
+        "message": "We’ve made it easier to manage your shop’s payment methods. Try out the new design now, the old one will be removed with the next major release of Shopware 6.",
+        "link": "Switch to old design"
+      },
+      "openSortingModalButton": "Edit display order in checkout"
+    },
+    "deprecated-alert": {
+      "message": "We’ve made it easier to manage your shop’s payment methods.",
+      "link": "Switch to new design"
+    },
+    "sorting-modal": {
+      "modalTitle": "Display order in checkout",
+      "subTitle": "Use drag & drop to define the order of payment methods displayed during checkout."
     },
     "list": {
       "textHeadline": "Payment",

@@ -1,0 +1,117 @@
+{% block sw_settings_payment_overview %}
+<sw-page class="sw-settings-payment-overview">
+
+    {% block sw_settings_payment_overview_smart_bar_actions %}
+    <template #smart-bar-actions>
+
+        {% block sw_settings_payment_overview_smart_bar_actions_add %}
+        <sw-button
+            v-tooltip="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('payment.creator'),
+                showOnDisabledElements: true
+            }"
+            class="sw-settings-payment-overview__button-create"
+            :disabled="!acl.can('payment.creator')"
+            :router-link="{ name: 'sw.settings.payment.create' }"
+            variant="primary"
+        >
+            {{ $tc('sw-settings-payment.list.buttonAddPaymentMethod') }}
+        </sw-button>
+        {% endblock %}
+
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_payment_overview_smart_bar_header %}
+    <template #smart-bar-header>
+
+        {% block sw_settings_payment_overview_smart_bar_header_title %}
+        <h2 class="sw-settings-payment-overview__title">
+            {{ $tc('sw-settings-payment.general.mainMenuItemGeneral') }}
+        </h2>
+        {% endblock %}
+
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_payment_overview_language_switch %}
+    <template #language-switch>
+        <sw-language-switch @on-change="onChangeLanguage" />
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_payment_overview_content %}
+    <template #content>
+
+        {% block sw_settings_payment_overview_content_inner %}
+        <sw-card-view class="sw-settings-payment-overview__content">
+
+            {# @deprecated tag:v6.5.0 - block will be removed #}
+            {% block sw_settings_payment_overview_deprecation_alert %}
+            <sw-alert
+                class="sw-settings-payment-overview__deprecation-alert"
+                icon="default-object-party-horn"
+                :title="$tc('sw-settings-payment.overview.deprecation-alert.title')"
+            >
+                {{ $tc('sw-settings-payment.overview.deprecation-alert.message') }}
+                <br>
+                <sw-internal-link
+                    inline
+                    :router-link="{ name: 'sw.settings.payment.index' }"
+                >
+                    {{ $tc('sw-settings-payment.overview.deprecation-alert.link') }}
+                </sw-internal-link>
+            </sw-alert>
+            {% endblock %}
+
+            {% block sw_settings_payment_overview_sorting_modal_card %}
+            <sw-card
+                class="sw-settings-payment-overview__sorting_modal_card"
+                position-identifier="sw-settings-payment-overview-sorting-modal-card"
+            >
+                <sw-button
+                    variant="ghost"
+                    @click="showSortingModal = true"
+                >
+                    {{ $tc('sw-settings-payment.overview.openSortingModalButton') }}
+                </sw-button>
+            </sw-card>
+            {% endblock %}
+
+            {% block sw_settings_payment_overview_list %}
+            {# ToDo: NEXT-20936 - Add list here #}
+            {% endblock %}
+
+            {% block sw_settings_payment_overview_empty_state %}
+            <sw-empty-state
+                v-if="isEmpty"
+                :title="$tc('sw-empty-state.messageNoResultTitle')"
+            >
+                <template #default>
+                    {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
+                    <router-link
+                        class="sw-empty-state__description-link"
+                        :to="{ name: 'sw.profile.index.searchPreferences' }"
+                    >
+                        {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
+                    </router-link>
+                    {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
+                </template>
+            </sw-empty-state>
+            {% endblock %}
+
+        </sw-card-view>
+        {% endblock %}
+
+        {% block sw_settings_payment_overview_sorting_modal %}
+        <sw-settings-payment-sorting-modal
+            v-if="showSortingModal"
+            payment-methods="paymentMethods"
+            @modal-close="showSortingModal = false"
+        />
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

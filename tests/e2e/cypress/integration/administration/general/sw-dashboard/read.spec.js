@@ -52,7 +52,6 @@ describe('Dashboard: Test first sight of the Administration', () => {
             cy.get('.sw-dashboard-statistics__intro-stats-today-single-stat-number-value').should('be.visible');
             cy.get('.sw-dashboard-statistics__intro-stats-today-single-stat-number-value').contains('1');
             cy.get('.sw-dashboard-statistics__intro-stats-today-single-stat-number-value').contains(product.price[0].gross);
-
         });
 
         // check today orders
@@ -62,7 +61,14 @@ describe('Dashboard: Test first sight of the Administration', () => {
         // check if chart is visible
         cy.get('.apexcharts-canvas .apexcharts-title-text').should('be.visible');
         cy.get('.apexcharts-canvas .apexcharts-title-text').contains('Orders');
-        cy.get('.apexcharts-canvas .apexcharts-title-text').contains('Turnover');
+
+        cy.skipOnFeature('FEATURE_NEXT_18187', () => {
+            cy.get('.sw-dashboard-index__title').contains('Turnover');
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_18187', () => {
+            cy.get('.sw-dashboard-statistics__title').contains('Turnover');
+        });
 
         // Check link in grid
         cy.get('.sw-data-grid__row--0 .sw-data-grid__actions-menu').should('be.visible');

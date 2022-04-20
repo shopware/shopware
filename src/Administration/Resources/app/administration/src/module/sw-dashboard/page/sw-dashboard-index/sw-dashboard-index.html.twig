@@ -355,6 +355,13 @@
                     >
                         {# @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use block `sw_dashboard_statistics_sum_chart` instead #}
                         {% block sw_dashboard_index_content_statistics_count_chart_sum %}
+                        <div class="sw-dashboard-index__title">
+                            {{ $tc('sw-dashboard.monthStats.turnover') }}
+                            <sw-help-text
+                                class="sw-dashboard-index__help-text"
+                                :text="$tc('sw-dashboard.monthStats.helperText')"
+                            />
+                        </div>
                         <sw-chart
                             type="line"
                             :series="orderSumSeries"

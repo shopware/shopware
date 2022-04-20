@@ -36,6 +36,7 @@ function createWrapper(privileges = [], orderSumToday = null) {
             'sw-select-field': true,
             'sw-dashboard-statistics': true,
             'sw-skeleton': true,
+            'sw-help-text': true,
         },
         mocks: {
             $tc: (...args) => JSON.stringify([...args]),

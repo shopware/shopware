@@ -28,6 +28,7 @@ function createWrapper(privileges = [], orderSumToday = null) {
             'sw-chart': true,
             'sw-select-field': true,
             'sw-skeleton': true,
+            'sw-help-text': true,
         },
         mocks: {
             $tc: (...args) => JSON.stringify([...args]),

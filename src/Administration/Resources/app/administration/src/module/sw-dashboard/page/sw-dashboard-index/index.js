@@ -120,13 +120,6 @@ Component.register('sw-dashboard-index', {
          */
         chartOptionsOrderSum() {
             return {
-                title: {
-                    text: this.$tc('sw-dashboard.monthStats.turnover'),
-                    style: {
-                        fontSize: '16px',
-                        fontWeight: '600',
-                    },
-                },
                 xaxis: {
                     type: 'datetime',
                     min: this.dateAgo.getTime(),

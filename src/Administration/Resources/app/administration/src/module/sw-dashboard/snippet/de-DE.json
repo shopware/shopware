@@ -83,7 +83,8 @@
       "orderNumber": "Bestellungen",
       "turnover": "Umsatz",
       "numberOfOrders": "Anzahl",
-      "totalTurnover": "Gesamt"
+      "totalTurnover": "Gesamt",
+      "helperText": "Die Umsatzgrafik zeigt nur Bestellungen an, deren Zahlungsstatus auf \"bezahlt\" steht."
     }
   }
 }

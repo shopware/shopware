@@ -24,10 +24,12 @@ ecs.php                                                         @product/enginee
 phpstan.neon                                                    @product/engineering/platform-group/core
 psalm.xml                                                       @product/engineering/platform-group/core
 phpunit.xml.dist                                                @product/engineering/platform-group/core
-/adr/                                                           @product/engineering/platform-group/core
 .bc-exclude.php                                                 @product/engineering/platform-group/core
 /src/Core/Framework/Resources/config/packages/shopware.yaml     @product/engineering/platform-group/core
 /src/Core/Framework/Resources/**/feature.yaml
+# shared code ownership of multiple groups seems only to work for the last entries
+# so don't put any new folders below this line, that are not shared by multiple groups
+/adr/                                                           @product/engineering/platform-group/core
 
 [Admin]
 /src/Administration/Resources/*                                                         @product/engineering/platform-group/admin
@@ -45,11 +47,15 @@ phpunit.xml.dist                                                @product/enginee
 /src/Administration/Resources/app/administration/twigViewPlugin/                        @product/engineering/platform-group/admin
 /src/Administration/Resources/views/                                                    @product/engineering/platform-group/admin
 /src/Administration/Resources/config/                                                   @product/engineering/platform-group/admin
+# shared code ownership of multiple groups seems only to work for the last entries
+# so don't put any new folders below this line, that are not shared by multiple groups
 /adr/                                                                                   @product/engineering/platform-group/admin
 
 [Storefront]
 /src/Storefront/                                   @product/engineering/platform-group/storefront
 /src/Storefront/**/test/
+# shared code ownership of multiple groups seems only to work for the last entries
+# so don't put any new folders below this line, that are not shared by multiple groups
 /adr/                                              @product/engineering/platform-group/storefront
 
 [Operations]

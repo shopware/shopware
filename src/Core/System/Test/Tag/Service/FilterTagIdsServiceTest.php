@@ -64,6 +64,32 @@ class FilterTagIdsServiceTest extends TestCase
         );
     }
 
+    public function testFilterIdsWithEmptyFilter(): void
+    {
+        $this->prepareTestData();
+
+        $request = new Request();
+        $request->request->set('emptyFilter', true);
+
+        $criteria = new Criteria();
+        $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
+
+        $filteredTagIdsStruct = $this->filterTagIdsService->filterIds(
+            $request,
+            $criteria,
+            Context::createDefaultContext()
+        );
+
+        static::assertEquals(2, $filteredTagIdsStruct->getTotal());
+        static::assertEquals(
+            [
+                $this->ids->get('unassigned'),
+                $this->ids->get('unique'),
+            ],
+            $filteredTagIdsStruct->getIds()
+        );
+    }
+
     public function testFilterIdsWithAggregatedSorting(): void
     {
         $this->prepareTestData();
@@ -154,7 +180,12 @@ class FilterTagIdsServiceTest extends TestCase
                 'categories' => $this->getCategoryPayload(3, 'c'),
             ],
             [
+                'id' => $this->ids->get('unique'),
                 'name' => 'unique',
+            ],
+            [
+                'id' => $this->ids->get('unassigned'),
+                'name' => 'unassigned',
             ],
             [
                 'id' => $this->ids->get('d'),

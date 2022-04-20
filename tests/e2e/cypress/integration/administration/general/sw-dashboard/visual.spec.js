@@ -38,9 +38,11 @@ describe('Dashboard:  Visual tests', () => {
         // Wait for Dashboard stats to be visible
         cy.skipOnFeature('FEATURE_NEXT_18187', () => {
             cy.get('.sw-dashboard-index__card-headline').should('be.visible');
+            cy.get('.sw-dashboard-index__title').contains('Turnover');
         });
         cy.onlyOnFeature('FEATURE_NEXT_18187', () => {
             cy.get('.sw-dashboard-statistics__card-headline').should('be.visible');
+            cy.get('.sw-dashboard-statistics__title').contains('Turnover');
         });
 
         cy.get('#sw-field--statisticDateRanges-value').select('14Days');

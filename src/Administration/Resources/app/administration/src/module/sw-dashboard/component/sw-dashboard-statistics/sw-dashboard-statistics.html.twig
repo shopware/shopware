@@ -196,6 +196,13 @@
                 position-identifier="sw-dashboard-statistics-sum"
             >
                 {% block sw_dashboard_statistics_sum_chart %}
+                <div class="sw-dashboard-statistics__title">
+                    {{ $tc('sw-dashboard.monthStats.turnover') }}
+                    <sw-help-text
+                        class="sw-dashboard-statistics__help-text"
+                        :text="$tc('sw-dashboard.monthStats.helperText')"
+                    />
+                </div>
                 <sw-chart
                     type="line"
                     :series="orderSumSeries"

@@ -49,4 +49,12 @@ $content-max-width: 960px;
             }
         }
     }
+
+    &__title {
+        font-weight: $font-weight-semi-bold;
+    }
+
+    &__help-text {
+        margin-left: 8px;
+    }
 }

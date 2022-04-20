@@ -1,6 +1,6 @@
 {% for violation in formViolations.getViolations(violationPath) %}
     {% set snippetName = "error.#{violation.code}" %}
-    {% set fieldName = violation.propertyPath|split('/')|last|trim('/', 'left')|capitalize %}
+    {% set fieldName = violationLabel ? violationLabel : violation.propertyPath|split('/')|last|trim('/', 'left')|capitalize %}
     <div class="invalid-feedback">
         {% if violation.parameters %}
             {% set violationParams =  {'%field%': fieldName}|merge(violation.parameters) %}

@@ -3,8 +3,10 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use OpenApi\Annotations as OA;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
+use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Event\DataMappingEvent;
@@ -22,7 +24,9 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -128,12 +132,20 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
     public function change(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         $validation = $this->customerProfileValidationFactory->update($context);
-
         if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
             $validation->add('company', new NotBlank());
+            $billingAddress = $customer->getDefaultBillingAddress();
+            if ($billingAddress) {
+                $this->addVatIdsValidation($validation, $billingAddress);
+            }
         } else {
             $data->set('company', '');
             $data->set('vatIds', null);
+        }
+
+        if ($vatIds = $data->get('vatIds')) {
+            $vatIds = \array_filter($vatIds->all());
+            $data->set('vatIds', empty($vatIds) ? null : $vatIds);
         }
 
         $this->dispatchValidationEvent($validation, $data, $context->getContext());
@@ -142,8 +154,8 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
 
         $customerData = $data->only('firstName', 'lastName', 'salutationId', 'title', 'company');
 
-        if ($vatIds = $data->get('vatIds')) {
-            $customerData['vatIds'] = empty($vatIds->all()) ? null : $vatIds->all();
+        if ($vatIds) {
+            $customerData['vatIds'] = $data->get('vatIds');
         }
 
         if ($birthday = $this->getBirthday($data)) {
@@ -166,6 +178,22 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
     {
         $validationEvent = new BuildValidationEvent($definition, $data, $context);
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
+    }
+
+    private function addVatIdsValidation(DataValidationDefinition $validation, CustomerAddressEntity $address): void
+    {
+        /** @var Constraint[] $constraints */
+        $constraints = [
+            new Type('array'),
+            new CustomerVatIdentification(
+                ['countryId' => $address->getCountryId()]
+            ),
+        ];
+        if ($address->getCountry() && $address->getCountry()->getVatIdRequired()) {
+            $constraints[] = new NotBlank();
+        }
+
+        $validation->add('vatIds', ...$constraints);
     }
 
     private function getBirthday(DataBag $data): ?\DateTimeInterface

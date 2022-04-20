@@ -113,6 +113,10 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
             ];
         },
 
+        labelProperty() {
+            return `config.label.${Shopware.State.get('session').currentLocale}`;
+        },
+
         ...mapState('swFlowState', ['triggerEvent', 'customFieldSets', 'customFields', 'triggerActions']),
     },
 

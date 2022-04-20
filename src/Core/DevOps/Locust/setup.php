@@ -35,7 +35,7 @@ $keywords = array_map(static function (string $term) {
     });
 }, $connection->fetchFirstColumn('SELECT name FROM product_translation WHERE name IS NOT NULL ' . $limit));
 
-$keywords = array_unique(array_merge(...$keywords));
+$keywords = array_values(array_unique(array_merge(...$keywords)));
 
 $products = $connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id, product_number as productNumber FROM product ' . $limit);
 

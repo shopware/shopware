@@ -12,13 +12,10 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
@@ -33,6 +30,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Contracts\EventDispatcher\Event;
+use function json_encode;
 
 class CartRestorerTest extends TestCase
 {
@@ -325,33 +323,25 @@ class CartRestorerTest extends TestCase
         static::assertEquals(5, $p2->getQuantity());
     }
 
-    private function getStateId(string $state, string $machine)
+    public function testPermissionsAreIgnoredOnRestoer(): void
     {
-        return $this->getContainer()->get(Connection::class)
-            ->fetchColumn('
-                SELECT LOWER(HEX(state_machine_state.id))
-                FROM state_machine_state
-                    INNER JOIN  state_machine
-                    ON state_machine.id = state_machine_state.state_machine_id
-                    AND state_machine.technical_name = :machine
-                WHERE state_machine_state.technical_name = :state
-            ', [
-                'state' => $state,
-                'machine' => $machine,
-            ]);
-    }
+        $currentContextToken = Random::getAlphanumericString(32);
 
-    private function getPrePaymentMethodId(): string
-    {
-        /** @var EntityRepositoryInterface $repository */
-        $repository = $this->getContainer()->get('payment_method.repository');
+        $currentContext = $this->createSalesChannelContext($currentContextToken, []);
 
-        $criteria = (new Criteria())
-            ->setLimit(1)
-            ->addFilter(new EqualsFilter('active', true))
-            ->addFilter(new EqualsFilter('handlerIdentifier', PrePayment::class));
+        $con = $this->getContainer()->get(Connection::class);
 
-        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+        $con->insert('sales_channel_api_context', [
+            'token' => Random::getAlphanumericString(32),
+            'payload' => json_encode(['expired' => false, 'customerId' => $this->customerId, 'permissions' => ['foo']], \JSON_THROW_ON_ERROR),
+            'sales_channel_id' => Uuid::fromHexToBytes($currentContext->getSalesChannelId()),
+            'customer_id' => Uuid::fromHexToBytes($this->customerId),
+            'updated_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $restoreContext = $this->cartRestorer->restore($this->customerId, $currentContext);
+
+        static::assertSame([], $restoreContext->getPermissions());
     }
 
     private function createProduct(Context $context): string

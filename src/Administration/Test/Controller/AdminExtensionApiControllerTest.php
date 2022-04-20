@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Executor;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -72,6 +73,7 @@ class AdminExtensionApiControllerTest extends TestCase
      */
     public function testRunAction(string $appName, ?AppAction $action = null): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17950', $this);
         $requestDataBag = new RequestDataBag([
             'appName' => $appName,
             'entity' => 'customer',

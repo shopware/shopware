@@ -186,6 +186,7 @@ class SalesChannelProxyController extends AbstractController
             PlatformRequest::HEADER_CONTEXT_TOKEN => $salesChannelContext->getToken(),
         ], \JSON_THROW_ON_ERROR);
         $response = new Response();
+        $response->headers->set('content-type', 'application/json');
         $response->setContent($content ?: null);
 
         return $response;

@@ -46,7 +46,7 @@ class CartRestorer
             $customerId
         );
 
-        if (empty($customerPayload) || !($customerPayload['expired'] ?? false) && $customerPayload['token'] === $currentContext->getToken()) {
+        if (empty($customerPayload) || !empty($customerPayload['permissions']) || !($customerPayload['expired'] ?? false) && $customerPayload['token'] === $currentContext->getToken()) {
             return $this->replaceContextToken($customerId, $currentContext);
         }
 
@@ -114,6 +114,7 @@ class CartRestorer
                 'customerId' => $customerId,
                 'billingAddressId' => null,
                 'shippingAddressId' => null,
+                'permissions' => [],
             ],
             $currentContext->getSalesChannel()->getId(),
             $customerId

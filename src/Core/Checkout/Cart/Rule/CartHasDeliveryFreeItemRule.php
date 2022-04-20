@@ -5,8 +5,8 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Symfony\Component\Validator\Constraints\Type;
 
 class CartHasDeliveryFreeItemRule extends Rule
 {
@@ -42,7 +42,7 @@ class CartHasDeliveryFreeItemRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'allowed' => [new Type('bool')],
+            'allowed' => RuleConstraints::bool(),
         ];
     }
 

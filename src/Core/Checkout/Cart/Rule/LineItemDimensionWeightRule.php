@@ -6,11 +6,9 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Shopware\Core\Framework\Util\FloatComparator;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemDimensionWeightRule extends Rule
 {
@@ -53,27 +51,14 @@ class LineItemDimensionWeightRule extends Rule
     public function getConstraints(): array
     {
         $constraints = [
-            'operator' => [
-                new NotBlank(),
-                new Choice(
-                    [
-                        self::OPERATOR_NEQ,
-                        self::OPERATOR_GTE,
-                        self::OPERATOR_LTE,
-                        self::OPERATOR_EQ,
-                        self::OPERATOR_GT,
-                        self::OPERATOR_LT,
-                        self::OPERATOR_EMPTY,
-                    ]
-                ),
-            ],
+            'operator' => RuleConstraints::numericOperators(),
         ];
 
         if ($this->operator === self::OPERATOR_EMPTY) {
             return $constraints;
         }
 
-        $constraints['amount'] = [new NotBlank(), new Type('numeric')];
+        $constraints['amount'] = RuleConstraints::float();
 
         return $constraints;
     }
@@ -89,34 +74,6 @@ class LineItemDimensionWeightRule extends Rule
             return false;
         }
 
-        $weight = $deliveryInformation->getWeight();
-
-        $this->amount = (float) $this->amount;
-
-        switch ($this->operator) {
-            case self::OPERATOR_GTE:
-                return FloatComparator::greaterThanOrEquals($weight, $this->amount);
-
-            case self::OPERATOR_LTE:
-                return FloatComparator::lessThanOrEquals($weight, $this->amount);
-
-            case self::OPERATOR_GT:
-                return FloatComparator::greaterThan($weight, $this->amount);
-
-            case self::OPERATOR_LT:
-                return FloatComparator::lessThan($weight, $this->amount);
-
-            case self::OPERATOR_EQ:
-                return FloatComparator::equals($weight, $this->amount);
-
-            case self::OPERATOR_NEQ:
-                return FloatComparator::notEquals($weight, $this->amount);
-
-            case self::OPERATOR_EMPTY:
-                return empty($weight);
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return RuleComparison::numeric($deliveryInformation->getWeight(), $this->amount, $this->operator);
     }
 }

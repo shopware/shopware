@@ -3,12 +3,10 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
 class DaysSinceLastOrderRule extends Rule
 {
@@ -84,50 +82,24 @@ class DaysSinceLastOrderRule extends Rule
             $interval = $lastOrderDate->diff($currentDate->modify('+1 day'));
         }
 
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                return $interval->days === $this->daysPassed;
-            case self::OPERATOR_NEQ:
-                return $interval->days !== $this->daysPassed;
-            case self::OPERATOR_LT:
-                return $interval->days < $this->daysPassed;
-            case self::OPERATOR_LTE:
-                return $interval->days <= $this->daysPassed;
-            case self::OPERATOR_GT:
-                return $interval->days > $this->daysPassed;
-            case self::OPERATOR_GTE:
-                return $interval->days >= $this->daysPassed;
-            case self::OPERATOR_EMPTY:
-                return false;
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
+        if ($this->operator === self::OPERATOR_EMPTY) {
+            return false;
         }
+
+        return RuleComparison::numeric((int) $interval->days, $this->daysPassed, $this->operator);
     }
 
     public function getConstraints(): array
     {
         $constraints = [
-            'operator' => [
-                new NotBlank(),
-                new Choice(
-                    [
-                        self::OPERATOR_EQ,
-                        self::OPERATOR_LTE,
-                        self::OPERATOR_GTE,
-                        self::OPERATOR_NEQ,
-                        self::OPERATOR_GT,
-                        self::OPERATOR_LT,
-                        self::OPERATOR_EMPTY,
-                    ]
-                ),
-            ],
+            'operator' => RuleConstraints::numericOperators(),
         ];
 
         if ($this->operator === self::OPERATOR_EMPTY) {
             return $constraints;
         }
 
-        $constraints['daysPassed'] = [new NotBlank(), new Type('int')];
+        $constraints['daysPassed'] = RuleConstraints::int();
 
         return $constraints;
     }

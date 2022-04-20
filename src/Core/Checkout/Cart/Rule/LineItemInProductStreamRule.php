@@ -6,10 +6,9 @@ use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 class LineItemInProductStreamRule extends Rule
 {
@@ -55,17 +54,14 @@ class LineItemInProductStreamRule extends Rule
     public function getConstraints(): array
     {
         $constraints = [
-            'operator' => [
-                new NotBlank(),
-                new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ, self::OPERATOR_EMPTY]),
-            ],
+            'operator' => RuleConstraints::uuidOperators(),
         ];
 
         if ($this->operator === self::OPERATOR_EMPTY) {
             return $constraints;
         }
 
-        $constraints['streamIds'] = [new NotBlank(), new ArrayOfUuid()];
+        $constraints['streamIds'] = RuleConstraints::uuids();
 
         return $constraints;
     }
@@ -76,22 +72,6 @@ class LineItemInProductStreamRule extends Rule
      */
     private function matchesOneOfProductStream(LineItem $lineItem): bool
     {
-        $streamIds = (array) $lineItem->getPayloadValue('streamIds');
-
-        $matches = array_intersect($streamIds, $this->streamIds);
-
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                return !empty($matches);
-
-            case self::OPERATOR_NEQ:
-                return empty($matches);
-
-            case self::OPERATOR_EMPTY:
-                return empty($streamIds);
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return RuleComparison::uuids($lineItem->getPayloadValue('streamIds'), $this->streamIds, $this->operator);
     }
 }

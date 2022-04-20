@@ -7,11 +7,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Shopware\Core\Framework\Util\FloatComparator;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemListPriceRatioRule extends Rule
 {
@@ -54,21 +52,8 @@ class LineItemListPriceRatioRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'amount' => [new NotBlank(), new Type('numeric')],
-            'operator' => [
-                new NotBlank(),
-                new Choice(
-                    [
-                        self::OPERATOR_NEQ,
-                        self::OPERATOR_GTE,
-                        self::OPERATOR_LTE,
-                        self::OPERATOR_EQ,
-                        self::OPERATOR_GT,
-                        self::OPERATOR_LT,
-                        self::OPERATOR_EMPTY,
-                    ]
-                ),
-            ],
+            'amount' => RuleConstraints::float(),
+            'operator' => RuleConstraints::numericOperators(),
         ];
     }
 
@@ -85,38 +70,11 @@ class LineItemListPriceRatioRule extends Rule
 
         $listPrice = $calculatedPrice->getListPrice();
 
-        if (!$listPrice instanceof ListPrice) {
-            return $this->operator === self::OPERATOR_EMPTY;
+        $listPriceRatioAmount = null;
+        if ($listPrice instanceof ListPrice) {
+            $listPriceRatioAmount = $listPrice->getPercentage();
         }
 
-        $listPriceRatioAmount = $listPrice->getPercentage();
-
-        $this->amount = (float) $this->amount;
-
-        switch ($this->operator) {
-            case self::OPERATOR_GTE:
-                return FloatComparator::greaterThanOrEquals($listPriceRatioAmount, $this->amount);
-
-            case self::OPERATOR_LTE:
-                return FloatComparator::lessThanOrEquals($listPriceRatioAmount, $this->amount);
-
-            case self::OPERATOR_GT:
-                return FloatComparator::greaterThan($listPriceRatioAmount, $this->amount);
-
-            case self::OPERATOR_LT:
-                return FloatComparator::lessThan($listPriceRatioAmount, $this->amount);
-
-            case self::OPERATOR_EQ:
-                return FloatComparator::equals($listPriceRatioAmount, $this->amount);
-
-            case self::OPERATOR_NEQ:
-                return FloatComparator::notEquals($listPriceRatioAmount, $this->amount);
-
-            case self::OPERATOR_EMPTY:
-                return false;
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return RuleComparison::numeric($listPriceRatioAmount, (float) $this->amount, $this->operator);
     }
 }

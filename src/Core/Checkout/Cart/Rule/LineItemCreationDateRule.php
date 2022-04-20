@@ -4,12 +4,10 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemCreationDateRule extends Rule
 {
@@ -33,20 +31,8 @@ class LineItemCreationDateRule extends Rule
     public function getConstraints(): array
     {
         return [
-            'lineItemCreationDate' => [new NotBlank(), new Type('string')],
-            'operator' => [
-                new NotBlank(),
-                new Choice(
-                    [
-                        self::OPERATOR_NEQ,
-                        self::OPERATOR_GTE,
-                        self::OPERATOR_LTE,
-                        self::OPERATOR_EQ,
-                        self::OPERATOR_GT,
-                        self::OPERATOR_LT,
-                    ]
-                ),
-            ],
+            'lineItemCreationDate' => RuleConstraints::datetime(),
+            'operator' => RuleConstraints::datetimeOperators(false),
         ];
     }
 
@@ -97,32 +83,7 @@ class LineItemCreationDateRule extends Rule
             return false;
         }
 
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                // due to the cs fixer that always adds ===
-                // its necessary to use the string when comparing, otherwise its never working
-                return $itemCreated->format('Y-m-d H:i:s') === $ruleValue->format('Y-m-d H:i:s');
-
-            case self::OPERATOR_NEQ:
-                // due to the cs fixer that always adds ===
-                // its necessary to use the string when comparing, otherwise its never working
-                return $itemCreated->format('Y-m-d H:i:s') !== $ruleValue->format('Y-m-d H:i:s');
-
-            case self::OPERATOR_GT:
-                return $itemCreated > $ruleValue;
-
-            case self::OPERATOR_LT:
-                return $itemCreated < $ruleValue;
-
-            case self::OPERATOR_GTE:
-                return $itemCreated >= $ruleValue;
-
-            case self::OPERATOR_LTE:
-                return $itemCreated <= $ruleValue;
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return RuleComparison::datetime($itemCreated, $ruleValue, $this->operator);
     }
 
     /**

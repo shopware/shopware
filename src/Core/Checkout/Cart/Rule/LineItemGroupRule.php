@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Rule\Container\FilterRule;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -67,10 +68,10 @@ class LineItemGroupRule extends FilterRule
     public function getConstraints(): array
     {
         return [
-            'groupId' => [new NotBlank(), new Type('string')],
-            'packagerKey' => [new NotBlank(), new Type('string')],
-            'value' => [new NotBlank(), new Type('numeric')],
-            'sorterKey' => [new NotBlank(), new Type('string')],
+            'groupId' => RuleConstraints::string(),
+            'packagerKey' => RuleConstraints::string(),
+            'value' => RuleConstraints::float(),
+            'sorterKey' => RuleConstraints::string(),
             'rules' => [new NotBlank(), new Type('container')],
         ];
     }

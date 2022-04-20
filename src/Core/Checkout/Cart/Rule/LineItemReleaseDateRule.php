@@ -4,12 +4,10 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemReleaseDateRule extends Rule
 {
@@ -33,27 +31,14 @@ class LineItemReleaseDateRule extends Rule
     public function getConstraints(): array
     {
         $constraints = [
-            'operator' => [
-                new NotBlank(),
-                new Choice(
-                    [
-                        self::OPERATOR_NEQ,
-                        self::OPERATOR_GTE,
-                        self::OPERATOR_LTE,
-                        self::OPERATOR_EQ,
-                        self::OPERATOR_GT,
-                        self::OPERATOR_LT,
-                        self::OPERATOR_EMPTY,
-                    ]
-                ),
-            ],
+            'operator' => RuleConstraints::datetimeOperators(),
         ];
 
         if ($this->operator === self::OPERATOR_EMPTY) {
             return $constraints;
         }
 
-        $constraints['lineItemReleaseDate'] = [new NotBlank(), new Type('string')];
+        $constraints['lineItemReleaseDate'] = RuleConstraints::datetime();
 
         return $constraints;
     }
@@ -101,35 +86,11 @@ class LineItemReleaseDateRule extends Rule
             return false;
         }
 
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                // due to the cs fixer that always adds ===
-                // its necessary to use the string when comparing, otherwise its never working
-                return $ruleValue && $itemReleased->format('Y-m-d H:i:s') === $ruleValue->format('Y-m-d H:i:s');
-
-            case self::OPERATOR_NEQ:
-                // due to the cs fixer that always adds ===
-                // its necessary to use the string when comparing, otherwise its never working
-                return $ruleValue && $itemReleased->format('Y-m-d H:i:s') !== $ruleValue->format('Y-m-d H:i:s');
-
-            case self::OPERATOR_GT:
-                return $ruleValue && $itemReleased > $ruleValue;
-
-            case self::OPERATOR_LT:
-                return $ruleValue && $itemReleased < $ruleValue;
-
-            case self::OPERATOR_GTE:
-                return $ruleValue && $itemReleased >= $ruleValue;
-
-            case self::OPERATOR_LTE:
-                return $ruleValue && $itemReleased <= $ruleValue;
-
-            case self::OPERATOR_EMPTY:
-                return false;
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
+        if ($ruleValue === null) {
+            return false;
         }
+
+        return RuleComparison::datetime($itemReleased, $ruleValue, $this->operator);
     }
 
     /**

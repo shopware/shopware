@@ -3,12 +3,11 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 class LineItemTagRule extends Rule
 {
@@ -35,63 +34,45 @@ class LineItemTagRule extends Rule
     public function match(RuleScope $scope): bool
     {
         if ($scope instanceof LineItemScope) {
-            return $this->lineItemMatches($scope->getLineItem());
+            return RuleComparison::uuids($this->extractTagIds($scope->getLineItem()), $this->identifiers, $this->operator);
         }
 
         if (!$scope instanceof CartRuleScope) {
             return false;
         }
 
-        $identifiers = [];
+        if (!Feature::isActive('v6.5.0.0')) {
+            $identifiers = [];
 
-        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
-            $identifiers = array_merge($identifiers, $this->extractTagIds($lineItem));
+            foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+                $identifiers = array_merge($identifiers, $this->extractTagIds($lineItem));
+            }
+
+            return RuleComparison::uuids($identifiers, $this->identifiers, $this->operator);
         }
 
-        return $this->tagsMatches($identifiers);
+        foreach ($scope->getCart()->getLineItems()->getFlat() as $lineItem) {
+            if (RuleComparison::uuids($this->extractTagIds($lineItem), $this->identifiers, $this->operator)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function getConstraints(): array
     {
         $constraints = [
-            'operator' => [
-                new NotBlank(),
-                new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ, self::OPERATOR_EMPTY]),
-            ],
+            'operator' => RuleConstraints::uuidOperators(),
         ];
 
         if ($this->operator === self::OPERATOR_EMPTY) {
             return $constraints;
         }
 
-        $constraints['identifiers'] = [new NotBlank(), new ArrayOfUuid()];
+        $constraints['identifiers'] = RuleConstraints::uuids();
 
         return $constraints;
-    }
-
-    private function lineItemMatches(LineItem $lineItem): bool
-    {
-        $identifiers = $this->extractTagIds($lineItem);
-
-        return $this->tagsMatches($identifiers);
-    }
-
-    private function tagsMatches(array $tags): bool
-    {
-        if ($this->identifiers === null && $this->operator !== self::OPERATOR_EMPTY) {
-            return false;
-        }
-
-        switch ($this->operator) {
-            case self::OPERATOR_EQ:
-                return $this->identifiers && !empty(array_intersect($tags, $this->identifiers));
-            case self::OPERATOR_NEQ:
-                return $this->identifiers && empty(array_intersect($tags, $this->identifiers));
-            case self::OPERATOR_EMPTY:
-                return empty($tags);
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
     }
 
     private function extractTagIds(LineItem $lineItem): array

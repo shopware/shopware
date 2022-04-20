@@ -3,12 +3,10 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
-use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
 class LastNameRule extends Rule
 {
@@ -39,35 +37,20 @@ class LastNameRule extends Rule
             return false;
         }
 
-        switch ($this->operator) {
-            case Rule::OPERATOR_EQ:
-                return strcasecmp($this->lastName, $customer->getLastName()) === 0;
-
-            case Rule::OPERATOR_NEQ:
-                return strcasecmp($this->lastName, $customer->getLastName()) !== 0;
-
-            case Rule::OPERATOR_EMPTY:
-                return empty(trim($customer->getLastName()));
-
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return RuleComparison::string($customer->getLastName(), $this->lastName, $this->operator);
     }
 
     public function getConstraints(): array
     {
         $constraints = [
-            'operator' => [
-                new NotBlank(),
-                new Choice([Rule::OPERATOR_EQ, Rule::OPERATOR_NEQ, Rule::OPERATOR_EMPTY]),
-            ],
+            'operator' => RuleConstraints::stringOperators(),
         ];
 
         if ($this->operator === self::OPERATOR_EMPTY) {
             return $constraints;
         }
 
-        $constraints['lastName'] = [new NotBlank(), new Type('string')];
+        $constraints['lastName'] = RuleConstraints::string();
 
         return $constraints;
     }

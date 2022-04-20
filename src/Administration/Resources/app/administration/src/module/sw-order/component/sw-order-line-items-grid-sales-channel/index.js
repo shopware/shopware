@@ -110,7 +110,6 @@ Component.register('sw-order-line-items-grid-sales-channel', {
                 allowResize: false,
                 primary: true,
                 inlineEdit: true,
-                width: '200px',
             }, {
                 property: 'unitPrice',
                 dataIndex: 'unitPrice',

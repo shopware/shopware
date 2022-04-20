@@ -149,7 +149,7 @@
                     class="sw-order-line-items-grid__item-payload-options"
                 >
                     <sw-product-variant-info :variations="item.payload.options">
-                        {{ item.label }}
+                        <div class="sw-order-line-items-grid__item-label">{{ item.label }}</div>
                     </sw-product-variant-info>
                 </div>
                 {% endblock %}

@@ -17,6 +17,8 @@ use Shopware\Core\Framework\Store\Struct\BinaryCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 use Shopware\Core\Framework\Store\Struct\ImageCollection;
+use Shopware\Core\Framework\Store\Struct\PermissionCollection;
+use Shopware\Core\Framework\Store\Struct\PermissionStruct;
 use Shopware\Core\Framework\Store\Struct\VariantCollection;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -165,6 +167,11 @@ class ExtensionLoaderTest extends TestCase
         ], $extensions->first()->getLanguages());
 
         static::assertSame($installedApp->getUpdatedAt(), $extensions->first()->getUpdatedAt());
+        static::assertEquals(new PermissionCollection([
+            PermissionStruct::fromArray(['entity' => 'product', 'operation' => 'create']),
+            PermissionStruct::fromArray(['entity' => 'product', 'operation' => 'read']),
+            PermissionStruct::fromArray(['entity' => 'additional_privileges', 'operation' => 'additional:privilege']),
+        ]), $extensions->first()->getPermissions());
 
         foreach ($extensions as $extension) {
             static::assertEquals(ExtensionStruct::EXTENSION_TYPE_APP, $extension->getType());

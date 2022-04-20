@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
@@ -317,9 +318,11 @@ class ExtensionLoader
         foreach ($appPrivileges as $privilege) {
             if (substr_count($privilege, ':') === 1) {
                 $entityAndOperation = explode(':', $privilege);
-                $permissions[] = array_combine(['entity', 'operation'], $entityAndOperation);
+                if (\array_key_exists($entityAndOperation[1], AclRoleDefinition::PRIVILEGE_DEPENDENCE)) {
+                    $permissions[] = array_combine(['entity', 'operation'], $entityAndOperation);
 
-                continue;
+                    continue;
+                }
             }
 
             $permissions[] = ['operation' => $privilege, 'entity' => 'additional_privileges'];

@@ -9,13 +9,6 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
  */
 class Permissions extends XmlElement
 {
-    private const PRIVILEGE_DEPENDENCE = [
-        AclRoleDefinition::PRIVILEGE_READ => [],
-        AclRoleDefinition::PRIVILEGE_CREATE => [AclRoleDefinition::PRIVILEGE_READ],
-        AclRoleDefinition::PRIVILEGE_UPDATE => [AclRoleDefinition::PRIVILEGE_READ],
-        AclRoleDefinition::PRIVILEGE_DELETE => [AclRoleDefinition::PRIVILEGE_READ],
-    ];
-
     protected array $permissions;
 
     protected array $additionalPrivileges;
@@ -98,7 +91,7 @@ class Permissions extends XmlElement
 
             foreach ($privileges as $privilege) {
                 $grantedPrivileges[] = $privilege;
-                $grantedPrivileges = array_merge($grantedPrivileges, self::PRIVILEGE_DEPENDENCE[$privilege]);
+                $grantedPrivileges = array_merge($grantedPrivileges, AclRoleDefinition::PRIVILEGE_DEPENDENCE[$privilege]);
             }
 
             return array_unique($grantedPrivileges);

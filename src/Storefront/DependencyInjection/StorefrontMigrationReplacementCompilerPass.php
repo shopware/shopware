@@ -22,7 +22,11 @@ class StorefrontMigrationReplacementCompilerPass implements CompilerPassInterfac
         $migrationSourceV4->addMethodCall('addDirectory', [$migrationPath . '/V6_4', 'Shopware\Storefront\Migration\V6_4']);
         $migrationSourceV3->addMethodCall('addReplacementPattern', ['#^(Shopware\\\\Storefront\\\\Migration\\\\)V6_4\\\\([^\\\\]*)$#', '$1$2']);
 
-        $migrationSourceV5 = $container->getDefinition(MigrationSource::class . '.core.V6_5');
-        $migrationSourceV5->addMethodCall('addDirectory', [$migrationPath . '/V6_5', 'Shopware\Storefront\Migration\V6_5']);
+        $migrationPathV5 = $migrationPath . '/V6_5';
+
+        if (\is_dir($migrationPathV5)) {
+            $migrationSourceV5 = $container->getDefinition(MigrationSource::class . '.core.V6_5');
+            $migrationSourceV5->addMethodCall('addDirectory', [$migrationPathV5, 'Shopware\Storefront\Migration\V6_5']);
+        }
     }
 }

@@ -1,5 +1,15 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
+import flushPromises from 'flush-promises';
 import 'src/module/sw-settings-customer-group/page/sw-settings-customer-group-detail';
+import 'src/app/component/form/select/entity/sw-entity-multi-select';
+import 'src/app/component/form/select/base/sw-select-base';
+import 'src/app/component/form/select/base/sw-select-selection-list';
+import 'src/app/component/form/select/base/sw-select-result-list';
+import 'src/app/component/form/select/base/sw-select-result';
+import 'src/app/component/utils/sw-popover';
+
+const { Context } = Shopware;
+const { EntityCollection } = Shopware.Data;
 
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
@@ -41,7 +51,17 @@ function createWrapper(privileges = []) {
             'sw-button': true,
             'sw-button-process': true,
             'sw-switch-field': true,
-            'sw-entity-multi-select': true,
+            'sw-entity-multi-select': Shopware.Component.build('sw-entity-multi-select'),
+            'sw-select-base': Shopware.Component.build('sw-select-base'),
+            'sw-select-selection-list': Shopware.Component.build('sw-select-selection-list'),
+            'sw-block-field': true,
+            'sw-label': true,
+            'sw-icon': true,
+            'sw-loader': true,
+            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
+            'sw-highlight-text': true,
+            'sw-popover': Shopware.Component.build('sw-popover'),
+            'sw-select-result': Shopware.Component.build('sw-select-result'),
             'sw-custom-field-set-renderer': true,
             'sw-skeleton': true,
         },
@@ -64,6 +84,11 @@ function createWrapper(privileges = []) {
                             name: 'Net price customer group',
                             displayGross: false,
                             registrationActive: true,
+                            registrationSalesChannels: new EntityCollection('/customer-group/1/registration-sales-channels', 'sales_channel', Context.api, null, [
+                                {
+                                    id: '123',
+                                }
+                            ]),
                             isNew: () => false
                         });
                     },
@@ -134,7 +159,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
                 name: 'seo meta field',
                 selector: 'sw-field-stub[label="sw-settings-customer-group.registration.seoMetaDescription"]'
             },
-            { name: 'sales channel multiple select', selector: 'sw-entity-multi-select-stub' }
+            { name: 'sales channel multiple select', selector: '.sw-entity-multi-select' }
         ].forEach(({ name, selector }) => {
             it(`${name} should be disabled`, async () => {
                 const element = wrapper.find(selector);
@@ -180,7 +205,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
                 name: 'seo meta field',
                 selector: 'sw-field-stub[label="sw-settings-customer-group.registration.seoMetaDescription"]'
             },
-            { name: 'sales channel multiple select', selector: 'sw-entity-multi-select-stub' }
+            { name: 'sales channel multiple select', selector: '.sw-entity-multi-select' }
         ].forEach(({ name, selector }) => {
             it(`${name} should be enabled`, async () => {
                 const element = wrapper.find(selector);
@@ -194,5 +219,44 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
                 appearance: 'light'
             });
         });
+    });
+
+    it('should be removed SEO URL if available sales channel is removed', async () => {
+        const wrapper = createWrapper(['customer_groups.editor']);
+
+        await flushPromises();
+
+        expect(wrapper.vm.seoUrls).toEqual([{
+            id: '123',
+            seoPathInfo: 'Hello-world',
+            salesChannel: {
+                translated: {
+                    name: 'Storefront'
+                },
+                domains: [
+                    {
+                        languageId: '1234',
+                        url: 'http://shopware.test'
+                    }
+                ]
+            },
+            languageId: '1234'
+        }]);
+        expect(wrapper.find('sw-text-field-stub[label="Storefront"]').attributes()).toEqual({
+            label: 'Storefront',
+            copyable: 'true',
+            disabled: 'true',
+            value: 'http://shopware.test/Hello-world'
+        });
+
+        const salesChannelSelect = wrapper.find('.sw-entity-multi-select');
+        await salesChannelSelect.find('.sw-select__selection').trigger('click');
+        await wrapper.vm.$nextTick();
+
+        const selectStorefront = wrapper.find('.sw-select-option--0');
+        await selectStorefront.trigger('click');
+
+        expect(wrapper.vm.seoUrls).toEqual([]);
+        expect(wrapper.find('sw-text-field-stub[label="Storefront"]').exists()).toBe(false);
     });
 });

@@ -164,7 +164,7 @@
                         :variant="getVariantFromPaymentState(item)"
                         appearance="pill"
                     >
-                        {{ item.transactions.last().stateMachineState.translated.name }}
+                        {{ transaction(item).stateMachineState.translated.name }}
                     </sw-label>
 
                     <div
@@ -177,7 +177,7 @@
                             rounded
                         />
 
-                        {{ item.transactions.last().stateMachineState.translated.name }}
+                        {{ transaction(item).stateMachineState.translated.name }}
                     </div>
                 </template>
                 {% endblock %}

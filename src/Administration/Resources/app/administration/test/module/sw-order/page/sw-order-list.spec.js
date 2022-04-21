@@ -31,7 +31,7 @@ const mockItem = {
                 technicalName: 'open',
                 name: 'Open',
                 translated: { name: 'Open' }
-            }
+            },
         }
     ]),
     deliveries: [
@@ -251,5 +251,46 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         expect(wrapper.vm.entitySearchable).toEqual(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
+    });
+
+    it('should show correct label for payment status', async () => {
+        mockItem.transactions = new EntityCollection(null, null, null, new Criteria(), [
+            {
+                stateMachineState: {
+                    technicalName: 'cancelled',
+                    name: 'Cancelled',
+                    translated: { name: 'Cancelled' }
+                },
+            },
+            {
+                stateMachineState: {
+                    technicalName: 'paid',
+                    name: 'Paid',
+                    translated: { name: 'Paid' }
+                },
+            },
+            {
+                stateMachineState: {
+                    technicalName: 'open',
+                    name: 'Open',
+                    translated: { name: 'Open' }
+                },
+            }
+        ]);
+
+        await wrapper.setData({
+            orders: [
+                {
+                    ...mockItem,
+                    createdById: '1'
+                },
+                {
+                    ...mockItem
+                }
+            ]
+        });
+
+        const firstRow = wrapper.findAll('.sw-data-grid__cell .sw-data-grid__cell-content');
+        expect(firstRow.at(21).text()).toEqual('Paid');
     });
 });

@@ -15,6 +15,7 @@ const { Component } = Shopware;
  *     :customInheritationCheckFunction="function(value) => {return true;}"
  *     :customRestoreFunction="function(value) => {return null;}"
  *     :customRemoveInheritanceFunction="function(value) => {return null;}"
+ *     :customContext="{ entity }"
  *     :disabled="false"
  *     label="Your label"
  *     :isAssociation="false"
@@ -102,6 +103,12 @@ Component.register('sw-inherit-wrapper', {
             default: null,
         },
 
+        customContext: {
+            type: Object,
+            required: false,
+            default: undefined,
+        },
+
         helpText: {
             type: String,
             required: false,
@@ -149,7 +156,7 @@ Component.register('sw-inherit-wrapper', {
 
             // if customInheritationCheckFunction exists
             if (typeof this.customInheritationCheckFunction === 'function') {
-                return this.customInheritationCheckFunction(this.value);
+                return this.customInheritationCheckFunction(this.value, this.customContext);
             }
 
             // if association
@@ -184,7 +191,7 @@ Component.register('sw-inherit-wrapper', {
 
             // if customRestoreInheritanceFunction exists
             if (typeof this.customRestoreInheritanceFunction === 'function') {
-                this.updateValue(this.customRestoreInheritanceFunction(this.value), 'restore');
+                this.updateValue(this.customRestoreInheritanceFunction(this.value, this.customContext), 'restore');
                 return;
             }
 
@@ -206,7 +213,7 @@ Component.register('sw-inherit-wrapper', {
         removeInheritance(newValue = this.currentValue) {
             // if customRemoveInheritanceFunction exists
             if (typeof this.customRemoveInheritanceFunction === 'function') {
-                this.updateValue(this.customRemoveInheritanceFunction(newValue, this.value), 'remove');
+                this.updateValue(this.customRemoveInheritanceFunction(newValue, this.value, this.customContext), 'remove');
                 return;
             }
 

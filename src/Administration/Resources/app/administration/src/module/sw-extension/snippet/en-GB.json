@@ -80,6 +80,11 @@
         "message": "Ensure that your licence domain is set correctly and that you are logged in with your Shopware Account to which this extension is licensed.",
         "actionSetLicenseDomain": "Set licence domain",
         "actionLogin": "Login"
+      },
+      "storeSessionExpired": {
+        "title": "Shopware Account session expired",
+        "message": "Please log in to access your licensed extensions.",
+        "actionLabel": "Login"
       }
     },
     "mainMenu": {

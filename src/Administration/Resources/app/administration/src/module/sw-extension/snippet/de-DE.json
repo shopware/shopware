@@ -80,6 +80,11 @@
         "message": "Stelle sicher, dass Deine Lizenzdomain korrekt gesetzt ist und Du mit Deinem Shopware Account angemeldet bist, auf welchen diese Erweiterung lizenziert ist.",
         "actionSetLicenseDomain": "Lizenzdomain setzen",
         "actionLogin": "Login"
+      },
+      "storeSessionExpired": {
+        "title": "Shopware Account Sitzung abgelaufen",
+        "message": "Bitte melde Dich an, um auf Deine lizenzierten Erweiterungen zuzugreifen.",
+        "actionLabel": "Login"
       }
     },
     "mainMenu": {

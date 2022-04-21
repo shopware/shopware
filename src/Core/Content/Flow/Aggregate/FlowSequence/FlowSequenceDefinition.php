@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Flow\Aggregate\FlowSequence;
 
 use Shopware\Core\Content\Flow\FlowDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
+use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
@@ -71,6 +72,8 @@ class FlowSequenceDefinition extends EntityDefinition
             new ChildrenAssociationField(self::class),
             new ParentFkField(self::class),
             new CustomFields(),
+            new FkField('app_flow_action_id', 'appFlowActionId', AppFlowActionDefinition::class),
+            new ManyToOneAssociationField('appFlowAction', 'app_flow_action_id', AppFlowActionDefinition::class, 'id', false),
         ]);
     }
 }

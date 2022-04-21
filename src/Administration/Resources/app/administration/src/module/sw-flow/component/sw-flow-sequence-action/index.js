@@ -1,3 +1,4 @@
+import orderBy from 'lodash/orderBy';
 import template from './sw-flow-sequence-action.html.twig';
 import './sw-flow-sequence-action.scss';
 import { ACTION } from '../../constant/flow.constant';
@@ -8,6 +9,7 @@ const { cloneDeep } = utils.object;
 const { ShopwareError } = Shopware.Classes;
 const { mapState, mapGetters } = Component.getComponentHelper();
 const { snakeCase } = utils.string;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-flow-sequence-action', {
     template,
@@ -36,6 +38,8 @@ Component.register('sw-flow-sequence-action', {
             fieldError: null,
             selectedAction: '',
             currentSequence: {},
+            appFlowActions: [],
+            isAppAction: false,
         };
     },
 
@@ -48,10 +52,16 @@ Component.register('sw-flow-sequence-action', {
             return this.repositoryFactory.create('custom_field_set');
         },
 
+        appFlowActionRepository() {
+            return this.repositoryFactory.create('app_flow_action');
+        },
+
         actionOptions() {
-            return this.availableActions.map((action) => {
+            const actions = this.availableActions.map((action) => {
                 return this.getActionTitle(action);
             });
+
+            return this.sortActionOptions(actions);
         },
 
         sequenceData() {
@@ -86,7 +96,15 @@ Component.register('sw-flow-sequence-action', {
         },
 
         modalName() {
+            if (this.getSelectedAppFlowAction(this.selectedAction)) {
+                return 'sw-flow-app-action-modal';
+            }
+
             return this.flowBuilderService.getActionModalName(this.selectedAction);
+        },
+
+        currentLocale() {
+            return Shopware.State.get('session').currentLocale;
         },
 
         actionDescription() {
@@ -105,6 +123,7 @@ Component.register('sw-flow-sequence-action', {
                     (config) => this.getAffiliateAndCampaignCodeDescription(config),
                 [ACTION.ADD_ORDER_AFFILIATE_AND_CAMPAIGN_CODE]:
                     (config) => this.getAffiliateAndCampaignCodeDescription(config),
+                [ACTION.APP_FLOW_ACTION]: (config, actionName) => this.getAppFlowActionDescription(config, actionName),
             };
         },
 
@@ -117,6 +136,7 @@ Component.register('sw-flow-sequence-action', {
                 'customerGroups',
                 'customFieldSets',
                 'customFields',
+                'triggerEvent',
             ]),
         ...mapGetters('swFlowState', ['availableActions']),
     },
@@ -136,9 +156,16 @@ Component.register('sw-flow-sequence-action', {
     methods: {
         createdComponent() {
             this.showAddButton = this.sequenceData.length > 1 || !!this.sequence?.actionName;
+            this.getAppFlowAction();
         },
 
         openDynamicModal(value) {
+            const appAction = this.getSelectedAppFlowAction(value);
+            if (appAction) {
+                this.isAppAction = true;
+                this.currentSequence.propsAppFlowAction = appAction;
+            }
+
             if (value === ACTION.STOP_FLOW) {
                 this.addAction({
                     name: ACTION.STOP_FLOW,
@@ -147,6 +174,10 @@ Component.register('sw-flow-sequence-action', {
                 return;
             }
             this.selectedAction = value;
+        },
+
+        getSelectedAppFlowAction(actionName) {
+            return this.appFlowActions.find((item) => item.name === actionName);
         },
 
         onSaveActionSuccess(sequence) {
@@ -178,6 +209,8 @@ Component.register('sw-flow-sequence-action', {
         onCloseModal() {
             this.currentSequence = {};
             this.selectedAction = '';
+            this.isAppAction = false;
+            this.$delete(this.sequence, 'propsAppFlowAction');
         },
 
         addAction(action) {
@@ -185,12 +218,20 @@ Component.register('sw-flow-sequence-action', {
                 return;
             }
 
+            const appAction = this.getSelectedAppFlowAction(action.name);
+
             if (!this.sequence.actionName && this.sequence.id) {
-                State.commit('swFlowState/updateSequence', {
+                const data = {
                     id: this.sequence.id,
                     actionName: action.name,
                     config: action.config,
-                });
+                };
+
+                if (appAction) {
+                    data.appFlowActionId = appAction.id;
+                }
+
+                State.commit('swFlowState/updateSequence', data);
             } else {
                 const lastSequence = this.sequenceData[this.sequenceData.length - 1];
 
@@ -206,6 +247,10 @@ Component.register('sw-flow-sequence-action', {
                     config: action.config,
                     id: utils.createId(),
                 };
+
+                if (appAction) {
+                    newSequence.appFlowActionId = appAction.id;
+                }
 
                 sequence = Object.assign(sequence, newSequence);
                 State.commit('swFlowState/addSequence', sequence);
@@ -228,6 +273,8 @@ Component.register('sw-flow-sequence-action', {
         },
 
         removeAction(id) {
+            if (this.isAppDisabled(this.getSelectedAppFlowAction(this.sequence[id]?.actionName))) return;
+
             State.commit('swFlowState/removeSequences', [id]);
         },
 
@@ -253,6 +300,8 @@ Component.register('sw-flow-sequence-action', {
         },
 
         moveAction(action, type) {
+            if (this.isAppDisabled(this.getSelectedAppFlowAction(action.actionName))) return;
+
             const actions = this.actionsWithoutStopFlow();
             const currentIndex = actions.findIndex(item => item.position === action.position);
             const moveAction = type === 'up' ? actions[currentIndex - 1] : actions[currentIndex + 1];
@@ -267,6 +316,9 @@ Component.register('sw-flow-sequence-action', {
                 return;
             }
 
+            if (this.isAppDisabled(this.getSelectedAppFlowAction(sequence.actionName))) return;
+
+            sequence.propsAppFlowAction = this.getSelectedAppFlowAction(sequence.actionName);
             this.currentSequence = sequence;
             this.selectedAction = sequence.actionName;
         },
@@ -282,11 +334,30 @@ Component.register('sw-flow-sequence-action', {
                 return null;
             }
 
+            const appAction = this.getSelectedAppFlowAction(actionName);
+            if (appAction) {
+                return {
+                    label: appAction.label || appAction.translated?.label,
+                    icon: appAction.swIcon,
+                    iconRaw: appAction.icon,
+                    value: appAction.name,
+                    disabled: !appAction.app?.active,
+                };
+            }
+
             const actionTitle = this.flowBuilderService.getActionTitle(actionName);
             return {
                 ...actionTitle,
                 label: this.$tc(actionTitle.label),
             };
+        },
+
+        getAppFlowAction() {
+            const criteria = new Criteria();
+            criteria.addAssociation('app');
+            return this.appFlowActionRepository.search(criteria, Shopware.Context.api).then((response) => {
+                this.appFlowActions = response;
+            });
         },
 
         toggleAddButton() {
@@ -314,6 +385,10 @@ Component.register('sw-flow-sequence-action', {
 
             if (!actionName) return '';
 
+            if (this.getSelectedAppFlowAction(actionName)) {
+                return this.actionDescription[ACTION.APP_FLOW_ACTION](config, actionName);
+            }
+
             if (actionName.includes('tag') &&
                 (actionName.includes('add') || actionName.includes('remove'))) {
                 return `${this.$tc('sw-flow.actions.labelTo', 0, {
@@ -323,7 +398,7 @@ Component.register('sw-flow-sequence-action', {
                 })}`;
             }
 
-            if (typeof this.actionDescription[actionName] !== 'function') {
+            if (typeof this.actionDescription[actionName] !== 'function' && !this.isAppAction) {
                 return '';
             }
 
@@ -467,6 +542,94 @@ Component.register('sw-flow-sequence-action', {
             }
 
             return description;
+        },
+
+        getAppFlowActionDescription(config, actionName) {
+            const cloneConfig = { ...config };
+            let descriptions = '';
+
+            Object.entries(cloneConfig).forEach(([fieldName]) => {
+                if (typeof cloneConfig[fieldName] === 'object' && cloneConfig[fieldName].length > 1) {
+                    let html = '';
+                    cloneConfig[fieldName].forEach((val) => {
+                        const valPreview = this.formatValuePreview(fieldName, actionName, val);
+                        html = `${html}- ${valPreview}<br/>`;
+                    });
+
+                    descriptions = `${descriptions}${this.convertLabelPreview(fieldName, actionName)}:<br/> ${html}`;
+
+                    return;
+                }
+
+                const valPreview = this.formatValuePreview(fieldName, actionName, cloneConfig[fieldName]);
+                descriptions = `${descriptions}${this.convertLabelPreview(fieldName, actionName)}: ${valPreview}<br/>`;
+            });
+
+            return descriptions;
+        },
+
+        formatValuePreview(fieldName, actionName, val) {
+            const appAction = this.getSelectedAppFlowAction(actionName);
+            if (appAction === undefined) {
+                return val;
+            }
+
+            const config = appAction.config.find((field) => field.name === fieldName);
+            if (config === undefined) {
+                return val;
+            }
+
+            if (['password'].includes(config.type)) {
+                return val.replace(/([^;])/g, '*');
+            }
+
+            if (['single-select', 'multi-select'].includes(config.type)) {
+                const value = typeof val === 'string' ? val : val[0];
+                const option = config.options.find((opt) => opt.value === value);
+                if (option === undefined) {
+                    return val;
+                }
+
+                return option.label[this.currentLocale] ?? config.label['en-GB'] ?? val;
+            }
+
+            if (['datetime', 'date', 'time'].includes(config.type)) {
+                return new Date(val);
+            }
+
+            if (['colorpicker'].includes(config.type)) {
+                return `<span class="sw-color-badge is--default" style="background: ${val};"></span> ${val}`;
+            }
+
+            return val;
+        },
+
+        convertLabelPreview(fieldName, actionName) {
+            const appAction = this.getSelectedAppFlowAction(actionName);
+            if (appAction === undefined) {
+                return fieldName;
+            }
+
+            const config = appAction.config.find((field) => field.name === fieldName);
+            if (config === undefined) {
+                return fieldName;
+            }
+
+            return config.label[this.currentLocale] ?? config.label['en-GB'] ?? fieldName;
+        },
+
+        isAppDisabled(appAction) {
+            if (!appAction) return false;
+
+            return !appAction.app.active;
+        },
+
+        sortActionOptions(actions) {
+            const stopAction = actions.pop();
+            const ordered = orderBy(actions, ['label']);
+            ordered.push(stopAction);
+
+            return ordered;
         },
     },
 });

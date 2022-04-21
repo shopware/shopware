@@ -1,0 +1,51 @@
+{% block sw_flow_app_action_modal %}
+<sw-modal
+    class="sw-flow-app-action-modal"
+    @modal-close="onClose"
+>
+    <template #modal-header>
+        {% block sw_flow_app_action_modal_header %}
+        <div class="sw-flow-app-action-modal__header">
+            {{ actionLabel }}
+            <span class="sw-flow-app-action-modal__app-badge">
+                {{ appBadge }}
+            </span>
+        </div>
+        {% endblock %}
+    </template>
+
+    {% block sw_flow_app_action_modal_content %}
+    <sw-form-field-renderer
+        v-for="field in fields"
+        :key="field.name"
+        v-model="config[field.name]"
+        :type="field.type"
+        :config="getConfig(field)"
+        :error="errors[field.name]"
+        @update="onChange($event, field)"
+    />
+    {% endblock %}
+    <template #modal-footer>
+        {% block sw_flow_app_action_modal_footer_cancel_button %}
+        <sw-button
+            class="sw-flow-app-action-modal__cancel-button"
+            size="small"
+            @click="onClose"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+        {% endblock %}
+
+        {% block sw_flow_app_action_modal_footer_save_button %}
+        <sw-button
+            class="sw-flow-app-action-modal__save-button"
+            variant="primary"
+            size="small"
+            @click="onSave"
+        >
+            {{ $tc('sw-flow.modals.buttonSaveAction') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+</sw-modal>
+{% endblock %}

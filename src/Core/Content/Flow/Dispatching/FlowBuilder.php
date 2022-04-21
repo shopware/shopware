@@ -63,7 +63,14 @@ class FlowBuilder
     {
         $config = $currentSequence['config'] ? json_decode($currentSequence['config'], true) : [];
         if (empty($siblingSequences)) {
-            return Sequence::createAction($currentSequence['action_name'], null, $currentSequence['flow_id'], $currentSequence['sequence_id'], $config);
+            return Sequence::createAction(
+                $currentSequence['action_name'],
+                null,
+                $currentSequence['flow_id'],
+                $currentSequence['sequence_id'],
+                $config,
+                $currentSequence['app_flow_action_id']
+            );
         }
 
         $nextSequence = array_shift($siblingSequences);
@@ -73,7 +80,8 @@ class FlowBuilder
             $this->createNestedAction($nextSequence, $siblingSequences),
             $currentSequence['flow_id'],
             $currentSequence['sequence_id'],
-            $config
+            $config,
+            $currentSequence['app_flow_action_id']
         );
     }
 

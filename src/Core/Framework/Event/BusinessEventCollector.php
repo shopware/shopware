@@ -90,6 +90,7 @@ class BusinessEventCollector
                 && $interface !== FlowEventAware::class
                 && $interface !== MailActionInterface::class
                 && $interface !== BusinessEventInterface::class) {
+                $aware[] = lcfirst((new \ReflectionClass($interface))->getShortName());
                 $aware[] = $interface;
             }
         }

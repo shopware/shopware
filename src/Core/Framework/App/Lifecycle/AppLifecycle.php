@@ -17,9 +17,11 @@ use Shopware\Core\Framework\App\Event\Hooks\AppUpdatedHook;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\InvalidAppConfigurationException;
+use Shopware\Core\Framework\App\FlowAction\FlowAction;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
@@ -100,6 +102,8 @@ class AppLifecycle extends AbstractAppLifecycle
 
     private Connection $connection;
 
+    private FlowActionPersister $flowBuilderActionPersister;
+
     public function __construct(
         EntityRepositoryInterface $appRepository,
         PermissionPersister $permissionPersister,
@@ -124,7 +128,8 @@ class AppLifecycle extends AbstractAppLifecycle
         string $projectDir,
         CustomEntityPersister $customEntityPersister,
         CustomEntitySchemaUpdater $customEntitySchemaUpdater,
-        Connection $connection
+        Connection $connection,
+        FlowActionPersister $flowBuilderActionPersister
     ) {
         $this->appRepository = $appRepository;
         $this->permissionPersister = $permissionPersister;
@@ -150,6 +155,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->scriptExecutor = $scriptExecutor;
         $this->customEntitySchemaUpdater = $customEntitySchemaUpdater;
         $this->connection = $connection;
+        $this->flowBuilderActionPersister = $flowBuilderActionPersister;
     }
 
     public function getDecorated(): AbstractAppLifecycle
@@ -251,12 +257,21 @@ class AppLifecycle extends AbstractAppLifecycle
 
         // Refetch app to get secret after registration
         $app = $this->loadApp($id, $context);
+
+        $flowActions = $this->appLoader->getFlowActions($app);
+
+        if ($flowActions) {
+            $this->flowBuilderActionPersister->updateActions($flowActions, $id, $context, $defaultLocale);
+        }
+
+        $webhooks = $this->getWebhooks($manifest, $flowActions, $id, $defaultLocale, (bool) $app->getAppSecret());
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($webhooks, $id): void {
+            $this->webhookPersister->updateWebhooksFromArray($webhooks, $id, $context);
+        });
+
         // we need a app secret to securely communicate with apps
         // therefore we only install action-buttons, webhooks and modules if we have a secret
         if ($app->getAppSecret()) {
-            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($manifest, $id, $defaultLocale): void {
-                $this->webhookPersister->updateWebhooks($manifest, $id, $defaultLocale, $context);
-            });
             $this->paymentMethodPersister->updatePaymentMethods($manifest, $id, $defaultLocale, $context);
             $this->updateModules($manifest, $id, $defaultLocale, $context);
         }
@@ -529,5 +544,42 @@ class AppLifecycle extends AbstractAppLifecycle
         $data = ['id' => $app->getId(), 'allowDisable' => $allow];
 
         $this->appRepository->update([$data], $context);
+    }
+
+    private function getWebhooks(Manifest $manifest, ?FlowAction $flowActions, string $appId, string $defaultLocale, bool $hasAppSecret): array
+    {
+        $actions = [];
+
+        if ($flowActions) {
+            $actions = $flowActions->getActions() ? $flowActions->getActions()->getActions() : [];
+        }
+
+        $webhooks = array_map(function ($action) use ($appId) {
+            $name = $action->getMeta()->getName();
+
+            return [
+                'name' => $name,
+                'eventName' => $name,
+                'url' => $action->getMeta()->getUrl(),
+                'appId' => $appId,
+                'active' => true,
+                'errorCount' => 0,
+            ];
+        }, $actions);
+
+        if (!$hasAppSecret) {
+            return $webhooks;
+        }
+
+        $manifestWebhooks = $manifest->getWebhooks() ? $manifest->getWebhooks()->getWebhooks() : [];
+        $webhooks = array_merge($webhooks, array_map(function ($webhook) use ($defaultLocale, $appId) {
+            $payload = $webhook->toArray($defaultLocale);
+            $payload['appId'] = $appId;
+            $payload['eventName'] = $webhook->getEvent();
+
+            return $payload;
+        }, $manifestWebhooks));
+
+        return $webhooks;
     }
 }

@@ -33,6 +33,7 @@ class FlowPayloadUpdater
             LOWER(HEX(`flow_sequence`.`id`)) as `sequence_id`,
             LOWER(HEX(`flow_sequence`.`parent_id`)) as `parent_id`,
             LOWER(HEX(`flow_sequence`.`rule_id`)) as `rule_id`,
+            LOWER(HEX(`flow_sequence`.`app_flow_action_id`)) as `app_flow_action_id`,
             `flow_sequence`.`display_group` as `display_group`,
             `flow_sequence`.`position` as `position`,
             `flow_sequence`.`action_name` as `action_name`,

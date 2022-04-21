@@ -7,6 +7,8 @@ use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Content\Flow\Dispatching\Struct\IfSequence;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Sequence;
 use Shopware\Core\Content\Flow\Exception\ExecuteSequenceException;
+use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
+use Shopware\Core\Framework\App\FlowAction\AppFlowActionProvider;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -18,9 +20,12 @@ class FlowExecutor
 {
     private EventDispatcherInterface $dispatcher;
 
-    public function __construct(EventDispatcherInterface $dispatcher)
+    private AppFlowActionProvider $appFlowActionProvider;
+
+    public function __construct(EventDispatcherInterface $dispatcher, AppFlowActionProvider $appFlowActionProvider)
     {
         $this->dispatcher = $dispatcher;
+        $this->appFlowActionProvider = $appFlowActionProvider;
     }
 
     public function execute(Flow $flow, FlowEventAware $event): void
@@ -71,6 +76,17 @@ class FlowExecutor
         }
 
         $globalEvent = new FlowEvent($actionName, $state, $sequence->config);
+
+        if ($sequence->appFlowActionId) {
+            $eventData = $this->appFlowActionProvider->getWebhookData($globalEvent, $sequence->appFlowActionId);
+
+            $globalEvent = new AppFlowActionEvent(
+                $actionName,
+                $eventData['headers'],
+                $eventData['payload']
+            );
+        }
+
         $this->dispatcher->dispatch($globalEvent, $actionName);
 
         /** @var ActionSequence $nextAction */

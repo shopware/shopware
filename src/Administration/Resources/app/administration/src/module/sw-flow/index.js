@@ -19,6 +19,7 @@ import './component/modals/sw-flow-change-customer-group-modal';
 import './component/modals/sw-flow-change-customer-status-modal';
 import './component/modals/sw-flow-set-entity-custom-field-modal';
 import './component/modals/sw-flow-affiliate-and-campaign-code-modal';
+import './component/modals/sw-flow-app-action-modal';
 
 import './service/flow-builder.service';
 import './acl';

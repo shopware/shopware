@@ -199,6 +199,7 @@
             <argument type="service" id="Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister"/>
             <argument type="service" id="Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator">
@@ -462,7 +463,30 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionDefinition">
+            <tag name="shopware.entity.definition" />
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Aggregate\FlowActionTranslation\AppFlowActionTranslationDefinition">
+            <tag name="shopware.entity.definition" />
+        </service>
+
+        <service id="Shopware\Core\Framework\App\FlowAction\AppFlowActionLoadedSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Cms\BlockTemplateLoader">
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister">
+            <argument type="service" id="app_flow_action.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\FlowAction\AppFlowActionProvider" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\BusinessEventEncoder"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer"/>
         </service>
     </services>
 </container>

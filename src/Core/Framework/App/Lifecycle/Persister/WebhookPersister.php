@@ -54,18 +54,44 @@ class WebhookPersister
         $this->deleteOldWebhooks($existingWebhooks, $context);
     }
 
+    public function updateWebhooksFromArray(array $webhooks, string $appId, Context $context): void
+    {
+        $existingWebhooks = $this->getExistingWebhooks($appId, $context);
+        $upserts = [];
+
+        foreach ($webhooks as $webhook) {
+            /** @var WebhookEntity|null $existing */
+            $existing = $existingWebhooks->filterByProperty('name', $webhook['name'])->first();
+
+            if ($existing) {
+                $webhook['id'] = $existing->getId();
+                $existingWebhooks->remove($existing->getId());
+            }
+
+            $upserts[] = $webhook;
+        }
+
+        if (!empty($upserts)) {
+            $this->webhookRepository->upsert($upserts, $context);
+        }
+
+        $this->deleteOldWebhooks($existingWebhooks, $context);
+    }
+
     private function deleteOldWebhooks(WebhookCollection $toBeRemoved, Context $context): void
     {
         /** @var array<string> $ids */
         $ids = $toBeRemoved->getIds();
 
-        if (!empty($ids)) {
-            $ids = array_map(static function (string $id): array {
-                return ['id' => $id];
-            }, array_values($ids));
-
-            $this->webhookRepository->delete($ids, $context);
+        if (empty($ids)) {
+            return;
         }
+
+        $ids = array_map(static function (string $id): array {
+            return ['id' => $id];
+        }, array_values($ids));
+
+        $this->webhookRepository->delete($ids, $context);
     }
 
     private function getExistingWebhooks(string $appId, Context $context): WebhookCollection

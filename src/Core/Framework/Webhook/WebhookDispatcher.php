@@ -10,6 +10,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Event\AppChangedEvent;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
+use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
@@ -290,15 +291,21 @@ class WebhookDispatcher implements EventDispatcherInterface
             /** @var string $jsonPayload */
             $jsonPayload = json_encode($webhookData);
 
+            $headers = [
+                'Content-Type' => 'application/json',
+                'sw-version' => $this->shopwareVersion,
+                AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE => $languageId,
+                AuthMiddleware::SHOPWARE_USER_LANGUAGE => $userLocale,
+            ];
+
+            if ($event instanceof AppFlowActionEvent) {
+                $headers = array_merge($headers, $event->getWebhookHeaders());
+            }
+
             $request = new Request(
                 'POST',
                 $webhook->getUrl(),
-                [
-                    'Content-Type' => 'application/json',
-                    'sw-version' => $this->shopwareVersion,
-                    AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE => $languageId,
-                    AuthMiddleware::SHOPWARE_USER_LANGUAGE => $userLocale,
-                ],
+                $headers,
                 $jsonPayload
             );
 
@@ -365,6 +372,10 @@ class WebhookDispatcher implements EventDispatcherInterface
 
     private function getPayloadForWebhook(WebhookEntity $webhook, Hookable $event): array
     {
+        if ($event instanceof AppFlowActionEvent) {
+            return $event->getWebhookPayload();
+        }
+
         $data = [
             'payload' => $event->getWebhookPayload(),
             'event' => $event->getName(),

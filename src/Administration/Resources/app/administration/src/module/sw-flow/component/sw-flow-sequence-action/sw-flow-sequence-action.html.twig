@@ -67,6 +67,7 @@
                             v-for="item in sequenceData"
                             :key="item.id"
                             class="sw-flow-sequence-action__action-item"
+                            :class="{'sw-flow-sequence-action__disabled': item.disabled}"
                         >
 
                             {% block sw_flow_sequence_action_actions_item_header %}
@@ -74,10 +75,17 @@
                                 {% block sw_flow_sequence_action_actions_item_name %}
                                 <div class="sw-flow-sequence-action__action-name">
                                     <sw-icon
+                                        v-if="!item.iconRaw"
                                         :name="`${item.icon}`"
                                         size="12px"
                                         class="sw-icon-action"
                                     />
+                                    <img
+                                        v-else
+                                        class="sw-flow-sequence-action__icon-raw"
+                                        :src="`data:image/png;base64, ${item.iconRaw}`"
+                                        alt=""
+                                    >
 
                                     <h3>{{ item.label }}</h3>
                                 </div>
@@ -202,15 +210,22 @@
                                 is="sw-select-result"
                                 :selected="isSelected(item)"
                                 v-bind="{ item, index }"
-                                :class="stopFlowStyle(item.value)"
+                                :class="[stopFlowStyle(item.value), {'sw-flow-sequence-action__disabled': item.disabled}]"
                                 @item-select="setValue"
                             >
                                 {% block sw_flow_sequence_action_select_results_list_result_label %}
                                 <sw-icon
+                                    v-if="!item.iconRaw"
                                     :name="`${item.icon}`"
                                     size="12px"
                                     class="sw-icon-action"
                                 />
+                                <img
+                                    v-else
+                                    class="sw-flow-sequence-action__icon-raw"
+                                    :src="`data:image/png;base64, ${item.iconRaw}`"
+                                    alt=""
+                                >
 
                                 <sw-highlight-text
                                     v-if="highlightSearchTerm"

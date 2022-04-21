@@ -77,7 +77,7 @@ export default function flowBuilderService() {
 
         return {
             value: actionName,
-            icon: $icon[keyName],
+            icon: $icon[keyName] !== undefined ? $icon[keyName] : $icon.addEntityTag,
             label: $labelSnippet[keyName],
         };
     }

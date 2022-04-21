@@ -7,6 +7,7 @@ use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodCollection;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockCollection;
+use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionCollection;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
@@ -194,6 +195,11 @@ class AppEntity extends Entity
      * @var AppCmsBlockCollection|null
      */
     protected $cmsBlocks;
+
+    /**
+     * @var AppFlowActionCollection|null
+     */
+    protected $flowActions;
 
     public function getId(): string
     {
@@ -552,6 +558,16 @@ class AppEntity extends Entity
     public function setCmsBlocks(AppCmsBlockCollection $cmsBlocks): void
     {
         $this->cmsBlocks = $cmsBlocks;
+    }
+
+    public function getFlowActions(): ?AppFlowActionCollection
+    {
+        return $this->flowActions;
+    }
+
+    public function setFlowActions(AppFlowActionCollection $flowActions): void
+    {
+        $this->flowActions = $flowActions;
     }
 
     public function jsonSerialize(): array

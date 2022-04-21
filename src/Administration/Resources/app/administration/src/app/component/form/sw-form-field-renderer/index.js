@@ -243,6 +243,11 @@ Component.register('sw-form-field-renderer', {
                 return;
             }
             this.$emit('change', data);
+            this.emitUpdate(data);
+        },
+
+        emitUpdate(data) {
+            this.$emit('update', data);
         },
 
         getTranslations(componentName, config = this.config, translatableFields = ['label', 'placeholder', 'helpText']) {

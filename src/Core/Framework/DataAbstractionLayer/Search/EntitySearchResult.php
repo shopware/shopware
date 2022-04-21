@@ -168,6 +168,11 @@ class EntitySearchResult extends EntityCollection
         $this->entity = $entity;
     }
 
+    public function getAt(int $position)
+    {
+        return $this->entities->getAt($position);
+    }
+
     /**
      * @param EntityCollection $elements
      */

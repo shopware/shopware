@@ -153,8 +153,16 @@ class TreeBuildingNavigationRoute extends AbstractNavigationRoute
             case 'main-navigation':
                 return $salesChannelEntity->getNavigationCategoryId();
             case 'service-navigation':
+                if ($salesChannelEntity->getServiceCategoryId() === null) {
+                    throw new \RuntimeException(\sprintf('Service category, for sales channel %s, is not set', $salesChannelEntity->getTranslation('name')));
+                }
+
                 return $salesChannelEntity->getServiceCategoryId();
             case 'footer-navigation':
+                if ($salesChannelEntity->getFooterCategoryId() === null) {
+                    throw new \RuntimeException('Footer category, for sales channel %s, is not set', $salesChannelEntity->getTranslation('name'));
+                }
+
                 return $salesChannelEntity->getFooterCategoryId();
             default:
                 return $id;

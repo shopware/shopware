@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SalesChannel\Api;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -31,23 +32,30 @@ class StructEncoder
 
     public function encode(Struct $struct, ResponseFields $fields): array
     {
-        $data = [];
+        return $this->loop($struct, $fields, $this->serializer->normalize($struct));
+    }
+
+    private function loop(Struct $struct, ResponseFields $fields, array $array): array
+    {
+        $data = $array;
 
         if ($struct instanceof AggregationResultCollection) {
-            foreach ($struct as $key => $item) {
-                $data[$key] = $this->encodeStruct($item, $fields);
+            $mapped = [];
+            foreach (\array_keys($struct->getElements()) as $index => $key) {
+                $mapped[$key] = $this->encodeStruct($struct->get($key), $fields, $data[$index]);
             }
 
-            return $data;
+            return $mapped;
         }
 
         if ($struct instanceof EntitySearchResult) {
-            $data = $this->encodeStruct($struct, $fields);
+            $data = $this->encodeStruct($struct, $fields, $data);
 
             if (isset($data['elements'])) {
                 $entities = [];
-                foreach ($struct as $item) {
-                    $entities[] = $this->encodeStruct($item, $fields);
+
+                foreach (\array_values($data['elements']) as $index => $value) {
+                    $entities[] = $this->encodeStruct($struct->getAt($index), $fields, $value);
                 }
                 $data['elements'] = $entities;
             }
@@ -62,25 +70,25 @@ class StructEncoder
         }
 
         if ($struct instanceof Collection) {
-            foreach ($struct as $item) {
-                $data[] = $this->encodeStruct($item, $fields);
+            $new = [];
+            foreach ($data as $index => $value) {
+                $new[] = $this->encodeStruct($struct->getAt($index), $fields, $value);
             }
 
-            return $data;
+            return $new;
         }
 
-        return $this->encodeStruct($struct, $fields);
+        return $this->encodeStruct($struct, $fields, $data);
     }
 
-    private function encodeStruct(Struct $struct, ResponseFields $fields)
+    private function encodeStruct(Struct $struct, ResponseFields $fields, array $data): array
     {
-        /** @var array<string, mixed> $data */
-        $data = $this->serializer->normalize($struct);
-
         $alias = $struct->getApiAlias();
-        foreach ($data as $property => &$value) {
+
+        foreach ($data as $property => $value) {
             if ($property === 'customFields' && $value === []) {
-                $value = new \stdClass();
+                $data[$property] = new \stdClass();
+                continue;
             }
 
             if ($property === 'extensions') {
@@ -109,7 +117,7 @@ class StructEncoder
             }
 
             if ($object instanceof Struct) {
-                $data[$property] = $this->encode($object, $fields);
+                $data[$property] = $this->loop($object, $fields, $value);
 
                 continue;
             }
@@ -118,7 +126,7 @@ class StructEncoder
             if ($this->isStructArray($object)) {
                 $array = [];
                 foreach ($object as $key => $item) {
-                    $array[$key] = $this->encodeStruct($item, $fields);
+                    $array[$key] = $this->encodeStruct($item, $fields, $value[$key]);
                 }
 
                 $data[$property] = $array;
@@ -128,7 +136,6 @@ class StructEncoder
 
             $data[$property] = $this->encodeNestedArray($struct->getApiAlias(), $property, $value, $fields);
         }
-        unset($value);
 
         $data['apiAlias'] = $struct->getApiAlias();
 
@@ -228,7 +235,7 @@ class StructEncoder
                 continue;
             }
 
-            $value[$name] = $this->encode($extension, $fields);
+            $value[$name] = $this->loop($extension, $fields, $value[$name]);
         }
 
         return $value;

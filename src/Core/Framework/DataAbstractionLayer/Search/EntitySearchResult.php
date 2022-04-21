@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
@@ -168,6 +169,9 @@ class EntitySearchResult extends EntityCollection
         $this->entity = $entity;
     }
 
+    /**
+     * @return Entity|null
+     */
     public function getAt(int $position)
     {
         return $this->entities->getAt($position);

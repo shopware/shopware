@@ -19,6 +19,7 @@ class ReverseProxyCompilerPass implements CompilerPassInterface
             $container->removeDefinition(ReverseProxyCache::class);
             $container->removeDefinition(AbstractReverseProxyGateway::class);
             $container->removeDefinition(ReverseProxyCacheClearer::class);
+            $container->removeDefinition(FastlyReverseProxyGateway::class);
 
             return;
         }

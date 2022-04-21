@@ -4,7 +4,6 @@ namespace Shopware\Core\System\SalesChannel\Api;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -32,7 +31,13 @@ class StructEncoder
 
     public function encode(Struct $struct, ResponseFields $fields): array
     {
-        return $this->loop($struct, $fields, $this->serializer->normalize($struct));
+        $array = $this->serializer->normalize($struct);
+
+        if (!\is_array($array)) {
+            throw new \RuntimeException('Normalized struct must be an array');
+        }
+
+        return $this->loop($struct, $fields, $array);
     }
 
     private function loop(Struct $struct, ResponseFields $fields, array $array): array
@@ -42,7 +47,16 @@ class StructEncoder
         if ($struct instanceof AggregationResultCollection) {
             $mapped = [];
             foreach (\array_keys($struct->getElements()) as $index => $key) {
-                $mapped[$key] = $this->encodeStruct($struct->get($key), $fields, $data[$index]);
+                if (!isset($data[$index]) || !\is_array($data[$index])) {
+                    throw new \RuntimeException(\sprintf('Can not find encoded aggregation %s for data index %s', $key, $index));
+                }
+
+                $entity = $struct->get($key);
+                if (!$entity instanceof Struct) {
+                    throw new \RuntimeException(\sprintf('Aggregation %s is not an struct', $key));
+                }
+
+                $mapped[$key] = $this->encodeStruct($entity, $fields, $data[$index]);
             }
 
             return $mapped;
@@ -55,7 +69,12 @@ class StructEncoder
                 $entities = [];
 
                 foreach (\array_values($data['elements']) as $index => $value) {
-                    $entities[] = $this->encodeStruct($struct->getAt($index), $fields, $value);
+                    $entity = $struct->getAt($index);
+                    if (!$entity instanceof Struct) {
+                        throw new \RuntimeException(\sprintf('Entity %s is not an struct', $index));
+                    }
+
+                    $entities[] = $this->encodeStruct($entity, $fields, $value);
                 }
                 $data['elements'] = $entities;
             }
@@ -87,8 +106,7 @@ class StructEncoder
 
         foreach ($data as $property => $value) {
             if ($property === 'customFields' && $value === []) {
-                $data[$property] = new \stdClass();
-                continue;
+                $data[$property] = $value = new \stdClass();
             }
 
             if ($property === 'extensions') {
@@ -101,7 +119,7 @@ class StructEncoder
                 continue;
             }
 
-            if (!$this->isAllowed($alias, $property, $fields) && !$fields->hasNested($alias, $property)) {
+            if (!$this->isAllowed($alias, (string) $property, $fields) && !$fields->hasNested($alias, (string) $property)) {
                 unset($data[$property]);
 
                 continue;
@@ -134,7 +152,7 @@ class StructEncoder
                 continue;
             }
 
-            $data[$property] = $this->encodeNestedArray($struct->getApiAlias(), $property, $value, $fields);
+            $data[$property] = $this->encodeNestedArray($struct->getApiAlias(), (string) $property, $value, $fields);
         }
 
         $data['apiAlias'] = $struct->getApiAlias();

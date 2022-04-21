@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Category\SalesChannel;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -97,14 +96,6 @@ class TreeBuildingNavigationRoute extends AbstractNavigationRoute
 
         $rootId = $this->resolveAliasId($rootId, $context->getSalesChannel());
 
-        if ($activeId === null) {
-            throw new CategoryNotFoundException($request->get('activeId'));
-        }
-
-        if ($rootId === null) {
-            throw new CategoryNotFoundException($request->get('rootId'));
-        }
-
         $response = $this->getDecorated()->load($activeId, $rootId, $request, $context, $criteria);
 
         $buildTree = $request->query->getBoolean('buildTree', $request->request->getBoolean('buildTree', true));
@@ -147,7 +138,7 @@ class TreeBuildingNavigationRoute extends AbstractNavigationRoute
         return $items;
     }
 
-    private function resolveAliasId(string $id, SalesChannelEntity $salesChannelEntity): ?string
+    private function resolveAliasId(string $id, SalesChannelEntity $salesChannelEntity): string
     {
         switch ($id) {
             case 'main-navigation':

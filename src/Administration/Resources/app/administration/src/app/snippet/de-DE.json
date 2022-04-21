@@ -114,6 +114,16 @@
           "title": "Import/Export",
           "message": "Daten werden importiert/exportiert.",
           "messageSuccess": "Alle Importe/Exporte abgeschlossen."
+        },
+        "flow": {
+          "title": "Info/Success",
+          "message": "Flow wird indiziert.",
+          "messageSuccess": "Flows wurden indiziert."
+        },
+        "newsletterRecipient": {
+          "title": "Info/Success",
+          "message": "Indiziere Newsletter-Empfänger.",
+          "messageSuccess": "Newsletter-Empfänger wurden indiziert."
         }
       },
       "plugin-updates-listener": {

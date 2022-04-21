@@ -288,6 +288,28 @@ function registerThumbnailMiddleware(factory) {
         },
     });
 
+    factory.register('FlowIndexingMessage', {
+        name: 'Shopware\\Core\\Content\\Flow\\Indexing\\FlowIndexingMessage',
+        fn: function middleware(next, { entry, $root, notification }) {
+            messageQueueNotification('flow', ids, next, entry, $root, notification, {
+                title: 'global.notification-center.worker-listener.flow.title',
+                message: 'global.notification-center.worker-listener.flow.message',
+                success: 'global.notification-center.worker-listener.flow.messageSuccess',
+            });
+        },
+    });
+
+    factory.register('NewsletterRecipientIndexingMessage', {
+        name: 'Shopware\\Core\\Content\\Newsletter\\DataAbstractionLayer\\NewsletterRecipientIndexingMessage',
+        fn: function middleware(next, { entry, $root, notification }) {
+            messageQueueNotification('newsletterRecipient', ids, next, entry, $root, notification, {
+                title: 'global.notification-center.worker-listener.newsletterRecipient.title',
+                message: 'global.notification-center.worker-listener.newsletterRecipient.message',
+                success: 'global.notification-center.worker-listener.newsletterRecipient.messageSuccess',
+            });
+        },
+    });
+
     return true;
 }
 

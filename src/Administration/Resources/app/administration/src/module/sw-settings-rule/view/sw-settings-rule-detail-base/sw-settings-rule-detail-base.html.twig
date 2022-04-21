@@ -105,6 +105,7 @@
             :root-condition="null"
             :disabled="!acl.can('rule.editor')"
             @conditions-changed="onConditionsChanged"
+            @initial-loading-done="$emit('tree-finished-loading')"
         />
     </sw-card>
     {% endblock %}

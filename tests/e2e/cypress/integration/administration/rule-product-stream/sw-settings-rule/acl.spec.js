@@ -103,6 +103,10 @@ describe('Rule builder: Test crud operations', () => {
         cy.get('button.sw-button').contains('Save').click();
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
+        // wait for ending loading state in tree view
+        cy.get('.sw-condition-tree .sw-loader').should('exist');
+        cy.get('.sw-condition-tree .sw-loader').should('not.exist');
+
         // Switch to assignments tab
         cy.get('.sw-settings-rule-detail__tab-item-assignments').click();
 

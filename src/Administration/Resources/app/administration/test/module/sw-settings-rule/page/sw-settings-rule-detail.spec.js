@@ -38,6 +38,12 @@ function createWrapper(privileges = [], isNewRule = false) {
             'sw-context-button': true,
             'sw-button-group': true,
             'sw-icon': true,
+            'sw-discard-changes-modal': {
+                template: `
+    <div>
+        Iam here
+    </div>`
+            }
         },
         propsData: {
             ruleId: isNewRule ? null : 'uuid1'
@@ -52,7 +58,8 @@ function createWrapper(privileges = [], isNewRule = false) {
                         create: () => {
                             return createRuleMock(true);
                         },
-                        get: () => Promise.resolve(createRuleMock(false))
+                        get: () => Promise.resolve(createRuleMock(false)),
+                        hasChanges: (rule, hasChanges) => { return hasChanges ?? false; },
                     };
                 }
             },
@@ -62,8 +69,10 @@ function createWrapper(privileges = [], isNewRule = false) {
 
                     return privileges.includes(identifier);
                 }
-            }
-
+            },
+            feature: {
+                isActive: () => true
+            },
         },
         mocks: {
             $route: {
@@ -72,7 +81,8 @@ function createWrapper(privileges = [], isNewRule = false) {
                 params: {
                     id: ''
                 }
-            }
+            },
+            next: () => Promise.resolve()
         }
     });
 }
@@ -120,5 +130,72 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.sw-settings-rule-detail__tabs').exists()).toBeFalsy();
+    });
+
+    it('should set user changes when condition tree changed', async () => {
+        const wrapper = createWrapper([
+            'rule.editor'
+        ], false);
+
+        expect(wrapper.vm.conditionsTreeContainsUserChanges).toBeFalsy();
+        wrapper.vm.setTreeFinishedLoading();
+        wrapper.vm.conditionsChanged({ conditions: [], deletedIds: [] });
+        await wrapper.vm.$nextTick();
+        expect(wrapper.vm.conditionsTreeContainsUserChanges).toBeTruthy();
+    });
+
+    it('should open changes modal when leaving the route', async () => {
+        const wrapper = createWrapper([
+            'rule.editor'
+        ], false);
+
+        wrapper.setData({
+            conditionsTreeContainsUserChanges: true
+        });
+
+        const next = jest.fn();
+        wrapper.vm.unsavedDataLeaveHandler(
+            { name: 'sw.settings.rule.detail.assignments' }, { name: 'sw.settings.rule.detail.base' }, next
+        );
+
+
+        expect(next).toHaveBeenCalled();
+    });
+
+    it('should reset condition tree state when navigating back to the base tab', async () => {
+        const wrapper = createWrapper([
+            'rule.editor'
+        ], false);
+
+        wrapper.setData({
+            conditionsTreeContainsUserChanges: true
+        });
+
+        const next = jest.fn();
+        wrapper.vm.unsavedDataLeaveHandler(
+            { name: 'sw.settings.rule.detail.base' }, {}, next
+        );
+
+        expect(wrapper.vm.conditionsTreeContainsUserChanges).toBeFalsy();
+        expect(wrapper.vm.conditionTreeFinishedLoading).toBeFalsy();
+        expect(next).toHaveBeenCalled();
+    });
+
+    it('should not open changes modal when there are no changes', async () => {
+        const wrapper = createWrapper([
+            'rule.editor'
+        ], false);
+
+        wrapper.setData({
+            conditionsTreeContainsUserChanges: false
+        });
+
+        const next = jest.fn();
+        wrapper.vm.unsavedDataLeaveHandler(
+            {}, {}, next
+        );
+
+        expect(wrapper.vm.isDisplayingSaveChangesWarning).toBeFalsy();
+        expect(next).toHaveBeenCalled();
     });
 });

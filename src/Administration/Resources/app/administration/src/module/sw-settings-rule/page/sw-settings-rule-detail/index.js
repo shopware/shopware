@@ -16,6 +16,7 @@ Component.register('sw-settings-rule-detail', {
 
     mixins: [
         Mixin.getByName('notification'),
+        /** @deprecated tag:v6.5.0 - the 'discard-detail-page-changes' mixin will be removed */
         Mixin.getByName('discard-detail-page-changes')('rule'),
     ],
 
@@ -40,6 +41,11 @@ Component.register('sw-settings-rule-detail', {
             deletedIds: [],
             isLoading: false,
             isSaveSuccessful: false,
+            conditionTreeFinishedLoading: false,
+            conditionsTreeContainsUserChanges: false,
+            nextRoute: null,
+            isDisplayingSaveChangesWarning: false,
+            forceDiscardChanges: false,
         };
     },
 
@@ -128,9 +134,38 @@ Component.register('sw-settings-rule-detail', {
                 this.isLoading = true;
                 this.loadEntityData(this.ruleId).then(() => {
                     this.isLoading = false;
+                    this.setTreeFinishedLoading();
                 });
             },
         },
+        conditionTree: {
+            deep: true,
+            handler() {
+                if (!this.conditionTreeFinishedLoading) {
+                    return;
+                }
+                this.conditionsTreeContainsUserChanges = true;
+            },
+        },
+
+        $route(newRoute, oldRoute) {
+            if (!this.feature.isActive('v6.5.0.0')) {
+                return;
+            }
+
+            if (newRoute.name === 'sw.settings.rule.detail.base' &&
+                oldRoute.name === 'sw.settings.rule.detail.assignments') {
+                this.setTreeFinishedLoading();
+            }
+        },
+    },
+
+    beforeRouteUpdate(to, from, next) {
+        this.unsavedDataLeaveHandler(to, from, next);
+    },
+
+    beforeRouteLeave(to, from, next) {
+        this.unsavedDataLeaveHandler(to, from, next);
     },
 
     methods: {
@@ -146,6 +181,67 @@ Component.register('sw-settings-rule-detail', {
             return this.ruleRepository.get(ruleId, Context.api, this.ruleCriteria).then((rule) => {
                 this.rule = rule;
                 return this.loadConditions();
+            });
+        },
+
+        unsavedDataLeaveHandler(to, from, next) {
+            if (!this.feature.isActive('v6.5.0.0')) {
+                next();
+                return;
+            }
+
+            if (this.forceDiscardChanges) {
+                this.forceDiscardChanges = false;
+                next();
+                return;
+            }
+
+            if (to.name === 'sw.settings.rule.detail.assignments' && from.name === 'sw.settings.rule.detail.base') {
+                this.checkUnsavedData({ to, from, next });
+            } else if (to.name === 'sw.settings.rule.detail.base') {
+                this.conditionsTreeContainsUserChanges = false;
+                this.conditionTreeFinishedLoading = false;
+                next();
+                return;
+            }
+
+            this.checkUnsavedData({ to, from, next });
+        },
+
+        checkUnsavedData({ to, next }) {
+            if (this.conditionsTreeContainsUserChanges || this.ruleRepository.hasChanges(this.rule)) {
+                this.isDisplayingSaveChangesWarning = true;
+                this.nextRoute = to;
+                next(false);
+            } else {
+                next();
+            }
+        },
+
+        setTreeFinishedLoading() {
+            this.$nextTick(() => {
+                this.conditionsTreeContainsUserChanges = false;
+                this.conditionTreeFinishedLoading = true;
+            });
+        },
+
+        onLeaveModalClose() {
+            this.nextRoute = null;
+            this.isDisplayingSaveChangesWarning = false;
+        },
+
+        async onLeaveModalConfirm(destination) {
+            this.forceDiscardChanges = true;
+            this.isDisplayingSaveChangesWarning = false;
+
+            if (destination.name === 'sw.settings.rule.detail.assignments') {
+                await this.loadEntityData(this.ruleId).then(() => {
+                    this.isLoading = false;
+                });
+            }
+
+            this.$nextTick(() => {
+                this.$router.push({ name: destination.name, params: destination.params });
             });
         },
 
@@ -195,6 +291,7 @@ Component.register('sw-settings-rule-detail', {
                 return this.saveRule().then(() => {
                     this.$router.push({ name: 'sw.settings.rule.detail', params: { id: this.rule.id } });
                     this.isSaveSuccessful = true;
+                    this.conditionsTreeContainsUserChanges = false;
                 }).catch(() => {
                     this.showErrorNotification();
                 });
@@ -204,7 +301,9 @@ Component.register('sw-settings-rule-detail', {
                 .then(this.syncConditions)
                 .then(() => {
                     this.isSaveSuccessful = true;
-                    this.loadEntityData(this.rule.id);
+                    this.loadEntityData(this.rule.id).then(() => {
+                        this.setTreeFinishedLoading();
+                    });
                 })
                 .then(() => {
                     this.isLoading = false;
@@ -229,6 +328,7 @@ Component.register('sw-settings-rule-detail', {
             this.isLoading = true;
             this.loadEntityData(this.ruleId).then(() => {
                 this.isLoading = false;
+                this.setTreeFinishedLoading();
             });
         },
 

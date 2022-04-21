@@ -91,8 +91,14 @@
 
     {% block sw_settings_rule_detail_content %}
     <template #content>
+        {% block sw_settings_rule_detail_tabs_discard_changes_modal %}
+        <sw-discard-changes-modal
+            v-if="isDisplayingSaveChangesWarning && feature.isActive('v6.5.0.0')"
+            @keep-editing="onLeaveModalClose(nextRoute)"
+            @discard-changes="onLeaveModalConfirm(nextRoute)"
+        />
+        {% endblock %}
         <sw-card-view>
-
             {% block sw_settings_rule_detail_tabs %}
             <sw-tabs
                 v-if="rule && !rule.isNew()"
@@ -127,6 +133,7 @@
                 :condition-repository="conditionRepository"
                 :is-loading="isLoading"
                 @conditions-changed="conditionsChanged"
+                @tree-finished-loading="setTreeFinishedLoading"
             />
             {% endblock %}
         </sw-card-view>

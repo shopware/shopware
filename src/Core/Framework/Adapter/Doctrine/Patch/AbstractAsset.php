@@ -17,6 +17,10 @@ use function strtolower;
 use function strtoupper;
 use function substr;
 
+if (class_exists('\Doctrine\DBAL\Schema\AbstractAsset', false)) {
+    return;
+}
+
 /**
  * The abstract asset allows to reset the name of all assets without publishing this to the public userland.
  *

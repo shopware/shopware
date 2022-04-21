@@ -3,6 +3,7 @@
     {% block sw_condition_line_item_unit_price_field_operator %}
     <sw-condition-operator-select
         v-bind="{ operators, condition }"
+        :plural="matchesAll"
         :disabled="disabled"
     />
     {% endblock %}

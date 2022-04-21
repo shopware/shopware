@@ -22,6 +22,16 @@ Component.register('sw-condition-operator-select', {
             required: false,
             default: false,
         },
+
+        /**
+         * The used condition snippets depend on the pre-operator snippets and should be plural or singular
+         * depending on the pre-operator selection.
+         */
+        plural: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     computed: {
@@ -44,7 +54,7 @@ Component.register('sw-condition-operator-select', {
             return this.operators.map(({ identifier, label }) => {
                 return {
                     identifier,
-                    label: this.$tc(label),
+                    label: this.plural ? this.$tc(label, 2) : this.$tc(label),
                 };
             });
         },

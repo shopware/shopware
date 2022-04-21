@@ -594,17 +594,17 @@
     "sw-condition": {
       "operator": {
         "placeholder": "Operator auswählen...",
-        "lowerThanEquals": "Kleiner/gleich",
-        "equals": "Gleich",
-        "greaterThanEquals": "Größer/gleich",
-        "lowerThan": "Kleiner",
-        "greaterThan": "Größer",
-        "notEquals": "Ungleich",
-        "isOneOf": "Ist eine von",
-        "isNoneOf": "Ist keine von",
+        "lowerThanEquals": "Ist kleiner/gleich | Sind kleiner/gleich",
+        "equals": "Ist gleich | Sind gleich",
+        "greaterThanEquals": "Ist größer/gleich | Sind größer/gleich",
+        "lowerThan": "Ist kleiner | Sind kleiner",
+        "greaterThan": "Ist größer | Sind größer",
+        "notEquals": "Ist ungleich | Sind ungleich",
+        "isOneOf": "Ist eine von | Sind eine von",
+        "isNoneOf": "Ist keine von | Sind keine von",
         "gross": "Brutto",
         "net": "Netto",
-        "empty": "Ist leer"
+        "empty": "Ist leer | Sind leer"
       },
       "placeholderErrorMessage": "Platzhalter können nicht gespeichert werden.",
       "dataErrorMessage": "Es wurden nicht alle Pflichtfelder befüllt.",

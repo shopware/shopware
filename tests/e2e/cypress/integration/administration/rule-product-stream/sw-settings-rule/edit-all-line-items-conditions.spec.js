@@ -84,7 +84,7 @@ describe('Rule builder: Test all line items container crud operations', () => {
                 // check that values have been retained
                 cy.get('@contained-line-item-condition').within(() => {
                     cy.get('.sw-condition-operator-select__select .sw-single-select__selection-text')
-                        .should('contain', 'Is greater than');
+                        .should('contain', 'Are greater than');
                     cy.get('#sw-field--amount')
                         .should('have.value', '100');
                 });

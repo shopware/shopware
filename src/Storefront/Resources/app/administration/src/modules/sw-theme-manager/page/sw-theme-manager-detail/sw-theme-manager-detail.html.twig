@@ -256,7 +256,9 @@
                                                                                 :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
                                                                                 :inherited-value="baseThemeConfig[fieldName].value"
                                                                                 :label="!field.label ? '' : field.label"
-                                                                                :customInheritationCheckFunction="checkInheritance(fieldName)"
+                                                                                :customInheritationCheckFunction="checkInheritance"
+                                                                                :customContext="{ fieldName }"
+                                                                                @input="handleInheritanceInput($event, fieldName)"
                                                                         >
                                                                             <template #content="{ currentValue, updateCurrentValue, isInherited }">
                                                                                 <sw-field
@@ -281,7 +283,9 @@
                                                                                 :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
                                                                                 :inherited-value="baseThemeConfig[fieldName].value"
                                                                                 :label="!field.label ? '' : field.label"
-                                                                                :customInheritationCheckFunction="checkInheritance(fieldName)"
+                                                                                :customInheritationCheckFunction="checkInheritance"
+                                                                                :customContext="{ fieldName }"
+                                                                                @input="handleInheritanceInput($event, fieldName)"
                                                                         >
                                                                             <template #content="{ currentValue, updateCurrentValue, isInherited }">
                                                                                 <sw-field
@@ -310,6 +314,9 @@
                                                                                 :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
                                                                                 :inherited-value="baseThemeConfig[fieldName].value"
                                                                                 :label="!field.label ? '' : field.label"
+                                                                                :customInheritationCheckFunction="checkInheritance"
+                                                                                :customContext="{ fieldName }"
+                                                                                @input="handleInheritanceInput($event, fieldName)"
                                                                         >
                                                                                 <template #content="{ currentValue, updateCurrentValue, isInherited, removeInheritance }">
                                                                                     <sw-media-upload-v2
@@ -336,7 +343,9 @@
                                                                             :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
                                                                             :inherited-value="baseThemeConfig[fieldName].value"
                                                                             :label="!field.label ? '' : field.label"
-                                                                            :customInheritationCheckFunction="checkInheritance(fieldName)"
+                                                                            :customInheritationCheckFunction="checkInheritance"
+                                                                            :customContext="{ fieldName }"
+                                                                            @input="handleInheritanceInput($event, fieldName)"
                                                                         >
                                                                             <template #content="{ currentValue, updateCurrentValue, isInherited }">
                                                                                 <sw-field
@@ -360,7 +369,9 @@
                                                                                 :has-parent="theme.baseConfig?.fields?.[fieldName] == null"
                                                                                 :inherited-value="baseThemeConfig[fieldName].value"
                                                                                 :label="!field.label ? '' : field.label"
-                                                                                :customInheritationCheckFunction="checkInheritance(fieldName)"
+                                                                                :customInheritationCheckFunction="checkInheritance"
+                                                                                :customContext="{ fieldName }"
+                                                                                @input="handleInheritanceInput($event, fieldName)"
                                                                         >
                                                                             <template #content="{ currentValue, updateCurrentValue, isInherited }">
                                                                                 <sw-form-field-renderer

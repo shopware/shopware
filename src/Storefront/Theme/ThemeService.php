@@ -254,7 +254,10 @@ class ThemeService
         $themeConfig['fields'] = $configFields;
 
         foreach ($themeConfig['fields'] as $field => $item) {
-            if ($this->fieldIsInherited($field, $configuredTheme)) {
+            $isInherited = $this->fieldIsInherited($field, $configuredTheme);
+            $themeConfig['currentFields'][$field]['isInherited'] = $isInherited;
+
+            if ($isInherited) {
                 $themeConfig['currentFields'][$field]['value'] = null;
             } elseif (\array_key_exists('value', $item)) {
                 $themeConfig['currentFields'][$field]['value'] = $item['value'];
@@ -262,10 +265,13 @@ class ThemeService
         }
 
         foreach ($themeConfig['fields'] as $field => $item) {
-            if ($this->fieldIsInherited($field, $baseThemeConfig)) {
+            $isInherited = $this->fieldIsInherited($field, $baseThemeConfig);
+            $themeConfig['baseThemeFields'][$field]['isInherited'] = $isInherited;
+
+            if ($isInherited) {
                 $themeConfig['baseThemeFields'][$field]['value'] = null;
             } elseif (\array_key_exists('value', $item)) {
-                $themeConfig['baseThemeFields'][$field]['value'] = $item['value'];
+                $themeConfig['baseThemeFields'][$field]['value'] = $baseThemeConfig['fields'][$field]['value'];
             }
         }
 

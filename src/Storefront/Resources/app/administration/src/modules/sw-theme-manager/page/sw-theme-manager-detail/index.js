@@ -172,8 +172,12 @@ Component.register('sw-theme-manager-detail', {
             });
         },
 
-        checkInheritance(value) {
-            return !value;
+        checkInheritance(value, { fieldName }) {
+            return this.currentThemeConfig[fieldName].isInherited;
+        },
+
+        handleInheritanceInput(value, fieldName) {
+            this.currentThemeConfig[fieldName].isInherited = value === null;
         },
 
         getThemeConfig() {

@@ -1,8 +1,18 @@
+import type { SubContainer } from 'src/global.types';
+
 import ExtensionStoreActionService from './extension-store-action.service';
 import ShopwareExtensionService from './shopware-extension.service';
 import ExtensionErrorService from './extension-error.service';
 
 const { Application } = Shopware;
+
+declare global {
+    interface ServiceContainer extends SubContainer<'service'>{
+        extensionStoreActionService: ExtensionStoreActionService,
+        shopwareExtensionService: ShopwareExtensionService,
+        extensionErrorService: ExtensionErrorService,
+    }
+}
 
 Application.addServiceProvider('extensionStoreActionService', () => {
     return new ExtensionStoreActionService(
@@ -16,11 +26,12 @@ Application.addServiceProvider('shopwareExtensionService', () => {
         Shopware.Service('appModulesService'),
         Shopware.Service('extensionStoreActionService'),
         Shopware.Service('shopwareDiscountCampaignService'),
+        Shopware.Service('storeService'),
     );
 });
 
 Application.addServiceProvider('extensionErrorService', () => {
-    const root = Shopware.Application.getApplicationRoot();
+    const root = Shopware.Application.getApplicationRoot() as Vue;
 
     return new ExtensionErrorService({
         FRAMEWORK__APP_LICENSE_COULD_NOT_BE_VERIFIED: {

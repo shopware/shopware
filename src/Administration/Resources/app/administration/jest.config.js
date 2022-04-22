@@ -10,7 +10,7 @@ module.exports = {
     preset: '@shopware-ag/jest-preset-sw6-admin',
     globals: {
         adminPath: process.env.ADMIN_PATH,
-        projectRoot: process.env.PROJECT_ROOT
+        projectRoot: process.env.PROJECT_ROOT,
     },
 
     globalTeardown: '<rootDir>test/globalTeardown.js',
@@ -25,7 +25,7 @@ module.exports = {
     coverageReporters: [
         'text',
         'cobertura',
-        'html-spa'
+        'html-spa',
     ],
 
     setupFilesAfterEnv: [
@@ -34,7 +34,7 @@ module.exports = {
 
     moduleNameMapper: {
         '^test(.*)$': '<rootDir>/test$1',
-        vue$: 'vue/dist/vue.common.dev.js'
+        vue$: 'vue/dist/vue.common.dev.js',
     },
 
     reporters: [
@@ -42,7 +42,7 @@ module.exports = {
         ['jest-junit', {
             suiteName: 'Shopware 6 Unit Tests',
             outputDirectory: join(process.env.PROJECT_ROOT, '/build/artifacts/jest'),
-            outputName: 'administration.junit.xml'
-        }]
-    ]
+            outputName: 'administration.junit.xml',
+        }],
+    ],
 };

@@ -20,12 +20,18 @@ import type { ModalsState } from './app/state/modals.store';
 import type { ExtensionSdkModuleState } from './app/state/extension-sdk-module.store';
 import type { MainModuleState } from './app/state/main-module.store';
 import type { ActionButtonState } from './app/state/action-button.store';
+import type StoreApiService from './core/service/api/store.api.service';
+import type ShopwareDiscountCampaignService from './app/service/discount-campaign.service';
+import type AppModulesService from './core/service/api/app-modules.service';
+import type { ShopwareExtensionsState } from './module/sw-extension/store/extensions.store';
+import type AclService from './app/service/acl.service';
+import type { ShopwareAppsState } from './app/state/shopware-apps.store';
 
 // trick to make it an "external module" to support global type extension
-export {};
 
 // base methods for subContainer
-interface SubContainer<ContainerName extends string> {
+// Export for modules and plugins to extend the service definitions
+export interface SubContainer<ContainerName extends string> {
     $decorator(name: string | Decorator, func?: Decorator): this;
     $register(Obj: Bottle.IRegisterableObject): this;
     $list(): (keyof Bottle.IContainer[ContainerName])[];
@@ -77,7 +83,7 @@ declare global {
         feature: FeatureService,
         menuService: $TSFixMe,
         privileges: $TSFixMe,
-        acl: $TSFixMe,
+        acl: AclService,
         jsonApiParserService: $TSFixMe,
         validationService: $TSFixMe,
         timezoneService: $TSFixMe,
@@ -97,15 +103,15 @@ declare global {
         mediaDefaultFolderService: $TSFixMe,
         appAclService: $TSFixMe,
         appCmsService: $TSFixMe,
-        shopwareDiscountCampaignService: $TSFixMe,
+        shopwareDiscountCampaignService: ShopwareDiscountCampaignService,
         searchRankingService: $TSFixMe,
         searchPreferencesService: $TSFixMe,
-        storeService: $TSFixMe,
+        storeService: StoreApiService,
         repositoryFactory: RepositoryFactory,
         snippetService: $TSFixMe,
-        extensionStoreActionService: $TSFixMe,
         recentlySearchService: $TSFixMe,
         extensionSdkService: ExtensionSdkService,
+        appModulesService: AppModulesService,
     }
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface InitContainer extends SubContainer<'init'>{
@@ -158,14 +164,19 @@ declare global {
         tabs: TabsState,
         extensionComponentSections: ExtensionComponentSectionsState,
         session: {
-            currentLocale: string,
             currentUser: $TSFixMe,
+            userPending: boolean,
+            languageId: string,
+            currentLocale: string|null,
         },
         menuItem: MenuItemState,
         extensionSdkModules: ExtensionSdkModuleState,
         extensionMainModules: MainModuleState,
         modals: ModalsState,
         actionButtons: ActionButtonState,
+        shopwareExtensions: ShopwareExtensionsState,
+        extensionEntryRoutes: $TSFixMe,
+        shopwareApps: ShopwareAppsState,
     }
 
     /**
@@ -233,5 +244,12 @@ declare module 'vue/types/options' {
 
     interface PropOptions<T=any> {
         validValues?: T[]
+    }
+}
+
+declare module 'axios' {
+    interface AxiosRequestConfig {
+        // adds the shopware API version to the RequestConfig
+        version?: number
     }
 }

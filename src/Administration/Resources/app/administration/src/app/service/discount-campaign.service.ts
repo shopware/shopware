@@ -1,5 +1,7 @@
+import type { DiscountCampaign } from 'src/module/sw-extension/service/extension-store-action.service';
+
 export default class ShopwareDiscountCampaignService {
-    isDiscountCampaignActive(discountCampaign) {
+    public isDiscountCampaignActive(discountCampaign: DiscountCampaign) {
         if (!discountCampaign || !discountCampaign.startDate) {
             return false;
         }
@@ -26,7 +28,7 @@ export default class ShopwareDiscountCampaignService {
         return true;
     }
 
-    isSamePeriod(discountCampaign, comparator) {
+    public isSamePeriod(discountCampaign: DiscountCampaign, comparator: DiscountCampaign) {
         const discountDuration = discountCampaign.discountAppliesForMonths || null;
         const comparatorDuration = comparator.discountAppliesForMonths || null;
 
@@ -35,3 +37,5 @@ export default class ShopwareDiscountCampaignService {
             discountDuration === comparatorDuration;
     }
 }
+
+export type { ShopwareDiscountCampaignService };

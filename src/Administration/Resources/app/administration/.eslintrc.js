@@ -201,7 +201,6 @@ module.exports = {
                 '@typescript-eslint/no-unsafe-assignment': 'error',
                 '@typescript-eslint/no-unsafe-return': 'error',
                 '@typescript-eslint/explicit-module-boundary-types': 0,
-                '@typescript-eslint/explicit-function-return-type': 'error',
                 '@typescript-eslint/prefer-ts-expect-error': 'error',
                 'no-shadow': 'off',
                 '@typescript-eslint/no-shadow': ['error'],

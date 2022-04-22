@@ -165,6 +165,7 @@ rufus:
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
     - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
     - when: manual
+      allow_failure: true
   script:
     - RUFUS_BRANCH=trunk
     - PLATFORM_BRANCH="${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}"

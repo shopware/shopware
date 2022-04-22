@@ -95,6 +95,12 @@ Component.register('sw-media-library', {
     },
 
     computed: {
+        shouldDisplayEmptyState() {
+            return !this.isLoading && (this.selectableItems.length === 0 || (
+                this.isValidTerm(this.term) && this.selectableItems.length === 0
+            ));
+        },
+
         mediaRepository() {
             return this.repositoryFactory.create('media');
         },

@@ -144,8 +144,8 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
             this.loadSystemConfig();
         },
 
-        onModalClose() {
-            this.$emit('modal-close');
+        onModalClose(saveAfterClose = false) {
+            this.$emit('modal-close', saveAfterClose);
         },
 
         saveShopPages() {
@@ -340,11 +340,10 @@ Shopware.Component.register('sw-cms-layout-assignment-modal', {
             Promise
                 .all([this.validateCategories(), this.saveShopPages(), this.validateProducts(), this.validateLandingPages()])
                 .then(() => {
+                    this.onModalClose(true);
                     /** @deprecated tag:v6.5.0 event can be removed completely */
                     this.$emit('confirm');
-
-                    this.onModalClose();
-                }).finally(() => {
+                }).catch(() => {
                     this.isLoading = false;
                 });
         },

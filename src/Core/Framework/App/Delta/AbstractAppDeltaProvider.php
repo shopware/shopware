@@ -12,7 +12,7 @@ abstract class AbstractAppDeltaProvider
 {
     abstract public function getDeltaName(): string;
 
-    abstract public function getDelta(Manifest $manifest, AppEntity $app): array;
+    abstract public function getReport(Manifest $manifest, AppEntity $app): array;
 
     abstract public function hasDelta(Manifest $manifest, AppEntity $app): bool;
 }

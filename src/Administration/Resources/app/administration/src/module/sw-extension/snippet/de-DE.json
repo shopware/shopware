@@ -272,11 +272,14 @@
       },
       "sw-extension-permissions-modal": {
         "title": "{extensionLabel} Berechtigungen",
+        "titleNewPermissions": "Neue {extensionLabel} Berechtigungen",
         "description": "{extensionLabel} erhält Zugang zu den folgenden Komponenten. Klicke auf den Link neben der Komponente, um die Entitätsdetails anzuzeigen.",
+        "descriptionNewPermissions": "{extensionLabel} fordert mit diesem Update geänderte Berechtigungen an. Stelle sicher, dass Du allen Änderungen zustimmst, bevor Du mit dem Update fortfährst.",
         "domainHint": "Einige Daten werden auch mit anderen Domains geteilt. Klicke auf den Link neben den Domains für weitere Details.",
         "textEntities": "Berechtigungen anzeigen",
         "domains": "Domains",
-        "showDomains": "Domains anzeigen"
+        "showDomains": "Domains anzeigen",
+        "acceptAndUpdate": "Akzeptieren und aktualisieren"
       },
       "sw-extension-domains-modal": {
         "modalTitle": "{extensionLabel} - Domains",
@@ -477,6 +480,7 @@
         "dead_message": "Tote Nachricht",
         "event_action": "Event-Aktion",
         "message_queue_stats": "Statistiken der Nachrichtenwarteschlange",
+        "notification": "Benachrichtigung",
         "plugin": "Plugin",
         "scheduled_task": "Geplante Aufgaben"
       }

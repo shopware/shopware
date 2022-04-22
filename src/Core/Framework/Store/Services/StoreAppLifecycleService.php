@@ -113,7 +113,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
         $this->appStateService->deactivateApp($id, $context);
     }
 
-    public function updateExtension(string $technicalName, bool $allowNewPrivileges, Context $context): void
+    public function updateExtension(string $technicalName, bool $allowNewPermissions, Context $context): void
     {
         $manifests = $this->appLoader->load();
 
@@ -127,8 +127,8 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
             $app
         );
 
-        if (!$allowNewPrivileges && $requiresRenewedConsent) {
-            $deltas = $this->appDeltaService->getDeltas(
+        if (!$allowNewPermissions && $requiresRenewedConsent) {
+            $deltas = $this->appDeltaService->getReports(
                 $manifests[$technicalName],
                 $app
             );

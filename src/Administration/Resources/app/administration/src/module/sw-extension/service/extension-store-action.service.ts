@@ -107,9 +107,13 @@ export default class ExtensionStoreActionService extends ApiService {
             });
     }
 
-    public updateExtension(technicalName: string, type: ExtensionType): Promise<AxiosResponse<void>> {
+    public updateExtension(
+        technicalName: string,
+        type: ExtensionType,
+        allowNewPermissions = false,
+    ): Promise<AxiosResponse<void>> {
         return this.httpClient
-            .post(`_action/${this.getApiBasePath()}/update/${type}/${technicalName}`, {}, {
+            .post(`_action/${this.getApiBasePath()}/update/${type}/${technicalName}`, { allowNewPermissions }, {
                 headers: this.storeHeaders(),
                 version: 3,
             });

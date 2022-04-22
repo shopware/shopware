@@ -89,7 +89,7 @@
             <span v-if="isUpdateable">
                 <a
                     href="#"
-                    @click.prevent="updateExtension"
+                    @click.prevent="updateExtension(false)"
                 >
                     {{ $tc('sw-extension.my-extensions.listing.update') }}
                 </a>
@@ -191,7 +191,7 @@
         {% block sw_extension_card_base_context_menu_remove_extension %}
         <sw-context-menu-item
             v-if="isUpdateable"
-            @click="updateExtension"
+            @click="updateExtension(false)"
         >
             {{ $tc('sw-extension-store.component.sw-extension-card-base.contextMenu.updateLabel', 0, { version: extension.latestVersion }) }}
         </sw-context-menu-item>
@@ -270,6 +270,21 @@
         @modal-close="closePrivacyModal"
     />
     {% endblock %}
+    {% endblock %}
+
+    {% block sw_extension_card_base_consent_affirmation_modal %}
+    <sw-extension-permissions-modal
+        v-if="showConsentAffirmationModal"
+        :title="consentAffirmationModalTitle"
+        :extension-label="extension.label"
+        :permissions="consentAffirmationDeltas.permissions"
+        :domains="consentAffirmationDeltas.domains"
+        :action-label="consentAffirmationModalActionLabel"
+        :close-label="consentAffirmationModalCloseLabel"
+        :description="consentAffirmationModalDescription"
+        @modal-close="closeConsentAffirmationModal"
+        @close-with-action="closeConsentAffirmationModalAndUpdateExtension"
+    />
     {% endblock %}
 </sw-meteor-card>
 {% endblock %}

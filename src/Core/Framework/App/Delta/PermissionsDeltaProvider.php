@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\App\Delta;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
 use Shopware\Core\Framework\Store\Struct\PermissionCollection;
 use Shopware\Core\Framework\Store\Struct\PermissionStruct;
 
@@ -21,18 +20,29 @@ class PermissionsDeltaProvider extends AbstractAppDeltaProvider
         return self::DELTA_NAME;
     }
 
-    public function getDelta(Manifest $manifest, AppEntity $app): array
+    public function getReport(Manifest $manifest, AppEntity $app): array
     {
         $permissions = $manifest->getPermissions();
 
         if (!$permissions) {
-            return Permissions::fromArray([])->asParsedPrivileges();
+            return [];
+        }
+
+        return $this->makeCategorizedPermissions($permissions->asParsedPrivileges());
+    }
+
+    public function hasDelta(Manifest $manifest, AppEntity $app): bool
+    {
+        $permissions = $manifest->getPermissions();
+
+        if (!$permissions) {
+            return false;
         }
 
         $aclRole = $app->getAclRole();
 
         if (!$aclRole) {
-            return $this->makeCategorizedPermissions($permissions->asParsedPrivileges());
+            return true;
         }
 
         $newPrivileges = $permissions->asParsedPrivileges();
@@ -40,14 +50,7 @@ class PermissionsDeltaProvider extends AbstractAppDeltaProvider
 
         $privilegesDelta = array_diff($newPrivileges, $currentPrivileges);
 
-        return $this->makeCategorizedPermissions($privilegesDelta);
-    }
-
-    public function hasDelta(Manifest $manifest, AppEntity $app): bool
-    {
-        $delta = $this->getDelta($manifest, $app);
-
-        return \count($delta) > 0;
+        return \count($privilegesDelta) > 0;
     }
 
     private function makePermissions(array $appPrivileges): array

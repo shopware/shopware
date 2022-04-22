@@ -13,25 +13,13 @@ use Shopware\Core\Framework\Plugin\PluginService;
  */
 class ExtensionLifecycleService extends AbstractExtensionLifecycle
 {
-    /**
-     * @var AbstractStoreAppLifecycleService
-     */
-    private $storeAppLifecycleService;
+    private AbstractStoreAppLifecycleService $storeAppLifecycleService;
 
-    /**
-     * @var PluginLifecycleService
-     */
-    private $pluginLifecycleService;
+    private PluginLifecycleService $pluginLifecycleService;
 
-    /**
-     * @var PluginService
-     */
-    private $pluginService;
+    private PluginService $pluginService;
 
-    /**
-     * @var PluginManagementService
-     */
-    private $pluginManagementService;
+    private PluginManagementService $pluginManagementService;
 
     public function __construct(
         AbstractStoreAppLifecycleService $storeAppLifecycleService,
@@ -57,7 +45,7 @@ class ExtensionLifecycleService extends AbstractExtensionLifecycle
         $this->storeAppLifecycleService->installExtension($technicalName, $context);
     }
 
-    public function update(string $type, string $technicalName, Context $context): void
+    public function update(string $type, string $technicalName, bool $allowNewPermissions, Context $context): void
     {
         if ($type === 'plugin') {
             $plugin = $this->pluginService->getPluginByName($technicalName, $context);
@@ -66,7 +54,7 @@ class ExtensionLifecycleService extends AbstractExtensionLifecycle
             return;
         }
 
-        $this->storeAppLifecycleService->updateExtension($technicalName, true, $context);
+        $this->storeAppLifecycleService->updateExtension($technicalName, $allowNewPermissions, $context);
     }
 
     public function uninstall(string $type, string $technicalName, bool $keepUserData, Context $context): void

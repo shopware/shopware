@@ -23,12 +23,12 @@ class AppConfirmationDeltaProvider
     /**
      * @return array<string, array>
      */
-    public function getDeltas(Manifest $manifest, AppEntity $app): array
+    public function getReports(Manifest $manifest, AppEntity $app): array
     {
         $deltas = [];
 
         foreach ($this->deltaProviders as $provider) {
-            $deltas[$provider->getDeltaName()] = $provider->getDelta($manifest, $app);
+            $deltas[$provider->getDeltaName()] = $provider->getReport($manifest, $app);
         }
 
         return $deltas;

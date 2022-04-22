@@ -18,12 +18,9 @@
 
         {% block sw_extension_permissions_modal_intro_text %}
         <p class="sw-extension-permissions-modal__description">
-            {{
-                $tc('sw-extension-store.component.sw-extension-permissions-modal.description',
-                    1,
-                    { extensionLabel: extensionLabel })
-            }}
+            {{ descriptionText }}
         </p>
+
         <p
             v-if="domainsList.length > 0"
             class="sw-extension-permissions-modal__domain-hint"
@@ -100,7 +97,7 @@
             size="small"
             @click="close"
         >
-            {{ $tc('global.sw-modal.labelClose') }}
+            {{ closeBtnLabel }}
         </sw-button>
         {% endblock %}
 

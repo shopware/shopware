@@ -5,9 +5,7 @@ namespace Shopware\Core\Framework\Test\App\Delta;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider;
-use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
@@ -20,14 +18,16 @@ class AppConfirmationDeltaProviderTest extends TestCase
     public function testGetDeltas(): void
     {
         $deltas = $this->getAppConfirmationDeltaProvider()
-            ->getDeltas(
+            ->getReports(
                 $this->getTestManifest(),
                 new AppEntity()
             );
 
-        static::assertCount(1, $deltas);
+        static::assertCount(2, $deltas);
         static::assertArrayHasKey('permissions', $deltas);
         static::assertCount(6, $deltas['permissions']);
+        static::assertArrayHasKey('domains', $deltas);
+        static::assertCount(6, $deltas['domains']);
     }
 
     public function testRequiresRenewedConsent(): void
@@ -41,22 +41,12 @@ class AppConfirmationDeltaProviderTest extends TestCase
         static::assertTrue($requiresRenewedConsent);
     }
 
-    protected function getAppLifecycle(): AppLifecycle
-    {
-        return $this->getContainer()->get(AppLifecycle::class);
-    }
-
-    protected function getAppRepository(): EntityRepository
-    {
-        return $this->getContainer()->get('app.repository');
-    }
-
-    protected function getTestManifest(): Manifest
+    private function getTestManifest(): Manifest
     {
         return Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
     }
 
-    protected function getAppConfirmationDeltaProvider(): AppConfirmationDeltaProvider
+    private function getAppConfirmationDeltaProvider(): AppConfirmationDeltaProvider
     {
         return $this->getContainer()
             ->get(AppConfirmationDeltaProvider::class);

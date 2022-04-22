@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Test\App\Delta;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Delta\PermissionsDeltaProvider;
+use Shopware\Core\Framework\App\Delta\DomainsDeltaProvider;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
@@ -13,21 +13,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
-/**
- * @internal
- */
-class PermissionsDeltaProviderTest extends TestCase
+class DomainsDeltaProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     public function testGetName(): void
     {
-        $expected = 'permissions';
-        static::assertSame($expected, PermissionsDeltaProvider::DELTA_NAME);
-        static::assertSame($expected, (new PermissionsDeltaProvider())->getDeltaName());
+        $expected = 'domains';
+        static::assertSame($expected, DomainsDeltaProvider::DELTA_NAME);
+        static::assertSame($expected, (new DomainsDeltaProvider())->getDeltaName());
     }
 
-    public function testGetPermissionsDelta(): void
+    public function testGetDomainsDelta(): void
     {
         $context = Context::createDefaultContext();
         $manifest = $this->getTestManifest();
@@ -43,18 +40,20 @@ class PermissionsDeltaProviderTest extends TestCase
             ->search($criteria, $context)
             ->first();
 
-        // Modify the existing privileges to get a diff
-        $app->getAclRole()->setPrivileges(['customer:read']);
+        // Modify the existing privileges to get a delta
+        $app->setAllowedHosts([]);
 
-        $diff = (new PermissionsDeltaProvider())->getReport($manifest, $app);
+        $delta = (new DomainsDeltaProvider())->getReport($manifest, $app);
 
-        static::assertCount(6, $diff);
-        static::assertArrayHasKey('category', $diff);
-        static::assertArrayHasKey('custom_fields', $diff);
-        static::assertArrayHasKey('order', $diff);
-        static::assertArrayHasKey('product', $diff);
-        static::assertArrayHasKey('settings', $diff);
-        static::assertArrayHasKey('additional_privileges', $diff);
+        static::assertCount(6, $delta);
+        static::assertEquals([
+            'my.app.com',
+            'test.com',
+            'base-url.com',
+            'main-module',
+            'swag-test.com',
+            'payment.app',
+        ], $delta);
     }
 
     public function testHasDelta(): void
@@ -65,17 +64,18 @@ class PermissionsDeltaProviderTest extends TestCase
         $this->getAppLifecycle()->install($manifest, false, $context);
 
         $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('name', 'test'))
-            ->addAssociation('acl_role');
+            ->addFilter(new EqualsFilter('name', 'test'));
 
         /** @var AppEntity $app */
         $app = $this->getAppRepository()
             ->search($criteria, $context)
             ->first();
 
-        $hasDelta = (new PermissionsDeltaProvider())->hasDelta($manifest, $app);
+        static::assertFalse((new DomainsDeltaProvider())->hasDelta($manifest, $app));
 
-        static::assertFalse($hasDelta);
+        $app->setAllowedHosts([]);
+
+        static::assertTrue((new DomainsDeltaProvider())->hasDelta($manifest, $app));
     }
 
     private function getAppLifecycle(): AppLifecycle

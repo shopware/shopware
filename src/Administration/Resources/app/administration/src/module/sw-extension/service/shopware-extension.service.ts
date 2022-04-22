@@ -58,8 +58,8 @@ export default class ShopwareExtensionService {
         await this.updateExtensionData();
     }
 
-    public async updateExtension(extensionName: string, type: ExtensionType): Promise<void> {
-        await this.extensionStoreActionService.updateExtension(extensionName, type);
+    public async updateExtension(extensionName: string, type: ExtensionType, allowNewPrivileges = false): Promise<void> {
+        await this.extensionStoreActionService.updateExtension(extensionName, type, allowNewPrivileges);
 
         await this.updateExtensionData();
     }

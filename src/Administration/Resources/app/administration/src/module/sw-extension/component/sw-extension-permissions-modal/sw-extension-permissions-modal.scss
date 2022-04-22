@@ -7,7 +7,6 @@
 
     .sw-extension-permissions-modal__intro {
         text-align: center;
-        padding: 0 20%;
         font-size: $font-size-small;
         margin-bottom: 24px;
 
@@ -41,13 +40,14 @@
             background: none;
             color: $color-shopware-brand-500;
             justify-self: end;
-            text-decoration: none;
+            text-decoration: underline;
             font-weight: $font-weight-regular;
             line-height: inherit;
             padding: 0;
 
             &:hover {
                 color: $color-shopware-brand-800;
+                background: none;
             }
 
             .sw-icon {

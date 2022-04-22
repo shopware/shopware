@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
@@ -150,6 +151,12 @@ class CriteriaQueryBuilder
             }
 
             $accessor = $this->helper->getFieldAccessor($sorting->getField(), $definition, $definition->getEntityName(), $context);
+
+            if ($sorting instanceof CountSorting) {
+                $query->addOrderBy(sprintf('COUNT(%s)', $accessor), $sorting->getDirection());
+
+                continue;
+            }
 
             if ($sorting->getNaturalSorting()) {
                 $query->addOrderBy('LENGTH(' . $accessor . ')', $sorting->getDirection());

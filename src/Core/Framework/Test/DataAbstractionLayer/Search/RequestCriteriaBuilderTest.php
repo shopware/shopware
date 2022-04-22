@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
@@ -114,6 +115,7 @@ class RequestCriteriaBuilderTest extends TestCase
     {
         $criteria = (new Criteria())
             ->addSorting(new FieldSorting('order.createdAt', FieldSorting::DESCENDING))
+            ->addSorting(new CountSorting('transactions.id', CountSorting::ASCENDING))
             ->addAssociation('transactions.paymentMethod')
             ->addAssociation('deliveries.shippingMethod')
             ->setLimit(1)
@@ -162,6 +164,13 @@ class RequestCriteriaBuilderTest extends TestCase
                     'naturalSorting' => false,
                     'extensions' => [],
                     'order' => 'DESC',
+                ],
+                [
+                    'field' => 'transactions.id',
+                    'naturalSorting' => false,
+                    'extensions' => [],
+                    'order' => 'ASC',
+                    'type' => 'count',
                 ],
             ],
         ];

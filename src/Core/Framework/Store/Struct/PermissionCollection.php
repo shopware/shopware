@@ -10,13 +10,6 @@ use Shopware\Core\Framework\Store\Helper\PermissionCategorization;
  */
 class PermissionCollection extends StoreCollection
 {
-    private const PRIVILEGE_DEPENDENCE = [
-        AclRoleDefinition::PRIVILEGE_READ => [],
-        AclRoleDefinition::PRIVILEGE_CREATE => [AclRoleDefinition::PRIVILEGE_READ],
-        AclRoleDefinition::PRIVILEGE_UPDATE => [AclRoleDefinition::PRIVILEGE_READ],
-        AclRoleDefinition::PRIVILEGE_DELETE => [AclRoleDefinition::PRIVILEGE_READ],
-    ];
-
     public function __construct(iterable $elements = [])
     {
         if (!empty($elements) && $this->hasNoPermissionStructElements((array) $elements)) {
@@ -65,7 +58,11 @@ class PermissionCollection extends StoreCollection
     private function generatePrivileges(array $permissions): array
     {
         foreach ($permissions as $permission) {
-            $operations = self::PRIVILEGE_DEPENDENCE[$permission['operation']];
+            if (!\array_key_exists($permission['operation'], AclRoleDefinition::PRIVILEGE_DEPENDENCE)) {
+                continue;
+            }
+
+            $operations = AclRoleDefinition::PRIVILEGE_DEPENDENCE[$permission['operation']];
 
             foreach ($operations as $operation) {
                 $dependendPermission = [

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\App\Manifest\Xml\CustomFieldTypes;
+namespace Shopware\Core\Framework\Test\App\Manifest\Xml;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -22,5 +22,7 @@ class PermissionTest extends TestCase
             'custom_field_set' => ['update'],
             'order' => ['read'],
         ], $manifest->getPermissions()->getPermissions());
+
+        static::assertEquals(['user_change_me'], $manifest->getPermissions()->getAdditionalPrivileges());
     }
 }

@@ -22,25 +22,13 @@ class AppServiceTest extends TestCase
     use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
 
-    /**
-     * @var AppService
-     */
-    private $appService;
+    private AppService $appService;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $appRepository;
+    private EntityRepositoryInterface $appRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $actionButtonRepository;
+    private EntityRepositoryInterface $actionButtonRepository;
 
     public function setUp(): void
     {

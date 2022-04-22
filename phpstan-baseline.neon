@@ -1666,11 +1666,6 @@ parameters:
 			path: src/Core/Framework/App/ActionButton/AppActionLoader.php
 
 		-
-			message: "#^Cannot call method getPermissions\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Permissions\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Command/AppPrinter.php
-
-		-
 			message: "#^Cannot call method getAccessKey\\(\\) on Shopware\\\\Core\\\\System\\\\Integration\\\\IntegrationEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Lifecycle/Registration/AppRegistrationService.php

@@ -149,6 +149,7 @@
             <xs:element name="create" maxOccurs="unbounded" type="xs:string"/>
             <xs:element name="update" maxOccurs="unbounded" type="xs:string"/>
             <xs:element name="delete" maxOccurs="unbounded" type="xs:string"/>
+            <xs:element name="permission" maxOccurs="unbounded" type="xs:string"/>
         </xs:choice>
     </xs:complexType>
     <xs:complexType name="custom-fields">

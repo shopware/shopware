@@ -612,6 +612,9 @@
         "theme_media": "Medien",
         "theme_sales_channel": "Verkaufskanal"
       }
+    },
+    "additional_privileges": {
+      "title": "Zusätzliche Berechtigungen"
     }
   },
   "sw-privileges": {

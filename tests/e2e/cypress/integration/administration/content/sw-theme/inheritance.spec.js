@@ -84,6 +84,9 @@ describe('Theme: Test Inheritance', () => {
 
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);
 
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+
         cy.get('.smart-bar__back-btn').click();
 
         // got to inherited theme and check inherited value
@@ -109,6 +112,9 @@ describe('Theme: Test Inheritance', () => {
 
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);
 
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
+
         cy.get('.smart-bar__back-btn').click();
 
         cy.get('.sw-theme-list-item')
@@ -133,6 +139,9 @@ describe('Theme: Test Inheritance', () => {
         cy.get('.sw-modal__footer > .sw-button--primary').click();
 
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);
+
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
 
         cy.get('.smart-bar__back-btn').click();
 

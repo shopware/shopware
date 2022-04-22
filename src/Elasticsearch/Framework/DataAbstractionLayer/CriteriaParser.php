@@ -51,9 +51,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\XOrFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
+use Shopware\Elasticsearch\Sort\CountSort;
 
 class CriteriaParser
 {
@@ -120,6 +122,10 @@ class CriteriaParser
         }
 
         $accessor = $this->buildAccessor($definition, $sorting->getField(), $context);
+
+        if ($sorting instanceof CountSorting) {
+            return new CountSort($accessor, $sorting->getDirection());
+        }
 
         return new FieldSort($accessor, $sorting->getDirection());
     }

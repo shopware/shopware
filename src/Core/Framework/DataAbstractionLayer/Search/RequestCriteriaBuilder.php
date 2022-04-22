@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
 use Symfony\Component\HttpFoundation\Request;
@@ -248,6 +249,7 @@ class RequestCriteriaBuilder
         foreach ($sorting as $sort) {
             $order = $sort['order'] ?? 'asc';
             $naturalSorting = $sort['naturalSorting'] ?? false;
+            $type = $sort['type'] ?? '';
 
             if (strcasecmp($order, 'desc') === 0) {
                 $order = FieldSorting::DESCENDING;
@@ -255,7 +257,9 @@ class RequestCriteriaBuilder
                 $order = FieldSorting::ASCENDING;
             }
 
-            $sortings[] = new FieldSorting(
+            $class = strcasecmp($type, 'count') === 0 ? CountSorting::class : FieldSorting::class;
+
+            $sortings[] = new $class(
                 $this->buildFieldName($definition, $sort['field']),
                 $order,
                 (bool) $naturalSorting

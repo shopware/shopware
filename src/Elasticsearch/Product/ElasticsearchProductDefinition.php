@@ -74,6 +74,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     'type' => 'nested',
                     'properties' => [
                         'id' => EntityMapper::KEYWORD_FIELD,
+                        '_count' => EntityMapper::INT_FIELD,
                     ],
                 ],
                 'childCount' => EntityMapper::INT_FIELD,
@@ -84,6 +85,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     'type' => 'nested',
                     'properties' => [
                         'id' => EntityMapper::KEYWORD_FIELD,
+                        '_count' => EntityMapper::INT_FIELD,
                     ],
                 ],
                 'name' => EntityMapper::KEYWORD_FIELD,
@@ -92,6 +94,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     'properties' => [
                         'id' => EntityMapper::KEYWORD_FIELD,
                         'groupId' => EntityMapper::KEYWORD_FIELD,
+                        '_count' => EntityMapper::INT_FIELD,
                     ],
                 ],
                 'productNumber' => EntityMapper::KEYWORD_FIELD,
@@ -100,6 +103,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     'properties' => [
                         'id' => EntityMapper::KEYWORD_FIELD,
                         'groupId' => EntityMapper::KEYWORD_FIELD,
+                        '_count' => EntityMapper::INT_FIELD,
                     ],
                 ],
                 'ratingAverage' => EntityMapper::FLOAT_FIELD,
@@ -117,6 +121,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     'type' => 'nested',
                     'properties' => [
                         'id' => EntityMapper::KEYWORD_FIELD,
+                        '_count' => EntityMapper::INT_FIELD,
                     ],
                 ],
                 'visibilities' => [
@@ -124,6 +129,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     'properties' => [
                         'id' => EntityMapper::KEYWORD_FIELD,
                         'visibility' => EntityMapper::INT_FIELD,
+                        '_count' => EntityMapper::INT_FIELD,
                     ],
                 ],
                 'weight' => EntityMapper::FLOAT_FIELD,
@@ -189,6 +195,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 return [
                     'visibility' => $visibility,
                     'salesChannelId' => $salesChannelId,
+                    '_count' => 1,
                 ];
             }, $visibilities);
 
@@ -204,6 +211,11 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 $prices[$key] = $this->getCurrencyPrice($id, $price, $currency);
                 $purchase[$key] = $this->getCurrencyPurchasePrice($purchasePrices, $currency);
             }
+
+            $optionIds = json_decode($item['optionIds'] ?? '[]', true);
+            $propertyIds = json_decode($item['propertyIds'] ?? '[]', true);
+            $tagIds = json_decode($item['tagIds'] ?? '[]', true);
+            $categoriesRo = json_decode($item['categoryIds'] ?? '[]', true);
 
             $document = [
                 'id' => $id,
@@ -230,17 +242,18 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'manufacturerId' => $item['productManufacturerId'],
                 'manufacturer' => [
                     'id' => $item['productManufacturerId'],
+                    '_count' => 1,
                 ],
                 'releaseDate' => isset($item['releaseDate']) ? (new \DateTime($item['releaseDate']))->format('c') : null,
                 'createdAt' => isset($item['createdAt']) ? (new \DateTime($item['createdAt']))->format('c') : null,
-                'optionIds' => json_decode($item['optionIds'] ?? '[]', true),
-                'options' => array_map(fn (string $optionId) => ['id' => $optionId, 'groupId' => $groups[$optionId]], json_decode($item['optionIds'] ?? '[]', true)),
-                'categoriesRo' => array_map(fn (string $categoryId) => ['id' => $categoryId], json_decode($item['categoryIds'] ?? '[]', true)),
-                'properties' => array_map(fn (string $propertyId) => ['id' => $propertyId, 'groupId' => $groups[$propertyId]], json_decode($item['propertyIds'] ?? '[]', true)),
-                'propertyIds' => json_decode($item['propertyIds'] ?? '[]', true),
+                'optionIds' => $optionIds,
+                'options' => array_map(fn (string $optionId) => ['id' => $optionId, 'groupId' => $groups[$optionId], '_count' => 1], $optionIds),
+                'categoriesRo' => array_map(fn (string $categoryId) => ['id' => $categoryId, '_count' => 1], $categoriesRo),
+                'properties' => array_map(fn (string $propertyId) => ['id' => $propertyId, 'groupId' => $groups[$propertyId], '_count' => 1], $propertyIds),
+                'propertyIds' => $propertyIds,
                 'taxId' => $item['taxId'],
-                'tags' => array_map(fn (string $tagId) => ['id' => $tagId], json_decode($item['tagIds'] ?? '[]', true)),
-                'tagIds' => json_decode($item['tagIds'] ?? '[]', true),
+                'tags' => array_map(fn (string $tagId) => ['id' => $tagId, '_count' => 1], $tagIds),
+                'tagIds' => $tagIds,
                 'parentId' => $item['parentId'],
                 'childCount' => (int) $item['childCount'],
                 'fullText' => $this->stripText(implode(' ', [$item['name'], $item['description'], $item['productNumber']])),

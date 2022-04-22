@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
@@ -226,6 +228,57 @@ class SearchCriteriaBuilderTest extends TestCase
 
         static::assertEquals('A value for the sort parameter is required.', $content['errors'][0]['detail']);
         static::assertEquals('/sort', $content['errors'][0]['source']['pointer']);
+    }
+
+    public function testSortingByAssociationCount(): void
+    {
+        $idCollection = new IdsCollection();
+        $filterId = Uuid::randomHex();
+        $this->createManufacturer(['link' => 'a', 'description' => $filterId, 'products' => $this->getProductsPayload($idCollection, 3, 'a')]);
+        $this->createManufacturer(['link' => 'b', 'description' => $filterId, 'products' => $this->getProductsPayload($idCollection, 2, 'b')]);
+        $this->createManufacturer(['link' => 'c', 'description' => $filterId, 'products' => $this->getProductsPayload($idCollection, 1, 'c')]);
+
+        $this->getBrowser()->request(
+            'GET',
+            $this->url . '/product-manufacturer',
+            [
+                'sort' => [
+                    [
+                        'field' => 'products.id',
+                        'order' => 'ASC',
+                        'type' => 'count',
+                    ],
+                ],
+                'filter' => ['description' => $filterId],
+            ]
+        );
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
+        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+
+        static::assertEquals('c', $content['data'][0]['attributes']['link']);
+        static::assertEquals('b', $content['data'][1]['attributes']['link']);
+        static::assertEquals('a', $content['data'][2]['attributes']['link']);
+
+        $this->getBrowser()->request(
+            'GET',
+            $this->url . '/product-manufacturer',
+            [
+                'sort' => [
+                    [
+                        'field' => 'products.id',
+                        'order' => 'DESC',
+                        'type' => 'count',
+                    ],
+                ],
+                'filter' => ['description' => $filterId],
+            ]
+        );
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
+        $content = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+
+        static::assertEquals('a', $content['data'][0]['attributes']['link']);
+        static::assertEquals('b', $content['data'][1]['attributes']['link']);
+        static::assertEquals('c', $content['data'][2]['attributes']['link']);
     }
 
     /**
@@ -472,5 +525,16 @@ class SearchCriteriaBuilderTest extends TestCase
         $this->manufacturerRepository->create([$parameters], Context::createDefaultContext());
 
         return $id;
+    }
+
+    private function getProductsPayload(IdsCollection $idsCollection, int $count, string $prefix): array
+    {
+        $products = [];
+
+        for ($i = 1; $i <= $count; ++$i) {
+            $products[] = (new ProductBuilder($idsCollection, sprintf('%s.%s', $prefix, $i)))->price(15)->build();
+        }
+
+        return $products;
     }
 }

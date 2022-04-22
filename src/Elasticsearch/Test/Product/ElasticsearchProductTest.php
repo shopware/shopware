@@ -48,6 +48,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition;
@@ -2644,6 +2645,52 @@ class ElasticsearchProductTest extends TestCase
             static::assertSame($ids->get('product-4'), $result[2]);
             static::assertSame($ids->get('product-2'), $result[3]);
             static::assertSame($ids->get('product-6'), $result[4]);
+        } catch (\Exception $e) {
+            static::tearDown();
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testSortByPropertiesCount(IdsCollection $ids): void
+    {
+        $context = $ids->getContext();
+
+        try {
+            $criteria = new Criteria();
+            $criteria->addSorting(new CountSorting('properties.id', CountSorting::DESCENDING));
+            $criteria->addSorting(new FieldSorting('productNumber', FieldSorting::ASCENDING));
+
+            $searcher = $this->createEntitySearcher();
+
+            $result = $searcher->search($this->productDefinition, $criteria, $context)->getIds();
+
+            static::assertSame($ids->get('dal-1'), $result[0]);
+            static::assertSame($ids->get('dal-2.1'), $result[1]);
+            static::assertSame($ids->get('dal-2.2'), $result[2]);
+            static::assertSame($ids->get('product-1'), $result[3]);
+            static::assertSame($ids->get('product-2'), $result[4]);
+            static::assertSame($ids->get('product-3'), $result[5]);
+            static::assertSame($ids->get('product-4'), $result[6]);
+            static::assertSame($ids->get('cf1'), $result[7]);
+
+            $criteria = new Criteria();
+            $criteria->addSorting(new CountSorting('properties.id', CountSorting::ASCENDING));
+            $criteria->addSorting(new FieldSorting('productNumber', FieldSorting::DESCENDING));
+
+            $result = array_reverse($searcher->search($this->productDefinition, $criteria, $context)->getIds());
+
+            static::assertSame($ids->get('cf1'), $result[7]);
+            static::assertSame($ids->get('product-4'), $result[6]);
+            static::assertSame($ids->get('product-3'), $result[5]);
+            static::assertSame($ids->get('product-2'), $result[4]);
+            static::assertSame($ids->get('product-1'), $result[3]);
+            static::assertSame($ids->get('dal-2.2'), $result[2]);
+            static::assertSame($ids->get('dal-2.1'), $result[1]);
+            static::assertSame($ids->get('dal-1'), $result[0]);
         } catch (\Exception $e) {
             static::tearDown();
 

@@ -5,10 +5,12 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -196,6 +198,32 @@ class ChildCountIndexerTest extends TestCase
         static::assertEquals(0, $categories->get($categoryB)->getChildCount());
         static::assertEquals(1, $categories->get($categoryC)->getChildCount());
         static::assertEquals(0, $categories->get($categoryD)->getChildCount());
+    }
+
+    public function testDeleteProductWithRecalculatedChildCount(): void
+    {
+        $ids = new IdsCollection();
+
+        $products = [
+            (new ProductBuilder($ids, 'parent'))
+                ->price(100)
+                ->variant((new ProductBuilder($ids, 'variant-1'))->price(200)->build())
+                ->variant((new ProductBuilder($ids, 'variant-2'))->price(200)->build())
+                ->build(),
+        ];
+
+        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+
+        $count = $this->connection->fetchOne('SELECT child_count FROM product WHERE id = :id', ['id' => $ids->getBytes('parent')]);
+        static::assertEquals(2, $count);
+
+        $this->getContainer()->get('product.repository')->delete([['id' => $ids->get('variant-1')]], Context::createDefaultContext());
+        $count = $this->connection->fetchOne('SELECT child_count FROM product WHERE id = :id', ['id' => $ids->getBytes('parent')]);
+        static::assertEquals(1, $count);
+
+        $this->getContainer()->get('product.repository')->delete([['id' => $ids->get('variant-2')]], Context::createDefaultContext());
+        $count = $this->connection->fetchOne('SELECT child_count FROM product WHERE id = :id', ['id' => $ids->getBytes('parent')]);
+        static::assertEquals(0, $count);
     }
 
     private function createCategory(?string $parentId = null): string

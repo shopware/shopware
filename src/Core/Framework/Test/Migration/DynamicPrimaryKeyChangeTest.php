@@ -5,15 +5,16 @@ namespace Shopware\Core\Framework\Test\Migration;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MakeVersionableMigrationHelper;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use function sprintf;
 
 /**
  * @group slow
  */
 class DynamicPrimaryKeyChangeTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use KernelTestBehaviour;
 
     public function testPrimaryKeyExistsEverywhere(): void
     {
@@ -32,7 +33,6 @@ class DynamicPrimaryKeyChangeTest extends TestCase
     public function testFullConversionAgainstFixtures(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
-        $connection->rollBack();
 
         $this->importFixtureSchema();
         $schemaManager = $connection->getSchemaManager();
@@ -58,8 +58,6 @@ class DynamicPrimaryKeyChangeTest extends TestCase
             $connection->exec($query);
         }
 
-        $connection->beginTransaction();
-
         foreach ($this->getExpectationsAfter() as $tableName => $expectation) {
             $indexes = $schemaManager->listTableIndexes($tableName);
             $foreignKeys = $schemaManager->listTableForeignKeys($tableName);
@@ -78,6 +76,38 @@ class DynamicPrimaryKeyChangeTest extends TestCase
         }
 
         $this->importAfterChangeFixtures();
+    }
+
+    /**
+     * @after
+     */
+    public function cleanupTables(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+        $connection->executeStatement('SET FOREIGN_KEY_CHECKS=0');
+
+        $tables = [
+            '_dpkc_main',
+            '_dpkc_main_translation',
+            '_dpkc_1n_relation1',
+            '_dpkc_1n_relation2',
+            '_dpkc_other',
+            '_dpkc_other_multi_pk',
+            '_dpkc_mn_relation1',
+            '_dpkc_mn_relation2',
+            '_dpkc_mn_relation_multi_pk',
+            '_dpkc_1n_multi_relation',
+            '_dpkc_1n_relation_on_another_id',
+            '_dpkc_1n_relation_double_constraint',
+            '_dpkc_1n_relation3',
+            '_dpkc_1n_relation_double_constraint_two',
+        ];
+
+        foreach ($tables as $table) {
+            $connection->executeStatement(sprintf('DROP TABLE IF EXISTS %s', $table));
+        }
+
+        $connection->executeStatement('SET FOREIGN_KEY_CHECKS=1');
     }
 
     private function importFixtureSchema(): void

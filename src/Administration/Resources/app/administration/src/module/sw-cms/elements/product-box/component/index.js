@@ -6,8 +6,6 @@ const { Component, Mixin, Filter } = Shopware;
 Component.register('sw-cms-el-product-box', {
     template,
 
-    inject: ['feature'],
-
     mixins: [
         Mixin.getByName('cms-element'),
         Mixin.getByName('placeholder'),
@@ -15,12 +13,12 @@ Component.register('sw-cms-el-product-box', {
 
     computed: {
         product() {
-            if (!this.element.data || !this.element.data.product) {
+            if (!this.element?.data?.product) {
                 return {
                     name: 'Lorem ipsum dolor',
                     description: `Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
                     sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
-                    sed diam voluptua.`.trim(),
+                    sed diam voluptua.`,
                     price: [
                         { gross: 19.90 },
                     ],
@@ -37,7 +35,7 @@ Component.register('sw-cms-el-product-box', {
         },
 
         displaySkeleton() {
-            return !this.element.data || !this.element.data.product;
+            return !this.element?.data?.product;
         },
 
         mediaUrl() {
@@ -53,11 +51,11 @@ Component.register('sw-cms-el-product-box', {
         },
 
         altTag() {
-            if (this.product.cover && this.product.cover.media && this.product.cover.media.alt) {
-                return this.product.cover.media.alt;
+            if (!this.product?.cover?.media?.alt) {
+                return null;
             }
 
-            return null;
+            return this.product.cover.media.alt;
         },
 
         displayModeClass() {
@@ -69,7 +67,7 @@ Component.register('sw-cms-el-product-box', {
         },
 
         verticalAlignStyle() {
-            if (!this.element.config.verticalAlign || !this.element.config.verticalAlign.value) {
+            if (!this.element.config?.verticalAlign?.value) {
                 return null;
             }
 

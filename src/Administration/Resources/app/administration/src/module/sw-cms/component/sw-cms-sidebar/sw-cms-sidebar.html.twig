@@ -70,6 +70,7 @@
                 {% endblock %}
 
                 {% block sw_cms_sidebar_page_settings_demo_field %}
+                {# @deprecated tag:v6.5.0 - ref cmsDemoSelection will be removed #}
                 <sw-entity-single-select
                     v-if="demoEntity !== null"
                     ref="cmsDemoSelection"

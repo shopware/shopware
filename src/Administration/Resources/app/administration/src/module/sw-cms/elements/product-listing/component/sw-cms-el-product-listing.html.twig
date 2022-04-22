@@ -5,7 +5,7 @@
         <sw-cms-el-product-box
             v-for="index in demoProductCount"
             :key="index"
-            :element="demoProductElement"
+            :element="getProduct(index)"
         />
     </div>
 

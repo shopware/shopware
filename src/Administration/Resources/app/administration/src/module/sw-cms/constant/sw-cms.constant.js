@@ -12,6 +12,16 @@ export default Object.freeze({
         LISTING: 'product_list',
         PRODUCT_DETAIL: 'product_detail',
     },
+    TYPE_MAPPING_ENTITIES: {
+        product_detail: {
+            entity: 'product',
+            mode: 'single',
+        },
+        product_list: {
+            entity: 'category',
+            mode: 'single',
+        },
+    },
     UNIQUE_SLOTS: uniqueSlotsKebab
         .map((slotName) => slotName.replace(/-./g, char => char.toUpperCase()[1])),
     UNIQUE_SLOTS_KEBAB: uniqueSlotsKebab,

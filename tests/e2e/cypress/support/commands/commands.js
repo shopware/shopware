@@ -9,9 +9,10 @@ const { v4: uuid } = require('uuid');
  * @param {String} title - Title of the screenshot
  * @param {String} [selectorToCheck = null] - Unique selector to make sure the module is ready for being snapshot
  * @param {Object} [width = null] - Screen width used for snapshot
+ * @param {Object} [percyCSS = null] - Add custom styling to snapshot
  * @function
  */
-Cypress.Commands.add('takeSnapshot', (title, selectorToCheck = null, width = null) => {
+Cypress.Commands.add('takeSnapshot', (title, selectorToCheck = null, width = null, percyCSS = null) => {
     if (!Cypress.env('usePercy')) {
         return;
     }
@@ -22,11 +23,16 @@ Cypress.Commands.add('takeSnapshot', (title, selectorToCheck = null, width = nul
         cy.get(selectorToCheck).should('be.visible');
     }
 
-    if (!width) {
-        cy.percySnapshot(title);
-        return;
+    let options = {};
+    if (width) {
+        Object.assign(options, width);
     }
-    cy.percySnapshot(title, width);
+
+    if (percyCSS) {
+        Object.assign(options, percyCSS);
+    }
+
+    cy.percySnapshot(title, options);
 });
 
 /**

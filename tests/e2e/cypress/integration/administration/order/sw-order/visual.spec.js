@@ -55,7 +55,7 @@ describe('Order: Visual tests', () => {
             .should('have.css', 'color', 'rgb(255, 255, 255)');
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('[Order] Listing', '.sw-order-list');
+        cy.takeSnapshot('[Order] Listing', '.sw-order-list', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
 
@@ -63,7 +63,7 @@ describe('Order: Visual tests', () => {
         cy.get('.sw-context-menu')
             .should('be.visible');
 
-        cy.takeSnapshot('[Order] Listing, Context menu open', '.sw-page');
+        cy.takeSnapshot('[Order] Listing, Context menu open', '.sw-page', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('.sw-order-list__order-view-action').click();
 

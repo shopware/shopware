@@ -24,6 +24,8 @@ $listings = $connection->fetchFirstColumn(
     ['ids' => \Doctrine\DBAL\Connection::PARAM_STR_ARRAY]
 );
 
+$storeApiCategories = $connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM category WHERE level <= 5 ' . $limit);
+
 $limit = $env['product_page_limit'] !== null ? ' LIMIT ' . (int) $env['product_page_limit'] : '';
 $details = $connection->fetchFirstColumn("SELECT CONCAT('/', seo_path_info) FROM seo_url  WHERE route_name = 'frontend.detail.page' AND is_deleted = 0 AND is_canonical = 1" . $limit);
 
@@ -48,7 +50,7 @@ $categories = $connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id FROM
 $taxId = $connection->fetchOne('SELECT LOWER(HEX(id)) FROM tax LIMIT 1');
 
 $salesChannel = $connection->fetchAssociative(
-    'SELECT LOWER(HEX(country_id)) as countryId, LOWER(HEX(id)) as id FROM sales_channel WHERE type_id = :type',
+    'SELECT LOWER(HEX(country_id)) as countryId, access_key, LOWER(HEX(id)) as id FROM sales_channel WHERE type_id = :type LIMIT 1',
     ['type' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_STOREFRONT)]
 );
 
@@ -62,11 +64,27 @@ $advertisements = $connection->fetchAllAssociative(
     LIMIT " . (int) $env['advertisements']
 );
 
+$connection->executeStatement(
+    'UPDATE sales_channel SET footer_category_version_id = :version, footer_category_id = (SELECT id FROM category WHERE child_count > 0 AND parent_id IS NOT NULL ORDER BY child_count DESC LIMIT 1) WHERE footer_category_id IS NULL',
+    ['version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)]
+);
+
+$connection->executeStatement(
+    'UPDATE sales_channel SET service_category_version_id = :version, service_category_id = (SELECT id FROM category WHERE child_count > 0 AND parent_id IS NOT NULL ORDER BY child_count DESC LIMIT 1) WHERE service_category_id IS NULL',
+    ['version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)]
+);
+
 if ($salesChannel === false) {
     throw new RuntimeException('No storefront sales channel found');
 }
 
 $salesChannel['salutationId'] = $connection->fetchOne('SELECT LOWER(HEX(id)) FROM salutation LIMIT 1');
+
+$salesChannel['domain'] = $connection->fetchOne('SELECT url FROM sales_channel_domain WHERE sales_channel_id = :id', ['id' => Uuid::fromHexToBytes($salesChannel['id'])]);
+
+$salesChannel['currencies'] = $connection->fetchFirstColumn('SELECT LOWER(HEX(currency_id)) FROM sales_channel_currency WHERE sales_channel_id = :id', ['id' => Uuid::fromHexToBytes($salesChannel['id'])]);
+
+$salesChannel['languages'] = $connection->fetchFirstColumn('SELECT LOWER(HEX(language_id)) FROM sales_channel_language WHERE sales_channel_id = :id', ['id' => Uuid::fromHexToBytes($salesChannel['id'])]);
 
 if (empty($details)) {
     throw new RuntimeException('No product urls found');
@@ -93,11 +111,14 @@ $fs->dumpFile(__DIR__ . '/fixtures/keywords.json', json_encode($keywords, \JSON_
 echo 'Collected: ' . count($products) . ' products' . \PHP_EOL;
 $fs->dumpFile(__DIR__ . '/fixtures/products.json', json_encode($products, \JSON_THROW_ON_ERROR));
 
+echo 'Collected: ' . count($storeApiCategories) . ' categories for store-api' . \PHP_EOL;
+$fs->dumpFile(__DIR__ . '/fixtures/categories.json', json_encode($storeApiCategories, \JSON_THROW_ON_ERROR));
+
 echo 'Collected: ' . count($categories) . ' categories' . \PHP_EOL;
 echo 'Collected: ' . count($properties) . ' properties' . \PHP_EOL;
 echo 'Collected: ' . count($media) . ' media' . \PHP_EOL;
 
-file_put_contents(__DIR__ . '/fixtures/imports.json', json_encode([
+$fs->dumpFile(__DIR__ . '/fixtures/imports.json', json_encode([
     'categories' => $categories,
     'media' => $media,
     'properties' => $properties,

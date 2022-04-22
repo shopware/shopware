@@ -113,6 +113,10 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
 
         $ids = array_values(array_filter($ids));
 
+        if ($ids === []) {
+            return [];
+        }
+
         $products = $this->connection->fetchAll(
             'SELECT LOWER(HEX(id)) as id FROM order_line_item WHERE id IN (:ids) AND type = \'product\'',
             ['ids' => $ids],

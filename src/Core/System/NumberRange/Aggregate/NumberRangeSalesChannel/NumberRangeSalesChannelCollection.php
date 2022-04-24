@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
  * @method void                               add(NumberRangeSalesChannelEntity $entity)
+ * @method void                               set(string $key, NumberRangeSalesChannelEntity $entity)
  * @method NumberRangeSalesChannelEntity[]    getIterator()
  * @method NumberRangeSalesChannelEntity[]    getElements()
  * @method NumberRangeSalesChannelEntity|null get(string $key)

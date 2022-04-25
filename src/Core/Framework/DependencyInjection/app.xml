@@ -481,6 +481,7 @@
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister">
             <argument type="service" id="app_flow_action.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\FlowAction\AppFlowActionProvider" public="true">

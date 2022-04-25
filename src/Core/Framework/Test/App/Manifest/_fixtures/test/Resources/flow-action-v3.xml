@@ -1,0 +1,36 @@
+<flow-actions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://gitlab.shopware.com/shopware/6/product/platform/-/raw/next-19083/update-app-manifest-xsd-for-flow-action/src/Core/Framework/App/FlowAction/Schema/flow-action-1.0.xsd">
+    <flow-action>
+        <meta>
+            <name>slack.send.message</name>
+            <badge>Slack</badge>
+            <label>Slack send message</label>
+            <label lang="de-DE">Slack send message DE</label>
+            <label lang="nl-NL">Slack send message NL</label>
+            <description>Slack send message description</description>
+            <description lang="de-DE">Slack send message description DE</description>
+            <url>https://test-flow.com</url>
+            <sw-icon>default-communication-speech-bubbles</sw-icon>
+            <requirements>orderAware</requirements>
+            <requirements>customerAware</requirements>
+        </meta>
+        <headers>
+            <parameter type="string" name="content-type" value="application/json"/>
+        </headers>
+        <parameters>
+            <parameter type="string" name="message" value="string message"/>
+        </parameters>
+        <config>
+            <input-field type="text">
+                <name>text</name>
+                <label>Text</label>
+                <label lang="de-DE">Text DE</label>
+                <place-holder>Enter Text...</place-holder>
+                <place-holder lang="de-DE">Enter Text DE...</place-holder>
+                <required>true</required>
+                <defaultValue>Hello</defaultValue>
+                <helpText>Help Text</helpText>
+                <helpText lang="de-DE">Help DE</helpText>
+            </input-field>
+        </config>
+    </flow-action>
+</flow-actions>

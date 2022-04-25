@@ -23,7 +23,9 @@ use Shopware\Core\Framework\App\Event\Hooks\AppUpdatedHook;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\InvalidAppConfigurationException;
+use Shopware\Core\Framework\App\FlowAction\FlowAction;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
@@ -61,6 +63,8 @@ class AppLifecycleTest extends TestCase
 
     private EventDispatcherInterface $eventDispatcher;
 
+    private Connection $connection;
+
     public function setUp(): void
     {
         $this->appRepository = $this->getContainer()->get('app.repository');
@@ -79,6 +83,8 @@ class AppLifecycleTest extends TestCase
         $cache = $this->getContainer()->get('cache.object');
         $item = $cache->getItem(ScriptLoader::CACHE_KEY);
         $cache->save(CacheCompressor::compress($item, []));
+
+        $this->connection = $this->getContainer()->get(Connection::class);
     }
 
     public function testInstall(): void
@@ -1092,6 +1098,146 @@ class AppLifecycleTest extends TestCase
         static::assertCount(2, $app->getAllowedHosts());
         static::assertTrue(\in_array('shopware.com', $app->getAllowedHosts(), true));
         static::assertTrue(\in_array('example.com', $app->getAllowedHosts(), true));
+    }
+
+    public function testUpdateFlowActionApp(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+        $this->appLifecycle->install($manifest, true, $this->context);
+        $app = $this->appRepository->search(new Criteria(), $this->context)->first();
+        $appFlowActions = $this->getAppFlowActions($app->getId());
+
+        $newManifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest1_1_0.xml');
+        $this->appLifecycle->update(
+            $newManifest,
+            [
+                'id' => $app->getId(),
+                'roleId' => $app->getAclRoleId(),
+            ],
+            $this->context
+        );
+
+        $newVersion = $this->appRepository->search(new Criteria(), $this->context)->first();
+        static::assertEquals('1.1.0', $newVersion->getVersion());
+
+        $newAppFlowActions = $this->getAppFlowActions($app->getId());
+        static::assertEquals($appFlowActions[0], $newAppFlowActions[0]);
+    }
+
+    public function testRefreshFlowActions(): void
+    {
+        $context = Context::createDefaultContext();
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+        $this->appLifecycle->install($manifest, true, $this->context);
+        $appId = $this->getAppId();
+        $flowActions = $this->getAppFlowActions($appId);
+
+        $flowAction = FlowAction::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/Resources/flow-action-v2.xml');
+        $flowActionPersister = $this->getContainer()->get(FlowActionPersister::class);
+        $flowActionPersister->updateActions($flowAction, $appId, $context, 'en-GB');
+        $newFlowActions = $this->getAppFlowActions($appId);
+
+        static::assertCount(2, $newFlowActions);
+        foreach ($flowActions as $action) {
+            static::assertTrue(\in_array($action['id'], array_column($newFlowActions, 'id'), true));
+        }
+    }
+
+    public function testRefreshFlowActionsWithAnotherAction(): void
+    {
+        $context = Context::createDefaultContext();
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+        $this->appLifecycle->install($manifest, true, $this->context);
+        $appId = $this->getAppId();
+        $flowActions = $this->getAppFlowActions($appId);
+
+        $flowAction = FlowAction::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/Resources/flow-action-v3.xml');
+        $flowActionPersister = $this->getContainer()->get(FlowActionPersister::class);
+        $flowActionPersister->updateActions($flowAction, $appId, $context, 'en-GB');
+        $newFlowActions = $this->getAppFlowActions($appId);
+
+        static::assertCount(1, $newFlowActions);
+        foreach ($flowActions as $action) {
+            static::assertFalse(\in_array($action['id'], array_column($newFlowActions, 'id'), true));
+        }
+    }
+
+    public function testRefreshFlowActionUsedInFlowBuilder(): void
+    {
+        $context = Context::createDefaultContext();
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+        $this->appLifecycle->install($manifest, true, $this->context);
+        $appId = $this->getAppId();
+        $flowActions = $this->getAppFlowActions($appId);
+
+        $flowId = Uuid::randomHex();
+        $this->createFlow($flowId);
+
+        $sequenceId = Uuid::randomHex();
+        $this->createSequence($sequenceId, $flowId, $flowActions[0]['id']);
+
+        $flowAction = FlowAction::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/Resources/flow-action-v2.xml');
+        $flowActionPersister = $this->getContainer()->get(FlowActionPersister::class);
+        $flowActionPersister->updateActions($flowAction, $appId, $context, 'en-GB');
+
+        $appFlowActionId = $this->getAppFlowActionIdFromSequence($sequenceId);
+        static::assertEquals($appFlowActionId, $flowActions[0]['id']);
+    }
+
+    private function getAppFlowActionIdFromSequence(string $sequenceId): ?string
+    {
+        $query = $this->connection->createQueryBuilder();
+        $query->select('lower(hex(app_flow_action_id))');
+        $query->from('flow_sequence');
+        $query->where('id = :id');
+        $query->setParameter('id', Uuid::fromHexToBytes($sequenceId));
+
+        return $query->execute()->fetchOne() ?: null;
+    }
+
+    private function createFlow(string $flowId): void
+    {
+        $this->connection->insert('flow', [
+            'id' => Uuid::fromHexToBytes($flowId),
+            'name' => 'Test Flow',
+            'event_name' => 'checkout.order.placed',
+            'priority' => 1,
+            'active' => 1,
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+    }
+
+    private function createSequence(string $sequenceId, string $flowId, string $appFlowActionId): void
+    {
+        $this->connection->insert('flow_sequence', [
+            'id' => Uuid::fromHexToBytes($sequenceId),
+            'flow_id' => Uuid::fromHexToBytes($flowId),
+            'app_flow_action_id' => Uuid::fromHexToBytes($appFlowActionId),
+            'action_name' => 'app.telegram.send.message',
+            'position' => 1,
+            'display_group' => 1,
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+    }
+
+    private function getAppFlowActions(string $appId): ?array
+    {
+        $query = $this->connection->createQueryBuilder();
+        $query->select('lower(hex(id)) AS id');
+        $query->from('app_flow_action');
+        $query->where('app_id = :appId');
+        $query->setParameter('appId', Uuid::fromHexToBytes($appId));
+
+        return $query->execute()->fetchAll() ?: null;
+    }
+
+    private function getAppId(): ?string
+    {
+        $query = $this->connection->createQueryBuilder();
+        $query->select('lower(hex(id))');
+        $query->from('app');
+
+        return $query->execute()->fetchOne() ?: null;
     }
 
     private function assertDefaultActionButtons(): void

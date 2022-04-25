@@ -183,11 +183,11 @@
           "placeholder": "Maßeinheit eingeben ..."
         },
         "packUnitTitle": {
-          "changeLabel": "Ändern: Packaging unit",
+          "changeLabel": "Ändern: Verpackungseinheit",
           "placeholder": "Verpackungseinheit eingeben ..."
         },
         "packUnitPluralTitle": {
-          "changeLabel": "Ändern: Packaging unit plural",
+          "changeLabel": "Ändern: Verpackungseinheit-Mehrzahl",
           "placeholder": "Verpackungseinheit-Mehrzahl eingeben ..."
         },
         "basicUnitTitle": {

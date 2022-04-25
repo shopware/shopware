@@ -78,11 +78,17 @@
         <service id="api.request_criteria_builder" class="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaArrayConverter"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaArrayConverter">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaArrayConverter"/>
             <argument>%shopware.api.max_limit%</argument>
         </service>
 

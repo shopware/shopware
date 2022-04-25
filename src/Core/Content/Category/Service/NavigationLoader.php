@@ -95,6 +95,10 @@ class NavigationLoader implements NavigationLoaderInterface
                 return $filter->getCategory()->getActive() && $filter->getCategory()->getVisible();
             });
 
+            if (!isset($items[$parentId])) {
+                continue;
+            }
+
             $item = $items[$parentId];
             $item->setChildren($filtered);
         }

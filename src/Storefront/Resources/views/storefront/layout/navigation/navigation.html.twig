@@ -25,11 +25,7 @@
                         {% endblock %}
 
                         {% block layout_main_navigation_menu_items %}
-                            {% if page.product is defined %}
-                                {% set activePath = page.product.categoryTree %}
-                            {% else %}
-                                {% set activePath = page.header.navigation.active.path %}
-                            {% endif %}
+                            {% set activePath = page.header.navigation.active.path %}
 
                             {% for treeItem in page.header.navigation.tree %}
                                 {% set category = treeItem.category %}

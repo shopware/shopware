@@ -276,7 +276,7 @@
         "domainHint": "Some data will also be shared to with other domains. Click the link next to domains for more details.",
         "textEntities": "Show permissions",
         "domains": "Domains",
-        "showDomains": "Show Domains"
+        "showDomains": "Show domains"
       },
       "sw-extension-domains-modal": {
         "modalTitle": "{extensionLabel} - Domains",

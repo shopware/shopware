@@ -118,6 +118,49 @@ class RefreshAppCommandTest extends TestCase
         static::assertStringContainsString('Aborting due to user input.', $commandTester->getDisplay());
     }
 
+    public function testRefreshWithAllowedHostsOnInstall(): void
+    {
+        $commandTester = new CommandTester($this->createCommand(__DIR__ . '/_fixtures/withAllowedHosts'));
+        $commandTester->setInputs(['yes', 'yes', 'yes']);
+
+        $commandTester->execute([]);
+
+        static::assertEquals(0, $commandTester->getStatusCode());
+        $display = $commandTester->getDisplay();
+
+        static::assertStringContainsString('[CAUTION] App "withAllowedHosts" should be installed', $display);
+        // header domains
+        static::assertMatchesRegularExpression('/.*Domain\s+\n.*/', $display);
+        // content domains
+        static::assertMatchesRegularExpression('/.*shopware.com\s+\n.*/', $display);
+        static::assertMatchesRegularExpression('/.*example.com\s+\n.*/', $display);
+
+        // header app list
+        static::assertMatchesRegularExpression('/.*App\s+Label\s+Version\s+Author\s+\n.*/', $display);
+        // content app list
+        static::assertMatchesRegularExpression('/.*withAllowedHosts\s+Swag App Test\s+1.0.0\s+shopware AG\s+\n.*/', $display);
+    }
+
+    public function testRefreshWithAllowedHostsOnInstallCancel(): void
+    {
+        $commandTester = new CommandTester($this->createCommand(__DIR__ . '/_fixtures/withAllowedHosts'));
+        $commandTester->setInputs(['yes', 'yes', 'no']);
+
+        $commandTester->execute([]);
+
+        static::assertEquals(1, $commandTester->getStatusCode());
+        $display = $commandTester->getDisplay();
+
+        static::assertStringContainsString('[CAUTION] App "withAllowedHosts" should be installed', $display);
+        // header domains
+        static::assertMatchesRegularExpression('/.*Domain\s+\n.*/', $display);
+        // content domains
+        static::assertMatchesRegularExpression('/.*shopware.com\s+\n.*/', $display);
+        static::assertMatchesRegularExpression('/.*example.com\s+\n.*/', $display);
+
+        static::assertStringContainsString('Aborting due to user input.', $commandTester->getDisplay());
+    }
+
     public function testRefreshWithPermissionsOnUpdate(): void
     {
         $this->appRepository->create([[
@@ -230,7 +273,7 @@ class RefreshAppCommandTest extends TestCase
     public function testRefreshValidationFailure(): void
     {
         $commandTester = new CommandTester($this->createCommand(__DIR__ . '/_fixtures'));
-        $commandTester->setInputs(['yes', 'yes']);
+        $commandTester->setInputs(['yes', 'yes', 'yes', 'yes']);
 
         $commandTester->execute([]);
 

@@ -91,6 +91,11 @@ class AppEntity extends Entity
     protected $cookies;
 
     /**
+     * @internal (flag:FEATURE_NEXT_17950)
+     */
+    protected ?array $allowedHosts = null;
+
+    /**
      * @internal
      *
      * @var string|null
@@ -284,17 +289,11 @@ class AppEntity extends Entity
         $this->version = $version;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_17950)
-     */
     public function getBaseAppUrl(): ?string
     {
         return $this->baseAppUrl;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_17950)
-     */
     public function setBaseAppUrl(?string $baseAppUrl): void
     {
         $this->baseAppUrl = $baseAppUrl;
@@ -328,6 +327,16 @@ class AppEntity extends Entity
     public function setCookies(array $cookies): void
     {
         $this->cookies = $cookies;
+    }
+
+    public function getAllowedHosts(): ?array
+    {
+        return $this->allowedHosts;
+    }
+
+    public function setAllowedHosts(?array $allowedHosts): void
+    {
+        $this->allowedHosts = $allowedHosts;
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Manifest;
 
 use Shopware\Core\Framework\App\Manifest\Xml\Admin;
+use Shopware\Core\Framework\App\Manifest\Xml\AllowedHosts;
 use Shopware\Core\Framework\App\Manifest\Xml\Cookies;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomFields;
 use Shopware\Core\Framework\App\Manifest\Xml\Metadata;
@@ -20,50 +21,25 @@ class Manifest
 {
     private const XSD_FILE = __DIR__ . '/Schema/manifest-1.0.xsd';
 
-    /**
-     * @var string
-     */
-    private $path;
+    private string $path;
 
-    /**
-     * @var Metadata
-     */
-    private $metadata;
+    private Metadata $metadata;
 
-    /**
-     * @var Setup|null
-     */
-    private $setup;
+    private ?Setup $setup;
 
-    /**
-     * @var Admin|null
-     */
-    private $admin;
+    private ?Admin $admin;
 
-    /**
-     * @var Permissions|null
-     */
-    private $permissions;
+    private ?Permissions $permissions;
 
-    /**
-     * @var CustomFields|null
-     */
-    private $customFields;
+    private ?AllowedHosts $allowedHosts;
 
-    /**
-     * @var Webhooks|null
-     */
-    private $webhooks;
+    private ?CustomFields $customFields;
 
-    /**
-     * @var Cookies|null
-     */
-    private $cookies;
+    private ?Webhooks $webhooks;
 
-    /**
-     * @var Payments|null
-     */
-    private $payments;
+    private ?Cookies $cookies;
+
+    private ?Payments $payments;
 
     private function __construct(
         string $path,
@@ -71,6 +47,7 @@ class Manifest
         ?Setup $setup,
         ?Admin $admin,
         ?Permissions $permissions,
+        ?AllowedHosts $allowedHosts,
         ?CustomFields $customFields,
         ?Webhooks $webhooks,
         ?Cookies $cookies,
@@ -81,6 +58,7 @@ class Manifest
         $this->setup = $setup;
         $this->admin = $admin;
         $this->permissions = $permissions;
+        $this->allowedHosts = $allowedHosts;
         $this->customFields = $customFields;
         $this->webhooks = $webhooks;
         $this->cookies = $cookies;
@@ -101,6 +79,8 @@ class Manifest
             $admin = $admin === null ? null : Admin::fromXml($admin);
             $permissions = $doc->getElementsByTagName('permissions')->item(0);
             $permissions = $permissions === null ? null : Permissions::fromXml($permissions);
+            $allowedHosts = $doc->getElementsByTagName('allowed-hosts')->item(0);
+            $allowedHosts = $allowedHosts === null ? null : AllowedHosts::fromXml($allowedHosts);
             $customFields = $doc->getElementsByTagName('custom-fields')->item(0);
             $customFields = $customFields === null ? null : CustomFields::fromXml($customFields);
             $webhooks = $doc->getElementsByTagName('webhooks')->item(0);
@@ -113,7 +93,7 @@ class Manifest
             throw new XmlParsingException($xmlFile, $e->getMessage());
         }
 
-        return new self(\dirname($xmlFile), $metadata, $setup, $admin, $permissions, $customFields, $webhooks, $cookies, $payments);
+        return new self(\dirname($xmlFile), $metadata, $setup, $admin, $permissions, $allowedHosts, $customFields, $webhooks, $cookies, $payments);
     }
 
     public function getPath(): string
@@ -144,6 +124,11 @@ class Manifest
     public function getPermissions(): ?Permissions
     {
         return $this->permissions;
+    }
+
+    public function getAllowedHosts(): ?AllowedHosts
+    {
+        return $this->allowedHosts;
     }
 
     public function addPermissions(array $permission): void

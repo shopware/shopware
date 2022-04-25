@@ -277,6 +277,7 @@ class ExtensionLoader
             'privacyPolicyExtension' => $app->getPrivacyPolicyExtensions(),
             'updatedAt' => $app->getUpdatedAt(),
             'allowDisable' => $app->getAllowDisable(),
+            'domains' => $app->getAllowedHosts(),
         ];
 
         $appTranslations = $app->getTranslations();

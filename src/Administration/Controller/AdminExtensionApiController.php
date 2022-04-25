@@ -9,6 +9,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Executor;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Manifest\Exception\UnallowedHostException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -74,8 +75,15 @@ class AdminExtensionApiController extends AbstractController
             throw new MissingAppSecretException();
         }
 
+        $targetUrl = $requestDataBag->get('url');
+        $targetHost = \parse_url($targetUrl, \PHP_URL_HOST);
+        $allowedHosts = $app->getAllowedHosts() ?? [];
+        if (!$targetHost || !\in_array($targetHost, $allowedHosts, true)) {
+            throw new UnallowedHostException($targetUrl, $allowedHosts);
+        }
+
         $action = new AppAction(
-            $requestDataBag->get('url'),
+            $targetUrl,
             $shopUrl,
             $app->getVersion(),
             $requestDataBag->get('entity'),

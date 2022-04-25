@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App\Command;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
 use Shopware\Core\Framework\Context;
@@ -102,6 +103,52 @@ class AppPrinter
         );
 
         $this->printPermissionTable($io, $permission);
+    }
+
+    /**
+     * @throws UserAbortedCommandException
+     */
+    public function checkHosts(Manifest $manifest, ShopwareStyle $io): void
+    {
+        $allowedHosts = $manifest->getAllowedHosts();
+        if (!$allowedHosts) {
+            return;
+        }
+
+        $hosts = $allowedHosts->getHosts();
+        if (empty($hosts)) {
+            return;
+        }
+
+        $this->printHosts($manifest, $hosts, $io, true);
+
+        if (!$io->confirm(
+            'Do you consent with data being shared or transferred to the domains listed above?',
+            false
+        )) {
+            throw new UserAbortedCommandException();
+        }
+    }
+
+    private function printHosts(Manifest $app, array $hosts, ShopwareStyle $io, bool $install): void
+    {
+        $io->caution(
+            sprintf(
+                'App "%s" should be %s but requires communication with the following hosts:',
+                $app->getMetadata()->getName(),
+                $install ? 'installed' : 'updated'
+            )
+        );
+
+        $data = [];
+        foreach ($hosts as $host) {
+            $data[] = [$host];
+        }
+
+        $io->table(
+            ['Domain'],
+            $data
+        );
     }
 
     private function printPermissionTable(ShopwareStyle $io, Permissions $permissions): void

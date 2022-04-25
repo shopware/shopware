@@ -157,10 +157,14 @@ class RefreshAppCommand extends Command
 
         foreach ($refreshableApps->getToBeInstalled() as $app) {
             $this->grantPermissionsForApp($app, $io);
+
+            $this->appPrinter->checkHosts($app, $io);
         }
 
         foreach ($refreshableApps->getToBeUpdated() as $app) {
             $this->grantPermissionsForApp($app, $io, false);
+
+            $this->appPrinter->checkHosts($app, $io);
         }
     }
 

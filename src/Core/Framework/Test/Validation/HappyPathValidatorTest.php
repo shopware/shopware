@@ -82,13 +82,13 @@ class HappyPathValidatorTest extends TestCase
         yield 'check not-blank against whitespace value without normalizer' => [
             new NotBlank(),
             ' ',
-            false
+            true
         ];
 
         yield 'check not-blank against whitespace value with trim-normalizer' => [
             new NotBlank(['normalizer' => 'trim']),
             ' ',
-            true
+            false
         ];
     }
 }

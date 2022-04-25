@@ -18,6 +18,11 @@ export const searchRankingPoint = Object.freeze({
     MIDDLE_SEARCH_RANKING: 250,
 });
 
+const searchTypeConstants = Object.freeze({
+    ALL: 'all',
+    MODULE: 'module',
+});
+
 export const KEY_USER_SEARCH_PREFERENCE = 'search.preferences';
 /**
  * @memberOf module:app/service/search-ranking
@@ -107,7 +112,7 @@ export default function createSearchRankingService() {
                 return;
             }
 
-            if (!_isEntitySearchable(userConfigSearchFields[entityName])) {
+            if (!_isEntitySearchable(userConfigSearchFields[entityName], searchTypeConstants.ALL)) {
                 return;
             }
 
@@ -125,11 +130,11 @@ export default function createSearchRankingService() {
         const currentModule = _getModule(entityName);
         const userConfigSearchFieldsByEntity = await _fetchUserConfig(entityName);
         if (!userConfigSearchFieldsByEntity) {
-            return _getDefaultSearchFieldsByEntity(currentModule);
+            return _getDefaultSearchFieldsByEntity(currentModule, searchTypeConstants.MODULE);
         }
 
         if (_isEmptyObject(currentModule.defaultSearchConfiguration) ||
-            !_isEntitySearchable(userConfigSearchFieldsByEntity)) {
+            !_isEntitySearchable(userConfigSearchFieldsByEntity, searchTypeConstants.MODULE)) {
             return {};
         }
 
@@ -146,10 +151,11 @@ export default function createSearchRankingService() {
     /**
      * @private
      * @param {Object}
+     * @param {String} searchType
      * @returns {Object}
      */
-    function _getDefaultSearchFieldsByEntity({ defaultSearchConfiguration, entity }) {
-        if (!_isEntitySearchable(defaultSearchConfiguration)) {
+    function _getDefaultSearchFieldsByEntity({ defaultSearchConfiguration, entity }, searchType = searchTypeConstants.ALL) {
+        if (!_isEntitySearchable(defaultSearchConfiguration, searchType)) {
             return {};
         }
 
@@ -202,9 +208,14 @@ export default function createSearchRankingService() {
     /**
      * @private
      * @param {Object} searchFields
+     * @param {String} searchType
      * @returns {Boolean}
      */
-    function _isEntitySearchable(searchFields) {
+    function _isEntitySearchable(searchFields, searchType) {
+        if (searchType === searchTypeConstants.MODULE) {
+            return !!searchFields;
+        }
+
         return searchFields && searchFields._searchable;
     }
 

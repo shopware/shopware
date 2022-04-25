@@ -109,9 +109,44 @@ class HappyPathValidator implements ValidatorInterface
     /**
      * @param string|int|float|bool|array|object|callable|resource|null $value
      * @param Constraint|Constraint[]|null                              $constraint
+     *
+     * @return string|int|float|bool|array|object|callable|resource|null
+     */
+    private function normalizeValueIfRequired($value, $constraint)
+    {
+        if (!$constraint instanceof Constraint) {
+            return $value;
+        }
+
+        if (!\property_exists($constraint, 'normalizer')) {
+            return $value;
+        }
+
+        if (empty($constraint->normalizer)) {
+            return $value;
+        }
+
+        $normalizer = $constraint->normalizer;
+
+        if (!\is_callable($normalizer)) {
+            return $value;
+        }
+
+        return $normalizer($value);
+    }
+
+    /**
+     * @param string|int|float|bool|array|object|callable|resource|null $value
+     * @param Constraint|Constraint[]|null                              $constraint
      */
     private function validateConstraint($value, $constraint): bool
     {
+        // apply defined normalizers to check $value from constraint if defined
+        $value = $this->normalizeValueIfRequired(
+            $value,
+            $constraint
+        );
+
         switch (true) {
             case $constraint instanceof Uuid:
                 if ($value !== null && \is_string($value) && !\Shopware\Core\Framework\Uuid\Uuid::isValid($value)) {

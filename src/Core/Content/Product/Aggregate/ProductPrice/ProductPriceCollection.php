@@ -34,6 +34,13 @@ class ProductPriceCollection extends PriceRuleCollection
         });
     }
 
+    public function sortByPrice(): void
+    {
+        $this->sort(function (ProductPriceEntity $a, ProductPriceEntity $b) {
+            return $a->getPrice()->first()->getGross() <=> $b->getPrice()->first()->getGross();
+        });
+    }
+
     protected function getExpectedClass(): string
     {
         return ProductPriceEntity::class;

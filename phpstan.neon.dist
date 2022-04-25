@@ -111,6 +111,14 @@ parameters:
         -
             message: '#Dead catch - Error\|Exception is never thrown in the try block\.#'
             path: src/Core/Framework/Struct/AssignArrayTrait.php
+        # The redis proxy and cluster has a magic __call method which is not considered by phpstan
+        -
+            message: '#Call to an undefined method .*RedisProxy.*::.*\(\).*#'
+            path: src/**/*.php
+        -
+            message: '#Cannot call method .* on .*RedisProxy.*#'
+            path: src/**/*.php
+
         # dynamic hydrator performance
         -
             message: '#Access to an undefined property Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity#'

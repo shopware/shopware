@@ -6,11 +6,7 @@
     {% endif %}
     {% set activeId = page.header.navigation.active.id %}
 
-    {% if page.product is defined %}
-        {% set activePath = page.product.categoryTree %}
-    {% else %}
-        {% set activePath = page.header.navigation.active.path %}
-    {% endif %}
+    {% set activePath = page.header.navigation.active.path %}
 
     <div class="{% if level == 0 %}row {% endif %}navigation-flyout-categories is-level-{{ level }}">
         {% for treeItem in navigationTree %}

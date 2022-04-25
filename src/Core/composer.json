@@ -160,5 +160,6 @@
             "*": "dist"
         },
         "sort-packages": true
-    }
+    },
+    "version": "6.4.11.0"
 }

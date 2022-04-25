@@ -18,8 +18,9 @@ class Context:
         self.product_urls = self.__get_json_file('/../fixtures/product_urls.json')
         self.products = self.__get_json_file('/../fixtures/products.json')
         self.advertisements = self.__get_json_file('/../fixtures/advertisements.json')
-        self.register = self.__get_json_file('/../fixtures/sales_channel.json')
+        self.sales_channel = self.__get_json_file('/../fixtures/sales_channel.json')
         self.imports = self.__get_json_file('/../fixtures/imports.json')
+        self.category_ids = self.__get_json_file('/../fixtures/categories.json')
 
         self.numbers = self.__column(self.products, 'productNumber')
         self.product_ids = self.__column(self.products, 'id')

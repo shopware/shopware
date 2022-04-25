@@ -107,7 +107,7 @@ class Storefront:
 
         register = {
             'redirectTo': 'frontend.account.home.page',
-            'salutationId': self.context.register['salutationId'],
+            'salutationId': self.context.sales_channel['salutationId'],
             'firstName': 'Firstname',
             'lastName': 'Lastname',
             'email': self.email,
@@ -115,7 +115,7 @@ class Storefront:
             'billingAddress[street]': 'Test street',
             'billingAddress[zipcode]': '11111',
             'billingAddress[city]': 'Test city',
-            'billingAddress[countryId]': self.context.register['countryId']
+            'billingAddress[countryId]': self.context.sales_channel['countryId']
         }
 
         if guest == 1:

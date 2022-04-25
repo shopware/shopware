@@ -3201,11 +3201,6 @@ parameters:
 			path: src/Core/System/SalesChannel/Aggregate/SalesChannelType/SalesChannelTypeEntity.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Api\\\\StructEncoder\\:\\:encodeStruct\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Api/StructEncoder.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Api\\\\StructEncoder\\:\\:isStructArray\\(\\) has parameter \\$object with no type specified\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/Api/StructEncoder.php

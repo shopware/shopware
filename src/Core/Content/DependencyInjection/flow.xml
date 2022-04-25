@@ -92,7 +92,6 @@
         <service id="Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="logger"/>
-            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
             <tag name="kernel.event_subscriber" />
             <tag name="flow.action" priority="400" />

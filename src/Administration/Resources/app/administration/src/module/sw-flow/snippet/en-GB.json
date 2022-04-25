@@ -142,7 +142,9 @@
         "placeholderOrderStatus": "Select order status ...",
         "placeholderPaymentStatus": "Select payment status ...",
         "placeholderDeliveryStatus": "Select shipping status ...",
-        "messageNoStatusError": "At least one status should be selected"
+        "messageNoStatusError": "At least one status should be selected",
+        "forceTransition": "Force status transitions",
+        "forceTransitionHelpText": "Status changes will be made regardless of their starting point and neglecting the usually required transition paths (state machine)."
       },
       "document": {
         "titleCreateDocument": "Create document",

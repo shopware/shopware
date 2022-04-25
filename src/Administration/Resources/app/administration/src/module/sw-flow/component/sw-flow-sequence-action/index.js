@@ -453,6 +453,12 @@ Component.register('sw-flow-sequence-action', {
                 description.push(`${this.$tc('sw-flow.modals.status.labelPaymentStatus')}: ${paymentStatusName}`);
             }
 
+            const forceTransition = config.force_transition
+                ? this.$tc('global.default.yes')
+                : this.$tc('global.default.no');
+
+            description.push(`${this.$tc('sw-flow.modals.status.forceTransition')}: ${forceTransition}`);
+
             return description.join('<br>');
         },
 

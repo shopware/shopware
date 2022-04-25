@@ -142,7 +142,9 @@
         "placeholderOrderStatus": "Bestellstatus wählen ...",
         "placeholderPaymentStatus": "Zahlungsstatus wählen ...",
         "placeholderDeliveryStatus": "Versandstatus wählen ...",
-        "messageNoStatusError": "Mindestens ein Status sollte ausgewählt sein"
+        "messageNoStatusError": "Mindestens ein Status sollte ausgewählt sein",
+        "forceTransition": "Statuswechsel erzwingen",
+        "forceTransitionHelpText": "Statuswechsel werden ohne Rücksicht auf den Ausgangspunkt durchgeführt und die üblichen Übergangspfade (state machine) ignoriert."
       },
       "document": {
         "titleCreateDocument": "Dokument erstellen",

@@ -31,6 +31,7 @@ Component.register('sw-flow-set-order-state-modal', {
                 order: '',
                 order_delivery: '',
                 order_transaction: '',
+                force_transition: false,
             },
         };
     },
@@ -102,14 +103,12 @@ Component.register('sw-flow-set-order-state-modal', {
                 return entry.stateMachine.technicalName === stateMachineName;
             });
 
-            const options = entries.map((state) => {
+            return entries.map((state) => {
                 return {
                     id: state.technicalName,
                     name: state.translated.name,
                 };
             });
-
-            return options;
         },
 
         onClose() {

@@ -27,13 +27,10 @@ use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
-use Shopware\Core\System\StateMachine\StateMachineRegistry;
 
 class SetOrderStateActionTest extends TestCase
 {
     use OrderActionTrait;
-
-    private ?StateMachineRegistry $stateMachineRegistry;
 
     private ?EntityRepositoryInterface $orderRepository;
 
@@ -52,8 +49,6 @@ class SetOrderStateActionTest extends TestCase
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
-
-        $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
 
         $this->orderRepository = $this->getContainer()->get('order.repository');
 
@@ -122,7 +117,6 @@ class SetOrderStateActionTest extends TestCase
         $subscriber = new SetOrderStateAction(
             $this->getContainer()->get(Connection::class),
             $this->getContainer()->get('logger'),
-            $this->getContainer()->get(StateMachineRegistry::class),
             $this->getContainer()->get(OrderService::class)
         );
 
@@ -166,6 +160,68 @@ class SetOrderStateActionTest extends TestCase
             'Set state not success' => [
                 [
                     'order' => 'done',
+                ],
+                [
+                    'order' => 'open',
+                    'order_delivery' => 'open',
+                    'order_transaction' => 'open',
+                ],
+            ],
+            'Set state allow force transition' => [
+                [
+                    'order' => 'completed',
+                    'order_delivery' => 'returned',
+                    'order_transaction' => 'refunded',
+                    'force_transition' => true,
+                ],
+                [
+                    'order' => 'completed',
+                    'order_delivery' => 'returned',
+                    'order_transaction' => 'refunded',
+                ],
+            ],
+            'Set state allow force transition only one state' => [
+                [
+                    'order_delivery' => 'returned',
+                    'force_transition' => true,
+                ],
+                [
+                    'order' => 'open',
+                    'order_delivery' => 'returned',
+                    'order_transaction' => 'open',
+                ],
+            ],
+            'Set state allow force transition with not existing state' => [
+                [
+                    'open' => '',
+                    'order_delivery' => 'fake_state',
+                    'force_transition' => true,
+                ],
+                [
+                    'order' => 'open',
+                    'order_delivery' => 'open',
+                    'order_transaction' => 'open',
+                ],
+            ],
+            'Set state not allow force transition' => [
+                [
+                    'order' => 'completed',
+                    'order_delivery' => 'returned',
+                    'order_transaction' => 'refunded',
+                    'force_transition' => false,
+                ],
+                [
+                    'order' => 'open',
+                    'order_delivery' => 'open',
+                    'order_transaction' => 'open',
+                ],
+            ],
+            'Set state not allow force transition with not existing state' => [
+                [
+                    'order' => 'fake_state',
+                    'order_delivery' => '',
+                    'order_transaction' => false,
+                    'force_transition' => false,
                 ],
                 [
                     'order' => 'open',

@@ -96,6 +96,6 @@ describe('Customer:  Visual test', () => {
 
         // Take snapshot for visual testing
         cy.prepareAdminForScreenshot();
-        cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Customer detail`, '.sw-customer-card');
+        cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Customer detail`, '.sw-customer-card', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

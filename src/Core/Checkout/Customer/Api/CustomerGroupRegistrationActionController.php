@@ -42,7 +42,7 @@ class CustomerGroupRegistrationActionController
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_17261) tag:v6.5.0 - customerId route parameter will be no longer required, use customerIds in body instead
+     * @deprecated tag:v6.5.0 - customerId route parameter will be no longer required, use customerIds in body instead
      *
      * @Since("6.3.1.0")
      * @Route("/api/_action/customer-group-registration/accept/{customerId}", name="api.customer-group.accept", methods={"POST"}, requirements={"version"="\d+"}, defaults={"customerId"=null})
@@ -51,7 +51,7 @@ class CustomerGroupRegistrationActionController
     {
         $customerIds = $this->getRequestCustomerIds($request);
 
-        $silentError = $request->request->getBoolean('silentError', false);
+        $silentError = $request->request->getBoolean('silentError');
 
         $customers = $this->fetchCustomers($customerIds, $context, $silentError);
 
@@ -88,7 +88,7 @@ class CustomerGroupRegistrationActionController
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_17261) tag:v6.5.0 - customerId route parameter will be no longer required, use customerIds in body instead
+     * @deprecated tag:v6.5.0 - customerId route parameter will be no longer required, use customerIds in body instead
      *
      * @Since("6.3.1.0")
      * @Route("/api/_action/customer-group-registration/decline/{customerId}", name="api.customer-group.decline", methods={"POST"}, requirements={"version"="\d+"}, defaults={"customerId"=null})
@@ -97,7 +97,7 @@ class CustomerGroupRegistrationActionController
     {
         $customerIds = $this->getRequestCustomerIds($request);
 
-        $silentError = $request->request->getBoolean('silentError', false);
+        $silentError = $request->request->getBoolean('silentError');
 
         $customers = $this->fetchCustomers($customerIds, $context, $silentError);
 
@@ -133,7 +133,7 @@ class CustomerGroupRegistrationActionController
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_17261) tag:v6.5.0 - customerId route parameter will be removed so just get customerIds from request body
+     * @feature-deprecated tag:v6.5.0 - customerId route parameter will be removed so just get customerIds from request body
      */
     private function getRequestCustomerIds(Request $request): array
     {

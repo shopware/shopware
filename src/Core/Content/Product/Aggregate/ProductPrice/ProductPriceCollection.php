@@ -44,7 +44,6 @@ class ProductPriceCollection extends PriceRuleCollection
             }
 
             return $a->getPrice()->first()->getNet() <=> $b->getPrice()->first()->getNet();
-
         });
     }
 

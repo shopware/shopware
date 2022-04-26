@@ -846,7 +846,7 @@ Component.register('sw-bulk-edit-product', {
 
         setBulkEditProductValue() {
             Object.keys(this.bulkEditProduct).forEach((key) => {
-                this.$set(this.bulkEditProduct[key], 'value', this.parentProduct?.[key]);
+                this.$set(this.bulkEditProduct[key], 'value', cloneDeep(this.parentProduct?.[key]));
 
                 if (key === 'searchKeywords') {
                     this.setProductSearchKeywords();

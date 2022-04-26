@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Test\Shipping\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\Event\ShippingMethodRouteCacheTagsEvent;
-use Shopware\Core\Checkout\Shipping\SalesChannel\CachedShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -70,8 +69,6 @@ class CachedShippingMethodRouteTest extends TestCase
             });
 
         $route = $this->getContainer()->get(ShippingMethodRoute::class);
-        static::assertInstanceOf(CachedShippingMethodRoute::class, $route);
-
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::exactly($calls))->method('__invoke');
 

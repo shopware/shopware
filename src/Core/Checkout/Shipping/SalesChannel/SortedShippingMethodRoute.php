@@ -3,15 +3,10 @@
 namespace Shopware\Core\Checkout\Shipping\SalesChannel;
 
 use OpenApi\Annotations as OA;
-use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -19,22 +14,18 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
-class ShippingMethodRoute extends AbstractShippingMethodRoute
+class SortedShippingMethodRoute extends AbstractShippingMethodRoute
 {
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $shippingMethodRepository;
+    private AbstractShippingMethodRoute $decorated;
 
-    public function __construct(
-        SalesChannelRepositoryInterface $shippingMethodRepository
-    ) {
-        $this->shippingMethodRepository = $shippingMethodRepository;
+    public function __construct(AbstractShippingMethodRoute $decorated)
+    {
+        $this->decorated = $decorated;
     }
 
     public function getDecorated(): AbstractShippingMethodRoute
     {
-        throw new DecorationPatternException(self::class);
+        return $this->decorated;
     }
 
     /**
@@ -79,25 +70,10 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ShippingMethodRouteResponse
     {
-        $criteria
-            ->addFilter(new EqualsFilter('active', true))
-            ->addAssociation('media');
+        $response = $this->getDecorated()->load($request, $context, $criteria);
 
-        if (empty($criteria->getSorting())) {
-            $criteria->addSorting(new FieldSorting('position'), new FieldSorting('name', FieldSorting::ASCENDING));
-        }
+        $response->getShippingMethods()->sortShippingMethodsByPreference($context);
 
-        $result = $this->shippingMethodRepository->search($criteria, $context);
-
-        /** @var ShippingMethodCollection $shippingMethods */
-        $shippingMethods = $result->getEntities();
-
-        if ($request->query->getBoolean('onlyAvailable', false)) {
-            $shippingMethods = $shippingMethods->filterByActiveRules($context);
-        }
-
-        $result->assign(['entities' => $shippingMethods, 'elements' => $shippingMethods, 'total' => $shippingMethods->count()]);
-
-        return new ShippingMethodRouteResponse($result);
+        return $response;
     }
 }

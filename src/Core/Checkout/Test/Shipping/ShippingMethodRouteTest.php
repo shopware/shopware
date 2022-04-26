@@ -3,13 +3,20 @@
 namespace Shopware\Core\Checkout\Test\Shipping;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
+use Shopware\Core\Checkout\Shipping\SalesChannel\SortedShippingMethodRoute;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @group store-api
@@ -22,6 +29,8 @@ class ShippingMethodRouteTest extends TestCase
     private KernelBrowser $browser;
 
     private TestDataCollection $ids;
+
+    private SalesChannelContext $salesChannelContext;
 
     protected function setUp(): void
     {
@@ -63,6 +72,10 @@ class ShippingMethodRouteTest extends TestCase
 
         $this->getContainer()->get('shipping_method.repository')
             ->update($updateData, $this->ids->context);
+
+        $this->salesChannelContext = $this->getContainer()
+            ->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
     public function testLoad(): void
@@ -137,6 +150,22 @@ class ShippingMethodRouteTest extends TestCase
             ],
             $ids
         );
+    }
+
+    public function testSorting(): void
+    {
+        $shippingMethodRoute = $this->getContainer()->get(ShippingMethodRoute::class);
+
+        $request = new Request();
+
+        $unselectedPaymentResult = $shippingMethodRoute->load($request, $this->salesChannelContext, new Criteria());
+        $lastPaymentMethodId = $unselectedPaymentResult->getShippingMethods()->last()->getId();
+
+        $this->salesChannelContext->getShippingMethod()->setId($lastPaymentMethodId);
+        $selectedPaymentMethodResult = $shippingMethodRoute->load($request, $this->salesChannelContext, new Criteria());
+
+        static::assertInstanceOf(SortedShippingMethodRoute::class, $shippingMethodRoute);
+        static::assertSame($lastPaymentMethodId, $selectedPaymentMethodResult->getShippingMethods()->first()->getId());
     }
 
     public function testIncludes(): void

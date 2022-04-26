@@ -45,7 +45,7 @@ class EntityWriteResultFactory
     public function resolveDelete(EntityDefinition $definition, array $ids): array
     {
         // resolves mapping relations, inheritance and sub domain entities
-        return $this->resolveParents($definition, $ids);
+        return $this->resolveParents($definition, $ids, true);
     }
 
     public function resolveWrite(EntityDefinition $definition, array $rawData): array
@@ -136,7 +136,7 @@ class EntityWriteResultFactory
         return new WriteResult($mapped, $notFound, array_filter($updates));
     }
 
-    private function resolveParents(EntityDefinition $definition, array $ids): array
+    private function resolveParents(EntityDefinition $definition, array $ids, bool $delete = false): array
     {
         if ($definition instanceof MappingEntityDefinition) {
             // case for mapping entities like (product_category, etc), to trigger indexing for both entities (product and category)
@@ -145,13 +145,16 @@ class EntityWriteResultFactory
 
         $parentIds = [];
 
+        // we only fetch the parent ids if we are inside a delete operation, in this case we want to provide the parent ids as update event
+        if ($delete && $definition->isInheritanceAware()) {
+            // inheritance case for products (resolve product.parent_id here to trigger indexing for parent)
+            $parentIds = $this->fetchParentIds($definition, $ids);
+
         // @deprecated tag:v6.5.0 parent ids will be resolved in ProductIndexer. Dispatching an update event for the parent would cause an indexing of all variants, even if you only update a single variant
-        // @deprecated tag:v6.5.0 remove complete if block and return empty array instead of $parentIds (see line 161)
-        if (!Feature::isActive('v6.5.0.0')) {
-            if ($definition->isInheritanceAware()) {
-                // inheritance case for products (resolve product.parent_id here to trigger indexing for parent)
-                $parentIds = $this->fetchParentIds($definition, $ids);
-            }
+        // @deprecated tag:v6.5.0 remove complete else-if block and return empty array instead of $parentIds (see line 161)
+        } elseif (!Feature::isActive('v6.5.0.0') && $definition->isInheritanceAware()) {
+            // inheritance case for products (resolve product.parent_id here to trigger indexing for parent)
+            $parentIds = $this->fetchParentIds($definition, $ids);
         }
 
         $parent = $definition->getParentDefinition();
@@ -245,9 +248,6 @@ class EntityWriteResultFactory
         return $mapping;
     }
 
-    /**
-     * @deprecated tag:v6.5.0 Remove this function, not used anymore
-     */
     private function fetchParentIds(EntityDefinition $definition, array $rawData): array
     {
         $fetchQuery = sprintf(

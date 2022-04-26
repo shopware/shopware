@@ -39,12 +39,12 @@ class ProductPriceCollection extends PriceRuleCollection
     public function sortByPrice(Context $context): void
     {
         $this->sort(function (ProductPriceEntity $a, ProductPriceEntity $b) use ($context) {
-            $state = $context->getTaxState();
-            if ($state === CartPrice::TAX_STATE_NET) {
-                return $a->getPrice()->first()->getNet() <=> $b->getPrice()->first()->getNet();
+            if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
+                return $a->getPrice()->first()->getGross() <=> $b->getPrice()->first()->getGross();
             }
 
-            return $a->getPrice()->first()->getGross() <=> $b->getPrice()->first()->getGross();
+            return $a->getPrice()->first()->getNet() <=> $b->getPrice()->first()->getNet();
+
         });
     }
 

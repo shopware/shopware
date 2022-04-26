@@ -188,8 +188,10 @@ class LoginRoute extends AbstractLoginRoute
         $result = $this->customerRepository->search($criteria, $context->getContext());
 
         $result = $result->filter(static function (CustomerEntity $customer) use ($context) {
-            // Skip guest users
-            if ($customer->getGuest()) {
+            $isConfirmed = !$customer->getDoubleOptInRegistration() || $customer->getDoubleOptInConfirmDate();
+
+            // Skip guest and not active users
+            if ($customer->getGuest() || (!$customer->getActive() && $isConfirmed)) {
                 return null;
             }
 

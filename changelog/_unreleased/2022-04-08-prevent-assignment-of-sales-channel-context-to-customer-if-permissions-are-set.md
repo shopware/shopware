@@ -1,6 +1,6 @@
 ---
 title: Prevent assignment of sales channel context to customer if permissions are set
-issue:
+issue: NEXT-21315
 author: Nils Evers
 author_email: evers.nils@gmail.com
 author_github: NilsEvers

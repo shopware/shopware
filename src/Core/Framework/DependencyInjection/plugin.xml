@@ -106,6 +106,7 @@
         <service id="Shopware\Core\Framework\Plugin\Command\PluginZipImportCommand">
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
 
             <tag name="console.command"/>
         </service>

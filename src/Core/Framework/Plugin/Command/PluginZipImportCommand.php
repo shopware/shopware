@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Plugin\Command;
 
 use Composer\IO\ConsoleIO;
+use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\NoPluginFoundInZipException;
@@ -19,6 +20,8 @@ class PluginZipImportCommand extends Command
 {
     protected static $defaultName = 'plugin:zip-import';
 
+    protected CacheClearer $cacheClearer;
+
     /**
      * @var PluginManagementService
      */
@@ -29,11 +32,12 @@ class PluginZipImportCommand extends Command
      */
     private $pluginService;
 
-    public function __construct(PluginManagementService $pluginManagementService, PluginService $pluginService)
+    public function __construct(PluginManagementService $pluginManagementService, PluginService $pluginService, CacheClearer $cacheClearer)
     {
         parent::__construct();
         $this->pluginManagementService = $pluginManagementService;
         $this->pluginService = $pluginService;
+        $this->cacheClearer = $cacheClearer;
     }
 
     /**
@@ -57,11 +61,15 @@ class PluginZipImportCommand extends Command
         $io->title('Shopware Plugin Zip Import');
 
         try {
-            $this->pluginManagementService->extractPluginZip($zipFile, (bool) $input->getOption('delete'));
+            $type = $this->pluginManagementService->extractPluginZip($zipFile, (bool) $input->getOption('delete'));
         } catch (NoPluginFoundInZipException $e) {
             $io->error($e->getMessage());
 
             return self::FAILURE;
+        }
+
+        if ($type === PluginManagementService::PLUGIN) {
+            $this->cacheClearer->clearContainerCache();
         }
 
         $io->success('Successfully import zip file ' . basename($zipFile));

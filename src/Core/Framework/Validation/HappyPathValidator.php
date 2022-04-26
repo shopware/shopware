@@ -113,10 +113,10 @@ class HappyPathValidator implements ValidatorInterface
     private function normalizeValueIfRequired($value, $constraint)
     {
         if(
-            $constraint instanceof Constraint &&
-            \property_exists($constraint, 'normalizer') &&
-            !empty($constraint->normalizer))
-        {
+            $constraint instanceof Constraint
+            && \property_exists($constraint, 'normalizer')
+            && !empty($constraint->normalizer)
+        ) {
             $normalizer = $constraint->normalizer;
 
             if (\is_callable($normalizer)) {

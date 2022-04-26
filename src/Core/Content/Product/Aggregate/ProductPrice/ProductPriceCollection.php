@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductPrice;
 
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceRuleCollection;
 
 /**
@@ -34,9 +36,14 @@ class ProductPriceCollection extends PriceRuleCollection
         });
     }
 
-    public function sortByPrice(): void
+    public function sortByPrice(Context $context): void
     {
-        $this->sort(function (ProductPriceEntity $a, ProductPriceEntity $b) {
+        $this->sort(function (ProductPriceEntity $a, ProductPriceEntity $b) use ($context) {
+            $state = $context->getTaxState();
+            if ($state === CartPrice::TAX_STATE_NET) {
+                return $a->getPrice()->first()->getNet() <=> $b->getPrice()->first()->getNet();
+            }
+
             return $a->getPrice()->first()->getGross() <=> $b->getPrice()->first()->getGross();
         });
     }

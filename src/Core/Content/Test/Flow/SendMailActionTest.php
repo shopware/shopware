@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
@@ -105,7 +106,7 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get(MediaService::class),
             $this->getContainer()->get('media.repository'),
             $this->getContainer()->get('document.repository'),
-            $this->getContainer()->get(DocumentService::class),
+            $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get('mail_template_type.repository'),
@@ -238,7 +239,7 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get(MediaService::class),
             $this->getContainer()->get('media.repository'),
             $this->getContainer()->get('document.repository'),
-            $this->getContainer()->get(DocumentService::class),
+            $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get('mail_template_type.repository'),
@@ -311,7 +312,7 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get(MediaService::class),
             $this->getContainer()->get('media.repository'),
             $this->getContainer()->get('document.repository'),
-            $this->getContainer()->get(DocumentService::class),
+            $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get('mail_template_type.repository'),
@@ -380,7 +381,7 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get(MediaService::class),
             $this->getContainer()->get('media.repository'),
             $this->getContainer()->get('document.repository'),
-            $this->getContainer()->get(DocumentService::class),
+            $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get('mail_template_type.repository'),
@@ -439,7 +440,7 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get(MediaService::class),
             $this->getContainer()->get('media.repository'),
             $this->getContainer()->get('document.repository'),
-            $this->getContainer()->get(DocumentService::class),
+            $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get('mail_template_type.repository'),
@@ -502,7 +503,7 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get(MediaService::class),
             $this->getContainer()->get('media.repository'),
             $this->getContainer()->get('document.repository'),
-            $this->getContainer()->get(DocumentService::class),
+            $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get('mail_template_type.repository'),
@@ -581,7 +582,7 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get(MediaService::class),
             $this->getContainer()->get('media.repository'),
             $this->getContainer()->get('document.repository'),
-            $this->getContainer()->get(DocumentService::class),
+            $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get('mail_template_type.repository'),

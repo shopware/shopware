@@ -11,6 +11,9 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Twig\Error\Error;
 
+/**
+ * @deprecated tag:v6.5.0 - Will be removed, use InvoiceRenderer instead
+ */
 class InvoiceGenerator implements DocumentGeneratorInterface
 {
     public const DEFAULT_TEMPLATE = '@Framework/documents/invoice.html.twig';

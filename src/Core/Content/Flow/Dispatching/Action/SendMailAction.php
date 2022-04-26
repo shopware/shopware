@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Checkout\Document\DocumentService;
+use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
@@ -18,7 +18,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -46,8 +45,6 @@ class SendMailAction extends FlowAction
 
     private EntityRepositoryInterface $mediaRepository;
 
-    private DocumentService $documentService;
-
     private EntityRepositoryInterface $documentRepository;
 
     private LoggerInterface $logger;
@@ -66,6 +63,8 @@ class SendMailAction extends FlowAction
 
     private bool $updateMailTemplate;
 
+    private DocumentGenerator $documentGenerator;
+
     /**
      * @internal
      */
@@ -75,7 +74,7 @@ class SendMailAction extends FlowAction
         MediaService $mediaService,
         EntityRepositoryInterface $mediaRepository,
         EntityRepositoryInterface $documentRepository,
-        DocumentService $documentService,
+        DocumentGenerator $documentGenerator,
         LoggerInterface $logger,
         EventDispatcherInterface $eventDispatcher,
         EntityRepositoryInterface $mailTemplateTypeRepository,
@@ -88,7 +87,6 @@ class SendMailAction extends FlowAction
         $this->mediaService = $mediaService;
         $this->mediaRepository = $mediaRepository;
         $this->documentRepository = $documentRepository;
-        $this->documentService = $documentService;
         $this->logger = $logger;
         $this->emailService = $emailService;
         $this->eventDispatcher = $eventDispatcher;
@@ -97,6 +95,7 @@ class SendMailAction extends FlowAction
         $this->connection = $connection;
         $this->languageLocaleProvider = $languageLocaleProvider;
         $this->updateMailTemplate = $updateMailTemplate;
+        $this->documentGenerator = $documentGenerator;
     }
 
     public static function getName(): string
@@ -398,7 +397,7 @@ class SendMailAction extends FlowAction
 
         $entities = $this->documentRepository->search($criteria, $context);
 
-        return $this->mappingAttachmentsInfo($entities, $attachments, $context);
+        return $this->mappingAttachmentsInfo($entities->getIds(), $attachments, $context);
     }
 
     private function getLatestDocumentsOfTypes(string $orderId, array $documentTypeIds): array
@@ -434,16 +433,19 @@ class SendMailAction extends FlowAction
         return $documentIds;
     }
 
-    private function mappingAttachmentsInfo(EntityCollection $entities, array $attachments, Context $context): array
+    private function mappingAttachmentsInfo(array $documentIds, array $attachments, Context $context): array
     {
-        foreach ($entities as $document) {
-            $documentId = $document->getId();
-            $document = $this->documentService->getDocument($document, $context);
+        foreach ($documentIds as $documentId) {
+            $document = $this->documentGenerator->readDocument($documentId, $context);
+
+            if ($document === null) {
+                continue;
+            }
 
             $attachments[] = [
                 'id' => $documentId,
-                'content' => $document->getFileBlob(),
-                'fileName' => $document->getFilename(),
+                'content' => $document->getContent(),
+                'fileName' => $document->getName(),
                 'mimeType' => $document->getContentType(),
             ];
         }

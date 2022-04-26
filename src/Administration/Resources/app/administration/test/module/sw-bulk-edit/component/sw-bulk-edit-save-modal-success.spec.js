@@ -1,6 +1,17 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success';
 
+const responses = global.repositoryFactoryMock.responses;
+
+responses.addResponse({
+    method: 'post',
+    url: '/search/document',
+    status: 200,
+    response: {
+        data: []
+    }
+});
+
 const swBulkEditState = {
     namespaced: true,
     state() {
@@ -19,6 +30,9 @@ const swBulkEditState = {
                         {
                             technicalName: 'invoice',
                             selected: true,
+                            translated: {
+                                name: 'invoice'
+                            }
                         },
                     ],
                 },
@@ -44,6 +58,13 @@ function createWrapper() {
             'sw-icon': true,
         },
         provide: {
+            repositoryFactory: {
+                create: () => {
+                    return {
+                        search: () => Promise.resolve(),
+                    };
+                },
+            },
             orderDocumentApiService: {
                 create: () => {
                     return Promise.resolve();
@@ -51,9 +72,6 @@ function createWrapper() {
                 download: () => {
                     return Promise.resolve();
                 },
-            },
-            feature: {
-                isActive: () => true,
             },
         }
     });

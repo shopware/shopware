@@ -248,7 +248,7 @@
       "success": {
         "title": "Bulk edit - Success",
         "description": "Bulk edit finished.",
-        "downloadDocuments": "Download your documents here",
+        "downloadDocuments": "Download your {documentType} documents here",
         "messageNoDocumentAvailable": "No documents found"
       },
       "error": {

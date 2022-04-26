@@ -24,8 +24,11 @@ export default {
                 delivery_note: {
                     isChanged: false,
                     value: {
+                        custom: {
+                            deliveryDate: today,
+                            deliveryNoteDate: today,
+                        },
                         documentDate: today,
-                        documentDeliveryDate: today,
                         documentComment: null,
                     },
                 },

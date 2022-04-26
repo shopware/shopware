@@ -43,11 +43,15 @@ Component.extend('sw-order-document-settings-credit-note-modal', 'sw-order-docum
         createdComponent() {
             this.$super('createdComponent');
 
-            this.invoiceNumbers = this.order.documents.filter((document) => {
-                return document.documentType.technicalName === 'invoice';
-            }).map((item) => {
-                return item.config.custom.invoiceNumber;
-            });
+            const invoiceNumbers = this.order.documents
+                .filter(document => {
+                    return document.documentType.technicalName === 'invoice';
+                })
+                .map(item => {
+                    return item.config.custom.invoiceNumber;
+                });
+
+            this.invoiceNumbers = [...new Set(invoiceNumbers)].sort();
         },
 
         onCreateDocument(additionalAction = false) {

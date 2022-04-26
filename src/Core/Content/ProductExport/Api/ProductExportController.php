@@ -55,8 +55,7 @@ class ProductExportController extends AbstractController
 
     /**
      * @Since("6.1.0.0")
-     * @Route("/api/_action/product-export/validate", name="api.action.product_export.validate",
-     *                                                           methods={"POST"})
+     * @Route("/api/_action/product-export/validate", name="api.action.product_export.validate", methods={"POST"})
      */
     public function validate(RequestDataBag $dataBag, Context $context): JsonResponse
     {

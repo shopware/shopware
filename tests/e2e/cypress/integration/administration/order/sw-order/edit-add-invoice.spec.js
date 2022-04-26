@@ -32,7 +32,7 @@ describe('Order: Test order state', () => {
 
         // Request we want to wait for later
         cy.intercept({
-            url: `**/${Cypress.env('apiPath')}/_action/order/**/document/invoice`,
+            url: `**/${Cypress.env('apiPath')}/_action/order/document/invoice/create`,
             method: 'POST'
         }).as('createDocumentCall');
 
@@ -126,7 +126,7 @@ describe('Order: Test order state', () => {
 
         // Request we want to wait for later
         cy.intercept({
-            url: `${Cypress.env('apiPath')}/_action/order/**/document/invoice`,
+            url: `${Cypress.env('apiPath')}/_action/order/document/invoice/create`,
             method: 'POST'
         }).as('createDocumentCall');
         cy.intercept({

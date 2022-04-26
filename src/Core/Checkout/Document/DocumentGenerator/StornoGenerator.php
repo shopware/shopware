@@ -9,6 +9,9 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Twig\Error\Error;
 
+/**
+ * @deprecated tag:v6.5.0 - Will be removed, use StornoRenderer instead
+ */
 class StornoGenerator implements DocumentGeneratorInterface
 {
     public const DEFAULT_TEMPLATE = '@Framework/documents/storno.html.twig';

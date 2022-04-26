@@ -346,6 +346,7 @@
 
         <service id="Shopware\Storefront\Controller\DocumentController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Account\Document\DocumentPageLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

@@ -93,7 +93,7 @@ Component.register('sw-bulk-edit-order', {
         },
 
         statusFormFields() {
-            const fields = [
+            return [
                 {
                     name: 'orderTransactions',
                     config: {
@@ -141,8 +141,6 @@ Component.register('sw-bulk-edit-order', {
                     },
                 },
             ];
-
-            return fields;
         },
 
         documentsFormFields() {
@@ -499,25 +497,31 @@ Component.register('sw-bulk-edit-order', {
                 });
         },
 
-        createDocument() {
+        async createDocument() {
             if (!this.createDocumentPayload.length) {
-                return Promise.resolve();
+                return;
             }
 
-            const invoiceDocument = this.createDocumentPayload.filter((item) => item.type === 'invoice');
-            const otherDocuments = this.createDocumentPayload.filter((item) => item.type !== 'invoice');
+            const invoiceDocuments = this.createDocumentPayload.filter((item) => item.type === 'invoice');
+            const stornoDocuments = this.createDocumentPayload.filter((item) => item.type === 'storno');
+            const creditNoteDocuments = this.createDocumentPayload.filter((item) => item.type === 'credit_note');
+            const deliveryNoteDocuments = this.createDocumentPayload.filter((item) => item.type === 'delivery_note');
 
-            if (!invoiceDocument.length) {
-                return this.orderDocumentApiService.create(otherDocuments);
+            if (invoiceDocuments.length > 0) {
+                await this.orderDocumentApiService.create('invoice', invoiceDocuments);
             }
 
-            return this.orderDocumentApiService.create(invoiceDocument)
-                .then(() => {
-                    return this.orderDocumentApiService.create(otherDocuments);
-                })
-                .catch((error) => {
-                    return Promise.reject(error);
-                });
+            if (stornoDocuments.length > 0) {
+                await this.orderDocumentApiService.create('storno', stornoDocuments);
+            }
+
+            if (creditNoteDocuments.length > 0) {
+                await this.orderDocumentApiService.create('credit_note', creditNoteDocuments);
+            }
+
+            if (deliveryNoteDocuments.length > 0) {
+                await this.orderDocumentApiService.create('delivery_note', deliveryNoteDocuments);
+            }
         },
 
         loadCustomFieldSets() {

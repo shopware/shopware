@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Document\DocumentGenerator;
 
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentGeneratorTypeException;
 
+/**
+ * @deprecated tag:v6.5.0 - Will be removed
+ */
 class DocumentGeneratorRegistry
 {
     /**

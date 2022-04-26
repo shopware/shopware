@@ -37,12 +37,12 @@ describe('Order: Create credit note', () => {
         }).as('orderRecalculateCall');
 
         cy.intercept({
-            url: `**/${Cypress.env('apiPath')}/_action/order/*/document/invoice`,
+            url: `**/${Cypress.env('apiPath')}/_action/order/document/invoice/create`,
             method: 'POST'
         }).as('createInvoice');
 
         cy.intercept({
-            url: `**/${Cypress.env('apiPath')}/_action/order/*/document/credit_note`,
+            url: `**/${Cypress.env('apiPath')}/_action/order/document/credit_note/create`,
             method: 'POST'
         }).as('createCreditNote');
 

@@ -15,6 +15,9 @@ use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @deprecated tag:v6.5.0 - Will removed, using DocumentRoute instead to load generated document blob
+ */
 class DocumentPageLoader
 {
     /**

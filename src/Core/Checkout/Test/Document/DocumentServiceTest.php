@@ -47,7 +47,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - Will be removed
  */
 class DocumentServiceTest extends TestCase
 {

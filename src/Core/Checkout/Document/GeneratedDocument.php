@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Document;
 
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @deprecated tag:v6.5.0 - Will be removed, use RenderedDocument instead
+ */
 class GeneratedDocument extends Struct
 {
     /**

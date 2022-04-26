@@ -12,6 +12,9 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Twig\Error\Error;
 
+/**
+ * @deprecated tag:v6.5.0 - Will be removed, use CreditNoteRenderer instead
+ */
 class CreditNoteGenerator implements DocumentGeneratorInterface
 {
     public const DEFAULT_TEMPLATE = '@Framework/documents/credit_note.html.twig';

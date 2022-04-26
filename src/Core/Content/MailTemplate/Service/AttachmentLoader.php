@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\MailTemplate\Service;
 
-use Shopware\Core\Checkout\Document\DocumentService;
+use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Content\MailTemplate\Service\Event\AttachmentLoaderCriteriaEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -16,17 +16,17 @@ class AttachmentLoader
 {
     private EntityRepositoryInterface $documentRepository;
 
-    private DocumentService $documentService;
+    private DocumentGenerator $documentGenerator;
 
     private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         EntityRepositoryInterface $documentRepository,
-        DocumentService $documentService,
+        DocumentGenerator $documentGenerator,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->documentRepository = $documentRepository;
-        $this->documentService = $documentService;
+        $this->documentGenerator = $documentGenerator;
         $this->eventDispatcher = $eventDispatcher;
     }
 
@@ -43,11 +43,15 @@ class AttachmentLoader
         $entities = $this->documentRepository->search($criteria, $context);
 
         foreach ($entities as $document) {
-            $document = $this->documentService->getDocument($document, $context);
+            $document = $this->documentGenerator->readDocument($document->getId(), $context);
+
+            if ($document === null) {
+                continue;
+            }
 
             $attachments[] = [
-                'content' => $document->getFileBlob(),
-                'fileName' => $document->getFilename(),
+                'content' => $document->getContent(),
+                'fileName' => $document->getName(),
                 'mimeType' => $document->getContentType(),
             ];
         }

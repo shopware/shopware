@@ -1,11 +1,13 @@
 <?php declare(strict_types=1);
 
+namespace Shopware\Core\Content\Test\MailTemplate\Service;
+
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
-use Shopware\Core\Checkout\Document\DocumentService;
-use Shopware\Core\Checkout\Document\GeneratedDocument;
+use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
+use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Content\MailTemplate\Service\AttachmentLoader;
 use Shopware\Core\Content\MailTemplate\Service\Event\AttachmentLoaderCriteriaEvent;
 use Shopware\Core\Framework\Context;
@@ -28,9 +30,9 @@ class AttachmentLoaderTest extends TestCase
     private $documentRepositoryMock;
 
     /**
-     * @var MockObject|DocumentService
+     * @var MockObject|DocumentGenerator
      */
-    private $documentServiceMock;
+    private $documentGeneratorMock;
 
     /**
      * @var MockObject|EventDispatcherInterface
@@ -40,12 +42,12 @@ class AttachmentLoaderTest extends TestCase
     protected function setUp(): void
     {
         $this->documentRepositoryMock = $this->createMock(EntityRepositoryInterface::class);
-        $this->documentServiceMock = $this->createMock(DocumentService::class);
+        $this->documentGeneratorMock = $this->createMock(DocumentGenerator::class);
         $this->eventDispatcherMock = $this->createMock(EventDispatcherInterface::class);
 
         $this->attachmentLoader = new AttachmentLoader(
             $this->documentRepositoryMock,
-            $this->documentServiceMock,
+            $this->documentGeneratorMock,
             $this->eventDispatcherMock
         );
     }
@@ -71,20 +73,20 @@ class AttachmentLoaderTest extends TestCase
         );
         $this->documentRepositoryMock->expects(static::once())->method('search')->willReturn($searchResult);
 
-        $generatedDocument = new GeneratedDocument();
-        $generatedDocument->setFileBlob('foo');
-        $generatedDocument->setFilename('bar.pdf');
-        $generatedDocument->setContentType('pdf');
-        $this->documentServiceMock->expects(static::once())->method('getDocument')->willReturn($generatedDocument);
+        $generatedDocument = new RenderedDocument();
+        $generatedDocument->setContent('foo');
+        $generatedDocument->setName('bar.pdf');
+        $generatedDocument->setContentType('application/pdf');
+        $this->documentGeneratorMock->expects(static::once())->method('readDocument')->willReturn($generatedDocument);
 
         $attachments = $this->attachmentLoader->load([$document->getId()], Context::createDefaultContext());
         static::assertCount(1, $attachments);
         static::assertIsArray($attachments[0]);
         static::assertArrayHasKey('content', $attachments[0]);
-        static::assertSame($generatedDocument->getFileBlob(), $attachments[0]['content']);
+        static::assertSame($generatedDocument->getContent(), $attachments[0]['content']);
 
         static::assertArrayHasKey('fileName', $attachments[0]);
-        static::assertSame($generatedDocument->getFilename(), $attachments[0]['fileName']);
+        static::assertSame($generatedDocument->getName(), $attachments[0]['fileName']);
 
         static::assertArrayHasKey('mimeType', $attachments[0]);
         static::assertSame($generatedDocument->getContentType(), $attachments[0]['mimeType']);

@@ -21,16 +21,19 @@
     {% endblock %}
 
     {% block sw_bulk_edit_save_modal_success_download_order_documents %}
-    <p
-        v-if="canDownloadOrderDocuments"
-        :class="{
-            'sw-bulk-edit-save-modal-success__download-order-documents': true,
-            'is--disabled': isDownloadingOrderDocument === true
-        }"
-        @click="onDownloadOrderDocuments"
-    >
-        {{ $tc('sw-bulk-edit.modal.success.downloadDocuments') }}
-    </p>
+    <div v-if="selectedDocumentTypes.length > 0">
+        <p
+            v-for="selectedDocumentType in selectedDocumentTypes"
+            :key="selectedDocumentType.id"
+            :class="{
+                'sw-bulk-edit-save-modal-success__download-order-documents': true,
+                'is--disabled': isDownloadingOrderDocument === true
+            }"
+            @click="onDownloadOrderDocuments(selectedDocumentType.technicalName)"
+        >
+            {{ $tc('sw-bulk-edit.modal.success.downloadDocuments', 0, { documentType: selectedDocumentType.translated.name }) }}
+        </p>
+    </div>
     {% endblock %}
 </div>
 {% endblock %}

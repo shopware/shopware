@@ -2,11 +2,12 @@ import template from './sw-bulk-edit-save-modal-success.html.twig';
 import './sw-bulk-edit-save-modal-success.scss';
 
 const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-bulk-edit-save-modal-success', {
     template,
 
-    inject: ['orderDocumentApiService'],
+    inject: ['repositoryFactory', 'orderDocumentApiService'],
 
     mixins: [
         Shopware.Mixin.getByName('notification'),
@@ -20,7 +21,26 @@ Component.register('sw-bulk-edit-save-modal-success', {
         },
     },
 
+    data() {
+        return {
+            latestDocuments: {},
+        };
+    },
+
     computed: {
+        documentRepository() {
+            return this.repositoryFactory.create('document');
+        },
+
+        latestDocumentsCriteria() {
+            const criteria = new Criteria(1, null);
+            criteria.addFilter(Criteria.equalsAny('documentTypeId', this.selectedDocumentTypes.map(item => item.id)));
+            criteria.addFilter(Criteria.equalsAny('orderId', this.selectedIds));
+            criteria.addSorting(Criteria.sort('createdAt', 'DESC'));
+
+            return criteria;
+        },
+
         selectedIds() {
             return Shopware.State.get('shopwareApps').selectedIds;
         },
@@ -29,42 +49,20 @@ Component.register('sw-bulk-edit-save-modal-success', {
             return Shopware.State.get('swBulkEdit')?.orderDocuments?.download;
         },
 
-        canDownloadOrderDocuments() {
+        selectedDocumentTypes() {
             if (!this.downloadOrderDocuments) {
-                return false;
+                return [];
             }
 
             if (!this.downloadOrderDocuments.isChanged) {
-                return false;
+                return [];
             }
 
             if (!this.downloadOrderDocuments.value.length) {
-                return false;
+                return [];
             }
 
-            return this.downloadOrderDocuments.value.some((documentType) => {
-                return documentType.selected;
-            });
-        },
-
-        documentTypes() {
-            return this.downloadOrderDocuments.value
-                .filter((documentType) => {
-                    return documentType.selected;
-                })
-                .map((documentType) => {
-                    return documentType.technicalName;
-                });
-        },
-
-        downloadDocumentPayload() {
-            const payload = {};
-
-            this.documentTypes.forEach((documentType) => {
-                payload[documentType] = this.selectedIds;
-            });
-
-            return payload;
+            return this.downloadOrderDocuments.value.filter((item) => item.selected);
         },
     },
 
@@ -73,9 +71,10 @@ Component.register('sw-bulk-edit-save-modal-success', {
     },
 
     methods: {
-        createdComponent() {
+        async createdComponent() {
             this.updateButtons();
             this.setTitle();
+            await this.getLatestDocuments();
         },
 
         setTitle() {
@@ -97,10 +96,61 @@ Component.register('sw-bulk-edit-save-modal-success', {
             this.$emit('buttons-update', buttonConfig);
         },
 
-        onDownloadOrderDocuments() {
+        async getLatestDocuments() {
+            if (this.selectedDocumentTypes.length === 0) {
+                return;
+            }
+
             this.$emit('order-document-download', true);
 
-            return this.executeDownloadOrderDocuments()
+            const latestDocuments = {};
+            const maxDocsPerType = this.selectedIds.length;
+
+            const documents = await this.documentRepository.search(this.latestDocumentsCriteria);
+
+            this.selectedDocumentTypes.forEach(documentType => {
+                latestDocuments[documentType.technicalName] ??= [];
+                const latestDoc = latestDocuments[documentType.technicalName];
+
+                const documentsGrouped = documents.filter(document => {
+                    return document.documentTypeId === documentType.id;
+                });
+
+                const latestDocKeyedByOrderId = {};
+
+                documentsGrouped.forEach(doc => {
+                    if (Object.values(latestDoc).length === maxDocsPerType) {
+                        return;
+                    }
+
+                    if (!latestDocKeyedByOrderId.hasOwnProperty(doc.orderId)) {
+                        latestDocKeyedByOrderId[doc.orderId] = doc.id;
+                        latestDoc.push(doc.id);
+                    }
+                });
+            });
+
+            this.$emit('order-document-download', false);
+
+            this.latestDocuments = latestDocuments;
+        },
+
+        async onDownloadOrderDocuments(technicalName) {
+            this.$emit('order-document-download', true);
+
+            const docIds = this.latestDocuments[technicalName];
+
+            if (!docIds || docIds.length === 0) {
+                this.$emit('order-document-download', false);
+
+                this.createNotificationInfo({
+                    message: this.$tc('sw-bulk-edit.modal.success.messageNoDocumentAvailable'),
+                });
+
+                return Promise.resolve();
+            }
+
+            return this.orderDocumentApiService.download(docIds)
                 .then((response) => {
                     this.$emit('order-document-download', false);
 
@@ -122,10 +172,6 @@ Component.register('sw-bulk-edit-save-modal-success', {
                         message: error.message,
                     });
                 });
-        },
-
-        executeDownloadOrderDocuments() {
-            return this.orderDocumentApiService.download(this.downloadDocumentPayload);
         },
 
         downloadFiles(response) {

@@ -1,11 +1,11 @@
 {% block sw_bulk_edit_order_documents_generate_invoice_datepicker %}
 <sw-datepicker
-    v-model="generateData.documentDate"
+    v-model="generateData.custom.deliveryDate"
     class="sw-bulk-edit-order-documents-generate-invoice__item"
     :label="$tc('sw-bulk-edit.order.documents.generateInvoice.labelDatePicker')"
 />
 <sw-datepicker
-    v-model="generateData.documentDeliveryDate"
+    v-model="generateData.custom.deliveryNoteDate"
     class="sw-bulk-edit-order-documents-generate-invoice__item"
     :label="$tc('sw-bulk-edit.order.documents.generateDeliveryNote.labelDeliveryDatePicker')"
 />

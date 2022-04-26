@@ -11,27 +11,30 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentGenerator\CreditNoteGenerator;
 use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
-use Shopware\Core\Checkout\Document\DocumentGenerator\DocumentGeneratorInterface;
-use Shopware\Core\Checkout\Document\DocumentGenerator\DocumentGeneratorRegistry;
 use Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator;
 use Shopware\Core\Checkout\Document\DocumentGenerator\StornoGenerator;
 use Shopware\Core\Checkout\Document\DocumentService;
+use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer;
+use Shopware\Core\Checkout\Document\Renderer\CreditNoteRenderer;
+use Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
+use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\Flow\Dispatching\Action\GenerateDocumentAction;
 use Shopware\Core\Content\Flow\Dispatching\FlowState;
-use Shopware\Core\Content\Flow\Exception\GenerateDocumentActionException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEvent;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -60,6 +63,8 @@ class GenerateDocumentActionTest extends TestCase
 
     private ?DocumentService $documentService;
 
+    private ?DocumentGenerator $documentGenerator;
+
     private ?NumberRangeValueGeneratorInterface $numberRange;
 
     private ?LoggerInterface $logger;
@@ -68,6 +73,7 @@ class GenerateDocumentActionTest extends TestCase
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->documentService = $this->getContainer()->get(DocumentService::class);
+        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
         $this->orderRepository = $this->getContainer()->get('order.repository');
         $this->numberRange = $this->getContainer()->get(NumberRangeValueGeneratorInterface::class);
         $this->logger = $this->getContainer()->get(LoggerInterface::class);
@@ -83,12 +89,7 @@ class GenerateDocumentActionTest extends TestCase
         $order = $this->createOrder($customerId, $context);
 
         $event = new OrderStateMachineStateChangeEvent('state_enter.order.state.in_progress', $order, $context);
-        $subscriber = new GenerateDocumentAction(
-            $this->documentService,
-            $this->numberRange,
-            $this->connection,
-            $this->logger
-        );
+        $subscriber = new GenerateDocumentAction($this->documentService, $this->documentGenerator, $this->connection);
 
         if ($multipleDoc) {
             $config = array_filter([
@@ -116,7 +117,7 @@ class GenerateDocumentActionTest extends TestCase
 
         static::assertEmpty($this->getDocumentId($order->getId()));
 
-        if ($documentType === CreditNoteGenerator::CREDIT_NOTE) {
+        if ($documentType === CreditNoteRenderer::TYPE) {
             $this->addCreditItemToVersionedOrder($order->getId(), $context);
         }
 
@@ -144,11 +145,7 @@ class GenerateDocumentActionTest extends TestCase
         $order = $this->createOrder($customerId, $context);
 
         $event = new OrderStateMachineStateChangeEvent('state_enter.order.state.in_progress', $order, $context);
-        $subscriber = new GenerateDocumentAction(
-            $this->documentService,
-            $this->numberRange,
-            $this->connection,
-        );
+        $subscriber = new GenerateDocumentAction($this->documentService, $this->documentGenerator, $this->connection);
 
         $config = array_filter([
             'documentType' => $documentType,
@@ -161,7 +158,7 @@ class GenerateDocumentActionTest extends TestCase
             $this->addCreditItemToVersionedOrder($order->getId(), $context);
         }
 
-        static::expectException(GenerateDocumentActionException::class);
+        static::expectException(DocumentGenerationException::class);
         $subscriber->handle(new FlowEvent(GenerateDocumentAction::getName(), new FlowState($event), $config));
     }
 
@@ -172,11 +169,7 @@ class GenerateDocumentActionTest extends TestCase
         $order = $this->createOrder($customerId, $context);
 
         $event = new OrderStateMachineStateChangeEvent('state_enter.order.state.in_progress', $order, $context);
-        $subscriber = new GenerateDocumentAction(
-            $this->documentService,
-            $this->numberRange,
-            $this->connection,
-        );
+        $subscriber = new GenerateDocumentAction($this->documentService, $this->documentGenerator, $this->connection);
 
         $config = array_filter([
             'documentType' => 'customDoc',
@@ -189,10 +182,10 @@ class GenerateDocumentActionTest extends TestCase
         $this->insertCustomDocument();
         $this->insertRange();
 
-        $registry = $this->getContainer()->get(DocumentGeneratorRegistry::class);
-        $customDocGenerator = new CustomDoc();
+        $registry = $this->getContainer()->get(DocumentRendererRegistry::class);
+        $customDocGenerator = new CustomDocRenderer();
         $class = new \ReflectionClass($registry);
-        $property = $class->getProperty('documentGenerators');
+        $property = $class->getProperty('documentRenderers');
         $property->setAccessible(true);
         $oldValue = $property->getValue($registry);
         $property->setValue(
@@ -491,25 +484,35 @@ class GenerateDocumentActionTest extends TestCase
         );
     }
 }
+
 /**
  * @internal
  */
-class CustomDoc implements DocumentGeneratorInterface
+class CustomDocRenderer extends AbstractDocumentRenderer
 {
-    public const CUSTOM_DOC = 'customDoc';
+    public const TYPE = 'customDoc';
 
     public function supports(): string
     {
-        return self::CUSTOM_DOC;
+        return self::TYPE;
     }
 
-    public function generate(OrderEntity $order, DocumentConfiguration $config, Context $context, ?string $templatePath = null): string
+    public function getDecorated(): AbstractDocumentRenderer
     {
-        return '';
+        throw new DecorationPatternException(self::class);
     }
 
-    public function getFileName(DocumentConfiguration $config): string
+    public function render(array $operations, Context $context, string $deepLinkCode = ''): array
     {
-        return '';
+        $result = [];
+
+        foreach ($operations as $operation) {
+            $rendered = new RenderedDocument('<html>test</html>');
+            $rendered->setName('custom.pdf');
+
+            $result[$operation->getOrderId()] = $rendered;
+        }
+
+        return $result;
     }
 }

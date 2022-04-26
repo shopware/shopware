@@ -20,38 +20,37 @@ class DocumentApiService extends ApiService {
     createDocument(
         orderId,
         documentTypeName,
-        documentConfig = {},
+        config = {},
         referencedDocumentId = null,
         additionalParams = {},
         additionalHeaders = {},
         file = null,
     ) {
-        let route = `/_action/order/${orderId}/document/${documentTypeName}`;
+        let route = `/_action/order/document/${documentTypeName}/create`;
         const headers = this.getBasicHeaders(additionalHeaders);
 
         const params = {
-            config: documentConfig,
-            referenced_document_id: referencedDocumentId,
+            orderId,
+            config,
+            referencedDocumentId,
         };
 
         if (file || documentConfig.documentMediaFileId) {
             params.static = true;
         }
 
-        let docCreated;
-
-        return this.httpClient
-            .post(route, params, {
+        this.httpClient
+            .post(route, [params], {
                 additionalParams,
                 headers,
             }).then((response) => {
-                docCreated = response;
+                const responseDoc = response.data[0];
 
-                if (file && file instanceof File && response.data.documentId) {
+                if (file && file instanceof File && responseDoc?.documentId) {
                     const fileName = file.name.split('.').shift();
                     const fileExtension = file.name.split('.').pop();
                     // eslint-disable-next-line max-len
-                    route = `/_action/document/${response.data.documentId}/upload?fileName=${documentConfig.documentNumber}_${fileName}&extension=${fileExtension}`;
+                    route = `/_action/document/${responseDoc.documentId}/upload?fileName=${config.documentNumber}_${fileName}&extension=${fileExtension}`;
                     headers['Content-Type'] = file.type;
                     docCreated = this.httpClient.post(route, file, {
                         additionalParams,

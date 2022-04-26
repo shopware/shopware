@@ -11,15 +11,15 @@ export default class OrderDocumentApiService extends ApiService {
         this.name = 'orderDocumentApiService';
     }
 
-    create(payload, additionalParams = {}, additionalHeaders = {}) {
-        return this.httpClient.post(`/_action/${this.apiEndpoint}/create`, payload, {
+    create(documentType, payload, additionalParams = {}, additionalHeaders = {}) {
+        return this.httpClient.post(`/_action/${this.apiEndpoint}/${documentType}/create`, payload, {
             additionalParams,
             headers: this.getBasicHeaders(additionalHeaders),
         });
     }
 
-    download(payload, additionalParams = {}, additionalHeaders = {}) {
-        return this.httpClient.post(`/_action/${this.apiEndpoint}/download`, payload, {
+    download(documentIds, additionalParams = {}, additionalHeaders = {}) {
+        return this.httpClient.post(`/_action/${this.apiEndpoint}/download`, { documentIds }, {
             additionalParams,
             responseType: 'blob',
             headers: this.getBasicHeaders(additionalHeaders),

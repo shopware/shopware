@@ -12,8 +12,10 @@ use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Checkout\Document\DocumentConfiguration;
-use Shopware\Core\Checkout\Document\DocumentService;
+use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
+use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
@@ -90,15 +92,14 @@ class DocumentControllerTest extends TestCase
         $orderId = $this->persistCart($cart);
         $fileName = 'invoice';
 
-        $document = $this->getContainer()->get(DocumentService::class)->create(
-            $orderId,
-            'invoice',
-            'pdf',
-            new DocumentConfiguration(),
+        $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, [], null, true);
+
+        $document = $this->getContainer()->get(DocumentGenerator::class)->generate(
+            InvoiceRenderer::TYPE,
+            [$operation->getOrderId() => $operation],
             $context,
-            null,
-            true
-        );
+        )->first();
+
         $expectedFileContent = 'simple invoice';
         $expectedContentType = 'text/plain; charset=UTF-8';
 
@@ -110,7 +111,7 @@ class DocumentControllerTest extends TestCase
 
         $request->query->set('extension', 'txt');
 
-        $documentIdStruct = $this->getContainer()->get(DocumentService::class)->uploadFileForDocument(
+        $documentIdStruct = $this->getContainer()->get(DocumentGenerator::class)->upload(
             $document->getId(),
             $context,
             $request

@@ -13,9 +13,10 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\Rule\BillingCountryRule;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
-use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
+use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
@@ -1029,31 +1030,26 @@ class OrderRouteTest extends TestCase
 
     private function createDocument(string $orderId, bool $showInCustomerAccount = true, bool $sent = true): void
     {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('technicalName', DeliveryNoteRenderer::TYPE));
+
+        $documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
         $documentRepository = $this->getContainer()->get('document.repository');
 
-        $documentTypeRepository = $this->getContainer()->get('document_type.repository');
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('technicalName', DeliveryNoteGenerator::DELIVERY_NOTE));
-
-        /** @var DocumentTypeEntity $documentType */
-        $documentType = $documentTypeRepository->search($criteria, $this->context)->first();
-
-        $documentRepository->create(
-            [
-                [
-                    'id' => Uuid::randomHex(),
-                    'documentTypeId' => $documentType->getId(),
-                    'fileType' => FileTypes::PDF,
-                    'orderId' => $orderId,
-                    'config' => ['documentNumber' => '1001', 'displayInCustomerAccount' => $showInCustomerAccount],
-                    'deepLinkCode' => 'test',
-                    'sent' => $sent,
-                    'static' => false,
-                ],
-            ],
-            $this->context
+        $operation = new DocumentGenerateOperation(
+            $orderId,
+            FileTypes::PDF,
+            ['documentNumber' => '1001', 'displayInCustomerAccount' => $showInCustomerAccount],
         );
+
+        $doc = $documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$orderId => $operation], $this->context)->first();
+
+        $documentRepository->update([
+            [
+                'id' => $doc->getId(),
+                'sent' => $sent,
+            ],
+        ], $this->context);
     }
 
     private function createCustomPaymentWithRule(string $ruleId): string

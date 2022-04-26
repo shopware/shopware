@@ -248,7 +248,7 @@
       "success": {
         "title": "Mehrfachänderung - Erfolg",
         "description": "Mehrfachänderung abgeschlossen.",
-        "downloadDocuments": "Dokumente hier herunterladen",
+        "downloadDocuments": "Laden Sie Ihre {documentType} Dokumente hier herunter",
         "messageNoDocumentAvailable": "Keine Dokumente vorhanden"
       },
       "error": {

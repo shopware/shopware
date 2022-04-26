@@ -6,6 +6,9 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 use Shopware\Core\Checkout\Document\GeneratedDocument;
 
+/**
+ * @deprecated tag:v6.5.0 - Will be removed, use PdfRenderer instead
+ */
 class PdfGenerator implements FileGeneratorInterface
 {
     public const FILE_EXTENSION = 'pdf';

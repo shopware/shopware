@@ -15,17 +15,12 @@ use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @internal
+ * @deprecated tag:v6.5.0 - Will be removed
  */
 class DocumentPageTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-    }
 
     public function testPageLoadsFailWithoutValidDeepLinkCode(): void
     {

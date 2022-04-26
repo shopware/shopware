@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -388,8 +389,14 @@ class RegisterRouteTest extends TestCase
 
         static::assertArrayNotHasKey('contextToken', $response);
         static::assertArrayHasKey('errors', $response);
-        static::assertSame('CHECKOUT__CUSTOMER_IS_INACTIVE', $response['errors'][0]['code']);
-        static::assertSame('401', $response['errors'][0]['status']);
+
+        $optinError = $response['errors'][0];
+        static::assertSame('401', $optinError['status']);
+        if (Feature::isActive('v6.5.0.0')) {
+            static::assertSame('CHECKOUT__CUSTOMER_OPTIN_NOT_COMPLETED', $optinError['code']);
+        } else {
+            static::assertSame('CHECKOUT__CUSTOMER_IS_INACTIVE', $optinError['code']);
+        }
 
         $criteria = new Criteria([$customerId]);
         /** @var CustomerEntity $customer */

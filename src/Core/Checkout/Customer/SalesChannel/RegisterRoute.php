@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Event\DataMappingEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -260,6 +261,11 @@ class RegisterRoute extends AbstractRegisterRoute
         return $event;
     }
 
+    /**
+     * @param array<string, mixed> $customer
+     *
+     * @return array<string, mixed>
+     */
     private function setDoubleOptInData(array $customer, SalesChannelContext $context): array
     {
         $configKey = $customer['guest']
@@ -273,7 +279,12 @@ class RegisterRoute extends AbstractRegisterRoute
             return $customer;
         }
 
-        $customer['active'] = false;
+        // All customers will be active by default
+        if (Feature::isActive('v6.5.0.0')) {
+            $customer['active'] = true;
+        } else {
+            $customer['active'] = false;
+        }
         $customer['doubleOptInRegistration'] = true;
         $customer['doubleOptInEmailSentDate'] = new \DateTimeImmutable();
         $customer['hash'] = Uuid::randomHex();
@@ -339,6 +350,9 @@ class RegisterRoute extends AbstractRegisterRoute
         throw new ConstraintViolationException($violations, $data->all());
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function getDomainUrls(SalesChannelContext $context): array
     {
         /** @var SalesChannelDomainCollection $salesChannelDomainCollection */
@@ -367,6 +381,9 @@ class RegisterRoute extends AbstractRegisterRoute
         ));
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function mapBillingAddress(DataBag $billing, Context $context): array
     {
         $billingAddress = $this->mapAddressData($billing);
@@ -377,6 +394,9 @@ class RegisterRoute extends AbstractRegisterRoute
         return $event->getOutput();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function mapShippingAddress(DataBag $shipping, Context $context): array
     {
         $shippingAddress = $this->mapAddressData($shipping);
@@ -387,6 +407,9 @@ class RegisterRoute extends AbstractRegisterRoute
         return $event->getOutput();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function mapCustomerData(DataBag $data, bool $isGuest, SalesChannelContext $context): array
     {
         $customer = [
@@ -469,6 +492,9 @@ class RegisterRoute extends AbstractRegisterRoute
         return $validation;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function mapAddressData(DataBag $addressData): array
     {
         $mappedData = $addressData->only(

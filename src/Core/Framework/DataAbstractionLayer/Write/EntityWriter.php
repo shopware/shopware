@@ -243,7 +243,7 @@ class EntityWriter implements EntityWriterInterface
 
                 $existence = new EntityExistence($affectedDefinition->getEntityName(), $primary, true, false, false, []);
 
-                $queue->add($affectedDefinition, new CascadeDeleteCommand($affectedDefinition, $primary, $existence));
+                $queue->add($affectedDefinition, new UpdateCommand($affectedDefinition, [], $primary, $existence, ''));
             }
         }
     }

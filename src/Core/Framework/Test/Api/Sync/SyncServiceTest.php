@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\Api\Converter\fixtures\DeprecatedConverter;
 use Shopware\Core\Framework\Test\Api\Converter\fixtures\DeprecatedDefinition;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -50,6 +51,33 @@ class SyncServiceTest extends TestCase
         parent::setUp();
         $this->service = $this->getContainer()->get(SyncService::class);
         $this->connection = $this->getContainer()->get(Connection::class);
+    }
+
+    public function testDeleteProductMediaAndUpdateProduct(): void
+    {
+        $ids = new IdsCollection();
+        $product = (new ProductBuilder($ids, 'p1'))
+            ->price(100)
+            ->media('media-1')
+            ->media('media-2')
+            ->media('media-3')
+            ->build();
+
+        $this->getContainer()->get('product.repository')
+            ->create([$product], Context::createDefaultContext());
+
+        $operations = [
+            new SyncOperation('delete-media', 'product_media', 'delete', [['id' => $ids->get('media-2')]]),
+            new SyncOperation('update-product', 'product', 'upsert', [['id' => $ids->get('p1'), 'media' => [['id' => $ids->get('media-3'), 'position' => 10]]]]),
+        ];
+
+        if (Feature::isActive('FEATURE_NEXT_15815')) {
+            $behavior = new SyncBehavior();
+        } else {
+            $behavior = new SyncBehavior(false, true);
+        }
+
+        $this->service->sync($operations, Context::createDefaultContext(), $behavior);
     }
 
     public function testSingleOperation(): void

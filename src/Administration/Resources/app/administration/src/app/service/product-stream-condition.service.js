@@ -53,6 +53,7 @@ export default function conditionService() {
             'height',
             'width',
             'length',
+            'ean',
             'sales',
             'manufacturer',
             'categoriesRo',

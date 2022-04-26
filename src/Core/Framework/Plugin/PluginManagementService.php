@@ -19,6 +19,9 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class PluginManagementService
 {
+    public const PLUGIN = 'plugin';
+    public const APP = 'app';
+
     private string $projectDir;
 
     private PluginZipDetector $pluginZipDetector;
@@ -58,22 +61,19 @@ class PluginManagementService
         if ($storeType) {
             $this->pluginExtractor->extract($archive, $delete, $storeType);
 
-            if ($storeType === 'plugin') {
-                $this->cacheClearer->clearContainerCache();
-            }
-
             return $storeType;
         }
 
         if ($this->pluginZipDetector->isPlugin($archive)) {
-            $this->pluginExtractor->extract($archive, $delete, 'plugin');
-            $this->cacheClearer->clearContainerCache();
+            $this->pluginExtractor->extract($archive, $delete, self::PLUGIN);
 
-            return 'plugin';
-        } elseif ($this->pluginZipDetector->isApp($archive)) {
-            $this->pluginExtractor->extract($archive, $delete, 'app');
+            return self::PLUGIN;
+        }
 
-            return 'app';
+        if ($this->pluginZipDetector->isApp($archive)) {
+            $this->pluginExtractor->extract($archive, $delete, self::APP);
+
+            return self::APP;
         }
 
         throw new NoPluginFoundInZipException($file);
@@ -88,8 +88,9 @@ class PluginManagementService
 
         $type = $this->extractPluginZip($tempFile->getPathname());
 
-        if ($type === 'plugin') {
+        if ($type === self::PLUGIN) {
             $this->pluginService->refreshPlugins($context, new NullIO());
+            $this->cacheClearer->clearContainerCache();
         }
     }
 
@@ -109,8 +110,9 @@ class PluginManagementService
 
         $this->extractPluginZip($tempFileName, true, $location->getType());
 
-        if ($location->getType() === 'plugin') {
+        if ($location->getType() === self::PLUGIN) {
             $this->pluginService->refreshPlugins($context, new NullIO());
+            $this->cacheClearer->clearContainerCache();
         }
     }
 

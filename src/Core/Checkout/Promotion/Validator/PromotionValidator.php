@@ -153,10 +153,8 @@ class PromotionValidator implements EventSubscriberInterface
         // because we want to avoid any other private functions that accidentally access
         // the database. all private getters should only access the local in-memory list
         // to avoid additional database queries.
-
-        if ($promotionIds === []) {
-            $this->databasePromotions = [];
-        } else {
+        $this->databasePromotions = [];
+        if (!empty($promotionIds)) {
             $promotionQuery = $this->connection->executeQuery(
                 'SELECT * FROM `promotion` WHERE `id` IN (:ids)',
                 ['ids' => $promotionIds],
@@ -166,9 +164,8 @@ class PromotionValidator implements EventSubscriberInterface
             $this->databasePromotions = $promotionQuery->fetchAll();
         }
 
-        if ($discountIds === []) {
-            $this->databaseDiscounts = [];
-        } else {
+        $this->databaseDiscounts = [];
+        if (!empty($discountIds)) {
             $discountQuery = $this->connection->executeQuery(
                 'SELECT * FROM `promotion_discount` WHERE `id` IN (:ids)',
                 ['ids' => $discountIds],

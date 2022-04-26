@@ -146,12 +146,17 @@ describe('Minimal install', () => {
         cy.get('.sw-step-display').should('be.visible');
         cy.get('.sw-first-run-wizard-mailer-selection__headline').contains('Establishing email communication');
 
+        // @frw: SwagPayPal install
+        cy.intercept('POST', '**/api/_action/extension/install/plugin/SwagPayPal').as('installSwagPayPal');
         cy.get('.sw-button span').contains('Configure later').click();
 
         // @frw: skip paypal
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
         cy.get('.sw-step-display').should('be.visible');
         cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('PayPal setup');
+
+        // the install can run into a race conditioning in the cache clear if it runs in parallel with the SwagMarkets install
+        cy.wait('@installSwagPayPal').its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-button span').contains('Skip').click();
 

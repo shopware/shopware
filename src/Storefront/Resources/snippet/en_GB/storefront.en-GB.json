@@ -217,6 +217,7 @@
     "addressDefaultNotChanged": "Default address could not be changed.",
     "addressSaved": "Address has been saved.",
     "inactiveAccountAlert": "Your customer account has not been activated yet. We have sent a confirmation email containing an activation link. Please check your inbox and click the link to complete the sign-up!",
+    "doubleOptinAccountAlert": "Your customer account has not been activated yet. We have sent a confirmation email containing an activation link. Please check your inbox and click the link to complete the sign-up!",
     "optInGuestAlert": "Thank you for your interest! You will receive a confirmation email shortly. Click on the link in it to confirm your email address.",
     "optInRegistrationAlert": "Thank you for signing up! You will receive a confirmation email shortly. Click on the link in it to complete the sign-up.",
     "optInSuccessAlert": "We just sent you a confirmation email.",

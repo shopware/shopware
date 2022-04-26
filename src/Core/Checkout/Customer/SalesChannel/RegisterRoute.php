@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Event\DataMappingEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -281,7 +282,12 @@ class RegisterRoute extends AbstractRegisterRoute
             return $customer;
         }
 
-        $customer['active'] = false;
+        // All customers will be active by default
+        if (Feature::isActive('v6.5.0.0')) {
+            $customer['active'] = true;
+        } else {
+            $customer['active'] = false;
+        }
         $customer['doubleOptInRegistration'] = true;
         $customer['doubleOptInEmailSentDate'] = new \DateTimeImmutable();
         $customer['hash'] = Uuid::randomHex();
@@ -492,7 +498,7 @@ class RegisterRoute extends AbstractRegisterRoute
     }
 
     /**
-     * @return array<int|string, mixed>
+     * @return array<string, mixed>
      */
     private function mapAddressData(DataBag $addressData): array
     {

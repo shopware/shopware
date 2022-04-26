@@ -142,6 +142,30 @@ class AccountServiceTest extends TestCase
         static::assertEquals($context2->getSalesChannel()->getId(), $customer2->getSalesChannelId());
     }
 
+    public function testCustomerLoginByMailWithInactiveAccount(): void
+    {
+        $email = 'johndoe@example.com';
+
+        $context = $this->createSalesChannelContext([
+            'domains' => [
+                [
+                    'url' => 'http://test.de',
+                    'currencyId' => Defaults::CURRENCY,
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'snippetSetId' => $this->getRandomId('snippet_set'),
+                ],
+            ],
+        ]);
+        $this->createCustomerOfSalesChannel($context->getSalesChannel()->getId(), $email, true, false);
+        $activeCustomerId = $this->createCustomerOfSalesChannel($context->getSalesChannel()->getId(), $email);
+
+        $customer = $this->accountService->getCustomerByLogin($email, 'shopware', $context);
+        static::assertInstanceOf(CustomerEntity::class, $customer);
+        static::assertTrue($customer->getActive());
+        static::assertEquals($activeCustomerId, $customer->getId());
+        static::assertEquals($context->getSalesChannel()->getId(), $customer->getSalesChannelId());
+    }
+
     private function getCustomerFromToken(string $contextToken, string $salesChannelId): CustomerEntity
     {
         $salesChannelContextService = $this->getContainer()->get(SalesChannelContextService::class);
@@ -155,7 +179,7 @@ class AccountServiceTest extends TestCase
         return $customer;
     }
 
-    private function createCustomerOfSalesChannel(string $salesChannelId, string $email, bool $boundToSalesChannel = true): string
+    private function createCustomerOfSalesChannel(string $salesChannelId, string $email, bool $boundToSalesChannel = true, bool $active = true): string
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -175,6 +199,7 @@ class AccountServiceTest extends TestCase
             'salesChannelId' => $salesChannelId,
             'defaultBillingAddressId' => $addressId,
             'defaultShippingAddressId' => $addressId,
+            'active' => $active,
             'addresses' => [
                 [
                     'id' => $addressId,

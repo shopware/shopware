@@ -12,8 +12,8 @@ use Shopware\Core\Checkout\Customer\Exception\NoHashProvidedException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -111,20 +111,21 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
             $this->getBeforeConfirmValidation(hash('sha1', $customer->getEmail()))
         );
 
-        if ($customer->getActive() || $customer->getDoubleOptInConfirmDate() !== null) {
+        if ((!Feature::isActive('v6.5.0.0') && $customer->getActive())
+            || $customer->getDoubleOptInConfirmDate() !== null) {
             throw new CustomerAlreadyConfirmedException($customer->getId());
         }
 
-        $this->customerRepository->update(
-            [
-                [
-                    'id' => $customer->getId(),
-                    'active' => true,
-                    'doubleOptInConfirmDate' => new \DateTimeImmutable(),
-                ],
-            ],
-            $context->getContext()
-        );
+        $customerUpdate = [
+            'id' => $customer->getId(),
+            'doubleOptInConfirmDate' => new \DateTimeImmutable(),
+        ];
+
+        if (!Feature::isActive('v6.5.0.0')) {
+            $customerUpdate['active'] = true;
+        }
+
+        $this->customerRepository->update([$customerUpdate], $context->getContext());
 
         $newToken = $this->contextPersister->replace($context->getToken(), $context);
 

@@ -80,8 +80,6 @@ Component.register('sw-product-category-form', {
                 Shopware.Context.api,
                 new Criteria(),
             );
-
-            this.fetchSalesChannelSystemConfig();
         },
 
         displayAdvancedVisibility() {
@@ -112,6 +110,8 @@ Component.register('sw-product-category-form', {
             return this.product.visibilities;
         },
 
+
+        // @deprecated tag:v6.5.0 - Will be removed
         fetchSalesChannelSystemConfig() {
             if (typeof this.product.isNew !== 'function' || !this.product.isNew()) {
                 return Promise.resolve();
@@ -147,6 +147,7 @@ Component.register('sw-product-category-form', {
             });
         },
 
+        // @deprecated tag:v6.5.0 - Will be removed
         fetchSalesChannelByIds(ids) {
             const criteria = new Criteria();
 
@@ -155,6 +156,7 @@ Component.register('sw-product-category-form', {
             return this.salesChannelRepository.search(criteria);
         },
 
+        // @deprecated tag:v6.5.0 - Will be removed
         createProductVisibilityEntity(visibility, salesChannel) {
             const visibilities = this.productVisibilityRepository.create(Context.api);
 

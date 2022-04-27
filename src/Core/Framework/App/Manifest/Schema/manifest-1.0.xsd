@@ -367,6 +367,24 @@
             <xs:element name="media" type="empty" minOccurs="0"/>
             <xs:element name="product_manufacturer" type="empty" minOccurs="0"/>
             <xs:element name="sales_channel" type="empty" minOccurs="0"/>
+            <xs:element name="landing_page" type="empty" minOccurs="0"/>
+            <xs:element name="promotion" type="empty" minOccurs="0"/>
+            <xs:element name="product_stream" type="empty" minOccurs="0"/>
+            <xs:element name="property_group" type="empty" minOccurs="0"/>
+            <xs:element name="product_review" type="empty" minOccurs="0"/>
+            <xs:element name="event_action" type="empty" minOccurs="0"/>
+            <xs:element name="country" type="empty" minOccurs="0"/>
+            <xs:element name="currency" type="empty" minOccurs="0"/>
+            <xs:element name="customer_group" type="empty" minOccurs="0"/>
+            <xs:element name="delivery_time" type="empty" minOccurs="0"/>
+            <xs:element name="document_base_config" type="empty" minOccurs="0"/>
+            <xs:element name="language" type="empty" minOccurs="0"/>
+            <xs:element name="number_range" type="empty" minOccurs="0"/>
+            <xs:element name="payment_method" type="empty" minOccurs="0"/>
+            <xs:element name="rule" type="empty" minOccurs="0"/>
+            <xs:element name="salutation" type="empty" minOccurs="0"/>
+            <xs:element name="shipping_method" type="empty" minOccurs="0"/>
+            <xs:element name="tax" type="empty" minOccurs="0"/>
         </xs:choice>
     </xs:complexType>
     <xs:complexType name="empty">

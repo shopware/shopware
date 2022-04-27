@@ -3,7 +3,7 @@ import swProductDetailState from './state';
 import errorConfiguration from './error.cfg.json';
 import './sw-product-detail.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Context, Mixin } = Shopware;
 const { Criteria, ChangesetGenerator } = Shopware.Data;
 const { hasOwnProperty, cloneDeep } = Shopware.Utils.object;
 const { mapPageErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
@@ -49,6 +49,7 @@ Component.register('sw-product-detail', {
             productNumberPreview: '',
             isSaveSuccessful: false,
             cloning: false,
+            defaultSalesChannelVisibility: 30,
         };
     },
 
@@ -119,6 +120,14 @@ Component.register('sw-product-detail', {
 
         customFieldSetRepository() {
             return this.repositoryFactory.create('custom_field_set');
+        },
+
+        salesChannelRepository() {
+            return this.repositoryFactory.create('sales_channel');
+        },
+
+        productVisibilityRepository() {
+            return this.repositoryFactory.create(this.product.visibilities.entity);
         },
 
         mediaRepository() {
@@ -552,10 +561,36 @@ Component.register('sw-product-detail', {
 
                 this.product.purchasePrices = this.getDefaultPurchasePrices();
 
-                // Set default tax rate on creation
+                // Set default tax rate / sales channels on creation
                 if (this.product.isNew) {
                     this.getDefaultTaxRate().then((result) => {
                         this.product.taxId = result;
+                    });
+
+                    this.getDefaultSalesChannels().then((result) => {
+                        if (type.isEmpty(result)) {
+                            return;
+                        }
+
+                        this.product.active = result.defaultActive;
+
+                        if (!result.defaultSalesChannelIds || result.defaultSalesChannelIds.length <= 0) {
+                            return;
+                        }
+
+                        this.fetchSalesChannelByIds(result.defaultSalesChannelIds).then(salesChannels => {
+                            if (!salesChannels.length) {
+                                return;
+                            }
+
+                            salesChannels.forEach((salesChannel) => {
+                                const visibilities = this.createProductVisibilityEntity(
+                                    result.defaultVisibilities,
+                                    salesChannel,
+                                );
+                                this.product.visibilities.push(visibilities);
+                            });
+                        });
                     });
                 }
 
@@ -657,6 +692,43 @@ Component.register('sw-product-detail', {
             }).then(() => {
                 Shopware.State.commit('swProductDetail/setLoading', ['defaultFeatureSet', false]);
             });
+        },
+
+        getDefaultSalesChannels() {
+            return this.systemConfigApiService
+                .getValues('core.defaultSalesChannel')
+                .then(response => {
+                    if (type.isEmpty(response)) {
+                        return {};
+                    }
+
+                    return {
+                        defaultSalesChannelIds: response?.['core.defaultSalesChannel.salesChannel'],
+                        defaultVisibilities: response?.['core.defaultSalesChannel.visibility'],
+                        defaultActive: !!response?.['core.defaultSalesChannel.active'],
+                    };
+                });
+        },
+
+        fetchSalesChannelByIds(ids) {
+            const criteria = new Criteria();
+
+            criteria.addFilter(Criteria.equalsAny('id', ids));
+
+            return this.salesChannelRepository.search(criteria);
+        },
+
+        createProductVisibilityEntity(visibility, salesChannel) {
+            const visibilities = this.productVisibilityRepository.create(Context.api);
+
+            Object.assign(visibilities, {
+                visibility: visibility[salesChannel.id] || this.defaultSalesChannelVisibility,
+                productId: this.product.id,
+                salesChannelId: salesChannel.id,
+                salesChannel: salesChannel,
+            });
+
+            return visibilities;
         },
 
         abortOnLanguageChange() {

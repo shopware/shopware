@@ -80,12 +80,9 @@ Component.register('sw-bulk-edit-product', {
             return Object.values(this.bulkEditProduct).some(field => field.isChanged) || this.bulkEditSelected.length > 0;
         },
         customFieldSetCriteria() {
-            const criteria = new Criteria(1, 100);
+            const criteria = new Criteria(1, null);
 
             criteria.addFilter(Criteria.equals('relations.entityName', 'product'));
-            criteria
-                .getAssociation('customFields')
-                .addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
 
             return criteria;
         },

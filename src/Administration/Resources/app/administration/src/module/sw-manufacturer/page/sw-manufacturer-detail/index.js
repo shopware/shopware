@@ -67,14 +67,10 @@ Component.register('sw-manufacturer-detail', {
         },
 
         customFieldSetCriteria() {
-            const criteria = new Criteria(1, 100);
+            const criteria = new Criteria(1, null);
             criteria.addFilter(
                 Criteria.equals('relations.entityName', 'product_manufacturer'),
             );
-
-            criteria.getAssociation('customFields')
-                .addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true))
-                .setLimit(100);
 
             return criteria;
         },
@@ -143,7 +139,7 @@ Component.register('sw-manufacturer-detail', {
             this.customFieldSetRepository
                 .search(this.customFieldSetCriteria)
                 .then((result) => {
-                    this.customFieldSets = result.filter((set) => set.customFields.length > 0);
+                    this.customFieldSets = result;
                 });
         },
 

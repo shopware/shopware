@@ -48,6 +48,8 @@ import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-process';
 import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success';
 import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-error';
 import 'src/app/component/base/sw-modal';
+import 'src/app/component/base/sw-tabs';
+import 'src/app/component/base/sw-tabs-item';
 
 const routes = [
     {
@@ -205,7 +207,8 @@ function createWrapper(productEntityOverride) {
             'sw-product-detail-context-prices': true,
             'sw-category-tree-field': true,
             'sw-bulk-edit-product-media': true,
-            'sw-tabs': true,
+            'sw-tabs': Shopware.Component.build('sw-tabs'),
+            'sw-tabs-item': Shopware.Component.build('sw-tabs-item'),
             'sw-alert': true,
             'sw-label': true,
             'sw-extension-component-section': true,
@@ -255,6 +258,13 @@ function createWrapper(productEntityOverride) {
                     if (entity === 'currency') {
                         return {
                             search: () => Promise.resolve([{ id: 'currencyId1', isSystemDefault: true }]),
+                            get: () => Promise.resolve({ id: '' })
+                        };
+                    }
+
+                    if (entity === 'custom_field_set') {
+                        return {
+                            search: () => Promise.resolve([{ id: 'field-set-id-1' }]),
                             get: () => Promise.resolve({ id: '' })
                         };
                     }

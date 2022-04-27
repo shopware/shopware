@@ -74,13 +74,9 @@ Component.register('sw-media-quickinfo', {
 
         async getCustomFieldSets() {
             const criteria = new Criteria(1, 100)
-                .addFilter(Criteria.equals('relations.entityName', 'media'))
-                .addAssociation('customFields')
-                .addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true))
-                .setLimit(100);
+                .addFilter(Criteria.equals('relations.entityName', 'media'));
 
-            const searchResult = await this.customFieldSetRepository.search(criteria);
-            this.customFieldSets = searchResult.filter(set => set.customFields.length > 0);
+            this.customFieldSets = await this.customFieldSetRepository.search(criteria);
         },
 
         async onSaveCustomFields(item) {

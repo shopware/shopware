@@ -37,6 +37,8 @@ import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-process';
 import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success';
 import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-error';
 import 'src/app/component/base/sw-modal';
+import 'src/app/component/base/sw-tabs';
+import 'src/app/component/base/sw-tabs-item';
 
 const routes = [
     {
@@ -155,7 +157,9 @@ function createWrapper(isResponseError = false) {
             'sw-icon': true,
             'sw-help-text': true,
             'sw-alert': true,
-            'sw-label': true
+            'sw-label': true,
+            'sw-tabs': Shopware.Component.build('sw-tabs'),
+            'sw-tabs-item': Shopware.Component.build('sw-tabs-item'),
         },
         props: {
             title: 'Foo bar'
@@ -165,7 +169,14 @@ function createWrapper(isResponseError = false) {
             repositoryFactory: {
                 create: () => {
                     return {
-                        create: () => {
+                        create: (entity) => {
+                            if (entity === 'custom_field_set') {
+                                return {
+                                    search: () => Promise.resolve([{ id: 'field-set-id-1' }]),
+                                    get: () => Promise.resolve({ id: '' })
+                                };
+                            }
+
                             return {
                                 id: '1a2b3c',
                                 name: 'Test Customer'

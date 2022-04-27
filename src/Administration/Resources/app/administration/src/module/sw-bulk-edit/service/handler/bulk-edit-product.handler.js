@@ -42,21 +42,19 @@ class BulkEditProductHandler extends BulkEditBaseHandler {
             payload = payload.filter(change => change.field !== 'price' && change.field !== 'purchasePrices');
         }
 
-        let syncPayload = await this.buildBulkSyncPayload(payload);
+        const syncPayload = await this.buildBulkSyncPayload(payload);
 
         if (updatedPricePayload.length) {
-            if (!types.isEmpty(syncPayload)) {
+            if (!types.isEmpty(syncPayload) && 'upsert-product' in syncPayload) {
                 syncPayload['upsert-product'].payload = this.mapProductPricesToSyncPayload(
                     syncPayload['upsert-product'].payload,
                     updatedPricePayload,
                 );
             } else {
-                syncPayload = {
-                    'upsert-product': {
-                        action: 'upsert',
-                        entity: 'product',
-                        payload: updatedPricePayload,
-                    },
+                syncPayload['upsert-product'] = {
+                    action: 'upsert',
+                    entity: 'product',
+                    payload: updatedPricePayload,
                 };
             }
         }

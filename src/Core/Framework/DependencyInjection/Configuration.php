@@ -328,6 +328,7 @@ class Configuration implements ConfigurationInterface
         $rootNode = (new TreeBuilder('cache'))->getRootNode();
         $rootNode
             ->children()
+                ->scalarNode('redis_prefix')->end()
                 ->arrayNode('invalidation')
                     ->children()
                         ->integerNode('delay')

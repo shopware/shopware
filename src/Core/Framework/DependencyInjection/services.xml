@@ -667,5 +667,9 @@ base-uri 'self';
         <service id="Shopware\Core\Framework\Routing\RouteParamsCleanupListener">
             <tag name="kernel.event_listener"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory">
+            <argument>%shopware.cache.redis_prefix%</argument>
+        </service>
     </services>
 </container>

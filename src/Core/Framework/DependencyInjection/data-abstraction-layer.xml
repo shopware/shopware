@@ -576,6 +576,7 @@
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry" public="true">

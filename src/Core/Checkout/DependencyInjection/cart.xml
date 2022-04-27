@@ -389,7 +389,7 @@
         </service>
 
         <service id="shopware.cart.redis" class="Redis">
-            <factory class="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory" method="createConnection"/>
+            <factory service="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory" method="create"/>
             <argument>%shopware.cart.redis_url%</argument>
         </service>
 

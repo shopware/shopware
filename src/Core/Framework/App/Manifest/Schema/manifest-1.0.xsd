@@ -50,6 +50,13 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
+                <xs:element name="allowed-hosts" type="allowed-hosts" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation xml:lang="en">
+                            Define all hosts your app talks to.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
                 <xs:element name="custom-fields" type="custom-fields" minOccurs="0">
                     <xs:annotation>
                         <xs:documentation xml:lang="en">
@@ -151,6 +158,11 @@
             <xs:element name="delete" maxOccurs="unbounded" type="xs:string"/>
             <xs:element name="permission" maxOccurs="unbounded" type="xs:string"/>
         </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="allowed-hosts">
+        <xs:sequence maxOccurs="unbounded">
+            <xs:element name="host" type="xs:string"/>
+        </xs:sequence>
     </xs:complexType>
     <xs:complexType name="custom-fields">
         <xs:sequence>

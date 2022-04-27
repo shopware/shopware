@@ -1075,6 +1075,25 @@ class AppLifecycleTest extends TestCase
         static::assertNotContains($appPrivilege, $aclRole->getPrivileges());
     }
 
+    public function testInstallWithAllowedHosts(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17950', $this);
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withAllowedHosts/manifest.xml');
+        $this->appLifecycle->install($manifest, true, $this->context);
+
+        /** @var AppCollection $apps */
+        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(1, $apps);
+        $app = $apps->first();
+        static::assertNotNull($app);
+        static::assertEquals('withAllowedHosts', $app->getName());
+        static::assertCount(2, $app->getAllowedHosts());
+        static::assertTrue(\in_array('shopware.com', $app->getAllowedHosts(), true));
+        static::assertTrue(\in_array('example.com', $app->getAllowedHosts(), true));
+    }
+
     private function assertDefaultActionButtons(): void
     {
         $actionButtons = $this->actionButtonRepository->search(new Criteria(), $this->context)->getEntities();

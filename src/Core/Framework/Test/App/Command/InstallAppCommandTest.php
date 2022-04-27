@@ -72,6 +72,25 @@ class InstallAppCommandTest extends TestCase
         static::assertStringContainsString('[OK] App withPermissions has been successfully installed.', $display);
     }
 
+    public function testInstallWithAllowedHosts(): void
+    {
+        $commandTester = new CommandTester($this->createCommand(__DIR__ . '/_fixtures'));
+        $commandTester->setInputs(['yes', 'yes']);
+
+        $commandTester->execute(['name' => 'withAllowedHosts']);
+
+        static::assertEquals(0, $commandTester->getStatusCode());
+        $display = $commandTester->getDisplay();
+
+        // header domain
+        static::assertMatchesRegularExpression('/.*Domain\s+\n.*/', $display);
+        // content domains
+        static::assertMatchesRegularExpression('/.*shopware.com\s+\n.*/', $display);
+        static::assertMatchesRegularExpression('/.*example.com\s+\n.*/', $display);
+
+        static::assertStringContainsString('[OK] App withAllowedHosts has been successfully installed.', $display);
+    }
+
     public function testInstallWithPermissionsCancel(): void
     {
         $commandTester = new CommandTester($this->createCommand(__DIR__ . '/_fixtures'));

@@ -8,11 +8,12 @@ use Shopware\Administration\Controller\AdminExtensionApiController;
 use Shopware\Administration\Controller\Exception\AppByNameNotFoundException;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Executor;
+use Shopware\Core\Framework\App\Manifest\Exception\UnallowedHostException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -22,11 +23,12 @@ class AdminExtensionApiControllerTest extends TestCase
 
     private const EXISTING_APP_NAME = 'existingappname';
     private const NONE_EXISTING_APP_NAME = 'noneexistingappname';
-    private const TARGET_URL = 'http://example.com';
 
     private Context $context;
 
     private AdminExtensionApiController $adminExtensionApiController;
+
+    private EntityRepositoryInterface $appRepository;
 
     /**
      * @var Executor|MockObject
@@ -36,17 +38,25 @@ class AdminExtensionApiControllerTest extends TestCase
     protected function setUp(): void
     {
         $container = $this->getContainer();
-        $appRepository = $container->get('app.repository');
+        $this->appRepository = $container->get('app.repository');
         $this->executor = $this->createMock(Executor::class);
         $this->context = Context::createDefaultContext();
 
         $this->adminExtensionApiController = new AdminExtensionApiController(
             $this->executor,
             $container->get(ShopIdProvider::class),
-            $appRepository
+            $this->appRepository
         );
+    }
 
-        $appRepository->create([
+    /**
+     * @dataProvider providerRunAction
+     */
+    public function testRunAction(string $appName, ?string $targetUrl = null, ?array $hosts = []): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17950', $this);
+
+        $this->appRepository->create([
             [
                 'name' => self::EXISTING_APP_NAME,
                 'path' => \sprintf('custom/apps/%s', self::EXISTING_APP_NAME),
@@ -64,16 +74,10 @@ class AdminExtensionApiControllerTest extends TestCase
                     'name' => self::EXISTING_APP_NAME,
                     'privileges' => [],
                 ],
+                'allowedHosts' => $hosts,
             ],
         ], $this->context);
-    }
 
-    /**
-     * @dataProvider providerRunAction
-     */
-    public function testRunAction(string $appName, ?AppAction $action = null): void
-    {
-        Feature::skipTestIfInActive('FEATURE_NEXT_17950', $this);
         $requestDataBag = new RequestDataBag([
             'appName' => $appName,
             'entity' => 'customer',
@@ -81,48 +85,48 @@ class AdminExtensionApiControllerTest extends TestCase
             'ids' => [],
         ]);
 
-        if ($action !== null) {
-            $requestDataBag->set('url', $action->getTargetUrl());
+        if ($targetUrl) {
+            $requestDataBag->set('url', $targetUrl);
         }
 
         $appExists = $appName === self::EXISTING_APP_NAME;
         if (!$appExists) {
             $this->expectException(AppByNameNotFoundException::class);
             $this->expectExceptionMessage(\sprintf('The provided name %s is invalid and no app could be found.', $appName));
+
+            $this->adminExtensionApiController->runAction($requestDataBag, $this->context);
+
+            return;
+        }
+
+        if (empty($hosts)) {
+            $this->expectException(UnallowedHostException::class);
         } else {
-            $this->executor->expects(static::once())->method('execute')->with(static::callback(static function (AppAction $action) {
-                return $action->getTargetUrl() === 'http://example.com';
+            $this->executor->expects(static::once())->method('execute')->with(static::callback(static function (AppAction $action) use ($targetUrl) {
+                return $action->getTargetUrl() === $targetUrl;
             }))->willReturn(new Response());
         }
 
         $response = $this->adminExtensionApiController->runAction($requestDataBag, $this->context);
-
-        if ($appExists) {
-            static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        }
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
 
     public function providerRunAction(): array
     {
-        $action = new AppAction(
-            self::TARGET_URL,
-            self::TARGET_URL,
-            '0.0.1',
-            'customer',
-            'PHPUnit',
-            [],
-            'foo',
-            'bar',
-            Uuid::randomHex()
-        );
-
         return [
             [
                 self::NONE_EXISTING_APP_NAME,
             ],
             [
                 self::EXISTING_APP_NAME,
-                $action,
+                'https://example.com',
+            ],
+            [
+                self::EXISTING_APP_NAME,
+                'https://example.com',
+                [
+                    'example.com',
+                ],
             ],
         ];
     }

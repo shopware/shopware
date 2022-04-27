@@ -31,7 +31,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\ScriptDefinition;
 use Shopware\Core\Framework\Webhook\WebhookDefinition;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
@@ -67,6 +66,7 @@ class AppDefinition extends EntityDefinition
             'allowDisable' => true,
             'modules' => [],
             'cookies' => [],
+            'allowedHosts' => [],
         ];
     }
 
@@ -95,6 +95,9 @@ class AppDefinition extends EntityDefinition
             new JsonField('main_module', 'mainModule'),
             (new ListField('cookies', 'cookies', JsonField::class))->setStrict(true),
             (new BoolField('allow_disable', 'allowDisable'))->addFlags(new Required()),
+            new StringField('base_app_url', 'baseAppUrl', 1024),
+            (new ListField('allowed_hosts', 'allowedHosts', StringField::class))->setStrict(true),
+
             (new TranslationsAssociationField(AppTranslationDefinition::class, 'app_id'))->addFlags(new Required(), new CascadeDelete()),
             new TranslatedField('label'),
             new TranslatedField('description'),
@@ -116,12 +119,6 @@ class AppDefinition extends EntityDefinition
             (new OneToManyAssociationField('cmsBlocks', AppCmsBlockDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('flowActions', AppFlowActionDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
         ]);
-
-        if (Feature::isActive('FEATURE_NEXT_17950')) {
-            $fields->add(
-                new StringField('base_app_url', 'baseAppUrl', 1024)
-            );
-        }
 
         return $fields;
     }

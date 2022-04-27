@@ -141,6 +141,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultCmsBlocks($apps->first()->getId());
         $this->assertAssetExists($apps->first()->getName());
         $this->assertFlowActionExists($apps->first()->getId());
+        $this->assertDefaultHosts($apps->first());
     }
 
     public function testInstallRollbacksRegistrationFailure(): void
@@ -427,6 +428,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultPaymentMethods($apps->first()->getId());
         $this->assertAssetExists($apps->first()->getName());
         $this->assertFlowActionExists($apps->first()->getId());
+        $this->assertDefaultHosts($apps->first());
     }
 
     public function testUpdateActiveApp(): void
@@ -588,6 +590,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultPaymentMethods($apps->first()->getId());
         $this->assertAssetExists($apps->first()->getName());
         $this->assertFlowActionExists($apps->first()->getId());
+        $this->assertDefaultHosts($apps->first());
     }
 
     public function testUpdateDoesRunRegistrationIfNecessary(): void
@@ -669,6 +672,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultPaymentMethods($apps->first()->getId());
         $this->assertAssetExists($apps->first()->getName());
         $this->assertFlowActionExists($apps->first()->getId());
+        $this->assertDefaultHosts($apps->first());
     }
 
     public function testUpdateSetsConfiguration(): void
@@ -1501,5 +1505,17 @@ class AppLifecycleTest extends TestCase
             'orderAware',
             'customerAware',
         ]);
+    }
+
+    private function assertDefaultHosts(AppEntity $app): void
+    {
+        static::assertEquals([
+            'my.app.com',
+            'test.com',
+            'base-url.com',
+            'main-module',
+            'swag-test.com',
+            'payment.app',
+        ], $app->getAllowedHosts());
     }
 }

@@ -61,6 +61,32 @@ class Admin extends XmlElement
         return $this->baseAppUrl;
     }
 
+    /**
+     * @return string[]
+     */
+    public function getUrls(): array
+    {
+        $urls = [];
+
+        if ($this->baseAppUrl) {
+            $urls[] = $this->baseAppUrl;
+        }
+
+        if ($this->mainModule) {
+            $urls[] = $this->mainModule->getSource();
+        }
+
+        foreach ($this->modules as $module) {
+            $urls[] = $module->getSource();
+        }
+
+        foreach ($this->actionButtons as $actionButton) {
+            $urls[] = $actionButton->getUrl();
+        }
+
+        return array_filter($urls);
+    }
+
     private static function parseChilds(\DOMElement $element): array
     {
         if (\count($element->getElementsByTagName('main-module')) > 1) {

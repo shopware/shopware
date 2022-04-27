@@ -159,4 +159,33 @@ class Manifest
     {
         return $this->payments;
     }
+
+    /**
+     * @return string[] all hosts referenced in the manifest file
+     */
+    public function getAllHosts(): array
+    {
+        $hosts = $this->allowedHosts ? $this->allowedHosts->getHosts() : [];
+
+        $urls = [];
+        if ($this->setup) {
+            $urls[] = $this->setup->getRegistrationUrl();
+        }
+
+        if ($this->webhooks) {
+            $urls = array_merge($urls, $this->webhooks->getUrls());
+        }
+
+        if ($this->admin) {
+            $urls = array_merge($urls, $this->admin->getUrls());
+        }
+
+        if ($this->payments) {
+            $urls = array_merge($urls, $this->payments->getUrls());
+        }
+
+        $urls = array_map(fn (string $url) => \parse_url($url, \PHP_URL_HOST), $urls);
+
+        return array_values(array_unique(array_merge($hosts, $urls)));
+    }
 }

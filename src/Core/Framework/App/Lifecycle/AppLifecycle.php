@@ -231,7 +231,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $metadata['iconRaw'] = $this->appLoader->getIcon($manifest);
         $metadata['cookies'] = $manifest->getCookies() !== null ? $manifest->getCookies()->getCookies() : [];
         $metadata['baseAppUrl'] = $manifest->getAdmin() !== null ? $manifest->getAdmin()->getBaseAppUrl() : null;
-        $metadata['allowedHosts'] = $this->getAllowedHosts($manifest);
+        $metadata['allowedHosts'] = $manifest->getAllHosts();
 
         $this->updateMetadata($metadata, $context);
 
@@ -579,15 +579,5 @@ class AppLifecycle extends AbstractAppLifecycle
         }, $manifestWebhooks));
 
         return $webhooks;
-    }
-
-    private function getAllowedHosts(Manifest $manifest): array
-    {
-        $allowedHosts = $manifest->getAllowedHosts();
-        if (!$allowedHosts) {
-            return [];
-        }
-
-        return $allowedHosts->getHosts();
     }
 }

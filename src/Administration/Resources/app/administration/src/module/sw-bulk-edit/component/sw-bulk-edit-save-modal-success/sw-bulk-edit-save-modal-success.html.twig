@@ -1,4 +1,3 @@
-<!-- eslint-disable vuejs-accessibility/click-events-have-key-events -->
 {% block sw_bulk_edit_save_modal_success %}
 <div class="sw-bulk-edit-save-modal-success">
     {% block sw_bulk_edit_save_modal_success_icon %}
@@ -15,25 +14,56 @@
     {% endblock %}
 
     {% block sw_bulk_edit_save_modal_error_content %}
-    <p class="sw-bulk-edit-save-modal__help-text">
-        {{ $tc('sw-bulk-edit.modal.success.description') }}
+    <p
+        class="sw-bulk-edit-save-modal__help-text"
+        v-html="description"
+    >
     </p>
     {% endblock %}
 
     {% block sw_bulk_edit_save_modal_success_download_order_documents %}
-    <div v-if="selectedDocumentTypes.length > 0">
-        <p
+    <ul
+        v-if="selectedDocumentTypes.length > 0"
+        class="sw-bulk-edit-save-modal-success__download-order-documents"
+    >
+        {% block sw_bulk_edit_save_modal_success_download_order_document %}
+        <li
             v-for="selectedDocumentType in selectedDocumentTypes"
             :key="selectedDocumentType.id"
-            :class="{
-                'sw-bulk-edit-save-modal-success__download-order-documents': true,
-                'is--disabled': isDownloadingOrderDocument === true
-            }"
-            @click="onDownloadOrderDocuments(selectedDocumentType.technicalName)"
+            class="sw-bulk-edit-save-modal-success__download-order-document"
         >
-            {{ $tc('sw-bulk-edit.modal.success.downloadDocuments', 0, { documentType: selectedDocumentType.translated.name }) }}
-        </p>
-    </div>
+            {% block sw_bulk_edit_save_modal_success_download_order_document_progress %}
+            <div class="progress">
+                {% block sw_bulk_edit_save_modal_success_download_order_document_progress_label %}
+                <div class="progress__label">
+                    <span>{{ selectedDocumentType.translated.name }}</span>
+                    <span>{{ `${document[selectedDocumentType.technicalName].isReached}%` }}</span>
+                </div>
+                {% endblock %}
+                {% block sw_bulk_edit_save_modal_success_download_order_document_progress_bar %}
+                <div class="progress__bar">
+                    <div
+                        class="progress__bar-fill"
+                        :style="{ width: `${document[selectedDocumentType.technicalName].isReached}%` }"
+                    >
+                    </div>
+                </div>
+                {% endblock %}
+            </div>
+            {% endblock %}
+            {% block sw_bulk_edit_save_modal_success_download_order_document_action %}
+            <sw-button
+                class="action"
+                size="small"
+                :disabled="document[selectedDocumentType.technicalName].isCreating || document[selectedDocumentType.technicalName].isDownloading"
+                @click="downloadDocuments(selectedDocumentType.technicalName)"
+            >
+                {{ $tc('sw-bulk-edit.modal.success.buttonDownload') }}
+            </sw-button>
+            {% endblock %}
+        </li>
+        {% endblock %}
+    </ul>
     {% endblock %}
 </div>
 {% endblock %}

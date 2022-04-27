@@ -248,8 +248,9 @@
       "success": {
         "title": "Bulk edit - Success",
         "description": "Bulk edit finished.",
-        "downloadDocuments": "Download your {documentType} documents here",
-        "messageNoDocumentAvailable": "No documents found"
+        "instruction": "The bulk edit has been finished successfully.<br>Below the documents are being generated.",
+        "buttonDownload": "Download",
+        "messageNoDocumentsFound": "No documents found"
       },
       "error": {
         "title": "Bulk edit - Error",

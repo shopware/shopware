@@ -72,27 +72,6 @@ Component.register('sw-bulk-edit-order', {
             return criteria;
         },
 
-        documentTypeConfigs() {
-            return Shopware.State.getters['swBulkEdit/documentTypeConfigs'];
-        },
-
-        createDocumentPayload() {
-            const payload = [];
-
-            this.selectedIds.forEach((selectedId) => {
-                this.documentTypeConfigs.forEach((documentTypeConfig) => {
-                    if (documentTypeConfig) {
-                        payload.push({
-                            ...documentTypeConfig,
-                            orderId: selectedId,
-                        });
-                    }
-                });
-            });
-
-            return payload;
-        },
-
         hasChanges() {
             return Object.values(this.bulkEditData).some((field) => field.isChanged);
         },
@@ -494,7 +473,6 @@ Component.register('sw-bulk-edit-order', {
             const payloadChunks = chunk(this.selectedIds, this.itemsPerRequest);
             const requests = [];
 
-            requests.push(this.createDocument());
             payloadChunks.forEach(payload => {
                 if (statusData.length) {
                     requests.push(bulkEditOrderHandler.bulkEditStatus(payload, statusData));
@@ -514,33 +492,6 @@ Component.register('sw-bulk-edit-order', {
                 }).finally(() => {
                     this.isLoading = false;
                 });
-        },
-
-        async createDocument() {
-            if (!this.createDocumentPayload.length) {
-                return;
-            }
-
-            const invoiceDocuments = this.createDocumentPayload.filter((item) => item.type === 'invoice');
-            const stornoDocuments = this.createDocumentPayload.filter((item) => item.type === 'storno');
-            const creditNoteDocuments = this.createDocumentPayload.filter((item) => item.type === 'credit_note');
-            const deliveryNoteDocuments = this.createDocumentPayload.filter((item) => item.type === 'delivery_note');
-
-            if (invoiceDocuments.length > 0) {
-                await this.orderDocumentApiService.create('invoice', invoiceDocuments);
-            }
-
-            if (stornoDocuments.length > 0) {
-                await this.orderDocumentApiService.create('storno', stornoDocuments);
-            }
-
-            if (creditNoteDocuments.length > 0) {
-                await this.orderDocumentApiService.create('credit_note', creditNoteDocuments);
-            }
-
-            if (deliveryNoteDocuments.length > 0) {
-                await this.orderDocumentApiService.create('delivery_note', deliveryNoteDocuments);
-            }
         },
 
         loadCustomFieldSets() {

@@ -1,17 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success';
 
-const responses = global.repositoryFactoryMock.responses;
-
-responses.addResponse({
-    method: 'post',
-    url: '/search/document',
-    status: 200,
-    response: {
-        data: []
-    }
-});
-
 const swBulkEditState = {
     namespaced: true,
     state() {
@@ -56,12 +45,13 @@ function createWrapper() {
         stubs: {
             'sw-label': true,
             'sw-icon': true,
+            'sw-button': true,
         },
         provide: {
             repositoryFactory: {
                 create: () => {
                     return {
-                        search: () => Promise.resolve(),
+                        search: () => Promise.resolve([]),
                     };
                 },
             },
@@ -96,16 +86,79 @@ describe('sw-bulk-edit-save-modal-success', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should be able to download order documents', async () => {
-        wrapper.vm.createNotificationError = jest.fn();
-        wrapper.vm.orderDocumentApiService.download = jest.fn(() => {
-            return Promise.resolve({ status: 200 });
+    it('should create documents when component created', async () => {
+        wrapper.vm.createDocuments = jest.fn();
+
+        await wrapper.vm.createdComponent();
+
+        expect(wrapper.vm.createDocuments).toHaveBeenCalled();
+        wrapper.vm.createDocuments.mockRestore();
+    });
+
+    it('should get latest documents when component created', async () => {
+        wrapper.vm.getLatestDocuments = jest.fn();
+
+        await wrapper.vm.createdComponent();
+
+        expect(wrapper.vm.getLatestDocuments).toHaveBeenCalled();
+        wrapper.vm.getLatestDocuments.mockRestore();
+    });
+
+    it('should create documents successful', async () => {
+        wrapper.vm.orderDocumentApiService.create = jest.fn(() => Promise.resolve());
+
+        await wrapper.vm.createDocument('invoice', [
+            {
+                config: {
+                    documentDate: 'documentDate',
+                    documentComment: 'documentComment',
+                },
+                fileType: 'pdf',
+                orderId: 'orderId',
+                type: 'invoice',
+            },
+        ]);
+
+        expect(wrapper.vm.document.invoice.isReached).toBe(100);
+        wrapper.vm.orderDocumentApiService.create.mockRestore();
+    });
+
+    it('should not be able to create documents', async () => {
+        wrapper.vm.createDocument = jest.fn();
+
+        await wrapper.vm.createDocuments();
+
+        expect(wrapper.vm.createDocumentPayload).toEqual([]);
+        expect(wrapper.vm.document.invoice.isReached).toBe(100);
+        expect(wrapper.vm.createDocument).not.toHaveBeenCalled();
+        wrapper.vm.createDocument.mockRestore();
+    });
+
+    it('should be able to download documents', async () => {
+        wrapper.vm.orderDocumentApiService.download = jest.fn(() => Promise.resolve());
+
+        await wrapper.setData({
+            latestDocuments: {
+                invoice: {
+                    foo: 'bar',
+                }
+            }
         });
+        await wrapper.vm.downloadDocuments('invoice');
 
-        await wrapper.find('.sw-bulk-edit-save-modal-success__download-order-documents').trigger('click');
-        expect(wrapper.vm.createNotificationError).not.toBeCalled();
+        expect(wrapper.vm.orderDocumentApiService.download).toHaveBeenCalled();
+        wrapper.vm.orderDocumentApiService.download.mockRestore();
+    });
 
-        wrapper.vm.createNotificationError.mockRestore();
+    it('should not be able to download documents', async () => {
+        wrapper.vm.orderDocumentApiService.download = jest.fn(() => Promise.resolve());
+
+        await wrapper.setData({
+            latestDocuments: {}
+        });
+        await wrapper.vm.downloadDocuments('invoice');
+
+        expect(wrapper.vm.orderDocumentApiService.download).not.toHaveBeenCalled();
         wrapper.vm.orderDocumentApiService.download.mockRestore();
     });
 });

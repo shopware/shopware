@@ -248,8 +248,9 @@
       "success": {
         "title": "Mehrfachänderung - Erfolg",
         "description": "Mehrfachänderung abgeschlossen.",
-        "downloadDocuments": "Laden Sie Ihre {documentType} Dokumente hier herunter",
-        "messageNoDocumentAvailable": "Keine Dokumente vorhanden"
+        "instruction": "Mehrfachänderung erfolgreich abgeschlossen.<br>Dokumente werden hierunter generiert.",
+        "buttonDownload": "Download",
+        "messageNoDocumentsFound": "Keine Dokumente vorhanden"
       },
       "error": {
         "title": "Mehrfachänderung - Fehler",

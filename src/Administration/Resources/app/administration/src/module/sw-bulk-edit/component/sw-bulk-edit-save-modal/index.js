@@ -53,7 +53,6 @@ Component.register('sw-bulk-edit-save-modal', {
         return {
             title: null,
             buttonConfig: [],
-            isDownloadingOrderDocument: false,
         };
     },
 
@@ -165,10 +164,6 @@ Component.register('sw-bulk-edit-save-modal', {
             }
 
             action.call();
-        },
-
-        setIsDownloadingOrderDocument(isDownloadingOrderDocument) {
-            this.isDownloadingOrderDocument = isDownloadingOrderDocument;
         },
     },
 });

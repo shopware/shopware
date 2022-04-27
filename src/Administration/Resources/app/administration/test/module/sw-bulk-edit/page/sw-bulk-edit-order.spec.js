@@ -511,25 +511,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         expect(changeCustomField.value).toBe(wrapper.vm.bulkEditData.customFields.value);
     });
 
-    it('should be able to create document', async () => {
-        wrapper = createWrapper();
-        wrapper.vm.orderDocumentApiService.create = jest.fn(() => Promise.resolve());
-
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
-            type: 'invoice',
-            isChanged: true,
-        });
-        await wrapper.find('.sw-bulk-edit-order__save-action').trigger('click');
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
-        wrapper.find('.footer-right').find('button').trigger('click');
-        await flushPromises();
-        expect(wrapper.vm.$route.path).toEqual('/success');
-
-        wrapper.vm.orderDocumentApiService.create.mockRestore();
-    });
-
     /**
      * @deprecated tag:v6.5.0 - will be removed
      */
@@ -557,25 +538,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         });
 
         global.activeFeatureFlags = activeFeatureFlags;
-    });
-
-    it('should not be able to create document', async () => {
-        wrapper = createWrapper();
-        wrapper.vm.orderDocumentApiService.create = jest.fn(() => Promise.reject());
-
-        Shopware.State.commit('swBulkEdit/setOrderDocumentsIsChanged', {
-            type: 'invoice',
-            isChanged: true,
-        });
-        await wrapper.find('.sw-bulk-edit-order__save-action').trigger('click');
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
-        wrapper.find('.footer-right').find('button').trigger('click');
-        await flushPromises();
-        expect(wrapper.vm.$route.path).toEqual('/error');
-
-        wrapper.vm.orderDocumentApiService.create.mockRestore();
     });
 
     it('should set route meta module when component created', () => {

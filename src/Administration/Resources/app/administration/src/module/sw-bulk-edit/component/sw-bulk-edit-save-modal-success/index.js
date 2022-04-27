@@ -13,17 +13,31 @@ Component.register('sw-bulk-edit-save-modal-success', {
         Shopware.Mixin.getByName('notification'),
     ],
 
-    props: {
-        isDownloadingOrderDocument: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-    },
-
     data() {
         return {
             latestDocuments: {},
+            document: {
+                invoice: {
+                    isCreating: false,
+                    isReached: 0,
+                    isDownloading: false,
+                },
+                storno: {
+                    isCreating: false,
+                    isReached: 0,
+                    isDownloading: false,
+                },
+                delivery_note: {
+                    isCreating: false,
+                    isReached: 0,
+                    isDownloading: false,
+                },
+                credit_note: {
+                    isCreating: false,
+                    isReached: 0,
+                    isDownloading: false,
+                },
+            },
         };
     },
 
@@ -64,6 +78,46 @@ Component.register('sw-bulk-edit-save-modal-success', {
 
             return this.downloadOrderDocuments.value.filter((item) => item.selected);
         },
+
+        documentTypeConfigs() {
+            return Shopware.State.getters['swBulkEdit/documentTypeConfigs'];
+        },
+
+        createDocumentPayload() {
+            const payload = [];
+
+            this.selectedIds.forEach((selectedId) => {
+                this.documentTypeConfigs?.forEach((documentTypeConfig) => {
+                    if (documentTypeConfig) {
+                        payload.push({
+                            ...documentTypeConfig,
+                            orderId: selectedId,
+                        });
+                    }
+                });
+            });
+
+            return payload;
+        },
+
+        description() {
+            return this.selectedDocumentTypes.length > 0
+                ? this.$tc('sw-bulk-edit.modal.success.instruction')
+                : this.$tc('sw-bulk-edit.modal.success.description');
+        },
+    },
+
+    watch: {
+        document: {
+            deep: true,
+            handler(newValue) {
+                Object.entries(newValue).forEach(([key, value]) => {
+                    if (value.isReached === 100) {
+                        this.$set(this.document[key], 'isCreating', false);
+                    }
+                });
+            },
+        },
     },
 
     created() {
@@ -74,6 +128,7 @@ Component.register('sw-bulk-edit-save-modal-success', {
         async createdComponent() {
             this.updateButtons();
             this.setTitle();
+            await this.createDocuments();
             await this.getLatestDocuments();
         },
 
@@ -96,12 +151,69 @@ Component.register('sw-bulk-edit-save-modal-success', {
             this.$emit('buttons-update', buttonConfig);
         },
 
+        async createDocuments() {
+            if (!this.createDocumentPayload.length) {
+                this.$set(this.document.invoice, 'isReached', 100);
+                this.$set(this.document.storno, 'isReached', 100);
+                this.$set(this.document.delivery_note, 'isReached', 100);
+                this.$set(this.document.credit_note, 'isReached', 100);
+
+                return;
+            }
+
+            const invoiceDocuments = this.createDocumentPayload.filter((item) => item.type === 'invoice');
+            const stornoDocuments = this.createDocumentPayload.filter((item) => item.type === 'storno');
+            const creditNoteDocuments = this.createDocumentPayload.filter((item) => item.type === 'credit_note');
+            const deliveryNoteDocuments = this.createDocumentPayload.filter((item) => item.type === 'delivery_note');
+
+            if (invoiceDocuments.length > 0) {
+                await this.createDocument('invoice', invoiceDocuments);
+            } else {
+                this.$set(this.document.invoice, 'isReached', 100);
+            }
+
+            if (stornoDocuments.length > 0) {
+                await this.createDocument('storno', stornoDocuments);
+            } else {
+                this.$set(this.document.storno, 'isReached', 100);
+            }
+
+            if (creditNoteDocuments.length > 0) {
+                await this.createDocument('credit_note', creditNoteDocuments);
+            } else {
+                this.$set(this.document.credit_note, 'isReached', 100);
+            }
+
+            if (deliveryNoteDocuments.length > 0) {
+                await this.createDocument('delivery_note', deliveryNoteDocuments);
+            } else {
+                this.$set(this.document.delivery_note, 'isReached', 100);
+            }
+        },
+
+        async createDocument(documentType, payload) {
+            this.$set(this.document[documentType], 'isCreating', true);
+
+            if (payload.length <= 10) {
+                await this.orderDocumentApiService.create(documentType, payload).then(() => {
+                    this.$set(this.document[documentType], 'isReached', 100);
+                });
+
+                return;
+            }
+
+            const percentages = 100 / payload.length;
+            payload.forEach(async (item) => {
+                await this.orderDocumentApiService.create(documentType, [item]).then(() => {
+                    this.$set(this.document[documentType], 'isReached', this.document[documentType].isReached + percentages);
+                });
+            });
+        },
+
         async getLatestDocuments() {
             if (this.selectedDocumentTypes.length === 0) {
                 return;
             }
-
-            this.$emit('order-document-download', true);
 
             const latestDocuments = {};
             const maxDocsPerType = this.selectedIds.length;
@@ -130,57 +242,42 @@ Component.register('sw-bulk-edit-save-modal-success', {
                 });
             });
 
-            this.$emit('order-document-download', false);
-
             this.latestDocuments = latestDocuments;
         },
 
-        async onDownloadOrderDocuments(technicalName) {
-            this.$emit('order-document-download', true);
+        downloadDocuments(documentType) {
+            const documentIds = this.latestDocuments[documentType];
 
-            const docIds = this.latestDocuments[technicalName];
-
-            if (!docIds || docIds.length === 0) {
-                this.$emit('order-document-download', false);
-
+            if (!documentIds || documentIds.length === 0) {
                 this.createNotificationInfo({
-                    message: this.$tc('sw-bulk-edit.modal.success.messageNoDocumentAvailable'),
+                    message: this.$tc('sw-bulk-edit.modal.success.messageNoDocumentsFound'),
                 });
 
                 return Promise.resolve();
             }
 
-            return this.orderDocumentApiService.download(docIds)
+            this.$set(this.document[documentType], 'isDownloading', true);
+            return this.orderDocumentApiService.download(documentIds)
                 .then((response) => {
-                    this.$emit('order-document-download', false);
-
-                    if (response.status === 204) {
-                        this.createNotificationInfo({
-                            message: this.$tc('sw-bulk-edit.modal.success.messageNoDocumentAvailable'),
-                        });
+                    if (!response.data) {
                         return;
                     }
 
-                    if (response.status === 200 && response.data) {
-                        this.downloadFiles(response);
-                    }
+                    const filename = response.headers['content-disposition'].split('filename=')[1];
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(response.data);
+                    link.download = filename;
+                    link.dispatchEvent(new MouseEvent('click'));
+                    link.remove();
+
+                    this.$set(this.document[documentType], 'isDownloading', false);
                 })
                 .catch((error) => {
-                    this.$emit('order-document-download', false);
-
                     this.createNotificationError({
                         message: error.message,
                     });
+                    this.$set(this.document[documentType], 'isDownloading', false);
                 });
-        },
-
-        downloadFiles(response) {
-            const filename = response.headers['content-disposition'].split('filename=')[1];
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(response.data);
-            link.download = filename;
-            link.dispatchEvent(new MouseEvent('click'));
-            link.remove();
         },
     },
 });

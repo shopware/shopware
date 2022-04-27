@@ -110,15 +110,17 @@ export default class ShopwareExtensionService {
     }
 
     public async checkLogin(): Promise<void> {
-        if (!Shopware.State.get('shopwareExtensions').shopwareId) {
+        if (Shopware.State.get('shopwareExtensions').userInfo === null) {
             Shopware.State.commit('shopwareExtensions/setLoginStatus', false);
         }
 
         try {
-            const { storeTokenExists } = await this.storeApiService.checkLogin();
-            Shopware.State.commit('shopwareExtensions/setLoginStatus', storeTokenExists);
+            const { userInfo } = await this.storeApiService.checkLogin();
+            Shopware.State.commit('shopwareExtensions/setLoginStatus', !!userInfo);
+            Shopware.State.commit('shopwareExtensions/setUserInfo', userInfo);
         } catch {
             Shopware.State.commit('shopwareExtensions/setLoginStatus', false);
+            Shopware.State.commit('shopwareExtensions/setUserInfo', null);
         }
     }
 

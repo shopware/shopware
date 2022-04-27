@@ -20,6 +20,7 @@
             <parameter key="cancel_license">/swplatform/pluginlicenses/%s/cancel</parameter>
             <parameter key="login">/swplatform/login</parameter>
             <parameter key="create_rating">/swplatform/extensionstore/extensions/%s/ratings</parameter>
+            <parameter key="user_info">/swplatform/userinfo</parameter>
         </parameter>
     </parameters>
     <services>

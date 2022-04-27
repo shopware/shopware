@@ -7,6 +7,16 @@ interface StoreParams {
     [key: string]: unknown,
 }
 
+interface UserInfo {
+    avatarUrl: string,
+    email: string,
+    name: string,
+}
+
+interface UserInfoResponse {
+    userInfo: UserInfo|null,
+}
+
 /**
  * Gateway for the API end point "store"
  */
@@ -39,7 +49,7 @@ export default class StoreApiService extends ApiService {
         const headers = this.getBasicHeaders();
         const params = this.getBasicParams();
 
-        const { data } = await this.httpClient.post<{ storeTokenExists: boolean }>(
+        const { data } = await this.httpClient.post<UserInfoResponse>(
             `/_action/${this.getApiBasePath()}/checklogin`,
             {},
             { params, headers },
@@ -139,4 +149,4 @@ export default class StoreApiService extends ApiService {
     }
 }
 
-export type { StoreApiService };
+export type { StoreApiService, UserInfo };

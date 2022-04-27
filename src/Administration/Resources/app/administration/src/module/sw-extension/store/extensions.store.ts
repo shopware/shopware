@@ -1,4 +1,5 @@
 import type { Module } from 'vuex';
+import type { UserInfo } from 'src/core/service/api/store.api.service';
 import type { Extension } from '../service/extension-store-action.service';
 
 interface ShopwareExtensionsState {
@@ -16,7 +17,10 @@ interface ShopwareExtensionsState {
         loading: boolean,
         data: Extension[]
     }
+    userInfo: UserInfo|null,
+    // @deprecated tag:v6.5.0 - will be removed. Check existence of userInfo instead
     shopwareId: string|null,
+    // @deprecated tag:v6.5.0 - will be removed. Check existence of userInfo instead
     loginStatus: boolean
     // @deprecated tag:v6.5.0 - will be removed
     licensedExtensions: {
@@ -53,6 +57,7 @@ const shopwareExtensionsStore: Module<ShopwareExtensionsState, VuexRootState> = 
                 loading: true,
                 data: [],
             },
+            userInfo: null,
             shopwareId: null,
             loginStatus: false,
             licensedExtensions: {
@@ -111,10 +116,20 @@ const shopwareExtensionsStore: Module<ShopwareExtensionsState, VuexRootState> = 
             state.categoriesLanguageId = languageId;
         },
 
+        setUserInfo(state, userInfo: UserInfo|null) {
+            state.userInfo = userInfo;
+        },
+
+        /**
+         * @deprecated tag:v6.5.0 - will be removed
+         */
         storeShopwareId(state, shopwareId: string|null) {
             state.shopwareId = shopwareId;
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - will be removed
+         */
         setLoginStatus(state, loginStatus: boolean) {
             state.loginStatus = loginStatus;
         },

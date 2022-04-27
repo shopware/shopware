@@ -38,6 +38,10 @@
             <argument>%shopware.cache.invalidation.shipping_method_route%</argument>
         </service>
 
+        <service id="Shopware\Core\Checkout\Shipping\SalesChannel\SortedShippingMethodRoute" decorates="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute" decoration-priority="-2000" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\SortedShippingMethodRoute.inner"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Shipping\Validator\ShippingMethodValidator">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="kernel.event_subscriber"/>

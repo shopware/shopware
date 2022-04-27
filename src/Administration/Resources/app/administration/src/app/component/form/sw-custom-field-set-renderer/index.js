@@ -15,7 +15,11 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-custom-field-set-renderer', {
     template,
 
-    inject: ['feature'],
+    inject: [
+        'feature',
+        'repositoryFactory',
+    ],
+
 
     // Grant access to some variables to the child form render components
     provide() {
@@ -113,12 +117,8 @@ Component.register('sw-custom-field-set-renderer', {
             }
 
             // customFieldSetSelectionActive not set and parent product has no selection
-            if (this.entity.customFieldSetSelectionActive === null
-                && this.getInheritValue('customFieldSetSelectionActive') === null) {
-                return false;
-            }
-
-            return true;
+            return !(this.entity.customFieldSetSelectionActive === null
+                && this.getInheritValue('customFieldSetSelectionActive') === null);
         },
 
         visibleCustomFieldSets() {
@@ -136,13 +136,16 @@ Component.register('sw-custom-field-set-renderer', {
             }));
         },
 
+        customFieldSetRepository() {
+            return this.repositoryFactory.create('custom_field_set');
+        },
+
         customFieldSetCriteria() {
-            const criteria = new Criteria(1, 500);
+            const criteria = new Criteria(1);
 
             criteria.addFilter(Criteria.equals('relations.entityName', this.entity.getEntityName()));
             criteria.addFilter(Criteria.equals('global', 0));
             criteria
-                .getAssociation('customFields')
                 .addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
 
             return criteria;
@@ -326,18 +329,59 @@ Component.register('sw-custom-field-set-renderer', {
             };
         },
 
-        onChangeCustomFieldSets(value, updateFn) {
-            if (this.visibleCustomFieldSets.length > 0 && this.$refs.tabComponent) {
-                // Reset state of tab component if custom field selection changes
-                this.$nextTick(() => {
-                    this.$refs.tabComponent.mountedComponent();
-                    this.$refs.tabComponent.setActiveItem(this.visibleCustomFieldSets[0]);
-                });
-            }
+        customFieldSetCriteriaById() {
+            const criteria = new Criteria(1, 1);
 
-            if (typeof updateFn === 'function') {
-                updateFn(value);
+            criteria
+                .getAssociation('customFields');
+
+            return criteria;
+        },
+
+        refreshCustomFields(sets, cb) {
+            if (!sets) {
+                return cb(sets);
             }
+            const updates = sets.map((fieldSet) => {
+                if (fieldSet.customFields.length === 0) {
+                    // eslint-disable-next-line max-len
+                    return this.customFieldSetRepository.get(fieldSet.id, Shopware.Context.api, this.customFieldSetCriteriaById()).then(set => {
+                        // update the collected sets
+                        this.sets.forEach((originalSet, index) => {
+                            if (originalSet.id === set.id) {
+                                this.sets[index] = set;
+                            }
+                        });
+                        return set;
+                    });
+                }
+                return Promise.resolve(fieldSet);
+            });
+
+            Promise.all(updates)
+                .then((updatedSets) => {
+                    sets.splice(0, sets.length, ...updatedSets);
+                    this.customFields = updatedSets;
+                    cb(sets);
+                });
+
+            return cb(sets);
+        },
+
+        onChangeCustomFieldSets(value, updateFn) {
+            this.refreshCustomFields(value, (sets) => {
+                if (this.visibleCustomFieldSets.length > 0 && this.$refs.tabComponent) {
+                    // Reset state of tab component if custom field selection changes
+                    this.$nextTick(() => {
+                        this.$refs.tabComponent.mountedComponent();
+                        this.$refs.tabComponent.setActiveItem(this.visibleCustomFieldSets[0]);
+                    });
+                }
+
+                if (typeof updateFn === 'function') {
+                    updateFn(sets);
+                }
+            });
         },
 
         onChangeCustomFieldSetSelectionActive(newVal) {

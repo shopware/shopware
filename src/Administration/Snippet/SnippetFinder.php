@@ -85,7 +85,7 @@ class SnippetFinder implements SnippetFinderInterface
             $files[] = $file->getRealPath();
         }
 
-        return $files;
+        return \array_unique($files);
     }
 
     private function parseFiles(array $files): array

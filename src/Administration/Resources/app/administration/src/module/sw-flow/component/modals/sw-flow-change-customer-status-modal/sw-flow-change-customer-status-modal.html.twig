@@ -9,6 +9,7 @@
     <sw-single-select
         v-model="active"
         required
+        :highlight-search-term="false"
         class="sw-flow-change-customer-status-modal__type-select"
         :options="options"
         :label="$tc('sw-flow.modals.customerStatus.labelCustomerStatus')"

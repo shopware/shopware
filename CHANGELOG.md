@@ -2,6 +2,7 @@
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/2020-08-03-Implement-New-Changelog.md).
 
 ## 6.4.11.0
+*  [NEXT-21300 - Saving variant bulk edit action "Add" and "Overwrite" for advanced pricing not possible](/changelog/release-6-4-11-0/2020-04-26-fix-bulk-edit-variant-advanced-pricing-work-not-correct.md)
 *  [NEXT-19367 - Adding the new filter for product variants modal](/changelog/release-6-4-11-0/2022-01-04-adding-the-new-filter-for-product-variant-modal.md)
 *  [NEXT-9292 - Fix image cover jump in product detail](/changelog/release-6-4-11-0/2022-01-12-fix-image-cover-jump-in-product-detail.md)
 *  [NEXT-16790 - Added tag administration](/changelog/release-6-4-11-0/2022-01-19-added-tag-administration-listing.md)
@@ -107,6 +108,9 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-21122 - Fix execution of store-api scripts over GET requests](/changelog/release-6-4-11-0/2022-04-13-fix-store-api-script-over-get.md)
 *  [NEXT-19667 - Show option label in custom field dropdown list](/changelog/release-6-4-11-0/2022-04-13-show-option-label-in-custom-field-dropdown-list.md)
 *  [NEXT-20418 - Allow Apps to require additional privileges](/changelog/release-6-4-11-0/2022-04-19-allow-apps-to-require-additional-privileges.md)
+*  [NEXT-21287 - Missing german translation within Bulk Edit Modal for packaging unit](/changelog/release-6-4-11-0/2022-04-25-fix-translations-in-bulk-edit.md)
+*  [NEXT-21288 - Fix order of cached shipping methods when one selected](/changelog/release-6-4-11-0/2022-04-26-fix-order-of-cached-shipping-methods-when-one-selected.md)
+*  [NEXT-21312 - Duplicated SalesChannel entries when creating new products](/changelog/release-6-4-11-0/2022-04-27-fix-default-saleschannels-on-product-creation.md)
 
 ## 6.4.10.0
 *  [NEXT-18689 - Sort recent updated media files to be on top](/changelog/release-6-4-10-0/2021-12-22-improve-updated-media-files-to-be-on-top.md)

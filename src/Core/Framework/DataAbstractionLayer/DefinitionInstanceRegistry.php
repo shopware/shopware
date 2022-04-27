@@ -8,7 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundExc
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityRepositoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 class DefinitionInstanceRegistry
 {
@@ -61,14 +60,14 @@ class DefinitionInstanceRegistry
 
     public function get(string $class): EntityDefinition
     {
-        try {
+        if ($this->container->has($class)) {
             $definition = $this->container->get($class);
 
             /** @var EntityDefinition $definition */
             return $definition;
-        } catch (ServiceNotFoundException $e) {
-            throw new DefinitionNotFoundException($class);
         }
+
+        throw new DefinitionNotFoundException($class);
     }
 
     /**
@@ -95,11 +94,11 @@ class DefinitionInstanceRegistry
     {
         $definitionClass = $this->getDefinitionClassByEntityName($entityName);
 
-        try {
+        if ($this->container->has($definitionClass)) {
             return $this->get($definitionClass);
-        } catch (ServiceNotFoundException $e) {
-            throw new DefinitionNotFoundException($entityName);
         }
+
+        throw new DefinitionNotFoundException($entityName);
     }
 
     /**

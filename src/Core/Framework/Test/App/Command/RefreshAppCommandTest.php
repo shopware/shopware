@@ -21,10 +21,7 @@ class RefreshAppCommandTest extends TestCase
     use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $appRepository;
+    private EntityRepositoryInterface $appRepository;
 
     public function setUp(): void
     {
@@ -76,7 +73,7 @@ class RefreshAppCommandTest extends TestCase
     public function testRefreshWithPermissionsOnInstall(): void
     {
         $commandTester = new CommandTester($this->createCommand(__DIR__ . '/_fixtures/withPermissions'));
-        $commandTester->setInputs(['yes', 'yes']);
+        $commandTester->setInputs(['yes', 'yes', 'yes']);
 
         $commandTester->execute([]);
 
@@ -90,6 +87,12 @@ class RefreshAppCommandTest extends TestCase
         static::assertMatchesRegularExpression('/.*product\s+write, delete\s+\n.*/', $display);
         static::assertMatchesRegularExpression('/.*category\s+write\s+\n.*/', $display);
         static::assertMatchesRegularExpression('/.*order\s+read\s+\n.*/', $display);
+
+        // header domains
+        static::assertMatchesRegularExpression('/.*Domain\s+\n.*/', $display);
+        // content domains
+        static::assertMatchesRegularExpression('/.*my.app.com\s+\n.*/', $display);
+        static::assertMatchesRegularExpression('/.*swag-test.com\s+\n.*/', $display);
 
         // header app list
         static::assertMatchesRegularExpression('/.*App\s+Label\s+Version\s+Author\s+\n.*/', $display);
@@ -181,7 +184,7 @@ class RefreshAppCommandTest extends TestCase
         ]], Context::createDefaultContext());
 
         $commandTester = new CommandTester($this->createCommand(__DIR__ . '/_fixtures/withPermissions'));
-        $commandTester->setInputs(['yes', 'yes']);
+        $commandTester->setInputs(['yes', 'yes', 'yes']);
 
         $commandTester->execute([]);
 
@@ -195,6 +198,12 @@ class RefreshAppCommandTest extends TestCase
         static::assertMatchesRegularExpression('/.*product\s+write, delete\s+\n.*/', $display);
         static::assertMatchesRegularExpression('/.*category\s+write\s+\n.*/', $display);
         static::assertMatchesRegularExpression('/.*order\s+read\s+\n.*/', $display);
+
+        // header domains
+        static::assertMatchesRegularExpression('/.*Domain\s+\n.*/', $display);
+        // content domains
+        static::assertMatchesRegularExpression('/.*my.app.com\s+\n.*/', $display);
+        static::assertMatchesRegularExpression('/.*swag-test.com\s+\n.*/', $display);
 
         // header app list
         static::assertMatchesRegularExpression('/.*App\s+Label\s+Version\s+Author\s+\n.*/', $display);
@@ -254,7 +263,7 @@ class RefreshAppCommandTest extends TestCase
     public function testRefreshRegistrationFailure(): void
     {
         $commandTester = new CommandTester($this->createCommand(__DIR__ . '/_fixtures/registrationFailure'));
-        $commandTester->setInputs(['yes']);
+        $commandTester->setInputs(['yes', 'yes']);
 
         $commandTester->execute([]);
 
@@ -273,7 +282,7 @@ class RefreshAppCommandTest extends TestCase
     public function testRefreshValidationFailure(): void
     {
         $commandTester = new CommandTester($this->createCommand(__DIR__ . '/_fixtures'));
-        $commandTester->setInputs(['yes', 'yes', 'yes', 'yes']);
+        $commandTester->setInputs(['yes', 'yes', 'yes', 'yes', 'yes', 'yes', 'yes']);
 
         $commandTester->execute([]);
 

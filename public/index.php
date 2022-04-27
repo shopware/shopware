@@ -17,7 +17,7 @@ $classLoader = require __DIR__.'/../vendor/autoload.php';
 
 $projectRoot = dirname(__DIR__);
 if (class_exists(Dotenv::class) && (file_exists($projectRoot . '/.env.local.php') || file_exists($projectRoot . '/.env') || file_exists($projectRoot . '/.env.dist'))) {
-    (new Dotenv())->usePutenv()->bootEnv(dirname(__DIR__) . '/.env');
+    (new Dotenv())->usePutenv()->setProdEnvs(['prod', 'e2e'])->bootEnv(dirname(__DIR__) . '/.env');
 }
 
 $appEnv = $_SERVER['APP_ENV'] ?? $_ENV['APP_ENV'] ?? 'dev';

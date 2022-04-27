@@ -34,7 +34,7 @@ if ($input->hasParameterOption('--no-debug', true)) {
 
 $projectRoot = dirname(__DIR__);
 if (class_exists(Dotenv::class) && (file_exists($projectRoot . '/.env.local.php') || file_exists($projectRoot . '/.env') || file_exists($projectRoot . '/.env.dist'))) {
-    (new Dotenv())->usePutenv()->bootEnv(dirname(__DIR__) . '/.env');
+    (new Dotenv())->usePutenv()->setProdEnvs(['prod', 'e2e'])->bootEnv(dirname(__DIR__) . '/.env');
 }
 
 if ($_SERVER['APP_DEBUG']) {

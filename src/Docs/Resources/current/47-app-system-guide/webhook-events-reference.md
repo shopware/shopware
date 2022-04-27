@@ -86,5 +86,7 @@
 |`customer_address.deleted` | Triggers when a customer_address is deleted | `customer_address:read` | {"entity":"customer_address","operation":"update insert","primaryKey":"array string","payload":"array"}
 |`order.written` | Triggers when a order is written | `order:read` | {"entity":"order","operation":true,"primaryKey":"array string","payload":"array"}
 |`order.deleted` | Triggers when a order is deleted | `order:read` | {"entity":"order","operation":"update insert","primaryKey":"array string","payload":"array"}
+|`order_address.written` | Triggers when a order_address is written | `order_address:read` | {"entity":"order_address","operation":true,"primaryKey":"array string","payload":"array"}
+|`order_address.deleted` | Triggers when a order_address is deleted | `order_address:read` | {"entity":"order_address","operation":"update insert","primaryKey":"array string","payload":"array"}
 |`document.written` | Triggers when a document is written | `document:read` | {"entity":"document","operation":true,"primaryKey":"array string","payload":"array"}
 |`document.deleted` | Triggers when a document is deleted | `document:read` | {"entity":"document","operation":"update insert","primaryKey":"array string","payload":"array"}

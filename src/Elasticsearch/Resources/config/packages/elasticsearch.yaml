@@ -7,6 +7,36 @@ elasticsearch:
     throw_exception: "%env(string:SHOPWARE_ES_THROW_EXCEPTION)%"
     ssl:
         verify_server_cert: true
+    index_settings:
+        number_of_shards: 3
+        number_of_replicas: 3
+        'mapping.total_fields.limit': 50000
+        'mapping.nested_fields.limit': 500
+        'mapping.nested_objects.limit': 1000000
+    analysis:
+        normalizer:
+            sw_lowercase_normalizer:
+                type: custom
+                filter: ['lowercase']
+        analyzer:
+            sw_ngram_analyzer:
+                type: custom
+                tokenizer: whitespace
+                filter: ['lowercase', 'sw_ngram_filter']
+        filter:
+            sw_ngram_filter:
+                type: ngram
+                min_gram: 4
+                max_gram: 5
+    dynamic_templates:
+        - keywords:
+            match_mapping_type: string
+            mapping:
+                type: keyword
+                normalizer: sw_lowercase_normalizer
+                fields:
+                    text:
+                        type: text
 
 parameters:
     default_elasticsearch_prefix: "sw"

@@ -31,4 +31,24 @@ class ScriptLoaderTest extends TestCase
             $loader->get('include')
         );
     }
+
+    public function testGetInactiveScripts(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures', false);
+
+        $loader = $this->getContainer()->get(ScriptLoader::class);
+
+        static::assertCount(
+            0,
+            $loader->get('include-case')
+        );
+        static::assertCount(
+            0,
+            $loader->get('multi-script-case')
+        );
+        static::assertCount(
+            0,
+            $loader->get('include')
+        );
+    }
 }

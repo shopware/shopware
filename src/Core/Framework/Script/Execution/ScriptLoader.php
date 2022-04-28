@@ -82,7 +82,7 @@ class ScriptLoader implements EventSubscriberInterface
                    `app`.`version` AS appVersion
             FROM `script`
             LEFT JOIN `app` ON `script`.`app_id` = `app`.`id`
-            WHERE `script`.`hook` != 'include'
+            WHERE `script`.`hook` != 'include' AND `app`.`active` = 1 AND `script`.`active` = 1
             ORDER BY `app`.`created_at`, `app`.`id`, `script`.`name`
         ");
 
@@ -95,7 +95,7 @@ class ScriptLoader implements EventSubscriberInterface
                    IFNULL(`script`.`updated_at`, `script`.`created_at`) AS lastModified
             FROM `script`
             LEFT JOIN `app` ON `script`.`app_id` = `app`.`id`
-            WHERE `script`.`hook` = 'include'
+            WHERE `script`.`hook` = 'include' AND `app`.`active` = 1 AND `script`.`active` = 1
             ORDER BY `app`.`created_at`, `app`.`id`, `script`.`name`
         ");
 

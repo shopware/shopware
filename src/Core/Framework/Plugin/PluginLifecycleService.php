@@ -5,15 +5,18 @@ namespace Shopware\Core\Framework\Plugin;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
+use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Migration\Exception\UnknownMigrationSourceException;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationSource;
+use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
@@ -45,6 +48,7 @@ use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpKernel\Bundle\Bundle as SymfonyBundle;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
 /**
@@ -113,12 +117,13 @@ class PluginLifecycleService
         $pluginBaseClass = $this->getPluginBaseClass($plugin->getBaseClass());
         $pluginVersion = $plugin->getVersion();
 
+        $migrations = $this->createMigrationCollection($pluginBaseClass);
         $installContext = new InstallContext(
             $pluginBaseClass,
             $shopwareContext,
             $this->shopwareVersion,
             $pluginVersion,
-            $this->createMigrationCollection($pluginBaseClass)
+            $migrations[$pluginBaseClass->getName()]
         );
 
         if ($plugin->getInstalledAt()) {
@@ -159,7 +164,7 @@ class PluginLifecycleService
 
         $pluginBaseClass->install($installContext);
 
-        $this->runMigrations($installContext);
+        $this->runMigrations($installContext, $migrations);
 
         $installDate = new \DateTime();
         $pluginData['installedAt'] = $installDate->format(Defaults::STORAGE_DATE_TIME_FORMAT);
@@ -204,12 +209,13 @@ class PluginLifecycleService
             $this->executor->remove($pluginComposerName, $plugin->getName());
         }
 
+        $migrations = $this->createMigrationCollection($pluginBaseClass);
         $uninstallContext = new UninstallContext(
             $pluginBaseClass,
             $shopwareContext,
             $this->shopwareVersion,
             $plugin->getVersion(),
-            $this->createMigrationCollection($pluginBaseClass),
+            $migrations[$pluginBaseClass->getName()],
             $keepUserData
         );
         $uninstallContext->setAutoMigrate(false);
@@ -257,13 +263,14 @@ class PluginLifecycleService
 
         $pluginBaseClassString = $plugin->getBaseClass();
         $pluginBaseClass = $this->getPluginBaseClass($pluginBaseClassString);
+        $migrations = $this->createMigrationCollection($pluginBaseClass);
 
         $updateContext = new UpdateContext(
             $pluginBaseClass,
             $shopwareContext,
             $this->shopwareVersion,
             $plugin->getVersion(),
-            $this->createMigrationCollection($pluginBaseClass),
+            $migrations[$pluginBaseClass->getName()],
             $plugin->getUpgradeVersion() ?? $plugin->getVersion()
         );
 
@@ -308,7 +315,7 @@ class PluginLifecycleService
             $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString);
         }
 
-        $this->runMigrations($updateContext);
+        $this->runMigrations($updateContext, $migrations);
 
         $updateVersion = $updateContext->getUpdatePluginVersion();
         $updateDate = new \DateTime();
@@ -343,13 +350,13 @@ class PluginLifecycleService
 
         $pluginBaseClassString = $plugin->getBaseClass();
         $pluginBaseClass = $this->getPluginBaseClass($pluginBaseClassString);
-
+        $migrations = $this->createMigrationCollection($pluginBaseClass);
         $activateContext = new ActivateContext(
             $pluginBaseClass,
             $shopwareContext,
             $this->shopwareVersion,
             $plugin->getVersion(),
-            $this->createMigrationCollection($pluginBaseClass)
+            $migrations[$pluginBaseClass->getName()]
         );
 
         if ($plugin->getActive()) {
@@ -368,18 +375,19 @@ class PluginLifecycleService
         }
 
         $pluginBaseClass = $this->getPluginInstance($pluginBaseClassString);
+        $migrations = $this->createMigrationCollection($pluginBaseClass);
         $activateContext = new ActivateContext(
             $pluginBaseClass,
             $shopwareContext,
             $this->shopwareVersion,
             $plugin->getVersion(),
-            $this->createMigrationCollection($pluginBaseClass)
+            $migrations[$pluginBaseClass->getName()]
         );
         $activateContext->setAutoMigrate(false);
 
         $pluginBaseClass->activate($activateContext);
 
-        $this->runMigrations($activateContext);
+        $this->runMigrations($activateContext, $migrations);
 
         if (!$shopwareContext->hasState(self::STATE_SKIP_ASSET_BUILDING)) {
             $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString);
@@ -427,12 +435,13 @@ class PluginLifecycleService
         $pluginBaseClassString = $plugin->getBaseClass();
         $pluginBaseClass = $this->getPluginInstance($pluginBaseClassString);
 
+        $migrations = $this->createMigrationCollection($pluginBaseClass);
         $deactivateContext = new DeactivateContext(
             $pluginBaseClass,
             $shopwareContext,
             $this->shopwareVersion,
             $plugin->getVersion(),
-            $this->createMigrationCollection($pluginBaseClass)
+            $migrations[$pluginBaseClass->getName()]
         );
         $deactivateContext->setAutoMigrate(false);
 
@@ -480,7 +489,10 @@ class PluginLifecycleService
         return $baseClass;
     }
 
-    private function createMigrationCollection(Plugin $pluginBaseClass): MigrationCollection
+    /**
+     * @return array<string, MigrationCollection>
+     */
+    private function createMigrationCollection(Plugin $pluginBaseClass): array
     {
         $migrationPath = str_replace(
             '\\',
@@ -493,28 +505,51 @@ class PluginLifecycleService
         );
 
         if (!is_dir($migrationPath)) {
-            return $this->migrationLoader->collect('null');
+            return [$pluginBaseClass->getName() => $this->migrationLoader->collect('null')];
         }
 
         $this->migrationLoader->addSource(new MigrationSource($pluginBaseClass->getName(), [
             $migrationPath => $pluginBaseClass->getMigrationNamespace(),
         ]));
 
-        $collection = $this->migrationLoader
-            ->collect($pluginBaseClass->getName());
+        $pluginLoader = $this->container->get(KernelPluginLoader::class);
+        $copy = new KernelPluginCollection($pluginLoader->getPluginInstances()->all());
+        $additionalBundleParameters = new AdditionalBundleParameters($pluginLoader->getClassLoader(), $copy, []);
 
-        $collection->sync();
+        $bundles = $pluginBaseClass->getAdditionalBundles($additionalBundleParameters);
+        [$preBundles, $postBundles] = $this->splitBundlesIntoPreAndPost($bundles);
+        /** @var SymfonyBundle[] $sortedBundles */
+        $sortedBundles = \array_merge(
+            \array_values($preBundles),
+            [$pluginBaseClass],
+            \array_values($postBundles),
+        );
 
-        return $collection;
+        $collections = [];
+
+        foreach ($sortedBundles as $bundle) {
+            try {
+                $collections[$bundle->getName()] = $this->migrationLoader->collect($bundle->getName());
+            } catch (UnknownMigrationSourceException $_) {
+            }
+        }
+
+        foreach ($collections as $collection) {
+            $collection->sync();
+        }
+
+        return $collections;
     }
 
-    private function runMigrations(InstallContext $context): void
+    private function runMigrations(InstallContext $context, array $migrationCollections): void
     {
         if (!$context->isAutoMigrate()) {
             return;
         }
 
-        $context->getMigrationCollection()->migrateInPlace();
+        foreach ($migrationCollections as $migrationCollection) {
+            $migrationCollection->migrateInPlace();
+        }
     }
 
     private function hasPluginUpdate(string $updateVersion, string $currentVersion): bool
@@ -601,5 +636,31 @@ class PluginLifecycleService
             (new Criteria())->addFilter(new EqualsAnyFilter('name', $names)),
             $context
         );
+    }
+
+    /**
+     * @param SymfonyBundle[] $bundles
+     *
+     * @see \Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader::splitBundlesIntoPreAndPost
+     *
+     * @return array<Bundle[]>
+     */
+    private function splitBundlesIntoPreAndPost(array $bundles): array
+    {
+        $pre = [];
+        $post = [];
+
+        foreach ($bundles as $index => $bundle) {
+            if (\is_int($index) && $index < 0) {
+                $pre[$index] = $bundle;
+            } else {
+                $post[$index] = $bundle;
+            }
+        }
+
+        \ksort($pre);
+        \ksort($post);
+
+        return [$pre, $post];
     }
 }

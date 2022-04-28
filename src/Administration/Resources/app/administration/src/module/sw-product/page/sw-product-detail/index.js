@@ -526,30 +526,6 @@ Component.register('sw-product-detail', {
             ]);
         },
 
-        fullyLoadCustomFields() {
-            const criteria = new Criteria(1, 1);
-            criteria
-                .getAssociation('customFields');
-
-            Shopware.State.commit('swProductDetail/setLoading', ['customFieldSets', true]);
-            const updatedFields = this.product.customFieldSets.map((fieldSet) => {
-                if (fieldSet.customFields.length === 0) {
-                    return this.customFieldSetRepository.get(fieldSet.id, Shopware.Context.api, criteria).then((res) => {
-                        Shopware.State.commit('swProductDetail/setCustomFields', res);
-                        return res;
-                    });
-                }
-                return Promise.resolve(fieldSet);
-            });
-
-            Promise.all(updatedFields).then(fields => {
-                this.product.customFields = fields;
-            }).finally(() => {
-                Shopware.State.commit('swProductDetail/setLoading', ['customFieldSets', false]);
-            });
-        },
-
-
         createState() {
             // set local mode
             Shopware.State.commit('swProductDetail/setLocalMode', true);
@@ -644,8 +620,6 @@ Component.register('sw-product-detail', {
                 } else {
                     Shopware.State.commit('swProductDetail/setParentProduct', {});
                 }
-
-                this.fullyLoadCustomFields();
 
                 Shopware.State.commit('swProductDetail/setLoading', ['product', false]);
             });

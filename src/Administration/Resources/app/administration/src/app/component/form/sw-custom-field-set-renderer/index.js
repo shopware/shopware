@@ -169,8 +169,8 @@ Component.register('sw-custom-field-set-renderer', {
         },
 
         'entity.customFieldsSets': {
-            handler() {
-                this.onChangeCustomFieldSets();
+            handler(value) {
+                this.onChangeCustomFieldSets(value, () => null);
             },
         },
 
@@ -196,7 +196,7 @@ Component.register('sw-custom-field-set-renderer', {
     methods: {
         createdComponent() {
             this.initializeCustomFields();
-            this.onChangeCustomFieldSets();
+            this.onChangeCustomFieldSets(this.entity.customFieldSets || this.sets);
         },
 
         initializeCustomFields() {
@@ -331,9 +331,12 @@ Component.register('sw-custom-field-set-renderer', {
 
         customFieldSetCriteriaById() {
             const criteria = new Criteria(1, 1);
+            const customFieldsCriteria = new Criteria(1);
+
+            customFieldsCriteria.addSorting(Criteria.sort('config.customFieldsPosition'));
 
             criteria
-                .getAssociation('customFields');
+                .addAssociation('customFields', customFieldsCriteria);
 
             return criteria;
         },
@@ -362,6 +365,13 @@ Component.register('sw-custom-field-set-renderer', {
                 .then((updatedSets) => {
                     sets.splice(0, sets.length, ...updatedSets);
                     this.customFields = updatedSets;
+
+                    if (this.hasParent && this.entity.customFieldSets.length < 1) {
+                        this.parentEntity.customFieldSets = sets;
+                    } else {
+                        this.entity.customFieldSets = sets;
+                    }
+
                     cb(sets);
                 });
 

@@ -117,9 +117,8 @@ Component.register('sw-customer-detail-addresses', {
                 return;
             }
 
-            const customFieldSetCriteria = new Criteria(1, 25);
-            customFieldSetCriteria.addFilter(Criteria.equals('relations.entityName', 'customer_address'))
-                .addAssociation('customFields');
+            const customFieldSetCriteria = new Criteria();
+            customFieldSetCriteria.addFilter(Criteria.equals('relations.entityName', 'customer_address'));
 
             this.customFieldSetRepository.search(customFieldSetCriteria).then((customFieldSets) => {
                 this.customerAddressCustomFieldSets = customFieldSets;

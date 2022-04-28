@@ -56,12 +56,9 @@ Component.register('sw-bulk-edit-customer', {
         },
 
         customFieldSetCriteria() {
-            const criteria = new Criteria(1, 100);
+            const criteria = new Criteria(1);
 
             criteria.addFilter(Criteria.equals('relations.entityName', 'customer'));
-            criteria
-                .getAssociation('customFields')
-                .addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
 
             return criteria;
         },

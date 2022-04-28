@@ -321,23 +321,28 @@ Component.register('sw-product-stream-detail', {
         },
 
         getProductCustomFields() {
-            const customFieldsCriteria = new Criteria(1, 25);
-            customFieldsCriteria.addFilter(Criteria.equals('relations.entityName', 'product'))
-                .addAssociation('customFields')
-                .addAssociation('relations');
+            const customFieldsCriteria = new Criteria();
+            customFieldsCriteria.addFilter(Criteria.equals('relations.entityName', 'product'));
 
             return this.customFieldSetRepository.search(customFieldsCriteria, Context.api).then((customFieldSets) => {
+                const singleCriteria = new Criteria();
+                singleCriteria
+                    .addAssociation('customFields')
+                    .addAssociation('relations');
+
                 customFieldSets.forEach((customFieldSet) => {
-                    const customFields = customFieldSet.customFields
-                        .reduce((acc, customField) => {
-                            acc[customField.name] = this.mapCustomFieldType({
-                                type: customField.type,
-                                value: `customFields.${customField.name}`,
-                                label: this.getCustomFieldLabel(customField),
-                            });
-                            return acc;
-                        }, {});
-                    Object.assign(this.productCustomFields, customFields);
+                    this.customFieldSetRepository.get(customFieldSet.id, Context.api, singleCriteria).then(set => {
+                        const customFields = set.customFields
+                            .reduce((acc, customField) => {
+                                acc[customField.name] = this.mapCustomFieldType({
+                                    type: customField.type,
+                                    value: `customFields.${customField.name}`,
+                                    label: this.getCustomFieldLabel(customField),
+                                });
+                                return acc;
+                            }, {});
+                        Object.assign(this.productCustomFields, customFields);
+                    });
                 });
             });
         },

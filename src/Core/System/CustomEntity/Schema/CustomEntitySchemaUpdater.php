@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\CustomEntity\Schema;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
@@ -72,7 +73,15 @@ class CustomEntitySchemaUpdater
             ->toSql($this->getPlatform());
 
         foreach ($queries as $query) {
-            $this->connection->executeStatement($query);
+            try {
+                $this->connection->executeStatement($query);
+            } catch (Exception $e) {
+                // there seems to be a timing issue in sql when dropping a foreign key which relates to an index.
+                // Sometimes the index exists no more when doctrine tries to drop it after dropping the foreign key.
+                if (!\str_contains($e->getMessage(), "An exception occurred while executing 'DROP INDEX IDX_")) {
+                    throw $e;
+                }
+            }
         }
     }
 

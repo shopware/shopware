@@ -72,6 +72,8 @@ describe('Flow builder: Set rule for condition sequence testing', () => {
 
         // Check in rule builder
         cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+        cy.get('.sw-flow-leave-page-modal').should('be.visible');
+        cy.get('.sw-flow-leave-page-modal__leave-page').click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Time rule');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
@@ -139,6 +141,8 @@ describe('Flow builder: Set rule for condition sequence testing', () => {
 
         // Check in rule builder
         cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
+        cy.get('.sw-flow-leave-page-modal').should('be.visible');
+        cy.get('.sw-flow-leave-page-modal__leave-page').click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Weekend sales');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 

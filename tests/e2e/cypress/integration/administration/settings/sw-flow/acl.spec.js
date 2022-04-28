@@ -92,7 +92,7 @@ describe('Flow builder: Test acl privilege', () => {
         cy.wait('@updateData').its('response.statusCode').should('equal', 204);
 
         // Verify updated element
-        cy.get(page.elements.smartBarBack).click();
+        cy.get(page.elements.smartBarBack).click({force: true});
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Order placed v2');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
@@ -148,7 +148,8 @@ describe('Flow builder: Test acl privilege', () => {
         cy.get('.smart-bar__header h2').contains('Order placed v1');
 
         // Verify created element
-        cy.get(page.elements.smartBarBack).click();
+        cy.get(page.elements.smartBarBack).click({force: true});
+        cy.get('.sw-flow-leave-page-modal__leave-page').click();
         cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
             .contains('Order placed v1');
     });

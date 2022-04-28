@@ -235,6 +235,12 @@
       "confirmation": {
         "textConfirmChangeTrigger": "Are you sure you want to change the trigger event? <br> The flow sequence will be reset if you press the confirm button."
       }
+    },
+    "leavePageModal": {
+      "headline": "Warning",
+      "description": "There are unsaved changes. Are you sure you want to leave this page without saving?",
+      "confirmButton": "Leave page",
+      "cancelButton": "Stay on page"
     }
   },
   "sw-privileges": {

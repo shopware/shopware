@@ -5,6 +5,7 @@ namespace SwagTestWithBundle;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Test\Plugin\_fixture\bundles\FooBarBundle;
+use Shopware\Core\Framework\Test\Plugin\_fixture\bundles\ShopwareBundleWithMigrations\ShopwareBundleWithMigrationsBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 
 class SwagTestWithBundle extends Plugin
@@ -18,6 +19,8 @@ class SwagTestWithBundle extends Plugin
             new FrameworkBundle(),
             // is already provided by SwagTest and should not be loaded twice
             new FooBarBundle(),
+            // should provide a migration
+            new ShopwareBundleWithMigrationsBundle(),
         ];
     }
 }

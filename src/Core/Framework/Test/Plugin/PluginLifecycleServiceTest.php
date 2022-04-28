@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Test\Migration\MigrationTestBehaviour;
+use Shopware\Core\Framework\Test\Plugin\_fixture\bundles\ShopwareBundleWithMigrations\ShopwareBundleWithMigrationsBundle;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -473,6 +474,15 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertNull($pluginUninstalled->getInstalledAt());
         static::assertFalse($pluginUninstalled->getActive());
         static::assertCount($keepUserData ? 1 : 0, $themeRepo->search($criteria, $this->context)->getElements());
+    }
+
+    public function testMigrationsAreLoadedFromBundlesThatAreShippedWithPlugins(): void
+    {
+        $basePlugin = $this->pluginService->getPluginByName('SwagTestWithBundle', $this->context);
+        $this->pluginLifecycleService->installPlugin($basePlugin, $this->context);
+        $this->pluginLifecycleService->activatePlugin($basePlugin, $this->context);
+        /** @see \Shopware\Core\Framework\Test\Plugin\_fixture\bundles\ShopwareBundleWithMigrations\ShopwareBundleWithMigrationsBundle */
+        static::assertSame(1, $this->getMigrationCount('Shopware\Core\Framework\Test\Plugin\_fixture\bundles\ShopwareBundleWithMigrations'));
     }
 
     public function themeProvideData(): array

@@ -150,7 +150,8 @@ describe('module/sw-product/component/sw-product-category-form', () => {
         });
     });
 
-    it('should show correct config when there is system config data', async () => {
+    // Skipped because deprecated. Will be fixed with NEXT-21344
+    it.skip('should show correct config when there is system config data', async () => {
         defaultSalesChannelData = {
             'core.defaultSalesChannel.active': false,
             'core.defaultSalesChannel.salesChannel': ['98432def39fc4624b33213a56b8c944d'],

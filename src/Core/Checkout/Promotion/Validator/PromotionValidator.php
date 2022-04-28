@@ -153,22 +153,27 @@ class PromotionValidator implements EventSubscriberInterface
         // because we want to avoid any other private functions that accidentally access
         // the database. all private getters should only access the local in-memory list
         // to avoid additional database queries.
+        $this->databasePromotions = [];
+        if (!empty($promotionIds)) {
+            $promotionQuery = $this->connection->executeQuery(
+                'SELECT * FROM `promotion` WHERE `id` IN (:ids)',
+                ['ids' => $promotionIds],
+                ['ids' => Connection::PARAM_STR_ARRAY]
+            );
 
-        $promotionQuery = $this->connection->executeQuery(
-            'SELECT * FROM `promotion` WHERE `id` IN (:ids)',
-            ['ids' => $promotionIds],
-            ['ids' => Connection::PARAM_STR_ARRAY]
-        );
+            $this->databasePromotions = $promotionQuery->fetchAll();
+        }
 
-        $this->databasePromotions = $promotionQuery->fetchAll();
+        $this->databaseDiscounts = [];
+        if (!empty($discountIds)) {
+            $discountQuery = $this->connection->executeQuery(
+                'SELECT * FROM `promotion_discount` WHERE `id` IN (:ids)',
+                ['ids' => $discountIds],
+                ['ids' => Connection::PARAM_STR_ARRAY]
+            );
 
-        $discountQuery = $this->connection->executeQuery(
-            'SELECT * FROM `promotion_discount` WHERE `id` IN (:ids)',
-            ['ids' => $discountIds],
-            ['ids' => Connection::PARAM_STR_ARRAY]
-        );
-
-        $this->databaseDiscounts = $discountQuery->fetchAll();
+            $this->databaseDiscounts = $discountQuery->fetchAll();
+        }
     }
 
     /**

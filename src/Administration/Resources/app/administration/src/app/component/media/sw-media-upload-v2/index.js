@@ -172,6 +172,12 @@ Component.register('sw-media-upload-v2', {
         async defaultFolder() {
             this.defaultFolderId = await this.getDefaultFolderId();
         },
+
+        disabled(newValue) {
+            if (newValue) {
+                this.isDragActive = false;
+            }
+        },
     },
 
     created() {
@@ -253,6 +259,10 @@ Component.register('sw-media-upload-v2', {
         },
 
         onDragEnter() {
+            if (this.disabled) {
+                return;
+            }
+
             this.isDragActive = true;
         },
 

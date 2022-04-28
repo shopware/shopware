@@ -41,5 +41,6 @@
         <delete>product</delete>
         <create>category</create>
         <read>order</read>
+        <permission>user_change_me</permission>
     </permissions>
 </manifest>

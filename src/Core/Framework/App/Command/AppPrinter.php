@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal only for use by the app-system
  */
 class AppPrinter
 {
@@ -24,10 +24,7 @@ class AppPrinter
         AclRoleDefinition::PRIVILEGE_DELETE => 'delete',
     ];
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $appRepository;
+    private EntityRepositoryInterface $appRepository;
 
     public function __construct(EntityRepositoryInterface $appRepository)
     {
@@ -86,23 +83,23 @@ class AppPrinter
         );
     }
 
-    public function printPermissions(Manifest $app, ShopwareStyle $io, bool $install): void
+    public function printPermissions(Manifest $manifest, ShopwareStyle $io, bool $install): void
     {
-        $permission = $app->getPermissions();
+        $permissions = $manifest->getPermissions();
 
-        if (!$permission) {
+        if (!$permissions) {
             return;
         }
 
         $io->caution(
             sprintf(
-                'App "%s" should be %s but requires following permissions:',
-                $app->getMetadata()->getName(),
+                'App "%s" should be %s but requires the following permissions:',
+                $manifest->getMetadata()->getName(),
                 $install ? 'installed' : 'updated'
             )
         );
 
-        $this->printPermissionTable($io, $permission);
+        $this->printPermissionTable($io, $permissions);
     }
 
     /**

@@ -343,6 +343,8 @@
             <argument type="service" id="Shopware\Core\Framework\App\AppService"/>
             <argument type="service" id="Shopware\Core\Framework\App\Command\AppPrinter"/>
             <argument type="service" id="Shopware\Core\Framework\App\Validation\ManifestValidator"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider"/>
+            <argument type="service" id="app.repository"/>
 
             <tag name="console.command"/>
         </service>
@@ -430,6 +432,11 @@
             <tag name="shopware.app_url_changed_resolver"/>
         </service>
 
+        <!-- DELTA -->
+        <service id="Shopware\Core\Framework\App\Delta\PermissionsDeltaProvider">
+            <tag name="shopware.app_delta"/>
+        </service>
+
         <!-- ENTITY DEFINITIONS -->
         <service id="Shopware\Core\Framework\App\AppDefinition">
             <tag name="shopware.entity.definition"/>
@@ -487,6 +494,10 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\BusinessEventEncoder"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider">
+            <argument type="tagged_iterator" tag="shopware.app_delta"/>
         </service>
     </services>
 </container>

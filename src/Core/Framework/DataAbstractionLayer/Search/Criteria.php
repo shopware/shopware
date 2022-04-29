@@ -243,6 +243,13 @@ class Criteria extends Struct
         return $this;
     }
 
+    public function setFilter(string $key, Filter $filter): self
+    {
+        $this->filters[$key] = $filter;
+
+        return $this;
+    }
+
     public function addSorting(FieldSorting ...$sorting): self
     {
         foreach ($sorting as $sort) {

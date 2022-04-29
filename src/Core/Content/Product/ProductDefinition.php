@@ -30,6 +30,7 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryDefinition;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
@@ -140,7 +141,7 @@ class ProductDefinition extends EntityDefinition
             (new NumberRangeField('product_number', 'productNumber'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING, false), new Required()),
             (new IntField('stock', 'stock'))->addFlags(new ApiAware(), new Required()),
             (new IntField('restock_time', 'restockTime'))->addFlags(new ApiAware(), new Inherited()),
-            (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected()),
+            new AutoIncrementField(),
             (new BoolField('active', 'active'))->addFlags(new ApiAware(), new Inherited()),
             (new IntField('available_stock', 'availableStock'))->addFlags(new ApiAware(), new WriteProtected()),
             (new BoolField('available', 'available'))->addFlags(new ApiAware(), new WriteProtected()),

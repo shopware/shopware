@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -38,6 +39,42 @@ class EntitySearcherTest extends TestCase
 
         $this->groupRepository = $this->getContainer()->get('property_group.repository');
         $this->productRepository = $this->getContainer()->get('product.repository');
+    }
+
+    public function testDataProperty(): void
+    {
+        $ids = new IdsCollection();
+
+        $products = [
+            (new ProductBuilder($ids, 'p1'))
+                ->price(100)
+                ->build(),
+            (new ProductBuilder($ids, 'p2'))
+                ->price(100)
+                ->build(),
+        ];
+
+        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+
+        $criteria = new Criteria($ids->getList(['p1', 'p2']));
+        $result = $this->getContainer()->get('product.repository')->searchIds($criteria, Context::createDefaultContext());
+
+        $increments = $this->getContainer()->get(Connection::class)->fetchAllKeyValue(
+            'SELECT LOWER(HEX(id)) as id, auto_increment FROM product WHERE id IN (:ids)',
+            ['ids' => $ids->getByteList(['p1', 'p2'])],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
+
+        $data = $result->getData();
+        static::assertArrayHasKey($ids->get('p1'), $data);
+        static::assertArrayHasKey('productNumber', $data[$ids->get('p1')]);
+        static::assertArrayHasKey('autoIncrement', $data[$ids->get('p1')]);
+
+        static::assertArrayHasKey($ids->get('p2'), $data);
+        static::assertArrayHasKey('productNumber', $data[$ids->get('p2')]);
+        static::assertArrayHasKey('autoIncrement', $data[$ids->get('p2')]);
+        static::assertEquals($increments[$ids->get('p1')], $data[$ids->get('p1')]['autoIncrement']);
+        static::assertEquals($increments[$ids->get('p2')], $data[$ids->get('p2')]['autoIncrement']);
     }
 
     public function testTotalCountWithSearchTerm(): void
@@ -459,10 +496,15 @@ class EntitySearcherTest extends TestCase
         static::assertNotEmpty($result->getIds());
 
         foreach ($result->getIds() as $ids) {
-            static::assertArrayHasKey('product_id', $ids);
-            static::assertArrayHasKey('category_id', $ids);
             static::assertArrayHasKey('productId', $ids);
             static::assertArrayHasKey('categoryId', $ids);
+
+            if (Feature::isActive('v6.5.0.0')) {
+                continue;
+            }
+
+            static::assertArrayHasKey('product_id', $ids);
+            static::assertArrayHasKey('category_id', $ids);
             static::assertEquals($ids['categoryId'], $ids['category_id']);
             static::assertEquals($ids['productId'], $ids['product_id']);
         }

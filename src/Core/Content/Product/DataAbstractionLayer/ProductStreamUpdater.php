@@ -81,7 +81,7 @@ class ProductStreamUpdater extends EntityIndexer
             ['id' => Uuid::fromHexToBytes($id)]
         );
 
-        $insert = new MultiInsertQueryQueue($this->connection);
+        $insert = new MultiInsertQueryQueue($this->connection, 250, false, true);
 
         $version = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
@@ -93,6 +93,7 @@ class ProductStreamUpdater extends EntityIndexer
             return;
         }
 
+        $criteria->setLimit(150);
         $iterator = new RepositoryIterator(
             $this->repository,
             $message->getContext(),
@@ -100,6 +101,13 @@ class ProductStreamUpdater extends EntityIndexer
         );
 
         $binary = Uuid::fromHexToBytes($id);
+
+        RetryableTransaction::retryable($this->connection, function () use ($binary): void {
+            $this->connection->executeStatement(
+                'DELETE FROM product_stream_mapping WHERE product_stream_id = :id',
+                ['id' => $binary],
+            );
+        });
 
         $ids = [];
         while ($matches = $iterator->fetchIds()) {
@@ -114,15 +122,9 @@ class ProductStreamUpdater extends EntityIndexer
                     'product_stream_id' => $binary,
                 ]);
             }
-        }
 
-        RetryableTransaction::retryable($this->connection, function () use ($insert, $binary): void {
-            $this->connection->executeStatement(
-                'DELETE FROM product_stream_mapping WHERE product_stream_id = :id',
-                ['id' => $binary],
-            );
             $insert->execute();
-        });
+        }
 
         foreach (array_chunk($ids, 250) as $chunkedIds) {
             $this->manyToManyIdFieldUpdater->update(

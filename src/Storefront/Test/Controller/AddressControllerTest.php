@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -172,7 +173,7 @@ class AddressControllerTest extends TestCase
                     'zipcode' => '48599',
                     'city' => 'gronau',
                     'street' => 'Schillerstr.',
-                    'country' => ['name' => 'not'],
+                    'countryId' => $this->getValidCountryId(),
                 ],
                 'company' => 'nfq',
                 'defaultShippingAddressId' => $addressId,
@@ -186,7 +187,6 @@ class AddressControllerTest extends TestCase
                 'customerNumber' => 'not',
             ],
         ];
-
         $this->customerRepository->create($customers, Context::createDefaultContext());
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
@@ -402,5 +402,22 @@ class AddressControllerTest extends TestCase
                 'countryId' => $this->getValidCountryId(),
             ]),
         ]);
+    }
+
+    private function getValidCountryId(?string $salesChannelId = TestDefaults::SALES_CHANNEL): string
+    {
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('country.repository');
+
+        $criteria = (new Criteria())->setLimit(1)
+            ->addFilter(new EqualsFilter('taxFree', 0))
+            ->addFilter(new EqualsFilter('active', true))
+            ->addFilter(new EqualsFilter('shippingAvailable', true));
+
+        if ($salesChannelId !== null) {
+            $criteria->addFilter(new EqualsFilter('salesChannels.id', $salesChannelId));
+        }
+
+        return $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
     }
 }

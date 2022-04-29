@@ -19,10 +19,7 @@ class InstallAppCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $appRepository;
+    private EntityRepositoryInterface $appRepository;
 
     public function setUp(): void
     {
@@ -52,10 +49,10 @@ class InstallAppCommandTest extends TestCase
         static::assertStringContainsString('[OK] App withPermissions has been successfully installed.', $commandTester->getDisplay());
     }
 
-    public function testInstallWithPermissions(): void
+    public function testInstallWithPermissionsAndDomains(): void
     {
         $commandTester = new CommandTester($this->createCommand(__DIR__ . '/_fixtures'));
-        $commandTester->setInputs(['yes']);
+        $commandTester->setInputs(['yes', 'yes']);
 
         $commandTester->execute(['name' => 'withPermissions']);
 
@@ -69,6 +66,12 @@ class InstallAppCommandTest extends TestCase
         static::assertMatchesRegularExpression('/.*category\s+write\s+\n.*/', $display);
         static::assertMatchesRegularExpression('/.*order\s+read\s+\n.*/', $display);
         static::assertMatchesRegularExpression('/.*user_change_me\s+\n.*/', $display);
+
+        // header domains
+        static::assertMatchesRegularExpression('/.*Domain\s+\n.*/', $display);
+        // content domains
+        static::assertMatchesRegularExpression('/.*my.app.com\s+\n.*/', $display);
+        static::assertMatchesRegularExpression('/.*swag-test.com\s+\n.*/', $display);
 
         static::assertStringContainsString('[OK] App withPermissions has been successfully installed.', $display);
     }
@@ -152,7 +155,7 @@ class InstallAppCommandTest extends TestCase
     public function testInstallFailsIfAppHasValidations(): void
     {
         $commandTester = new CommandTester($this->createCommand(__DIR__ . '/../Manifest/_fixtures'));
-        $commandTester->setInputs(['yes']);
+        $commandTester->setInputs(['yes', 'yes']);
         $commandTester->execute(['name' => 'invalidWebhooks']);
 
         static::assertEquals(1, $commandTester->getStatusCode());
@@ -162,7 +165,7 @@ class InstallAppCommandTest extends TestCase
     public function testInstallInvalidAppWithNoValidate(): void
     {
         $commandTester = new CommandTester($this->createCommand(__DIR__ . '/../Manifest/_fixtures'));
-        $commandTester->setInputs(['yes']);
+        $commandTester->setInputs(['yes', 'yes']);
         $commandTester->execute(['name' => 'invalidWebhooks', '--no-validate' => true]);
 
         static::assertEquals(0, $commandTester->getStatusCode());

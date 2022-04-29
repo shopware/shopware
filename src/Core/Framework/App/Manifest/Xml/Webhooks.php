@@ -31,6 +31,20 @@ class Webhooks extends XmlElement
     }
 
     /**
+     * @return string[]
+     */
+    public function getUrls(): array
+    {
+        $urls = [];
+
+        foreach ($this->webhooks as $webhook) {
+            $urls[] = $webhook->getUrl();
+        }
+
+        return $urls;
+    }
+
+    /**
      * @return Webhook[]
      */
     private static function parseWebhooks(\DOMElement $element): array

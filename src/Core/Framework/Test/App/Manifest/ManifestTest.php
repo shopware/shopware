@@ -40,4 +40,18 @@ class ManifestTest extends TestCase
 
         static::assertEquals($fixedOrderManifest->getMetadata(), $randomOrderManifest->getMetadata());
     }
+
+    public function testGetAllHosts(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/test/manifest.xml');
+
+        static::assertEquals([
+            'my.app.com',
+            'test.com',
+            'base-url.com',
+            'main-module',
+            'swag-test.com',
+            'payment.app',
+        ], $manifest->getAllHosts());
+    }
 }

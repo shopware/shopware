@@ -107,12 +107,7 @@ class AppPrinter
      */
     public function checkHosts(Manifest $manifest, ShopwareStyle $io): void
     {
-        $allowedHosts = $manifest->getAllowedHosts();
-        if (!$allowedHosts) {
-            return;
-        }
-
-        $hosts = $allowedHosts->getHosts();
+        $hosts = $manifest->getAllHosts();
         if (empty($hosts)) {
             return;
         }

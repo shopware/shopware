@@ -31,6 +31,23 @@ class Payments extends XmlElement
     }
 
     /**
+     * @return string[]
+     */
+    public function getUrls(): array
+    {
+        $urls = [];
+
+        foreach ($this->paymentMethods as $paymentMethod) {
+            $urls[] = $paymentMethod->getCaptureUrl();
+            $urls[] = $paymentMethod->getFinalizeUrl();
+            $urls[] = $paymentMethod->getValidateUrl();
+            $urls[] = $paymentMethod->getPayUrl();
+        }
+
+        return array_filter($urls);
+    }
+
+    /**
      * @return PaymentMethod[]
      */
     private static function parsePaymentMethods(\DOMElement $element): array

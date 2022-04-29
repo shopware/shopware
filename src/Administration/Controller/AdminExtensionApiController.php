@@ -79,7 +79,7 @@ class AdminExtensionApiController extends AbstractController
         $targetHost = \parse_url($targetUrl, \PHP_URL_HOST);
         $allowedHosts = $app->getAllowedHosts() ?? [];
         if (!$targetHost || !\in_array($targetHost, $allowedHosts, true)) {
-            throw new UnallowedHostException($targetUrl, $allowedHosts);
+            throw new UnallowedHostException($targetUrl, $allowedHosts, $app->getName());
         }
 
         $action = new AppAction(

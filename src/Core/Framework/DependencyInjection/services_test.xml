@@ -33,6 +33,11 @@
             <tag name="shopware.payment.method.prepared"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Test\Payment\Handler\V630\RefundTestPaymentHandler">
+            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStateHandler"/>
+            <tag name="shopware.payment.method.refund"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Test\Payment\Handler\SyncTestFailedPaymentHandler">
             <tag name="shopware.payment.method.sync"/>
         </service>
@@ -180,6 +185,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\App\Payment\Payload\PayloadService"/>
+            <argument type="service" id="order_transaction_capture_refund.repository"/>
         </service>
     </services>
 

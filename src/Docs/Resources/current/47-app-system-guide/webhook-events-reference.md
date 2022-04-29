@@ -47,6 +47,14 @@
 |`state_enter.order_transaction.state.refunded_partially` | __EMPTY__ | `order:read` | {"entity":"order"}
 |`state_enter.order_transaction.state.reminded` | __EMPTY__ | `order:read` | {"entity":"order"}
 |`state_enter.order_transaction.state.unconfirmed` | __EMPTY__ | `order:read` | {"entity":"order"}
+|`state_enter.order_transaction_capture.state.completed` | __EMPTY__ | `order:read` | {"entity":"order"}
+|`state_enter.order_transaction_capture.state.failed` | __EMPTY__ | `order:read` | {"entity":"order"}
+|`state_enter.order_transaction_capture.state.pending` | __EMPTY__ | `order:read` | {"entity":"order"}
+|`state_enter.order_transaction_capture_refund.state.cancelled` | __EMPTY__ | `order:read` | {"entity":"order"}
+|`state_enter.order_transaction_capture_refund.state.completed` | __EMPTY__ | `order:read` | {"entity":"order"}
+|`state_enter.order_transaction_capture_refund.state.failed` | __EMPTY__ | `order:read` | {"entity":"order"}
+|`state_enter.order_transaction_capture_refund.state.in_progress` | __EMPTY__ | `order:read` | {"entity":"order"}
+|`state_enter.order_transaction_capture_refund.state.open` | __EMPTY__ | `order:read` | {"entity":"order"}
 |`state_leave.order.state.cancelled` | __EMPTY__ | `order:read` | {"entity":"order"}
 |`state_leave.order.state.completed` | __EMPTY__ | `order:read` | {"entity":"order"}
 |`state_leave.order.state.in_progress` | __EMPTY__ | `order:read` | {"entity":"order"}
@@ -69,6 +77,14 @@
 |`state_leave.order_transaction.state.refunded_partially` | __EMPTY__ | `order:read` | {"entity":"order"}
 |`state_leave.order_transaction.state.reminded` | __EMPTY__ | `order:read` | {"entity":"order"}
 |`state_leave.order_transaction.state.unconfirmed` | __EMPTY__ | `order:read` | {"entity":"order"}
+|`state_leave.order_transaction_capture.state.completed` | __EMPTY__ | `order:read` | {"entity":"order"}
+|`state_leave.order_transaction_capture.state.failed` | __EMPTY__ | `order:read` | {"entity":"order"}
+|`state_leave.order_transaction_capture.state.pending` | __EMPTY__ | `order:read` | {"entity":"order"}
+|`state_leave.order_transaction_capture_refund.state.cancelled` | __EMPTY__ | `order:read` | {"entity":"order"}
+|`state_leave.order_transaction_capture_refund.state.completed` | __EMPTY__ | `order:read` | {"entity":"order"}
+|`state_leave.order_transaction_capture_refund.state.failed` | __EMPTY__ | `order:read` | {"entity":"order"}
+|`state_leave.order_transaction_capture_refund.state.in_progress` | __EMPTY__ | `order:read` | {"entity":"order"}
+|`state_leave.order_transaction_capture_refund.state.open` | __EMPTY__ | `order:read` | {"entity":"order"}
 |`user.recovery.request` | __EMPTY__ | `user_recovery:read` | {"entity":"user_recovery","resetUrl":"string"}
 |`product.written` | Triggers when a product is written | `product:read` | {"entity":"product","operation":true,"primaryKey":"array string","payload":"array"}
 |`product.deleted` | Triggers when a product is deleted | `product:read` | {"entity":"product","operation":"update insert","primaryKey":"array string","payload":"array"}

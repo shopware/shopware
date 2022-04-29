@@ -7,6 +7,7 @@ use Shopware\Core\Content\Test\Cms\LayoutBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestBuilderTrait;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -20,7 +21,9 @@ use Shopware\Core\Test\TestDefaults;
  */
 class ProductBuilder
 {
-    protected IdsCollection $ids;
+    use TestBuilderTrait {
+        build as private parentBuild;
+    }
 
     protected string $productNumber;
 
@@ -56,8 +59,6 @@ class ProductBuilder
 
     protected ?string $parentId;
 
-    protected array $_dynamic = [];
-
     protected array $children = [];
 
     protected array $translations = [];
@@ -86,6 +87,13 @@ class ProductBuilder
         $this->stock = $stock;
         $this->name = $number;
         $this->tax($taxKey);
+    }
+
+    public function build(): array
+    {
+        $this->fixPricesQuantity();
+
+        return $this->parentBuild();
     }
 
     public function parent(string $key): self
@@ -269,35 +277,6 @@ class ProductBuilder
         $this->customFields[$key] = $value;
 
         return $this;
-    }
-
-    /**
-     * @param array|object|string|float|int|bool|null $value
-     */
-    public function add(string $key, $value): self
-    {
-        $this->_dynamic[$key] = $value;
-
-        return $this;
-    }
-
-    public function build(): array
-    {
-        $this->fixPricesQuantity();
-
-        $data = get_object_vars($this);
-
-        unset($data['ids'], $data['_dynamic']);
-
-        $data = array_merge($data, $this->_dynamic);
-
-        return array_filter($data, function ($value) {
-            if (\is_array($value) && empty($value)) {
-                return false;
-            }
-
-            return $value !== null;
-        });
     }
 
     public function property(string $key, string $group): self

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\App\Manifest\Xml\CustomFieldTypes;
+namespace Shopware\Core\Framework\Test\App\Manifest\Xml;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -19,6 +19,7 @@ class PaymentMethodTest extends TestCase
         static::assertSame('myMethod', $firstWebhook->getIdentifier());
         static::assertSame('https://payment.app/payment/process', $firstWebhook->getPayUrl());
         static::assertSame('https://payment.app/payment/finalize', $firstWebhook->getFinalizeUrl());
+        static::assertSame('https://payment.app/payment/refund', $firstWebhook->getRefundUrl());
         static::assertSame('Resources/payment.png', $firstWebhook->getIcon());
         static::assertSame([
             'en-GB' => 'The app payment method',
@@ -34,6 +35,7 @@ class PaymentMethodTest extends TestCase
         static::assertSame('anotherMethod', $secondWebhook->getIdentifier());
         static::assertNull($secondWebhook->getPayUrl());
         static::assertNull($secondWebhook->getFinalizeUrl());
+        static::assertNull($secondWebhook->getRefundUrl());
         static::assertNull($secondWebhook->getIcon());
         static::assertSame([
             'en-GB' => 'Another app payment method',

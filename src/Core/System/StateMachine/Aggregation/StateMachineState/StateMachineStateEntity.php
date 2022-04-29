@@ -4,6 +4,8 @@ namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineState;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
@@ -56,6 +58,10 @@ class StateMachineStateEntity extends Entity
      * @var OrderCollection|null
      */
     protected $orders;
+
+    protected ?OrderTransactionCaptureCollection $orderTransactionCaptures = null;
+
+    protected ?OrderTransactionCaptureRefundCollection $orderTransactionCaptureRefunds = null;
 
     /**
      * @var OrderTransactionCollection|null
@@ -175,6 +181,26 @@ class StateMachineStateEntity extends Entity
     public function setOrders(OrderCollection $orders): void
     {
         $this->orders = $orders;
+    }
+
+    public function getOrderTransactionCaptures(): ?OrderTransactionCaptureCollection
+    {
+        return $this->orderTransactionCaptures;
+    }
+
+    public function setOrderTransactionCaptures(OrderTransactionCaptureCollection $orderTransactionCaptures): void
+    {
+        $this->orderTransactionCaptures = $orderTransactionCaptures;
+    }
+
+    public function getOrderTransactionCaptureRefunds(): ?OrderTransactionCaptureRefundCollection
+    {
+        return $this->orderTransactionCaptureRefunds;
+    }
+
+    public function setOrderTransactionCaptureRefunds(OrderTransactionCaptureRefundCollection $orderTransactionCaptureRefunds): void
+    {
+        $this->orderTransactionCaptureRefunds = $orderTransactionCaptureRefunds;
     }
 
     public function getOrderTransactions(): ?OrderTransactionCollection

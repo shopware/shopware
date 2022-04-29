@@ -52,5 +52,12 @@
             <pay-url>https://payment.app/payment/process</pay-url>
             <finalize-url>https://payment.app/payment/finalize</finalize-url>
         </payment-method>
+        <payment-method>
+            <identifier>refundable</identifier>
+            <name>The app payment method</name>
+            <description>This is a description</description>
+            <capture-url>https://payment.app/payment/capture</capture-url>
+            <refund-url>https://payment.app/payment/refund</refund-url>
+        </payment-method>
     </payments>
 </manifest>

@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDeliveryPosition\OrderDeliveryPositionCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefundPosition\OrderTransactionCaptureRefundPositionCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -149,6 +150,8 @@ class OrderLineItemEntity extends Entity
      * @var ProductEntity|null
      */
     protected $product;
+
+    protected ?OrderTransactionCaptureRefundPositionCollection $orderTransactionCaptureRefundPositions = null;
 
     /**
      * @internal
@@ -403,6 +406,16 @@ class OrderLineItemEntity extends Entity
     public function setProduct(?ProductEntity $product): void
     {
         $this->product = $product;
+    }
+
+    public function getOrderTransactionCaptureRefundPositions(): ?OrderTransactionCaptureRefundPositionCollection
+    {
+        return $this->orderTransactionCaptureRefundPositions;
+    }
+
+    public function setOrderTransactionCaptureRefundPositions(OrderTransactionCaptureRefundPositionCollection $orderTransactionCaptureRefundPositions): void
+    {
+        $this->orderTransactionCaptureRefundPositions = $orderTransactionCaptureRefundPositions;
     }
 
     /**

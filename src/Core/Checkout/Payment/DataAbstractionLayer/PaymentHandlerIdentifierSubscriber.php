@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Payment\DataAbstractionLayer;
 
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PreparedPaymentHandlerInterface;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\RefundPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\PaymentEvents;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -53,20 +54,55 @@ class PaymentHandlerIdentifierSubscriber implements EventSubscriberInterface
         }
     }
 
-    private function setPaymentMethodHandlerRuntimeFields(PaymentMethodEntity $entity): void
+    private function setPaymentMethodHandlerRuntimeFields(PaymentMethodEntity $paymentMethod): void
     {
-        $handlerIdentifier = $entity->getHandlerIdentifier();
+        if ($paymentMethod->getAppPaymentMethod()) {
+            $this->setFieldsByAppPaymentMethod($paymentMethod);
+
+            return;
+        }
+
+        $handlerIdentifier = $paymentMethod->getHandlerIdentifier();
 
         if (\is_a($handlerIdentifier, SynchronousPaymentHandlerInterface::class, true)) {
-            $entity->setSynchronous(true);
+            $paymentMethod->setSynchronous(true);
         }
 
         if (\is_a($handlerIdentifier, AsynchronousPaymentHandlerInterface::class, true)) {
-            $entity->setAsynchronous(true);
+            $paymentMethod->setAsynchronous(true);
         }
 
         if (\is_a($handlerIdentifier, PreparedPaymentHandlerInterface::class, true)) {
-            $entity->setPrepared(true);
+            $paymentMethod->setPrepared(true);
+        }
+
+        if (\is_a($handlerIdentifier, RefundPaymentHandlerInterface::class, true)) {
+            $paymentMethod->setRefundable(true);
+        }
+    }
+
+    private function setFieldsByAppPaymentMethod(PaymentMethodEntity $paymentMethod): void
+    {
+        if (!$paymentMethod->getAppPaymentMethod()) {
+            return;
+        }
+
+        $appPaymentMethod = $paymentMethod->getAppPaymentMethod();
+
+        if ($appPaymentMethod->getRefundUrl()) {
+            $paymentMethod->setRefundable(true);
+        }
+
+        if ($appPaymentMethod->getValidateUrl() && $appPaymentMethod->getCaptureUrl()) {
+            $paymentMethod->setPrepared(true);
+        }
+
+        if ($appPaymentMethod->getPayUrl() && $appPaymentMethod->getFinalizeUrl()) {
+            $paymentMethod->setAsynchronous(true);
+        }
+
+        if ($paymentMethod->isAsynchronous()) {
+            $paymentMethod->setSynchronous(true);
         }
     }
 }

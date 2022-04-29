@@ -15,6 +15,7 @@ use Shopware\Core\Framework\App\Payment\Payload\Struct\Source;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\SourcedPayloadInterface;
 use Shopware\Core\Framework\App\Payment\Response\AbstractResponse;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -53,7 +54,7 @@ class PayloadService
     /**
      * @param class-string<AbstractResponse> $responseClass
      */
-    public function request(string $url, SourcedPayloadInterface $payload, AppEntity $app, string $responseClass, SalesChannelContext $context): ?Struct
+    public function request(string $url, SourcedPayloadInterface $payload, AppEntity $app, string $responseClass, Context $context): ?Struct
     {
         $optionRequest = $this->getRequestOptions($payload, $app, $context);
 
@@ -73,7 +74,7 @@ class PayloadService
         }
     }
 
-    private function getRequestOptions(SourcedPayloadInterface $payload, AppEntity $app, SalesChannelContext $context): array
+    private function getRequestOptions(SourcedPayloadInterface $payload, AppEntity $app, Context $context): array
     {
         $payload->setSource($this->buildSource($app));
         $encoded = $this->encode($payload);
@@ -93,7 +94,7 @@ class PayloadService
         }
 
         return [
-            AuthMiddleware::APP_REQUEST_CONTEXT => $context->getContext(),
+            AuthMiddleware::APP_REQUEST_CONTEXT => $context,
             AuthMiddleware::APP_REQUEST_TYPE => [
                 AuthMiddleware::APP_SECRET => $secret,
                 AuthMiddleware::VALIDATED_RESPONSE => true,

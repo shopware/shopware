@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1616076922AppPaymentMethod;
 use Shopware\Core\Migration\V6_4\Migration1643386819AddPreparedPaymentsToAppPaymentMethod;
+use Shopware\Core\Migration\V6_4\Migration1647511158AddRefundUrlToAppPaymentMethod;
 
 class Migration1616076922AppPaymentMethodTest extends TestCase
 {
@@ -48,6 +49,9 @@ class Migration1616076922AppPaymentMethodTest extends TestCase
 
         // we need to execute additional migrations to restore the final table state
         $migration = new Migration1643386819AddPreparedPaymentsToAppPaymentMethod();
+        $migration->update($this->connection);
+
+        $migration = new Migration1647511158AddRefundUrlToAppPaymentMethod();
         $migration->update($this->connection);
     }
 

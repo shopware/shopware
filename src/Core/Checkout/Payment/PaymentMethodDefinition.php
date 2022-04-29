@@ -60,7 +60,7 @@ class PaymentMethodDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        $fields = new FieldCollection([
+        return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             new FkField('plugin_id', 'pluginId', PluginDefinition::class),
             new StringField('handler_identifier', 'handlerIdentifier'),
@@ -77,6 +77,7 @@ class PaymentMethodDefinition extends EntityDefinition
             (new BoolField('synchronous', 'synchronous'))->addFlags(new ApiAware(), new WriteProtected(), new Runtime()),
             (new BoolField('asynchronous', 'asynchronous'))->addFlags(new ApiAware(), new WriteProtected(), new Runtime()),
             (new BoolField('prepared', 'prepared'))->addFlags(new ApiAware(), new WriteProtected(), new Runtime()),
+            (new BoolField('refundable', 'refundable'))->addFlags(new ApiAware(), new WriteProtected(), new Runtime()),
 
             (new TranslationsAssociationField(PaymentMethodTranslationDefinition::class, 'payment_method_id'))->addFlags(new ApiAware(), new Required()),
             (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware()),
@@ -89,9 +90,7 @@ class PaymentMethodDefinition extends EntityDefinition
             (new OneToManyAssociationField('customers', CustomerDefinition::class, 'last_payment_method_id', 'id'))->addFlags(new RestrictDelete()),
             (new OneToManyAssociationField('orderTransactions', OrderTransactionDefinition::class, 'payment_method_id', 'id'))->addFlags(new RestrictDelete()),
             new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelPaymentMethodDefinition::class, 'payment_method_id', 'sales_channel_id'),
-            (new OneToOneAssociationField('appPaymentMethod', 'id', 'payment_method_id', AppPaymentMethodDefinition::class))->addFlags(new CascadeDelete()),
+            (new OneToOneAssociationField('appPaymentMethod', 'id', 'payment_method_id', AppPaymentMethodDefinition::class, true))->addFlags(new CascadeDelete()),
         ]);
-
-        return $fields;
     }
 }

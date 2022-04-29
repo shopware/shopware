@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Customer;
 
 use Shopware\Core\Framework\Test\IdsCollection;
+use Shopware\Core\Test\TestBuilderTrait;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -16,7 +17,7 @@ use Shopware\Core\Test\TestDefaults;
  */
 class CustomerBuilder
 {
-    protected IdsCollection $ids;
+    use TestBuilderTrait;
 
     protected string $id;
 
@@ -45,8 +46,6 @@ class CustomerBuilder
     protected array $group = [];
 
     protected array $defaultPaymentMethod = [];
-
-    protected array $_dynamic = [];
 
     public function __construct(
         IdsCollection $ids,
@@ -155,32 +154,5 @@ class CustomerBuilder
         $this->addresses[$key] = $address;
 
         return $this;
-    }
-
-    /**
-     * @param array|object|string|float|int|bool|null $value
-     */
-    public function add(string $key, $value): self
-    {
-        $this->_dynamic[$key] = $value;
-
-        return $this;
-    }
-
-    public function build(): array
-    {
-        $data = \get_object_vars($this);
-
-        unset($data['ids'], $data['_dynamic']);
-
-        $data = \array_merge($data, $this->_dynamic);
-
-        return \array_filter($data, function ($value) {
-            if (\is_array($value) && empty($value)) {
-                return false;
-            }
-
-            return $value !== null;
-        });
     }
 }

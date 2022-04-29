@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -49,6 +50,8 @@ class OrderTransactionEntity extends Entity
      * @var string
      */
     protected $stateId;
+
+    protected ?OrderTransactionCaptureCollection $captures = null;
 
     public function getOrderId(): string
     {
@@ -118,5 +121,15 @@ class OrderTransactionEntity extends Entity
     public function setStateId(string $stateId): void
     {
         $this->stateId = $stateId;
+    }
+
+    public function getCaptures(): ?OrderTransactionCaptureCollection
+    {
+        return $this->captures;
+    }
+
+    public function setCaptures(OrderTransactionCaptureCollection $captures): void
+    {
+        $this->captures = $captures;
     }
 }

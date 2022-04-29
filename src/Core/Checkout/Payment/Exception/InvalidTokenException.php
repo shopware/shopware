@@ -7,11 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class InvalidTokenException extends ShopwareHttpException
 {
-    public function __construct(string $token)
+    public function __construct(string $token, ?\Throwable $e = null)
     {
         parent::__construct(
             'The provided token {{ token }} is invalid and the payment could not be processed.',
-            ['token' => $token]
+            ['token' => $token],
+            $e
         );
     }
 

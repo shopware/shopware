@@ -14,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestExceptio
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
@@ -33,14 +32,18 @@ class RequestCriteriaBuilder
 
     private ApiCriteriaValidator $validator;
 
+    private CriteriaArrayConverter $converter;
+
     public function __construct(
         AggregationParser $aggregationParser,
         ApiCriteriaValidator $validator,
+        CriteriaArrayConverter $converter,
         ?int $maxLimit = null
     ) {
         $this->maxLimit = $maxLimit;
         $this->aggregationParser = $aggregationParser;
         $this->validator = $validator;
+        $this->converter = $converter;
     }
 
     public function handleRequest(Request $request, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
@@ -64,81 +67,7 @@ class RequestCriteriaBuilder
 
     public function toArray(Criteria $criteria): array
     {
-        $array = [
-            'total-count-mode' => $criteria->getTotalCountMode(),
-        ];
-
-        if ($criteria->getLimit()) {
-            $array['limit'] = $criteria->getLimit();
-        }
-
-        if ($criteria->getOffset()) {
-            $array['page'] = ($criteria->getOffset() / $criteria->getLimit()) + 1;
-        }
-
-        if ($criteria->getTerm()) {
-            $array['term'] = $criteria->getTerm();
-        }
-
-        if ($criteria->getIncludes()) {
-            $array['includes'] = $criteria->getIncludes();
-        }
-
-        if (\count($criteria->getIds())) {
-            $array['ids'] = $criteria->getIds();
-        }
-
-        if (\count($criteria->getFilters())) {
-            $array['filter'] = array_map(static function (Filter $filter) {
-                return QueryStringParser::toArray($filter);
-            }, $criteria->getFilters());
-        }
-
-        if (\count($criteria->getPostFilters())) {
-            $array['post-filter'] = array_map(static function (Filter $filter) {
-                return QueryStringParser::toArray($filter);
-            }, $criteria->getPostFilters());
-        }
-
-        if (\count($criteria->getAssociations())) {
-            foreach ($criteria->getAssociations() as $assocName => $association) {
-                $array['associations'][$assocName] = $this->toArray($association);
-            }
-        }
-
-        if (\count($criteria->getSorting())) {
-            $array['sort'] = json_decode(json_encode($criteria->getSorting()), true);
-
-            foreach ($array['sort'] as &$sort) {
-                $sort['order'] = $sort['direction'];
-                unset($sort['direction']);
-            }
-            unset($sort);
-        }
-
-        if (\count($criteria->getQueries())) {
-            $array['query'] = [];
-
-            foreach ($criteria->getQueries() as $query) {
-                $arrayQuery = json_decode(json_encode($query), true);
-                $arrayQuery['query'] = QueryStringParser::toArray($query->getQuery());
-                $array['query'][] = $arrayQuery;
-            }
-        }
-
-        if (\count($criteria->getGroupFields())) {
-            $array['grouping'] = [];
-
-            foreach ($criteria->getGroupFields() as $groupField) {
-                $array['grouping'][] = $groupField->getField();
-            }
-        }
-
-        if (\count($criteria->getAggregations())) {
-            $array['aggregations'] = $this->aggregationParser->toArray($criteria->getAggregations());
-        }
-
-        return $array;
+        return $this->converter->convert($criteria);
     }
 
     public function fromArray(array $payload, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria

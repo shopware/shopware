@@ -2293,7 +2293,7 @@ parameters:
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 2
-			path: src/Core/Framework/DataAbstractionLayer/Search/RequestCriteriaBuilder.php
+			path: src/Core/Framework/DataAbstractionLayer/Search/CriteriaArrayConverter.php
 
 		-
 			message: "#^Parameter \\#2 \\$fieldName of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\RequestCriteriaBuilder\\:\\:buildFieldName\\(\\) expects string, int\\|string given\\.$#"

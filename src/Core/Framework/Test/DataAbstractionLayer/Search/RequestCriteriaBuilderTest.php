@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaArrayConverter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
@@ -49,6 +50,7 @@ class RequestCriteriaBuilderTest extends TestCase
         $builder = new RequestCriteriaBuilder(
             $this->getContainer()->get(AggregationParser::class),
             $this->getContainer()->get(ApiCriteriaValidator::class),
+            $this->getContainer()->get(CriteriaArrayConverter::class),
             $max
         );
 

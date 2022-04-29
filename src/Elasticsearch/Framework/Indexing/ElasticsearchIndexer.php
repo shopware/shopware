@@ -351,7 +351,7 @@ class ElasticsearchIndexer extends AbstractMessageHandler
     {
         $context = Context::createDefaultContext();
         $criteria = new Criteria();
-        $criteria->addFilter(new NandFilter([new EqualsFilter('salesChannelDomains.id', null)]));
+        $criteria->addFilter(new NandFilter([new EqualsFilter('salesChannels.id', null)]));
         $criteria->addSorting(new FieldSorting('id'));
 
         $this->eventDispatcher->dispatch(new ElasticsearchIndexerLanguageCriteriaEvent($criteria, $context));

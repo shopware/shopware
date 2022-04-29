@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Salutation\SalutationEntity;
@@ -46,7 +47,7 @@ class CustomerAddressEntity extends Entity
     protected $lastName;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $zipcode;
 
@@ -170,13 +171,36 @@ class CustomerAddressEntity extends Entity
         $this->lastName = $lastName;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Return type will change to ?string
+     */
     public function getZipcode(): string
     {
+        if ($this->zipcode === null) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                \sprintf('"%s::%s()" return type will change to ?string in v6.5.0.0', __CLASS__, __METHOD__)
+            );
+
+            return '';
+        }
+
         return $this->zipcode;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Parameter type of $zipcode will be changed to ?string
+     */
     public function setZipcode(string $zipcode): void
     {
+        if (empty($zipcode)) {
+            $this->zipcode = null;
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                \sprintf('"%s::%s()" param type of $zipcode will be changed to ?string in v6.5.0.0', __CLASS__, __METHOD__)
+            );
+        }
+
         $this->zipcode = $zipcode;
     }
 

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Test\Product\Repository;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
@@ -686,6 +687,138 @@ class ProductRepositoryTest extends TestCase
         $price = $product->getPrices()->get($ruleB);
         static::assertSame(10.0, $price->getPrice()->getCurrencyPrice(Defaults::CURRENCY)->getGross());
         static::assertSame(8.0, $price->getPrice()->getCurrencyPrice(Defaults::CURRENCY)->getNet());
+    }
+
+    public function testProductPricesSortByGrossPrice(): void
+    {
+        $context = Context::createDefaultContext();
+        $ruleA = Uuid::randomHex();
+        $ruleB = Uuid::randomHex();
+
+        $this->getContainer()->get('rule.repository')->create([
+            ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
+            ['id' => $ruleB, 'name' => 'test', 'priority' => 2],
+        ], $context);
+
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 10,
+            'name' => 'price test',
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'prices' => [
+                [
+                    'id' => Uuid::randomHex(),
+                    'quantityStart' => 1,
+                    'quantityEnd' => 10,
+                    'ruleId' => $ruleA,
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 13, 'linked' => false]],
+                ],
+                [
+                    'id' => Uuid::randomHex(),
+                    'quantityStart' => 11,
+                    'ruleId' => $ruleA,
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8, 'linked' => false]],
+                ],
+            ],
+        ];
+
+        $this->repository->create([$data], $context);
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('prices');
+
+        $products = $this->repository
+            ->search($criteria, $context)
+            ->getEntities();
+
+        static::assertInstanceOf(ProductCollection::class, $products);
+        static::assertCount(1, $products);
+        static::assertTrue($products->has($id));
+
+        $product = $products->get($id);
+
+        static::assertSame($id, $product->getId());
+
+        static::assertEquals(new Price(Defaults::CURRENCY, 10, 15, false), $product->getCurrencyPrice(Defaults::CURRENCY));
+        static::assertCount(2, $product->getPrices());
+
+        $product->getPrices()->sortByPrice($context);
+
+        /** @var ProductPriceEntity $price */
+        $price = $product->getPrices()->first();
+        static::assertSame(10.0, $price->getPrice()->first()->getGross());
+        static::assertSame(8.0, $price->getPrice()->first()->getNet());
+    }
+
+    public function testProductPricesSortByNetPrice(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->setTaxState(CartPrice::TAX_STATE_NET);
+
+        $ruleA = Uuid::randomHex();
+        $ruleB = Uuid::randomHex();
+
+        $this->getContainer()->get('rule.repository')->create([
+            ['id' => $ruleA, 'name' => 'test', 'priority' => 1],
+            ['id' => $ruleB, 'name' => 'test', 'priority' => 2],
+        ], $context);
+
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 10,
+            'name' => 'price test',
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'prices' => [
+                [
+                    'id' => Uuid::randomHex(),
+                    'quantityStart' => 1,
+                    'quantityEnd' => 10,
+                    'ruleId' => $ruleA,
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 13, 'linked' => false]],
+                ],
+                [
+                    'id' => Uuid::randomHex(),
+                    'quantityStart' => 11,
+                    'ruleId' => $ruleA,
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 19, 'net' => 8, 'linked' => false]],
+                ],
+            ],
+        ];
+
+        $this->repository->create([$data], $context);
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('prices');
+
+        $products = $this->repository
+            ->search($criteria, $context)
+            ->getEntities();
+
+        static::assertInstanceOf(ProductCollection::class, $products);
+        static::assertCount(1, $products);
+        static::assertTrue($products->has($id));
+
+        $product = $products->get($id);
+
+        static::assertSame($id, $product->getId());
+
+        static::assertEquals(new Price(Defaults::CURRENCY, 10, 15, false), $product->getCurrencyPrice(Defaults::CURRENCY));
+        static::assertCount(2, $product->getPrices());
+
+        $product->getPrices()->sortByPrice($context);
+
+        /** @var ProductPriceEntity $price */
+        $price = $product->getPrices()->first();
+        static::assertSame(19.0, $price->getPrice()->first()->getGross());
+        static::assertSame(8.0, $price->getPrice()->first()->getNet());
     }
 
     public function testPriceRulesSorting(): void

@@ -1216,18 +1216,13 @@ parameters:
 			path: src/Core/Content/Seo/Api/SeoActionController.php
 
 		-
-			message: "#^Argument of an invalid type Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelDomain\\\\SalesChannelDomainCollection\\|null supplied for foreach, only iterables are supported\\.$#"
+			message: "#^Cannot call method getCode\\(\\) on Shopware\\\\Core\\\\System\\\\Locale\\\\LocaleEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Seo/HreflangLoader.php
 
 		-
-			message: "#^Cannot call method getCode\\(\\) on Shopware\\\\Core\\\\System\\\\Locale\\\\LocaleEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Content/Seo/HreflangLoader.php
-
-		-
 			message: "#^Cannot call method getLocale\\(\\) on Shopware\\\\Core\\\\System\\\\Language\\\\LanguageEntity\\|null\\.$#"
-			count: 2
+			count: 1
 			path: src/Core/Content/Seo/HreflangLoader.php
 
 		-

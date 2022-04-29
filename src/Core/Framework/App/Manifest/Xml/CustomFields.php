@@ -8,7 +8,7 @@ namespace Shopware\Core\Framework\App\Manifest\Xml;
 class CustomFields extends XmlElement
 {
     /**
-     * @var CustomFields[]
+     * @var CustomFieldSet[]
      */
     protected $customFieldSets = [];
 
@@ -23,7 +23,7 @@ class CustomFields extends XmlElement
     }
 
     /**
-     * @return CustomFields[]
+     * @return CustomFieldSet[]
      */
     public function getCustomFieldSets(): array
     {

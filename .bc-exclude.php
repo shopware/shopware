@@ -36,7 +36,7 @@ return [
         'The parameter \\$product of Shopware\\\\Core\\\\Content\\\\Product\\\\AbstractProductVariationBuilder#build()',
         'The parameter \\$product of Shopware\\\\Core\\\\Content\\\\Product\\\\ProductMaxPurchaseCalculator#calculate()',
         'The parameter \\$product of Shopware\\\\Core\\\\Content\\\\Product\\\\IsNewDetector#isNew()',
-
+        'The parameter \\$definition of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\Common\\\\IteratorFactory#createIterator()',
         'The return type of Shopware\\\\Core\\\\Framework\\\\Routing\\\\RouteEventSubscriber',
         'These ancestors of Shopware\\\\Core\\\\Framework\\\\Script\\\\Api\\\\StoreApiCacheKeyHook have been removed',
 

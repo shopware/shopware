@@ -55,7 +55,7 @@ parameters:
         - src/Elasticsearch/*Test.php
         - src/Storefront/*Test.php
         - src/Administration/Test/Controller/*.php
-
+        - src/Core/Framework/Adapter/Cache/ShopwareRedisAdapter.php
         # node_modules
         - src/**/node_modules/*
 

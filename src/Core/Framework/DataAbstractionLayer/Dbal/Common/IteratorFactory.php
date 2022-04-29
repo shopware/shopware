@@ -26,6 +26,9 @@ class IteratorFactory
         $this->registry = $registry;
     }
 
+    /**
+     * @param string|EntityDefinition $definition
+     */
     public function createIterator($definition, ?array $lastId = null, int $limit = 50): IterableQuery
     {
         if (\is_string($definition)) {

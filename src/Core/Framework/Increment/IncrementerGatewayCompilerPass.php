@@ -90,7 +90,7 @@ class IncrementerGatewayCompilerPass implements CompilerPassInterface
                     return $active;
                 }
 
-                $definition->setFactory([RedisConnectionFactory::class, 'createConnection'])->addArgument($config['url']);
+                $definition->setFactory([new Reference(RedisConnectionFactory::class), 'create'])->addArgument($config['url']);
 
                 $adapter = sprintf('shopware.increment.%s.redis_adapter', $pool);
 

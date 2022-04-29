@@ -30,7 +30,21 @@ class RedisConnectionFactory
      */
     public function create(string $dsn, array $options = [])
     {
-        return self::createConnection($dsn, $options, !empty($this->prefix) ? $this->prefix : null);
+        $configHash = md5(json_encode($options, \JSON_THROW_ON_ERROR));
+        $key = $dsn . $configHash . $this->prefix;
+
+        if (!isset(self::$connections[$key]) || self::$connections[$key]->isConnected() === false) {
+            /** @var \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy $redis */
+            $redis = RedisAdapter::createConnection($dsn, $options);
+
+            if ($this->prefix) {
+                $redis->setOption(\Redis::OPT_PREFIX, $this->prefix);
+            }
+
+            self::$connections[$key] = $redis;
+        }
+
+        return self::$connections[$key];
     }
 
     /**
@@ -38,24 +52,10 @@ class RedisConnectionFactory
      *
      * @return \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy
      */
-    public static function createConnection(string $dsn, array $options = [], ?string $prefix = null)
+    public static function createConnection(string $dsn, array $options = [])
     {
-        Feature::throwException('v6.5.0.0', 'RedisConnectionFactory::createConnection() is deprecated. Use RedisConnectionFactory::create() instead.');
+        Feature::triggerDeprecationOrThrow('v6.5.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'create()'));
 
-        $configHash = md5(json_encode($options, \JSON_THROW_ON_ERROR));
-        $key = $dsn . $configHash . $prefix;
-
-        if (!isset(self::$connections[$key]) || self::$connections[$key]->isConnected() === false) {
-            /** @var \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy $redis */
-            $redis = RedisAdapter::createConnection($dsn, $options);
-
-            if ($prefix) {
-                $redis->setOption(\Redis::OPT_PREFIX, $prefix);
-            }
-
-            self::$connections[$key] = $redis;
-        }
-
-        return self::$connections[$key];
+        return (new self())->create($dsn, $options);
     }
 }

@@ -30,9 +30,6 @@
                 "filesystem": {
                     "$ref": "#/definitions/filesystem"
                 },
-                "redis": {
-                    "$ref": "#/definitions/redis"
-                },
                 "cdn": {
                     "$ref": "#/definitions/cdn"
                 },

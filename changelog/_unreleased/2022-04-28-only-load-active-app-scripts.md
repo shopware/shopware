@@ -1,9 +1,9 @@
 ---
 title: Only load active app scripts
-issue: NA
+issue: NEXT-21370
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999
 ---
 # Core
-* Only load scripts which are active and where the apps are active as well
+* Changed `ScriptLoader` to load the active state of the scripts and skip these disabled scripts in `ScriptExecutor`

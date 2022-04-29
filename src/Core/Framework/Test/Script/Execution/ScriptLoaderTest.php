@@ -38,17 +38,13 @@ class ScriptLoaderTest extends TestCase
 
         $loader = $this->getContainer()->get(ScriptLoader::class);
 
-        static::assertCount(
-            0,
-            $loader->get('include-case')
-        );
-        static::assertCount(
-            0,
-            $loader->get('multi-script-case')
-        );
-        static::assertCount(
-            0,
-            $loader->get('include')
-        );
+        static::assertCount(1, $loader->get('include-case'));
+        static::assertFalse($loader->get('include-case')[0]->isActive());
+
+        static::assertCount(2, $loader->get('multi-script-case'));
+        static::assertFalse($loader->get('multi-script-case')[0]->isActive());
+        static::assertFalse($loader->get('multi-script-case')[1]->isActive());
+
+        static::assertCount(0, $loader->get('include'));
     }
 }

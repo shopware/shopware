@@ -79,10 +79,11 @@ class ScriptLoader implements EventSubscriberInterface
                    IFNULL(`script`.`updated_at`, `script`.`created_at`) AS lastModified,
                    `app`.`name` AS appName,
                    LOWER(HEX(`app`.`integration_id`)) AS integrationId,
-                   `app`.`version` AS appVersion
+                   `app`.`version` AS appVersion,
+                   `script`.`active` AS active
             FROM `script`
             LEFT JOIN `app` ON `script`.`app_id` = `app`.`id`
-            WHERE `script`.`hook` != 'include' AND `app`.`active` = 1 AND `script`.`active` = 1
+            WHERE `script`.`hook` != 'include'
             ORDER BY `app`.`created_at`, `app`.`id`, `script`.`name`
         ");
 
@@ -95,7 +96,7 @@ class ScriptLoader implements EventSubscriberInterface
                    IFNULL(`script`.`updated_at`, `script`.`created_at`) AS lastModified
             FROM `script`
             LEFT JOIN `app` ON `script`.`app_id` = `app`.`id`
-            WHERE `script`.`hook` = 'include' AND `app`.`active` = 1 AND `script`.`active` = 1
+            WHERE `script`.`hook` = 'include'
             ORDER BY `app`.`created_at`, `app`.`id`, `script`.`name`
         ");
 
@@ -140,7 +141,8 @@ class ScriptLoader implements EventSubscriberInterface
                 $lastModified,
                 $this->getAppInfo($script),
                 $options,
-                $includes
+                $includes,
+                (bool) $script['active']
             );
         }
 

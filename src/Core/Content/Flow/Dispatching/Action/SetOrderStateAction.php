@@ -7,6 +7,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\Event\DelayAware;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\ShopwareHttpException;
@@ -58,7 +59,7 @@ class SetOrderStateAction extends FlowAction
 
     public function requirements(): array
     {
-        return [OrderAware::class];
+        return [OrderAware::class, DelayAware::class];
     }
 
     public function handle(FlowEvent $event): void

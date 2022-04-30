@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\CustomerGroupAware;
+use Shopware\Core\Framework\Event\DelayAware;
 use Shopware\Core\Framework\Event\FlowEvent;
 
 class SetCustomerGroupCustomFieldAction extends FlowAction
@@ -39,7 +40,7 @@ class SetCustomerGroupCustomFieldAction extends FlowAction
 
     public function requirements(): array
     {
-        return [CustomerGroupAware::class];
+        return [CustomerGroupAware::class, DelayAware::class];
     }
 
     public function handle(FlowEvent $event): void

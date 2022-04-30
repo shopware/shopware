@@ -34,6 +34,7 @@ class FlowExecutor
         $state->flowId = $flow->getId();
         foreach ($flow->getSequences() as $sequence) {
             $state->sequenceId = $sequence->sequenceId;
+            $state->delayed = false;
 
             try {
                 $this->executeSequence($sequence, $state);
@@ -52,6 +53,8 @@ class FlowExecutor
         if ($sequence === null) {
             return;
         }
+
+        $state->currentSequence = $sequence;
 
         if ($sequence instanceof IfSequence) {
             $this->executeIf($sequence, $state);
@@ -88,6 +91,12 @@ class FlowExecutor
         }
 
         $this->dispatcher->dispatch($globalEvent, $actionName);
+
+        if ($state->delayed) {
+            return;
+        }
+
+        $state->currentSequence = $sequence;
 
         /** @var ActionSequence $nextAction */
         $nextAction = $sequence->nextAction;

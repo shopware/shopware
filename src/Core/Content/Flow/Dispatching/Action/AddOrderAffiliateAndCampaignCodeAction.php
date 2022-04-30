@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Event\DelayAware;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -36,7 +37,7 @@ class AddOrderAffiliateAndCampaignCodeAction extends FlowAction
 
     public function requirements(): array
     {
-        return [OrderAware::class];
+        return [OrderAware::class, DelayAware::class];
     }
 
     public function handle(FlowEvent $event): void

@@ -34,6 +34,9 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode('verify_server_cert')->defaultValue(true)->end()
                     ->end()
                 ->end()
+                ->arrayNode('index_settings')->variablePrototype()->end()->end()
+                ->arrayNode('analysis')->performNoDeepMerging()->variablePrototype()->end()->end()
+                ->arrayNode('dynamic_templates')->performNoDeepMerging()->variablePrototype()->end()->end()
             ->end();
 
         return $treeBuilder;

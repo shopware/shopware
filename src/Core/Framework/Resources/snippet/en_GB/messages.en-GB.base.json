@@ -21,12 +21,12 @@
         "bankAccount": "Bank account",
         "bankIban": "IBAN: %bankIban%",
         "bankBic": "BIC: %bankBic%",
-        "placeOfJurisdiction": "Place of jurisdiction: %placeOfJurisdiction%",
+        "placeOfJurisdiction": "<strong>Place of jurisdiction:</strong> %placeOfJurisdiction%",
         "serviceDateNotice": "Service date equivalent to invoice date",
-        "placeOfFulfillment": "Place of fulfillment: %placeOfFulfillment%",
+        "placeOfFulfillment": "<strong>Place of fulfillment:</strong> %placeOfFulfillment%",
         "intraCommunity": "Intra-community delivery (EU)",
         "shippingAddress": "Shipping address",
-        "phoneNumber": "Phone number: %phoneNumber%",
+        "phoneNumber": "Phone: %phoneNumber%",
         "email": "Email address: %email%",
         "ceo": "CEO",
         "lineItems": {
@@ -46,8 +46,8 @@
             "shippingCosts": "Shipping costs"
         },
         "paymentShippingInfo": {
-            "paymentMethod": "Payment method: %paymentMethod%",
-            "shippingMethod": "Shipping method: %shippingMethod%",
+            "paymentMethod": "<strong>Payment method:</strong> %paymentMethod%",
+            "shippingMethod": "<strong>Shipping method:</strong> %shippingMethod%",
             "additionalInfo": "Delivered goods remain our property until full payment has been made."
         }
     },

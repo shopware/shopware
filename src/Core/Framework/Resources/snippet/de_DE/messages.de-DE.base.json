@@ -21,12 +21,12 @@
         "bankAccount": "Bankverbindung",
         "bankIban": "IBAN: %bankIban%",
         "bankBic": "BIC: %bankBic%",
-        "placeOfJurisdiction": "Gerichtsstand: %placeOfJurisdiction%",
+        "placeOfJurisdiction": "<strong>Gerichtsstand:</strong> %placeOfJurisdiction%",
         "serviceDateNotice": "Leistungsdatum entspricht Rechnungsdatum",
-        "placeOfFulfillment": "Erfüllungsort: %placeOfFulfillment%",
+        "placeOfFulfillment": "<strong>Erfüllungsort:</strong> %placeOfFulfillment%",
         "intraCommunity": "Innergemeinschaftliche Lieferung (EU)",
         "shippingAddress": "Lieferadresse",
-        "phoneNumber": "Telefonnummer: %phoneNumber%",
+        "phoneNumber": "Telefon: %phoneNumber%",
         "email": "E-Mail-Adresse: %email%",
         "ceo": "Geschäftsführer",
         "lineItems": {
@@ -46,8 +46,8 @@
             "shippingCosts": "Versandkosten"
         },
         "paymentShippingInfo": {
-            "paymentMethod": "Gewählte Zahlungsart: %paymentMethod%",
-            "shippingMethod": "Gewählte Versandart: %shippingMethod%",
+            "paymentMethod": "<strong>Gewählte Zahlungsart:</strong> %paymentMethod%",
+            "shippingMethod": "<strong>Gewählte Versandart:</strong> %shippingMethod%",
             "additionalInfo": "Die Ware bleibt, bis zur vollständigen Bezahlung, unser Eigentum."
         }
     },

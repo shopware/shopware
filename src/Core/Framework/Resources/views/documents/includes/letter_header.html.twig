@@ -13,13 +13,11 @@ All blocks of this template are available in the template which renders this tem
     <div class="letter-header">
         <div class="recipient-address-container">
             {% block document_recipient %}
-                <span class="sender-address-small">
-                    {% block document_recipient_sender %}
-                        {{ config.companyAddress }}<br><br>
-                    {% endblock %}
-                </span>
                 {% if billingAddress.company %}
                     {{ billingAddress.company }}<br>
+                {% endif %}
+                {% if customer.customer.vatIds and billingAddress.country.companyTax.getEnabled and billingAddress.country.isEU %}
+                    {{ 'document.vatId'|trans({'%vatId%': customer.customer.vatIds|first})|sw_sanitize }}<br>
                 {% endif %}
                 {% if billingAddress.salutation and billingAddress.salutation.id is not same as(constant('Shopware\\Core\\Defaults::SALUTATION')) %}{{ billingAddress.salutation.letterName ~ ' ' }}{% endif %}{{ billingAddress.firstName }} {{ billingAddress.lastName }}<br>
                 {{ billingAddress.street }}<br>
@@ -37,6 +35,13 @@ All blocks of this template are available in the template which renders this tem
         <div class="sender-address-container">
             {% block document_sender_address %}
                 <table>
+                    {% if config.companyName %}
+                        {% block document_side_company_name %}
+                            <tr>
+                                <td class="bold">{{ config.companyName }}</td>
+                            </tr>
+                        {% endblock %}
+                    {% endif %}
                     <tr>
                         <td>
                             {% if config.companyAddress is not empty %}
@@ -44,15 +49,6 @@ All blocks of this template are available in the template which renders this tem
                             {% endif %}
                         </td>
                     </tr>
-                    {% if config.companyEmail %}
-                        {% block document_side_info_email %}
-                            <tr>
-                                <td>
-                                    {{'document.email'|trans({'%email%': config.companyEmail })|sw_sanitize }}
-                                </td>
-                            </tr>
-                        {% endblock %}
-                    {% endif %}
                     {% if config.companyPhone %}
                         {% block document_side_info_phone_number %}
                             <tr>
@@ -62,18 +58,25 @@ All blocks of this template are available in the template which renders this tem
                             </tr>
                         {% endblock %}
                     {% endif %}
-                </table>
+                    {% if config.companyEmail %}
+                        {% block document_side_info_email %}
+                            <tr>
+                                <td>{{ config.companyEmail }}</td>
+                            </tr>
+                        {% endblock %}
+                    {% endif %}
+                    {% if config.companyUrl %}
+                        {% block document_side_company_url %}
+                            <tr>
+                                <td>{{ config.companyUrl }}</td>
+                            </tr>
+                        {% endblock %}
+                    {% endif %}
+                </table><br>
             {% endblock %}
             {% block document_side_info %}
                 <table>
                     {% block document_side_info_contents %}
-                        {% block document_side_info_date %}
-                            <tr>
-                                <td>
-                                    {{ 'document.date'|trans({'%date%': config.documentDate|format_date('medium', locale=locale)})|sw_sanitize }}
-                                </td>
-                            </tr>
-                        {% endblock %}
                         {% block document_side_info_customer_number %}
                             <tr>
                                 <td>
@@ -95,8 +98,15 @@ All blocks of this template are available in the template which renders this tem
                                 </td>
                             </tr>
                         {% endblock %}
+                        {% block document_side_info_date %}
+                            <tr>
+                                <td>
+                                    {{ 'document.date'|trans({'%date%': config.documentDate|format_date('medium', locale=locale)})|sw_sanitize }}
+                                </td>
+                            </tr>
+                        {% endblock %}
                     {% endblock %}
-                </table><br/>
+                </table>
             {% endblock %}
         </div>
     </div>

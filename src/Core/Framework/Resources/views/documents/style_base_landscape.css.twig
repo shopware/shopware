@@ -65,7 +65,7 @@
         /* Sender info section (top right) */
         .sender-address-container {
             top: 0;
-            right: 30px;
+            right: 0;
             position: absolute;
         }
 
@@ -171,12 +171,6 @@
             padding-top: 25px;
         }
 
-        /* Page count */
-        .page-count {
-            width: 100%;
-            text-align: center;
-        }
-
         .pagenum:after {
             content: counter(page);
         }
@@ -186,7 +180,7 @@
             margin-top: 20px;
             text-align: right;
             float: right;
-            right: 30px;
+            right: 0;
         }
 
         .sum-table {
@@ -197,8 +191,6 @@
         footer {
             position: fixed;
             bottom: 50px;
-            margin-left: auto;
-            margin-right: auto;
             font-size: 8px;
         }
 
@@ -206,9 +198,17 @@
             clear: both;
         }
 
-        footer > ul {
-            list-style-type: none;
+        footer > ul, footer > div {
+            width: 20%;
+            display: block;
             float: left;
+            list-style-type: none;
+            margin: 0;
+            height: 100px;
+        }
+
+        footer > ul:first-child {
+            padding: 0;
         }
     {% endblock %}
 </style>

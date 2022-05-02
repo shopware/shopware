@@ -53,7 +53,7 @@
         /* Header */
         header {
             position: fixed;
-            top: -175px;
+            top: -135px;
         }
 
         .logo {
@@ -69,7 +69,7 @@
         /* Sender info section (top right) */
         .sender-address-container {
             top: 0;
-            right: 30px;
+            right: 0;
             position: absolute;
         }
 
@@ -83,7 +83,6 @@
             width: 100%;
             border-spacing: 0 2px;
         }
-
 
         .line-item-table-header > th, .line-item-table:last-child {
             padding-bottom: 20px;
@@ -170,12 +169,6 @@
             padding-top: 25px;
         }
 
-        /* Page count */
-        .page-count {
-            width: 100%;
-            text-align: center;
-        }
-
         .pagenum:after {
             content: counter(page);
         }
@@ -185,7 +178,7 @@
             margin-top: 20px;
             text-align: right;
             float: right;
-            right: 30px;
+            right: 0;
         }
 
         .sum-table {
@@ -203,13 +196,17 @@
             clear: both;
         }
 
-        footer > ul {
+        footer > ul, footer > div {
+            width: 20%;
+            display: block;
+            float: left;
             list-style-type: none;
             margin: 0;
-            padding-top: 10px;
-            display: block;
             height: 100px;
-            float: left;
+        }
+
+        footer > ul:first-child {
+            padding: 0;
         }
     {% endblock %}
 </style>

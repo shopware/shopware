@@ -308,6 +308,139 @@ class InvoiceServiceTest extends TestCase
     }
 
     /**
+     * @dataProvider createDataProvider
+     */
+    public function testGenerateWithVatIdsOfCustomer(\Closure $vatIdClosure, \Closure $companyTaxFreeClosure, \Closure $countryIsoClosure, \Closure $assertClosure): void
+    {
+        $invoiceService = $this->getContainer()->get(InvoiceGenerator::class);
+
+        $possibleTaxes = [7, 19, 22];
+        $cart = $this->generateDemoCart($possibleTaxes);
+        $orderId = $this->persistCart($cart);
+        /** @var OrderEntity $order */
+        $order = $this->getOrderById($orderId);
+
+        $vatId = $vatIdClosure($order);
+        $companyTaxFreeClosure($order);
+        $countryIsoClosure($order);
+
+        static::assertNotNull($deliveries = $order->getDeliveries());
+        static::assertNotNull($shippingAddress = $deliveries->getShippingAddress());
+        static::assertNotNull($countries = $shippingAddress->getCountries());
+        static::assertNotNull($country = $countries->first());
+
+        $documentConfiguration = DocumentConfigurationFactory::mergeConfiguration(
+            new DocumentConfiguration(),
+            [
+                'displayLineItems' => true,
+                'itemsPerPage' => 10,
+                'displayFooter' => true,
+                'displayHeader' => true,
+                'executiveDirector' => true,
+                'displayDivergentDeliveryAddress' => true,
+                'intraCommunityDelivery' => true,
+                'displayAdditionalNoteDelivery' => true,
+                'deliveryCountries' => [$country->getId()],
+            ]
+        );
+
+        $context = Context::createDefaultContext();
+
+        $processedTemplate = $invoiceService->generate(
+            $order,
+            $documentConfiguration,
+            $context
+        );
+
+        $assertClosure($processedTemplate, $vatId);
+    }
+
+    public function createDataProvider(): \Generator
+    {
+        $vatId = 'VAT-123123';
+
+        yield [
+            function (OrderEntity $order) use ($vatId): string {
+                return $vatId;
+            },
+            function (OrderEntity $order): void {
+            },
+            function (OrderEntity $order): void {
+            },
+            function ($processedTemplate, $vatId): void {
+                static::assertStringNotContainsString("VAT Reg.No: ${vatId}", $processedTemplate);
+            },
+        ];
+
+        yield [
+            function (OrderEntity $order) use ($vatId): string {
+                static::assertNotNull($orderCustomer = $order->getOrderCustomer());
+                static::assertNotNull($customer = $orderCustomer->getCustomer());
+                $customer->setVatIds([$vatId]);
+
+                return $vatId;
+            },
+            function (OrderEntity $order): void {
+            },
+            function (OrderEntity $order): void {
+            },
+            function ($processedTemplate, $vatId): void {
+                static::assertStringNotContainsString("VAT Reg.No: ${vatId}", $processedTemplate);
+            },
+        ];
+
+        yield [
+            function (OrderEntity $order) use ($vatId): string {
+                static::assertNotNull($orderCustomer = $order->getOrderCustomer());
+                static::assertNotNull($customer = $orderCustomer->getCustomer());
+                $customer->setVatIds([$vatId]);
+
+                return $vatId;
+            },
+            function (OrderEntity $order): void {
+                static::assertNotNull($addresses = $order->getAddresses());
+                static::assertNotNull($billingAddress = $addresses->get($order->getBillingAddressId()));
+                static::assertNotNull($country = $billingAddress->getCountry());
+                $country->getCompanyTax()->setEnabled(true);
+            },
+            function (OrderEntity $order): void {
+                static::assertNotNull($addresses = $order->getAddresses());
+                static::assertNotNull($billingAddress = $addresses->get($order->getBillingAddressId()));
+                static::assertNotNull($country = $billingAddress->getCountry());
+                $country->setIso('VN');
+            },
+            function ($processedTemplate, $vatId): void {
+                static::assertStringNotContainsString("VAT Reg.No: ${vatId}", $processedTemplate);
+            },
+        ];
+
+        yield [
+            function (OrderEntity $order) use ($vatId): string {
+                static::assertNotNull($orderCustomer = $order->getOrderCustomer());
+                static::assertNotNull($customer = $orderCustomer->getCustomer());
+                $customer->setVatIds([$vatId]);
+
+                return $vatId;
+            },
+            function (OrderEntity $order): void {
+                static::assertNotNull($addresses = $order->getAddresses());
+                static::assertNotNull($billingAddress = $addresses->get($order->getBillingAddressId()));
+                static::assertNotNull($country = $billingAddress->getCountry());
+                $country->getCompanyTax()->setEnabled(true);
+            },
+            function (OrderEntity $order): void {
+                static::assertNotNull($addresses = $order->getAddresses());
+                static::assertNotNull($billingAddress = $addresses->get($order->getBillingAddressId()));
+                static::assertNotNull($country = $billingAddress->getCountry());
+                $country->setIso('DE');
+            },
+            function ($processedTemplate, $vatId): void {
+                static::assertStringContainsString("VAT Reg.No: ${vatId}", $processedTemplate);
+            },
+        ];
+    }
+
+    /**
      * @throws InvalidPayloadException
      * @throws InvalidQuantityException
      * @throws MixedLineItemTypeException
@@ -517,7 +650,8 @@ class InvoiceServiceTest extends TestCase
             ->addAssociation('language.locale')
             ->addAssociation('transactions')
             ->addAssociation('deliveries.shippingOrderAddress.country')
-            ->addAssociation('orderCustomer.customer');
+            ->addAssociation('orderCustomer.customer')
+            ->addAssociation('addresses.country');
 
         $order = $this->getContainer()->get('order.repository')
             ->search($criteria, $this->context)

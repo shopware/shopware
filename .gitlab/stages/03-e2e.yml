@@ -19,6 +19,7 @@ E2E:
         CYPRESS_TARGET_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
         CYPRESS_TARGET_COMMIT: $CI_MERGE_REQUEST_DIFF_BASE_SHA
         CYPRESS_COMMIT_BRANCH: $CI_COMMIT_BRANCH
+        CYPRESS_CACHE_FOLDER: $CI_PROJECT_DIR/.Cypress
     parallel:
         matrix:
             -   TEST_DIRECTORY:
@@ -55,6 +56,14 @@ E2E:
         - mv tests/E2E/cypress/results/single-reports/*.xml var/log/e2e/ || true
         - mv tests/E2E/mochareports/ var/log/e2e/ || true
         - !reference [.upload-junit-xml, after_script]
+    cache:
+      key:
+        files:
+          - tests/package-lock.json
+      paths:
+        - .Cypress
+      # only one job needs to upload
+      policy: pull
     artifacts:
         when: always
         paths:
@@ -84,6 +93,7 @@ E2E install NL:
         CYPRESS_dbPassword: $MYSQL_ROOT_PASSWORD
         CYPRESS_dbName: root
         CYPRESS_locale: nl-NL
+        CYPRESS_CACHE_FOLDER: $CI_PROJECT_DIR/.Cypress
     script:
         - apt-get update && apt-get -y install jq
         - export PLATFORM_VERSION="$(jq -r .version < composer.json)"
@@ -130,6 +140,13 @@ E2E install NL:
         - mv $CI_PROJECT_DIR/src/Recovery/Test/e2e/cypress/results/single-reports/*.xml var/log/e2e/ || true
         - mv $CI_PROJECT_DIR/src/Recovery/Test/e2e/mochareports/ var/log/e2e/ || true
         - !reference [ .upload-junit-xml, after_script ]
+    cache:
+      key:
+        files:
+          - tests/package-lock.json
+      paths:
+        - .Cypress
+      policy: pull-push
     artifacts:
         when: always
         paths:

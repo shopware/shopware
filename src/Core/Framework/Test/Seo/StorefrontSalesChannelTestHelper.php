@@ -49,7 +49,7 @@ trait StorefrontSalesChannelTestHelper
             'POST',
             $_SERVER['APP_URL'] . '/account/login',
             [
-                'username' => 'foo',
+                'username' => 'foo@foo.de',
                 'password' => 'bar',
             ]
         );

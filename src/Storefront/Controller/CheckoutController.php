@@ -109,9 +109,10 @@ class CheckoutController extends StorefrontController
             // To prevent redirect loops add the identifier that the request already got redirected from the same origin
             return $this->redirectToRoute(
                 'frontend.checkout.cart.page',
-                [
-                    self::REDIRECTED_FROM_SAME_ROUTE => true,
-                ]
+                \array_merge(
+                    $request->query->all(),
+                    [self::REDIRECTED_FROM_SAME_ROUTE => true]
+                ),
             );
         }
         $cartErrors->clear();
@@ -135,10 +136,26 @@ class CheckoutController extends StorefrontController
         }
 
         $page = $this->confirmPageLoader->load($request, $context);
+        $cart = $page->getCart();
+        $cartErrors = $cart->getErrors();
 
         $this->hook(new CheckoutConfirmPageLoadedHook($page, $context));
 
-        $this->addCartErrors($page->getCart());
+        $this->addCartErrors($cart);
+
+        if (!$request->query->getBoolean(self::REDIRECTED_FROM_SAME_ROUTE) && $this->routeNeedsReload($cartErrors)) {
+            $cartErrors->clear();
+
+            // To prevent redirect loops add the identifier that the request already got redirected from the same origin
+            return $this->redirectToRoute(
+                'frontend.checkout.confirm.page',
+                \array_merge(
+                    $request->query->all(),
+                    [self::REDIRECTED_FROM_SAME_ROUTE => true]
+                ),
+            );
+        }
+        $cartErrors->clear();
 
         return $this->renderStorefront('@Storefront/storefront/page/checkout/confirm/index.html.twig', ['page' => $page]);
     }
@@ -258,9 +275,10 @@ class CheckoutController extends StorefrontController
             // To prevent redirect loops add the identifier that the request already got redirected from the same origin
             return $this->redirectToRoute(
                 'frontend.cart.offcanvas',
-                [
-                    self::REDIRECTED_FROM_SAME_ROUTE => true,
-                ]
+                \array_merge(
+                    $request->query->all(),
+                    [self::REDIRECTED_FROM_SAME_ROUTE => true]
+                ),
             );
         }
 

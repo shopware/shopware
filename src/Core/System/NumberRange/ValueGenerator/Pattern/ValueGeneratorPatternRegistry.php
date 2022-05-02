@@ -49,7 +49,10 @@ class ValueGeneratorPatternRegistry
      */
     public function getPatternResolver(string $patternId): ?ValueGeneratorPatternInterface
     {
-        Feature::throwException('v6.5.0.0', 'ValueGeneratorPatternRegistry::getPatternResolver() will be removed, use `generatePattern()` directly.');
+        Feature::triggerDeprecationOrThrow(
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'ValueGeneratorPatternRegistry::generatePattern()'),
+            'v6.5.0.0'
+        );
 
         $generator = $this->pattern[$patternId] ?? null;
         if ($generator instanceof ValueGeneratorPatternInterface) {

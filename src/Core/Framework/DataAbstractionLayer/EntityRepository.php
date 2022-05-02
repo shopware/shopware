@@ -27,38 +27,23 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class EntityRepository implements EntityRepositoryInterface
 {
-    /**
-     * @var EntityReaderInterface
-     */
-    private $reader;
+    private EntityReaderInterface $reader;
 
-    /**
-     * @var EntitySearcherInterface
-     */
-    private $searcher;
+    private EntitySearcherInterface $searcher;
 
-    /**
-     * @var EntityAggregatorInterface
-     */
-    private $aggregator;
+    private EntityAggregatorInterface $aggregator;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var VersionManager
-     */
-    private $versionManager;
+    private VersionManager $versionManager;
 
-    /**
-     * @var EntityDefinition
-     */
-    private $definition;
+    private EntityDefinition $definition;
 
     private ?EntityLoadedEventFactory $eventFactory;
 
+    /**
+     * @deprecated tag:v6.5.0 - parameter $eventFactory will be required
+     */
     public function __construct(
         EntityDefinition $definition,
         EntityReaderInterface $reader,
@@ -78,7 +63,10 @@ class EntityRepository implements EntityRepositoryInterface
         if ($eventFactory !== null) {
             $this->eventFactory = $eventFactory;
         } else {
-            Feature::throwException('FEATURE_NEXT_16155', sprintf('Repository for definition %s requires the event factory as __construct parameter', $definition->getEntityName()));
+            Feature::triggerDeprecationOrThrow(
+                sprintf('EntityRepository constructor for definition %s requires the event factory as required 7th parameter in v6.5.0.0', $definition->getEntityName()),
+                'v6.5.0.0'
+            );
         }
     }
 

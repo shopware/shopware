@@ -240,7 +240,7 @@ class WishlistControllerTest extends TestCase
 
         $browser->request('GET', '/wishlist', []);
         $response = $browser->getResponse();
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertEquals(200, $response->getStatusCode(), $response->getContent());
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
 

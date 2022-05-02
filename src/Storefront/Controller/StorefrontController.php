@@ -233,12 +233,10 @@ abstract class StorefrontController extends AbstractController
             return $this->twig->render($view, $parameters);
         }
 
-        $message = sprintf('Class %s does not have twig injected. Add to your service definition a method call to setTwig with the twig instance', static::class);
-
-        if (Feature::isActive('FEATURE_NEXT_15687')) {
-            throw new \LogicException($message);
-        }
-        Feature::triggerDeprecated('FEATURE_NEXT_15687', '6.4.3.0', '6.5.0.0', $message);
+        Feature::triggerDeprecationOrThrow(
+            sprintf('Class %s does not have twig injected. Add to your service definition a method call to setTwig with the twig instance', static::class),
+            'v6.5.0.0'
+        );
 
         return parent::renderView($view, $parameters);
     }

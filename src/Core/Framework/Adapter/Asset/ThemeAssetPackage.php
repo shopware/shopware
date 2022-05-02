@@ -35,6 +35,11 @@ class ThemeAssetPackage extends FallbackUrlPackage
      */
     public function getUrl(string $path)
     {
+        Feature::triggerDeprecationOrThrow(
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'Shopware\Storefront\Theme\ThemeAssetPackage'),
+            'v6.5.0.0'
+        );
+
         if ($this->isAbsoluteUrl($path)) {
             return $path;
         }
@@ -45,7 +50,10 @@ class ThemeAssetPackage extends FallbackUrlPackage
         }
 
         if (str_starts_with($url, '/bundles') || str_starts_with($url, '/theme/')) {
-            Feature::triggerDeprecated('FEATURE_NEXT_14699', '6.4.2.0', '6.5.0.0', 'Accessing "theme" asset with "/bundles" or "/themes" prefixed path will be removed with 6.5.0.0');
+            Feature::triggerDeprecationOrThrow(
+                'Accessing "theme" asset with "/bundles" or "/themes" prefixed path will be removed with 6.5.0.0',
+                'v6.5.0.0'
+            );
 
             $url = $this->getVersionStrategy()->applyVersion($url);
 

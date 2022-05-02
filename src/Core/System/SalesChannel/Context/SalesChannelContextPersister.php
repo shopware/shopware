@@ -36,6 +36,13 @@ class SalesChannelContextPersister
         $this->connection = $connection;
         $this->eventDispatcher = $eventDispatcher;
         $this->lifetimeInterval = $lifetimeInterval ?? 'P1D';
+
+        if (!$cartPersister instanceof AbstractCartPersister) {
+            Feature::triggerDeprecationOrThrow(
+                'CartPersister parameter in SalesChannelContextPersister::__construct needs to be instance of AbstractCartPersister in v6.5.0.0',
+                'v6.5.0.0'
+            );
+        }
         $this->cartPersister = $cartPersister;
     }
 
@@ -63,10 +70,16 @@ class SalesChannelContextPersister
         );
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - parameter $salesChannelId will be required
+     */
     public function delete(string $token, ?string $salesChannelId = null, ?string $customerId = null): void
     {
         if ($salesChannelId === null) {
-            Feature::throwException('v6.5.0.0', 'Parameter `$salesChannelId` in `SalesChannelContextPersister::delete` will be required with v6.5.0');
+            Feature::triggerDeprecationOrThrow(
+                'Parameter `$salesChannelId` in `SalesChannelContextPersister::delete` will be required with v6.5.0.0',
+                'v6.5.0.0'
+            );
         }
 
         $this->connection->executeUpdate(
@@ -109,7 +122,6 @@ class SalesChannelContextPersister
         if ($this->cartPersister instanceof AbstractCartPersister) {
             $this->cartPersister->replace($oldToken, $newToken, $context);
         } else {
-            Feature::throwException('v6.5.0.0', 'CartPersisterInterface will be removed, type hint with AbstractCartPersister');
             $this->connection->executeUpdate('UPDATE `cart` SET `token` = :newToken WHERE `token` = :oldToken', ['newToken' => $newToken, 'oldToken' => $oldToken]);
         }
 

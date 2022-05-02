@@ -179,7 +179,10 @@ class SalesChannelContextRestorer
      */
     public function restore(string $customerId, SalesChannelContext $currentContext): SalesChannelContext
     {
-        Feature::throwException('v6.5.0.0', 'Will be removed in v6.5.0');
+        Feature::triggerDeprecationOrThrow(
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'Shopware\Core\System\SalesChannel\Context\CartRestore::restore()'),
+            'v6.5.0.0'
+        );
 
         return $this->cartRestorer->restore($customerId, $currentContext);
     }

@@ -168,7 +168,10 @@ class CountryEntity extends Entity
      */
     public function getTaxFree(): bool
     {
-        Feature::triggerDeprecated('FEATURE_NEXT_14114', '6.4.0', '6.5.0', 'Will be removed in version 6.5.0, use $customerTax->getEnabled() instead.');
+        Feature::triggerDeprecationOrThrow(
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'CountryEntity->getCustomerTax->getEnabled()'),
+            'v6.5.0.0'
+        );
 
         return $this->taxFree;
     }
@@ -178,7 +181,10 @@ class CountryEntity extends Entity
      */
     public function setTaxFree(bool $taxFree): void
     {
-        Feature::triggerDeprecated('FEATURE_NEXT_14114', '6.4.0', '6.5.0', 'Will be removed in version 6.5.0.');
+        Feature::triggerDeprecationOrThrow(
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'CountryEntity->getCustomerTax->setEnabled()'),
+            'v6.5.0.0'
+        );
 
         $this->taxFree = $taxFree;
     }
@@ -238,7 +244,10 @@ class CountryEntity extends Entity
      */
     public function getCompanyTaxFree(): bool
     {
-        Feature::triggerDeprecated('FEATURE_NEXT_14114', '6.4.0', '6.5.0', 'Will be removed in version 6.5.0, use $companyTax->getEnabled() instead.');
+        Feature::triggerDeprecationOrThrow(
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'CountryEntity->getCompanyTax->getEnabled()'),
+            'v6.5.0.0'
+        );
 
         return $this->companyTaxFree;
     }
@@ -248,7 +257,10 @@ class CountryEntity extends Entity
      */
     public function setCompanyTaxFree(bool $companyTaxFree): void
     {
-        Feature::triggerDeprecated('FEATURE_NEXT_14114', '6.4.0', '6.5.0', 'Will be removed in version 6.5.0.');
+        Feature::triggerDeprecationOrThrow(
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'CountryEntity->getCompanyTax->setEnabled()'),
+            'v6.5.0.0'
+        );
 
         $this->companyTaxFree = $companyTaxFree;
     }

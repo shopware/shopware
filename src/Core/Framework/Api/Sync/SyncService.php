@@ -97,8 +97,11 @@ class SyncService implements SyncServiceInterface
             return new SyncResult($ids, true, $notFound, $deleted);
         }
 
-        //@internal (flag:FEATURE_NEXT_15815) - remove all code below and all functions which will are no longer used
-        Feature::throwException('FEATURE_NEXT_15815', 'Sync api can only be used in single operation mode');
+        //@deprecated tag:v6.5.0 (flag:FEATURE_NEXT_15815) - remove all code below and all functions which will are no longer used
+        Feature::triggerDeprecationOrThrow(
+            'Sync api can only be used in single operation mode in v6.5.0.0',
+            'v6.5.0.0'
+        );
 
         if ($behavior->failOnError()) {
             $this->connection->beginTransaction();

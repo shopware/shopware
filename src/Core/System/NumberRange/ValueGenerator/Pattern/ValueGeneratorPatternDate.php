@@ -37,7 +37,10 @@ class ValueGeneratorPatternDate extends AbstractValueGenerator implements ValueG
      */
     public function resolve(NumberRangeEntity $configuration, ?array $args = null, ?bool $preview = false): string
     {
-        Feature::throwException('v6.5.0.0', 'ValueGeneratorPatternInterface::resolve() will be removed, use `generate()` instead');
+        Feature::triggerDeprecationOrThrow(
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'ValueGeneratorPatternDate::generate()'),
+            'v6.5.0.0'
+        );
 
         $config = [
             'id' => $configuration->getId(),

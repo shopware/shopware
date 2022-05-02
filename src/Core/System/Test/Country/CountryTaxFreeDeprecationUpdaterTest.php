@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -15,6 +16,11 @@ use Shopware\Core\System\Country\CountryEntity;
 class CountryTaxFreeDeprecationUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
+
+    public function setUp(): void
+    {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+    }
 
     public function tearDown(): void
     {

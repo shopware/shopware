@@ -292,7 +292,7 @@ describe('core/service/extension-api-data.service.ts', () => {
         wrapper.destroy();
     });
 
-    it('should throw error on duplicate id registration', async () => {
+    it('should be able to publish multiple times for same component', async () => {
         const wrapper = mount({
             template: '<h1>jest</h1>',
             data() {
@@ -302,10 +302,42 @@ describe('core/service/extension-api-data.service.ts', () => {
             },
         });
 
+        jest.spyOn(console, 'error').mockImplementation(() => {});
+
         publishData({
             id: 'jest',
             path: 'count',
             scope: wrapper.vm,
+        });
+
+        publishData({
+            id: 'jest',
+            path: 'count',
+            scope: wrapper.vm,
+        });
+
+        expect(console.error).toBeCalledTimes(0);
+
+        wrapper.destroy();
+    });
+
+    it('should fail to publish registered set different components', async () => {
+        const wrapper1 = mount({
+            template: '<h1>jest</h1>',
+            data() {
+                return {
+                    count: 42,
+                };
+            },
+        });
+
+        const wrapper2 = mount({
+            template: '<h1>jest</h1>',
+            data() {
+                return {
+                    count: 42,
+                };
+            },
         });
 
         jest.spyOn(console, 'error').mockImplementation((message) => {
@@ -315,12 +347,18 @@ describe('core/service/extension-api-data.service.ts', () => {
         publishData({
             id: 'jest',
             path: 'count',
-            scope: wrapper.vm,
+            scope: wrapper1.vm,
+        });
+
+        publishData({
+            id: 'jest',
+            path: 'count',
+            scope: wrapper2.vm,
         });
 
         expect(console.error).toBeCalledTimes(1);
 
-        wrapper.destroy();
+        wrapper1.destroy();
     });
 
     it('should return published datasets', async () => {

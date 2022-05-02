@@ -28,7 +28,7 @@ Module.register('sw-settings-cart', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.cart.index',
-        icon: 'default-lock-closed',
+        icon: 'default-shopping-cart',
         privilege: 'system.system_config',
     },
 });

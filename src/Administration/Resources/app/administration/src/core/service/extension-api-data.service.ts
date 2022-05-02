@@ -1,5 +1,6 @@
 import type Vue from 'vue';
 import { updateSubscriber, register } from '@shopware-ag/admin-extension-sdk/es/data';
+import { get } from 'lodash';
 
 type publishOptions = {
     id: string,
@@ -9,6 +10,7 @@ type publishOptions = {
 
 type dataset = {
     id: string,
+    scope: number,
     data: unknown
 }
 
@@ -20,6 +22,8 @@ type ParsedPath = {
     pathToLastSegment: string,
     lastSegment: string,
 };
+
+type vueWithUid = Partial<Vue> & { _uid: number };
 
 // This is used by the Vue devtool extension plugin
 let publishedDataSets: dataset[] = [];
@@ -47,8 +51,19 @@ function parsePath(path :string): ParsedPath | null {
 }
 
 export function publishData({ id, path, scope }: publishOptions): void {
-    if (publishedDataSets.find(set => set.id === id)) {
+    const registeredDataSet = publishedDataSets.find(s => s.id === id);
+
+    // Dataset registered from different scope? Prevent update.
+    if (registeredDataSet && registeredDataSet.scope !== (scope as vueWithUid)._uid) {
         console.error(`The dataset id "${id}" you tried to publish is already registered.`);
+
+        return;
+    }
+
+    // Dataset registered from same scope? Update.
+    if (registeredDataSet && registeredDataSet.scope === (scope as vueWithUid)._uid) {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        register({ id: id, data: get(scope, path) }).catch(() => {});
 
         return;
     }
@@ -153,6 +168,7 @@ export function publishData({ id, path, scope }: publishOptions): void {
         publishedDataSets.push({
             id,
             data: value,
+            scope: (scope as vueWithUid)._uid,
         });
     }, {
         deep: true,

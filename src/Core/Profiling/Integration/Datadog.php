@@ -17,9 +17,13 @@ class Datadog implements ProfilerInterface
             return;
         }
 
+        if ($category !== 'shopware') {
+            $category = 'shopware.' . $category;
+        }
+
         /** @see \DDTrace\Tag::SERVICE_NAME */
         $tags = array_merge(['service.name' => $category], $tags);
-        $span = GlobalTracer::get()->startSpan($title, [
+        $span = GlobalTracer::get()->startActiveSpan($title, [
             'tags' => $tags,
         ]);
 
@@ -35,7 +39,7 @@ class Datadog implements ProfilerInterface
         $span = $this->spans[$title] ?? null;
 
         if ($span) {
-            $span->finish();
+            $span->close();
             unset($this->spans[$title]);
         }
     }

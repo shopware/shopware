@@ -1,6 +1,17 @@
 @import "~scss/mixins";
 @import "~scss/variables";
 
+/**
+ * @hotfix fixes a bug in safari which leads to disappearing cards
+ */
+@media not all and (min-resolution: 0.001dpcm) {
+    @supports (-webkit-appearance:none) {
+        .sw-card {
+            transform: translateZ(0);
+        }
+    }
+}
+
 .sw-card {
     max-width: $content-width;
     margin: 0 auto 40px auto;

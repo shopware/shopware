@@ -111,6 +111,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-21287 - Missing german translation within Bulk Edit Modal for packaging unit](/changelog/release-6-4-11-0/2022-04-25-fix-translations-in-bulk-edit.md)
 *  [NEXT-21288 - Fix order of cached shipping methods when one selected](/changelog/release-6-4-11-0/2022-04-26-fix-order-of-cached-shipping-methods-when-one-selected.md)
 *  [NEXT-21312 - Duplicated SalesChannel entries when creating new products](/changelog/release-6-4-11-0/2022-04-27-fix-default-saleschannels-on-product-creation.md)
+*  [NEXT-21389 - Fix publishing datasets from same component](/changelog/release-6-4-11-0/2022-05-02-fix-publishing-datasets-from-same-component.md)
 
 ## 6.4.10.0
 *  [NEXT-18689 - Sort recent updated media files to be on top](/changelog/release-6-4-10-0/2021-12-22-improve-updated-media-files-to-be-on-top.md)

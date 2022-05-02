@@ -54,7 +54,8 @@ describe('Sales Channel: Visual tests', () => {
         cy.get('.sw-tabs-item').eq(2).contains('Theme');
         cy.get('.sw-tabs-item').eq(3).contains('Analytics');
 
-        cy.takeSnapshot('[Sales channel] Detail', '.sw-sales-channel-detail-base');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Sales channel] Detail', '.sw-sales-channel-detail-base', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });
 

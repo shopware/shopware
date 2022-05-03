@@ -35,14 +35,24 @@
             <div class="card checkout-product-table">
                 <div class="card-body">
                     {% block page_checkout_cart_table_header %}
-                        {% sw_include '@Storefront/storefront/page/checkout/cart/cart-product-header.html.twig' %}
+                        {# @deprecated tag:v6.5.0 - Template `cart-product-header.html.twig` is deprecated. Use `storefront/component/checkout/cart-header.html.twig` instead. #}
+                        {% if feature('v6.5.0.0') %}
+                            {% sw_include '@Storefront/storefront/component/checkout/cart-header.html.twig' %}
+                        {% else %}
+                            {% sw_include '@Storefront/storefront/page/checkout/cart/cart-product-header.html.twig' %}
+                        {% endif %}
                     {% endblock %}
 
                     {% block page_checkout_cart_table_items %}
                         {% for lineItem in page.cart.lineItems %}
                             {% block page_checkout_cart_table_item %}
                                 {% block page_checkout_item %}
-                                    {% sw_include '@Storefront/storefront/page/checkout/checkout-item.html.twig' %}
+                                    {# @deprecated tag:v6.5.0 - Template `checkout-item.html.twig` is deprecated. Use `storefront/component/line-item/line-item.html.twig` instead. #}
+                                    {% if feature('v6.5.0.0') %}
+                                        {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' %}
+                                    {% else %}
+                                        {% sw_include '@Storefront/storefront/page/checkout/checkout-item.html.twig' %}
+                                    {% endif %}
                                 {% endblock %}
                             {% endblock %}
                         {% endfor %}

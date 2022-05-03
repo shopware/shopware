@@ -120,41 +120,47 @@ describe('Flow builder: Add remove tag testing', () => {
         cy.get('.login-submit [type="submit"]').click();
 
         cy.visit('/');
-        cy.get('.btn-buy').contains('Add to shopping ').click();
-        cy.get('.offcanvas').should('be.visible');
-        cy.get('.cart-item-price').contains('49.98');
 
-        // Checkout
-        cy.get('.offcanvas-cart-actions .btn-primary').click();
-        cy.get('.checkout-confirm-tos-label').click(1, 1);
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-        // Finish checkout
-        cy.get('#confirmFormSubmit').scrollIntoView();
-        cy.get('#confirmFormSubmit').click();
-        cy.get('.finish-ordernumber').contains('Your order number: #10000');
+            cy.get('.btn-buy').contains('Add to shopping ').click();
+            cy.get('.offcanvas').should('be.visible');
+            cy.get(`${lineItemSelector}-price`).contains('49.98');
 
-        // Change billing address country to USA
-        cy.visit('/account/address');
-        cy.get('.address-list .address-card').eq(1).get('.col-auto').contains('Edit')
-            .click();
-        cy.get('#addressAddressCountry').select('USA');
-        cy.get('.address-form-submit').contains('Save address').click();
+            // Checkout
+            cy.get('.offcanvas-cart-actions .btn-primary').click();
+            cy.get('.checkout-confirm-tos-label').click(1, 1);
 
-        cy.get('.address-action-set-default-billing').click();
+            // Finish checkout
+            cy.get('#confirmFormSubmit').scrollIntoView();
+            cy.get('#confirmFormSubmit').click();
+            cy.get('.finish-ordernumber').contains('Your order number: #10000');
 
-        cy.visit('/');
-        cy.get('.btn-buy').contains('Add to shopping ').click();
-        cy.get('.offcanvas').should('be.visible');
-        cy.get('.cart-item-price').contains('49.98');
+            // Change billing address country to USA
+            cy.visit('/account/address');
+            cy.get('.address-list .address-card').eq(1).get('.col-auto').contains('Edit')
+                .click();
+            cy.get('#addressAddressCountry').select('USA');
+            cy.get('.address-form-submit').contains('Save address').click();
 
-        // Checkout
-        cy.get('.offcanvas-cart-actions .btn-primary').click();
-        cy.get('.checkout-confirm-tos-label').click(1, 1);
+            cy.get('.address-action-set-default-billing').click();
 
-        // Finish checkout
-        cy.get('#confirmFormSubmit').scrollIntoView();
-        cy.get('#confirmFormSubmit').click();
-        cy.get('.finish-ordernumber').contains('Your order number: #10001');
+            cy.visit('/');
+            cy.get('.btn-buy').contains('Add to shopping ').click();
+            cy.get('.offcanvas').should('be.visible');
+            cy.get(`${lineItemSelector}-price`).contains('49.98');
+
+            // Checkout
+            cy.get('.offcanvas-cart-actions .btn-primary').click();
+            cy.get('.checkout-confirm-tos-label').click(1, 1);
+
+            // Finish checkout
+            cy.get('#confirmFormSubmit').scrollIntoView();
+            cy.get('#confirmFormSubmit').click();
+            cy.get('.finish-ordernumber').contains('Your order number: #10001');
+        });
 
         // Clear Storefront cookie
         cy.clearCookies();

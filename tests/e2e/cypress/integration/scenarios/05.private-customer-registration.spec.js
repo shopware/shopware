@@ -86,50 +86,56 @@ describe('Product creation via UI and private customer registration', () => {
 
         // Register as private customer
         cy.visit('/account/login');
-        cy.url().should('include', '/account/login');
-        cy.get('#personalSalutation').select('Mr.');
-        cy.get('#personalFirstName').typeAndCheckStorefront('Test');
-        cy.get('#personalLastName').typeAndCheckStorefront('Tester');
-        cy.get('#personalMail').typeAndCheckStorefront('test5@tester.com');
-        cy.get('#personalPassword').typeAndCheckStorefront('shopware');
-        cy.get('#billingAddressAddressStreet').typeAndCheckStorefront('Test street');
-        cy.get('#billingAddressAddressZipcode').typeAndCheckStorefront('12345');
-        cy.get('#billingAddressAddressCity').typeAndCheckStorefront('Test city');
-        cy.get('#billingAddressAddressCountry').select('Netherlands');
-        cy.get('.btn.btn-lg.btn-primary').click();
-        cy.wait('@registerCustomer').its('response.statusCode').should('equal', 302);
 
-        // Make an order
-        cy.get('.header-search-input').should('be.visible').type('Product-5');
-        cy.contains('.search-suggest-product-name', 'Product-5').click();
-        cy.get('.product-detail-buy .btn-buy').click();
-        cy.get('.offcanvas.is-open').should('be.visible');
-        cy.get('.cart-item-label').contains('Product-5');
-        cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').click();
-        cy.get('.cart-item-details-container [title]').contains('Product-5');
-        cy.get('.cart-item-total-price.col-12.col-md-2.col-sm-4').contains('14,99');
-        cy.get('.cart-item-delivery-date').should('be.visible');
-        cy.get('.col-5.checkout-aside-summary-total').contains('19,99');
-        cy.get('a[title="Proceed to checkout"]').click();
-        cy.get('.confirm-address').contains('Test Tester');
-        cy.get('.cart-item-label').contains('Product-5');
-        cy.get('.cart-item-total-price').scrollIntoView();
-        cy.get('.cart-item-total-price').contains('14,99');
-        cy.get('.col-5.checkout-aside-summary-total').contains('19,99');
-        cy.get('.cart-item-delivery-date').should('be.visible');
-        cy.get('.checkout-customer-comment-control').should('be.visible');
-        cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
-        cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
-        cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
-        cy.get('#confirmFormSubmit').scrollIntoView();
-        cy.get('#confirmFormSubmit').click();
-        cy.get('.finish-header').contains(`Thank you for your order with E2E install test!`);
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-        // Verify order
-        cy.visit('/account/order');
-        cy.get('.order-item-header').contains('10000');
-        cy.contains('View').click();
-        cy.get('.order-item-total-value').contains('14,99');
-        cy.get('.order-item-detail-summary').contains('19,99');
+            cy.url().should('include', '/account/login');
+            cy.get('#personalSalutation').select('Mr.');
+            cy.get('#personalFirstName').typeAndCheckStorefront('Test');
+            cy.get('#personalLastName').typeAndCheckStorefront('Tester');
+            cy.get('#personalMail').typeAndCheckStorefront('test5@tester.com');
+            cy.get('#personalPassword').typeAndCheckStorefront('shopware');
+            cy.get('#billingAddressAddressStreet').typeAndCheckStorefront('Test street');
+            cy.get('#billingAddressAddressZipcode').typeAndCheckStorefront('12345');
+            cy.get('#billingAddressAddressCity').typeAndCheckStorefront('Test city');
+            cy.get('#billingAddressAddressCountry').select('Netherlands');
+            cy.get('.btn.btn-lg.btn-primary').click();
+            cy.wait('@registerCustomer').its('response.statusCode').should('equal', 302);
+
+            // Make an order
+            cy.get('.header-search-input').should('be.visible').type('Product-5');
+            cy.contains('.search-suggest-product-name', 'Product-5').click();
+            cy.get('.product-detail-buy .btn-buy').click();
+            cy.get('.offcanvas.is-open').should('be.visible');
+            cy.get(`${lineItemSelector}-label`).contains('Product-5');
+            cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').click();
+            cy.get(`${lineItemSelector}-details-container [title]`).contains('Product-5');
+            cy.get(`${lineItemSelector}-total-price.col-12.col-md-2.col-sm-4`).contains('14,99');
+            cy.get(`${lineItemSelector}-delivery-date`).should('be.visible');
+            cy.get('.col-5.checkout-aside-summary-total').contains('19,99');
+            cy.get('a[title="Proceed to checkout"]').click();
+            cy.get('.confirm-address').contains('Test Tester');
+            cy.get(`${lineItemSelector}-label`).contains('Product-5');
+            cy.get(`${lineItemSelector}-total-price`).scrollIntoView();
+            cy.get(`${lineItemSelector}-total-price`).contains('14,99');
+            cy.get('.col-5.checkout-aside-summary-total').contains('19,99');
+            cy.get(`${lineItemSelector}-delivery-date`).should('be.visible');
+            cy.get('.checkout-customer-comment-control').should('be.visible');
+            cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
+            cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
+            cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
+            cy.get('#confirmFormSubmit').scrollIntoView();
+            cy.get('#confirmFormSubmit').click();
+            cy.get('.finish-header').contains(`Thank you for your order with E2E install test!`);
+
+            // Verify order
+            cy.visit('/account/order');
+            cy.get('.order-item-header').contains('10000');
+            cy.contains('View').click();
+            cy.get('.order-item-total-value').contains('14,99');
+            cy.get('.order-item-detail-summary').contains('19,99');
+        });
     });
 });

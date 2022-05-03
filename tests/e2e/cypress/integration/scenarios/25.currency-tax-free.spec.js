@@ -76,7 +76,7 @@ describe('@package: Currency: checkout with tax-free and price rounding', () => 
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.contains('h2','Product name').should('be.visible');
+        cy.contains('h2', 'Product name').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView().typeMultiSelectAndCheck('E2E install test');
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
@@ -85,58 +85,64 @@ describe('@package: Currency: checkout with tax-free and price rounding', () => 
 
         // Search product
         cy.visit('/');
-        cy.get('.header-search-input').type('Product name');
-        cy.contains('.search-suggest-product-name', 'Product name').should('be.visible');
-        cy.contains('.search-suggest-product-name', 'Product name').click();
-        cy.get('.product-detail-price').contains('49,116');
-        cy.get('.product-detail-buy .btn-buy').click();
 
-        // Off canvas
-        cy.get('.offcanvas.is-open').should('be.visible');
-        cy.get('.cart-item-label').contains('Product name');
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-        // Go to cart
-        cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').click();
-        cy.get('.cart-item-details-container [title]').contains('Product name');
-        cy.get('.cart-item-total-price.col-12.col-md-2.col-sm-4').contains('34,116');
-        cy.get('.col-5.checkout-aside-summary-total').contains('34,116');
-        cy.get('a[title="Proceed to checkout"]').click();
+            cy.get('.header-search-input').type('Product name');
+            cy.contains('.search-suggest-product-name', 'Product name').should('be.visible');
+            cy.contains('.search-suggest-product-name', 'Product name').click();
+            cy.get('.product-detail-price').contains('49,116');
+            cy.get('.product-detail-buy .btn-buy').click();
 
-        // Register customer
-        cy.get('#personalSalutation').select('Mr.');
-        cy.get('#personalFirstName').typeAndCheckStorefront('Test');
-        cy.get('#personalLastName').typeAndCheckStorefront('Tester');
-        cy.get('#personalMail').typeAndCheckStorefront('test@tester.com');
-        cy.get('#personalPassword').typeAndCheckStorefront('shopware');
-        cy.get('#billingAddressAddressStreet').typeAndCheckStorefront('Test street');
-        cy.get('#billingAddressAddressZipcode').typeAndCheckStorefront('12345');
-        cy.get('#billingAddressAddressCity').typeAndCheckStorefront('Test city');
-        cy.get('#billingAddressAddressCountry').select('Netherlands');
-        cy.get('.btn.btn-lg.btn-primary').click();
-        cy.wait('@registerCustomer').its('response.statusCode').should('equal', 302);
+            // Off canvas
+            cy.get('.offcanvas.is-open').should('be.visible');
+            cy.get(`${lineItemSelector}-label`).contains('Product name');
 
-        // Confirm
-        cy.get('.confirm-address').contains('Test Tester');
-        cy.get('.cart-item-label').contains('Product name');
-        cy.get('.cart-item-total-price').scrollIntoView();
-        cy.get('.cart-item-total-price').contains('34,116');
-        cy.get('.col-5.checkout-aside-summary-total').contains('34,116');
+            // Go to cart
+            cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').click();
+            cy.get(`${lineItemSelector}-details-container [title]`).contains('Product name');
+            cy.get(`${lineItemSelector}-total-price.col-12.col-md-2.col-sm-4`).contains('34,116');
+            cy.get('.col-5.checkout-aside-summary-total').contains('34,116');
+            cy.get('a[title="Proceed to checkout"]').click();
 
-        // Finish checkout
-        cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
-        cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
-        cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
-        cy.get('#confirmFormSubmit').scrollIntoView();
-        cy.get('#confirmFormSubmit').click();
-        cy.get('.finish-header').contains(`Thank you for your order with E2E install test!`);
+            // Register customer
+            cy.get('#personalSalutation').select('Mr.');
+            cy.get('#personalFirstName').typeAndCheckStorefront('Test');
+            cy.get('#personalLastName').typeAndCheckStorefront('Tester');
+            cy.get('#personalMail').typeAndCheckStorefront('test@tester.com');
+            cy.get('#personalPassword').typeAndCheckStorefront('shopware');
+            cy.get('#billingAddressAddressStreet').typeAndCheckStorefront('Test street');
+            cy.get('#billingAddressAddressZipcode').typeAndCheckStorefront('12345');
+            cy.get('#billingAddressAddressCity').typeAndCheckStorefront('Test city');
+            cy.get('#billingAddressAddressCountry').select('Netherlands');
+            cy.get('.btn.btn-lg.btn-primary').click();
+            cy.wait('@registerCustomer').its('response.statusCode').should('equal', 302);
 
-        // Verify the order from the storefront
-        cy.visit('/account/login');
-        cy.get('.account-welcome h1').should((element) => {
-            expect(element).to.contain('Overview');
+            // Confirm
+            cy.get('.confirm-address').contains('Test Tester');
+            cy.get(`${lineItemSelector}-label`).contains('Product name');
+            cy.get(`${lineItemSelector}-total-price`).scrollIntoView();
+            cy.get(`${lineItemSelector}-total-price`).contains('34,116');
+            cy.get('.col-5.checkout-aside-summary-total').contains('34,116');
+
+            // Finish checkout
+            cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
+            cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
+            cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
+            cy.get('#confirmFormSubmit').scrollIntoView();
+            cy.get('#confirmFormSubmit').click();
+            cy.get('.finish-header').contains(`Thank you for your order with E2E install test!`);
+
+            // Verify the order from the storefront
+            cy.visit('/account/login');
+            cy.get('.account-welcome h1').should((element) => {
+                expect(element).to.contain('Overview');
+            });
+            cy.get('.account-overview-profile > .card > .card-body').contains('test@tester.com');
+            cy.get('.order-table-header-heading').should('be.visible')
+                .and('include.text', 'Order');
         });
-        cy.get('.account-overview-profile > .card > .card-body').contains('test@tester.com');
-        cy.get('.order-table-header-heading').should('be.visible')
-            .and('include.text', 'Order');
     });
 });

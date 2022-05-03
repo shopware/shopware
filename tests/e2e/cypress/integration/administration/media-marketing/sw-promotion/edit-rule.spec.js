@@ -84,6 +84,7 @@ describe('Promotion: Test promotion with preconditional rules', () => {
 
         // Verify Promotion in Storefront
         cy.visit('/');
+
         cy.get('.product-box').should('be.visible');
         cy.get('.btn-buy').click();
         cy.get('.offcanvas.is-open').should('be.visible');
@@ -101,7 +102,12 @@ describe('Promotion: Test promotion with preconditional rules', () => {
         cy.get('#loginPassword').typeAndCheckStorefront('shopware');
         cy.get('.login-submit [type="submit"]').click();
 
-        cy.get('.cart-item-promotion').scrollIntoView();
-        cy.get('.cart-item-promotion .cart-item-label').contains('Thunder Tuesday');
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
+
+            cy.get(`${lineItemSelector}-promotion`).scrollIntoView();
+            cy.get(`${lineItemSelector}-promotion ${lineItemSelector}-label`).contains('Thunder Tuesday');
+        });
     });
 });

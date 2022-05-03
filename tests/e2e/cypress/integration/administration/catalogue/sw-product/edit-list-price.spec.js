@@ -50,18 +50,23 @@ describe('Product: Edit in various ways', () => {
         // Verify product's list price in Storefront
         cy.visit('/');
 
-        cy.get('.product-box .product-badges > .badge').should('be.visible');
-        cy.get('.product-price').contains('49.98');
-        cy.get('.product-price .list-price').contains('100');
-        cy.contains('.product-name', 'Product name').click();
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-        cy.get('.list-price-badge').should('be.visible');
-        cy.get('.product-detail-price.with-list-price').contains('49.98');
-        cy.get('.list-price-price').contains('100');
+            cy.get('.product-box .product-badges > .badge').should('be.visible');
+            cy.get('.product-price').contains('49.98');
+            cy.get('.product-price .list-price').contains('100');
+            cy.contains('.product-name', 'Product name').click();
 
-        cy.get('.btn-buy').click();
-        cy.get('.offcanvas').should('be.visible');
-        cy.get('.offcanvas .cart-item-label').contains('1x Product name');
-        cy.get('.cart-item-price').contains('49.98');
+            cy.get('.list-price-badge').should('be.visible');
+            cy.get('.product-detail-price.with-list-price').contains('49.98');
+            cy.get('.list-price-price').contains('100');
+
+            cy.get('.btn-buy').click();
+            cy.get('.offcanvas').should('be.visible');
+            cy.get(`.offcanvas ${lineItemSelector}-label`).contains('Product name');
+            cy.get(`${lineItemSelector}-price`).contains('49.98');
+        });
     });
 });

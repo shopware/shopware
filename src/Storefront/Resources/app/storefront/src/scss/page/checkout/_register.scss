@@ -12,12 +12,7 @@
         }
 
         .checkout-aside {
-            @extend .col-md-6;
-            @extend .col-lg-4;
-            @extend .col-xl-3;
-            @extend .offset-md-6;
-            @extend .offset-lg-0;
-            @extend .offset-xl-1;
+            @extend .col-md-4;
             @extend .d-none;
             @extend .d-lg-block;
         }

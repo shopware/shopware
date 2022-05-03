@@ -87,13 +87,19 @@ describe('Promotion: Test promotion with individual codes', () => {
 
         // Verify Promotion in Storefront
         cy.visit('/');
-        cy.get('.product-box').should('be.visible');
-        cy.get('.btn-buy').click();
-        cy.get('.offcanvas.is-open').should('be.visible');
-        cy.get('#addPromotionOffcanvasCartInput').type('code-0');
-        cy.get('#addPromotionOffcanvasCart').click();
-        cy.get('.alert-success .icon-checkmark-circle').should('be.visible');
-        cy.get('.cart-item-promotion .cart-item-label').contains('Thunder Tuesday');
+
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
+
+            cy.get('.product-box').should('be.visible');
+            cy.get('.btn-buy').click();
+            cy.get('.offcanvas.is-open').should('be.visible');
+            cy.get('#addPromotionOffcanvasCartInput').type('code-0');
+            cy.get('#addPromotionOffcanvasCart').click();
+            cy.get('.alert-success .icon-checkmark-circle').should('be.visible');
+            cy.get(`${lineItemSelector}-promotion ${lineItemSelector}-label`).contains('Thunder Tuesday');
+        });
     });
 
     it('@marketing: use invalid individual promotion codes', () => {

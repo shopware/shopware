@@ -92,35 +92,44 @@ describe('Promotion: Test crud operations', () => {
 
         // Verify Promotion in Storefront
         cy.visit('/');
-        cy.get('.product-box').should('be.visible');
-        cy.get('.btn-buy').click();
-        cy.get('.offcanvas.is-open').should('be.visible');
-        cy.get('.cart-item-promotion .cart-item-label').contains('Funicular prices');
-        cy.get('.cart-item-promotion .cart-item-price').contains('-€10.00*');
-        cy.get('.summary-total').contains('39.98');
 
-        // Order product with promotion
-        cy.get('a[title="Proceed to checkout"]').click();
-        cy.get('.login-collapse-toggle').click();
-        cy.get('.login-card').should('be.visible');
-        cy.get('#loginMail').typeAndCheck('test@example.com');
-        cy.get('#loginPassword').typeAndCheck('shopware');
-        cy.contains('Login').click();
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-        // Finish order
-        cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
-        cy.get('.checkout-confirm-tos-label').scrollIntoView();
-        cy.get('.checkout-confirm-tos-label').click(1, 1);
-        cy.get('.checkout-confirm-tos-label').scrollIntoView();
-        cy.get('.cart-item-promotion').contains('Funicular prices');
-        cy.get('.cart-item-promotion .cart-item-total-price').contains('-€10.00');
-        cy.get('.cart-item-promotion .cart-item-tax-price').contains('-€1.60');
-        cy.get('.checkout-aside-summary-value.checkout-aside-summary-total')
-            .contains('€39.98');
+            /** @deprecated tag:v6.5.0 - Use `${CheckoutPageObject.elements.lineItem}-total-price` instead */
+            const lineItemTotalPriceSelector = win.features['v6.5.0.0'] ? '.line-item-total-price' : '.cart-item-price';
 
-        cy.get('#confirmFormSubmit').scrollIntoView();
-        cy.get('#confirmFormSubmit').click();
-        cy.get('.finish-header').contains('Thank you for your order with Demostore!');
+            cy.get('.product-box').should('be.visible');
+            cy.get('.btn-buy').click();
+            cy.get('.offcanvas.is-open').should('be.visible');
+            cy.get(`${lineItemSelector}-promotion ${lineItemSelector}-label`).contains('Funicular prices');
+            cy.get(`${lineItemSelector}-promotion ${lineItemTotalPriceSelector}`).contains('-€10.00*');
+            cy.get('.summary-total').contains('39.98');
+
+            // Order product with promotion
+            cy.get('a[title="Proceed to checkout"]').click();
+            cy.get('.login-collapse-toggle').click();
+            cy.get('.login-card').should('be.visible');
+            cy.get('#loginMail').typeAndCheck('test@example.com');
+            cy.get('#loginPassword').typeAndCheck('shopware');
+            cy.contains('Login').click();
+
+            // Finish order
+            cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
+            cy.get('.checkout-confirm-tos-label').scrollIntoView();
+            cy.get('.checkout-confirm-tos-label').click(1, 1);
+            cy.get('.checkout-confirm-tos-label').scrollIntoView();
+            cy.get(`${lineItemSelector}-promotion`).contains('Funicular prices');
+            cy.get(`${lineItemSelector}-promotion ${lineItemSelector}-total-price`).contains('-€10.00');
+            cy.get(`${lineItemSelector}-promotion ${lineItemSelector}-tax-price`).contains('-€1.60');
+            cy.get('.checkout-aside-summary-value.checkout-aside-summary-total')
+                .contains('€39.98');
+
+            cy.get('#confirmFormSubmit').scrollIntoView();
+            cy.get('#confirmFormSubmit').click();
+            cy.get('.finish-header').contains('Thank you for your order with Demostore!');
+        });
     });
 
     it('@base @marketing: delete promotion', () => {

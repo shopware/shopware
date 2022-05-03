@@ -137,45 +137,51 @@ describe('Promotions: pre-conditions', () => {
 
         // Check from the store front
         cy.visit('/');
-        cy.contains('Home');
-        cy.get('.header-search-input')
-            .should('be.visible')
-            .type('Test Product');
-        cy.contains('.search-suggest-product-name', 'Test Product').click();
-        cy.get('.product-detail-buy .btn-buy').click();
 
-        // Off canvas, verify both promotions are added to cart
-        cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
-        cy.get(`${checkoutPage.elements.cartItem}-label`).contains('Test Product');
-        cy.contains(promoCode).should('exist');
-        cy.contains('Thunder Tuesday').should('exist');
-        cy.get('.summary-value.summary-total').should('include.text', '51,00');
+        cy.window().then((win) => {
+            /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
+            const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-        // Set promotion settings to 'Prevent combination with other promotions'
-        cy.visit(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
-        cy.url().should('include', 'promotion/v2/index');
-        cy.contains('Thunder Tuesday').click();
-        cy.url().should('include', 'promotion/v2/detail');
-        cy.get('.sw-tabs-item[title="Voorwaarden"]').click();
-        cy.contains('Pre-voorwaarden').should('exist');
-        cy.get('.sw-promotion-v2-conditions__prevent-combination [type]').click();
-        cy.get('.sw-promotion-v2-detail__save-action').click();
-        cy.get('.sw-loader').should('not.exist');
+            cy.contains('Home');
+            cy.get('.header-search-input')
+                .should('be.visible')
+                .type('Test Product');
+            cy.contains('.search-suggest-product-name', 'Test Product').click();
+            cy.get('.product-detail-buy .btn-buy').click();
 
-        // Check from the store front
-        cy.visit('/');
-        cy.contains('Home');
-        cy.get('.header-search-input')
-            .should('be.visible')
-            .type('Test Product');
-        cy.contains('.search-suggest-product-name', 'Test Product').click();
-        cy.get('.product-detail-buy .btn-buy').click();
+            // Off canvas, verify both promotions are added to cart
+            cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(`${lineItemSelector}-label`).contains('Test Product');
+            cy.contains(promoCode).should('exist');
+            cy.contains('Thunder Tuesday').should('exist');
+            cy.get('.summary-value.summary-total').should('include.text', '51,00');
 
-        // Off canvas, verify the second promotion is added to cart since it has prevent combination setting
-        cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
-        cy.get(`${checkoutPage.elements.cartItem}-label`).contains('Test Product');
-        cy.contains(promoCode).should('not.exist');
-        cy.contains('Thunder Tuesday').should('exist');
-        cy.get('.summary-value.summary-total').should('include.text', '114,00');
+            // Set promotion settings to 'Prevent combination with other promotions'
+            cy.visit(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
+            cy.url().should('include', 'promotion/v2/index');
+            cy.contains('Thunder Tuesday').click();
+            cy.url().should('include', 'promotion/v2/detail');
+            cy.get('.sw-tabs-item[title="Voorwaarden"]').click();
+            cy.contains('Pre-voorwaarden').should('exist');
+            cy.get('.sw-promotion-v2-conditions__prevent-combination [type]').click();
+            cy.get('.sw-promotion-v2-detail__save-action').click();
+            cy.get('.sw-loader').should('not.exist');
+
+            // Check from the store front
+            cy.visit('/');
+            cy.contains('Home');
+            cy.get('.header-search-input')
+                .should('be.visible')
+                .type('Test Product');
+            cy.contains('.search-suggest-product-name', 'Test Product').click();
+            cy.get('.product-detail-buy .btn-buy').click();
+
+            // Off canvas, verify the second promotion is added to cart since it has prevent combination setting
+            cy.get(`${checkoutPage.elements.offCanvasCart}.is-open`).should('be.visible');
+            cy.get(`${lineItemSelector}-label`).contains('Test Product');
+            cy.contains(promoCode).should('not.exist');
+            cy.contains('Thunder Tuesday').should('exist');
+            cy.get('.summary-value.summary-total').should('include.text', '114,00');
+        });
     });
 });

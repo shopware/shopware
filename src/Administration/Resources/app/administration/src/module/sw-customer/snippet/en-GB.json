@@ -1,5 +1,8 @@
 {
   "sw-customer": {
+    "error": {
+      "COMPANY_IS_REQUIRED": "Company is required for commercial customer type"
+    },
     "notification": {
       "requiredFields": "Please fill in all required fields."
     },
@@ -269,6 +272,12 @@
       },
       "messageEmptyTitle": "Nothing found",
       "messageEmptySubline": "Edit your filters to find results."
+    },
+    "customerType": {
+      "labelAccountType": "Customer type",
+      "placeholderAccountType": "Select customer type...",
+      "labelPrivate": "Private",
+      "labelBusiness": "Commercial"
     }
   },
   "sw-privileges": {

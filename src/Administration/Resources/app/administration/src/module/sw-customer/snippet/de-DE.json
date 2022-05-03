@@ -1,5 +1,8 @@
 {
   "sw-customer": {
+    "error": {
+      "COMPANY_IS_REQUIRED": "Bei gewerblichen Kunden ist Firma ein Pflichtfeld"
+    },
     "notification": {
       "requiredFields": "Bitte fülle alle Pflichtfelder aus."
     },
@@ -269,6 +272,12 @@
       },
       "messageEmptyTitle": "Nichts gefunden",
       "messageEmptySubline": "Bearbeite Deine Filter, um Ergebnisse zu finden."
+    },
+    "customerType": {
+      "labelAccountType": "Kundentyp",
+      "placeholderAccountType": "Gib die Kundentyp ein ...",
+      "labelPrivate": "Privat",
+      "labelBusiness": "Gewerblich"
     }
   },
   "sw-privileges": {

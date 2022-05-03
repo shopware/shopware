@@ -1,17 +1,19 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-customer/component/sw-customer-base-form';
 
+const customer = {
+    id: '1',
+    email: null,
+    boundSalesChannelId: null,
+    vatIds: [
+        '9f8f091c-db81-4ef3-862c-9c554a34cdc4'
+    ]
+};
+
 function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-customer-base-form'), {
         propsData: {
-            customer: {
-                id: '1',
-                email: null,
-                boundSalesChannelId: null,
-                vatIds: [
-                    '9f8f091c-db81-4ef3-862c-9c554a34cdc4'
-                ]
-            }
+            customer
         },
         stubs: {
             'sw-container': true,
@@ -20,7 +22,8 @@ function createWrapper() {
             'sw-email-field': true,
             'sw-password-field': true,
             'sw-datepicker': true,
-            'sw-entity-tag-select': true
+            'sw-entity-tag-select': true,
+            'sw-single-select': true
         }
     });
 }
@@ -32,5 +35,11 @@ describe('module/sw-customer/page/sw-customer-base-form', () => {
         const expectedCriteria = { type: 'not', operator: 'or', queries: [{ field: 'id', type: 'equals', value: 'ed643807c9f84cc8b50132ea3ccb1c3b' }] };
 
         expect(criteria.filters).toContainEqual(expectedCriteria);
+    });
+
+    it('should display the account type switcher', async () => {
+        const wrapper = createWrapper();
+        const accountTypeSelect = wrapper.find('.sw-customer-base-form__account-type-select');
+        expect(accountTypeSelect.exists()).toBeTruthy();
     });
 });

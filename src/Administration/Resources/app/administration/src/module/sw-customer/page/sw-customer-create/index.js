@@ -1,4 +1,5 @@
 import template from './sw-customer-create.html.twig';
+import CUSTOMER from '../../constant/sw-customer.constant';
 
 const { Component, Mixin } = Shopware;
 
@@ -32,6 +33,11 @@ Component.register('sw-customer-create', {
         customerRepository() {
             return this.repositoryFactory.create('customer');
         },
+
+        validCompanyField() {
+            return this.customer.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS ?
+                this.address.company?.trim().length : true;
+        },
     },
 
     watch: {
@@ -60,6 +66,7 @@ Component.register('sw-customer-create', {
                 this.customer.addresses.source,
             );
 
+            this.customer.accountType = CUSTOMER.ACCOUNT_TYPE_PRIVATE;
             this.address = addressRepository.create();
 
             this.customer.addresses.add(this.address);
@@ -127,6 +134,11 @@ Component.register('sw-customer-create', {
                         });
                 }
 
+                if (!this.validCompanyField) {
+                    this.createErrorMessageForCompanyField();
+                    return false;
+                }
+
                 return numberRangePromise.then(() => {
                     this.customerRepository.save(this.customer).then(() => {
                         this.isLoading = false;
@@ -146,6 +158,22 @@ Component.register('sw-customer-create', {
             this.numberRangeService.reserve('customer', salesChannelId, true).then((response) => {
                 this.customerNumberPreview = response.number;
                 this.customer.customerNumber = response.number;
+            });
+        },
+
+        createErrorMessageForCompanyField() {
+            this.isLoading = false;
+            Shopware.State.dispatch('error/addApiError', {
+                expression: `customer_address.${this.address.id}.company`,
+                error: new Shopware.Classes.ShopwareError(
+                    {
+                        code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                    },
+                ),
+            });
+
+            this.createNotificationError({
+                message: this.$tc('sw-customer.error.COMPANY_IS_REQUIRED'),
             });
         },
     },

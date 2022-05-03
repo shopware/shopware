@@ -65,4 +65,8 @@ $sw-customer-color-mail-to-link: $color-shopware-brand-500;
             }
         }
     }
+
+    .sw-customer-card__salutation-select {
+        grid-column: 1;
+    }
 }

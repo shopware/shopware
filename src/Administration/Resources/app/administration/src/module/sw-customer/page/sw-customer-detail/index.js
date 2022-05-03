@@ -1,6 +1,7 @@
 import './sw-customer-detail.scss';
 import template from './sw-customer-detail.html.twig';
 import errorConfig from '../../error-config.json';
+import CUSTOMER from '../../constant/sw-customer.constant';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -132,6 +133,11 @@ Component.register('sw-customer-detail', {
             return origin.email !== this.customer.email;
         },
 
+        validCompanyField() {
+            return this.customer.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS ?
+                this.customer.company?.trim().length : true;
+        },
+
         ...mapPageErrors(errorConfig),
     },
 
@@ -155,6 +161,8 @@ Component.register('sw-customer-detail', {
                 this.defaultCriteria,
             ).then((customer) => {
                 this.customer = customer;
+                this.customer.accountType = this.customer.company?.trim().length ?
+                    CUSTOMER.ACCOUNT_TYPE_BUSINESS : CUSTOMER.ACCOUNT_TYPE_PRIVATE;
                 this.isLoading = false;
             });
         },
@@ -207,6 +215,11 @@ Component.register('sw-customer-detail', {
                 }
             }
 
+            if (!this.validCompanyField) {
+                this.createErrorMessageForCompanyField();
+                return false;
+            }
+
             this.isSaveSuccessful = false;
 
             if (!this.customer.birthday) {
@@ -220,6 +233,10 @@ Component.register('sw-customer-detail', {
 
             if (this.customer.passwordNew) {
                 this.customer.password = this.customer.passwordNew;
+            }
+
+            if (this.customer.accountType === CUSTOMER.ACCOUNT_TYPE_PRIVATE) {
+                this.customer.company = null;
             }
 
             return this.customerRepository.save(this.customer).then(() => {
@@ -316,6 +333,22 @@ Component.register('sw-customer-detail', {
                 });
             }).finally(() => {
                 this.createdComponent();
+            });
+        },
+
+        createErrorMessageForCompanyField() {
+            this.isLoading = false;
+            Shopware.State.dispatch('error/addApiError', {
+                expression: `customer.${this.customer.id}.company`,
+                error: new Shopware.Classes.ShopwareError(
+                    {
+                        code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                    },
+                ),
+            });
+
+            this.createNotificationError({
+                message: this.$tc('sw-customer.error.COMPANY_IS_REQUIRED'),
             });
         },
     },

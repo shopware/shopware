@@ -4,6 +4,7 @@ import 'src/app/component/base/sw-button';
 import 'src/app/component/form/sw-custom-field-set-renderer';
 import 'src/app/component/form/sw-form-field-renderer';
 import 'src/app/component/utils/sw-inherit-wrapper';
+import 'src/app/component/base/sw-button-process';
 
 function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-customer-detail'), {
@@ -60,7 +61,7 @@ function createWrapper(privileges = []) {
                     </div>`
             },
             'sw-button': Shopware.Component.build('sw-button'),
-            'sw-button-process': true,
+            'sw-button-process': Shopware.Component.build('sw-button-process'),
             'sw-language-switch': true,
             'sw-card-view': {
                 template: '<div><slot></slot></div>'
@@ -151,5 +152,33 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
         await button.trigger('click');
 
         expect(wrapper.vm.customerGroupRegistrationService.decline).toHaveBeenCalled();
+    });
+
+    it('should have company validation when customer type is commercial', async () => {
+        const wrapperWithPrivileges = createWrapper([
+            'customer.editor'
+        ]);
+
+        wrapperWithPrivileges.vm.createNotificationError = jest.fn();
+        const notificationMock = wrapperWithPrivileges.vm.createNotificationError;
+        wrapperWithPrivileges.vm.$route.query = { edit: true };
+        await wrapperWithPrivileges.vm.$nextTick();
+
+        await wrapperWithPrivileges.setData({
+            customer: {
+                id: '1',
+                accountType: 'business',
+                company: ''
+            },
+        });
+        const saveButton = wrapperWithPrivileges.find('.sw-customer-detail__save-action');
+        await saveButton.trigger('click');
+
+        expect(notificationMock).toBeCalledTimes(1);
+        expect(notificationMock).toHaveBeenCalledWith({
+            message: 'sw-customer.error.COMPANY_IS_REQUIRED'
+        });
+
+        wrapperWithPrivileges.vm.createNotificationError.mockRestore();
     });
 });

@@ -61,6 +61,9 @@ describe('Customer:  Visual test', () => {
         cy.get('.sw-select__selection').contains('English');
         cy.takeSnapshot('[Customer] Create', '.sw-customer-create');
 
+        cy.get('.sw-customer-base-form__account-type-select')
+            .typeSingleSelectAndCheck('Commercial', '.sw-customer-base-form__account-type-select');
+
         cy.get('.sw-customer-base-form__salutation-select')
             .typeSingleSelectAndCheck('Mr.', '.sw-customer-base-form__salutation-select');
 

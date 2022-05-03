@@ -30,11 +30,13 @@ describe('Currency: Visual testing', () => {
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.sortAndCheckListingAscViaColumn('Short name', 'CHF');
-        cy.takeSnapshot('[Currency] Listing', '.sw-settings-currency-list-grid');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Currency] Listing', '.sw-settings-currency-list-grid', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.contains('.sw-data-grid__cell--name a', 'Czech').click();
         cy.get('.sw-page__main-content').should('be.visible');
         cy.get('.sw-skeleton__detail').should('not.exist');
-        cy.takeSnapshot('[Currency] Detail', '.sw-settings-currency-detail');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Currency] Detail', '.sw-settings-currency-detail', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

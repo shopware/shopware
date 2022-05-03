@@ -29,11 +29,13 @@ describe('Language: Visual testing', () => {
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
         cy.get('.sw-data-grid-skeleton').should('not.exist');
-        cy.takeSnapshot('[Language] Listing', '.sw-settings-language-list');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Language] Listing', '.sw-settings-language-list', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.contains('.sw-data-grid__cell--name a', 'English').click();
         cy.get('.sw-page__main-content').should('be.visible');
         cy.get('.sw-skeleton__detail').should('not.exist');
-        cy.takeSnapshot('[Language] Details', '.sw-settings-language-detail');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Language] Details', '.sw-settings-language-detail', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

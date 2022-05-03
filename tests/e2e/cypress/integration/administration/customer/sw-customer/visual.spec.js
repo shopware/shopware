@@ -52,14 +52,16 @@ describe('Customer:  Visual test', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-skeleton__listing').should('not.exist');
-        cy.takeSnapshot('[Customer] Listing', '.sw-customer-list-grid');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Customer] Listing', '.sw-customer-list-grid', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         // Fill in basic data
         cy.get('a[href="#/sw/customer/create"]').click();
 
         // Take snapshot for visual testing
         cy.get('.sw-select__selection').contains('English');
-        cy.takeSnapshot('[Customer] Create', '.sw-customer-create');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Customer] Create', '.sw-customer-create', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('.sw-customer-base-form__salutation-select')
             .typeSingleSelectAndCheck('Mr.', '.sw-customer-base-form__salutation-select');
@@ -95,7 +97,8 @@ describe('Customer:  Visual test', () => {
         cy.get('.sw-card-section--secondary').contains('English');
         cy.contains('Account').click();
         cy.get('.sw-tooltip').should('not.exist');
-        cy.takeSnapshot('[Customer] Detail', '.sw-customer-card');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Customer] Detail', '.sw-customer-card', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 
     it('@visual: check appearance of customer address workflow', () => {
@@ -115,7 +118,8 @@ describe('Customer:  Visual test', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-skeleton__listing').should('not.exist');
-        cy.takeSnapshot('[Customer] Detail, address listing', '.sw-customer-detail-addresses');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Customer] Detail, address listing', '.sw-customer-detail-addresses', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('.sw-customer-detail__open-edit-mode-action').click();
         cy.get('.sw-customer-detail-addresses__add-address-action').click();
@@ -124,7 +128,8 @@ describe('Customer:  Visual test', () => {
 
         // Take snapshot for visual testing
         cy.handleModalSnapshot('Address');
-        cy.takeSnapshot('[Customer] Detail, address modal', '#sw-field--address-company');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Customer] Detail, address modal', '#sw-field--address-company', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 
     it('@visual: check appearance of customer edit workflow', () => {
@@ -146,6 +151,7 @@ describe('Customer:  Visual test', () => {
         cy.get('.sw-loader-element').should('not.exist');
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('[Customer] Detail, edit view', '#sw-field--customer-title');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Customer] Detail, edit view', '#sw-field--customer-title', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

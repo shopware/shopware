@@ -50,6 +50,7 @@ describe('Dashboard:  Visual tests', () => {
         cy.get('.sw-skeleton__detail').should('not.exist');
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('[Dashboard] overview', '.sw-dashboard-index__content');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Dashboard] overview', '.sw-dashboard-index__content', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

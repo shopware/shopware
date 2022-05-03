@@ -46,10 +46,12 @@ describe('Flow builder: Visual testing', () => {
         cy.contains('.sw-data-grid__row', 'Order placed').scrollIntoView();
         cy.contains('.sw-data-grid__row a', 'Order placed').click();
         cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('[Flow builder] Detail', '.sw-flow-detail');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Flow builder] Detail', '.sw-flow-detail', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('.sw-flow-detail__tab-flow').click();
-        cy.takeSnapshot('[Flow builder] Flow tab', '.sw-flow-detail-flow');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Flow builder] Flow tab', '.sw-flow-detail-flow', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('.sw-flow-detail-flow__position-plus').click();
 
@@ -59,13 +61,15 @@ describe('Flow builder: Visual testing', () => {
 
         cy.get('.sw-card-view__content').scrollTo('bottom');
 
-        cy.takeSnapshot('[Flow builder] Detail, Condition IF with 2 selectors', '.sw-flow-detail');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Flow builder] Detail, Condition IF with 2 selectors', '.sw-flow-detail', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('.sw-flow-sequence__false-block .sw-flow-sequence-selector__add-action').click();
         cy.get('.sw-flow-sequence-action__selection-action')
             .typeSingleSelect('Add tag', '.sw-flow-sequence-action__selection-action');
         cy.handleModalSnapshot('Tag information');
-        cy.takeSnapshot('[Flow builder] Tag modal', '.sw-flow-tag-modal');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Flow builder] Tag modal', '.sw-flow-tag-modal', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('.sw-flow-tag-modal').should('be.visible');
 
@@ -88,7 +92,8 @@ describe('Flow builder: Visual testing', () => {
 
         cy.get('.sw-flow-set-order-state-modal').should('be.visible');
         cy.handleModalSnapshot('Set status');
-        cy.takeSnapshot('[Flow builder] Set order modal', '.sw-flow-set-order-state-modal');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Flow builder] Set order modal', '.sw-flow-set-order-state-modal', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('#sw-field--config-order').select('Done').should('have.value', 'completed');
         cy.get('.sw-flow-set-order-state-modal__save-button').click();
@@ -100,7 +105,8 @@ describe('Flow builder: Visual testing', () => {
 
         cy.get('.sw-flow-generate-document-modal').should('be.visible');
         cy.handleModalSnapshot('Create document');
-        cy.takeSnapshot('[Flow builder] Generate document modal', '.sw-flow-generate-document-modal');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Flow builder] Generate document modal', '.sw-flow-generate-document-modal', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('.sw-flow-generate-document-modal__type-multi-select').typeMultiSelectAndCheck('Invoice');
 
@@ -113,7 +119,8 @@ describe('Flow builder: Visual testing', () => {
 
         cy.get('.sw-flow-mail-send-modal').should('be.visible');
         cy.handleModalSnapshot('Send mail');
-        cy.takeSnapshot('[Flow builder] Send email modal', '.sw-flow-mail-send-modal');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Flow builder] Send email modal', '.sw-flow-mail-send-modal', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('.sw-flow-mail-send-modal__mail-template-select')
             .typeSingleSelect('Contact form', '.sw-flow-mail-send-modal__mail-template-select');
@@ -121,6 +128,7 @@ describe('Flow builder: Visual testing', () => {
         cy.get('.sw-flow-mail-send-modal__save-button').click();
         cy.get('.sw-flow-mail-send-modal').should('not.exist');
 
-        cy.takeSnapshot('[Flow builder] Simple flow builder with details', '.sw-flow-detail');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Flow builder] Simple flow builder with details', '.sw-flow-detail', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

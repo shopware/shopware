@@ -33,7 +33,8 @@ describe('CMS: Visual tests', () => {
         // Take snapshot for visual testing
         cy.get('.sw-cms-list-item--0').should('be.visible');
         cy.get('.sw-skeleton__gallery').should('not.exist');
-        cy.takeSnapshot('[CMS] Listing - Layouts', '.sw-cms-list');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[CMS] Listing - Layouts', '.sw-cms-list', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('.sw-cms-list-item--0').click();
         cy.get('.sw-cms-section__empty-stage').should('be.visible');
@@ -57,7 +58,8 @@ describe('CMS: Visual tests', () => {
         cy.get('.sw-loader').should('not.exist');
         cy.contains('Vierte Wand').click();
         cy.get('.sw-tooltip').should('not.exist');
-        cy.takeSnapshot('[CMS] Detail, Layout with text', '.sw-cms-detail__stage');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[CMS] Detail, Layout with text', '.sw-cms-detail__stage', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
         cy.get('.sw-cms-detail__back-btn').click();
         cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Vierte Wand');
 

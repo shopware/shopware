@@ -55,7 +55,8 @@ describe('User: Visual testing', () => {
 
         // Shoot snapshots
         cy.get('.sw-data-grid-skeleton').should('not.exist');
-        cy.takeSnapshot('[User] Listing', '.sw-users-permissions-role-listing');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[User] Listing', '.sw-users-permissions-role-listing', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.contains('.sw-data-grid__cell--username', 'admin').click();
 
@@ -64,6 +65,7 @@ describe('User: Visual testing', () => {
         cy.get('.sw-media-upload-v2__header .sw-context-button__button').should('be.visible');
 
         // Take Snapshot
-        cy.takeSnapshot('[User] Details', '.sw-settings-user-detail');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[User] Details', '.sw-settings-user-detail', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

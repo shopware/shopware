@@ -132,6 +132,7 @@ describe('Order: Visual tests', () => {
 
         cy.get('.sw-loader').should('not.exist');
 
-        cy.takeSnapshot('[Order] Create', '.sw-order-create');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Order] Create', '.sw-order-create', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

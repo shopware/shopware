@@ -40,7 +40,8 @@ describe('Administration: Check module navigation', () => {
             .should('have.css', 'color', 'rgb(255, 255, 255)');
 
         // Take snapshot
-        cy.takeSnapshot('[Review] Listing', '.sw-review-list');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Review] Listing', '.sw-review-list', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         // Open detail review
         cy.get('.sw-review-list').should('be.visible');
@@ -57,6 +58,7 @@ describe('Administration: Check module navigation', () => {
 
         // Take snapshot
         cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('[Review] Listing', '.sw-card-section--secondary');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Review] Listing details', '.sw-card-section--secondary', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

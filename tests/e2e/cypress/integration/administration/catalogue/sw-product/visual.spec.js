@@ -41,12 +41,14 @@ describe('Product: Visual tests', () => {
         cy.get('.sw-product-list__content').should('be.visible');
 
         cy.get('.sw-skeleton__listing').should('not.exist');
-        cy.takeSnapshot('[Product] Listing');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Product] Listing', null, null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('.sw-data-grid__row--0 .sw-context-button').click();
         cy.get('.sw-context-menu__content').should('be.visible');
 
-        cy.takeSnapshot('[Product] Listing, context menu open');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Product] Listing, context menu open', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('.sw-entity-listing__context-menu-edit-action').click();
         cy.get('.sw-skeleton__detail-bold').should('not.exist');
@@ -55,7 +57,8 @@ describe('Product: Visual tests', () => {
         // Edit base data of product
         cy.get('.sw-select-product__select_manufacturer')
             .typeSingleSelectAndCheck('shopware AG', '.sw-select-product__select_manufacturer');
-        cy.takeSnapshot('[Product] Detail, base', '.sw-product-detail-base');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Product] Detail, base', '.sw-product-detail-base', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 
     it('@visual: check appearance of basic product pricing', () => {
@@ -88,7 +91,8 @@ describe('Product: Visual tests', () => {
         cy.get('.sw-loader__element').should('not.exist');
         cy.get('#rule').contains('All customers');
 
-        cy.takeSnapshot('[Product] Detail, advanced prices', '.sw-product-detail-context-prices');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Product] Detail, advanced prices', '.sw-product-detail-context-prices', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 
     it('@catalogue @percy: check product property appearance', () => {
@@ -148,7 +152,8 @@ describe('Product: Visual tests', () => {
 
         cy.handleModalSnapshot('Generate variants');
         cy.contains('.group_grid__column-name', 'Color').should('be.visible');
-        cy.takeSnapshot('[Product] Detail, Variant generation', '.sw-product-modal-variant-generation');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Product] Detail, Variant generation', '.sw-product-modal-variant-generation', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         // Create and verify one-dimensional variant
         page.generateVariants('Color', [0], 1);
@@ -158,7 +163,8 @@ describe('Product: Visual tests', () => {
         cy.get('.sw-skeleton__detail').should('not.exist');
         cy.get('.sw-data-grid__row--0').should('be.visible');
         cy.get('.sw-product-variants-media-upload').should('be.visible');
-        cy.takeSnapshot('[Product] Variants in admin', '.sw-product-variants-overview');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Product] Variants in admin', '.sw-product-variants-overview', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         // Verify in storefront
         cy.visit('/');
@@ -229,7 +235,8 @@ describe('Product: Visual tests', () => {
         cy.get('input[name="sw-field--crossSelling-active"]').click();
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('[Product] Detail, Cross Selling in Admin', '.product-detail-cross-selling-form');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Product] Detail, Cross Selling in Admin', '.product-detail-cross-selling-form', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         // Save and verify cross selling stream
         cy.get('.sw-button-process').click();

@@ -32,7 +32,8 @@ describe('Payment: Visual testing', () => {
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
         // Take Snapshot
-        cy.takeSnapshot('[Payment] Listing', '.sw-settings-payment-list');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Payment] Listing', '.sw-settings-payment-list', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.contains('.sw-data-grid__cell--name a', 'Cash on delivery').click();
 
@@ -42,6 +43,7 @@ describe('Payment: Visual testing', () => {
         cy.get('.sw-settings-payment-detail__condition_container').should('be.visible');
 
         // Take Snapshot
-        cy.takeSnapshot('[Payment] Details', '.sw-settings-payment-detail');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Payment] Details', '.sw-settings-payment-detail', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

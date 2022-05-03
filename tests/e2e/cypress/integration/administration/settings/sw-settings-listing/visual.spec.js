@@ -29,6 +29,7 @@ describe('Listing settings: Visual testing', () => {
             .its('response.statusCode').should('equal', 200);
         cy.get('.sw-card__title').contains(/Default Sales Channel|Product|Sorting options/g);
         cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('[Listing] Details', '.sw-settings-listing-index');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Listing] Details', '.sw-settings-listing-index', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

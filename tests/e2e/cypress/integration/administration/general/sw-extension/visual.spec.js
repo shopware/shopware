@@ -71,7 +71,8 @@ describe('Dashboard:  Visual tests', () => {
             '.sw-extension-listing-card__info-rating',
             'visibility: hidden'
         );
-        cy.takeSnapshot('[My extensions] Store', '.sw-extension-store-listing');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[My extensions] Store', '.sw-extension-store-listing', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.visit(Cypress.env('admin'));
         cy.get('.sw-dashboard-index__card--bg-checklist').should('be.visible');
@@ -93,7 +94,7 @@ describe('Dashboard:  Visual tests', () => {
             '.sw-extension-card-base__meta-info',
             'color: #fff'
         );
-
-        cy.takeSnapshot('[My extensions] List', '.sw-extension-my-extensions-listing');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[My extensions] List', '.sw-extension-my-extensions-listing', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

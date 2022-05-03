@@ -41,7 +41,8 @@ describe('Rule builder: Visual tests', () => {
         cy.get(page.elements.loader).should('not.exist');
         cy.get('.sw-loader__element').should('not.exist');
         cy.get('.sw-card__content').should('not.exist');
-        cy.takeSnapshot('[Rule builder] Listing', '.sw-rule-list-grid');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Rule builder] Listing', '.sw-rule-list-grid', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Ruler');
 
@@ -55,7 +56,8 @@ describe('Rule builder: Visual tests', () => {
 
         // Take snapshot
         cy.get('.sw-settings-rule-detail-base').should('be.visible');
-        cy.takeSnapshot('[Rule builder] Detail', '.sw-settings-rule-detail-base');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Rule builder] Detail', '.sw-settings-rule-detail-base', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('.sw-condition-tree .sw-condition-or-container .sw-condition-and-container')
             .first()
@@ -157,7 +159,8 @@ describe('Rule builder: Visual tests', () => {
         cy.get('.sw-condition-tree').scrollIntoView();
         cy.get(page.elements.loader).should('not.exist');
         cy.get('.sw-condition').should('be.visible');
-        cy.takeSnapshot('[Rule builder] Detail, rule with conditions', '.sw-condition');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Rule builder] Detail, rule with conditions', '.sw-condition', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         // open filter modal
         cy.get('.sw-condition-line-item-goods-total__filter')
@@ -166,6 +169,7 @@ describe('Rule builder: Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-modal').should('be.visible');
-        cy.takeSnapshot('[Rule builder] Detail, condition modal', '.sw-modal');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Rule builder] Detail, condition modal', '.sw-modal', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

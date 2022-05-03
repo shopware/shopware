@@ -29,7 +29,8 @@ describe('Scale units: Visual testing', () => {
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.contains('.sw-data-grid__cell--name', 'Gramm').should('be.visible');
-        cy.takeSnapshot('[Unit] Listing', '.sw-card-view__content');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Unit] Listing', '.sw-card-view__content', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });
 

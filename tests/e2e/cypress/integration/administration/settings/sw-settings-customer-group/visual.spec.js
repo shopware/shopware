@@ -29,11 +29,13 @@ describe('Customer group: Visual testing', () => {
             .its('response.statusCode').should('equal', 200);
         cy.get('.sw-settings-customer-group-list-grid').should('be.visible');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
-        cy.takeSnapshot('[Customer group] Listing', '.sw-settings-customer-group-list');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Customer group] Listing', '.sw-settings-customer-group-list', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.contains('.sw-data-grid__cell--name a', 'Standard customer group').click();
         cy.get('.sw-page__main-content').should('be.visible');
         cy.get('.sw-skeleton__detail').should('not.exist');
-        cy.takeSnapshot('[Customer group] Details', '.sw-settings-customer-group-detail');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Customer group] Details', '.sw-settings-customer-group-detail', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

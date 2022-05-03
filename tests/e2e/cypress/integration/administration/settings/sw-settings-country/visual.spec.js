@@ -36,7 +36,8 @@ describe('Country: Visual testing', () => {
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
         // Take Snapshot
-        cy.takeSnapshot('[Country] Listing', '.sw-settings-country-list-grid');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Country] Listing', '.sw-settings-country-list-grid', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.contains('.sw-data-grid__cell--name a', 'Afghanistan').click();
 
@@ -48,7 +49,8 @@ describe('Country: Visual testing', () => {
             .its('response.statusCode').should('equal', 200);
 
         // Take Snapshot
-        cy.takeSnapshot('[Country] Detail', '.sw-settings-country-general__options-container');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Country] Detail', '.sw-settings-country-general__options-container', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('.sw-loader').should('not.exist');
 
@@ -66,6 +68,7 @@ describe('Country: Visual testing', () => {
 
         cy.handleModalSnapshot('Currency dependent values');
         cy.get('.sw-settings-country-currency-dependent-modal').should('be.visible');
-        cy.takeSnapshot('[Country] Currency dependent modal', '.sw-settings-country-currency-dependent-modal');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Country] Currency dependent modal', '.sw-settings-country-currency-dependent-modal', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

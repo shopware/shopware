@@ -29,7 +29,8 @@ describe('Category: Visual tests', () => {
         cy.get('.sw-skeleton__detail').should('not.exist');
         cy.get('.sw-skeleton__tree-item').should('not.exist');
         cy.get('.sw-skeleton__tree-item-nested').should('not.exist');
-        cy.takeSnapshot('[Category] Detail', '.sw-category-tree');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Category] Detail', '.sw-category-tree', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.contains('.tree-link', 'Home').click();
 
@@ -45,21 +46,23 @@ describe('Category: Visual tests', () => {
         );
         cy.get('.sw-category-entry-point-card__navigation-list .sw-category-entry-point-card__navigation-entry')
             .should('have.css', 'color', 'rgb(255, 255, 255)');
-        cy.takeSnapshot('[Category] Listing', '.sw-card');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Category] Listing', '.sw-card', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.contains('.sw-category-detail__tab-products', 'Products').click();
         cy.get('.sw-skeleton__tree-item').should('not.exist');
         cy.get('.sw-skeleton__tree-item-nested').should('not.exist');
 
         cy.get('.sw-many-to-many-assignment-card__select-container').should('be.visible');
-        cy.takeSnapshot('[Category] Detail, Products', '.sw-card');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Category] Detail, Products', '.sw-card', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('.sw-tree-item__actions .sw-context-button')
             .click();
 
         cy.get('.sw-context-menu')
             .should('be.visible');
-
-        cy.takeSnapshot('[Category] Detail, Open context menu', '.sw-page');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Category] Detail, Open context menu', '.sw-page', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

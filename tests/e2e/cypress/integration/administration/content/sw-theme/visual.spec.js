@@ -29,6 +29,7 @@ describe('Theme: Visual tests', () => {
             .its('response.statusCode').should('equal', 200);
         cy.get('.sw-theme-list__list').should('be.visible');
         cy.get('.sw-skeleton__gallery').should('not.exist');
+        cy.log('Before Screenshot');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Theme] Listing', '.sw-theme-list__content', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 

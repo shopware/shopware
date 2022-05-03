@@ -33,16 +33,19 @@ describe('Custom fields: Visual testing', () => {
             .its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
-        cy.takeSnapshot('[Custom fields] Listing', '.sw-settings-custom-field-set-list__card');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Custom fields] Listing', '.sw-settings-custom-field-set-list__card', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.contains('.sw-custom-field-set-list__column-name', 'My custom field').click();
         cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('[Custom fields] Detail', '.sw-custom-field-list__grid');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Custom fields] Detail', '.sw-custom-field-list__grid', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.contains('.sw-custom-field-list__custom-field-label', 'custom_field_set_property').click();
         cy.wait('@getData').its('response.statusCode').should('equals', 200);
 
         cy.handleModalSnapshot('Edit custom field');
-        cy.takeSnapshot('[Custom fields] Detail, Field modal', '#sw-field--currentCustomField-config-customFieldType');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Custom fields] Detail, Field modal', '#sw-field--currentCustomField-config-customFieldType', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

@@ -32,7 +32,6 @@ import AjaxModalExtension from 'src/utility/modal-extension/ajax-modal-extension
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 import HttpClient from 'src/service/http-client.service';
 import ElementLoadingIndicatorUtil from 'src/utility/loading-indicator/element-loading-indicator.util';
-import Feature from 'src/helper/feature.helper';
 
 // this event will be published via a global (document) EventEmitter
 export const COOKIE_CONFIGURATION_UPDATE = 'CookieConfiguration_Update';
@@ -40,8 +39,7 @@ export const COOKIE_CONFIGURATION_UPDATE = 'CookieConfiguration_Update';
 export default class CookieConfiguration extends Plugin {
 
     static options = {
-        /** @deprecated tag:v6.5.0 - Bootstrap v5 will require position `start` instead of `left`. */
-        offCanvasPosition: Feature.isActive('v6.5.0.0') ? 'start' : 'left',
+        offCanvasPosition: 'left',
         submitEvent: 'click',
         cookiePreference: 'cookie-preference',
         cookieSelector: '[data-cookie]',

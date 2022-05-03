@@ -10,10 +10,8 @@ The sliding direction can be left or right.
 .offcanvas {
     // @deprecated tag:v6.5.0 - Bootstrap v5 ships its own OffCanvas component, remove custom styling from else block.
     @if feature('v6.5.0.0') {
-        // todo NEXT-21024: Workaround for z-index. z-index will be set automatically via Bootstrap v5
-        z-index: $offcanvas-zindex + 1;
-        visibility: visible;
         border: 0 none;
+        transition: all 0.45s cubic-bezier(0.3, 0, 0.15, 1);
     } @else {
         z-index: $offcanvas-zindex;
         background: $white;

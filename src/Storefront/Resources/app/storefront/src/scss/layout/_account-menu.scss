@@ -53,5 +53,9 @@ The menu opens on smaller viewports inside an offcanvas and on larger viewports 
         .offcanvas-close {
             display: none;
         }
+
+        .offcanvas-body {
+            padding: 0;
+        }
     }
 }

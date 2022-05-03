@@ -5,14 +5,12 @@ import HttpClient from 'src/service/http-client.service';
 import DomAccess from 'src/helper/dom-access.helper';
 import Iterator from 'src/helper/iterator.helper';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
-import Feature from 'src/helper/feature.helper';
 
 export default class OffcanvasMenuPlugin extends Plugin {
 
     static options = {
         navigationUrl: window.router['frontend.menu.offcanvas'],
-        /** @deprecated tag:v6.5.0 - Bootstrap v5 will require position `start` instead of `left`. */
-        position: Feature.isActive('v6.5.0.0') ? 'start' : 'left',
+        position: 'left',
         tiggerEvent: 'click',
 
         additionalOffcanvasClass: 'navigation-offcanvas',

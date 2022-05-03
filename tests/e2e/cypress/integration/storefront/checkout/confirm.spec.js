@@ -448,7 +448,7 @@ describe('Test payment and shipping methods selection', () => {
                         cy.get('.product-detail-buy .btn-buy').click();
 
                         // Off canvas
-                        cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
+                        cy.get(page.elements.offCanvasCart).should('be.visible');
 
                         cy.window().then((win) => {
                             /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */

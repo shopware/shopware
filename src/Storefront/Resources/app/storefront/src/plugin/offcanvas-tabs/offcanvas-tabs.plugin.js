@@ -2,7 +2,6 @@ import DomAccess from 'src/helper/dom-access.helper';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 import Plugin from 'src/plugin-system/plugin.class';
-import Feature from 'src/helper/feature.helper';
 
 export default class OffCanvasTabs extends Plugin {
 
@@ -10,9 +9,8 @@ export default class OffCanvasTabs extends Plugin {
 
         /**
          * from which direction the offcanvas opens
-         * @deprecated tag:v6.5.0 - Bootstrap v5 will require position `end` instead of `right`.
          */
-        offcanvasPostion: Feature.isActive('v6.5.0.0') ? 'end' : 'right',
+        offcanvasPostion: 'right',
     };
 
     init() {

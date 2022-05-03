@@ -29,12 +29,15 @@ describe('Test if the offcanvas menus could be closed with the browser back butt
 
         // open offcanvas (product description)
         cy.get('#description-tab').click();
+
+        cy.get('.offcanvas').should('exist');
         cy.get('.offcanvas').should('be.visible');
         cy.get('.offcanvas .product-detail-description-title').contains(product.name);
 
         // close offcanvas with browser back
         cy.go('back');
         cy.get('.offcanvas').should('not.be.visible');
+        cy.get('.offcanvas').should('not.exist');
 
         // ensure, it is still the product detail page
         cy.get('.product-detail-name').contains(product.name);
@@ -69,9 +72,12 @@ describe('Test if the offcanvas menus could be closed with the browser back butt
             cy.get(`${lineItemSelector}-label`).contains(product.name);
 
             // close offcanvas with backdrop click
-            cy.get('.modal-backdrop').click();
+            /** @deprecated tag:v6.5.0 - Use `modal-backdrop` instead */
+            const backdropSelector = win.features['v6.5.0.0'] ? '.offcanvas-backdrop' : '.modal-backdrop';
+
+            cy.get(backdropSelector).click();
             cy.get('.offcanvas').should('not.exist');
-            cy.get('.modal-backdrop').should('not.exist');
+            cy.get(backdropSelector).should('not.exist');
 
             // ensure, it is still the product detail page
             cy.get('.product-detail-name').contains(product.name);

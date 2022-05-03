@@ -58,12 +58,12 @@ Component.register('sw-confirm-modal', {
             default() {
                 return 'confirm';
             },
-            validValues: ['confirm', 'delete', 'yesno'],
+            validValues: ['confirm', 'delete', 'yesno', 'discard'],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
-                return ['confirm', 'delete', 'yesno'].includes(value);
+                return ['confirm', 'delete', 'yesno', 'discard'].includes(value);
             },
         },
     },
@@ -91,6 +91,8 @@ Component.register('sw-confirm-modal', {
                     return this.$tc('global.default.delete');
                 case 'yesno':
                     return this.$tc('global.default.yes');
+                case 'discard':
+                    return this.$tc('global.default.discard');
                 default:
                     return this.$tc('global.default.confirm');
             }

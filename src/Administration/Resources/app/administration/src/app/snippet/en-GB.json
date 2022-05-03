@@ -38,7 +38,8 @@
       "close": "Close",
       "from": "From",
       "to": "To",
-      "bulkEdit": "Bulk edit"
+      "bulkEdit": "Bulk edit",
+      "discard": "Discard"
     },
     "notification": {
       "notificationSaveErrorMessage": "An error occurred while saving the entity \"{entityName}\".",

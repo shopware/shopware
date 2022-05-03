@@ -35,7 +35,7 @@
         {% block sw_confirm_modal_footer_confirm %}
         <sw-button
             class="sw-confirm-modal__button-confirm"
-            :variant="type === 'delete' ? 'danger' : 'primary'"
+            :variant="type === 'delete' || 'discard' ? 'danger' : 'primary'"
             size="small"
             @click="$emit('confirm')"
         >

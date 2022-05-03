@@ -38,7 +38,8 @@
       "close": "Schließen",
       "from": "Von",
       "to": "Bis",
-      "bulkEdit": "Mehrfachänderung"
+      "bulkEdit": "Mehrfachänderung",
+      "discard": "Verwerfen"
     },
     "notification": {
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",

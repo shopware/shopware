@@ -199,7 +199,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                             },
                             cache: true,
                             parallel: true,
-                            sourceMap: true,
+                            sourceMap: false,
                         }),
                         new OptimizeCSSAssetsPlugin(),
                     ],

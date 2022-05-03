@@ -53,6 +53,6 @@ describe('Number range: Visual testing', () => {
 
         // Take Snapshot
         cy.prepareAdminForScreenshot();
-        cy.takeSnapshot('[Number range] Details', '.sw-number_range-quickinfo__alert-global-type', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
+        cy.takeSnapshot('[Number range] Details', '.sw-settings-number-range-detail-assignment', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

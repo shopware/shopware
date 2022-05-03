@@ -30,6 +30,14 @@ Component.extend('sw-bulk-edit-custom-fields', 'sw-custom-field-set-renderer', {
     },
 
     methods: {
+        initializeCustomFields() {
+            if (!this.entity.customFields) {
+                this.entity.customFields = {};
+            }
+
+            this.$super('initializeCustomFields');
+        },
+
         toggleItemCheck($event, item) {
             if ($event) {
                 this.$set(this.selectedCustomFields, item.name, this.entity.customFields[item.name]);

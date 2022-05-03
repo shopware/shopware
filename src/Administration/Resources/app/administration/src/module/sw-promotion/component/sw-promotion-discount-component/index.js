@@ -319,6 +319,7 @@ Component.register('sw-promotion-discount-component', {
             return this.$tc(
                 this.ruleConditionDataProviderService
                     .getAwarenessConfigurationByAssignmentName('promotionDiscounts').snippet,
+                2,
             );
         },
 

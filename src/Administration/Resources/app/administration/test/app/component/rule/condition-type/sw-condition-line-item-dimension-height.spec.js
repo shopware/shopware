@@ -33,6 +33,7 @@ describe('components/rule/condition-type/sw-condition-line-item-dimension-height
                 conditionDataProviderService: new ConditionDataProviderService(),
                 availableTypes: {},
                 availableGroups: [],
+                restrictedConditions: [],
                 childAssociationField: {},
                 validationService: {},
                 insertNodeIntoTree: () => ({}),

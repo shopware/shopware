@@ -72,7 +72,8 @@
         "customers": "Kunden",
         "promotions": "Marketing & Rabattaktionen",
         "misc": "Sonstige"
-      }
+      },
+      "textUnsavedConditions": "Es gibt ungespeicherte Änderungen in dieser Regel. Speichere die Änderungen, um Zuweisungen hinzufügen zu können."
     },
     "conditionFilter": {
       "infoText": "Nutze Filter, um zu definieren welche Positionen diese Bedingung erfüllen müssen."

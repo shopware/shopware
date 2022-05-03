@@ -20,6 +20,7 @@
                     {% block sw_settings_rule_detail_assignments_add_button %}
                     <sw-button
                         v-if="entity.allowAdd"
+                        v-tooltip="getTooltipConfig(entity)"
                         :disabled="disableAdd(entity) || !acl.can('rule.editor')"
                         variant="ghost"
                         size="small"

@@ -24,6 +24,7 @@ Component.register('sw-condition-tree', {
             childAssociationField: this.childAssociationField,
             conditionDataProviderService: this.conditionDataProviderService,
             conditionScopes: this.scopes,
+            restrictedConditions: this.restrictedConditions,
         };
     },
 
@@ -71,6 +72,12 @@ Component.register('sw-condition-tree', {
         associationValue: {
             type: String,
             required: true,
+        },
+
+        associationEntity: {
+            type: Object,
+            required: false,
+            default: null,
         },
 
         childAssociationField: {
@@ -158,6 +165,14 @@ Component.register('sw-condition-tree', {
             });
 
             return groups;
+        },
+
+        restrictedConditions() {
+            if (typeof this.conditionDataProviderService.getRestrictedConditions !== 'function') {
+                return [];
+            }
+
+            return this.conditionDataProviderService.getRestrictedConditions(this.associationEntity);
         },
     },
 

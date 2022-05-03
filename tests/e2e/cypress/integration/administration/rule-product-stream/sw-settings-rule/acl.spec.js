@@ -79,16 +79,13 @@ describe('Rule builder: Test crud operations', () => {
         cy.get('#sw-field--rule-name').clearTypeAndCheck('Some customers');
 
         // fill rule data
-        cy.get('.sw-condition').then((conditionElement) => {
-            cy.get('.sw-condition-type-select', { withinSubject: conditionElement })
-                .then((conditionTypeSelect) => {
-                    cy.wrap(conditionTypeSelect).click();
-                    cy.get('.sw-select-result-list-popover-wrapper').should('be.visible');
+        cy.get('.sw-condition-type-select').click();
 
-                    cy.get('.sw-select-result-list-popover-wrapper').contains('Time range')
-                        .click();
-                });
-        });
+        cy.get('.sw-select-result-list-popover-wrapper').should('be.visible');
+        cy.get('.sw-select-result-list-popover-wrapper').contains('Time range')
+            .click();
+
+        cy.get('.sw-condition-time-range').should('exist');
 
         cy.get('.smart-bar__actions .sw-button--primary')
             .should('to.have.prop', 'disabled', false);
@@ -110,9 +107,14 @@ describe('Rule builder: Test crud operations', () => {
         // Switch to assignments tab
         cy.get('.sw-settings-rule-detail__tab-item-assignments').click();
 
-        cy.get('.sw-settings-rule-detail-assignments__add-button').each(($element) => {
-            cy.wrap($element).should('have.not.class', 'sw-button--disabled');
-        });
+        cy.get('.sw-settings-rule-detail-assignments__card-shipping_method_availability_rule .sw-settings-rule-detail-assignments__add-button')
+            .should('have.not.class', 'sw-button--disabled');
+        cy.get('.sw-settings-rule-detail-assignments__card-payment_method .sw-settings-rule-detail-assignments__add-button')
+            .should('have.not.class', 'sw-button--disabled');
+        cy.get('.sw-settings-rule-detail-assignments__card-promotion_cart_rule .sw-settings-rule-detail-assignments__add-button')
+            .should('have.not.class', 'sw-button--disabled');
+        cy.get('.sw-settings-rule-detail-assignments__card-event_action .sw-settings-rule-detail-assignments__add-button')
+            .should('have.not.class', 'sw-button--disabled');
     });
 
     it('@base @rule: create and read rule', () => {

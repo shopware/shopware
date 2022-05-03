@@ -1282,11 +1282,18 @@
       "shippingMethods": "Versandarten-Regel",
       "paymentMethods": "Zahlarten-Regel",
       "flowSequences": "Flow-Builder-Regeln",
-      "personaPromotions": "Kunden-Regeln",
-      "orderPromotions": "Bestellungs-Regeln",
-      "cartPromotions": "Warenkorb-Regeln",
-      "promotionDiscounts": "Produkt-Regeln",
-      "promotionSetGroups": "Produkt-Regeln"
-    }
+      "personaPromotions": "Kunden-Regel|Kunden-Regeln",
+      "orderPromotions": "Bestellungs-Regel|Bestellungs-Regeln",
+      "cartPromotions": "Warenkorb-Regel|Warenkorb-Regeln",
+      "promotionDiscounts": "Produkt-Regel|Produkt-Regeln",
+      "promotionSetGroups": "Produkt-Regel|Produkt-Regeln",
+      "notEqualsViolationTooltip": "Diese Regel verwendet Bedingungen, die das Hinzufügen von Zuweisungen zu {entityLabel} verhindern. Diese Bedingungen sind: {conditions}.",
+      "equalsAnyViolationTooltip": "Diese Regel muss mindestens eine der folgenden Bedingungen verwenden, um zu {entityLabel} hinzugefügt werden zu können: {conditions}."
+    },
+    "restrictedConditions": {
+      "restrictedPromotionConditionTooltip": "Die aktuelle Regel ist einer Rabattaktion als {assignments} zugeordnet. Der Gebrauch dieser Bedingung ist daher nicht zulässig."
+    },
+    "and": "und",
+    "or": "oder"
   }
 }

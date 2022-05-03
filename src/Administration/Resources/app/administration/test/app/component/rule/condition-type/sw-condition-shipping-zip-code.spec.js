@@ -35,6 +35,7 @@ describe('components/rule/condition-type/sw-condition-shipping-zip-code', () => 
                 conditionDataProviderService: new ConditionDataProviderService(),
                 availableTypes: {},
                 availableGroups: [],
+                restrictedConditions: [],
                 childAssociationField: {},
                 validationService: {}
             },

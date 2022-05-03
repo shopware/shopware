@@ -102,6 +102,7 @@
             :condition-data-provider-service="ruleConditionDataProviderService"
             association-field="ruleId"
             :association-value="rule.id"
+            :association-entity="rule"
             :root-condition="null"
             :disabled="!acl.can('rule.editor')"
             @conditions-changed="onConditionsChanged"

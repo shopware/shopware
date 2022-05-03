@@ -72,7 +72,8 @@
         "customers": "Customers",
         "promotions": "Marketing & promotions",
         "misc": "Miscellaneous"
-      }
+      },
+      "textUnsavedConditions": "There are unsaved changes in this rule. Save changes in order to add assignments."
     },
     "conditionFilter": {
       "infoText": "Use filters to define which line items have to fulfil this condition."

@@ -11,8 +11,7 @@
         :label="$tc('sw-promotion-v2.detail.conditions.preConditions.labelCartConditionSelect')"
         :placeholder="$tc('sw-promotion-v2.detail.conditions.preConditions.placeholderCartConditionSelect')"
         :rule-scope="['checkout', 'global', 'lineItem']"
-        :restricted-rules="restrictedRules"
-        :restriction-snippet="$tc(ruleConditionDataProviderService.getAwarenessConfigurationByAssignmentName('cartPromotions').snippet)"
+        rule-aware-group-key="cartPromotions"
         :disabled="isEditingDisabled"
     />
 
@@ -158,7 +157,7 @@
                     :rule-scope="['checkout', 'global', 'lineItem']"
                     :disabled="isEditingDisabled"
                     :restricted-rules="setGroupRestrictedRules"
-                    :restriction-snippet="$tc(ruleConditionDataProviderService.getAwarenessConfigurationByAssignmentName('promotionSetGroups').snippet)"
+                    :restriction-snippet="$tc(ruleConditionDataProviderService.getAwarenessConfigurationByAssignmentName('promotionSetGroups').snippet, 2)"
                 />
 
                 {# @deprecated tag:v6.5.0 - use sw-promotion-v2-rule-select instead #}

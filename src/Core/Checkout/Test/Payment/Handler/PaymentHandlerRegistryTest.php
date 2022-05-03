@@ -60,7 +60,7 @@ class PaymentHandlerRegistryTest extends TestCase
     public function testGetHandler(string $handlerName, string $handlerClass): void
     {
         $paymentMethod = $this->getPaymentMethod($handlerName);
-        $handler = $this->paymentHandlerRegistry->getHandlerForPaymentMethod($paymentMethod);
+        $handler = $this->paymentHandlerRegistry->getPaymentMethodHandler($paymentMethod->getId());
         static::assertInstanceOf($handlerClass, $handler);
     }
 
@@ -70,7 +70,7 @@ class PaymentHandlerRegistryTest extends TestCase
     public function testGetAsyncHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
     {
         $paymentMethod = $this->getPaymentMethod($handlerName);
-        $handler = $this->paymentHandlerRegistry->getAsyncHandlerForPaymentMethod($paymentMethod);
+        $handler = $this->paymentHandlerRegistry->getAsyncPaymentHandler($paymentMethod->getId());
 
         if (\in_array(AsynchronousPaymentHandlerInterface::class, $handlerInstances, true)) {
             static::assertInstanceOf(AsynchronousPaymentHandlerInterface::class, $handler);
@@ -85,7 +85,7 @@ class PaymentHandlerRegistryTest extends TestCase
     public function testGetSyncHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
     {
         $paymentMethod = $this->getPaymentMethod($handlerName);
-        $handler = $this->paymentHandlerRegistry->getSyncHandlerForPaymentMethod($paymentMethod);
+        $handler = $this->paymentHandlerRegistry->getSyncPaymentHandler($paymentMethod->getId());
 
         if (\in_array(SynchronousPaymentHandlerInterface::class, $handlerInstances, true)) {
             static::assertInstanceOf(SynchronousPaymentHandlerInterface::class, $handler);
@@ -100,7 +100,7 @@ class PaymentHandlerRegistryTest extends TestCase
     public function testGetPreparedHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
     {
         $paymentMethod = $this->getPaymentMethod($handlerName);
-        $handler = $this->paymentHandlerRegistry->getPreparedHandlerForPaymentMethod($paymentMethod);
+        $handler = $this->paymentHandlerRegistry->getPreparedPaymentHandler($paymentMethod->getId());
 
         if (\in_array(PreparedPaymentHandlerInterface::class, $handlerInstances, true)) {
             static::assertInstanceOf(PreparedPaymentHandlerInterface::class, $handler);
@@ -115,7 +115,7 @@ class PaymentHandlerRegistryTest extends TestCase
     public function testGetRefundHandler(string $handlerName, string $handlerClass, array $handlerInstances): void
     {
         $paymentMethod = $this->getPaymentMethod($handlerName);
-        $handler = $this->paymentHandlerRegistry->getRefundHandlerForPaymentMethod($paymentMethod);
+        $handler = $this->paymentHandlerRegistry->getRefundPaymentHandler($paymentMethod->getId());
 
         if (\in_array(RefundPaymentHandlerInterface::class, $handlerInstances, true)) {
             static::assertInstanceOf(RefundPaymentHandlerInterface::class, $handler);
@@ -147,7 +147,7 @@ class PaymentHandlerRegistryTest extends TestCase
 
         $this->appPaymentMethodRepository->upsert([$appPaymentData], Context::createDefaultContext());
 
-        $handler = $this->paymentHandlerRegistry->getHandlerForPaymentMethod($paymentMethod);
+        $handler = $this->paymentHandlerRegistry->getPaymentMethodHandler($paymentMethod->getId());
 
         static::assertInstanceOf($expectedHandler, $handler);
     }

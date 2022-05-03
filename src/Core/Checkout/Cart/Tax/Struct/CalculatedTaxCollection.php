@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Tax\Struct;
 
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
@@ -74,6 +75,15 @@ class CalculatedTaxCollection extends Collection
 
         //@deprecated tag:v6.5.0 remove complete if $new should be always $this
         if (!$keep) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                \sprintf(
+                    'Passing second parameter `$keep` to method "%s" of class "%s" is deprecated, the parameter will be removed in v6.5.0.0. and the behaviour for $keep=true will be the default behaviour.',
+                    __METHOD__,
+                    __CLASS__
+                )
+            );
+
             $new = new self($this->elements);
         }
 

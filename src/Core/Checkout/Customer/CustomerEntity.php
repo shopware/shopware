@@ -10,10 +10,12 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistC
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Salutation\SalutationEntity;
@@ -460,7 +462,7 @@ class CustomerEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - will be internal from 6.5.0
+     * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal from 6.5.0
      */
     public function getPassword(): ?string
     {
@@ -470,7 +472,7 @@ class CustomerEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - will be internal from 6.5.0
+     * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal from 6.5.0
      */
     public function setPassword(?string $password): void
     {
@@ -610,6 +612,11 @@ class CustomerEntity extends Entity
      */
     public function getNewsletter(): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', NewsletterRecipientDefinition::ENTITY_NAME)
+        );
+
         return $this->newsletter;
     }
 
@@ -618,6 +625,11 @@ class CustomerEntity extends Entity
      */
     public function setNewsletter(bool $newsletter): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', NewsletterRecipientDefinition::ENTITY_NAME)
+        );
+
         $this->newsletter = $newsletter;
     }
 
@@ -662,7 +674,7 @@ class CustomerEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - will be internal from 6.5.0
+     * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal from 6.5.0
      */
     public function getLegacyEncoder(): ?string
     {
@@ -672,7 +684,7 @@ class CustomerEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - will be internal from 6.5.0
+     * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal from 6.5.0
      */
     public function setLegacyEncoder(?string $legacyEncoder): void
     {
@@ -680,7 +692,7 @@ class CustomerEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - will be internal from 6.5.0
+     * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal from 6.5.0
      */
     public function getLegacyPassword(): ?string
     {
@@ -690,7 +702,7 @@ class CustomerEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - will be internal from 6.5.0
+     * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal from 6.5.0
      */
     public function setLegacyPassword(?string $legacyPassword): void
     {

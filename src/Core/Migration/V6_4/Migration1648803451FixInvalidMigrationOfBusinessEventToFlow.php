@@ -56,11 +56,15 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlow extends Migrat
         foreach ($invalidSequenceGroup as $sequence) {
             $actionSequence = array_values(array_filter($sequence, function ($sequence) {
                 return $sequence['action_name'] !== null;
-            }))[0];
+            }))[0] ?? null;
 
             $parentCondition = array_values(array_filter($sequence, function ($sequence) {
                 return $sequence['rule_id'] !== null && $sequence['parent_id'] === null;
-            }))[0];
+            }))[0] ?? null;
+
+            if ($actionSequence === null || $parentCondition === null) {
+                continue;
+            }
 
             $parentId = $parentCondition['id'];
 

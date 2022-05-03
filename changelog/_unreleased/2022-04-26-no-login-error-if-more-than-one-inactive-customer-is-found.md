@@ -1,6 +1,6 @@
 ---
 title: No login error if more than one inactive customer is found
-issue: NA
+issue: NEXT-21421
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999

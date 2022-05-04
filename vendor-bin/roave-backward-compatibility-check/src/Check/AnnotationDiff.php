@@ -68,6 +68,8 @@ class AnnotationDiff
 
     public static function diff(string $identifier, string $before, string $after): Changes
     {
+        return Changes::empty();
+
         $mapping = self::ANNOTATION_MAPPING;
         $factoryConfig = [];
 

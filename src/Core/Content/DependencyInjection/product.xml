@@ -461,5 +461,15 @@
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceAccessorBuilder">
             <tag name="shopware.field_accessor_builder" priority="-200"/>
         </service>
+
+        <service id="Shopware\Core\Content\Product\Cleanup\CleanupProductKeywordDictionaryTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Cleanup\CleanupProductKeywordDictionaryTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="messenger.message_handler"/>
+        </service>
     </services>
 </container>

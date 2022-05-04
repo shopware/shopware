@@ -99,9 +99,16 @@ class Feature
      * @param string $removeVersion The version of the package when the deprectated code will be removed
      * @param string $message       The message of the deprecation
      * @param mixed  ...$args       Values to insert in the message using printf() formatting
+     *
+     * @deprecated tag:v6.5.0 - will be removed, use `triggerDeprecationOrThrow` instead
      */
     public static function triggerDeprecated(string $flag, string $sinceVersion, string $removeVersion, string $message, ...$args): void
     {
+        self::triggerDeprecationOrThrow(
+            self::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'Feature::triggerDeprecationOrThrow()'),
+            'v6.5.0.0'
+        );
+
         $message = 'Deprecated tag:' . $removeVersion . '(flag:' . $flag . '). ' . $message;
 
         if (self::isActive($flag) || !self::has($flag)) {
@@ -117,6 +124,47 @@ class Feature
         }
 
         ScriptTraces::addDeprecationNotice($message);
+    }
+
+    public static function triggerDeprecationOrThrow(string $message, string $majorFlag): void
+    {
+        if (self::isActive($majorFlag) || !self::has($majorFlag)) {
+            throw new \RuntimeException('Tried to access deprecated functionality: ' . $message);
+        }
+
+        ScriptTraces::addDeprecationNotice($message);
+        trigger_deprecation('shopware/core', '', $message);
+    }
+
+    public static function deprecatedMethodMessage(string $class, string $method, string $majorVersion, ?string $replacement = null): string
+    {
+        $message = \sprintf(
+            'Method "%s::%s()" is deprecated and will be removed in %s.',
+            $class,
+            $method,
+            $majorVersion
+        );
+
+        if ($replacement) {
+            $message = \sprintf('%s Use "%s" instead.', $message, $replacement);
+        }
+
+        return $message;
+    }
+
+    public static function deprecatedClassMessage(string $class, string $majorVersion, ?string $replacement): string
+    {
+        $message = \sprintf(
+            'Class "%s" is deprecated and will be removed in %s.',
+            $class,
+            $majorVersion
+        );
+
+        if ($replacement) {
+            $message = \sprintf('%s Use "%s" instead.', $message, $replacement);
+        }
+
+        return $message;
     }
 
     public static function has(string $flag): bool

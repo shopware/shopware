@@ -88,7 +88,10 @@ class BusinessEventDefinition extends Struct
      */
     public function isMailAware(): bool
     {
-        Feature::triggerDeprecated('FEATURE_NEXT_17858', 'v6.4.6', 'v6.5.0', 'Will be removed in v6.5.0, use BusinessEventDefinition::getAware() instead.');
+        Feature::triggerDeprecationOrThrow(
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'BusinessEventDefinition::getAware()'),
+            'v6.5.0.0'
+        );
 
         return $this->mailAware;
     }
@@ -98,7 +101,10 @@ class BusinessEventDefinition extends Struct
      */
     public function setMailAware(bool $mailAware): void
     {
-        Feature::triggerDeprecated('FEATURE_NEXT_17858', 'v6.4.6', 'v6.5.0', 'Will be removed in v6.5.0, use BusinessEventDefinition::addAware() instead.');
+        Feature::triggerDeprecationOrThrow(
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'BusinessEventDefinition::addAware()'),
+            'v6.5.0.0'
+        );
 
         $this->mailAware = $mailAware;
     }
@@ -108,7 +114,10 @@ class BusinessEventDefinition extends Struct
      */
     public function isLogAware(): bool
     {
-        Feature::triggerDeprecated('FEATURE_NEXT_17858', 'v6.4.6', 'v6.5.0', 'Will be removed in v6.5.0, use BusinessEventDefinition::getAware() instead.');
+        Feature::triggerDeprecationOrThrow(
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'BusinessEventDefinition::getAware()'),
+            'v6.5.0.0'
+        );
 
         return $this->logAware;
     }
@@ -118,7 +127,10 @@ class BusinessEventDefinition extends Struct
      */
     public function setLogAware(bool $logAware): void
     {
-        Feature::triggerDeprecated('FEATURE_NEXT_17858', 'v6.4.6', 'v6.5.0', 'Will be removed in v6.5.0, use BusinessEventDefinition::addAware() instead.');
+        Feature::triggerDeprecationOrThrow(
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'BusinessEventDefinition::addAware()'),
+            'v6.5.0.0'
+        );
 
         $this->logAware = $logAware;
     }
@@ -143,7 +155,10 @@ class BusinessEventDefinition extends Struct
      */
     public function isSalesChannelAware(): bool
     {
-        Feature::triggerDeprecated('FEATURE_NEXT_17858', 'v6.4.6', 'v6.5.0', 'Will be removed in v6.5.0, use BusinessEventDefinition::getAware() instead.');
+        Feature::triggerDeprecationOrThrow(
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'BusinessEventDefinition::getAware()'),
+            'v6.5.0.0'
+        );
 
         return $this->salesChannelAware;
     }
@@ -153,7 +168,10 @@ class BusinessEventDefinition extends Struct
      */
     public function setSalesChannelAware(bool $salesChannelAware): void
     {
-        Feature::triggerDeprecated('FEATURE_NEXT_17858', 'v6.4.6', 'v6.5.0', 'Will be removed in v6.5.0, use BusinessEventDefinition::addAware() instead.');
+        Feature::triggerDeprecationOrThrow(
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'BusinessEventDefinition::addAware()'),
+            'v6.5.0.0'
+        );
 
         $this->salesChannelAware = $salesChannelAware;
     }

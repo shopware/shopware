@@ -1071,7 +1071,10 @@ class SalesChannelEntity extends Entity
      */
     public function getEventActions(): ?EventActionCollection
     {
-        Feature::triggerDeprecated('FEATURE_NEXT_17858', 'v6.4.6', 'v6.5.0', 'Will be removed in version 6.5.0.');
+        Feature::triggerDeprecationOrThrow(
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0'),
+            'v6.5.0.0'
+        );
 
         return $this->eventActions;
     }
@@ -1081,7 +1084,10 @@ class SalesChannelEntity extends Entity
      */
     public function setEventActions(EventActionCollection $eventActions): void
     {
-        Feature::triggerDeprecated('FEATURE_NEXT_17858', 'v6.4.6', 'v6.5.0', 'Will be removed in version 6.5.0.');
+        Feature::triggerDeprecationOrThrow(
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0'),
+            'v6.5.0.0'
+        );
 
         $this->eventActions = $eventActions;
     }

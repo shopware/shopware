@@ -22,8 +22,6 @@ class MailSendSubscriberBridgeEvent implements ShopwareEvent
 
     public function __construct(DataBag $dataBag, MailTemplateEntity $mailTemplate, BusinessEvent $businessEvent)
     {
-        Feature::triggerDeprecated('FEATURE_NEXT_17858', 'v6.4.6', 'v6.5.0', 'Will be removed in v6.5.0, use SendMailAction instead.');
-
         $this->dataBag = $dataBag;
         $this->mailTemplate = $mailTemplate;
         $this->businessEvent = $businessEvent;
@@ -31,21 +29,41 @@ class MailSendSubscriberBridgeEvent implements ShopwareEvent
 
     public function getContext(): Context
     {
+        Feature::triggerDeprecationOrThrow(
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'FlowSendMailActionEvent'),
+            'v6.5.0.0'
+        );
+
         return $this->businessEvent->getContext();
     }
 
     public function getDataBag(): DataBag
     {
+        Feature::triggerDeprecationOrThrow(
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'FlowSendMailActionEvent'),
+            'v6.5.0.0'
+        );
+
         return $this->dataBag;
     }
 
     public function getMailTemplate(): MailTemplateEntity
     {
+        Feature::triggerDeprecationOrThrow(
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'FlowSendMailActionEvent'),
+            'v6.5.0.0'
+        );
+
         return $this->mailTemplate;
     }
 
     public function getBusinessEvent(): BusinessEvent
     {
+        Feature::triggerDeprecationOrThrow(
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'FlowSendMailActionEvent'),
+            'v6.5.0.0'
+        );
+
         return $this->businessEvent;
     }
 }

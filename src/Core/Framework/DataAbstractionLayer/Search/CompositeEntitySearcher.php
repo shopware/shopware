@@ -33,7 +33,10 @@ class CompositeEntitySearcher
 
     public function search(string $term, int $limit, Context $context): array
     {
-        Feature::throwException('FEATURE_NEXT_18762', 'Will be removed in v6.5.0, use \Shopware\Administration\Service\AdminSearcher::search instead.');
+        Feature::triggerDeprecationOrThrow(
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', '\Shopware\Administration\Service\AdminSearcher::search()'),
+            'v6.5.0.0'
+        );
 
         $entities = [];
 

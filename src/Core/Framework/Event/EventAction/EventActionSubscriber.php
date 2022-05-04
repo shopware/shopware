@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Feature;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+ * @deprecated tag:v6.5.0 - reason:remove-subscriber - Will be removed in v6.5.0.
  */
 class EventActionSubscriber implements EventSubscriberInterface
 {
@@ -32,8 +32,6 @@ class EventActionSubscriber implements EventSubscriberInterface
 
     public function deleted(EntityDeletedEvent $event): void
     {
-        Feature::triggerDeprecated('FEATURE_NEXT_17858', 'v6.4.6', 'v6.5.0', 'Will be removed in v6.5.0.');
-
         if (Feature::isActive('FEATURE_NEXT_17858')) {
             return;
         }

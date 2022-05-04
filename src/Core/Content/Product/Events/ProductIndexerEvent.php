@@ -67,7 +67,10 @@ class ProductIndexerEvent extends NestedEvent implements ProductChangedEventInte
      */
     public function getChildrenIds(): array
     {
-        Feature::throwException('v6.5.0.0', '`$parentIds` and `$childrenIds` will be removed. The children and parents are no longer indexed at the same time');
+        Feature::triggerDeprecationOrThrow(
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0'),
+            'v6.5.0.0'
+        );
 
         return $this->childrenIds;
     }
@@ -77,7 +80,10 @@ class ProductIndexerEvent extends NestedEvent implements ProductChangedEventInte
      */
     public function getParentIds(): array
     {
-        Feature::throwException('v6.5.0.0', '`$parentIds` and `$childrenIds` will be removed. The children and parents are no longer indexed at the same time');
+        Feature::triggerDeprecationOrThrow(
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0'),
+            'v6.5.0.0'
+        );
 
         return $this->parentIds;
     }

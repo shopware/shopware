@@ -53,6 +53,9 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
 
     private ?EntityLoadedEventFactory $eventFactory;
 
+    /**
+     * @deprecated tag:v6.5.0 - $eventFactory parameter will be required
+     */
     public function __construct(
         EntityDefinition $definition,
         EntityReaderInterface $reader,
@@ -70,18 +73,22 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
         if ($eventFactory !== null) {
             $this->eventFactory = $eventFactory;
         } else {
-            Feature::throwException('FEATURE_NEXT_16155', sprintf('Sales channel repository for definition %s requires the event factory as __construct parameter', $definition->getEntityName()));
+            Feature::triggerDeprecationOrThrow(
+                sprintf('SalesChannelRepository constructor for definition %s requires the event factory as required 6th parameter in v6.5.0.0', $definition->getEntityName()),
+                'v6.5.0.0'
+            );
         }
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Will be removed,
+     * @deprecated tag:v6.5.0 - Will be removed
      */
     public function setEntityLoadedEventFactory(EntityLoadedEventFactory $eventFactory): void
     {
-        if ($this->eventFactory === null) {
-            Feature::throwException('FEATURE_NEXT_16155', sprintf('Sales channel repository for definition %s requires the event factory as __construct parameter', $this->definition->getEntityName()));
-        }
+        Feature::triggerDeprecationOrThrow(
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0'),
+            'v6.5.0.0'
+        );
 
         $this->eventFactory = $eventFactory;
     }

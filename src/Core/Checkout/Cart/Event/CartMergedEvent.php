@@ -26,13 +26,19 @@ class CartMergedEvent extends Event implements ShopwareSalesChannelEvent
      **/
     protected ?Cart $previousCart;
 
+    /**
+     * @deprecated tag:v6.5.0 - Parameter $previousCart will be required
+     */
     public function __construct(Cart $cart, SalesChannelContext $context, ?Cart $previousCart = null)
     {
         $this->cart = $cart;
         $this->context = $context;
 
         if ($previousCart === null) {
-            Feature::throwException('FEATURE_NEXT_16824', 'The argument $previousCart will be required in future');
+            Feature::triggerDeprecationOrThrow(
+                \sprintf('"%s::%s()" will require the previous cart as required third parameter in v6.5.0.0', __CLASS__, __METHOD__),
+                'v6.5.0.0'
+            );
         }
 
         $this->previousCart = $previousCart;

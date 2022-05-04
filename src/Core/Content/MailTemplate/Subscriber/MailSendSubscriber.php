@@ -26,7 +26,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @deprecated tag:v6.5.0 - Will be removed in v6.5.0 Use SendMailAction instead
+ * @deprecated tag:v6.5.0 - reason:remove-subscriber - Will be removed in v6.5.0 Use SendMailAction instead
  */
 class MailSendSubscriber implements EventSubscriberInterface
 {
@@ -95,8 +95,6 @@ class MailSendSubscriber implements EventSubscriberInterface
      */
     public function sendMail(Event $event): void
     {
-        Feature::triggerDeprecated('FEATURE_NEXT_17858', 'v6.4.6', 'v6.5.0', 'Will be removed in v6.5.0, use SendMailAction instead.');
-
         if (Feature::isActive('FEATURE_NEXT_17858')) {
             return;
         }

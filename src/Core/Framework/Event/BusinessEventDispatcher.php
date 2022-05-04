@@ -16,7 +16,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @deprecated tag:v6.5.0 - Will be removed in v6.5.0, use FlowDispatcher instead.
+ * @deprecated tag:v6.5.0 - reason:remove-decorator - Will be removed in v6.5.0, use FlowDispatcher instead.
  */
 class BusinessEventDispatcher implements EventDispatcherInterface
 {
@@ -47,8 +47,6 @@ class BusinessEventDispatcher implements EventDispatcherInterface
 
     public function dispatch($event, ?string $eventName = null): object
     {
-        Feature::triggerDeprecated('FEATURE_NEXT_17858', 'v6.4.6', '6.5.0', 'Will be removed in v6.5.0, use FlowDispatcher instead.');
-
         $event = $this->dispatcher->dispatch($event, $eventName);
 
         if (Feature::isActive('FEATURE_NEXT_17858')) {

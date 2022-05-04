@@ -33,7 +33,10 @@ class AvailableCombinationLoader
         }
 
         if ($salesChannelId === null) {
-            Feature::throwException('FEATURE_NEXT_18592', 'Sales channel id in combination loader is required in next major');
+            Feature::triggerDeprecationOrThrow(
+                \sprintf('"%s::%s()" will require the salesChannelId as third parameter in v6.5.0.0', __CLASS__, __METHOD__),
+                'v6.5.0.0'
+            );
         }
 
         $query = $this->connection->createQueryBuilder();

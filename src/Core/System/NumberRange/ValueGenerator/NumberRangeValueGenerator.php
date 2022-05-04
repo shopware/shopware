@@ -72,7 +72,10 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
      */
     protected function createPreviewConfiguration(string $definition, ?string $pattern, int $start): void
     {
-        Feature::throwException('v6.5.0.0', 'NumberRangeValueGenerator::createPreviewConfiguration() will be removed.');
+        Feature::triggerDeprecationOrThrow(
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0'),
+            'v6.5.0.0'
+        );
     }
 
     /**
@@ -80,7 +83,10 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
      */
     protected function readConfiguration(string $definition, Context $context, ?string $salesChannelId): void
     {
-        Feature::throwException('v6.5.0.0', 'NumberRangeValueGenerator::readConfiguration() will be removed.');
+        Feature::triggerDeprecationOrThrow(
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0'),
+            'v6.5.0.0'
+        );
     }
 
     /**

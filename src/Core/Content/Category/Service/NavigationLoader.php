@@ -104,7 +104,18 @@ class NavigationLoader implements NavigationLoaderInterface
         }
 
         $root = $parents[$rootId] ?? [];
+        $root = AfterSort::sort($root);
 
-        return new Tree($active, AfterSort::sort($root));
+        $filtered = [];
+        /** @var TreeItem $item */
+        foreach ($root as $key => $item) {
+            if (!$item->getCategory()->getActive() || !$item->getCategory()->getVisible()) {
+                continue;
+            }
+
+            $filtered[$key] = $item;
+        }
+
+        return new Tree($active, $filtered);
     }
 }

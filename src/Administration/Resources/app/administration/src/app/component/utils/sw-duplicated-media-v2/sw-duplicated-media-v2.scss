@@ -64,7 +64,7 @@ $sw-duplicated-media-v2-font-size-preview: $font-size-small;
     }
 
     .sw-duplicated-media-v2__target-label {
-        @include truncate();
+        @include truncate;
 
         font-size: $sw-duplicated-media-v2-font-size-preview;
     }

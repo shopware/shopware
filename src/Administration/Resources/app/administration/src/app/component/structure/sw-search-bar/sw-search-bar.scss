@@ -5,12 +5,12 @@ $sw-search-bar-border-color: $color-gray-300;
 $sw-search-bar-background-color: $color-white;
 $sw-search-bar-results-background-color: $color-white;
 $sw-search-bar-border-radius: $border-radius-default;
-$sw-search-bar-results-box-shadow: 0 3px 6px 0 rgba(120, 138, 155, 0.3);
+$sw-search-bar-results-box-shadow: 0 3px 6px 0 rgba(120, 138, 155, 30%);
 $sw-search-bar-results-z-index: 800;
 $sw-search-bar-types-z-index: 900;
 $sw-search-bar-z-index: $z-index-search-bar-results;
 $sw-search-bar-button-color-text: $color-white;
-$sw-search-bar-mobile-box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3);
+$sw-search-bar-mobile-box-shadow: 0 3px 3px rgba(0, 0, 0, 30%);
 $sw-search-bar-result-color-icon: darken($color-gray-100, 20%);
 $sw-search-bar-types-item-hover-color-background: lighten($color-shopware-brand-500, 40%);
 $sw-search-bar-types-item-border-radius: $border-radius-default;
@@ -388,7 +388,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
     &__shortcut-tip {
         font-size: $font-size-small;
         color: lighten($color-darkgray-200, 25%);
-        margin: 20px 3px 0 3px;
+        margin: 20px 3px 0;
     }
 
     &__results-empty-text {

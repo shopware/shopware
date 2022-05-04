@@ -1,4 +1,5 @@
 @import "~scss/variables";
+
 $sw-product-variants-configurator-restrictions-active-color-background: $color-shopware-brand-50;
 $sw-product-variants-configurator-restrictions-search-background: #f8f9fa;
 $sw-product-variants-configurator-restrictions-search-border: $color-gray-300;
@@ -40,7 +41,7 @@ $sw-product-variants-configurator-restrictions-search-border: $color-gray-300;
 
     .sw-product-variants-configurator-restrictions__modal-main {
         background-color: $sw-product-variants-configurator-restrictions-search-background;
-        padding: 40px 40px 80px 40px;
+        padding: 40px 40px 80px;
         overflow: hidden;
     }
 

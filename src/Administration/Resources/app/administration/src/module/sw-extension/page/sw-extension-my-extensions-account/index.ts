@@ -69,11 +69,14 @@ Shopware.Component.register('sw-extension-my-extensions-account', {
         },
     },
 
-    async created() {
-        await this.createdComponent();
-        // component functions are always bound to this
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        this.unsubscribeStore = State.subscribe(this.showErrorNotification);
+    created() {
+        this.createdComponent().then(() => {
+            // component functions are always bound to this
+            // eslint-disable-next-line @typescript-eslint/unbound-method
+            this.unsubscribeStore = State.subscribe(this.showErrorNotification);
+        })
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            .catch(() => {});
     },
 
     beforeDestroy() {

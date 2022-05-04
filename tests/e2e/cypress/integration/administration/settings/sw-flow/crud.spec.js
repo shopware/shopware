@@ -99,6 +99,10 @@ describe('Flow builder: Test crud operations', () => {
             url: `${Cypress.env('apiPath')}/flow/*`,
             method: 'PATCH'
         }).as('updateData');
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/flow`,
+            method: 'POST'
+        }).as('getFlow');
 
         cy.get('.sw-flow-list').should('be.visible');
 
@@ -137,6 +141,7 @@ describe('Flow builder: Test crud operations', () => {
 
         cy.get('.sw-flow-detail__save').click();
         cy.wait('@updateData').its('response.statusCode').should('equal', 204);
+        cy.wait('@getFlow').its('response.statusCode').should('equal', 200);
         // Verify updated element
         cy.get(page.elements.smartBarBack).click({force: true});
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Order placed v2');

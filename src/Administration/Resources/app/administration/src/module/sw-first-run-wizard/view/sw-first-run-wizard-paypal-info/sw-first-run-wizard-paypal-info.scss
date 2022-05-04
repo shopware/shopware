@@ -28,7 +28,7 @@
     .paymethods {
         flex-grow: 1;
         width: 565px;
-        margin: 0 auto 24px auto;
+        margin: 0 auto 24px;
     }
 
     .paymethod {
@@ -49,7 +49,6 @@
 
     .disclaimer p {
         color: $color-gray-500;
-        //width: 732px;
         font-size: 12px;
         font-weight: normal;
         letter-spacing: 0;

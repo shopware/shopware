@@ -9,7 +9,7 @@ $sw-metadata-item-caption-color: $color-darkgray-200;
 }
 
 .sw-media-quickinfo-metadata-item__description {
-    @include truncate();
+    @include truncate;
 
     font-size: $font-size-small;
 

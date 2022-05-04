@@ -65,6 +65,7 @@
         // fixed height for card / modal content
         // 80vh is modal max-height, subtract size of modal header + footer + card header
         height: calc(80vh - 64px - 72px - 93px);
+
         // prevent weird rounded corners inside modal (occurs during empty state)
         border-radius: 0;
     }

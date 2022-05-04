@@ -1,5 +1,5 @@
-@import '~scss/variables';
-@import '~scss/mixins';
+@import "~scss/variables";
+@import "~scss/mixins";
 
 .sw-meteor-page {
     display: block;
@@ -85,7 +85,7 @@
         top: 100%;
         height: 4px;
         width: 100%;
-        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), transparent);
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 20%), transparent);
     }
 
     .sw-meteor-page__head-area-top-bar-content {
@@ -179,9 +179,10 @@
             min-width: 100%;
 
             .sw-meteor-page__smart-bar-title {
-                @include truncate();
+                @include truncate;
 
                 color: #0c1f34;
+
                 // 1,5 x font-size
                 line-height: 42px;
                 font-size: 28px;

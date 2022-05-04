@@ -13,7 +13,7 @@
         background-color: $color-shopware-brand-50;
         color: $color-shopware-brand-100;
         border-radius: 50%;
-        margin: 0 auto 15px auto;
+        margin: 0 auto 15px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -23,12 +23,12 @@
         display: block;
         font-size: 18px;
         font-weight: normal;
-        margin: 0 0 12px 0;
+        margin: 0 0 12px;
         color: $color-darkgray-200;
         transition: all 0.2s ease-in-out;
 
         &.is--truncate {
-            @include truncate();
+            @include truncate;
 
             display: block;
         }
@@ -39,7 +39,7 @@
         font-size: 14px;
 
         &.is--truncate {
-            @include truncate();
+            @include truncate;
 
             display: block;
         }

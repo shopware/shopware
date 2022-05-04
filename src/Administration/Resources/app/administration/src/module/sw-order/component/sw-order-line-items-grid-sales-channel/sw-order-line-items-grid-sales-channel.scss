@@ -28,7 +28,7 @@ $sw-order-line-item-border: $color-gray-300;
 
     &__quantity {
         &::after {
-            content: 'x';
+            content: "x";
         }
     }
 

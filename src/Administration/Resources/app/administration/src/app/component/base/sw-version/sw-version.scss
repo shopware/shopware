@@ -1,14 +1,14 @@
 @import "~scss/variables";
 @import "~scss/mixins";
 
-$sw-version-font-size-info:  12px;
+$sw-version-font-size-info: 12px;
 
 .sw-version {
     white-space: nowrap;
     width: 100%;
 
     .sw-version__title {
-        @include truncate();
+        @include truncate;
 
         max-width: 200px;
         color: $color-white;
@@ -33,7 +33,7 @@ $sw-version-font-size-info:  12px;
     }
 
     .sw-version__info {
-        @include truncate();
+        @include truncate;
 
         max-width: 200px;
         color: $color-gray-300;

@@ -53,12 +53,12 @@ $sw-grid-column-color-link: $color-shopware-brand-500;
         align-items: center;
         min-height: 64px;
         line-height: 24px;
-        padding: 20px 20px;
+        padding: 20px;
         text-align: left;
         color: $sw-grid-column-content-color-text;
 
         &.is--truncate {
-            @include truncate();
+            @include truncate;
 
             display: block;
         }

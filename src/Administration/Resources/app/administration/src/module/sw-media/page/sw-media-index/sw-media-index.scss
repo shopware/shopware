@@ -1,10 +1,10 @@
 @import "~scss/variables";
 @import "~scss/mixins";
 
-$sw-media-index-font-size-navigation:     $font-size-large;
-$sw-media-index-color-breadcrumb-icon:    $color-darkgray-200;
-$sw-media-index-color-navigation-parent:  $color-gray-300;
-$sw-media-index-page-background-color:    $color-white;
+$sw-media-index-font-size-navigation: $font-size-large;
+$sw-media-index-color-breadcrumb-icon: $color-darkgray-200;
+$sw-media-index-color-navigation-parent: $color-gray-300;
+$sw-media-index-page-background-color: $color-white;
 
 .sw-media-index {
     .sw-media-index__navigation {
@@ -22,7 +22,7 @@ $sw-media-index-page-background-color:    $color-white;
     }
 
     .sw-media-index__navigation-label {
-        @include truncate();
+        @include truncate;
 
         color: $sw-media-index-color-navigation-parent;
         text-decoration: none;

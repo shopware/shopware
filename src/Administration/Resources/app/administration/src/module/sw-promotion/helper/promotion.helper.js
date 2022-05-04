@@ -1,8 +1,8 @@
+import { hasOwnProperty } from 'src/core/service/utils/object.utils';
+
 /**
  * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
  */
-import { hasOwnProperty } from 'src/core/service/utils/object.utils';
-
 export const DiscountTypes = {
     PERCENTAGE: 'percentage',
     ABSOLUTE: 'absolute',
@@ -10,6 +10,9 @@ export const DiscountTypes = {
     FIXED_UNIT: 'fixed_unit',
 };
 
+/**
+ * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
+ */
 export const DiscountScopes = {
     CART: 'cart',
     DELIVERY: 'delivery',
@@ -17,6 +20,9 @@ export const DiscountScopes = {
     SETGROUP: 'setgroup',
 };
 
+/**
+ * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
+ */
 export const PromotionPermissions = {
     isEditingAllowed,
 };

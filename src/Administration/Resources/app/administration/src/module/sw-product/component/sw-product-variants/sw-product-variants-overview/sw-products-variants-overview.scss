@@ -63,7 +63,7 @@ $sw-products-variants-generated-variants-toolbar-border: $color-gray-300;
         display: inline-flex;
 
         &::after {
-            content: '-';
+            content: "-";
             margin: 0 5px;
         }
 

@@ -1,4 +1,4 @@
-@import '~scss/mixins';
+@import "~scss/mixins";
 
 .sw-media-media-item {
     position: relative;
@@ -29,6 +29,6 @@
     }
 
     .sw-media-media-item__metadata {
-        @include truncate();
+        @include truncate;
     }
 }

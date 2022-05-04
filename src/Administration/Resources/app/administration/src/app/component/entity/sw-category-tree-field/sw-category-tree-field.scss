@@ -85,7 +85,7 @@ $sw-category-tree-field-transition-results: all ease-in-out 0.2s;
     height: 350px;
     z-index: 20;
     border: 1px solid $color-gray-100;
-    box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 10%);
     background-color: $color-white;
 
     &.sw-popover__wrapper.--placement-bottom-outside {
@@ -118,7 +118,7 @@ $sw-category-tree-field-transition-results: all ease-in-out 0.2s;
             list-style: none;
             display: flex;
             align-items: center;
-            padding: 0 12px 4px 12px;
+            padding: 0 12px 4px;
             min-height: 40px;
             border-radius: $border-radius-default;
         }
@@ -157,7 +157,7 @@ $sw-category-tree-field-transition-results: all ease-in-out 0.2s;
         }
 
         &::after {
-            content: '';
+            content: "";
             position: absolute;
             z-index: 10;
             top: 0;

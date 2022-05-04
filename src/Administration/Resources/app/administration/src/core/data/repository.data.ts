@@ -631,11 +631,7 @@ export default class Repository {
         Authorization: string,
         'Content-Type': string,
         'sw-api-compatibility': boolean,
-        'sw-language-id'?: string,
-        'sw-currency-id'?: string,
-        'sw-version-id'?: string,
-        'sw-inheritance'?: boolean,
-        [key: string]: unknown,
+        [key: string]: string | number | boolean,
     } {
         const { hasOwnProperty } = Shopware.Utils.object;
         const compatibility = hasOwnProperty(this.options, 'compatibility') ? this.options.compatibility : true;

@@ -63,7 +63,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     public function getMapping(Context $context): array
     {
         return [
-            '_source' => ['includes' => ['id']],
+            '_source' => ['includes' => ['id', 'autoIncrement']],
             'properties' => [
                 'id' => EntityMapper::KEYWORD_FIELD,
                 'parentId' => EntityMapper::KEYWORD_FIELD,
@@ -78,6 +78,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     ],
                 ],
                 'childCount' => EntityMapper::INT_FIELD,
+                'autoIncrement' => EntityMapper::INT_FIELD,
                 'description' => EntityMapper::KEYWORD_FIELD,
                 'displayGroup' => EntityMapper::KEYWORD_FIELD,
                 'height' => EntityMapper::FLOAT_FIELD,
@@ -437,6 +438,7 @@ SELECT
     IFNULL(p.stock, pp.stock) AS stock,
     p.purchase_prices as purchasePrices,
     p.price as price,
+    p.auto_increment as autoIncrement,
     GROUP_CONCAT(CONCAT(product_visibility.visibility, ',', LOWER(HEX(product_visibility.sales_channel_id))) SEPARATOR '|') AS visibilities,
     p.display_group as displayGroup,
     IFNULL(p.cheapest_price_accessor, pp.cheapest_price_accessor) as cheapest_price_accessor,

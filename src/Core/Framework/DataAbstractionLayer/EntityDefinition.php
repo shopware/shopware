@@ -6,6 +6,7 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -266,6 +267,11 @@ abstract class EntityDefinition
         $this->getFields();
 
         return $this->translationField;
+    }
+
+    final public function hasAutoIncrement(): bool
+    {
+        return $this->getField('autoIncrement') instanceof AutoIncrementField;
     }
 
     final public function getPrimaryKeys(): CompiledFieldCollection

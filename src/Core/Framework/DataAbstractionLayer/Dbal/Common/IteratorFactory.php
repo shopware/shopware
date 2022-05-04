@@ -24,7 +24,7 @@ class IteratorFactory
         $query->from($escaped);
         $query->setMaxResults($limit);
 
-        if ($definition->getFields()->has('autoIncrement')) {
+        if ($definition->hasAutoIncrement()) {
             $query->select([$escaped . '.auto_increment', 'LOWER(HEX(' . $escaped . '.id)) as id']);
             $query->andWhere($escaped . '.auto_increment > :lastId');
             $query->addOrderBy($escaped . '.auto_increment');

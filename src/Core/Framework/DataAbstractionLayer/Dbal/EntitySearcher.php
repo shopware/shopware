@@ -5,12 +5,17 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 
 /**
  * Used for all search operations in the system.
@@ -43,18 +48,30 @@ class EntitySearcher implements EntitySearcherInterface
 
         $table = $definition->getEntityName();
 
-        $fields = $definition->getPrimaryKeys();
-
         $query = new QueryBuilder($this->connection);
 
-        foreach ($fields as $field) {
-            if ($field instanceof ReferenceVersionField || $field instanceof VersionField) {
+        $fields = [];
+        foreach ($definition->getFields() as $field) {
+            if (!$field instanceof StorageAware || $field instanceof ReferenceVersionField || $field instanceof VersionField) {
                 continue;
             }
-            if (!$field instanceof StorageAware) {
-                continue;
-            }
+            if ($field instanceof NumberRangeField) {
+                $fields[$field->getStorageName()] = $field;
 
+                continue;
+            }
+            if ($field instanceof AutoIncrementField) {
+                $fields[$field->getStorageName()] = $field;
+
+                continue;
+            }
+            if ($field->is(PrimaryKey::class)) {
+                $fields[$field->getStorageName()] = $field;
+            }
+        }
+
+        /** @var StorageAware $field */
+        foreach ($fields as $field) {
             $query->addSelect(
                 EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName())
             );
@@ -98,19 +115,31 @@ class EntitySearcher implements EntitySearcherInterface
             $data = [];
 
             foreach ($row as $storageName => $value) {
-                $field = $fields->getByStorageName($storageName);
+                $field = $fields[$storageName] ?? null;
 
-                if ($field) {
-                    $value = $field->getSerializer()->decode($field, $value);
+                if (!$field) {
+                    $data[$storageName] = $value;
 
-                    /*
-                     * @deprecated tag:v6.5.0 - The keys of IdSearchResult should always be field's propertyName instead of storageName
-                     */
-                    $pk[$storageName] = $value;
-                    $pk[$field->getPropertyName()] = $value;
+                    continue;
                 }
 
-                $data[$storageName] = $value;
+                $value = $field->getSerializer()->decode($field, $value);
+
+                // @deprecated tag:v6.5.0 - The keys of IdSearchResult should always be field's propertyName instead of storageName
+                $data[$field->getPropertyName()] = $value;
+                if (!Feature::isActive('v6.5.0.0')) {
+                    $data[$storageName] = $value;
+                }
+
+                if (!$field->is(PrimaryKey::class)) {
+                    continue;
+                }
+
+                // @deprecated tag:v6.5.0 - The keys of IdSearchResult should always be field's propertyName instead of storageName
+                $pk[$field->getPropertyName()] = $value;
+                if (!Feature::isActive('v6.5.0.0')) {
+                    $pk[$storageName] = $value;
+                }
             }
 
             /**

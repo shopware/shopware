@@ -44,6 +44,11 @@ class IdsCollection
         return Uuid::fromHexToBytes($this->get($key));
     }
 
+    public function getByteList(array $keys): array
+    {
+        return Uuid::fromHexToBytesList($this->getList($keys));
+    }
+
     public function getList(array $keys): array
     {
         $ordered = [];

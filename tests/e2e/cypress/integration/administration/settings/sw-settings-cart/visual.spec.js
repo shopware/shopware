@@ -28,6 +28,7 @@ describe('Cart settings: Visual testing', () => {
             .its('response.statusCode').should('equal', 200);
         cy.get('.sw-card__title').contains('Cart');
         cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('[Cart settings] Detail', '.sw-settings-cart');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Cart settings] Detail', '.sw-settings-cart', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

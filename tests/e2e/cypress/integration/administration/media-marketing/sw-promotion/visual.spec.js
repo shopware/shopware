@@ -63,7 +63,8 @@ describe('Promotion: Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('[Promotion] detail', '.sw-promotion-detail');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Promotion] detail', '.sw-promotion-detail', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
@@ -92,7 +93,8 @@ describe('Promotion: Visual tests', () => {
         cy.get('#sw-field--discount-type').select('Fixed item price');
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('[Promotion] detail - discounts', '.sw-promotion-discount-component');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Promotion] detail - discounts', '.sw-promotion-discount-component', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         // Save final promotion
         cy.get('.sw-promotion-detail__save-action').click();

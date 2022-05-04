@@ -27,6 +27,7 @@ describe('SEO: Visual testing', () => {
 
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
-        cy.takeSnapshot('[SEO] Details', '.sw-seo-url-template-card');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[SEO] Details', '.sw-seo-url-template-card', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

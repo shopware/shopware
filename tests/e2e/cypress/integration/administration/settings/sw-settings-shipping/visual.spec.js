@@ -34,11 +34,13 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-data-grid__cell--0 > .sw-data-grid__cell-content').click('right');
 
         cy.sortAndCheckListingAscViaColumn('Name', 'Express');
-        cy.takeSnapshot('[Shipping] Listing', '.sw-settings-shipping-list');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Shipping] Listing', '.sw-settings-shipping-list', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.contains('.sw-data-grid__cell--name a', 'Express').click();
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-media-upload-v2__header .sw-context-button__button').should('be.visible');
-        cy.takeSnapshot('[Shipping] Details', '.sw-card__content');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Shipping] Details', '.sw-card__content', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

@@ -15,6 +15,7 @@ describe('Profile: Visual tests', () => {
         cy.get('.sw-card__title').contains(/Profile information|Profile image|Password/g);
         cy.get('.sw-media-upload-v2__header .sw-context-button__button').should('be.visible');
         cy.get('.sw-loader-element').should('not.exist');
-        cy.takeSnapshot('[Profile] Detail', '.sw-profile-index-general');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Profile] Detail', '.sw-profile-index-general', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

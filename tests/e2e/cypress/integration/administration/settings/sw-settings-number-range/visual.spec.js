@@ -36,7 +36,8 @@ describe('Number range: Visual testing', () => {
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
         // Take Snapshot
-        cy.takeSnapshot('[Number range] Listing', '.sw-settings-number-range-list-grid');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Number range] Listing', '.sw-settings-number-range-list-grid', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.contains('.sw-data-grid__cell--name a', 'Delivery notes').click();
 
@@ -51,6 +52,7 @@ describe('Number range: Visual testing', () => {
         cy.contains('.sw-button-process', 'Save').should('be.visible');
 
         // Take Snapshot
-        cy.takeSnapshot('[Number range] Details', '.sw-number_range-quickinfo__alert-global-type');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Number range] Details', '.sw-settings-number-range-detail-assignment', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

@@ -29,11 +29,13 @@ describe('Feature sets: Visual testing', () => {
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
-        cy.takeSnapshot('[Feature sets] Listing', '.sw-settings-product-feature-sets-list-grid');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Feature sets] Listing', '.sw-settings-product-feature-sets-list-grid', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
         cy.contains('.sw-data-grid__cell--name a', 'Default').click();
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-loader__element').should('not.exist');
 
-        cy.takeSnapshot('[Feature sets] Details', '.sw-product-feature-set__toolbar');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Feature sets] Details', '.sw-product-feature-set__toolbar', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

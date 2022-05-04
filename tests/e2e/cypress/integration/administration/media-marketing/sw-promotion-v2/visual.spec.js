@@ -55,7 +55,8 @@ describe('Promotion v2: Visual tests', () => {
         // Take snapshot for visual testing
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.get('.sw-promotion-v2-empty-state-hero').should('not.exist');
-        cy.takeSnapshot('[Promotion] Listing', '.sw-promotion-v2-list');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Promotion] Listing', '.sw-promotion-v2-list', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('a[href="#/sw/promotion/v2/create"]').click();
 
@@ -72,7 +73,8 @@ describe('Promotion v2: Visual tests', () => {
         cy.get('.sw-loader').should('not.exist');
         cy.contains('General settings').click();
         cy.get('.sw-tooltip').should('not.exist');
-        cy.takeSnapshot('[Promotion] Detail', '.sw-promotion-v2-detail');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Promotion] Detail', '.sw-promotion-v2-detail', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
@@ -98,7 +100,8 @@ describe('Promotion v2: Visual tests', () => {
         cy.get('#sw-field--discount-type').select('Fixed item price');
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('[Promotion] Detail, discounts', '.sw-promotion-discount-component');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Promotion] Detail, discounts', '.sw-promotion-discount-component', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         // Save final promotion
         cy.get('.sw-promotion-v2-detail__save-action').click();

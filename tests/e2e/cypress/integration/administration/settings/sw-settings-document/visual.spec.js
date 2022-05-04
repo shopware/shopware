@@ -28,11 +28,13 @@ describe('Documents: Visual testing', () => {
             .its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
-        cy.takeSnapshot('[Documents] Listing', '.sw-settings-document-list-grid');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Documents] Listing', '.sw-settings-document-list-grid', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.contains('.sw-document-list__column-name a', 'credit_note').click();
         cy.get('.sw-page__main-content').should('be.visible');
         cy.get('.sw-skeleton__detail').should('not.exist');
-        cy.takeSnapshot('[Documents] Details', '.sw-settings-document-detail');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Documents] Details', '.sw-settings-document-detail', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

@@ -31,6 +31,7 @@ describe('Cache: Visual testing', () => {
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
         cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('[Cache] Detail', '.sw-settings-cache');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Cache] Detail', '.sw-settings-cache', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

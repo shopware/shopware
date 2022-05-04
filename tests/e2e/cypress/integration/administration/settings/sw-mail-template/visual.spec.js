@@ -49,6 +49,7 @@ describe('Mail templates: Check module navigation in settings', () => {
         cy.get('.sw-media-upload-v2__dropzone').should('be.visible');
         cy.get('.sw-media-upload-v2__switch-mode .sw-context-button__button').should('be.visible');
 
-        cy.takeSnapshot('[Mail templates] Details', '.sw-mail-template-detail');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Mail templates] Details', '.sw-mail-template-detail', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

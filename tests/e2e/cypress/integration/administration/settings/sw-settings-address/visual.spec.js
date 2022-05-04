@@ -26,6 +26,7 @@ describe('Address settings: Visual testing', () => {
             .its('response.statusCode').should('equal', 200);
         cy.get('.sw-card__title').contains('Address');
         cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('[Address settings] Details', '.sw-settings-address');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Address settings] Details', '.sw-settings-address', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

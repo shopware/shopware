@@ -38,7 +38,8 @@ describe('Manufacturer: Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-skeleton__listing').should('not.exist');
-        cy.takeSnapshot('[Manufacturer] Listing', '.sw-data-grid--full-page');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Manufacturer] Listing', '.sw-data-grid--full-page', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         // Edit base data
         cy.get(`${page.elements.dataGridRow}--0 a`).click();
@@ -48,6 +49,7 @@ describe('Manufacturer: Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-media-upload-v2__header .sw-context-button__button').should('be.visible');
-        cy.takeSnapshot('[Manufacturer] Detail', '.sw-manufacturer-detail');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Manufacturer] Detail', '.sw-manufacturer-detail', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

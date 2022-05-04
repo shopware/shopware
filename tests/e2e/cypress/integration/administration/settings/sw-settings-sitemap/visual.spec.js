@@ -28,6 +28,7 @@ describe('Sitemap: Visual testing', () => {
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
         cy.get('.sw-system-config').should('be.visible');
-        cy.takeSnapshot('[Sitemap] Detail', '.sw-card__toolbar');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Sitemap] Detail', '.sw-card__toolbar', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

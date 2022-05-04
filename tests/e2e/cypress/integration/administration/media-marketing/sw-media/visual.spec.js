@@ -72,7 +72,8 @@ describe('Media: Visual tests', () => {
         }
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('[Media] Listing', '.sw-media-library');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Media] Listing', '.sw-media-library', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 
     it('@visual: check appearance of basic product media workflow', () => {
@@ -103,7 +104,8 @@ describe('Media: Visual tests', () => {
         cy.awaitAndCheckNotification('File has been saved.');
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('[Product] Detail,  with image', '.sw-product-image__image');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Product] Detail,  with image', '.sw-product-image__image', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         // Save product
         cy.get(page.elements.productSaveAction).click();

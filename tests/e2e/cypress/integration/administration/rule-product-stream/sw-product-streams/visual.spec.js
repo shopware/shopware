@@ -35,7 +35,8 @@ describe('Dynamic product groups: Visual tests', () => {
         );
         cy.get('.sw-data-grid__cell--updatedAt')
             .should('have.css', 'color', 'rgb(255, 255, 255)');
-        cy.takeSnapshot('[Product groups] Listing', '.sw-product-stream-list');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Product groups] Listing', '.sw-product-stream-list', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get(page.elements.smartBarHeader).contains('Dynamic product groups');
 
@@ -72,7 +73,8 @@ describe('Dynamic product groups: Visual tests', () => {
         cy.get('.sw-modal__header').contains('Preview (1)');
 
         cy.handleModalSnapshot('Preview');
-        cy.takeSnapshot('[Product groups] Detail, preview', '.sw-product-stream-modal-preview .sw-data-grid__row--0');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Product groups] Detail, preview', '.sw-product-stream-modal-preview .sw-data-grid__row--0', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('.sw-product-stream-modal-preview').within(() => {
             cy.get('.sw-data-grid .sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Product name');
@@ -90,7 +92,8 @@ describe('Dynamic product groups: Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-select-selection-list__input').type('{esc}');
-        cy.takeSnapshot('[Product groups] Detail, with conditions', '.sw-product-stream-detail');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Product groups] Detail, with conditions', '.sw-product-stream-detail', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('.sw-condition-or-container__actions > :nth-child(1) > .sw-button')
             .click();
@@ -101,6 +104,7 @@ describe('Dynamic product groups: Visual tests', () => {
         cy.get('.sw-select-result-list__content')
             .should('be.visible');
 
-        cy.takeSnapshot('[Product groups] Detail, with popover menu', '.sw-product-stream-detail');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Product groups] Detail, with popover menu', '.sw-product-stream-detail', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

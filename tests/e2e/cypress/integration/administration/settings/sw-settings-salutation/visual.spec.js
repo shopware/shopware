@@ -27,10 +27,12 @@ describe('Salutation: Visual tesing', () => {
         cy.wait('@getData')
             .its('response.statusCode').should('equal', 200);
         cy.get('.sw-data-grid-skeleton').should('not.exist');
-        cy.takeSnapshot('[Salutation] Listing', '.sw-settings-salutation-list-grid');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Salutation] Listing', '.sw-settings-salutation-list-grid', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.contains('.sw-data-grid__cell--salutationKey', 'mr').click();
         cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('[Salutation] Details', '.sw-card__content');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Salutation] Details', '.sw-card__content', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

@@ -34,6 +34,7 @@ describe('Mailer: Visual testing', () => {
         cy.get('.sw-settings-mailer__radio-selection select').select('SMTP server');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-settings-mailer__input-fields').should('be.visible');
-        cy.takeSnapshot('[Mailer] Details', '.sw-settings-mailer__input-fields');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Mailer] Details', '.sw-settings-mailer__input-fields', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

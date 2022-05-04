@@ -59,7 +59,8 @@ describe('Property: Visual tests', () => {
 
         cy.get('.sw-data-grid__cell--options')
             .should('have.css', 'color', 'rgb(255, 255, 255)');
-        cy.takeSnapshot('[Property] Listing', '.sw-property-list');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Property] Listing', '.sw-property-list', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         // Add option to property group
         cy.clickContextMenuItem(
@@ -77,7 +78,8 @@ describe('Property: Visual tests', () => {
         cy.contains('.sw-data-grid__row--0 .sw-data-grid__cell--position', '1').should('be.visible');
         cy.contains('.sw-data-grid__row--1 .sw-data-grid__cell--position', '2').should('be.visible');
         cy.contains('.sw-data-grid__row--2 .sw-data-grid__cell--position', '3').should('be.visible');
-        cy.takeSnapshot('[Property] Detail, Group', '.sw-property-option-list');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Property] Detail, Group', '.sw-property-option-list', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('.sw-property-option-list').scrollIntoView();
         cy.get('.sw-property-option-list__add-button').click();
@@ -87,6 +89,7 @@ describe('Property: Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.handleModalSnapshot('New value');
-        cy.takeSnapshot('[Property] Detail, Option modal', '#sw-field--currentOption-name');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Property] Detail, Option modal', '#sw-field--currentOption-name', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

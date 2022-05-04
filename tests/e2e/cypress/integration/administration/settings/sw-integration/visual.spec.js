@@ -39,6 +39,7 @@ describe('Integration: Visual testing', () => {
         cy.handleModalSnapshot('Edit: chat-key');
 
         cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('[Integration] Detail', '#sw-field--currentIntegration-label');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Integration] Detail', '#sw-field--currentIntegration-label', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

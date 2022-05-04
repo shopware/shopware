@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Theme\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -92,7 +93,7 @@ class ThemeIndexer extends EntityIndexer
             $this->connection->executeStatement(
                 'INSERT IGNORE INTO theme_child (child_id, parent_id)
                     (
-                        SELECT id as child_id, parent_theme_id as parent_id FROM theme 
+                        SELECT id as child_id, parent_theme_id as parent_id FROM theme
                         WHERE parent_theme_id IS NOT NULL AND id IN (:ids) AND technical_name IS NULL
                     )
                 ',
@@ -114,7 +115,7 @@ class ThemeIndexer extends EntityIndexer
         throw new DecorationPatternException(static::class);
     }
 
-    private function getIterator(?array $offset): \Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery
+    private function getIterator(?array $offset): IterableQuery
     {
         return $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);
     }

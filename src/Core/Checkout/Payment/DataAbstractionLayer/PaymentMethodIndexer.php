@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class PaymentMethodIndexer extends EntityIndexer
@@ -78,5 +79,15 @@ class PaymentMethodIndexer extends EntityIndexer
         $this->distinguishableNameGenerator->generateDistinguishablePaymentNames($message->getContext());
 
         $this->eventDispatcher->dispatch(new PaymentMethodIndexerEvent($ids, $message->getContext(), $message->getSkip()));
+    }
+
+    public function getTotal(): int
+    {
+        return $this->iteratorFactory->createIterator($this->paymentMethodRepository->getDefinition())->fetchCount();
+    }
+
+    public function getDecorated(): EntityIndexer
+    {
+        throw new DecorationPatternException(static::class);
     }
 }

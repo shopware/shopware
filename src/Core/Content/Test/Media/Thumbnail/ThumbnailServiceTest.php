@@ -65,7 +65,8 @@ class ThumbnailServiceTest extends TestCase
 
         $this->thumbnailService->updateThumbnails(
             $media,
-            $this->context
+            $this->context,
+            false
         );
 
         $this->runWorker();
@@ -110,7 +111,8 @@ class ThumbnailServiceTest extends TestCase
         $this->expectException(FileNotFoundException::class);
         $this->thumbnailService->updateThumbnails(
             $media,
-            $this->context
+            $this->context,
+            false
         );
     }
 
@@ -125,7 +127,8 @@ class ThumbnailServiceTest extends TestCase
         $this->expectException(FileTypeNotSupportedException::class);
         $this->thumbnailService->updateThumbnails(
             $media,
-            $this->context
+            $this->context,
+            false
         );
     }
 
@@ -155,7 +158,8 @@ class ThumbnailServiceTest extends TestCase
 
         $this->thumbnailService->updateThumbnails(
             $media,
-            $this->context
+            $this->context,
+            false
         );
 
         $this->runWorker();
@@ -191,7 +195,8 @@ class ThumbnailServiceTest extends TestCase
 
         $this->thumbnailService->updateThumbnails(
             $media,
-            $this->context
+            $this->context,
+            false
         );
 
         /** @var MediaEntity $updatedMedia */
@@ -274,7 +279,8 @@ class ThumbnailServiceTest extends TestCase
 
         static::assertEquals(0, $this->thumbnailService->updateThumbnails(
             $media,
-            $this->context
+            $this->context,
+            false
         ));
     }
 
@@ -286,7 +292,8 @@ class ThumbnailServiceTest extends TestCase
 
         static::assertEquals(0, $this->thumbnailService->updateThumbnails(
             $media,
-            $this->context
+            $this->context,
+            false
         ));
     }
 
@@ -298,7 +305,8 @@ class ThumbnailServiceTest extends TestCase
 
         static::assertEquals(0, $this->thumbnailService->updateThumbnails(
             $media,
-            $this->context
+            $this->context,
+            false
         ));
     }
 

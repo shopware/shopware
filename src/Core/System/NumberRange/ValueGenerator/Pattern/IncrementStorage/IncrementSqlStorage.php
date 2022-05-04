@@ -32,8 +32,8 @@ class IncrementSqlStorage extends AbstractIncrementStorage implements IncrementS
     public function pullState(NumberRangeEntity $configuration): string
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'IncrementSqlStorage::reserve()'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'IncrementSqlStorage::reserve()')
         );
 
         $config = [
@@ -51,8 +51,8 @@ class IncrementSqlStorage extends AbstractIncrementStorage implements IncrementS
     public function getNext(NumberRangeEntity $configuration): string
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'IncrementSqlStorage::preview()'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'IncrementSqlStorage::preview()')
         );
 
         $config = [

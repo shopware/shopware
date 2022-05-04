@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class PromotionIndexer extends EntityIndexer
@@ -106,6 +107,16 @@ class PromotionIndexer extends EntityIndexer
             self::EXCLUSION_UPDATER,
             self::REDEMPTION_UPDATER,
         ];
+    }
+
+    public function getTotal(): int
+    {
+        return $this->iteratorFactory->createIterator($this->repository->getDefinition())->fetchCount();
+    }
+
+    public function getDecorated(): EntityIndexer
+    {
+        throw new DecorationPatternException(static::class);
     }
 
     private function isGeneratingIndividualCode(EntityWrittenContainerEvent $event): bool

@@ -45,8 +45,8 @@ class ThemeAssetPackage extends FallbackUrlPackage
          */
         if (str_starts_with($url, '/bundles') || str_starts_with($url, '/theme/')) {
             Feature::triggerDeprecationOrThrow(
-                'Accessing "theme" asset with "/bundles" or "/themes" prefixed path will be removed with 6.5.0.0',
-                'v6.5.0.0'
+                'v6.5.0.0',
+                'Accessing "theme" asset with "/bundles" or "/themes" prefixed path will be removed with 6.5.0.0'
             );
 
             $url = $this->getVersionStrategy()->applyVersion($url);

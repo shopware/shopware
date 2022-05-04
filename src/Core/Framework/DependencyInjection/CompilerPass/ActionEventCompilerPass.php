@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Event\Annotation\Event;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Shopware\Core\Framework\Event\BusinessEvents;
+use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -18,9 +20,10 @@ class ActionEventCompilerPass implements CompilerPassInterface
         $classes = [];
         /** @var BusinessEventInterface $eventClass */
         foreach ($this->getEventClasses() as $eventClass) {
-            if (!is_subclass_of($eventClass, BusinessEventInterface::class, true)) {
+            if (!is_subclass_of($eventClass, FlowEventAware::class, true)) {
                 continue;
             }
+
             $classes[] = $eventClass;
         }
 
@@ -42,6 +45,12 @@ class ActionEventCompilerPass implements CompilerPassInterface
         foreach ($reflectionClass->getReflectionConstants() as $constant) {
             foreach ($docParser->parse($constant->getDocComment(), $reflectionClass->getName()) as $annotation) {
                 if ($annotation instanceof Event) {
+                    $deprecationVersion = $annotation->getDeprecationVersion();
+
+                    if ($deprecationVersion && Feature::isActive($deprecationVersion)) {
+                        continue;
+                    }
+
                     $eventClasses[$constant->getValue()] = $annotation->getEventClass();
                 }
             }

@@ -187,8 +187,8 @@ class ApiController extends AbstractController
     public function compositeSearch(Request $request, Context $context): JsonResponse
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'Shopware\Administration\Controller\AdminSearchController::search()'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'Shopware\Administration\Controller\AdminSearchController::search()')
         );
 
         $term = (string) $request->query->get('term');

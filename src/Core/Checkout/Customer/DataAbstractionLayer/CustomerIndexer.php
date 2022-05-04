@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class CustomerIndexer extends EntityIndexer
@@ -104,5 +105,15 @@ class CustomerIndexer extends EntityIndexer
             self::MANY_TO_MANY_ID_FIELD_UPDATER,
             self::NEWSLETTER_SALES_CHANNELS_UPDATER,
         ];
+    }
+
+    public function getTotal(): int
+    {
+        return $this->iteratorFactory->createIterator($this->repository->getDefinition())->fetchCount();
+    }
+
+    public function getDecorated(): EntityIndexer
+    {
+        throw new DecorationPatternException(static::class);
     }
 }

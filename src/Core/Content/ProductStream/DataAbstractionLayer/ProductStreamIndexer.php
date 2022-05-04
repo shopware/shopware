@@ -16,6 +16,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestExceptio
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -62,6 +64,13 @@ class ProductStreamIndexer extends EntityIndexer
      */
     public function iterate(/*?array */$offset): ?EntityIndexingMessage
     {
+        if ($offset !== null && !\is_array($offset)) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'Parameter `$offset` of method "iterate()" in class "ProductStreamIndexer" will be natively typed to `?array` in v6.5.0.0.'
+            );
+        }
+
         $iterator = $this->iteratorFactory->createIterator($this->repository->getDefinition(), $offset);
 
         $ids = $iterator->fetch();
@@ -130,6 +139,16 @@ class ProductStreamIndexer extends EntityIndexer
         }
 
         $this->eventDispatcher->dispatch(new ProductStreamIndexerEvent($ids, $message->getContext(), $message->getSkip()));
+    }
+
+    public function getTotal(): int
+    {
+        return $this->iteratorFactory->createIterator($this->repository->getDefinition())->fetchCount();
+    }
+
+    public function getDecorated(): EntityIndexer
+    {
+        throw new DecorationPatternException(static::class);
     }
 
     private function buildPayload(array $filter): string

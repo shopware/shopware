@@ -1072,8 +1072,8 @@ class SalesChannelEntity extends Entity
     public function getEventActions(): ?EventActionCollection
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
         );
 
         return $this->eventActions;
@@ -1085,8 +1085,8 @@ class SalesChannelEntity extends Entity
     public function setEventActions(EventActionCollection $eventActions): void
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
         );
 
         $this->eventActions = $eventActions;

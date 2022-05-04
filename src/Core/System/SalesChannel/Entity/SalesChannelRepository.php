@@ -74,8 +74,8 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
             $this->eventFactory = $eventFactory;
         } else {
             Feature::triggerDeprecationOrThrow(
-                sprintf('SalesChannelRepository constructor for definition %s requires the event factory as required 6th parameter in v6.5.0.0', $definition->getEntityName()),
-                'v6.5.0.0'
+                'v6.5.0.0',
+                sprintf('SalesChannelRepository constructor for definition %s requires the event factory as required 6th parameter in v6.5.0.0', $definition->getEntityName())
             );
         }
     }
@@ -86,8 +86,8 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
     public function setEntityLoadedEventFactory(EntityLoadedEventFactory $eventFactory): void
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
         );
 
         $this->eventFactory = $eventFactory;

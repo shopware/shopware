@@ -20,6 +20,7 @@ use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 
 class ThumbnailService
 {
@@ -113,13 +114,18 @@ class ThumbnailService
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Use `generate` instead
+     * @deprecated tag:v6.5.0 - Will be removed, use `generate` instead
      *
      * @throws FileTypeNotSupportedException
      * @throws ThumbnailCouldNotBeSavedException
      */
     public function generateThumbnails(MediaEntity $media, Context $context): int
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'generate()')
+        );
+
         if (!$this->mediaCanHaveThumbnails($media, $context)) {
             $this->deleteAssociatedThumbnails($media, $context);
 
@@ -161,6 +167,13 @@ class ThumbnailService
      */
     public function updateThumbnails(MediaEntity $media, Context $context /* , bool $strict = false */): int
     {
+        if (\func_num_args() < 3) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'Third parameter $strict of method `updateThumbnails()` in `ThumbnailService` will be required in v6.5.0.0'
+            );
+        }
+
         if (!$this->mediaCanHaveThumbnails($media, $context)) {
             $this->deleteAssociatedThumbnails($media, $context);
 

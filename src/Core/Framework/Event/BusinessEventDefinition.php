@@ -89,8 +89,8 @@ class BusinessEventDefinition extends Struct
     public function isMailAware(): bool
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'BusinessEventDefinition::getAware()'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'BusinessEventDefinition::getAware()')
         );
 
         return $this->mailAware;
@@ -102,8 +102,8 @@ class BusinessEventDefinition extends Struct
     public function setMailAware(bool $mailAware): void
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'BusinessEventDefinition::addAware()'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'BusinessEventDefinition::addAware()')
         );
 
         $this->mailAware = $mailAware;
@@ -115,8 +115,8 @@ class BusinessEventDefinition extends Struct
     public function isLogAware(): bool
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'BusinessEventDefinition::getAware()'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'BusinessEventDefinition::getAware()')
         );
 
         return $this->logAware;
@@ -128,8 +128,8 @@ class BusinessEventDefinition extends Struct
     public function setLogAware(bool $logAware): void
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'BusinessEventDefinition::addAware()'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'BusinessEventDefinition::addAware()')
         );
 
         $this->logAware = $logAware;
@@ -156,8 +156,8 @@ class BusinessEventDefinition extends Struct
     public function isSalesChannelAware(): bool
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'BusinessEventDefinition::getAware()'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'BusinessEventDefinition::getAware()')
         );
 
         return $this->salesChannelAware;
@@ -169,8 +169,8 @@ class BusinessEventDefinition extends Struct
     public function setSalesChannelAware(bool $salesChannelAware): void
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'BusinessEventDefinition::addAware()'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'BusinessEventDefinition::addAware()')
         );
 
         $this->salesChannelAware = $salesChannelAware;

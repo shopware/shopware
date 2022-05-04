@@ -3,6 +3,7 @@
 namespace Shopware\Docs\Test;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Docs\Command\App\DocsAppEventCommand;
 
@@ -12,6 +13,9 @@ class DocsAppEventCommandTest extends TestCase
 
     public function testUptoDateEventDoc(): void
     {
+        // Always check if the docs are up-to-date for the current minor branch
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $docsAppEventCommand = $this->getContainer()->get(DocsAppEventCommand::class);
 
         $savedContents = @file_get_contents($docsAppEventCommand->getListEventPath()) ?: '';

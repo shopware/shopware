@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\Struct;
 
 class AvailableCombinationResult extends Struct
@@ -29,11 +30,17 @@ class AvailableCombinationResult extends Struct
     }
 
     /**
-     * @deprecated tag:v6.5.0
-     * Parameter $available will be mandatory in future implementation
+     * @deprecated tag:v6.5.0 - Parameter $available will be mandatory in future implementation
      */
     public function addCombination(array $optionIds, bool $available = true): void
     {
+        if (\func_num_args() < 2) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'Second parameter $available of method `addCombination()` in `AvailableCombinationResult` will be required in v6.5.0.0.'
+            );
+        }
+
         $hash = $this->calculateHash($optionIds);
         $this->hashes[$hash] = true;
         $this->combinations[$hash] = $optionIds;

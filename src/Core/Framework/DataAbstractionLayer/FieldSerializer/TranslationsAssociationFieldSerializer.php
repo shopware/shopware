@@ -103,7 +103,7 @@ class TranslationsAssociationFieldSerializer implements FieldSerializerInterface
                 } elseif (isset($subResources['language']['id'])) {
                     $languageId = $subResources['language']['id'];
                 } else {
-                    throw new MissingTranslationLanguageException($path, $keyValue);
+                    throw new MissingTranslationLanguageException($path, (int) $keyValue);
                 }
             } elseif ($languagePropName) {
                 // the key is the language id, also write it into $subResources

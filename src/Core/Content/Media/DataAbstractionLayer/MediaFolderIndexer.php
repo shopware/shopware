@@ -13,6 +13,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -61,6 +63,13 @@ class MediaFolderIndexer extends EntityIndexer
      */
     public function iterate(/*?array */$offset): ?EntityIndexingMessage
     {
+        if ($offset !== null && !\is_array($offset)) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'Parameter `$offset` of method "iterate()" in class "MediaFolderIndexer" will be natively typed to `?array` in v6.5.0.0.'
+            );
+        }
+
         $iterator = $this->iteratorFactory->createIterator($this->folderRepository->getDefinition(), $offset);
 
         $ids = $iterator->fetch();
@@ -162,6 +171,16 @@ class MediaFolderIndexer extends EntityIndexer
             self::CHILD_COUNT_UPDATER,
             self::TREE_UPDATER,
         ];
+    }
+
+    public function getTotal(): int
+    {
+        return $this->iteratorFactory->createIterator($this->folderRepository->getDefinition())->fetchCount();
+    }
+
+    public function getDecorated(): EntityIndexer
+    {
+        throw new DecorationPatternException(static::class);
     }
 
     private function fetchChildren(array $parentIds): array

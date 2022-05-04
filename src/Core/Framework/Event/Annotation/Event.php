@@ -10,18 +10,29 @@ use Doctrine\Common\Annotations\Annotation;
  */
 class Event
 {
-    /**
-     * @var string
-     */
-    private $eventClass;
+    private string $eventClass;
+
+    private ?string $deprecationVersion = null;
 
     public function __construct(array $values)
     {
+        if (\is_array($values['value'])) {
+            $this->eventClass = $values['value'][0];
+            $this->deprecationVersion = $values['value'][1];
+
+            return;
+        }
+
         $this->eventClass = $values['value'];
     }
 
     public function getEventClass(): string
     {
         return $this->eventClass;
+    }
+
+    public function getDeprecationVersion(): ?string
+    {
+        return $this->deprecationVersion;
     }
 }

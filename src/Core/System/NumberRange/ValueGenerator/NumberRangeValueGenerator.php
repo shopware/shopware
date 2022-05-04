@@ -73,8 +73,8 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
     protected function createPreviewConfiguration(string $definition, ?string $pattern, int $start): void
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
         );
     }
 
@@ -84,8 +84,8 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
     protected function readConfiguration(string $definition, Context $context, ?string $salesChannelId): void
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
         );
     }
 

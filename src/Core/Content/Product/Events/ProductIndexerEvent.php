@@ -68,8 +68,8 @@ class ProductIndexerEvent extends NestedEvent implements ProductChangedEventInte
     public function getChildrenIds(): array
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
         );
 
         return $this->childrenIds;
@@ -81,8 +81,8 @@ class ProductIndexerEvent extends NestedEvent implements ProductChangedEventInte
     public function getParentIds(): array
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
         );
 
         return $this->parentIds;

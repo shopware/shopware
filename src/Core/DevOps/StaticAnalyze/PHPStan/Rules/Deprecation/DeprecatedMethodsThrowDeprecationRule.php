@@ -60,8 +60,15 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
 
         $method = $class->getMethod($node->name->name, $scope);
 
-        $methodDeprecation = $method->getDeprecatedDescription();
-        if ($methodDeprecation && !$this->handlesDeprecationCorrectly($methodDeprecation, $methodContent)) {
+        $methodDeprecation = $method->getDeprecatedDescription() ?? '';
+
+        // by default deprecations from parent methods are also available on all implementing methods
+        // we will copy the deprecation to the implementing method, if they also have an affect there
+        $deprecationOfParentMethod = !str_contains($method->getDocComment() ?? '', $methodDeprecation) && !str_contains($method->getDocComment() ?? '', 'inheritdoc');
+
+        if (!$deprecationOfParentMethod && $methodDeprecation && !$this->handlesDeprecationCorrectly($methodDeprecation, $methodContent)) {
+            var_dump($methodDeprecation);
+
             return [
                 \sprintf(
                     'Method "%s" of class "%s" is marked as deprecated, but does not call "Feature::triggerDeprecationOrThrow". All deprecated methods need to trigger a deprecation warning.',

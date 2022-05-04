@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Processing\Mapping;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\Struct;
 
 class Mapping extends Struct
@@ -81,6 +82,11 @@ class Mapping extends Struct
      */
     public function getDefault()
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'getDefaultValue()')
+        );
+
         return $this->default;
     }
 
@@ -89,6 +95,11 @@ class Mapping extends Struct
      */
     public function getMappedDefault()
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'getDefaultValue()')
+        );
+
         return $this->mappedDefault;
     }
 

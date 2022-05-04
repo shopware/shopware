@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\Product;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Product\SalesChannelProductBuilder;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -20,6 +21,8 @@ class SalesChannelProductBuilderTest extends TestCase
      */
     public function testMaxPurchaseCalculation(int $expected, bool $closeout, int $stock, int $steps, ?int $max, int $config): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $this->getContainer()->get(SystemConfigService::class)
             ->set('core.cart.maxQuantity', $config);
 

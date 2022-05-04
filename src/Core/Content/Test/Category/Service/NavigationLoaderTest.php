@@ -133,6 +133,49 @@ class NavigationLoaderTest extends TestCase
         static::assertNotNull($tree->getChildren($this->ids->get('category_1_1_1')));
     }
 
+    public function testWithInactiveFirstLevel(): void
+    {
+        $ids = new IdsCollection();
+
+        $categories = [
+            ['id' => $ids->get('root'), 'name' => 'root', 'active' => true, 'children' => [
+                ['id' => $ids->get('c1'), 'name' => 'c1', 'active' => true, 'children' => [
+                    ['id' => $ids->get('c1.1'), 'name' => 'c1.1', 'active' => false],
+                    ['id' => $ids->get('c1.2'), 'name' => 'c1.2', 'children' => [
+                        ['id' => $ids->get('c1.1.1'), 'name' => 'c1.1.1', 'active' => false],
+                        ['id' => $ids->get('c1.1.2'), 'name' => 'c1.1.2', 'active' => true],
+                        ['id' => $ids->get('c1.1.3'), 'name' => 'c1.1.2', 'visible' => false],
+                    ]],
+                ]],
+                ['id' => $ids->get('c2'), 'name' => 'c2', 'active' => false, 'children' => [
+                    ['id' => $ids->get('c2.1'), 'name' => 'c2.1'],
+                    ['id' => $ids->get('c2.2'), 'name' => 'c2.2'],
+                ]],
+                ['id' => $ids->get('c3'), 'name' => 'c2', 'visible' => false],
+            ]],
+        ];
+
+        $this->getContainer()->get('category.repository')->create($categories, Context::createDefaultContext());
+
+        $context = Generator::createSalesChannelContext();
+        $context->getSalesChannel()->setNavigationCategoryId($ids->get('root'));
+
+        $tree = $this->navigationLoader->load($ids->get('root'), $context, $ids->get('root'), 5);
+
+        $loaded = $this->getIds($tree->getTree());
+        static::assertContains($ids->get('c1'), $loaded);
+        static::assertContains($ids->get('c1.2'), $loaded);
+        static::assertContains($ids->get('c1.1.2'), $loaded);
+
+        static::assertNotContains($ids->get('c2'), $loaded);
+        static::assertNotContains($ids->get('c3'), $loaded);
+        static::assertNotContains($ids->get('c2.1'), $loaded);
+        static::assertNotContains($ids->get('c2.2'), $loaded);
+        static::assertNotContains($ids->get('c1.1'), $loaded);
+        static::assertNotContains($ids->get('c1.1.1'), $loaded);
+        static::assertNotContains($ids->get('c1.1.3'), $loaded);
+    }
+
     public function testLoadDifferentDepth(): void
     {
         $data = new TestDataCollection(Context::createDefaultContext());
@@ -288,6 +331,20 @@ class NavigationLoaderTest extends TestCase
                 'afterCategoryId' => $this->ids->get('category3_3'),
             ],
         ], Context::createDefaultContext());
+    }
+
+    /**
+     * @param TreeItem[] $items
+     */
+    private function getIds(array $items): array
+    {
+        $ids = [];
+        foreach ($items as $item) {
+            $ids[] = $item->getId();
+            $ids = \array_merge($ids, $this->getIds($item->getChildren()));
+        }
+
+        return $ids;
     }
 }
 

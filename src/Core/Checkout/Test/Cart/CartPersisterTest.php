@@ -18,7 +18,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
-use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -29,7 +28,6 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 class CartPersisterTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use EventDispatcherBehaviour;
 
     public function testLoadWithNotExistingToken(): void
     {
@@ -39,7 +37,7 @@ class CartPersisterTest extends TestCase
             ->method('fetchAssociative')
             ->willReturn(false);
 
-        $persister = new CartPersister($connection, $eventDispatcher);
+        $persister = new CartPersister($connection, $eventDispatcher, false);
 
         $e = null;
 
@@ -59,10 +57,10 @@ class CartPersisterTest extends TestCase
         $connection->expects(static::once())
             ->method('fetchAssociative')
             ->willReturn(
-                ['cart' => serialize(new Cart('shopware', 'existing')), 'rule_ids' => json_encode([])]
+                ['payload' => serialize(new Cart('shopware', 'existing')), 'rule_ids' => json_encode([]), 'compressed' => 0]
             );
 
-        $persister = new CartPersister($connection, $eventDispatcher);
+        $persister = new CartPersister($connection, $eventDispatcher, false);
         $cart = $persister->load('existing', Generator::createSalesChannelContext());
 
         static::assertEquals(new Cart('shopware', 'existing'), $cart);
@@ -77,7 +75,7 @@ class CartPersisterTest extends TestCase
         // Cart should not be inserted or updated.
         $this->expectSqlQuery($connection, 'DELETE FROM `cart`');
 
-        $persister = new CartPersister($connection, $eventDispatcher);
+        $persister = new CartPersister($connection, $eventDispatcher, false);
 
         $cart = new Cart('shopware', 'existing');
 
@@ -86,15 +84,6 @@ class CartPersisterTest extends TestCase
 
     public function testEmptyCartWithManualShippingCostsExtensionIsSaved(): void
     {
-        $connection = $this->createMock(Connection::class);
-        $eventDispatcher = new EventDispatcher();
-
-        // Cart should be not be deleted.
-        // Cart should be inserted or updated.
-        $this->expectSqlQuery($connection, 'INSERT INTO `cart`');
-
-        $persister = new CartPersister($connection, $eventDispatcher);
-
         $cart = new Cart('shopware', 'existing');
         $cart->addExtension(
             DeliveryProcessor::MANUAL_SHIPPING_COSTS,
@@ -106,43 +95,31 @@ class CartPersisterTest extends TestCase
             )
         );
 
-        $persister->save(
-            $cart,
-            $this->getSalesChannelContext($cart->getToken())
-        );
+        $this->getContainer()->get(CartPersister::class)
+            ->save($cart, $this->getSalesChannelContext($cart->getToken()));
+
+        $token = $this->getContainer()->get(Connection::class)
+            ->fetchOne('SELECT token FROM cart WHERE token = :token', ['token' => $cart->getToken()]);
+
+        static::assertNotEmpty($token);
     }
 
     public function testEmptyCartWithCustomerCommentIsSaved(): void
     {
-        $connection = $this->createMock(Connection::class);
-        $eventDispatcher = new EventDispatcher();
-
-        // Cart should be not be deleted.
-        // Cart should be inserted or updated.
-        $this->expectSqlQuery($connection, 'INSERT INTO `cart`');
-
-        $persister = new CartPersister($connection, $eventDispatcher);
-
         $cart = new Cart('shopware', 'existing');
         $cart->setCustomerComment('Foo');
 
-        $persister->save(
-            $cart,
-            $this->getSalesChannelContext($cart->getToken())
-        );
+        $this->getContainer()->get(CartPersister::class)
+            ->save($cart, $this->getSalesChannelContext($cart->getToken()));
+
+        $token = $this->getContainer()->get(Connection::class)
+            ->fetchOne('SELECT token FROM cart WHERE token = :token', ['token' => $cart->getToken()]);
+
+        static::assertNotEmpty($token);
     }
 
     public function testSaveWithItems(): void
     {
-        $connection = $this->createMock(Connection::class);
-        $eventDispatcher = new EventDispatcher();
-
-        // Verify that cart deletion is never called.
-        // Check that cart insert or update is called.
-        $this->expectSqlQuery($connection, 'INSERT INTO `cart`');
-
-        $persister = new CartPersister($connection, $eventDispatcher);
-
         $cart = new Cart('shopware', 'existing');
         $cart->add(
             (new LineItem('A', 'test'))
@@ -150,25 +127,24 @@ class CartPersisterTest extends TestCase
                 ->setLabel('test')
         );
 
-        $persister->save(
-            $cart,
-            $this->getSalesChannelContext($cart->getToken())
-        );
+        $this->getContainer()->get(CartPersister::class)
+            ->save($cart, $this->getSalesChannelContext($cart->getToken()));
+
+        $token = $this->getContainer()->get(Connection::class)
+            ->fetchOne('SELECT token FROM cart WHERE token = :token', ['token' => $cart->getToken()]);
+
+        static::assertNotEmpty($token);
     }
 
     public function testCartSavedEventIsFired(): void
     {
-        $connection = $this->createMock(Connection::class);
-        $eventDispatcher = new EventDispatcher();
-        $this->expectSqlQuery($connection, 'INSERT INTO `cart`');
+        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
 
         $caughtEvent = null;
         $this->addEventListener($eventDispatcher, CartSavedEvent::class, static function (CartSavedEvent $event) use (&$caughtEvent): void {
             $caughtEvent = $event;
         });
 
-        $persister = new CartPersister($connection, $eventDispatcher);
-
         $cart = new Cart('shopware', 'existing');
         $cart->add(
             (new LineItem('A', 'test'))
@@ -176,10 +152,13 @@ class CartPersisterTest extends TestCase
                 ->setLabel('test')
         );
 
-        $persister->save(
-            $cart,
-            $this->getSalesChannelContext($cart->getToken())
-        );
+        $this->getContainer()->get(CartPersister::class)
+            ->save($cart, $this->getSalesChannelContext($cart->getToken()));
+
+        $token = $this->getContainer()->get(Connection::class)
+            ->fetchOne('SELECT token FROM cart WHERE token = :token', ['token' => $cart->getToken()]);
+
+        static::assertNotEmpty($token);
 
         static::assertInstanceOf(CartSavedEvent::class, $caughtEvent);
         static::assertCount(1, $caughtEvent->getCart()->getLineItems());
@@ -206,7 +185,7 @@ class CartPersisterTest extends TestCase
             $caughtEvent = $event;
         });
 
-        $persister = new CartPersister($connection, $eventDispatcher);
+        $persister = new CartPersister($connection, $eventDispatcher, false);
 
         $cart = new Cart('shopware', 'existing');
 
@@ -221,27 +200,23 @@ class CartPersisterTest extends TestCase
 
     public function testCartVerifyPersistEventIsFiredAndPersisted(): void
     {
-        $connection = $this->createMock(Connection::class);
-        $eventDispatcher = new EventDispatcher();
-
-        $this->expectSqlQuery($connection, 'INSERT INTO `cart`');
-
         $caughtEvent = null;
-        $this->addEventListener($eventDispatcher, CartVerifyPersistEvent::class, static function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
+        $this->addEventListener($this->getContainer()->get('event_dispatcher'), CartVerifyPersistEvent::class, static function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
             $caughtEvent = $event;
         });
-
-        $persister = new CartPersister($connection, $eventDispatcher);
 
         $cart = new Cart('shopware', 'existing');
         $cart->addLineItems(new LineItemCollection([
             new LineItem(Uuid::randomHex(), LineItem::PROMOTION_LINE_ITEM_TYPE, Uuid::randomHex(), 1),
         ]));
 
-        $persister->save(
-            $cart,
-            $this->getSalesChannelContext($cart->getToken())
-        );
+        $this->getContainer()->get(CartPersister::class)
+            ->save($cart, $this->getSalesChannelContext($cart->getToken()));
+
+        $token = $this->getContainer()->get(Connection::class)
+            ->fetchOne('SELECT token FROM cart WHERE token = :token', ['token' => $cart->getToken()]);
+
+        static::assertNotEmpty($token);
 
         static::assertInstanceOf(CartVerifyPersistEvent::class, $caughtEvent);
         static::assertTrue($caughtEvent->shouldBePersisted());
@@ -250,28 +225,24 @@ class CartPersisterTest extends TestCase
 
     public function testCartVerifyPersistEventIsFiredAndModified(): void
     {
-        $connection = $this->createMock(Connection::class);
-        $eventDispatcher = new EventDispatcher();
-
-        $this->expectSqlQuery($connection, 'DELETE FROM `cart`');
-
         $caughtEvent = null;
-        $this->addEventListener($eventDispatcher, CartVerifyPersistEvent::class, static function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
+        $this->addEventListener($this->getContainer()->get('event_dispatcher'), CartVerifyPersistEvent::class, static function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
             $caughtEvent = $event;
             $event->setShouldPersist(false);
         });
-
-        $persister = new CartPersister($connection, $eventDispatcher);
 
         $cart = new Cart('shopware', 'existing');
         $cart->addLineItems(new LineItemCollection([
             new LineItem(Uuid::randomHex(), LineItem::PROMOTION_LINE_ITEM_TYPE, Uuid::randomHex(), 1),
         ]));
 
-        $persister->save(
-            $cart,
-            $this->getSalesChannelContext($cart->getToken())
-        );
+        $this->getContainer()->get(CartPersister::class)
+            ->save($cart, $this->getSalesChannelContext($cart->getToken()));
+
+        $token = $this->getContainer()->get(Connection::class)
+            ->fetchOne('SELECT token FROM cart WHERE token = :token', ['token' => $cart->getToken()]);
+
+        static::assertEmpty($token);
 
         static::assertInstanceOf(CartVerifyPersistEvent::class, $caughtEvent);
         static::assertFalse($caughtEvent->shouldBePersisted());

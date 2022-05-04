@@ -42,6 +42,16 @@ class EntityDefinitionQueryHelper
         return '`' . $string . '`';
     }
 
+    public static function columnExists(Connection $connection, string $table, string $column): bool
+    {
+        $exists = $connection->fetchOne(
+            'SHOW COLUMNS FROM ' . self::escape($table) . ' WHERE `Field` LIKE :column',
+            ['column' => $column]
+        );
+
+        return !empty($exists);
+    }
+
     public static function getFieldsOfAccessor(EntityDefinition $definition, string $accessor, bool $resolveTranslated = true): array
     {
         $parts = explode('.', $accessor);

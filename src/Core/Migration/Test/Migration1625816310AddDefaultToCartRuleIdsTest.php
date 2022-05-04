@@ -6,6 +6,7 @@ namespace Shopware\Core\Migration\Test;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -21,8 +22,18 @@ class Migration1625816310AddDefaultToCartRuleIdsTest extends TestCase
     public function testCartRuleIdsGetSets(): void
     {
         $c = $this->getContainer()->get(Connection::class);
-        $c->executeStatement('ALTER TABLE `cart` DROP `rule_ids`;');
+
+        if (EntityDefinitionQueryHelper::columnExists($c, 'cart', 'rule_ids')) {
+            $c->executeStatement('ALTER TABLE `cart` DROP `rule_ids`;');
+        }
+
         $c->executeStatement('TRUNCATE `cart`');
+
+        // @deprecated tag:v6.6.0 - keep `$cartColumn = 'payload';`
+        $cartColumn = 'cart';
+        if (EntityDefinitionQueryHelper::columnExists($c, 'cart', 'payload')) {
+            $cartColumn = 'payload';
+        }
 
         $c->insert(
             'cart',
@@ -37,7 +48,7 @@ class Migration1625816310AddDefaultToCartRuleIdsTest extends TestCase
                 'customer_id' => null,
                 'price' => 10,
                 'line_item_count' => 1,
-                'cart' => '',
+                $cartColumn => '',
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );

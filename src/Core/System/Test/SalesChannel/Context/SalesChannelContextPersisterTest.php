@@ -4,13 +4,17 @@ namespace Shopware\Core\System\Test\SalesChannel\Context;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartPersister;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -272,26 +276,14 @@ class SalesChannelContextPersisterTest extends TestCase
     {
         $token = Random::getAlphanumericString(32);
 
-        $this->connection->insert('cart', [
-            'token' => $token,
-            'name' => 'test',
-            'cart' => 'test',
-            'price' => 19.5,
-            'rule_ids' => json_encode([]),
-            'line_item_count' => 3,
-            'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),
-            'shipping_method_id' => Uuid::fromHexToBytes($this->getValidShippingMethodId()),
-            'payment_method_id' => Uuid::fromHexToBytes($this->getValidPaymentMethodId()),
-            'country_id' => Uuid::fromHexToBytes($this->getValidCountryId()),
-            'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
-            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create($token, TestDefaults::SALES_CHANNEL);
+
+        $cart = new Cart('test', $token);
+        $cart->addLineItems(new LineItemCollection([new LineItem('test', 'test', Uuid::randomHex(), 10)]));
+        $this->getContainer()->get(CartPersister::class)->save($cart, $context);
 
         static::assertTrue($this->cartExists($token));
-
-        $context = $this->createMock(SalesChannelContext::class);
-        $salesChannel = (new SalesChannelEntity())->assign(['id' => TestDefaults::SALES_CHANNEL]);
-        $context->method('getSalesChannel')->willReturn($salesChannel);
 
         $newToken = $this->contextPersister->replace($token, $context);
 

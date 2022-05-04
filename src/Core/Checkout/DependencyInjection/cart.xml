@@ -47,6 +47,7 @@
         <service id="Shopware\Core\Checkout\Cart\CartPersister">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument>%shopware.cart.compress%</argument>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartService" public="true">
@@ -390,6 +391,13 @@
         <service id="shopware.cart.redis" class="Redis">
             <factory class="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory" method="createConnection"/>
             <argument>%shopware.cart.redis_url%</argument>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Command\CartMigrateCommand">
+            <argument type="service" id="shopware.cart.redis" on-invalid="null"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument>%shopware.cart.compress%</argument>
+            <tag name="console.command"/>
         </service>
     </services>
 </container>

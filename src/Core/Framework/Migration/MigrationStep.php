@@ -104,6 +104,16 @@ abstract class MigrationStep
         IndexerQueuer::registerIndexer($connection, $name, $indexerToRun);
     }
 
+    protected function columnExists(Connection $connection, string $table, string $column): bool
+    {
+        $exists = $connection->fetchOne(
+            'SHOW COLUMNS FROM ' . $table . ' WHERE `Field` LIKE :column',
+            ['column' => $column]
+        );
+
+        return !empty($exists);
+    }
+
     protected function addAdditionalPrivileges(Connection $connection, array $privileges): void
     {
         $roles = $connection->fetchAllAssociative('SELECT * from `acl_role`');

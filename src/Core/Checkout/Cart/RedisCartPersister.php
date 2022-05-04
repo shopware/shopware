@@ -7,15 +7,20 @@ use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
 use Shopware\Core\Checkout\Cart\Exception\CartDeserializeFailedException;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Cache\Traits\RedisClusterProxy;
+use Symfony\Component\Cache\Traits\RedisProxy;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class RedisCartPersister extends AbstractCartPersister
 {
+    public const PREFIX = 'cart-persister-';
+
     /**
-     * @var \Redis|\RedisCluster
+     * @var \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy|null
      */
     private $redis;
 
@@ -24,7 +29,7 @@ class RedisCartPersister extends AbstractCartPersister
     private bool $compress;
 
     /**
-     * @param \Redis|\RedisCluster $redis
+     * @param \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy|null $redis
      */
     public function __construct($redis, EventDispatcherInterface $eventDispatcher, bool $compress)
     {
@@ -41,7 +46,7 @@ class RedisCartPersister extends AbstractCartPersister
     public function load(string $token, SalesChannelContext $context): Cart
     {
         /** @var string|bool|array $value */
-        $value = $this->redis->get('cart-' . $token);
+        $value = $this->redis->get(self::PREFIX . $token);
 
         if ($value === false || !\is_string($value)) {
             throw new CartTokenNotFoundException($token);
@@ -81,19 +86,19 @@ class RedisCartPersister extends AbstractCartPersister
 
         $this->eventDispatcher->dispatch($event);
         if (!$event->shouldBePersisted()) {
-            $this->delete('cart-' . $cart->getToken(), $context);
+            $this->delete(self::PREFIX . $cart->getToken(), $context);
 
             return;
         }
 
         $content = $this->serializeCart($cart, $context);
 
-        $this->redis->set('cart-' . $cart->getToken(), $content);
+        $this->redis->set(self::PREFIX . $cart->getToken(), $content);
     }
 
     public function delete(string $token, SalesChannelContext $context): void
     {
-        $this->redis->del('cart-' . $token);
+        $this->redis->del(self::PREFIX . $token);
     }
 
     public function replace(string $oldToken, string $newToken, SalesChannelContext $context): void
@@ -126,6 +131,22 @@ class RedisCartPersister extends AbstractCartPersister
         $cart->setErrors($errors);
         $cart->setData($data);
 
-        return \serialize(['compressed' => $this->compress, 'content' => $content]);
+        return \serialize([
+            'compressed' => $this->compress,
+            'content' => $content,
+            // used for migration
+            'token' => $cart->getToken(),
+            'customer_id' => $context->getCustomerId(),
+            'name' => $cart->getName(),
+            'rule_ids' => $context->getRuleIds(),
+            'currency_id' => $context->getCurrency()->getId(),
+            'shipping_method_id' => $context->getShippingMethod()->getId(),
+            'payment_method_id' => $context->getPaymentMethod()->getId(),
+            'country_id' => $context->getShippingLocation()->getCountry()->getId(),
+            'sales_channel_id' => $context->getSalesChannel()->getId(),
+            'price' => $cart->getPrice()->getTotalPrice(),
+            'line_item_count' => $cart->getLineItems()->count(),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
     }
 }

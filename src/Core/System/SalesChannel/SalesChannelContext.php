@@ -384,4 +384,9 @@ class SalesChannelContext extends Struct
             throw new CustomerNotLoggedInException();
         }
     }
+
+    public function getCustomerId(): ?string
+    {
+        return $this->customer ? $this->customer->getId() : null;
+    }
 }

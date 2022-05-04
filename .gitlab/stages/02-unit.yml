@@ -65,10 +65,13 @@ PHP coverage:
         -   name: mariadb:10.4
             alias: database
             entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
+        -   name: redis
+            alias: redis
     variables:
         APP_ENV: "test"
         FEATURE_ALL: "major"
         GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
+        REDIS_URL: redis://redis:6379
     rules:
         # do not run in merge trains - PHP Full should cover all tests
         - if: $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"
@@ -121,12 +124,15 @@ PHP Full:
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
         -   name: swaggerapi/swagger-validator-v2:v2.0.5
             alias: swagger
+        -   name: redis
+            alias: redis
     variables:
-        TEST_SUITES: "docs administration storefront checkout content framework profiling migration system elasticsearch"
+        TEST_SUITES: "docs administration storefront checkout content framework profiling system elasticsearch migration"
         APP_ENV: test
         GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
         RUNNER_INSTANCE_TYPE: m5.large
         ALLOW_FAILURE: "false"
+        REDIS_URL: redis://redis:6379
     rules:
         - !reference [.rules, skip]
         - !reference [.rules, run]
@@ -163,12 +169,12 @@ PHP Full:
                 DEV_IMAGE: shopware/development:7.4-composer-2
                 FEATURE_ALL: 'false'
                 ONLY_CORE: 'true'
-                TEST_SUITES: "checkout content framework profiling migration system"
+                TEST_SUITES: "checkout content framework profiling system migration"
             -   MYSQL_IMAGE: mariadb:10.5
                 DEV_IMAGE: shopware/development:7.4-composer-2
                 FEATURE_ALL: 'false'
                 DEPENDENCY_DEV: 'true'
-                TEST_SUITES: "checkout content framework profiling migration system"
+                TEST_SUITES: "checkout content framework profiling system migration"
                 ALLOW_FAILURE: 'true'
     script:
         - >

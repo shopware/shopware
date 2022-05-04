@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -241,10 +242,16 @@ class LoginRouteTest extends TestCase
         $defaultPaymentMethod = $connection->executeQuery('SELECT id FROM payment_method WHERE active = 1 ORDER BY `position`')->fetchColumn();
         $defaultShippingMethod = $connection->executeQuery('SELECT id FROM shipping_method WHERE active = 1')->fetchColumn();
 
+        // @deprecated tag:v6.6.0 - keep $column = 'payload'
+        $column = 'cart';
+        if (EntityDefinitionQueryHelper::columnExists($connection, 'cart', 'payload')) {
+            $column = 'payload';
+        }
+
         $connection->insert('cart', [
             'token' => $contextToken,
             'name' => $cartName,
-            'cart' => serialize(new Cart($cartName, $contextToken)),
+            $column => serialize(new Cart($cartName, $contextToken)),
             'line_item_count' => 1,
             'rule_ids' => json_encode([]),
             'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),

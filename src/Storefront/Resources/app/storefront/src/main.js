@@ -114,8 +114,6 @@ if (module.hot) {
 register plugins
 */
 PluginManager.register('DateFormat', DateFormat, '[data-date-format]');
-PluginManager.register('CookiePermission', CookiePermissionPlugin, '[data-cookie-permission]');
-PluginManager.register('CookieConfiguration', CookieConfigurationPlugin, '[data-cookie-permission]');
 PluginManager.register('ScrollUp', ScrollUpPlugin, '[data-scroll-up]');
 PluginManager.register('SearchWidget', SearchWidgetPlugin, '[data-search-form]');
 PluginManager.register('CartWidget', CartWidgetPlugin, '[data-cart-widget]');
@@ -174,6 +172,11 @@ PluginManager.register('BasicCaptcha', BasicCaptchaPlugin, '[data-basic-captcha]
 /** @deprecated tag:v6.5.0 - Bootstrap v5 renames `data-toggle` attribute to `data-bs-toggle` */
 const modalDataAttr = Feature.isActive('V6_5_0_0') ? 'data-bs-toggle="modal"' : 'data-toggle="modal"';
 PluginManager.register('AjaxModal', AjaxModalPlugin, `[${modalDataAttr}][data-url]`);
+
+if (window.useDefaultCookieConsent) {
+    PluginManager.register('CookiePermission', CookiePermissionPlugin, '[data-cookie-permission]');
+    PluginManager.register('CookieConfiguration', CookieConfigurationPlugin, '[data-cookie-permission]');
+}
 
 if (window.wishlistEnabled) {
     if (window.customerLoggedInState) {

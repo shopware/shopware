@@ -19,7 +19,7 @@ export default class WishlistLocalStoragePlugin extends BaseWishlistStoragePlugi
     }
 
     add(productId, router) {
-        if (!CookieStorageHelper.getItem(this.cookieEnabledName)) {
+        if (window.useDefaultCookieConsent && !CookieStorageHelper.getItem(this.cookieEnabledName)) {
             window.location.replace(router.afterLoginPath);
 
             return;
@@ -40,7 +40,7 @@ export default class WishlistLocalStoragePlugin extends BaseWishlistStoragePlugi
      * @private
      */
     _fetch() {
-        if (!CookieStorageHelper.getItem(this.cookieEnabledName)) {
+        if (window.useDefaultCookieConsent && !CookieStorageHelper.getItem(this.cookieEnabledName)) {
             this.storage.removeItem(this._getStorageKey());
         }
 

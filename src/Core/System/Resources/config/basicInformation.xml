@@ -147,6 +147,15 @@
         <title lang="de-DE">Sicherheit und Datenschutz</title>
 
         <component name="sw-switch-field">
+            <name>useDefaultCookieConsent</name>
+            <bordered>bordered</bordered>
+            <label>Use Default Cookie Notification</label>
+            <label lang="de-DE">Standart Cookiehinweis verwenden</label>
+            <helpText>You can deactivate the default cookie notification if you are using a third party solution.</helpText>
+            <helpText lang="de-DE">Sie können hier den Standart Cookie Hinweis deactivieren wenn Sie eine Lösung eines Drittanbieters nutzen.</helpText>
+        </component>
+
+        <component name="sw-switch-field">
             <name>acceptAllCookies</name>
             <bordered>bordered</bordered>
             <label>Show "Accept all cookies" button</label>

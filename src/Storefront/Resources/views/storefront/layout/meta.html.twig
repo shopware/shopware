@@ -131,6 +131,14 @@
         {% block layout_head_javascript_token %}
         {% endblock %}
 
+        {% if config('core.basicInformation.useDefaultCookieConsent') %}
+            {% block layout_head_javascript_cookie_state %}
+                <script>
+                    window.useDefaultCookieConsent = true;
+                </script>
+            {% endblock %}
+        {% endif %}
+
         {% if feature('FEATURE_NEXT_15917') %}
             {% block layout_head_javascript_router %}
                 {# Register all routes that will be needed in JavaScript to the window.router object #}

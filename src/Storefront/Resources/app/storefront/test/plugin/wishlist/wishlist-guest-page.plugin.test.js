@@ -105,8 +105,10 @@ describe('GuestWishlistPagePlugin tests', () => {
         validProductIds.forEach(productId => {
             guestWishlistPagePlugin._wishlistStorage.add(productId)
         });
-
+        
         expect(Object.keys(guestWishlistPagePlugin._wishlistStorage.getProducts()).length).toBe(3);
+
+        window.useDefaultCookieConsent = true;
 
         CookieStorageHelper.removeItem('wishlist-enabled');
 

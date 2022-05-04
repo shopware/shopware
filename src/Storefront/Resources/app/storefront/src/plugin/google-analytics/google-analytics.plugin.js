@@ -28,7 +28,7 @@ export default class GoogleAnalyticsPlugin extends Plugin
         this.handleTrackingLocation();
         this.handleCookieChangeEvent();
 
-        if (!CookieStorageHelper.getItem(this.cookieEnabledName)) {
+        if (window.useDefaultCookieConsent && !CookieStorageHelper.getItem(this.cookieEnabledName)) {
             return;
         }
 

@@ -197,11 +197,11 @@ Component.register('sw-custom-field-set-renderer', {
         },
 
         initializeCustomFields() {
-            if (!this.entity.customFields) {
+            if (!this.entity.customFields && !this.entity.translated?.customFields) {
                 return;
             }
 
-            this.customFields = this.entity.customFields;
+            this.customFields = this.entity.translated?.customFields ?? this.entity.customFields;
         },
 
         getInheritedCustomField(customFieldName) {

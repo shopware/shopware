@@ -200,6 +200,7 @@ Component.register('sw-entity-many-to-many-select', {
 
             if (this.criteria) {
                 this.searchCriteria.filters = this.criteria.filters;
+                this.searchCriteria.associations = this.criteria.associations;
                 this.searchCriteria.sortings = this.criteria.sortings;
             }
 

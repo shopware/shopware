@@ -1282,11 +1282,18 @@
       "shippingMethods": "shipping method rules",
       "paymentMethods": "payment method rules",
       "flowSequences": "Flow Builder rules",
-      "personaPromotions": "customer rules",
-      "orderPromotions": "order rules",
-      "cartPromotions": "shopping cart rules",
-      "promotionDiscounts": "product rules",
-      "promotionSetGroups": "product rules"
-    }
+      "personaPromotions": "customer rule|customer rules",
+      "orderPromotions": "order rule|order rules",
+      "cartPromotions": "shopping cart rule|shopping cart rules",
+      "promotionDiscounts": "product rule|product rules",
+      "promotionSetGroups": "product rule|product rules",
+      "notEqualsViolationTooltip": "This rule uses conditions that prevent adding assignments to {entityLabel}. These conditions are: {conditions}.",
+      "equalsAnyViolationTooltip": "This rule must use at least one of the following conditions to be able to add an assignment for {entityLabel}: {conditions}."
+    },
+    "restrictedConditions": {
+      "restrictedPromotionConditionTooltip": "The current rule is assigned to a promotion as {assignments}. The use of this condition is therefore not allowed in this context."
+    },
+    "and": "and",
+    "or": "or"
   }
 }

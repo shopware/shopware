@@ -2,8 +2,8 @@
 <!-- eslint-disable-next-line vue/valid-v-slot -->
 <template #result-item="{ item, index }">
     <slot
-        name="result-item"
-        v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
+        name="result-group"
+        v-bind="{ shouldShowGroupTitle, item, index, getGroupLabel, getGroupClasses }"
     >
         <li
             v-if="shouldShowGroupTitle(item, index)"
@@ -12,6 +12,11 @@
         >
             {{ getGroupLabel(item) }}
         </li>
+    </slot>
+    <slot
+        name="result-item"
+        v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
+    >
         <li
             is="sw-select-result"
             :disabled="item.disabled"

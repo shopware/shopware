@@ -20,6 +20,31 @@
         show-clearable-button
         @change="changeType"
         @search-term-change="typeSearchTerm = $event"
-    />
+    >
+        <template
+            v-if="feature.isActive('FEATURE_NEXT_18215')"
+            #result-item="{item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
+        >
+            <li
+                is="sw-select-result"
+                v-tooltip="getTooltipConfig(item)"
+                :disabled="item.disabled || restrictedConditions[item.type] !== undefined"
+                :class="'sw-select-option--' + item.value"
+                :selected="isSelected(item)"
+                v-bind="{ item, index }"
+                @item-select="setValue"
+            >
+                <sw-highlight-text
+                    v-if="highlightSearchTerm && !isSelected(item)"
+                    :text="getKey(item, labelProperty)"
+                    :search-term="searchTerm"
+                />
+                <template v-else>
+                    {{ getKey(item, labelProperty) }}
+                </template>
+            </li>
+        </template>
+    </sw-grouped-single-select>
+
 </sw-arrow-field>
 {% endblock %}

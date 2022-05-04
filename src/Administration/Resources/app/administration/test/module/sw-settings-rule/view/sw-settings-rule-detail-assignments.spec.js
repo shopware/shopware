@@ -15,7 +15,9 @@ function createEntityCollectionMock(entityName, items = []) {
     return new EntityCollection('/route', entityName, {}, {}, items, items.length);
 }
 
-function createWrapper(entitiesWithResults = []) {
+let getRestrictedAssociationsFunction = jest.fn();
+
+function createWrapper(entitiesWithResults = [], customProps = {}) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
@@ -41,7 +43,8 @@ function createWrapper(entitiesWithResults = []) {
             'router-link': {
                 template: '<a class="router-link" :detail-route="to.name"><slot></slot></a>',
                 props: ['to']
-            }
+            },
+            'sw-alert': true
         },
         propsData: {
             ruleId: 'uuid1',
@@ -50,7 +53,8 @@ function createWrapper(entitiesWithResults = []) {
                 priority: 7,
                 description: 'Lorem ipsum',
                 type: ''
-            }
+            },
+            ...customProps
         },
         provide: {
             validationService: {},
@@ -83,7 +87,12 @@ function createWrapper(entitiesWithResults = []) {
                         }
                     };
                 }
-            }
+            },
+
+            ruleConditionDataProviderService: {
+                getRestrictedAssociations: getRestrictedAssociationsFunction,
+                getTranslatedConditionViolationList: () => { return 'text'; }
+            },
         }
     });
 }
@@ -269,5 +278,105 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
 
         // expect detail-route attribute to be correct
         expect(detailRouteAttribute).toBe('sw.promotion.v2.detail.conditions');
+    });
+
+    it('should disable adding entities by restriction', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
+
+        getRestrictedAssociationsFunction = jest.fn();
+        getRestrictedAssociationsFunction.mockReturnValue({
+            assignmentName1: {
+                assignmentName: 'assignmentName1',
+                notEqualsViolations: [],
+                equalsAnyMatched: [{ type: 'conditionType2' }, { type: 'conditionType3' }],
+                equalsAnyNotMatched: [],
+                isRestricted: true,
+                assignmentSnippet: 'sw-assignment-one-snippet'
+            }
+        });
+        const wrapper = createWrapper([], {
+            conditions: [{ id: 'conditionId1' }]
+        });
+
+        const disableAdd = wrapper.vm.disableAdd({
+            associationName: 'assignmentName1',
+            notAssignedDataTotal: 5
+        });
+        expect(disableAdd).toBeTruthy();
+    });
+
+    it('should have enabled tooltip', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
+
+        getRestrictedAssociationsFunction = jest.fn();
+        getRestrictedAssociationsFunction.mockReturnValue({
+            assignmentName1: {
+                assignmentName: 'assignmentName1',
+                notEqualsViolations: [],
+                equalsAnyMatched: [{ type: 'conditionType2' }, { type: 'conditionType3' }],
+                equalsAnyNotMatched: [],
+                isRestricted: true,
+                assignmentSnippet: 'sw-assignment-one-snippet'
+            }
+        });
+        const wrapper = createWrapper([], {
+            conditions: [{ id: 'conditionId1' }]
+        });
+
+        const tooltipConfig = wrapper.vm.getTooltipConfig({
+            associationName: 'assignmentName1',
+        });
+
+        expect(tooltipConfig.disabled).toBeFalsy();
+    });
+
+    it('should have enabled tooltip for not equals violations', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
+
+        getRestrictedAssociationsFunction = jest.fn();
+        getRestrictedAssociationsFunction.mockReturnValue({
+            assignmentName1: {
+                assignmentName: 'assignmentName1',
+                notEqualsViolations: [{ type: 'conditionType2' }],
+                equalsAnyMatched: [{ type: 'conditionType2' }, { type: 'conditionType3' }],
+                equalsAnyNotMatched: [],
+                isRestricted: true,
+                assignmentSnippet: 'sw-assignment-one-snippet'
+            }
+        });
+        const wrapper = createWrapper([], {
+            conditions: [{ id: 'conditionId1' }]
+        });
+
+        const tooltipConfig = wrapper.vm.getTooltipConfig({
+            associationName: 'assignmentName1',
+        });
+
+        expect(tooltipConfig.disabled).toBeFalsy();
+    });
+
+    it('should have disabled tooltip', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
+
+        getRestrictedAssociationsFunction = jest.fn();
+        getRestrictedAssociationsFunction.mockReturnValue({
+            assignmentName1: {
+                assignmentName: 'assignmentName1',
+                notEqualsViolations: [{ type: 'conditionType2' }],
+                equalsAnyMatched: [{ type: 'conditionType2' }, { type: 'conditionType3' }],
+                equalsAnyNotMatched: [],
+                isRestricted: true,
+                assignmentSnippet: 'sw-assignment-one-snippet'
+            }
+        });
+        const wrapper = createWrapper([], {
+            conditions: [{ id: 'conditionId1' }]
+        });
+
+        const tooltipConfig = wrapper.vm.getTooltipConfig({
+            associationName: 'assignmentName2',
+        });
+
+        expect(tooltipConfig.disabled).toBeTruthy();
     });
 });

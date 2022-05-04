@@ -32,7 +32,8 @@ function createWrapper(customProps = {}) {
             conditionDataProviderService: {
                 getConditions: () => [],
                 getOrContainerData: () => {},
-                getGroups: () => []
+                getGroups: () => [],
+                getRestrictedConditions: () => []
             },
             conditionRepository: {
                 create: () => {

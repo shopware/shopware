@@ -58,6 +58,10 @@ Component.register('sw-promotion-v2-conditions', {
                 ]));
             }
 
+            if (this.feature.isActive('FEATURE_NEXT_18215')) {
+                criteria.addAssociation('conditions');
+            }
+
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
@@ -70,6 +74,10 @@ Component.register('sw-promotion-v2-conditions', {
                 criteria.addFilter(
                     Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])]),
                 );
+            }
+
+            if (this.feature.isActive('FEATURE_NEXT_18215')) {
+                criteria.addAssociation('conditions');
             }
 
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
@@ -93,6 +101,10 @@ Component.register('sw-promotion-v2-conditions', {
                 ]));
             }
 
+            if (this.feature.isActive('FEATURE_NEXT_18215')) {
+                criteria.addAssociation('conditions');
+            }
+
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
@@ -106,17 +118,6 @@ Component.register('sw-promotion-v2-conditions', {
     methods: {
         createdComponent() {
             this.loadExclusions();
-
-            if (this.feature.isActive('FEATURE_NEXT_18215')) {
-                this.ruleConditionDataProviderService.getRestrictedRules('personaPromotions')
-                    .then((result) => { this.personaRestrictedRules = result; });
-
-                this.ruleConditionDataProviderService.getRestrictedRules('orderPromotions')
-                    .then((result) => { this.orderRestrictedRules = result; });
-
-                this.ruleConditionDataProviderService.getRestrictedRules('cartPromotions')
-                    .then((result) => { this.cartRestrictedRules = result; });
-            }
         },
 
         loadExclusions() {

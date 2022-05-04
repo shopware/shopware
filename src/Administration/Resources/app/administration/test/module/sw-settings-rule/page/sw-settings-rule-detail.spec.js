@@ -81,8 +81,7 @@ function createWrapper(privileges = [], isNewRule = false) {
                 params: {
                     id: ''
                 }
-            },
-            next: () => Promise.resolve()
+            }
         }
     });
 }

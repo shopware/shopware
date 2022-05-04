@@ -31,9 +31,9 @@
             #result-item="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey }"
         >
             <sw-select-result
-                v-tooltip="tooltipConfig(item.id)"
+                v-tooltip="tooltipConfig(item)"
                 :selected="isSelected(item)"
-                :disabled="restrictedRules.includes(item.id)"
+                :disabled="isRuleRestricted(item)"
                 v-bind="{ item, index }"
                 @item-select="addItem"
             >

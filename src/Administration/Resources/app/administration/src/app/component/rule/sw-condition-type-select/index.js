@@ -8,6 +8,8 @@ Component.register('sw-condition-type-select', {
 
     inject: [
         'removeNodeFromTree',
+        'conditionDataProviderService',
+        'restrictedConditions',
         'feature',
     ],
 
@@ -117,6 +119,29 @@ Component.register('sw-condition-type-select', {
                 });
             }
             this.condition.type = type;
+        },
+
+        getTooltipConfig(item) {
+            if (!Object.keys(this.restrictedConditions).includes(item.type)) {
+                return { message: '', disabled: true };
+            }
+
+            let assignments = '';
+            this.restrictedConditions[item.type].forEach((violation, index, allViolations) => {
+                assignments += `"${this.$tc(violation.snippet, 1)}"`;
+                if (index + 2 === allViolations.length) {
+                    assignments += ` ${this.$tc('sw-restricted-rules.and')} `;
+                } else if (index + 1 < allViolations.length) {
+                    assignments += ', ';
+                }
+            });
+            return {
+                message: this.$tc(
+                    'sw-restricted-rules.restrictedConditions.restrictedPromotionConditionTooltip',
+                    {},
+                    { assignments: assignments },
+                ),
+            };
         },
     },
 });

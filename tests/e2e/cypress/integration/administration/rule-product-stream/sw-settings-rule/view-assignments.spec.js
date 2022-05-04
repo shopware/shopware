@@ -16,7 +16,31 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
                 return cy.createDefaultFixture('rule', { id: defaultRuleId, name: 'Default Rule' }, 'rule-simple-condition');
             })
             .then(() => {
-                return cy.createDefaultFixture('rule', { id: ruleId, name: 'Ruler' }, 'rule-simple-condition');
+                return cy.createDefaultFixture('rule', {
+                    id: ruleId,
+                    name: 'Ruler' ,
+                    conditions: [
+                        {
+                            "type": "orContainer",
+                            "parentId": null,
+                            "id": "bb63eedc25144ae095252ceb824b17ca"
+                        },
+                        {
+                            "type": "andContainer",
+                            "parentId": "bb63eedc25144ae095252ceb824b17ca",
+                            "id": "5182ff99234e4b238033a3d16ade88eb"
+                        },
+                        {
+                            "type": "customerBillingStreet",
+                            "parentId": "5182ff99234e4b238033a3d16ade88eb",
+                            "value": {
+                                "operator":"=",
+                                "streetName":"test"
+                            },
+                            "id": "acf32b2197fe40819b2e635193b81c61"
+                        }
+                    ]
+                }, 'rule');
             })
             .then(() => {
                 return cy.createDefaultFixture('delivery-time', { id: deliveryTimeId });

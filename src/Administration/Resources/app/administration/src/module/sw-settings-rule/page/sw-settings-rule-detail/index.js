@@ -68,6 +68,16 @@ Component.register('sw-settings-rule-detail', {
             const criteria = new Criteria();
             criteria.addAssociation('tags');
 
+            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
+                return criteria;
+            }
+
+            criteria.addAssociation('personaPromotions');
+            criteria.addAssociation('orderPromotions');
+            criteria.addAssociation('cartPromotions');
+            criteria.addAssociation('promotionDiscounts');
+            criteria.addAssociation('promotionSetGroups');
+
             return criteria;
         },
 
@@ -153,9 +163,15 @@ Component.register('sw-settings-rule-detail', {
                 return;
             }
 
+            // Reload the rule data when switching from assignments to base tab because changes to the assignments
+            // can affect the conditions that are selectable - rule awareness
             if (newRoute.name === 'sw.settings.rule.detail.base' &&
                 oldRoute.name === 'sw.settings.rule.detail.assignments') {
-                this.setTreeFinishedLoading();
+                this.isLoading = true;
+                this.loadEntityData(this.ruleId).then(() => {
+                    this.isLoading = false;
+                    this.setTreeFinishedLoading();
+                });
             }
         },
     },

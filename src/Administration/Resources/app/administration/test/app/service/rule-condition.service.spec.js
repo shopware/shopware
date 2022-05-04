@@ -39,19 +39,19 @@ describe('src/app/service/rule-condition.service.js', () => {
         const ruleConditionService = createConditionService();
         ruleConditionService.addAwarenessConfiguration('personaPromotions', {
             notEquals: ['cartCartAmount'],
-            snippet: 'random-snippi'
+            snippet: 'random-snippet'
         });
 
         const rule = {
-            personaPromotions: []
+            personaPromotions: [{ id: 'someId' }]
         };
 
         const restrictedConditions = ruleConditionService.getRestrictedConditions(rule);
 
         expect(restrictedConditions).toEqual({
-            cartCartAmount: {
-                snippet: 'random-snippi'
-            }
+            cartCartAmount: [
+                { associationName: 'personaPromotions', snippet: 'random-snippet' }
+            ]
         });
     });
 
@@ -60,7 +60,7 @@ describe('src/app/service/rule-condition.service.js', () => {
 
         const configItemBefore = ruleConditionService.getAwarenessConfigurationByAssignmentName('personaPromotions');
 
-        expect(configItemBefore).toEqual({});
+        expect(configItemBefore).toEqual(null);
 
         ruleConditionService.addAwarenessConfiguration('personaPromotions', {
             notEquals: ['cartCartAmount']
@@ -84,5 +84,158 @@ describe('src/app/service/rule-condition.service.js', () => {
         expect(configItem).toEqual({
             notEquals: ['cartCartAmount']
         });
+    });
+
+    it('should return empty object when the rule is undefined', () => {
+        const ruleConditionService = createConditionService();
+        const restricted = ruleConditionService.getRestrictedConditions();
+
+        expect(restricted).toEqual({});
+    });
+
+    it('should return empty config when assignmentName is not in the config', () => {
+        const ruleConditionService = createConditionService();
+        const restricted = ruleConditionService.getRestrictionsByAssociation([], 'assignmentName');
+
+        expect(restricted).toEqual({
+            assignmentName: 'assignmentName',
+            notEqualsViolations: [],
+            equalsAnyMatched: [],
+            equalsAnyNotMatched: [],
+            isRestricted: false,
+        });
+    });
+
+    it('should return restriction config with restricted true by not equals restriction', () => {
+        const ruleConditionService = createConditionService();
+
+        ruleConditionService.addCondition('conditionType1', {});
+        ruleConditionService.addCondition('conditionType2', {});
+        ruleConditionService.addCondition('conditionType3', {});
+
+        ruleConditionService.addAwarenessConfiguration('assignmentOne', {
+            notEquals: ['conditionType1'],
+            equalsAny: ['conditionType2', 'conditionType3'],
+            snippet: 'sw-assignment-one-snippet'
+        });
+
+        const conditions = [
+            { type: 'andContainer' },
+            { type: 'conditionType1' },
+            { type: 'conditionType2' }
+        ];
+
+        const restricted = ruleConditionService.getRestrictionsByAssociation(conditions, 'assignmentOne');
+
+        expect(restricted.assignmentName).toEqual('assignmentOne');
+        expect(restricted.assignmentSnippet).toEqual('sw-assignment-one-snippet');
+        expect(restricted.isRestricted).toBeTruthy();
+        expect(restricted.notEqualsViolations[0].type).toEqual('conditionType1');
+        expect(restricted.equalsAnyMatched[0].type).toEqual('conditionType2');
+        expect(restricted.equalsAnyNotMatched[0].type).toEqual('conditionType3');
+    });
+
+    it('should return restriction config with restricted true by equals any restriction', () => {
+        const ruleConditionService = createConditionService();
+
+        ruleConditionService.addCondition('conditionType1', {});
+        ruleConditionService.addCondition('conditionType2', {});
+        ruleConditionService.addCondition('conditionType3', {});
+
+        ruleConditionService.addAwarenessConfiguration('assignmentOne', {
+            notEquals: ['conditionType1'],
+            equalsAny: ['conditionType2', 'conditionType3'],
+            snippet: 'sw-assignment-one-snippet'
+        });
+
+        const conditions = [
+            { type: 'andContainer' },
+            { type: 'conditionType4' },
+        ];
+
+        const restricted = ruleConditionService.getRestrictionsByAssociation(conditions, 'assignmentOne');
+
+        expect(restricted.assignmentName).toEqual('assignmentOne');
+        expect(restricted.isRestricted).toBeTruthy();
+        expect(restricted.notEqualsViolations).toHaveLength(0);
+        expect(restricted.equalsAnyMatched).toHaveLength(0);
+        expect(restricted.equalsAnyNotMatched).toHaveLength(2);
+        expect(restricted.equalsAnyNotMatched[0].type).toEqual('conditionType2');
+        expect(restricted.equalsAnyNotMatched[1].type).toEqual('conditionType3');
+    });
+
+    it('should return restriction config with restricted false', () => {
+        const ruleConditionService = createConditionService();
+
+        ruleConditionService.addCondition('conditionType1', {});
+        ruleConditionService.addCondition('conditionType2', {});
+        ruleConditionService.addCondition('conditionType3', {});
+
+        ruleConditionService.addAwarenessConfiguration('assignmentOne', {
+            notEquals: ['conditionType1'],
+            equalsAny: ['conditionType2', 'conditionType3'],
+            snippet: 'sw-assignment-one-snippet'
+        });
+
+        const conditions = [
+            { type: 'andContainer' },
+            { type: 'conditionType2' },
+            { type: 'conditionType3' },
+        ];
+
+        const restricted = ruleConditionService.getRestrictionsByAssociation(conditions, 'assignmentOne');
+
+        expect(restricted.assignmentName).toEqual('assignmentOne');
+        expect(restricted.isRestricted).toBeFalsy();
+        expect(restricted.notEqualsViolations).toHaveLength(0);
+        expect(restricted.equalsAnyMatched).toHaveLength(2);
+        expect(restricted.equalsAnyNotMatched).toHaveLength(0);
+    });
+
+    it('should return restricted associations', () => {
+        const ruleConditionService = createConditionService();
+
+        ruleConditionService.addCondition('conditionType1', {});
+        ruleConditionService.addCondition('conditionType2', {});
+        ruleConditionService.addCondition('conditionType3', {});
+
+        ruleConditionService.addAwarenessConfiguration('assignmentOne', {
+            notEquals: ['conditionType1'],
+            equalsAny: ['conditionType2', 'conditionType3'],
+            snippet: 'sw-assignment-one-snippet'
+        });
+
+        ruleConditionService.addAwarenessConfiguration('assignmentTwo', {
+            notEquals: ['conditionType2'],
+            equalsAny: ['conditionType2', 'conditionType3'],
+            snippet: 'sw-assignment-one-snippet'
+        });
+
+        const conditions = [
+            { type: 'andContainer' },
+            { type: 'conditionType2' },
+            { type: 'conditionType3' },
+        ];
+
+        const restricted = ruleConditionService.getRestrictedAssociations(conditions);
+
+        expect(restricted.assignmentOne.isRestricted).toBeFalsy();
+        expect(restricted.assignmentTwo.isRestricted).toBeTruthy();
+    });
+
+    it('should return a translated list of violations', () => {
+        const ruleConditionService = createConditionService();
+
+        let translatedViolations = ruleConditionService.getTranslatedConditionViolationList([
+            { label: 'violation1' },
+            { label: 'violation2' },
+            { label: 'violation3' },
+        ], 'and');
+        expect(translatedViolations).toEqual('"violation1", "violation2" and "violation3"');
+
+        translatedViolations = ruleConditionService.getTranslatedConditionViolationList([
+            { label: 'violation1' },
+        ], 'and');
+        expect(translatedViolations).toEqual('"violation1"');
     });
 });

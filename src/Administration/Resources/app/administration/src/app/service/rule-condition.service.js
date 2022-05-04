@@ -187,6 +187,9 @@ export default function createConditionService() {
         getRestrictedRules,
         /* @internal (flag:FEATURE_NEXT_18215) */
         getRestrictedConditions,
+        getRestrictedAssociations,
+        getRestrictionsByAssociation,
+        getTranslatedConditionViolationList,
     };
 
     function getByType(type) {
@@ -337,11 +340,25 @@ export default function createConditionService() {
     function getAwarenessConfigurationByAssignmentName(assignmentName) {
         const config = awarenessConfiguration[assignmentName];
 
-        return config || {};
+        return config || null;
     }
 
-    /* @internal (flag:FEATURE_NEXT_18215) */
+    /**
+     * @internal (flag:FEATURE_NEXT_18215)
+     * @param {Entity} rule
+     * @returns {Object}
+     * {
+     *     conditionName: [
+     *         { associationName: "association", snippet: "sw.snippet.association"},
+     *         { associationName: "otherAssociation", snippet: "sw.snippet.otherAssociation"},
+     *     ]
+     * }
+     */
     function getRestrictedConditions(rule) {
+        if (!rule) {
+            return {};
+        }
+
         const keys = Object.keys(awarenessConfiguration);
 
         const conditions = {};
@@ -349,11 +366,15 @@ export default function createConditionService() {
             const association = rule[key];
             const currentEntry = awarenessConfiguration[key];
 
-            if (association && currentEntry.notEquals) {
+            if (association && association.length > 0 && currentEntry.notEquals) {
                 currentEntry.notEquals.forEach(condition => {
-                    conditions[condition] = {
+                    if (!conditions[condition]) {
+                        conditions[condition] = [];
+                    }
+                    conditions[condition].push({
+                        associationName: key,
                         snippet: currentEntry.snippet,
-                    };
+                    });
                 });
             }
         });
@@ -392,5 +413,120 @@ export default function createConditionService() {
         ));
 
         return ruleRepository.searchIds(criteria).then(result => result.data);
+    }
+
+    /**
+     * Checks the conditions with the current awareness configuration for the assignment name
+     * and returns the result.
+     * @internal (flag:FEATURE_NEXT_18215)
+     * @param {EntityCollection} conditions
+     * @param {String} assignmentName
+     * @returns {object}
+     * Example return: {
+     *      assignmentName: assignmentName,
+     *      notEqualsViolations: [{}, {}],
+     *      equalsAnyMatched: [{}, {}],
+     *      equalsAnyNotMatched: [{}, {}],
+     *      isRestricted: false
+     * }
+     */
+    function getRestrictionsByAssociation(conditions, assignmentName) {
+        const awarenessEntry = getAwarenessConfigurationByAssignmentName(assignmentName);
+        const restrictionConfig = {
+            assignmentName: assignmentName,
+            notEqualsViolations: [],
+            equalsAnyMatched: [],
+            equalsAnyNotMatched: [],
+            isRestricted: false,
+        };
+        if (!awarenessEntry) {
+            return restrictionConfig;
+        }
+
+        restrictionConfig.assignmentSnippet = awarenessEntry.snippet;
+
+        if (awarenessEntry.notEquals) {
+            conditions.forEach(condition => {
+                if (awarenessEntry.notEquals.includes(condition.type)) {
+                    restrictionConfig.notEqualsViolations.push(getByType(condition.type));
+                    restrictionConfig.isRestricted = true;
+                }
+            });
+        }
+
+        if (awarenessEntry.equalsAny) {
+            awarenessEntry.equalsAny.forEach(type => {
+                const matchedCondition = conditions.find(condition => {
+                    return condition.type === type;
+                });
+                if (matchedCondition) {
+                    restrictionConfig.equalsAnyMatched.push(getByType(type));
+                } else {
+                    restrictionConfig.equalsAnyNotMatched.push(getByType(type));
+                }
+            });
+
+            if (restrictionConfig.equalsAnyMatched.length === 0) {
+                restrictionConfig.isRestricted = true;
+            }
+        }
+
+        return restrictionConfig;
+    }
+
+    /**
+     * Checks the conditions with the current awareness configuration and returns the result for
+     * every assignment name.
+     * @param {EntityCollection} conditions
+     * @returns {object}
+     * Example return: {
+     *     associationName: {
+     *         assignmentName: assignmentName,
+     *         notEqualsViolations: [{}, {}],
+     *         equalsAnyMatched: [{}, {}],
+     *         equalsAnyNotMatched: [{}, {}],
+     *         isRestricted: false
+     *     },
+     *     secondAssociationName: {
+     *         assignmentName: assignmentName,
+     *         notEqualsViolations: [{}, {}],
+     *         equalsAnyMatched: [{}, {}],
+     *         equalsAnyNotMatched: [{}, {}],
+     *         isRestricted: false
+     *     },
+     * }
+     */
+    function getRestrictedAssociations(conditions) {
+        if (!conditions) {
+            return {};
+        }
+        const keys = Object.keys(awarenessConfiguration);
+        const restrictedAssociations = {};
+
+        keys.forEach(key => {
+            restrictedAssociations[key] = getRestrictionsByAssociation(conditions, key);
+        });
+
+        return restrictedAssociations;
+    }
+
+    /**
+     * Translates a list of violations and return the translated text
+     * @param {array} violations
+     * @param {string} connectionSnippetPath
+     * @returns {string}
+     */
+    function getTranslatedConditionViolationList(violations, connectionSnippetPath) {
+        const app = Shopware.Application.getApplicationRoot();
+        let text = '';
+        violations.forEach((violation, index, allViolations) => {
+            text += `"${app.$tc(violation.label, 1)}"`;
+            if (index + 2 === allViolations.length) {
+                text += ` ${app.$tc(connectionSnippetPath)} `;
+            } else if (index + 1 < allViolations.length) {
+                text += ', ';
+            }
+        });
+        return text;
     }
 }

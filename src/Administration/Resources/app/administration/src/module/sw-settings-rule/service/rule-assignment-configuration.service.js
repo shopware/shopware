@@ -16,6 +16,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
     const configuration = {
         product: {
             id: 'product',
+            associationName: 'productPrices',
             notAssignedDataTotal: 0,
             allowAdd: false,
             entityName: 'product',
@@ -48,6 +49,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
         },
         shipping_method_availability_rule: {
             id: 'shipping_method_availability_rule',
+            associationName: 'shippingMethods',
             notAssignedDataTotal: 0,
             allowAdd: true,
             entityName: 'shipping_method',
@@ -118,6 +120,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
         },
         shipping_method_prices: {
             id: 'shipping_method_prices',
+            associationName: 'shippingMethodPrices',
             notAssignedDataTotal: 0,
             allowAdd: false,
             entityName: 'shipping_method',
@@ -151,6 +154,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
         },
         payment_method: {
             id: 'payment_method',
+            associationName: 'paymentMethods',
             notAssignedDataTotal: 0,
             allowAdd: true,
             entityName: 'payment_method',
@@ -226,6 +230,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
         },
         promotion_order_rule: {
             id: 'promotion_order_rule',
+            associationName: 'orderPromotions',
             notAssignedDataTotal: 0,
             allowAdd: true,
             entityName: 'promotion',
@@ -299,6 +304,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
         },
         promotion_customer_rule: {
             id: 'promotion_customer_rule',
+            associationName: 'personaPromotions',
             notAssignedDataTotal: 0,
             allowAdd: true,
             entityName: 'promotion',
@@ -372,6 +378,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
         },
         promotion_cart_rule: {
             id: 'promotion_cart_rule',
+            associationName: 'cartPromotions',
             notAssignedDataTotal: 0,
             allowAdd: true,
             entityName: 'promotion',
@@ -445,6 +452,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
         },
         promotion_discount_rule: {
             id: 'promotion_discount_rule',
+            associationName: 'promotionDiscounts',
             notAssignedDataTotal: 0,
             allowAdd: false,
             entityName: 'promotion',
@@ -469,6 +477,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
         },
         promotion_group_rule: {
             id: 'promotion_group_rule',
+            associationName: 'promotionSetGroups',
             notAssignedDataTotal: 0,
             allowAdd: false,
             entityName: 'promotion',
@@ -496,6 +505,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
          */
         event_action: {
             id: 'event_action',
+            associationName: 'eventActions',
             notAssignedDataTotal: 0,
             allowAdd: true,
             entityName: 'event_action',

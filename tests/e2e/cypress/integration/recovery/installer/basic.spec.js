@@ -132,8 +132,10 @@ describe('Minimal install', () => {
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
 
         // Take snapshot for visual testing
-        cy.prepareAdminForScreenshot();
         cy.get('.sw-first-run-wizard__welcome-image').should('be.visible');
+        cy.get('.sw-admin-menu__sales-channel-item').should('be.visible');
+        cy.get('.sw-plugin-card__manufacturer').should('be.visible');
+        cy.prepareAdminForScreenshot();
         cy.takeSnapshot('FRW - Welcome', '.sw-modal.sw-first-run-wizard-modal');
 
         cy.get('.sw-button span').contains('Next').click();

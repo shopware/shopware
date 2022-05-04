@@ -400,5 +400,5 @@
              "Shopware\\Core\\Test\\": "src/Core/Test/"
         }
     },
-    "version": "6.4.11.0"
+    "version": "6.4.11.1"
 }

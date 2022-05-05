@@ -48,9 +48,9 @@ class VersionFieldSerializer implements FieldSerializerInterface
     /**
      * @param string $value
      *
-     * @deprecated tag:v6.5.0 The parameter $value will be native typed
+     * @deprecated tag:v6.5.0 - reason:return-type-change - The return type will change to ?string
      */
-    public function decode(Field $field, /*string */$value): string
+    public function decode(Field $field, $value): string
     {
         return Uuid::fromBytesToHex($value);
     }

@@ -230,7 +230,7 @@ class Entity extends Struct
     }
 
     /**
-     * @deprecated tag:v6.5.0 - will be marked as internal
+     * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked as internal
      */
     public function getInternalEntityName(): ?string
     {

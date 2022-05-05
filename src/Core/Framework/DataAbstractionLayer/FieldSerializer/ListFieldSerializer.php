@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -54,19 +55,24 @@ class ListFieldSerializer extends AbstractFieldSerializer
     /**
      * @return array|null
      *
-     * @deprecated tag:v6.5.0 The parameter $value and return type will be native typed
+     * @deprecated tag:v6.5.0 - reason:return-type-change - The return type will be native typed
      */
-    public function decode(Field $field, /*?string */$value)/* ?array*/
+    public function decode(Field $field, $value)/* ?array*/
     {
         if ($value === null) {
             return null;
         }
 
-        if ($field instanceof ListField && $field->isStrict()) {
-            return array_values(json_decode($value, true));
+        /** @deprecated tag:v6.5.0 - remove whole is block as the `strict` behaviour will always be used */
+        if (!Feature::isActive('v6.5.0.0')) {
+            if ($field instanceof ListField && $field->isStrict()) {
+                return array_values(json_decode($value, true));
+            }
+
+            return json_decode($value, true);
         }
 
-        return json_decode($value, true);
+        return array_values(json_decode($value, true));
     }
 
     protected function getConstraints(Field $field): array

@@ -6,9 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
-/**
- * @deprecated tag:v6.5.0 - getDecorated, getTotal will be abstract with 6.5.0 and has to be implemented in all implementations
- */
 abstract class EntityIndexer
 {
     /**

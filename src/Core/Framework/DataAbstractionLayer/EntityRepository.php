@@ -75,11 +75,14 @@ class EntityRepository implements EntityRepositoryInterface
      */
     public function setEntityLoadedEventFactory(EntityLoadedEventFactory $eventFactory): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            sprintf('Repository for definition %s requires the event factory as __construct parameter', $this->definition->getEntityName())
+        );
+
         if (isset($this->eventFactory)) {
             return;
         }
-
-        Feature::throwException('FEATURE_NEXT_16155', sprintf('Repository for definition %s requires the event factory as __construct parameter', $this->definition->getEntityName()));
 
         $this->eventFactory = $eventFactory;
     }

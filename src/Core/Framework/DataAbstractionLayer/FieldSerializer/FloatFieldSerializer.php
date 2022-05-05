@@ -31,10 +31,7 @@ class FloatFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => (float) $data->getValue();
     }
 
-    /**
-     * @deprecated tag:v6.5.0 The parameter $value will be native typed
-     */
-    public function decode(Field $field, /*?string */$value): ?float
+    public function decode(Field $field, $value): ?float
     {
         return $value === null ? null : (float) $value;
     }

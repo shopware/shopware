@@ -48,10 +48,7 @@ class IdFieldSerializer extends AbstractFieldSerializer
         yield $field->getStorageName() => Uuid::fromHexToBytes($value);
     }
 
-    /**
-     * @deprecated tag:v6.5.0 The parameter $value will be native typed
-     */
-    public function decode(Field $field, /*?string */$value): ?string
+    public function decode(Field $field, $value): ?string
     {
         if ($value === null) {
             return null;

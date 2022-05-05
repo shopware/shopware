@@ -37,9 +37,9 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
     /**
      * @return CalculatedPrice|null
      *
-     * @deprecated tag:v6.5.0 The parameter $value and the return type will be native typed
+     * @deprecated tag:v6.5.0 - reason:return-type-change - return type will be native typed
      */
-    public function decode(Field $field, /*?string */$value)/*: ?CalculatedPrice*/
+    public function decode(Field $field, $value)/*: ?CalculatedPrice*/
     {
         if ($value === null) {
             return null;

@@ -130,9 +130,9 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
     /**
      * @return AbsolutePriceDefinition|PercentagePriceDefinition|QuantityPriceDefinition|CurrencyPriceDefinition|null
      *
-     * @deprecated tag:v6.5.0 The parameter $value will be native typed and the return type is PriceDefinitionInterface|null
+     * @deprecated tag:v6.5.0 - reason:return-type-change - The return type will be PriceDefinitionInterface|null
      */
-    public function decode(Field $field, /*?string */$value)/*: ?PriceDefinitionInterface*/
+    public function decode(Field $field, $value)/*: ?PriceDefinitionInterface*/
     {
         if ($value === null) {
             return null;

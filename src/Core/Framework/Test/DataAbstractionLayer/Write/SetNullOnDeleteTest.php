@@ -172,7 +172,7 @@ class SetNullOnDeleteTest extends TestCase
         static::assertCount(1, $deleted[SetNullOnDeleteParentDefinition::ENTITY_NAME]);
         static::assertEquals($ids->get('parent'), $deleted[SetNullOnDeleteParentDefinition::ENTITY_NAME][0]->getPrimaryKey());
 
-        $updated = $result->getUpdated();
+        $updated = $result->getWritten();
         static::assertCount(1, $updated);
         static::assertArrayHasKey(SetNullOnDeleteChildDefinition::ENTITY_NAME, $updated);
 
@@ -237,7 +237,7 @@ class SetNullOnDeleteTest extends TestCase
         static::assertCount(1, $deleted[SetNullOnDeleteManyToOneDefinition::ENTITY_NAME]);
         static::assertEquals($childId, $deleted[SetNullOnDeleteManyToOneDefinition::ENTITY_NAME][0]->getPrimaryKey());
 
-        $updated = $result->getUpdated();
+        $updated = $result->getWritten();
         static::assertCount(1, $updated);
         static::assertArrayHasKey(SetNullOnDeleteParentDefinition::ENTITY_NAME, $updated);
 

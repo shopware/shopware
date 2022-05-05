@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -25,6 +26,8 @@ class EntityLoadedEventTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $definition = new TestDefinition();
         $definition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
         $this->getContainer()->set(TestDefinition::class, $definition);

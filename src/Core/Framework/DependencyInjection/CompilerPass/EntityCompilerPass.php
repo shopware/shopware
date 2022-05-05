@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -56,7 +57,9 @@ class EntityCompilerPass implements CompilerPassInterface
             try {
                 $repository = $container->getDefinition($repositoryId);
                 //@deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16155) - remove add method call
-                $repository->addMethodCall('setEntityLoadedEventFactory', [new Reference(EntityLoadedEventFactory::class)]);
+                if (!Feature::isActive('v6.5.0.0')) {
+                    $repository->addMethodCall('setEntityLoadedEventFactory', [new Reference(EntityLoadedEventFactory::class)]);
+                }
             } catch (ServiceNotFoundException $exception) {
                 $repository = new Definition(
                     EntityRepository::class,

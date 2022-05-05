@@ -502,10 +502,10 @@ Cypress.Commands.add('prepareAdminForScreenshot', () => {
             .and('match', /Max%20Mustermann.png/);
     }
     cy.get('body').then(($body) => {
-        if ($body.find('.sw-alert').length) {
+        if ($body.find('.sw-notification__alert').length) {
             // Hide notifications for visual testing
             cy.changeElementStyling(
-                '.sw-alert',
+                '.sw-notification__alert',
                 'display: none'
             );
         }

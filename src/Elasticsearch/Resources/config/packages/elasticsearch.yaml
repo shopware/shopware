@@ -5,6 +5,8 @@ elasticsearch:
     hosts: "%env(string:SHOPWARE_ES_HOSTS)%"
     index_prefix: "%env(string:SHOPWARE_ES_INDEX_PREFIX)%"
     throw_exception: "%env(string:SHOPWARE_ES_THROW_EXCEPTION)%"
+    product:
+        custom_fields_mapping:
     ssl:
         verify_server_cert: true
     index_settings:

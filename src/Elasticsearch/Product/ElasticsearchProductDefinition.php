@@ -5,6 +5,7 @@ namespace Shopware\Elasticsearch\Product;
 use Doctrine\DBAL\Connection;
 use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
@@ -19,11 +20,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSeria
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
+use Shopware\Elasticsearch\Product\Event\ElasticsearchProductCustomFieldsMappingEvent;
 
 class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 {
@@ -32,6 +35,9 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     private const PRODUCT_CUSTOM_FIELDS = ['product_translation.translation.custom_fields', 'product_translation.translation.fallback_1.custom_fields', 'product_translation.translation.fallback_2.custom_fields'];
 
     protected ProductDefinition $definition;
+    protected EventDispatcherInterface $eventDispatcher;
+
+    private array $customMapping;
 
     private Connection $connection;
 
@@ -49,13 +55,17 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         EntityMapper $mapper,
         Connection $connection,
         CashRounding $rounding,
-        PriceFieldSerializer $priceFieldSerializer
+        PriceFieldSerializer $priceFieldSerializer,
+        array $customMapping,
+        EventDispatcherInterface $eventDispatcher
     ) {
         parent::__construct($mapper);
         $this->definition = $definition;
         $this->connection = $connection;
         $this->rounding = $rounding;
         $this->priceFieldSerializer = $priceFieldSerializer;
+        $this->customMapping = $customMapping;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getEntityDefinition(): EntityDefinition
@@ -138,7 +148,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 ],
                 'weight' => EntityMapper::FLOAT_FIELD,
                 'width' => EntityMapper::FLOAT_FIELD,
-                'customFields' => $this->getCustomFieldsMapping(),
+                'customFields' => $this->getCustomFieldsMapping($context),
             ],
             'dynamic_templates' => [
                 [
@@ -229,7 +239,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'available' => (bool) $item['available'],
                 'isCloseout' => (bool) $item['isCloseout'],
                 'shippingFree' => (bool) $item['shippingFree'],
-                'customFields' => $this->formatCustomFields($item['customFields'] ? json_decode($item['customFields'], true) : []),
+                'customFields' => $this->formatCustomFields($item['customFields'] ? json_decode($item['customFields'], true) : [], $context),
                 'visibilities' => $visibilities,
                 'availableStock' => (int) $item['availableStock'],
                 'productNumber' => $item['productNumber'],
@@ -474,7 +484,7 @@ SQL;
         ];
 
         $data = $this->connection->fetchAll(
-            str_replace(array_keys($replacements), array_values($replacements), $sql),
+            str_replace(array_keys($replacements), $replacements, $sql),
             array_merge([
                 'ids' => $ids,
                 'liveVersionId' => Uuid::fromHexToBytes($context->getVersionId()),
@@ -487,9 +497,9 @@ SQL;
         return FetchModeHelper::groupUnique($data);
     }
 
-    private function getCustomFieldsMapping(): array
+    private function getCustomFieldsMapping(Context $context): array
     {
-        $fieldMapping = $this->getCustomFieldTypes();
+        $fieldMapping = $this->getCustomFieldTypes($context);
         $mapping = [
             'type' => 'object',
             'dynamic' => true,
@@ -509,12 +519,18 @@ SQL;
         return $mapping;
     }
 
-    private function formatCustomFields(array $customFields): array
+    private function formatCustomFields(array $customFields, Context $context): array
     {
-        $types = $this->getCustomFieldTypes();
+        $types = $this->getCustomFieldTypes($context);
 
         foreach ($customFields as $name => $customField) {
             $type = $types[$name] ?? null;
+
+            if ($type === null && Feature::isActive('v6.5.0.0')) {
+                unset($customFields[$name]);
+                continue;
+            }
+
             if ($type === CustomFieldTypes::BOOL) {
                 $customFields[$name] = (bool) $customField;
             } elseif (\is_int($customField)) {
@@ -532,19 +548,35 @@ SQL;
         return $this->connection->fetchAllKeyValue($sql, [Uuid::fromHexToBytesList($propertyIds)], [Connection::PARAM_STR_ARRAY]);
     }
 
-    private function getCustomFieldTypes(): array
+    private function getCustomFieldTypes(Context $context): array
     {
         if ($this->customFieldsTypes !== null) {
             return $this->customFieldsTypes;
         }
 
-        return $this->customFieldsTypes = $this->connection->fetchAllKeyValue('
+        if (Feature::isActive('v6.5.0.0')) {
+            $event = new ElasticsearchProductCustomFieldsMappingEvent($this->customMapping, $context);
+            $this->eventDispatcher->dispatch($event);
+
+            $this->customFieldsTypes = $event->getMappings();
+
+            return $this->customFieldsTypes;
+        }
+
+        $mappings = $this->connection->fetchAllKeyValue('
 SELECT
     custom_field.`name`,
     custom_field.type
 FROM custom_field_set_relation
     INNER JOIN custom_field ON(custom_field.set_id = custom_field_set_relation.set_id)
 WHERE custom_field_set_relation.entity_name = "product"
-');
+') + $this->customMapping;
+
+        $event = new ElasticsearchProductCustomFieldsMappingEvent($mappings, $context);
+        $this->eventDispatcher->dispatch($event);
+
+        $this->customFieldsTypes = $event->getMappings();
+
+        return $this->customFieldsTypes;
     }
 }

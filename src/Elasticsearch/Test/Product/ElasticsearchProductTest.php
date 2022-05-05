@@ -5,6 +5,7 @@ namespace Shopware\Elasticsearch\Test\Product;
 use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -14,8 +15,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
@@ -74,7 +75,10 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
+use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
+use Shopware\Elasticsearch\Product\CustomFieldUpdater;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
+use Shopware\Elasticsearch\Product\Event\ElasticsearchProductCustomFieldsMappingEvent;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -2240,6 +2244,64 @@ class ElasticsearchProductTest extends TestCase
 
             throw $e;
         }
+    }
+
+    public function testMappingContainsYamlOptions(): void
+    {
+        $definition = new ElasticsearchProductDefinition(
+            $this->getContainer()->get(ProductDefinition::class),
+            $this->getContainer()->get(EntityMapper::class),
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get(CashRounding::class),
+            $this->getContainer()->get(PriceFieldSerializer::class),
+            [
+                'test_custom_date_field' => 'datetime',
+            ],
+            $this->getContainer()->get('event_dispatcher'),
+        );
+
+        $mapping = $definition->getMapping(Context::createDefaultContext());
+
+        static::assertArrayHasKey('properties', $mapping);
+        static::assertArrayHasKey('customFields', $mapping['properties']);
+        static::assertArrayHasKey('test_custom_date_field', $mapping['properties']['customFields']['properties']);
+        static::assertSame(CustomFieldUpdater::getTypeFromCustomFieldType('datetime'), $mapping['properties']['customFields']['properties']['test_custom_date_field']);
+    }
+
+    public function testMappingContainsYamlOptionsProvidedCustomUsingEvent(): void
+    {
+        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+
+        $definition = new ElasticsearchProductDefinition(
+            $this->getContainer()->get(ProductDefinition::class),
+            $this->getContainer()->get(EntityMapper::class),
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get(CashRounding::class),
+            $this->getContainer()->get(PriceFieldSerializer::class),
+            [
+                'test_custom_date_field' => 'datetime',
+            ],
+            $eventDispatcher,
+        );
+
+        $called = false;
+        $this->addEventListener($eventDispatcher, ElasticsearchProductCustomFieldsMappingEvent::class, static function (ElasticsearchProductCustomFieldsMappingEvent $event) use(&$called) {
+            $called = true;
+
+            static::assertSame('datetime', $event->getMapping('test_custom_date_field'));
+            $event->setMapping('test', CustomFieldTypes::BOOL);
+        });
+
+        $mapping = $definition->getMapping(Context::createDefaultContext());
+
+
+        static::assertTrue($called, 'Event is not fired');
+        static::assertArrayHasKey('properties', $mapping);
+        static::assertArrayHasKey('customFields', $mapping['properties']);
+        static::assertArrayHasKey('test_custom_date_field', $mapping['properties']['customFields']['properties']);
+        static::assertSame(CustomFieldUpdater::getTypeFromCustomFieldType('datetime'), $mapping['properties']['customFields']['properties']['test_custom_date_field']);
+        static::assertArrayHasKey('test', $mapping['properties']['customFields']['properties']);
+        static::assertSame(CustomFieldUpdater::getTypeFromCustomFieldType(CustomFieldTypes::BOOL), $mapping['properties']['customFields']['properties']['test']);
     }
 
     public function providerCheapestPriceFilter()

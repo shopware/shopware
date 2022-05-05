@@ -39,7 +39,11 @@ Component.register('sw-flow-change-customer-status-modal', {
 
     methods: {
         createdComponent() {
-            this.active = this.sequence?.config?.active || true;
+            if (this.sequence?.config) {
+                this.active = this.sequence?.config.active;
+                return;
+            }
+            this.active = true;
         },
 
         onClose() {

@@ -70,12 +70,15 @@
                 class="sw-settings-payment-overview__sorting_modal_card"
                 position-identifier="sw-settings-payment-overview-sorting-modal-card"
             >
-                <sw-button
+                <sw-button-process
+                    :disabled="isLoading"
+                    :is-loading="isLoading"
+                    :process-success="false"
                     variant="ghost"
                     @click="showSortingModal = true"
                 >
                     {{ $tc('sw-settings-payment.overview.openSortingModalButton') }}
-                </sw-button>
+                </sw-button-process>
             </sw-card>
             {% endblock %}
 
@@ -107,8 +110,9 @@
         {% block sw_settings_payment_overview_sorting_modal %}
         <sw-settings-payment-sorting-modal
             v-if="showSortingModal"
-            payment-methods="paymentMethods"
+            :payment-methods="paymentMethods"
             @modal-close="showSortingModal = false"
+            @modal-save="loadPaymentMethods"
         />
         {% endblock %}
     </template>

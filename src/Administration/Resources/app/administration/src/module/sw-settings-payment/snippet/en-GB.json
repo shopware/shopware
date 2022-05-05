@@ -18,7 +18,9 @@
     },
     "sorting-modal": {
       "modalTitle": "Display order in checkout",
-      "subTitle": "Use drag & drop to define the order of payment methods displayed during checkout."
+      "subTitle": "Use drag & drop to define the order of payment methods displayed during checkout.",
+      "saveSuccessful": "The order of payment methods has been updated.",
+      "errorMessage": "An error occurred while updating the order of payment methods."
     },
     "list": {
       "textHeadline": "Payment",

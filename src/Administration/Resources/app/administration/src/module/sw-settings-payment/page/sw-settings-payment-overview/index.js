@@ -31,8 +31,11 @@ Component.register('sw-settings-payment-overview', {
         paymentMethodCriteria() {
             const criteria = new Criteria(1, 500);
 
+            criteria.addAssociation('media');
             criteria.addAssociation('plugin');
             criteria.addAssociation('appPaymentMethod.app');
+
+            criteria.addSorting(Criteria.sort('position', 'ASC'));
 
             return criteria;
         },

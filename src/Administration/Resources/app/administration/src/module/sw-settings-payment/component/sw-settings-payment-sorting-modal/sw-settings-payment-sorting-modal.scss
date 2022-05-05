@@ -5,3 +5,41 @@
         border-bottom: 1px solid $color-gray-300;
     }
 }
+
+.sw-settings-payment-sorting-modal__payment-method-list {
+    display: grid;
+    grid-template-rows: auto;
+    grid-row-gap: 16px;
+
+    &-item {
+        display: grid;
+        padding: 8px 24px 8px 12px;
+        grid-template-columns: 16px 32px auto;
+        grid-column-gap: 8px;
+        border: 1px solid $color-gray-300;
+        align-items: center;
+
+        &__name {
+            font-weight: $font-weight-semi-bold;
+            font-size: $font-size-small;
+        }
+
+        &__icon {
+            position: relative;
+            height: 100%;
+
+            > img {
+                width: 34px;
+                height: 24px;
+            }
+        }
+
+        &.is--drag-element {
+            background-color: $color-white;
+        }
+    }
+
+    &.sw-sortable-list__empty-state {
+        position: relative;
+    }
+}

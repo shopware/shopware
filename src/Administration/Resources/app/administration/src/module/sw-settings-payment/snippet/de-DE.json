@@ -18,7 +18,9 @@
     },
     "sorting-modal": {
       "modalTitle": "Darstellungsreihenfolge im Bestellprozess",
-      "subTitle": "Lege per Drag & Drop die Reihenfolge der Zahlungsarten fest, die im Bestellprozess angezeigt werden."
+      "subTitle": "Lege per Drag & Drop die Reihenfolge der Zahlungsarten fest, die im Bestellprozess angezeigt werden.",
+      "saveSuccessful": "Reihenfolge der Zahlungsmethoden wurde aktualisiert.",
+      "errorMessage": "Beim Aktualisieren der Reihenfolge der Zahlungsmethoden ist ein Fehler aufgetreten."
     },
     "list": {
       "textHeadline": "Zahlungsarten",

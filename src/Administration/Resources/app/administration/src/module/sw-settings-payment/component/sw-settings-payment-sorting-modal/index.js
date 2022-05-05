@@ -1,14 +1,17 @@
 import template from './sw-settings-payment-sorting-modal.html.twig';
 import './sw-settings-payment-sorting-modal.scss';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-settings-payment-sorting-modal', {
     template,
 
     inject: [
         'acl',
+        'repositoryFactory',
     ],
+
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         paymentMethods: {
@@ -19,7 +22,16 @@ Component.register('sw-settings-payment-sorting-modal', {
 
     data() {
         return {
+            isSaving: false,
+            originalPaymentMethods: [...this.paymentMethods],
+            sortedPaymentMethods: [...this.paymentMethods],
         };
+    },
+
+    computed: {
+        paymentMethodRepository() {
+            return this.repositoryFactory.create('payment_method');
+        },
     },
 
     methods: {
@@ -28,9 +40,32 @@ Component.register('sw-settings-payment-sorting-modal', {
         },
 
         applyChanges() {
-            // ToDo: NEXT-20937 - do save process
+            this.isSaving = true;
 
-            this.$emit('modal-close');
+            this.sortedPaymentMethods.map((paymentMethod, index) => {
+                paymentMethod.position = index + 1;
+                return paymentMethod;
+            });
+
+            this.paymentMethodRepository.saveAll(this.sortedPaymentMethods, Shopware.Context.api)
+                .then(() => {
+                    this.isSaving = false;
+                    this.$emit('modal-close');
+                    this.$emit('modal-save');
+
+                    this.createNotificationSuccess({
+                        message: this.$tc('sw-settings-payment.sorting-modal.saveSuccessful'),
+                    });
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-settings-payment.sorting-modal.errorMessage'),
+                    });
+                });
+        },
+
+        onSort(sortedItems) {
+            this.sortedPaymentMethods = sortedItems;
         },
     },
 });

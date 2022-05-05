@@ -12,11 +12,7 @@ Jest (Administration):
     rules:
         - !reference [ .rules, skip ]
         - !reference [ .rules, run ]
-        # always execute in merge train. PHP could in theory affect the admin jest tests
-        - !reference [ .rules, long-running ]
-        - changes:
-            - 'src/Administration/Resources/app/administration/**/*'
-            - .gitlab/stages/02-unit.yml
+        - when: always
     script:
         - bin/console framework:schema -s 'entity-schema' $ADMIN_PATH/test/_mocks_/entity-schema.json
         - npm --prefix $ADMIN_PATH run unit -- --silent
@@ -39,9 +35,7 @@ Jest (Storefront):
     rules:
         - !reference [.rules, skip]
         - !reference [.rules, run]
-        - changes:
-            - 'src/Storefront/Resources/app/storefront/**/*'
-            - .gitlab/stages/02-unit.yml
+        - when: always
     script:
         - export NODE_VERSION=12
         - !reference [.scripts, install-node, script]
@@ -78,12 +72,7 @@ PHP coverage:
           when: never
         - !reference [.rules, skip]
         - !reference [.rules, run]
-        - changes:
-          - phpunit.xml.dist
-          - '**/Resources/views/*.html.twig'
-          - '**/*.{php,xml,yaml,json}'
-          - 'adr/*'
-          - .gitlab/stages/02-unit.yml
+        - when: always
     before_script:
         - composer install --optimize-autoloader --no-interaction
         - mkdir -p config/jwt || true

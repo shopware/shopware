@@ -59,6 +59,6 @@ describe('Administration: Check module navigation', () => {
         // Take snapshot
         cy.get('.sw-loader').should('not.exist');
         cy.prepareAdminForScreenshot();
-        cy.takeSnapshot('[Review] Listing details', '.sw-card-section--secondary', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
+        cy.takeSnapshot('[Review] Details', '.sw-card-section--secondary', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 });

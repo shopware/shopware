@@ -486,6 +486,7 @@ Component.register('sw-order-list', {
             for (let i = 0; i < order.transactions.length; i += 1) {
                 if (!['cancelled', 'failed'].includes(order.transactions[i].stateMachineState.technicalName)) {
                     technicalName = order.transactions[i].stateMachineState.technicalName;
+                    break;
                 }
             }
 
@@ -572,6 +573,16 @@ Component.register('sw-order-list', {
         async onBulkEditItems() {
             await this.$nextTick();
             this.$router.push({ name: 'sw.bulk.edit.order' });
+        },
+
+        transaction(item) {
+            for (let i = 0; i < item.transactions.length; i += 1) {
+                if (!['cancelled', 'failed'].includes(item.transactions[i].stateMachineState.technicalName)) {
+                    return item.transactions[i];
+                }
+            }
+
+            return item.transactions.last();
         },
     },
 });

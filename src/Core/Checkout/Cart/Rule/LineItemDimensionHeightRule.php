@@ -51,14 +51,14 @@ class LineItemDimensionHeightRule extends Rule
     public function getConstraints(): array
     {
         $constraints = [
-            'operator' => RuleConstraints::float(),
+            'operator' => RuleConstraints::numericOperators(),
         ];
 
         if ($this->operator === self::OPERATOR_EMPTY) {
             return $constraints;
         }
 
-        $constraints['amount'] = RuleConstraints::numericOperators();
+        $constraints['amount'] = RuleConstraints::float();
 
         return $constraints;
     }

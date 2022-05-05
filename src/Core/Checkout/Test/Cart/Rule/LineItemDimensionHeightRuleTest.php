@@ -10,7 +10,12 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemDimensionHeightRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -18,13 +23,23 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 class LineItemDimensionHeightRuleTest extends TestCase
 {
+    use KernelTestBehaviour;
     use CartRuleHelperTrait;
 
     private LineItemDimensionHeightRule $rule;
 
+    private EntityRepositoryInterface $ruleRepository;
+
+    private EntityRepositoryInterface $conditionRepository;
+
+    private Context $context;
+
     protected function setUp(): void
     {
+        $this->ruleRepository = $this->getContainer()->get('rule.repository');
+        $this->conditionRepository = $this->getContainer()->get('rule_condition.repository');
         $this->rule = new LineItemDimensionHeightRule();
+        $this->context = Context::createDefaultContext();
     }
 
     public function testGetName(): void
@@ -198,6 +213,30 @@ class LineItemDimensionHeightRuleTest extends TestCase
         ));
 
         static::assertFalse($match);
+    }
+
+    public function testValidateWithIntAmount(): void
+    {
+        $ruleId = Uuid::randomHex();
+        $this->ruleRepository->create(
+            [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
+            Context::createDefaultContext()
+        );
+
+        $id = Uuid::randomHex();
+        $this->conditionRepository->create([
+            [
+                'id' => $id,
+                'type' => (new LineItemDimensionHeightRule())->getName(),
+                'ruleId' => $ruleId,
+                'value' => [
+                    'operator' => Rule::OPERATOR_EQ,
+                    'amount' => 3,
+                ],
+            ],
+        ], $this->context);
+
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 
     private function createLineItemWithHeight(?float $height): LineItem

@@ -87,6 +87,8 @@ Component.register('sw-custom-field-set-renderer', {
     data() {
         return {
             customFields: {},
+            loadingFields: [],
+            refreshVisibleSets: false,
         };
     },
 
@@ -122,6 +124,10 @@ Component.register('sw-custom-field-set-renderer', {
         },
 
         visibleCustomFieldSets() {
+            // needed for recalculation only
+            // eslint-disable-next-line no-unused-expressions
+            this.refreshVisibleSets;
+
             if (!this.filterCustomFields) {
                 return this.sortSets(this.sets);
             }
@@ -169,8 +175,8 @@ Component.register('sw-custom-field-set-renderer', {
         },
 
         'entity.customFieldsSets': {
-            handler(value) {
-                this.onChangeCustomFieldSets(value, () => null);
+            handler() {
+                this.onChangeCustomFieldSets();
             },
         },
 
@@ -196,7 +202,7 @@ Component.register('sw-custom-field-set-renderer', {
     methods: {
         createdComponent() {
             this.initializeCustomFields();
-            this.onChangeCustomFieldSets(this.entity.customFieldSets || this.sets);
+            this.onChangeCustomFieldSets();
         },
 
         initializeCustomFields() {
@@ -341,57 +347,63 @@ Component.register('sw-custom-field-set-renderer', {
             return criteria;
         },
 
-        refreshCustomFields(sets, cb) {
-            if (!sets) {
-                return cb(sets);
+        loadCustomFieldSet(setId) {
+            if (this.loadingFields.includes(setId)) {
+                // as we might triggered multiple times with the same item, we store the loading set in a heap cache
+                return;
             }
-            const updates = sets.map((fieldSet) => {
-                if (fieldSet.customFields.length === 0) {
-                    // eslint-disable-next-line max-len
-                    return this.customFieldSetRepository.get(fieldSet.id, Shopware.Context.api, this.customFieldSetCriteriaById()).then(set => {
-                        // update the collected sets
-                        this.sets.forEach((originalSet, index) => {
-                            if (originalSet.id === set.id) {
-                                this.sets[index] = set;
-                            }
-                        });
-                        return set;
+
+            const set = this.sets.find(s => s.id === setId);
+            if (set.customFields && set.customFields.length > 0) {
+                // already loaded, so do nothing
+                return;
+            }
+
+            // indicate the loading of this item
+            this.loadingFields.push(setId);
+
+            // fully load the set
+            this.customFieldSetRepository
+                .get(setId, Shopware.Context.api, this.customFieldSetCriteriaById())
+                .then(newSet => {
+                    // replace the fully fetched set
+                    this.sets.forEach((originalSet, index) => {
+                        if (originalSet.id === newSet.id) {
+                            this.sets[index] = newSet;
+                        }
                     });
-                }
-                return Promise.resolve(fieldSet);
-            });
 
-            Promise.all(updates)
-                .then((updatedSets) => {
-                    sets.splice(0, sets.length, ...updatedSets);
-                    this.customFields = updatedSets;
-
-                    if (this.hasParent && this.entity.customFieldSets.length < 1) {
-                        this.parentEntity.customFieldSets = sets;
-                    } else {
-                        this.entity.customFieldSets = sets;
-                    }
-
-                    cb(sets);
+                    // remove the set from the currently loading onces and refresh the visible sets
+                    this.loadingFields = this.loadingFields.filter(s => s.id !== setId);
+                    this.refreshVisibleSets = !this.refreshVisibleSets;
+                }).catch(() => {
+                    // in case of error make loading again possible
+                    this.loadingFields = this.loadingFields.filter(s => s.id !== setId);
                 });
+        },
 
-            return cb(sets);
+        resetTabs() {
+            if (this.visibleCustomFieldSets.length > 0 && this.$refs.tabComponent) {
+                // Reset state of tab component if custom field selection changes
+                this.$nextTick(() => {
+                    this.$refs.tabComponent.mountedComponent();
+                    this.$refs.tabComponent.setActiveItem({ name: this.visibleCustomFieldSets[0].id });
+                });
+            }
         },
 
         onChangeCustomFieldSets(value, updateFn) {
-            this.refreshCustomFields(value, (sets) => {
-                if (this.visibleCustomFieldSets.length > 0 && this.$refs.tabComponent) {
-                    // Reset state of tab component if custom field selection changes
-                    this.$nextTick(() => {
-                        this.$refs.tabComponent.mountedComponent();
-                        this.$refs.tabComponent.setActiveItem(this.visibleCustomFieldSets[0]);
-                    });
-                }
+            if (!this.$refs.tabComponent) {
+                // when rendered initially we wait for the tabcomponent to load so we can activate the first item
+                this.$nextTick(() => {
+                    this.resetTabs();
+                });
+            }
+            this.resetTabs();
 
-                if (typeof updateFn === 'function') {
-                    updateFn(sets);
-                }
-            });
+            if (typeof updateFn === 'function') {
+                updateFn(value);
+            }
         },
 
         onChangeCustomFieldSetSelectionActive(newVal) {

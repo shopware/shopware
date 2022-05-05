@@ -163,7 +163,7 @@ class WebhookEventLogEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
      *
      * @return object|string
      */
@@ -175,7 +175,7 @@ class WebhookEventLogEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
      *
      * @param string|object $serializedWebhookMessage
      */

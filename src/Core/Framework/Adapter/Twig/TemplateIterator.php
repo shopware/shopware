@@ -21,7 +21,7 @@ class TemplateIterator implements \IteratorAggregate
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Return type will be changed to \Traversable
+     * @deprecated tag:v6.5.0 - reason:return-type-change - Return type will be changed to \Traversable
      */
     #[\ReturnTypeWillChange]
     public function getIterator(): iterable/* :\Traversable */

@@ -312,7 +312,7 @@ class FirstRunWizardClientTest extends TestCase
             new Response(200, [], \file_get_contents(__DIR__ . '/../_fixtures/FirstRunWizard/languagePluginsResponse.json'))
         );
 
-        $plugins = $this->getSystemFwrClient()->getLanguagePlugins('en_GB', new PluginCollection());
+        $plugins = $this->getSystemFwrClient()->getLanguagePlugins('en_GB', new PluginCollection(), $this->storeContext);
 
         static::assertCount(1, $plugins);
 
@@ -333,7 +333,7 @@ class FirstRunWizardClientTest extends TestCase
             new Response(200, [], \file_get_contents(__DIR__ . '/../_fixtures/FirstRunWizard/demoDataPluginsResponse.json'))
         );
 
-        $plugins = $this->getSystemFwrClient()->getDemoDataPlugins('en_GB', new PluginCollection());
+        $plugins = $this->getSystemFwrClient()->getDemoDataPlugins('en_GB', new PluginCollection(), $this->storeContext);
 
         static::assertCount(1, $plugins);
 
@@ -354,7 +354,7 @@ class FirstRunWizardClientTest extends TestCase
             new Response(200, [], \file_get_contents(__DIR__ . '/../_fixtures/FirstRunWizard/recommendationRegionsResponse.json'))
         );
 
-        $regions = $this->getSystemFwrClient()->getRecommendationRegions('en_GB');
+        $regions = $this->getSystemFwrClient()->getRecommendationRegions('en_GB', $this->storeContext);
 
         static::assertCount(1, $regions);
 
@@ -391,7 +391,8 @@ class FirstRunWizardClientTest extends TestCase
             'en_GB',
             new PluginCollection(),
             'dach',
-            'shipping'
+            'shipping',
+            $this->storeContext
         );
 
         static::assertCount(1, $recommendations);

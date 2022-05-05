@@ -23,6 +23,8 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:remove-subscriber',
         // Decorators still need to be called for BC reasons, therefore they do not trigger deprecations.
         'reason:remove-decorator',
+        // Entities still need to be present in the DI container, therefore they do not trigger deprecations.
+        'reason:remove-entity',
         // Classes that will be internal are still called from inside the core, therefore they do not trigger deprecations.
         'reason:becomes-internal',
         // Classes that will be final, can only be changed with the next major

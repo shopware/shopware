@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 use Shopware\Core\Framework\Update\Struct\Version;
 
 /**
- * @deprecated tag:v6.5.0 will be considered internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be considered internal
  */
 class PluginCompatibility
 {

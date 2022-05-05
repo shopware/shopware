@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 
@@ -36,10 +37,17 @@ class FrwRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
     }
 
     /**
-     * @deprecated tag:v6.5.0 - parameter $language will be removed and $context must not be null in the future
+     * @deprecated tag:v6.5.0 - $context must not be null in the future
      */
     public function getDefaultQueryParameters(?Context $context, ?string $language = null): array
     {
+        if ($context === null) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'First parameter `$context` of method "getDefaultQueryParameters()" in "StoreRequestOptionsProvider" will be required in v6.5.0.0.'
+            );
+        }
+
         return $this->optionsProvider->getDefaultQueryParameters($context, $language);
     }
 

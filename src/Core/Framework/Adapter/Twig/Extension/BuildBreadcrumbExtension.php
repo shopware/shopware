@@ -7,6 +7,7 @@ use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
@@ -38,12 +39,12 @@ class BuildBreadcrumbExtension extends AbstractExtension
             new TwigFunction('sw_breadcrumb_full', [$this, 'getFullBreadcrumb'], ['needs_context' => true]),
 
             /*
-             * @deprecated tag:v6.5.0 - Will be deleted, use sw_breadcrumb_categories instead.
+             * @deprecated tag:v6.5.0 - Will be deleted, use sw_breadcrumb_full instead.
              */
             new TwigFunction('sw_breadcrumb', [$this, 'buildSeoBreadcrumb'], ['needs_context' => true]),
 
             /*
-             * @deprecated tag:v6.5.0 - Will be deleted, use sw_breadcrumb_categories instead.
+             * @deprecated tag:v6.5.0 - Will be deleted, use sw_breadcrumb_full instead.
              */
             new TwigFunction('sw_breadcrumb_types', [$this, 'getCategoryTypes']),
 
@@ -56,7 +57,12 @@ class BuildBreadcrumbExtension extends AbstractExtension
 
     public function getFullBreadcrumb(array $twigContext, CategoryEntity $category, Context $context): array
     {
-        $seoBreadcrumb = $this->buildSeoBreadcrumb($twigContext, $category);
+        $salesChannel = null;
+        if (\array_key_exists('context', $twigContext) && $twigContext['context'] instanceof SalesChannelContext) {
+            $salesChannel = $twigContext['context']->getSalesChannel();
+        }
+
+        $seoBreadcrumb = $this->categoryBreadcrumbBuilder->build($category, $salesChannel);
 
         if ($seoBreadcrumb === null) {
             return [];
@@ -88,6 +94,11 @@ class BuildBreadcrumbExtension extends AbstractExtension
      */
     public function buildSeoBreadcrumb(array $twigContext, CategoryEntity $category, ?string $navigationCategoryId = null): ?array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'sw_breadcrumb_full')
+        );
+
         $salesChannel = null;
         if (\array_key_exists('context', $twigContext) && $twigContext['context'] instanceof SalesChannelContext) {
             $salesChannel = $twigContext['context']->getSalesChannel();
@@ -101,6 +112,11 @@ class BuildBreadcrumbExtension extends AbstractExtension
      */
     public function getCategoryTypes(array $categoryIds, Context $context): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'sw_breadcrumb_full')
+        );
+
         return $this->buildCategoryTypes($this->getCategories($categoryIds, $context));
     }
 
@@ -111,6 +127,11 @@ class BuildBreadcrumbExtension extends AbstractExtension
      */
     public function buildCategoryTypes(array $categories): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'sw_breadcrumb_full')
+        );
+
         if (\count($categories) === 0) {
             return [];
         }

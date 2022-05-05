@@ -12,7 +12,7 @@ use Symfony\Component\VarDumper\Cloner\Data;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @deprecated tag:v6.5.0 will be internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal
  */
 class ScriptTraces extends AbstractDataCollector implements ResetInterface
 {

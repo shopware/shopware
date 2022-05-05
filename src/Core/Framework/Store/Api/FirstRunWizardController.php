@@ -64,7 +64,7 @@ class FirstRunWizardController extends AbstractController
         $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
 
         try {
-            $languagePlugins = $this->frwClient->getLanguagePlugins($language, $plugins);
+            $languagePlugins = $this->frwClient->getLanguagePlugins($language, $plugins, $context);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
@@ -87,7 +87,7 @@ class FirstRunWizardController extends AbstractController
         $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
 
         try {
-            $languagePlugins = $this->frwClient->getDemoDataPlugins($language, $plugins);
+            $languagePlugins = $this->frwClient->getDemoDataPlugins($language, $plugins, $context);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
@@ -102,12 +102,12 @@ class FirstRunWizardController extends AbstractController
      * @Since("6.0.0.0")
      * @Route("/api/_action/store/recommendation-regions", name="api.custom.store.recommendation-regions", methods={"GET"})
      */
-    public function getRecommendationRegions(Request $request): JsonResponse
+    public function getRecommendationRegions(Request $request, Context $context): JsonResponse
     {
         $language = (string) $request->query->get('language', '');
 
         try {
-            $recommendationRegions = $this->frwClient->getRecommendationRegions($language);
+            $recommendationRegions = $this->frwClient->getRecommendationRegions($language, $context);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
@@ -132,7 +132,7 @@ class FirstRunWizardController extends AbstractController
         $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
 
         try {
-            $recommendations = $this->frwClient->getRecommendations($language, $plugins, $region, $category);
+            $recommendations = $this->frwClient->getRecommendations($language, $plugins, $region, $category, $context);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }

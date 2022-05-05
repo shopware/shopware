@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Update\Steps;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Update\Exception\UpdateFailedException;
 use Shopware\Core\Framework\Update\Services\PluginCompatibility;
@@ -71,6 +72,11 @@ class DeactivatePluginsStep
      */
     public function run(int $offset)
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'DeactivateExtensionsStep')
+        );
+
         $plugins = $this->pluginCompatibility->getPluginsToDeactivate($this->toVersion, $this->context, $this->deactivationFilter);
 
         $pluginCount = \count($plugins);

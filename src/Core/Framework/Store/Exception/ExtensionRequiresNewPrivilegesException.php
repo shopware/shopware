@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Exception;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\ShopwareHttpException;
 
 /**
@@ -11,6 +12,11 @@ class ExtensionRequiresNewPrivilegesException extends ShopwareHttpException
 {
     public static function fromPrivilegeList(string $appName, array $privileges): self
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'ExtensionUpdateRequiresConsentAffirmationException')
+        );
+
         return new self(
             'Updating "{{app}}" requires new privileges "{{privileges}}".',
             [
@@ -22,6 +28,11 @@ class ExtensionRequiresNewPrivilegesException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'ExtensionUpdateRequiresConsentAffirmationException')
+        );
+
         return 'FRAMEWORK__EXTENSION_REQUIRES_NEW_PRIVILEGES';
     }
 }

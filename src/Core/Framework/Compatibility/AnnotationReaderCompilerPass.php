@@ -6,7 +6,7 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
- * @deprecated tag:v6.5.0 - Remove compatibility bridge to make parameters case insensitive
+ * @deprecated tag:v6.5.0 - reason:remove-subscriber - Remove compatibility bridge to make parameters case insensitive
  * @see https://github.com/doctrine/annotations/issues/421
  */
 class AnnotationReaderCompilerPass implements CompilerPassInterface

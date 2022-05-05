@@ -80,7 +80,7 @@ class ArrayEntity extends Entity implements \ArrayAccess
     }
 
     /**
-     * @deprecated tag:v6.5.0 - return type will be changed to bool
+     * @deprecated tag:v6.5.0 - reason:return-type-change - return type will be changed to bool
      */
     #[\ReturnTypeWillChange]
     public function offsetExists($offset)
@@ -93,7 +93,7 @@ class ArrayEntity extends Entity implements \ArrayAccess
     }
 
     /**
-     * @deprecated tag:v6.5.0 - return type will be changed to mixed
+     * @deprecated tag:v6.5.0 - reason:return-type-change - return type will be changed to mixed
      */
     #[\ReturnTypeWillChange]
     public function offsetGet($offset)
@@ -153,7 +153,7 @@ class ArrayEntity extends Entity implements \ArrayAccess
     }
 
     /**
-     * @deprecated tag:v6.5.0 - return type will be changed to mixed
+     * @deprecated tag:v6.5.0 - reason:return-type-change - return type will be changed to mixed
      */
     #[\ReturnTypeWillChange]
     public function jsonSerialize(): array/* :mixed */

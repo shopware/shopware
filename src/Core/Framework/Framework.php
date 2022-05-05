@@ -97,7 +97,6 @@ class Framework extends Bundle
         $container->addCompilerPass(new RouteScopeCompilerPass());
         $container->addCompilerPass(new AssetRegistrationCompilerPass());
         $container->addCompilerPass(new FilesystemConfigMigrationCompilerPass());
-        $container->addCompilerPass(new AnnotationReaderCompilerPass());
         $container->addCompilerPass(new RateLimiterCompilerPass());
         $container->addCompilerPass(new IncrementerGatewayCompilerPass());
 
@@ -107,6 +106,10 @@ class Framework extends Bundle
         }
 
         $container->addCompilerPass(new FrameworkMigrationReplacementCompilerPass());
+
+        if (!Feature::isActive('v6.5.0.0')) {
+            $container->addCompilerPass(new AnnotationReaderCompilerPass());
+        }
 
         parent::build($container);
     }

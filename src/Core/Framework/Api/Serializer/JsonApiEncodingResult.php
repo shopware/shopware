@@ -104,7 +104,7 @@ class JsonApiEncodingResult implements \JsonSerializable
     }
 
     /**
-     * @deprecated tag:v6.5.0 - return type will be changed to string
+     * @deprecated tag:v6.5.0 - reason:return-type-change - return type will be changed to string
      *
      * @return array
      */

@@ -15,7 +15,7 @@ use function iterator_to_array;
 use function sprintf;
 
 /**
- * @deprecated tag:v6.5.0 - will be marked internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be marked internal
  */
 class ChangelogProcessor
 {

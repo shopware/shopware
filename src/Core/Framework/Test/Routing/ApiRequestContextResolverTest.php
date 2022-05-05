@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\ApiRequestContextResolver;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
@@ -54,7 +53,7 @@ class ApiRequestContextResolverTest extends TestCase
 
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID, $user->getUserId());
-        $request->attributes->set('_routeScope', new RouteScope(['scopes' => ['api']]));
+        $request->attributes->set('_routeScope', ['api']);
         $this->resolver->resolve($request);
 
         static::assertTrue(
@@ -87,7 +86,7 @@ class ApiRequestContextResolverTest extends TestCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, 'test');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $this->createAccessKey($user->getUserId()));
 
-        $request->attributes->set('_routeScope', new RouteScope(['scopes' => ['api']]));
+        $request->attributes->set('_routeScope', ['api']);
         $this->resolver->resolve($request);
 
         static::assertTrue(
@@ -116,7 +115,7 @@ class ApiRequestContextResolverTest extends TestCase
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, 'test');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $this->createAccessKey($user->getUserId()));
-        $request->attributes->set('_routeScope', new RouteScope(['scopes' => ['api']]));
+        $request->attributes->set('_routeScope', ['api']);
 
         $this->resolver->resolve($request);
 
@@ -132,7 +131,7 @@ class ApiRequestContextResolverTest extends TestCase
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, 'test');
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $this->createAccessKey($user->getUserId()));
-        $request->attributes->set('_routeScope', new RouteScope(['scopes' => ['api']]));
+        $request->attributes->set('_routeScope', ['api']);
 
         $request->headers->set(PlatformRequest::HEADER_SKIP_TRIGGER_FLOW, true);
 

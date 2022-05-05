@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Asset;
 
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 
 /**
@@ -26,6 +27,11 @@ class LastModifiedVersionStrategy implements VersionStrategyInterface
      */
     public function getVersion(string $path)
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'FlysystemLastModifiedVersionStrategy')
+        );
+
         return $this->applyVersion($path);
     }
 
@@ -37,6 +43,11 @@ class LastModifiedVersionStrategy implements VersionStrategyInterface
      */
     public function applyVersion(string $path)
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'FlysystemLastModifiedVersionStrategy')
+        );
+
         $localFile = $this->bundlePath . '/Resources/public/' . $path;
 
         if (!file_exists($localFile)) {

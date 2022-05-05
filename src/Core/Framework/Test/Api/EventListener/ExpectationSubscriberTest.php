@@ -6,7 +6,6 @@ use Composer\InstalledVersions;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\EventListener\ExpectationSubscriber;
 use Shopware\Core\Framework\Api\Exception\ExceptionFailedException;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
@@ -127,7 +126,7 @@ class ExpectationSubscriberTest extends TestCase
     private function makeRequest(): Request
     {
         $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, new RouteScope(['scopes' => [ApiRouteScope::ID]]));
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
 
         return $request;
     }

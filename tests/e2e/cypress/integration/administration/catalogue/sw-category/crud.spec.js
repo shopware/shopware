@@ -11,7 +11,7 @@ describe('Category: Create several categories', () => {
             });
     });
 
-    it('@base @catalogue: create a subcategory', () => {
+    it('@base @catalogue: create a subcategory, make it first invisible', () => {
         const page = new CategoryPageObject();
 
         // Request we want to wait for later
@@ -35,7 +35,7 @@ describe('Category: Create several categories', () => {
             page.elements.contextMenuButton,
             `${page.elements.categoryTreeItemInner}:nth-of-type(1)`
         );
-        cy.get(`${page.elements.categoryTreeItemInner}__content input`).type('Categorian');
+        cy.get(`${page.elements.categoryTreeItemInner}__content input`).type('Invisibilian');
         cy.get(`${page.elements.categoryTreeItemInner}__content input`).then(($btn) => {
             if ($btn) {
                 cy.get(`${page.elements.categoryTreeItemInner}__content input`).should('be.visible');
@@ -53,10 +53,15 @@ describe('Category: Create several categories', () => {
                 cy.get('.sw-category-tree__inner .sw-confirm-field__button--cancel').click();
             }
         });
-        cy.get(`${page.elements.categoryTreeItemInner}:nth-child(1)`).contains('Categorian');
-        cy.contains('Categorian').click();
+
+        // Verify category not visible in Storefront
+        cy.visit('/');
+        cy.get('.main-navigation-menu.nav').should('not.contain', 'Invisibilian');
 
         // Assign category and set it active
+        cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get(`${page.elements.categoryTreeItemInner}:nth-child(1)`).contains('Invisibilian');
+        cy.contains('Invisibilian').click();
         cy.wait('@loadCategory').its('response.statusCode').should('equal', 200);
         cy.get('.sw-category-detail-base').should('be.visible');
         cy.get('input[name="categoryActive"]').click();
@@ -68,8 +73,9 @@ describe('Category: Create several categories', () => {
 
         // Verify category in Storefront
         cy.visit('/');
-        cy.contains('Categorian').click();
+        cy.get('.main-navigation-menu.nav').find('a[title="Invisibilian"]').click();
         cy.get('.main-navigation-link.active').should('be.visible');
+        cy.get('.breadcrumb-title').contains('Invisibilian');
     });
 
     it('@base @catalogue: should hide the elements not needed for a Structuring element / Entry point', () => {

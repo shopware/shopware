@@ -14,6 +14,9 @@ class MediaLoadedSubscriber implements EventSubscriberInterface
 {
     private UrlGeneratorInterface $urlGenerator;
 
+    /**
+     * @internal
+     */
     public function __construct(UrlGeneratorInterface $urlGenerator)
     {
         $this->urlGenerator = $urlGenerator;

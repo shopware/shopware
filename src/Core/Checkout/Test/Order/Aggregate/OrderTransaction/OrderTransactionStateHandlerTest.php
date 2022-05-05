@@ -20,6 +20,9 @@ use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class OrderTransactionStateHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;

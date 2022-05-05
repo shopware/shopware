@@ -13,6 +13,9 @@ use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegi
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class CustomerGroupRegistrationTest extends TestCase
 {
     use IntegrationTestBehaviour;

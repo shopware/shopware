@@ -13,6 +13,9 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class GoodsPriceRuleTest extends TestCase
 {
     public function testRuleWithExactPriceMatch(): void

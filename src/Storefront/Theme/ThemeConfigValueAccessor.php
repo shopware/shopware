@@ -15,6 +15,9 @@ class ThemeConfigValueAccessor
 
     private array $traces = [];
 
+    /**
+     * @internal
+     */
     public function __construct(AbstractResolvedConfigLoader $themeConfigLoader)
     {
         $this->themeConfigLoader = $themeConfigLoader;

@@ -10,6 +10,9 @@ use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+/**
+ * @internal
+ */
 class CategoryUrlGeneratorTest extends TestCase
 {
     private const EXTERNAL_URL = 'https://shopware.com/';

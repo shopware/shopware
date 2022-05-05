@@ -8,6 +8,9 @@ use Shopware\Core\Framework\App\Validation\ConfigValidator;
 use Shopware\Core\Framework\App\Validation\Error\ConfigurationError;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class ConfigValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;

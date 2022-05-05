@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @internal
+ */
 class DeactivateAppCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

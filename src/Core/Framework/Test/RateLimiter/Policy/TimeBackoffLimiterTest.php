@@ -17,6 +17,9 @@ use Symfony\Component\RateLimiter\LimiterInterface;
 use Symfony\Component\RateLimiter\Storage\CacheStorage;
 use Symfony\Component\RateLimiter\Util\TimeUtil;
 
+/**
+ * @internal
+ */
 class TimeBackoffLimiterTest extends TestCase
 {
     use IntegrationTestBehaviour;

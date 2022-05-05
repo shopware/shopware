@@ -22,6 +22,9 @@ class MailFactory extends AbstractMailFactory
      */
     private $filesystem;
 
+    /**
+     * @internal
+     */
     public function __construct(ValidatorInterface $validator, FilesystemInterface $filesystem)
     {
         $this->validator = $validator;

@@ -8,6 +8,7 @@ use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Decoratable\DecoratableImpl
 use Shopware\Core\DevOps\Test\StaticAnalyze\PHPStan\Rules\Decoratable\_fixtures\DecoratableImplementsInterface\DecoratableDoesNotImplementInterface;
 
 /**
+ * @internal
  * @extends RuleTestCase<DecoratableImplementsInterfaceRule>
  */
 class DecoratableImplementsInterfaceRuleTest extends RuleTestCase

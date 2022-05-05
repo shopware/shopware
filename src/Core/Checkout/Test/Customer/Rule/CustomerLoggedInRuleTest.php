@@ -12,6 +12,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
+/**
+ * @internal
+ */
 class CustomerLoggedInRuleTest extends TestCase
 {
     use KernelTestBehaviour;

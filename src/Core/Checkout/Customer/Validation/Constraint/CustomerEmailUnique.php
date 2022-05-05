@@ -37,6 +37,9 @@ class CustomerEmailUnique extends Constraint
         self::CUSTOMER_EMAIL_NOT_UNIQUE => 'CUSTOMER_EMAIL_NOT_UNIQUE',
     ];
 
+    /**
+     * @internal
+     */
     public function __construct(array $options)
     {
         $options = array_merge(

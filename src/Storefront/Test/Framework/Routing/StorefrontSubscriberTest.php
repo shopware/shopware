@@ -21,6 +21,9 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class StorefrontSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;

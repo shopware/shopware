@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class EntryPointValidatorTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -13,6 +13,9 @@ class StaticFileAvailableThemeProvider extends AbstractAvailableThemeProvider
 
     private FilesystemInterface $filesystem;
 
+    /**
+     * @internal
+     */
     public function __construct(FilesystemInterface $filesystem)
     {
         $this->filesystem = $filesystem;

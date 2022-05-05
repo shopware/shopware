@@ -12,6 +12,9 @@ class RequeueDeadMessagesHandler extends ScheduledTaskHandler
      */
     private $requeueService;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $scheduledTaskRepository, RequeueDeadMessagesService $requeueService)
     {
         parent::__construct($scheduledTaskRepository);

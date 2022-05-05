@@ -8,6 +8,7 @@ use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Decoratable\DecoratableDoes
 use Shopware\Core\DevOps\Test\StaticAnalyze\PHPStan\Rules\Decoratable\_fixtures\DecoratableDoesNotAddPublicMethod\DecoratableAddPublicMethod;
 
 /**
+ * @internal
  * @extends RuleTestCase<DecoratableDoesNotAddPublicMethodRule>
  */
 class DecoratableDoesNotAddPublicMethodRuleTest extends RuleTestCase

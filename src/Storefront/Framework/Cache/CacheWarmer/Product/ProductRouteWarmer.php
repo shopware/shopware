@@ -20,6 +20,9 @@ class ProductRouteWarmer implements CacheRouteWarmer
      */
     private $definition;
 
+    /**
+     * @internal
+     */
     public function __construct(IteratorFactory $iteratorFactory, ProductDefinition $definition)
     {
         $this->iteratorFactory = $iteratorFactory;

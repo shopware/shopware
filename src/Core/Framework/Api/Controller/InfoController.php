@@ -59,6 +59,9 @@ class InfoController extends AbstractController
 
     private EntityRepositoryInterface $appRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         DefinitionService $definitionService,
         ParameterBagInterface $params,

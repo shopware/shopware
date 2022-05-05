@@ -18,6 +18,9 @@ class SortedPaymentMethodRoute extends AbstractPaymentMethodRoute
 {
     private AbstractPaymentMethodRoute $decorated;
 
+    /**
+     * @internal
+     */
     public function __construct(AbstractPaymentMethodRoute $decorated)
     {
         $this->decorated = $decorated;

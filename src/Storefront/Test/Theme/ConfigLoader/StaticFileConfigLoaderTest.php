@@ -13,6 +13,9 @@ use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigLoader;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 
+/**
+ * @internal
+ */
 class StaticFileConfigLoaderTest extends TestCase
 {
     public function testFileNotExisting(): void

@@ -44,6 +44,9 @@ use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class GenerateDocumentActionTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -529,6 +532,9 @@ class GenerateDocumentActionTest extends TestCase
         );
     }
 }
+/**
+ * @internal
+ */
 class CustomDoc implements DocumentGeneratorInterface
 {
     public const CUSTOM_DOC = 'customDoc';

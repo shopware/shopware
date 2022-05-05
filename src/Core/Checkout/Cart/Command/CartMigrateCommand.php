@@ -35,6 +35,8 @@ class CartMigrateCommand extends Command
     private bool $compress;
 
     /**
+     * @internal
+     *
      * @param \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy|null $redis
      */
     public function __construct($redis, Connection $connection, bool $compress)

@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class ReturnNodeTest extends TestCase
 {
     use IntegrationTestBehaviour;

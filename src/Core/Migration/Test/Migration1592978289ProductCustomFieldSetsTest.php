@@ -11,6 +11,9 @@ use Shopware\Core\Content\Product\Aggregate\ProductCustomFieldSet\ProductCustomF
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\Migration1592978289ProductCustomFieldSets;
 
+/**
+ * @internal
+ */
 class Migration1592978289ProductCustomFieldSetsTest extends TestCase
 {
     use IntegrationTestBehaviour;

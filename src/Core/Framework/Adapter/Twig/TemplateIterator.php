@@ -11,6 +11,9 @@ class TemplateIterator implements \IteratorAggregate
 
     private array $kernelBundles;
 
+    /**
+     * @internal
+     */
     public function __construct(TwigBundleIterator $templateIterator, array $kernelBundles)
     {
         $this->templateIterator = $templateIterator;

@@ -16,6 +16,9 @@ use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Twig\Loader\LoaderInterface;
 
+/**
+ * @internal
+ */
 class CsrfPlaceholderHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;

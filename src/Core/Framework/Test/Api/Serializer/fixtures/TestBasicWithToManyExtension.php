@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\Api\Serializer\fixtures;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
+/**
+ * @internal
+ */
 class TestBasicWithToManyExtension extends SerializationFixture
 {
     public function getInput()

@@ -36,6 +36,9 @@ class SalesChannelContextRestorer
 
     private Connection $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(
         AbstractSalesChannelContextFactory $factory,
         CartRuleLoader $cartRuleLoader,

@@ -14,6 +14,9 @@ class CachedDomainLoader extends AbstractDomainLoader
 
     private CacheInterface $cache;
 
+    /**
+     * @internal
+     */
     public function __construct(AbstractDomainLoader $decorated, CacheInterface $cache)
     {
         $this->decorated = $decorated;

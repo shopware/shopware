@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SingleFieldFilter;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ */
 class JoinGroup extends Filter
 {
     /**

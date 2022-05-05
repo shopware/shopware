@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Update\Checkers\MysqlVersionCheck;
 
+/**
+ * @internal
+ */
 class MysqlVersionCheckTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -7,6 +7,9 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class ProductFeatureSetPropertyTest extends TestCase
 {
     use IntegrationTestBehaviour;

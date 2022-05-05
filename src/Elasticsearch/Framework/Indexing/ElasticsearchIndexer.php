@@ -50,6 +50,9 @@ class ElasticsearchIndexer extends AbstractMessageHandler
 
     private int $indexingBatchSize;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Connection $connection,
         ElasticsearchHelper $helper,

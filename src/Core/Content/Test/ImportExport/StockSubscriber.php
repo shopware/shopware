@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Test\ImportExport;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeExportRecordEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
 class StockSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array

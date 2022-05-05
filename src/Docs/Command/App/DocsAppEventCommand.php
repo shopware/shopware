@@ -32,6 +32,9 @@ class DocsAppEventCommand extends Command
 
     private Environment $twig;
 
+    /**
+     * @internal
+     */
     public function __construct(
         BusinessEventCollector $businessEventCollector,
         HookableEventCollector $hookableEventCollector,

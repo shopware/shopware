@@ -22,6 +22,9 @@ class CustomerValidationFactory implements DataValidationFactoryInterface
      */
     private $profileValidation;
 
+    /**
+     * @internal
+     */
     public function __construct(DataValidationFactoryInterface $profileValidation)
     {
         $this->profileValidation = $profileValidation;

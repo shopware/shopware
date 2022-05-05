@@ -20,6 +20,9 @@ use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 
+/**
+ * @internal
+ */
 class PercentagePriceCalculatorTest extends TestCase
 {
     /**
@@ -174,6 +177,9 @@ class PercentagePriceCalculatorTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class PercentageCalculation
 {
     /**

@@ -22,6 +22,9 @@ class MediaFolderRepositoryDecorator implements EntityRepositoryInterface
 
     private EntityRepositoryInterface $mediaRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $innerRepo,
         EntityRepositoryInterface $mediaRepository

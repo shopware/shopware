@@ -21,6 +21,9 @@ class MigrationSource
      */
     private $replacementPatterns = [];
 
+    /**
+     * @internal
+     */
     public function __construct(string $name, iterable $namespaces = [])
     {
         $this->name = $name;

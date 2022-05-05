@@ -15,6 +15,9 @@ use Shopware\Core\Migration\V6_4\Migration1616076922AppPaymentMethod;
 use Shopware\Core\Migration\V6_4\Migration1643386819AddPreparedPaymentsToAppPaymentMethod;
 use Shopware\Core\Migration\V6_4\Migration1647511158AddRefundUrlToAppPaymentMethod;
 
+/**
+ * @internal
+ */
 class Migration1616076922AppPaymentMethodTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -10,6 +10,9 @@ class UpdatePostFinishSubscriber implements EventSubscriberInterface
 {
     private TaskRegistry $registry;
 
+    /**
+     * @internal
+     */
     public function __construct(TaskRegistry $taskRegistry)
     {
         $this->registry = $taskRegistry;

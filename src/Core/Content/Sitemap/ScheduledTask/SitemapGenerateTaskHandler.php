@@ -37,6 +37,9 @@ class SitemapGenerateTaskHandler extends ScheduledTaskHandler
 
     private EventDispatcherInterface $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $scheduledTaskRepository,
         EntityRepositoryInterface $salesChannelRepository,

@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Store\Struct\PermissionCollection;
 
+/**
+ * @internal
+ */
 class PermissionCollectionTest extends TestCase
 {
     private const PERMISSIONS = [

@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Plugin\Command\PluginListCommand;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @internal
+ */
 class PluginListCommandTest extends TestCase
 {
     /**

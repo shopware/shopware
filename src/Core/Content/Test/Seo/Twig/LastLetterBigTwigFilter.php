@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Test\Seo\Twig;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
+/**
+ * @internal
+ */
 class LastLetterBigTwigFilter extends AbstractExtension
 {
     public function getFilters(): array

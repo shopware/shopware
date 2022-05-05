@@ -10,6 +10,9 @@ class SitemapHandleFactory implements SitemapHandleFactoryInterface
 {
     private EventDispatcherInterface $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(EventDispatcherInterface $eventDispatcher)
     {
         $this->eventDispatcher = $eventDispatcher;

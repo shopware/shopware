@@ -23,6 +23,9 @@ class SeoUrlRoute extends AbstractSeoUrlRoute
      */
     private $salesChannelRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(SalesChannelRepositoryInterface $salesChannelRepository)
     {
         $this->salesChannelRepository = $salesChannelRepository;

@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Event\AppFlowActionEvent;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 
+/**
+ * @internal
+ */
 class AppFlowActionEventTest extends TestCase
 {
     public function testGetter(): void

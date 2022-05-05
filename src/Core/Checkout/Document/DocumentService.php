@@ -79,6 +79,9 @@ class DocumentService
      */
     private $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         DocumentGeneratorRegistry $documentGeneratorRegistry,
         FileGeneratorRegistry $fileGeneratorRegistry,

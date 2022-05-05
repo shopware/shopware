@@ -40,6 +40,9 @@ class LineItemFactoryRegistry
      */
     private $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $handlers, DataValidator $validator, EventDispatcherInterface $eventDispatcher)
     {
         $this->handlers = $handlers;

@@ -104,6 +104,9 @@ class ImportExport
 
     private AbstractFileService $fileService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ImportExportService $importExportService,
         ImportExportLogEntity $logEntity,

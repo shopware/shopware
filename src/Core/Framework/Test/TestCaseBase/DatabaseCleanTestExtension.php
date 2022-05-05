@@ -7,6 +7,7 @@ use PHPUnit\Runner\BeforeTestHook;
 use Shopware\Core\Kernel;
 
 /**
+ * @internal
  * Helper class to debug data problems in the test suite
  */
 class DatabaseCleanTestExtension implements BeforeTestHook, AfterTestHook

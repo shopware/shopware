@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeDefinition;
 
+/**
+ * @internal
+ */
 class ListFieldTest extends TestCase
 {
     use KernelTestBehaviour;

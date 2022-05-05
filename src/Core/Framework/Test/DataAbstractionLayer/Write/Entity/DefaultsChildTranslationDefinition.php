@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class DefaultsChildTranslationDefinition extends EntityTranslationDefinition
 {
     public const SCHEMA = '

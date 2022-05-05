@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
 
+/**
+ * @internal
+ */
 class JwtCertificateGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -17,6 +17,9 @@ use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 
+/**
+ * @internal
+ */
 class ElasticsearchOutdatedIndexDetectorTest extends TestCase
 {
     public function testUsesChunks(): void

@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Adapter\Twig\TemplateIterator;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
+/**
+ * @internal
+ */
 class TemplateIteratorTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -12,6 +12,9 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
 
     private string $exportDirectory;
 
+    /**
+     * @internal
+     */
     public function __construct(
         FilesystemInterface $fileSystem,
         string $exportDirectory

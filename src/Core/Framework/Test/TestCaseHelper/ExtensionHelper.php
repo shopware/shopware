@@ -10,6 +10,9 @@ use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractor;
 
+/**
+ * @internal
+ */
 class ExtensionHelper
 {
     public const IGNORED_PROPERTIES = ['extension', 'extensions', 'elements'];

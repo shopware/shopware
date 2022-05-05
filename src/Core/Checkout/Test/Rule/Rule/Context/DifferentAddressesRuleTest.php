@@ -10,6 +10,9 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\DifferentAddressesRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class DifferentAddressesRuleTest extends TestCase
 {
     public function testRuleMatch(): void

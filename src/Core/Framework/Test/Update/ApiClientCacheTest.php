@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Store\Services\OpenSSLVerifier;
 use Shopware\Core\Framework\Update\Services\ApiClient;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @internal
+ */
 class ApiClientCacheTest extends TestCase
 {
     // NEXT-15013 is only reproducible with filesystem cache adapter

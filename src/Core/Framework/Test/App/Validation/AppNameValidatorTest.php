@@ -8,6 +8,9 @@ use Shopware\Core\Framework\App\Validation\AppNameValidator;
 use Shopware\Core\Framework\App\Validation\Error\AppNameError;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class AppNameValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;

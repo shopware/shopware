@@ -17,6 +17,8 @@ use Shopware\Core\Migration\Migration1610523548FixCustomerColumns;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @internal
+ *
  * @deprecated tag:v6.5.0
  * this test is no longer necessary, when the old columns are dropped
  */

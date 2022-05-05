@@ -2,6 +2,10 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-final - Will be @final
+ * @final
+ */
 class SearchPattern
 {
     public const BOOLEAN_CLAUSE_AND = 'boolean_clause_and';

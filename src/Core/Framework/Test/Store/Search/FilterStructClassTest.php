@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Store\Search\EqualsFilterStruct;
 use Shopware\Core\Framework\Store\Search\FilterStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class FilterStructClassTest extends TestCase
 {
     use IntegrationTestBehaviour;

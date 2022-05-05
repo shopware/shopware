@@ -28,6 +28,9 @@ class SimpleShopwareHttpException extends ShopwareHttpException
     }
 }
 
+/**
+ * @internal
+ */
 class ErrorResponseFactoryTest extends TestCase
 {
     public function testItTransformsRegularExceptionsToJson(): void

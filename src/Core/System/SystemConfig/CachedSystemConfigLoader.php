@@ -14,6 +14,9 @@ class CachedSystemConfigLoader extends AbstractSystemConfigLoader
 
     private CacheInterface $cache;
 
+    /**
+     * @internal
+     */
     public function __construct(AbstractSystemConfigLoader $decorated, CacheInterface $cache)
     {
         $this->decorated = $decorated;

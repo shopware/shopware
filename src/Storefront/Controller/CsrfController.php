@@ -14,6 +14,8 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 /**
  * @Route(defaults={"_routeScope"={"storefront"}})
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
 class CsrfController extends StorefrontController
 {
@@ -32,6 +34,9 @@ class CsrfController extends StorefrontController
      */
     private $csrfMode;
 
+    /**
+     * @internal
+     */
     public function __construct(CsrfTokenManagerInterface $csrfTokenManager, bool $csrfEnabled, string $csrfMode)
     {
         $this->csrfTokenManager = $csrfTokenManager;

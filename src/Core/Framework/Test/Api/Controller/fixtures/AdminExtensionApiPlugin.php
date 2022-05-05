@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Test\Api\Controller\fixtures;
 
 use Shopware\Core\Framework\Plugin;
 
+/**
+ * @internal
+ */
 class AdminExtensionApiPlugin extends Plugin
 {
     public function getAdminBaseUrl(): ?string

@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage;
 
 /**
+ * @internal
  * Dummy increment storage which uses a local array.
  * Obviously only for usage in unit tests.
  */

@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
+ * @internal
  * @group skip-paratest
  */
 class ExtensionDataProviderTest extends TestCase

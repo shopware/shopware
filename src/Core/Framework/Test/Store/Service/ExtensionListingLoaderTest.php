@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class ExtensionListingLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;

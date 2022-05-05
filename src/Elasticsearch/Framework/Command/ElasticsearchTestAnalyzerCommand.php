@@ -17,6 +17,9 @@ class ElasticsearchTestAnalyzerCommand extends Command
 
     private ?ShopwareStyle $io;
 
+    /**
+     * @internal
+     */
     public function __construct(Client $client)
     {
         parent::__construct();

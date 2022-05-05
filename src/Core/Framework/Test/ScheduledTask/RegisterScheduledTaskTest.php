@@ -8,6 +8,9 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @internal
+ */
 class RegisterScheduledTaskTest extends TestCase
 {
     use IntegrationTestBehaviour;

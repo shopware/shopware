@@ -8,6 +8,7 @@ use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Decoratable\DecoratableNotI
 use Shopware\Core\DevOps\Test\StaticAnalyze\PHPStan\Rules\Decoratable\_fixtures\DecoratableNotInstantiated\DecoratableClass;
 
 /**
+ * @internal
  * @extends RuleTestCase<DecoratableNotInstantiatedRule>
  */
 class DecoratableNotInstantiatedRuleTest extends RuleTestCase

@@ -16,6 +16,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1618900427FixTotalRounding;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class Migration1618900427FixTotalRoundingTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

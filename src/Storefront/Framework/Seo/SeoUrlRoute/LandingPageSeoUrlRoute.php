@@ -23,6 +23,9 @@ class LandingPageSeoUrlRoute implements SeoUrlRouteInterface
      */
     private $landingPageDefinition;
 
+    /**
+     * @internal
+     */
     public function __construct(LandingPageDefinition $landingPageDefinition)
     {
         $this->landingPageDefinition = $landingPageDefinition;

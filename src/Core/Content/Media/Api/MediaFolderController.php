@@ -20,6 +20,9 @@ class MediaFolderController extends AbstractController
      */
     private $dissolveFolderService;
 
+    /**
+     * @internal
+     */
     public function __construct(MediaFolderService $dissolveFolderService)
     {
         $this->dissolveFolderService = $dissolveFolderService;

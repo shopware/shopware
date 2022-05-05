@@ -25,6 +25,9 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
      */
     private array $available = [];
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $repository)
     {
         $this->repository = $repository;

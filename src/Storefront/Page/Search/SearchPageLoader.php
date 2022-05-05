@@ -29,6 +29,9 @@ class SearchPageLoader
      */
     private $productSearchRoute;
 
+    /**
+     * @internal
+     */
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         AbstractProductSearchRoute $productSearchRoute,

@@ -9,6 +9,9 @@ use Shopware\Storefront\Framework\ThemeInterface;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 
+/**
+ * @internal
+ */
 class StorefrontPluginConfigurationFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -56,6 +56,9 @@ class MigrationCollectionLoader
      */
     private $logger;
 
+    /**
+     * @internal
+     */
     public function __construct(Connection $connection, MigrationRuntime $migrationRuntime, iterable $migrationSources = [], ?LoggerInterface $logger = null)
     {
         $this->connection = $connection;

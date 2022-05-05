@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\Migration1609140710AddCmsPdpLayout;
 use Shopware\Core\Migration\Migration1611732852UpdateCmsPdpLayout;
 
+/**
+ * @internal
+ */
 class Migration1611732852UpdateCmsPdpLayoutTest extends TestCase
 {
     use IntegrationTestBehaviour;

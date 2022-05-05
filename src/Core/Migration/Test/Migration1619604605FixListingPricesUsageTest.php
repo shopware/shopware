@@ -20,6 +20,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1619604605FixListingPricesUsage;
 
+/**
+ * @internal
+ */
 class Migration1619604605FixListingPricesUsageTest extends TestCase
 {
     use KernelTestBehaviour;

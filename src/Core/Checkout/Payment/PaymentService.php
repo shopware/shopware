@@ -51,6 +51,9 @@ class PaymentService
 
     private SalesChannelContextServiceInterface $contextService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         PaymentTransactionChainProcessor $paymentProcessor,
         TokenFactoryInterfaceV2 $tokenFactory,

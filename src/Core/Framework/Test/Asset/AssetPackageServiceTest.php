@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\Asset;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class AssetPackageServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

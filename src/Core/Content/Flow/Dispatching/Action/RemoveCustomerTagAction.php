@@ -11,6 +11,9 @@ class RemoveCustomerTagAction extends FlowAction
 {
     private EntityRepositoryInterface $customerTagRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $customerTagRepository)
     {
         $this->customerTagRepository = $customerTagRepository;

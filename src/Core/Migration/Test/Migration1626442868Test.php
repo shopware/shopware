@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1626442868AddGermanSalesChannelDescription;
 
+/**
+ * @internal
+ */
 class Migration1626442868Test extends TestCase
 {
     use KernelTestBehaviour;

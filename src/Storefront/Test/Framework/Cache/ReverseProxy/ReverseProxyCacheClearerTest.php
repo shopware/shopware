@@ -10,6 +10,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Storefront\Framework\Cache\ReverseProxy\RedisReverseProxyGateway;
 use Shopware\Storefront\Framework\Cache\ReverseProxy\ReverseProxyCacheClearer;
 
+/**
+ * @internal
+ */
 class ReverseProxyCacheClearerTest extends TestCase
 {
     private MockHandler $mockHandler;

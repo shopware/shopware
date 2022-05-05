@@ -17,6 +17,7 @@ use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 
 /**
+ * @internal
  * @group store-api
  * @group cart
  */

@@ -21,6 +21,7 @@ use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
+ * @internal
  * @group slow
  */
 class SyncControllerTest extends TestCase

@@ -20,6 +20,9 @@ class CustomerNumberRule extends Rule
      */
     protected $operator;
 
+    /**
+     * @internal
+     */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $numbers = null)
     {
         parent::__construct();

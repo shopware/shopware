@@ -22,6 +22,9 @@ class UserValidationController extends AbstractController
      */
     private $userValidationService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         UserValidationService $userValidationService
     ) {

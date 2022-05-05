@@ -25,6 +25,9 @@ class ElasticsearchResetCommand extends Command
 
     private IncrementGatewayRegistry $gatewayRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(Client $client, ElasticsearchOutdatedIndexDetector $detector, Connection $connection, IncrementGatewayRegistry $gatewayRegistry)
     {
         parent::__construct();

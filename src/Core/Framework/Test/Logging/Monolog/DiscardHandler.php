@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\Logging\Monolog;
 use Monolog\Handler\AbstractHandler;
 
 /**
+ * @internal
  * This handler only exists, because Monolog NullHandlers cannot be specified in xml configuration files
  *
  * @see https://github.com/symfony/monolog-bundle/issues/133

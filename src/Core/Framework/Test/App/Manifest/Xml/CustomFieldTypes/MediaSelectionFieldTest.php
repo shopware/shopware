@@ -9,6 +9,9 @@ use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\MediaSelectionFiel
 use Shopware\Core\Framework\Test\App\CustomFieldTypeTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class MediaSelectionFieldTest extends TestCase
 {
     use IntegrationTestBehaviour;

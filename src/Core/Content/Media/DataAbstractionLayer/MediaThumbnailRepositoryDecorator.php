@@ -35,6 +35,9 @@ class MediaThumbnailRepositoryDecorator implements EntityRepositoryInterface
 
     private DeleteFileHandler $deleteFileHandler;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $innerRepo,
         EventDispatcherInterface $eventDispatcher,

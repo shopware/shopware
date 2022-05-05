@@ -43,6 +43,9 @@ class DeliveryCalculator
      */
     private $percentageTaxRuleBuilder;
 
+    /**
+     * @internal
+     */
     public function __construct(
         QuantityPriceCalculator $priceCalculator,
         PercentageTaxRuleBuilder $percentageTaxRuleBuilder

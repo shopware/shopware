@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class CustomerBeforeDeleteSubscriberTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

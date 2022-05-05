@@ -14,6 +14,9 @@ class SalesChannelRule extends Rule
      */
     protected $operator;
 
+    /**
+     * @internal
+     */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $salesChannelIds = null)
     {
         parent::__construct();

@@ -28,6 +28,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageLoaderInterface;
 
 /**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  * Handles all write operations in the system.
  * Builds first a command queue over the WriteCommandExtractor and let execute this queue
  * over the EntityWriteGateway (sql implementation in default).

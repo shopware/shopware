@@ -31,6 +31,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\String\Inflector\EnglishInflector;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-final - Will be @final
+ * @final
+ */
 class DefinitionValidator
 {
     private const FOREIGN_KEY_PREFIX = 'fk';
@@ -121,6 +125,9 @@ class DefinitionValidator
      */
     private $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(DefinitionInstanceRegistry $registry, Connection $connection)
     {
         $this->registry = $registry;

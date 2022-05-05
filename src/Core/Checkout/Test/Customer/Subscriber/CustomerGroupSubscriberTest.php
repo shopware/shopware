@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class CustomerGroupSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;

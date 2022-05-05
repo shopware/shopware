@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1620733405UpdateRolePrivilegesForDistinguishablePaymentName;
 
+/**
+ * @internal
+ */
 class Migration1620733405UpdateRolePrivilegesForDistinguishablePaymentNameTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -14,6 +14,9 @@ class ConverterRegistry
      */
     private $defaultApiConverter;
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $converters, DefaultApiConverter $defaultApiConverter)
     {
         $this->defaultApiConverter = $defaultApiConverter;

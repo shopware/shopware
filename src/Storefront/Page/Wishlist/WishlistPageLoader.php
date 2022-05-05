@@ -32,6 +32,9 @@ class WishlistPageLoader
 
     private AbstractLoadWishlistRoute $wishlistLoadRoute;
 
+    /**
+     * @internal
+     */
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         AbstractLoadWishlistRoute $wishlistLoadRoute,

@@ -19,6 +19,9 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 
+/**
+ * @internal
+ */
 class EntityLoadedEventTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -220,6 +223,9 @@ class EntityLoadedEventTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class TestDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'test';

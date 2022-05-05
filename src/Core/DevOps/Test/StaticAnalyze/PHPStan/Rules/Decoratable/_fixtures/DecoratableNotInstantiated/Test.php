@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\DevOps\Test\StaticAnalyze\PHPStan\Rules\Decoratable\_fixtures\DecoratableNotInstantiated;
 
+/**
+ * @internal
+ */
 class Test
 {
     public function test(): void

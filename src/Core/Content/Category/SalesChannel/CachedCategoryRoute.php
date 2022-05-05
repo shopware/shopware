@@ -43,6 +43,8 @@ class CachedCategoryRoute extends AbstractCategoryRoute
     private EventDispatcherInterface $dispatcher;
 
     /**
+     * @internal
+     *
      * @param AbstractCacheTracer<CategoryRouteResponse> $tracer
      */
     public function __construct(

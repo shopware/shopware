@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\App\FlowAction\Xml;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\FlowAction\FlowAction;
 
+/**
+ * @internal
+ */
 class ActionTest extends TestCase
 {
     public function testFromXml(): void

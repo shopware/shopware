@@ -13,6 +13,9 @@ use Shopware\Core\Migration\V6_4\Migration1625465756DefaultSalutation as Migrati
 use Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTranslationEntity;
 use Shopware\Core\System\Salutation\SalutationEntity;
 
+/**
+ * @internal
+ */
 class Migration1625465756DefaultSalutationTest extends TestCase
 {
     use IntegrationTestBehaviour;

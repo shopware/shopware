@@ -24,6 +24,9 @@ class ElasticsearchStatusCommand extends Command
 
     private Connection $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(Client $client, Connection $connection)
     {
         parent::__construct();

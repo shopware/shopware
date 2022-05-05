@@ -9,6 +9,9 @@ use Shopware\Core\Framework\App\Template\TemplateLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\App\Template\IconTemplateLoader;
 
+/**
+ * @internal
+ */
 class IconTemplateLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;

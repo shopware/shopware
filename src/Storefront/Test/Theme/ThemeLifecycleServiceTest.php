@@ -23,6 +23,9 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
 
+/**
+ * @internal
+ */
 class ThemeLifecycleServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

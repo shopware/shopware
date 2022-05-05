@@ -41,6 +41,9 @@ class OrderGenerator implements DemodataGeneratorInterface
 
     private Generator $faker;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Connection $connection,
         AbstractSalesChannelContextFactory $contextFactory,

@@ -15,6 +15,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Validator\ConstraintViolationList;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ */
 class ErrorController extends StorefrontController
 {
     /**
@@ -30,6 +33,9 @@ class ErrorController extends StorefrontController
 
     private FooterPageletLoaderInterface $footerPageletLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ErrorTemplateResolver $errorTemplateResolver,
         HeaderPageletLoaderInterface $headerPageletLoader,

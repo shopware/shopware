@@ -23,6 +23,9 @@ class LanguageRoute extends AbstractLanguageRoute
      */
     private $repository;
 
+    /**
+     * @internal
+     */
     public function __construct(SalesChannelRepositoryInterface $repository)
     {
         $this->repository = $repository;

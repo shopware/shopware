@@ -12,6 +12,9 @@ class AppSnippetFileLoader
      */
     private $projectDir;
 
+    /**
+     * @internal
+     */
     public function __construct(
         string $projectDir
     ) {

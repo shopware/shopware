@@ -27,6 +27,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class ImageTypeDataResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;

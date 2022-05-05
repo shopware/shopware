@@ -19,6 +19,9 @@ class CurrencyRule extends Rule
      */
     protected $operator;
 
+    /**
+     * @internal
+     */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $currencyIds = null)
     {
         parent::__construct();

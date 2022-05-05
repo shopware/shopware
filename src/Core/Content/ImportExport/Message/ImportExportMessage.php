@@ -14,6 +14,9 @@ class ImportExportMessage
 
     private int $offset = 0;
 
+    /**
+     * @internal
+     */
     public function __construct(Context $context, string $logId, string $activity, int $offset = 0)
     {
         $this->context = $context;

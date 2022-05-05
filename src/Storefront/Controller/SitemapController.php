@@ -13,6 +13,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"storefront"}})
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
 class SitemapController extends StorefrontController
 {
@@ -21,6 +23,9 @@ class SitemapController extends StorefrontController
      */
     private $sitemapPageLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(SitemapPageLoader $sitemapPageLoader)
     {
         $this->sitemapPageLoader = $sitemapPageLoader;

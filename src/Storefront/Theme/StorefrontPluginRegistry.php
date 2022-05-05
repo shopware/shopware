@@ -25,6 +25,9 @@ class StorefrontPluginRegistry implements StorefrontPluginRegistryInterface, Res
 
     private ActiveAppsLoader $activeAppsLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(
         KernelInterface $kernel,
         AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory,

@@ -27,6 +27,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
+ * @internal
  * @group slow
  * @group skip-paratest
  */

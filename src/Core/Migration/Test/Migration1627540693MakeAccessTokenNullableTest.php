@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1627540693MakeAccessTokenNullable;
 
+/**
+ * @internal
+ */
 class Migration1627540693MakeAccessTokenNullableTest extends TestCase
 {
     use KernelTestBehaviour;

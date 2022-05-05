@@ -30,6 +30,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"storefront"}})
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
 class ProductController extends StorefrontController
 {
@@ -65,6 +67,9 @@ class ProductController extends StorefrontController
 
     private AbstractProductReviewSaveRoute $productReviewSaveRoute;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ProductPageLoader $productPageLoader,
         ProductCombinationFinder $combinationFinder,

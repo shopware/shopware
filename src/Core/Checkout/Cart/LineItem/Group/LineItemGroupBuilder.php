@@ -20,6 +20,9 @@ class LineItemGroupBuilder
 
     private AbstractProductLineItemProvider $lineItemProvider;
 
+    /**
+     * @internal
+     */
     public function __construct(
         LineItemGroupServiceRegistry $registry,
         LineItemGroupRuleMatcherInterface $ruleMatcher,

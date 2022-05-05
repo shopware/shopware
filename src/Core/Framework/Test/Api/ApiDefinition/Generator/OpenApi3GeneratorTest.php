@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Test\Api\ApiDefinition\EntityDefinition\SimpleDefini
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class OpenApi3GeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;

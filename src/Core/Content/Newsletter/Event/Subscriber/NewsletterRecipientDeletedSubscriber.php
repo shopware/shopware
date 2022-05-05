@@ -12,6 +12,9 @@ class NewsletterRecipientDeletedSubscriber implements EventSubscriberInterface
 {
     private MessageBusInterface $messageBus;
 
+    /**
+     * @internal
+     */
     public function __construct(MessageBusInterface $messageBus)
     {
         $this->messageBus = $messageBus;

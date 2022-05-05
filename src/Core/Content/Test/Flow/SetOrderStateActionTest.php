@@ -28,6 +28,9 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 
+/**
+ * @internal
+ */
 class SetOrderStateActionTest extends TestCase
 {
     use OrderActionTrait;

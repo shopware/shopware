@@ -32,6 +32,9 @@ class SyncService implements SyncServiceInterface
 
     private EventDispatcherInterface $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
         Connection $connection,

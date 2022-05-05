@@ -4,6 +4,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler;
 use Shopware\Storefront\Framework\Twig\Extension\CsrfFunctionExtension;
 
+/**
+ * @internal
+ */
 class CsrfFunctionExtensionTest extends \PHPUnit\Framework\TestCase
 {
     use IntegrationTestBehaviour;

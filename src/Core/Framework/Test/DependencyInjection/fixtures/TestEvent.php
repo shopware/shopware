@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @internal
+ */
 class TestEvent extends Event implements BusinessEventInterface
 {
     public const EVENT_NAME = 'test.event';

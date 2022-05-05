@@ -25,6 +25,9 @@ class SalesChannelIndexer extends EntityIndexer
 
     private ManyToManyIdFieldUpdater $manyToManyUpdater;
 
+    /**
+     * @internal
+     */
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,

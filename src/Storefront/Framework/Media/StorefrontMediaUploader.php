@@ -32,6 +32,9 @@ class StorefrontMediaUploader
      */
     private $validator;
 
+    /**
+     * @internal
+     */
     public function __construct(MediaService $mediaService, FileSaver $fileSaver, StorefrontMediaValidatorRegistry $validator)
     {
         $this->mediaService = $mediaService;

@@ -19,6 +19,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"storefront"}})
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
 class FormController extends StorefrontController
 {
@@ -40,6 +42,9 @@ class FormController extends StorefrontController
      */
     private $unsubscribeRoute;
 
+    /**
+     * @internal
+     */
     public function __construct(
         AbstractContactFormRoute $contactFormRoute,
         AbstractNewsletterSubscribeRoute $subscribeRoute,

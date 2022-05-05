@@ -15,6 +15,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
+/**
+ * @internal
+ */
 class KernelLifecycleManager
 {
     /**

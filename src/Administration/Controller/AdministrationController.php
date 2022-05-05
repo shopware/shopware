@@ -66,6 +66,9 @@ class AdministrationController extends AbstractController
 
     private DefinitionInstanceRegistry $definitionInstanceRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(
         TemplateFinder $finder,
         FirstRunWizardClient $firstRunWizardClient,

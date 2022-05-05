@@ -16,6 +16,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 
+/**
+ * @internal
+ */
 class AccountProfileControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

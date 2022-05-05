@@ -13,6 +13,9 @@ use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetEnti
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationDefinition;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
 
+/**
+ * @internal
+ */
 class CustomFieldSetRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

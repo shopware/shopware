@@ -19,6 +19,9 @@ use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetEnti
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class CustomFieldProtectionSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;

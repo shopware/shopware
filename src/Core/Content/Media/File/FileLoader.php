@@ -37,6 +37,9 @@ class FileLoader
      */
     private $mediaRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         FilesystemInterface $filesystemPublic,
         FilesystemInterface $filesystemPrivate,

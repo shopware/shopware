@@ -19,6 +19,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @internal
  * @group store-api
  */
 class ShippingMethodRouteTest extends TestCase

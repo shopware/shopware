@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\Api\Context;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 
+/**
+ * @internal
+ */
 class AdminApiSourceTest extends TestCase
 {
     public function testPermissions(): void

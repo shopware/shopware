@@ -27,6 +27,9 @@ class ContainerCartProcessor implements CartProcessorInterface
 
     private CurrencyPriceCalculator $currencyCalculator;
 
+    /**
+     * @internal
+     */
     public function __construct(
         PercentagePriceCalculator $percentageCalculator,
         QuantityPriceCalculator $quantityCalculator,

@@ -17,6 +17,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @internal
+ */
 class AppServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

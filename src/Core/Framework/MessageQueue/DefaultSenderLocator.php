@@ -14,6 +14,9 @@ class DefaultSenderLocator implements SendersLocatorInterface
 
     private ?string $defaultSenderName;
 
+    /**
+     * @internal
+     */
     public function __construct(
         SendersLocatorInterface $inner,
         ?SenderInterface $defaultSender,

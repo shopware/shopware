@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Test;
 
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @internal
+ */
 class DeprecationTagTesterTest extends TestCase
 {
     private $deprecationTagTester;

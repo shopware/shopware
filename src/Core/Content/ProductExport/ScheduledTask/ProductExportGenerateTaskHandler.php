@@ -36,6 +36,9 @@ class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
      */
     private $messageBus;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $scheduledTaskRepository,
         AbstractSalesChannelContextFactory $salesChannelContextFactory,

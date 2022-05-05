@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Test\DependencyInjection\fixtures\TestEvent;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
+/**
+ * @internal
+ */
 class ActionEventCompilerPassTest extends TestCase
 {
     public function testProcess(): void

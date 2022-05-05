@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Filesystem\Filesystem;
 
+/**
+ * @internal
+ */
 class DefaultAppUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;

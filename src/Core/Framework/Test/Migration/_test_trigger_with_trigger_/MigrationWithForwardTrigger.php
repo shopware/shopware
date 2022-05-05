@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\Migration\_test_trigger_with_trigger_;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ */
 class MigrationWithForwardTrigger extends MigrationStep
 {
     public const TRIGGER_NAME = 'testForwardTrigger';

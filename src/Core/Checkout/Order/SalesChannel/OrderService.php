@@ -52,6 +52,9 @@ class OrderService
 
     private StateMachineRegistry $stateMachineRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(
         DataValidator $dataValidator,
         DataValidationFactoryInterface $orderValidationFactory,

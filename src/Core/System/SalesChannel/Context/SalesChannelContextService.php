@@ -46,6 +46,9 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
 
     private CartService $cartService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         AbstractSalesChannelContextFactory $factory,
         CartRuleLoader $ruleLoader,

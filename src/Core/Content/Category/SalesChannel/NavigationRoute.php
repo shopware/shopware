@@ -40,6 +40,9 @@ class NavigationRoute extends AbstractNavigationRoute
      */
     private $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Connection $connection,
         SalesChannelRepositoryInterface $repository

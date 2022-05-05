@@ -17,6 +17,9 @@ class MonitoringBusDecorator implements MessageBusInterface
 
     private IncrementGatewayRegistry $gatewayRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(
         MessageBusInterface $inner,
         string $defaultTransportName,

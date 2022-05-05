@@ -9,6 +9,9 @@ use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\SingleSelectField;
 use Shopware\Core\Framework\Test\App\CustomFieldTypeTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class SingleSelectFieldTest extends TestCase
 {
     use IntegrationTestBehaviour;

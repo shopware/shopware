@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\FrameworkMigrationR
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
+/**
+ * @internal
+ */
 class FrameworkMigrationReplacementCompilerPassTest extends TestCase
 {
     public function testProcessing(): void

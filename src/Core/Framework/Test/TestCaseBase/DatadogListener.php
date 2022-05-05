@@ -22,6 +22,9 @@ use const CURLOPT_POSTFIELDS;
 use const CURLOPT_RETURNTRANSFER;
 use const JSON_THROW_ON_ERROR;
 
+/**
+ * @internal
+ */
 class DatadogListener implements TestListener
 {
     use TestListenerDefaultImplementation;

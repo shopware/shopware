@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class ConsumeMessagesControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

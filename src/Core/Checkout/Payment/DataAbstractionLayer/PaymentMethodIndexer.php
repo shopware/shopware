@@ -22,6 +22,9 @@ class PaymentMethodIndexer extends EntityIndexer
 
     private PaymentDistinguishableNameGenerator $distinguishableNameGenerator;
 
+    /**
+     * @internal
+     */
     public function __construct(
         IteratorFactory $iteratorFactory,
         EventDispatcherInterface $eventDispatcher,

@@ -28,6 +28,9 @@ class ImportExportBeforeImportRecordEvent extends Event
      */
     private $context;
 
+    /**
+     * @internal
+     */
     public function __construct(array $record, array $row, Config $config, Context $context)
     {
         $this->record = $record;

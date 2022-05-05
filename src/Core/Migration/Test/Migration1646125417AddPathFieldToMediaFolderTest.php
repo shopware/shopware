@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1646125417AddPathFieldToMediaFolder;
 
+/**
+ * @internal
+ */
 class Migration1646125417AddPathFieldToMediaFolderTest extends TestCase
 {
     use IntegrationTestBehaviour;

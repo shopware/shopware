@@ -16,6 +16,9 @@ class CurrencyFilter extends AbstractExtension
      */
     private $currencyFormatter;
 
+    /**
+     * @internal
+     */
     public function __construct(CurrencyFormatter $currencyFormatter)
     {
         $this->currencyFormatter = $currencyFormatter;

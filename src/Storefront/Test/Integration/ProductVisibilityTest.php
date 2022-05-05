@@ -24,6 +24,9 @@ use Shopware\Storefront\Page\Search\SearchPageLoader;
 use Shopware\Storefront\Page\Suggest\SuggestPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class ProductVisibilityTest extends TestCase
 {
     use IntegrationTestBehaviour;

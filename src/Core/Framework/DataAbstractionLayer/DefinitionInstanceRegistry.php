@@ -32,6 +32,7 @@ class DefinitionInstanceRegistry
     protected $entityClassMapping;
 
     /**
+     * @internal
      * @psalm-suppress ContainerDependency
      *
      * @param array $definitionMap array of $entityName => $definitionServiceId,

@@ -20,6 +20,9 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
      */
     private $interpreter;
 
+    /**
+     * @internal
+     */
     public function __construct(ProductSearchTermInterpreterInterface $interpreter)
     {
         $this->interpreter = $interpreter;

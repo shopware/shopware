@@ -21,6 +21,9 @@ class ThemeController extends AbstractController
      */
     private $themeService;
 
+    /**
+     * @internal
+     */
     public function __construct(ThemeService $themeService)
     {
         $this->themeService = $themeService;

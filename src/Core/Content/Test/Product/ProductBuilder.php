@@ -11,6 +11,7 @@ use Shopware\Core\Test\TestBuilderTrait;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @internal
  * How to use:
  *
  * $x = (new ProductBuilder(new IdsCollection(), 'p1'))

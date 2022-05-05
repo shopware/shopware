@@ -28,6 +28,9 @@ use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\Test\Middleware\MiddlewareTestCase;
 
+/**
+ * @internal
+ */
 class RetryMiddlewareTest extends MiddlewareTestCase
 {
     use IntegrationTestBehaviour;

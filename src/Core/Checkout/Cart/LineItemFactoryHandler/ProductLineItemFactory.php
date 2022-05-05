@@ -16,6 +16,9 @@ class ProductLineItemFactory implements LineItemFactoryInterface
      */
     private $priceDefinitionFactory;
 
+    /**
+     * @internal
+     */
     public function __construct(PriceDefinitionFactory $priceDefinitionFactory)
     {
         $this->priceDefinitionFactory = $priceDefinitionFactory;

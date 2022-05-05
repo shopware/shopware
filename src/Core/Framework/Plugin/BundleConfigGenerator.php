@@ -21,6 +21,9 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
 
     private string $projectDir;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Kernel $kernel,
         ActiveAppsLoader $activeAppsLoader

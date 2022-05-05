@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\ReadProtection
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\WriteProtection;
 use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyDefinition;
 
+/**
+ * @internal
+ */
 class UserAccessKeyExtension extends EntityExtension
 {
     /**

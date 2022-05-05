@@ -36,6 +36,9 @@ final class ContactFormEvent extends Event implements FlowEventAware, SalesChann
      */
     private $contactFormData;
 
+    /**
+     * @internal
+     */
     public function __construct(Context $context, string $salesChannelId, MailRecipientStruct $recipients, DataBag $contactFormData)
     {
         $this->context = $context;

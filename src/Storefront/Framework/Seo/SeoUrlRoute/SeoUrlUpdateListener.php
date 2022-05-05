@@ -38,6 +38,9 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
      */
     private $indexerRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(SeoUrlUpdater $seoUrlUpdater, Connection $connection, EntityIndexerRegistry $indexerRegistry)
     {
         $this->seoUrlUpdater = $seoUrlUpdater;

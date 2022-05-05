@@ -24,6 +24,9 @@ class WebhookEventMessageHandler extends AbstractMessageHandler
 
     private EntityRepositoryInterface $webhookEventLogRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(Client $client, EntityRepositoryInterface $webhookRepository, EntityRepositoryInterface $webhookEventLogRepository)
     {
         $this->client = $client;

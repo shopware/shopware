@@ -19,6 +19,9 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
 
     private EntityRepositoryInterface $snippetSetRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $paymentMethodRepository,
         EntityRepositoryInterface $shippingMethodRepository,

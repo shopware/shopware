@@ -21,6 +21,7 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
+ * @internal
  * @group store-api
  */
 class LogoutRouteTest extends TestCase

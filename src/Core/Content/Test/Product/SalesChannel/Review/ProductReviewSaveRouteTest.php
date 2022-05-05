@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
+ * @internal
  * @group store-api
  */
 class ProductReviewSaveRouteTest extends TestCase

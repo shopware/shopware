@@ -24,6 +24,8 @@ class ScopeRepository implements ScopeRepositoryInterface
     private $connection;
 
     /**
+     * @internal
+     *
      * @param ScopeEntityInterface[] $scopes
      */
     public function __construct(iterable $scopes, Connection $connection)

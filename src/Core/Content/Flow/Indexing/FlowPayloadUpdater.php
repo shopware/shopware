@@ -18,6 +18,9 @@ class FlowPayloadUpdater
 
     private CacheInvalidator $cacheInvalidator;
 
+    /**
+     * @internal
+     */
     public function __construct(Connection $connection, FlowBuilder $flowBuilder, CacheInvalidator $cacheInvalidator)
     {
         $this->connection = $connection;

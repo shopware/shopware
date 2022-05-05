@@ -51,6 +51,9 @@ class ImportExportFactory
 
     private AbstractFileService $fileService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ImportExportService $importExportService,
         DefinitionInstanceRegistry $definitionInstanceRegistry,

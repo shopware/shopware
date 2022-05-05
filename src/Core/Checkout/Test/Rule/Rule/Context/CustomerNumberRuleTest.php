@@ -9,6 +9,9 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\CustomerNumberRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class CustomerNumberRuleTest extends TestCase
 {
     public function testExactMatch(): void

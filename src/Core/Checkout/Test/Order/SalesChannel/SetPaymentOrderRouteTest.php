@@ -30,6 +30,9 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class SetPaymentOrderRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

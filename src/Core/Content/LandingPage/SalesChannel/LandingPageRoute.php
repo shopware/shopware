@@ -40,6 +40,9 @@ class LandingPageRoute extends AbstractLandingPageRoute
      */
     private $landingPageDefinition;
 
+    /**
+     * @internal
+     */
     public function __construct(
         SalesChannelRepositoryInterface $landingPageRepository,
         SalesChannelCmsPageLoaderInterface $cmsPageLoader,

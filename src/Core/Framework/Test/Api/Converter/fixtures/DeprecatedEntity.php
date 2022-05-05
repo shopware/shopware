@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Tax\TaxEntity;
 
+/**
+ * @internal
+ */
 class DeprecatedEntity extends Entity
 {
     use EntityIdTrait;

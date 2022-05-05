@@ -49,6 +49,9 @@ class AccountService
 
     private CartRestorer $restorer;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $customerRepository,
         EventDispatcherInterface $eventDispatcher,

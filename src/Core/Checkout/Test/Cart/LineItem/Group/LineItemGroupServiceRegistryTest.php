@@ -9,6 +9,9 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupUnitPriceNe
 use Shopware\Core\Checkout\Cart\LineItem\Group\Sorter\LineItemGroupPriceAscSorter;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Sorter\LineItemGroupPriceDescSorter;
 
+/**
+ * @internal
+ */
 class LineItemGroupServiceRegistryTest extends TestCase
 {
     /**

@@ -15,6 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
+/**
+ * @internal
+ */
 class ShippingMethodValidatorTest extends TestCase
 {
     /**

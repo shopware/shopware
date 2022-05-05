@@ -15,6 +15,9 @@ class ConfigExtension extends AbstractExtension
      */
     private $config;
 
+    /**
+     * @internal
+     */
     public function __construct(TemplateConfigAccessor $config)
     {
         $this->config = $config;

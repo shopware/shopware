@@ -21,6 +21,9 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Definition\MultiFkF
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class FkFieldPrimarySearcherTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -14,6 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 
+/**
+ * @internal
+ */
 class NewsletterRecipientTaskHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;

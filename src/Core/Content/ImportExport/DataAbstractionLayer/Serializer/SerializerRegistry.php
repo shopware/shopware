@@ -18,6 +18,9 @@ class SerializerRegistry
      */
     private $fieldSerializers;
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $entitySerializers, iterable $fieldSerializers)
     {
         $this->entitySerializers = \is_array($entitySerializers) ? $entitySerializers : iterator_to_array($entitySerializers);

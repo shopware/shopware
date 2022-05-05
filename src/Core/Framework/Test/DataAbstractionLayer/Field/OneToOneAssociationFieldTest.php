@@ -28,6 +28,9 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\SubDe
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class OneToOneAssociationFieldTest extends TestCase
 {
     use IntegrationTestBehaviour;

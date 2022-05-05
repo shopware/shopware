@@ -36,6 +36,9 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\AccountOrderController;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
+/**
+ * @internal
+ */
 class CartServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

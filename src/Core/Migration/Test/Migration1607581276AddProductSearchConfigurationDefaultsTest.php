@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Migration1607581276AddProductSearchConfigurationDefaults;
 
+/**
+ * @internal
+ */
 class Migration1607581276AddProductSearchConfigurationDefaultsTest extends TestCase
 {
     use KernelTestBehaviour;

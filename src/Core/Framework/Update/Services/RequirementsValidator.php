@@ -12,6 +12,9 @@ class RequirementsValidator
      */
     private $checkers;
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $checkers)
     {
         $this->checkers = $checkers;

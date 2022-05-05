@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+/**
+ * @internal
+ */
 class CustomerNumberRuleTest extends TestCase
 {
     use KernelTestBehaviour;

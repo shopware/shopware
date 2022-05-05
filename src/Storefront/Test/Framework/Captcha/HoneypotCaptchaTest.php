@@ -8,6 +8,9 @@ use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Shopware\Storefront\Framework\Captcha\HoneypotCaptcha;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class HoneypotCaptchaTest extends TestCase
 {
     use KernelTestBehaviour;

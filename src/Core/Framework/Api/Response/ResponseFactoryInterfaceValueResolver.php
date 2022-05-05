@@ -13,6 +13,9 @@ class ResponseFactoryInterfaceValueResolver implements ArgumentValueResolverInte
      */
     private $responseTypeRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(ResponseFactoryRegistry $responseTypeRegistry)
     {
         $this->responseTypeRegistry = $responseTypeRegistry;

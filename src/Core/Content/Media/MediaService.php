@@ -40,6 +40,9 @@ class MediaService
      */
     private $fileFetcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $mediaRepository,
         EntityRepositoryInterface $mediaFolderRepository,

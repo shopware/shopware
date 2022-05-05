@@ -12,6 +12,8 @@ class KernelPluginCollection
     private $plugins;
 
     /**
+     * @internal
+     *
      * @param Plugin[] $plugin
      */
     public function __construct(array $plugin = [])

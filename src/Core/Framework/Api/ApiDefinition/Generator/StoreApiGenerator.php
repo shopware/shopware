@@ -51,6 +51,9 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
      */
     private $openApi3Generator;
 
+    /**
+     * @internal
+     */
     public function __construct(
         OpenApiSchemaBuilder $openApiBuilder,
         OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder,

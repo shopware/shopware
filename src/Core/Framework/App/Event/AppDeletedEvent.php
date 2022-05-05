@@ -18,6 +18,9 @@ class AppDeletedEvent extends Event implements ShopwareEvent, Hookable
 
     private bool $keepUserData;
 
+    /**
+     * @internal
+     */
     public function __construct(string $appId, Context $context, bool $keepUserData = false)
     {
         $this->appId = $appId;

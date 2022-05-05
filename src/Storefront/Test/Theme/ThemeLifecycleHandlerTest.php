@@ -31,6 +31,9 @@ use Shopware\Storefront\Theme\ThemeSalesChannel;
 use Shopware\Storefront\Theme\ThemeSalesChannelCollection;
 use Shopware\Storefront\Theme\ThemeService;
 
+/**
+ * @internal
+ */
 class ThemeLifecycleHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;

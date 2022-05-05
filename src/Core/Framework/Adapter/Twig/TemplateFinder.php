@@ -21,6 +21,9 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
 
     private NamespaceHierarchyBuilder $namespaceHierarchyBuilder;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Environment $twig,
         LoaderInterface $loader,

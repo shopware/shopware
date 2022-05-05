@@ -33,6 +33,9 @@ class SitemapHandle implements SitemapHandleInterface
 
     private ?string $domainName = null;
 
+    /**
+     * @internal
+     */
     public function __construct(
         FilesystemInterface $filesystem,
         SalesChannelContext $context,

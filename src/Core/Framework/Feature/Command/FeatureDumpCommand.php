@@ -15,6 +15,9 @@ class FeatureDumpCommand extends Command
 
     private Kernel $kernel;
 
+    /**
+     * @internal
+     */
     public function __construct(Kernel $kernel)
     {
         parent::__construct();

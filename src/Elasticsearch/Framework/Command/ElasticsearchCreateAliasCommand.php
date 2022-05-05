@@ -13,6 +13,9 @@ class ElasticsearchCreateAliasCommand extends Command
 
     private CreateAliasTaskHandler $handler;
 
+    /**
+     * @internal
+     */
     public function __construct(CreateAliasTaskHandler $handler)
     {
         parent::__construct();

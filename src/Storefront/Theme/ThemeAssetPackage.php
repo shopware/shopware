@@ -15,6 +15,9 @@ class ThemeAssetPackage extends FallbackUrlPackage
 
     private AbstractThemePathBuilder $themePathBuilder;
 
+    /**
+     * @internal
+     */
     public function __construct(
         $baseUrls,
         VersionStrategyInterface $versionStrategy,

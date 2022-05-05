@@ -16,6 +16,9 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\ThemeFileImporter;
 use Shopware\Storefront\Theme\ThemeFileResolver;
 
+/**
+ * @internal
+ */
 class ThemeFileResolverTest extends TestCase
 {
     use KernelTestBehaviour;

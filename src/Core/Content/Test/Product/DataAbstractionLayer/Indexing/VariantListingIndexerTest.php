@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class VariantListingIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -352,6 +355,9 @@ class VariantListingIndexerTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class Listing
 {
     /**

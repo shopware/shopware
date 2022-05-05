@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Test\Migration\MigrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class MigrationControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

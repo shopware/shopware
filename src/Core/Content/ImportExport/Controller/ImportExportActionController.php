@@ -63,6 +63,9 @@ class ImportExportActionController extends AbstractController
 
     private AbstractMappingService $mappingService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         SupportedFeaturesService $supportedFeaturesService,
         ImportExportService $initiationService,

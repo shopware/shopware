@@ -20,6 +20,9 @@ use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
 class RetryWebhookMessageFailedSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;

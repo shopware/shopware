@@ -24,6 +24,9 @@ class PromotionGenerator implements DemodataGeneratorInterface
 
     private DefinitionInstanceRegistry $registry;
 
+    /**
+     * @internal
+     */
     public function __construct(Connection $connection, DefinitionInstanceRegistry $registry)
     {
         $this->connection = $connection;

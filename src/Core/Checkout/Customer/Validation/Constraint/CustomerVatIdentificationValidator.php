@@ -16,6 +16,9 @@ class CustomerVatIdentificationValidator extends ConstraintValidator
      */
     private $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(Connection $connection)
     {
         $this->connection = $connection;

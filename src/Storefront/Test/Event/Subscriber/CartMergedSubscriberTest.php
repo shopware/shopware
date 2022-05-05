@@ -23,6 +23,9 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+/**
+ * @internal
+ */
 class CartMergedSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -13,6 +13,9 @@ class MailerTransportFactory extends Transport
 {
     private SystemConfigService $configService;
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $factories, SystemConfigService $configService)
     {
         parent::__construct($factories);

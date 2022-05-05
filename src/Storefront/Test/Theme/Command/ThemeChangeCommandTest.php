@@ -19,6 +19,9 @@ use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @internal
+ */
 class ThemeChangeCommandTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;

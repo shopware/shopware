@@ -19,6 +19,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class Migration1618989442AddProductConfigurationSettingsUniqKeyTest extends TestCase
 {
     use IntegrationTestBehaviour;

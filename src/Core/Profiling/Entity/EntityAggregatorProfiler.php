@@ -15,6 +15,9 @@ class EntityAggregatorProfiler implements EntityAggregatorInterface
 {
     private EntityAggregatorInterface $decorated;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityAggregatorInterface $decorated)
     {
         $this->decorated = $decorated;

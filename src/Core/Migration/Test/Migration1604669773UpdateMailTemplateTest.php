@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\Migration1604669773UpdateMailTemplate;
 
+/**
+ * @internal
+ */
 class Migration1604669773UpdateMailTemplateTest extends TestCase
 {
     use IntegrationTestBehaviour;

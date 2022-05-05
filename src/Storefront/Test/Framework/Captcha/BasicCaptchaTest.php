@@ -8,6 +8,9 @@ use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class BasicCaptchaTest extends TestCase
 {
     use KernelTestBehaviour;

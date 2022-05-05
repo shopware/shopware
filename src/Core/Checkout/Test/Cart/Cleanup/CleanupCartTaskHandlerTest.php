@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class CleanupCartTaskHandlerTest extends TestCase
 {
     use KernelTestBehaviour;

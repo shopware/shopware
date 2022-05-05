@@ -16,6 +16,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class CustomFieldTestDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'attribute_test';

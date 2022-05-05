@@ -11,6 +11,9 @@ use Shopware\Core\Framework\App\Payment\Response\SyncPayResponse;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 
+/**
+ * @internal
+ */
 class AppSyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
 {
     public function testPay(): void

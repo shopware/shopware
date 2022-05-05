@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Entity\DeleteCascade
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class DeleteTest extends TestCase
 {
     use IntegrationTestBehaviour;

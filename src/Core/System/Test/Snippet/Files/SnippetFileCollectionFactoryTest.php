@@ -8,6 +8,9 @@ use Shopware\Core\System\Snippet\Files\SnippetFileCollectionFactory;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoaderInterface;
 use Shopware\Core\System\Test\Snippet\Mock\MockSnippetFile;
 
+/**
+ * @internal
+ */
 class SnippetFileCollectionFactoryTest extends TestCase
 {
     public function testCreateSnippetFileCollection(): void

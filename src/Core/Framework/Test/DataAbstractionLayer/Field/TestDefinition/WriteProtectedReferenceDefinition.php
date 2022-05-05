@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 
+/**
+ * @internal
+ */
 class WriteProtectedReferenceDefinition extends MappingEntityDefinition
 {
     public const ENTITY_NAME = '_test_nullable_reference';

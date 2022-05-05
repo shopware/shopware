@@ -36,6 +36,9 @@ class PluginCompatibility
 
     private AbstractExtensionDataProvider $extensionDataProvider;
 
+    /**
+     * @internal
+     */
     public function __construct(
         StoreClient $storeClient,
         EntityRepositoryInterface $pluginRepository,

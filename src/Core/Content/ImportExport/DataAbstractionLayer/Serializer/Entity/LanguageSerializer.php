@@ -19,6 +19,9 @@ class LanguageSerializer extends EntitySerializer implements ResetInterface
 
     private array $cacheLanguages = [];
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $languageRepository)
     {
         $this->languageRepository = $languageRepository;

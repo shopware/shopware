@@ -29,6 +29,7 @@ class WebhookEventMessage
     private ?string $userLocale;
 
     /**
+     * @internal
      * @depretacted tag:v6.5.0 - Parameters $languageId and $userLocale will be required
      **/
     public function __construct(

@@ -22,6 +22,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class ManufacturerLogoTypeCmsResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;

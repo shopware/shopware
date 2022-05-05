@@ -24,6 +24,9 @@ class ChangelogCreateCommand extends Command
      */
     private $generator;
 
+    /**
+     * @internal
+     */
     public function __construct(ChangelogGenerator $generator)
     {
         parent::__construct();

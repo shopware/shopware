@@ -21,6 +21,9 @@ class ProductConfiguratorLoader
 
     private AvailableCombinationLoader $combinationLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $configuratorRepository,
         AvailableCombinationLoader $combinationLoader

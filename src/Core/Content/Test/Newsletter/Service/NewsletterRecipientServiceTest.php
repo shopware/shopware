@@ -22,6 +22,9 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class NewsletterRecipientServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -11,6 +11,9 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\MultipleTestPaymentHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 
+/**
+ * @internal
+ */
 class PaymentMethodHandlerRuntimeFieldTest extends TestCase
 {
     public function testSynchronousRuntimeField(): void

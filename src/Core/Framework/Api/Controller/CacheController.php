@@ -32,6 +32,9 @@ class CacheController extends AbstractController
 
     private EntityIndexerRegistry $indexerRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(
         CacheClearer $cacheClearer,
         AdapterInterface $adapter,

@@ -19,6 +19,9 @@ class ConnectionProfiler implements DataCollectorInterface
      */
     private $logger;
 
+    /**
+     * @internal
+     */
     public function __construct()
     {
         $logger = Kernel::getConnection()->getConfiguration()->getSQLLogger();

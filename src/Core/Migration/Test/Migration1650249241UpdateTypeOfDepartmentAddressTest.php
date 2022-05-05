@@ -8,6 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1650249241UpdateTypeOfDepartmentAddress;
 
+/**
+ * @internal
+ */
 class Migration1650249241UpdateTypeOfDepartmentAddressTest extends TestCase
 {
     use KernelTestBehaviour;

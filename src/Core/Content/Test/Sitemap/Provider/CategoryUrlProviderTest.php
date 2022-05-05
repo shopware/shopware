@@ -19,6 +19,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Component\Routing\RouterInterface;
 
+/**
+ * @internal
+ */
 class CategoryUrlProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;

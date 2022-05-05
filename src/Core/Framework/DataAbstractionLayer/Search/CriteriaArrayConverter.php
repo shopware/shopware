@@ -10,6 +10,9 @@ class CriteriaArrayConverter
 {
     private AggregationParser $aggregationParser;
 
+    /**
+     * @internal
+     */
     public function __construct(AggregationParser $aggregationParser)
     {
         $this->aggregationParser = $aggregationParser;

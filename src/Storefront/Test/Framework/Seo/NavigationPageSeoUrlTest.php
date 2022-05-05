@@ -17,6 +17,7 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 
 /**
+ * @internal
  * @group slow
  * @group skip-paratest
  */

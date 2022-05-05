@@ -23,6 +23,9 @@ class FooterPageletLoader implements FooterPageletLoaderInterface
      */
     private $navigationLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         NavigationLoaderInterface $navigationLoader

@@ -7,6 +7,9 @@ use Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipe;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\ChainPipe;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 
+/**
+ * @internal
+ */
 class ChainPipeTest extends TestCase
 {
     public function testChainPipe(): void

@@ -35,6 +35,9 @@ class ThemeService
 
     private Connection $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(
         StorefrontPluginRegistryInterface $extensionRegistry,
         EntityRepositoryInterface $themeRepository,

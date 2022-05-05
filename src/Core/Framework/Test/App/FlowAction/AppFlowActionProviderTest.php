@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class AppFlowActionProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;

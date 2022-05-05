@@ -10,6 +10,9 @@ use Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterf
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class PathnameStrategyTest extends TestCase
 {
     use IntegrationTestBehaviour;

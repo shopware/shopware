@@ -37,6 +37,9 @@ class ProductStreamUpdater extends EntityIndexer
 
     private ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Connection $connection,
         ProductDefinition $productDefinition,

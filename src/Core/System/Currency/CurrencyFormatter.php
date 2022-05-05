@@ -18,6 +18,9 @@ class CurrencyFormatter
 
     private LanguageLocaleCodeProvider $languageLocaleProvider;
 
+    /**
+     * @internal
+     */
     public function __construct(LanguageLocaleCodeProvider $languageLocaleProvider)
     {
         $this->languageLocaleProvider = $languageLocaleProvider;

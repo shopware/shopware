@@ -8,6 +8,9 @@ use Shopware\Core\Content\Test\Seo\Twig\LastLetterBigTwigFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Twig\Environment;
 
+/**
+ * @internal
+ */
 class SeoUrlTwigFactoryTest extends TestCase
 {
     use KernelTestBehaviour;

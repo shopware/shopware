@@ -8,6 +8,9 @@ use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\RulesTestFixt
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class LineItemGroupDefinitionTest extends TestCase
 {
     use RulesTestFixtureBehaviour;

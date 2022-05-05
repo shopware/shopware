@@ -6,6 +6,9 @@ abstract class ScheduledTask
 {
     protected ?string $taskId = null;
 
+    /**
+     * @internal
+     */
     final public function __construct()
     {
         // needs to be empty

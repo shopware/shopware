@@ -62,6 +62,9 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     private StorefrontPluginRegistryInterface $themeRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(
         RequestStack $requestStack,
         RouterInterface $router,

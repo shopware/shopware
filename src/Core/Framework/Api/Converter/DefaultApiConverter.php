@@ -27,6 +27,9 @@ class DefaultApiConverter
      */
     private $requestStack;
 
+    /**
+     * @internal
+     */
     public function __construct(DefinitionInstanceRegistry $definitionInstanceRegistry, RequestStack $requestStack)
     {
         $this->definitionInstanceRegistry = $definitionInstanceRegistry;

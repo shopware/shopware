@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\Update\Services;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Update\Services\CreateCustomAppsDir;
 
+/**
+ * @internal
+ */
 class CreateCustomAppsDirTest extends TestCase
 {
     public function testItDoesCreateDirIfItDoesNotExist(): void

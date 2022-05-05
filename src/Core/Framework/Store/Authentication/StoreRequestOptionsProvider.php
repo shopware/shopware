@@ -30,6 +30,9 @@ class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
 
     private LocaleProvider $localeProvider;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $userRepository,
         SystemConfigService $systemConfigService,

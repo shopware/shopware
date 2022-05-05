@@ -22,6 +22,8 @@ class CacheDecorator implements TagAwareAdapterInterface, TagAwareCacheInterface
     private \ReflectionProperty $property;
 
     /**
+     * @internal
+     *
      * @param TagAwareCacheInterface&TagAwareAdapterInterface $decorated
      */
     public function __construct($decorated, CacheTagCollection $collection)

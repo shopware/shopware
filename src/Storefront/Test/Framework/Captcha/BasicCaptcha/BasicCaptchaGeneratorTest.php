@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha\BasicCaptchaGenerator;
 
+/**
+ * @internal
+ */
 class BasicCaptchaGeneratorTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -39,6 +39,8 @@ class CacheStore implements StoreInterface
     private string $sessionName;
 
     /**
+     * @internal
+     *
      * @param AbstractCacheTracer<StoreApiResponse> $tracer
      */
     public function __construct(

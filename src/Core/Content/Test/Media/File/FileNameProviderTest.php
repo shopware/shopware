@@ -8,6 +8,9 @@ use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class FileNameProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;

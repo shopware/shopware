@@ -106,6 +106,9 @@ class RequestTransformer implements RequestTransformerInterface
      */
     private $domainLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(
         RequestTransformerInterface $decorated,
         AbstractSeoResolver $resolver,

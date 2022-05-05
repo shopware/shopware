@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Twig\Extension\UrlEncodingTwigFilter;
 
+/**
+ * @internal
+ */
 class UrlEncodingTwigFilterTest extends TestCase
 {
     use IntegrationTestBehaviour;

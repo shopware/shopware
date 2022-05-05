@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 
+/**
+ * @internal
+ */
 class PriceSerializerTest extends TestCase
 {
     use KernelTestBehaviour;

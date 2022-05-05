@@ -19,6 +19,9 @@ class EncryptedBus implements MessageBusInterface
      */
     private $publicKey;
 
+    /**
+     * @internal
+     */
     public function __construct(
         MessageBusInterface $messageBus,
         $publicKey

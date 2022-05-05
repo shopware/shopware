@@ -25,6 +25,9 @@ class RepositoryWriterFacade
 
     private Context $context;
 
+    /**
+     * @internal
+     */
     public function __construct(
         DefinitionInstanceRegistry $registry,
         SyncService $syncService,

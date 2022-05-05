@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class AbsoluteItem extends LineItem
 {
     public function __construct(float $price, ?string $id = null)

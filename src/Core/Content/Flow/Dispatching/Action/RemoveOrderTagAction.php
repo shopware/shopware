@@ -11,6 +11,9 @@ class RemoveOrderTagAction extends FlowAction
 {
     private EntityRepositoryInterface $orderTagRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $orderTagRepository)
     {
         $this->orderTagRepository = $orderTagRepository;

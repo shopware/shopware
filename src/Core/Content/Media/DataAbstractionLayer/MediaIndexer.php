@@ -30,6 +30,9 @@ class MediaIndexer extends EntityIndexer
 
     private EntityRepositoryInterface $thumbnailRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,

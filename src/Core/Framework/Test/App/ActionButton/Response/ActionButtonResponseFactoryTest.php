@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class ActionButtonResponseFactoryTest extends TestCase
 {
     use GuzzleTestClientBehaviour;

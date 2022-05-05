@@ -23,6 +23,9 @@ class CustomerGroupRegistrationSettingsRoute extends AbstractCustomerGroupRegist
      */
     private $customerGroupRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $customerGroupRepository)
     {
         $this->customerGroupRepository = $customerGroupRepository;

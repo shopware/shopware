@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageDefinition;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ */
 class WriteContext
 {
     use StateAwareTrait;

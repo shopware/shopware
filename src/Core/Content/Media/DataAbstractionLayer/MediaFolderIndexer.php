@@ -35,6 +35,9 @@ class MediaFolderIndexer extends EntityIndexer
 
     private TreeUpdater $treeUpdater;
 
+    /**
+     * @internal
+     */
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,

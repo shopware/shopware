@@ -19,6 +19,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+/**
+ * @internal
+ */
 class ImportExportServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

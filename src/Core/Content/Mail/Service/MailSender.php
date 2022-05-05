@@ -21,6 +21,9 @@ class MailSender extends AbstractMailSender
      */
     private $configService;
 
+    /**
+     * @internal
+     */
     public function __construct(Mailer $mailer, SystemConfigService $configService)
     {
         $this->mailer = $mailer;

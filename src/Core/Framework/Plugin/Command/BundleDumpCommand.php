@@ -17,6 +17,9 @@ class BundleDumpCommand extends Command
 
     private string $projectDir;
 
+    /**
+     * @internal
+     */
     public function __construct(BundleConfigGeneratorInterface $pluginDumper, string $projectDir)
     {
         parent::__construct();

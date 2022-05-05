@@ -34,6 +34,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class EntityHydratorTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -353,6 +356,9 @@ class EntityHydratorTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class FkExtensionFieldTest extends EntityDefinition
 {
     public function getEntityName(): string

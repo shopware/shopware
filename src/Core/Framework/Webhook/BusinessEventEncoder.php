@@ -26,6 +26,9 @@ class BusinessEventEncoder
      */
     private $definitionRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(JsonEntityEncoder $entityEncoder, DefinitionInstanceRegistry $definitionRegistry)
     {
         $this->entityEncoder = $entityEncoder;

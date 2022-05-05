@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\System\CustomField\CustomFieldService;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ */
 class CustomFieldsAccessorBuilder extends JsonFieldAccessorBuilder
 {
     /**

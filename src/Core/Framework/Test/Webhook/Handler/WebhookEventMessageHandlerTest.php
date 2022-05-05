@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Handler\WebhookEventMessageHandler;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 
+/**
+ * @internal
+ */
 class WebhookEventMessageHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;

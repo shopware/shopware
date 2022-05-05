@@ -18,6 +18,9 @@ class UpdateHtaccess implements EventSubscriberInterface
 
     private string $htaccessPath;
 
+    /**
+     * @internal
+     */
     public function __construct(string $htaccessPath)
     {
         $this->htaccessPath = $htaccessPath;

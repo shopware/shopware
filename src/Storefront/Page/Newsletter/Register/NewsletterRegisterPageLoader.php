@@ -33,6 +33,9 @@ class NewsletterRegisterPageLoader
      */
     private $salutationRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,

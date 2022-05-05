@@ -24,6 +24,9 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class SalesChannelDefinitionTest extends TestCase
 {
     use IntegrationTestBehaviour;

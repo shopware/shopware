@@ -19,6 +19,9 @@ use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilder;
 
+/**
+ * @internal
+ */
 class ThemeInheritanceBuilderTest extends TestCase
 {
     use IntegrationTestBehaviour;

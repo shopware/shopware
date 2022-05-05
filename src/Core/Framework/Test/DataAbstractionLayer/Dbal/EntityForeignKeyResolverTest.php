@@ -23,6 +23,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class EntityForeignKeyResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;

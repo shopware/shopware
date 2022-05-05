@@ -18,6 +18,9 @@ class CustomerTokenSubscriber implements EventSubscriberInterface
 
     private RequestStack $requestStack;
 
+    /**
+     * @internal
+     */
     public function __construct(
         SalesChannelContextPersister $contextPersister,
         RequestStack $requestStack

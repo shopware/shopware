@@ -26,6 +26,9 @@ class InvoiceGenerator implements DocumentGeneratorInterface
      */
     private $documentTemplateRenderer;
 
+    /**
+     * @internal
+     */
     public function __construct(DocumentTemplateRenderer $documentTemplateRenderer, string $rootDir)
     {
         $this->rootDir = $rootDir;

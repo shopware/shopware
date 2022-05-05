@@ -20,6 +20,9 @@ class DeleteCustomerRoute extends AbstractDeleteCustomerRoute
 {
     private EntityRepositoryInterface $customerRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $customerRepository
     ) {

@@ -16,6 +16,9 @@ class HoneypotCaptcha extends AbstractCaptcha
 
     private ValidatorInterface $validator;
 
+    /**
+     * @internal
+     */
     public function __construct(ValidatorInterface $validator)
     {
         $this->validator = $validator;

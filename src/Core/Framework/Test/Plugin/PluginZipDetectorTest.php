@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Plugin\Exception\PluginExtractionException;
 use Shopware\Core\Framework\Plugin\PluginZipDetector;
 use Shopware\Core\Framework\Plugin\Util\ZipUtils;
 
+/**
+ * @internal
+ */
 class PluginZipDetectorTest extends TestCase
 {
     /**

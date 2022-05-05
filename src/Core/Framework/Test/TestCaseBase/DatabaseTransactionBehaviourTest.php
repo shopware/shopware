@@ -6,6 +6,9 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @internal
+ */
 class DatabaseTransactionBehaviourTest extends TestCase
 {
     use KernelTestBehaviour;

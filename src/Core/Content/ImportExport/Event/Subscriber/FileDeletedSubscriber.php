@@ -17,6 +17,9 @@ class FileDeletedSubscriber implements EventSubscriberInterface
      */
     private $messageBus;
 
+    /**
+     * @internal
+     */
     public function __construct(MessageBusInterface $messageBus)
     {
         $this->messageBus = $messageBus;

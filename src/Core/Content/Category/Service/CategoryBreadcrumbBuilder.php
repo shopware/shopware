@@ -19,6 +19,9 @@ class CategoryBreadcrumbBuilder
 {
     private EntityRepositoryInterface $categoryRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $categoryRepository)
     {
         $this->categoryRepository = $categoryRepository;

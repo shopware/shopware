@@ -5,6 +5,7 @@ namespace Shopware\Core\DevOps\Test\StaticAnalyze\PHPStan\Rules\Decoratable\_fix
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 
 /**
+ * @internal
  * @Decoratable
  */
 class DecoratableDoesCallOwnPublicMethod implements DecoratableInterface

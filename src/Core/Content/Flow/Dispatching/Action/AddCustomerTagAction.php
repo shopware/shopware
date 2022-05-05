@@ -11,6 +11,9 @@ class AddCustomerTagAction extends FlowAction
 {
     private EntityRepositoryInterface $customerRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $customerRepository)
     {
         $this->customerRepository = $customerRepository;

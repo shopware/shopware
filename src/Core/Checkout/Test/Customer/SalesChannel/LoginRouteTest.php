@@ -25,6 +25,7 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 /**
+ * @internal
  * @group store-api
  */
 class LoginRouteTest extends TestCase

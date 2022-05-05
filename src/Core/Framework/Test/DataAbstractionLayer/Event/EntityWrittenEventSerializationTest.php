@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+/**
+ * @internal
+ */
 class EntityWrittenEventSerializationTest extends TestCase
 {
     use IntegrationTestBehaviour;

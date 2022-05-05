@@ -18,6 +18,9 @@ use Shopware\Core\System\Snippet\SnippetDefinition;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
+/**
+ * @internal
+ */
 class TranslatorTest extends TestCase
 {
     use IntegrationTestBehaviour;

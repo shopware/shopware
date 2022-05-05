@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+/**
+ * @internal
+ */
 class FileServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

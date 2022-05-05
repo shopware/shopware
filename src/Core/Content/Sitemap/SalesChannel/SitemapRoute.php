@@ -35,6 +35,9 @@ class SitemapRoute extends AbstractSitemapRoute
      */
     private $sitemapExporter;
 
+    /**
+     * @internal
+     */
     public function __construct(SitemapListerInterface $sitemapLister, SystemConfigService $systemConfigService, SitemapExporterInterface $sitemapExporter)
     {
         $this->sitemapLister = $sitemapLister;

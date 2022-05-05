@@ -27,6 +27,9 @@ class CreditNoteGenerator implements DocumentGeneratorInterface
      */
     private $documentTemplateRenderer;
 
+    /**
+     * @internal
+     */
     public function __construct(DocumentTemplateRenderer $documentTemplateRenderer, string $rootDir)
     {
         $this->documentTemplateRenderer = $documentTemplateRenderer;

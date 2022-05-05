@@ -15,6 +15,7 @@ use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
+ * @internal
  * @group store-api
  */
 class DeleteCustomerRouteTest extends TestCase

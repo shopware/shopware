@@ -28,6 +28,9 @@ class ConvertMarkdownDocsCommand extends Command
      */
     private $environment;
 
+    /**
+     * @internal
+     */
     public function __construct(?string $name = null)
     {
         parent::__construct($name);

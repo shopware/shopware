@@ -30,6 +30,9 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
      */
     private $breadcrumbBuilder;
 
+    /**
+     * @internal
+     */
     public function __construct(CategoryDefinition $categoryDefinition, CategoryBreadcrumbBuilder $breadcrumbBuilder)
     {
         $this->categoryDefinition = $categoryDefinition;

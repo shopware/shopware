@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\Migration1605861407RuleAssociationsToRestrict;
 
+/**
+ * @internal
+ */
 class Migration1605861407RuleAssociationsToRestrictTest extends TestCase
 {
     use KernelTestBehaviour;

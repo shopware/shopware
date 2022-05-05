@@ -23,6 +23,9 @@ class PluginRefreshCommand extends Command
      */
     private $pluginService;
 
+    /**
+     * @internal
+     */
     public function __construct(PluginService $pluginService)
     {
         parent::__construct();

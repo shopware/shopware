@@ -18,6 +18,9 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
 
     private ProductDefinition $productDefinition;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ProductSearchBuilderInterface $decorated,
         ElasticsearchHelper $helper,

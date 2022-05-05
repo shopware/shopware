@@ -13,6 +13,9 @@ class UpdateProductStreamMappingTaskHandler extends ScheduledTaskHandler
 {
     private EntityRepositoryInterface $productStreamRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $repository,
         EntityRepositoryInterface $productStreamRepository

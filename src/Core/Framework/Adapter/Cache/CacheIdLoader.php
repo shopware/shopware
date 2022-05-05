@@ -20,6 +20,9 @@ class CacheIdLoader
      */
     private $restartSignalCachePool;
 
+    /**
+     * @internal
+     */
     public function __construct(Connection $connection, ?CacheItemPoolInterface $restartSignalCachePool = null)
     {
         $this->connection = $connection;

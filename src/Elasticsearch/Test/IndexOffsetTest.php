@@ -17,6 +17,9 @@ use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 use Shopware\Elasticsearch\Framework\Indexing\IndexerOffset;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 
+/**
+ * @internal
+ */
 class IndexOffsetTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -95,6 +98,9 @@ class IndexOffsetTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class MockElasticsearchDefinition extends AbstractElasticsearchDefinition
 {
     public function getEntityDefinition(): EntityDefinition

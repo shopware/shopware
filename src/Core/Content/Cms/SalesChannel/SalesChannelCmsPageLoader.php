@@ -25,6 +25,9 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
 
     private EventDispatcherInterface $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $cmsPageRepository,
         CmsSlotsDataResolver $slotDataResolver,

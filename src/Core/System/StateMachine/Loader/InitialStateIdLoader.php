@@ -16,6 +16,9 @@ class InitialStateIdLoader implements ResetInterface
 
     private array $ids = [];
 
+    /**
+     * @internal
+     */
     public function __construct(Connection $connection, CacheInterface $cache)
     {
         $this->connection = $connection;

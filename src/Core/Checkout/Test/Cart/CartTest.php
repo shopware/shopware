@@ -12,6 +12,9 @@ use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 
+/**
+ * @internal
+ */
 class CartTest extends TestCase
 {
     public function testEmptyCartHasNoGoods(): void

@@ -16,6 +16,9 @@ use Shopware\Core\Framework\Validation\ConstraintViolationExceptionInterface;
 use Shopware\Core\System\Salutation\DefaultSalutationValidator;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 
+/**
+ * @internal
+ */
 class DefaultSalutationValidatorTest extends TestCase
 {
     /**

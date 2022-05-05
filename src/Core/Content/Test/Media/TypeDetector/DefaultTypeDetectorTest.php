@@ -11,6 +11,9 @@ use Shopware\Core\Content\Media\MediaType\VideoType;
 use Shopware\Core\Content\Media\TypeDetector\DefaultTypeDetector;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class DefaultTypeDetectorTest extends TestCase
 {
     use IntegrationTestBehaviour;

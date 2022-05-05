@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\Script\Service;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Script\Facade\ArrayFacade;
 
+/**
+ * @internal
+ */
 class ArrayFacadeTest extends TestCase
 {
     public function testAssignment(): void

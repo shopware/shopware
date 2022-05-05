@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackExcepti
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
+/**
+ * @internal
+ */
 class ConflictingPackageTest extends TestCase
 {
     use KernelTestBehaviour;

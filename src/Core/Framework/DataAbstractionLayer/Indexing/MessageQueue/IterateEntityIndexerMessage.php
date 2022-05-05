@@ -16,6 +16,9 @@ class IterateEntityIndexerMessage
 
     protected array $skip = [];
 
+    /**
+     * @internal
+     */
     public function __construct(string $indexer, $offset, array $skip = [])
     {
         $this->indexer = $indexer;

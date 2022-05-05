@@ -6,6 +6,9 @@ use Monolog\Logger;
 use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
 use Shopware\Core\Framework\Log\LogAware;
 
+/**
+ * @internal
+ */
 class LogAwareTestFlowEvent extends TestFlowBusinessEvent implements LogAware
 {
     public const EVENT_NAME = 'test.flow_event.log_aware';

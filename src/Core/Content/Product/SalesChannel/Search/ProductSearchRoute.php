@@ -33,6 +33,9 @@ class ProductSearchRoute extends AbstractProductSearchRoute
 
     private ProductListingLoader $productListingLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ProductSearchBuilderInterface $searchBuilder,
         EventDispatcherInterface $eventDispatcher,

@@ -41,6 +41,9 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
      */
     private $activeAppsLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(
         KernelInterface $kernel,
         Connection $connection,

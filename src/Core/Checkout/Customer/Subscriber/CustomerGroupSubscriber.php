@@ -31,6 +31,9 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
 
     private EntityRepositoryInterface $languageRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $customerGroupRepository,
         EntityRepositoryInterface $seoUrlRepository,

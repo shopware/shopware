@@ -17,6 +17,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"storefront"}})
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
 class CaptchaController extends StorefrontController
 {
@@ -24,6 +26,9 @@ class CaptchaController extends StorefrontController
 
     private AbstractCaptcha $basicCaptcha;
 
+    /**
+     * @internal
+     */
     public function __construct(
         AbstractBasicCaptchaPageletLoader $basicCaptchaPageletLoader,
         AbstractCaptcha $basicCaptcha

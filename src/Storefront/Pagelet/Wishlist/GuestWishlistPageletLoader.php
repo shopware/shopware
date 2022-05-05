@@ -24,6 +24,9 @@ class GuestWishlistPageletLoader
 
     private SystemConfigService $systemConfigService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         AbstractProductListRoute $productListRoute,
         SystemConfigService $systemConfigService,

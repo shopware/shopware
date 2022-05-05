@@ -27,6 +27,9 @@ class DeleteAddressRoute extends AbstractDeleteAddressRoute
      */
     private $addressRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $addressRepository)
     {
         $this->addressRepository = $addressRepository;

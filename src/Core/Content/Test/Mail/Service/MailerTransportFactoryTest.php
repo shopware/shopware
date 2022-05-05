@@ -8,6 +8,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Mailer\Transport\SendmailTransport;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
 
+/**
+ * @internal
+ */
 class MailerTransportFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -91,6 +94,9 @@ class MailerTransportFactoryTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class ConfigService extends SystemConfigService
 {
     private $config;

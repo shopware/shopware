@@ -21,6 +21,9 @@ class AppTemplateIterator implements \IteratorAggregate
      */
     private $templateRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(\IteratorAggregate $templateIterator, EntityRepositoryInterface $templateRepository)
     {
         $this->templateIterator = $templateIterator;

@@ -15,6 +15,9 @@ class GenerateThumbnailsHandler extends AbstractMessageHandler
 
     private EntityRepositoryInterface $mediaRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(ThumbnailService $thumbnailService, EntityRepositoryInterface $mediaRepository)
     {
         $this->thumbnailService = $thumbnailService;

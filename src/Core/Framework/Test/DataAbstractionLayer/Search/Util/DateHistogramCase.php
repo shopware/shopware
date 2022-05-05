@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Util;
 
+/**
+ * @internal
+ */
 class DateHistogramCase
 {
     private string $interval;

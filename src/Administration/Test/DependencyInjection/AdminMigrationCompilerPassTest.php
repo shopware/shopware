@@ -7,6 +7,9 @@ use Shopware\Administration\DependencyInjection\AdministrationMigrationCompilerP
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
+/**
+ * @internal
+ */
 class AdminMigrationCompilerPassTest extends TestCase
 {
     public function testProcessing(): void

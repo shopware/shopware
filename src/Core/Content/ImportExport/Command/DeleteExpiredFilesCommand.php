@@ -18,6 +18,9 @@ class DeleteExpiredFilesCommand extends Command
      */
     private $deleteExpiredFilesService;
 
+    /**
+     * @internal
+     */
     public function __construct(DeleteExpiredFilesService $deleteExpiredFilesService)
     {
         parent::__construct();

@@ -11,6 +11,9 @@ class FileGeneratorRegistry
      */
     private $fileGenerators;
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $fileGenerators)
     {
         $this->fileGenerators = $fileGenerators;

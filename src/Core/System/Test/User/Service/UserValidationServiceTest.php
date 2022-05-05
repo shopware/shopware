@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\Service\UserValidationService;
 
+/**
+ * @internal
+ */
 class UserValidationServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

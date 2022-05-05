@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1627650101AddUploadPluginRolePrivilege;
 
+/**
+ * @internal
+ */
 class Migration1627650101AddUploadPluginRolePrivilegeTest extends TestCase
 {
     use IntegrationTestBehaviour;

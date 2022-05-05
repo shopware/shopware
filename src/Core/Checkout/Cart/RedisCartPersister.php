@@ -29,6 +29,8 @@ class RedisCartPersister extends AbstractCartPersister
     private bool $compress;
 
     /**
+     * @internal
+     *
      * @param \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy|null $redis
      */
     public function __construct($redis, EventDispatcherInterface $eventDispatcher, bool $compress)

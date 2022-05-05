@@ -13,6 +13,9 @@ use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelUpdateDomainComma
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @internal
+ */
 class SalesChannelUpdateDomainCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

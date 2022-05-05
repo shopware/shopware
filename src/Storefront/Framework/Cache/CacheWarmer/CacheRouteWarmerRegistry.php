@@ -9,6 +9,9 @@ class CacheRouteWarmerRegistry
      */
     private $warmers;
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $routes)
     {
         $this->warmers = $routes;

@@ -9,6 +9,9 @@ class RetryMessage
      */
     private $deadMessageId;
 
+    /**
+     * @internal
+     */
     public function __construct(string $deadMessageId)
     {
         $this->deadMessageId = $deadMessageId;

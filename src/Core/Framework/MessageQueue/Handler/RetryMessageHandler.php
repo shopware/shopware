@@ -26,6 +26,9 @@ class RetryMessageHandler extends AbstractMessageHandler
      */
     private $logger;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $deadMessageRepository,
         iterable $handler,

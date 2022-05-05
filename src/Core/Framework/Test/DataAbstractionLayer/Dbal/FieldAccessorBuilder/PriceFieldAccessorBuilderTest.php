@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\Price
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
+/**
+ * @internal
+ */
 class PriceFieldAccessorBuilderTest extends TestCase
 {
     use KernelTestBehaviour;

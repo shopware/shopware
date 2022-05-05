@@ -14,6 +14,7 @@ use Shopware\Core\System\SalesChannel\SalesChannel\StoreApiInfoController;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @internal
  * @group slow
  * @group skip-paratest
  */

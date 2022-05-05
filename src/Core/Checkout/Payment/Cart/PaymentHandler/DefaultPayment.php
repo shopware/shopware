@@ -14,6 +14,9 @@ class DefaultPayment implements SynchronousPaymentHandlerInterface
      */
     protected $transactionStateHandler;
 
+    /**
+     * @internal
+     */
     public function __construct(OrderTransactionStateHandler $transactionStateHandler)
     {
         $this->transactionStateHandler = $transactionStateHandler;

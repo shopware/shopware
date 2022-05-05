@@ -12,6 +12,9 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemValidator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class LineItemValidatorTest extends TestCase
 {
     public function testValidateEmptyCart(): void

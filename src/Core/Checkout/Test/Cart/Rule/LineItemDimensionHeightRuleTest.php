@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @internal
  * @group rules
  */
 class LineItemDimensionHeightRuleTest extends TestCase

@@ -15,6 +15,9 @@ class PipeFactory extends AbstractPipeFactory
 
     private PrimaryKeyResolver $primaryKeyResolver;
 
+    /**
+     * @internal
+     */
     public function __construct(
         DefinitionInstanceRegistry $definitionInstanceRegistry,
         SerializerRegistry $serializerRegistry,

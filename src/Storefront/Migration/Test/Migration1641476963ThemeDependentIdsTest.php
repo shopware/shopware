@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Migration\V6_4\Migration1641476963ThemeDependentIds;
 
+/**
+ * @internal
+ */
 class Migration1641476963ThemeDependentIdsTest extends TestCase
 {
     use IntegrationTestBehaviour;

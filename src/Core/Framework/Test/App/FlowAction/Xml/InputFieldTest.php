@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\FlowAction\FlowAction;
 use Shopware\Core\Framework\App\FlowAction\Xml\InputField;
 
+/**
+ * @internal
+ */
 class InputFieldTest extends TestCase
 {
     public function testFromXml(): void

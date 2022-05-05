@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Storefront\Theme\ThemeFileImporter;
 
+/**
+ * @internal
+ */
 class ThemeFileImporterTest extends TestCase
 {
     use KernelTestBehaviour;

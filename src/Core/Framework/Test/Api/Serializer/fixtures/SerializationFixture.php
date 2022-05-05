@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\Api\Serializer\fixtures;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
+/**
+ * @internal
+ */
 abstract class SerializationFixture
 {
     public const API_BASE_URL = 'http://localhost/api';

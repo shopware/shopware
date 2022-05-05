@@ -13,6 +13,9 @@ class CartMergedSubscriber implements EventSubscriberInterface
 
     private RequestStack $requestStack;
 
+    /**
+     * @internal
+     */
     public function __construct(
         TranslatorInterface $translator,
         RequestStack $requestStack

@@ -54,6 +54,9 @@ class AddressListingPageLoader
      */
     private $listAddressRoute;
 
+    /**
+     * @internal
+     */
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         AbstractCountryRoute $countryRoute,

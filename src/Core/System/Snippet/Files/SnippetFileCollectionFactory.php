@@ -14,6 +14,9 @@ class SnippetFileCollectionFactory
      */
     private $snippetFileLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $snippetFiles, SnippetFileLoaderInterface $snippetFileLoader)
     {
         $this->snippetFiles = $snippetFiles;

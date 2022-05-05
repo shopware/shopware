@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Fakes;
 
+/**
+ * @internal
+ */
 class FakeSequenceSupervisor
 {
     private $count;

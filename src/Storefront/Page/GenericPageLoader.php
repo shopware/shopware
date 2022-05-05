@@ -55,6 +55,9 @@ class GenericPageLoader implements GenericPageLoaderInterface
      */
     private $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         HeaderPageletLoaderInterface $headerLoader,
         FooterPageletLoaderInterface $footerLoader,

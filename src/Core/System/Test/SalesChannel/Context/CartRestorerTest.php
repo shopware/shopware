@@ -32,6 +32,9 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Contracts\EventDispatcher\Event;
 use function json_encode;
 
+/**
+ * @internal
+ */
 class CartRestorerTest extends TestCase
 {
     use IntegrationTestBehaviour;

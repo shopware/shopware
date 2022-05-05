@@ -78,6 +78,9 @@ class MailService extends AbstractMailService
      */
     private $mailSender;
 
+    /**
+     * @internal
+     */
     public function __construct(
         DataValidator $dataValidator,
         StringTemplateRenderer $templateRenderer,

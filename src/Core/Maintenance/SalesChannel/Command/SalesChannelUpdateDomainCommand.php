@@ -20,6 +20,9 @@ class SalesChannelUpdateDomainCommand extends Command
 
     private EntityRepositoryInterface $salesChannelDomainRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $salesChannelDomainRepository)
     {
         parent::__construct();

@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\RuleCollection;
 
+/**
+ * @internal
+ */
 class RuleCollectionTest extends TestCase
 {
     public function testMetaCollecting(): void

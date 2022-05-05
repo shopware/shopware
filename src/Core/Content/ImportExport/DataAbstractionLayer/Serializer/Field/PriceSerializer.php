@@ -24,6 +24,9 @@ class PriceSerializer extends FieldSerializer
      */
     private $currencyRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $currencyRepository)
     {
         $this->currencyRepository = $currencyRepository;

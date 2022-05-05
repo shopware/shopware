@@ -19,6 +19,9 @@ class CaptchaController extends AbstractController
      */
     private $captchas;
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $captchas)
     {
         $this->captchas = $captchas;

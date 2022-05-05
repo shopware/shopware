@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 
+/**
+ * @internal
+ */
 class CalculatedTaxCollectionTest extends TestCase
 {
     public const DUMMY_TAX_NAME = 'dummy-tax';

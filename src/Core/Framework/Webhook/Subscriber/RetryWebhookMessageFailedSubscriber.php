@@ -22,6 +22,9 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
 
     private EntityRepositoryInterface $webhookEventLogRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $deadMessageRepository,
         EntityRepositoryInterface $webhookRepository,

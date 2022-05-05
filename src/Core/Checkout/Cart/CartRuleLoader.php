@@ -47,6 +47,9 @@ class CartRuleLoader implements ResetInterface
 
     private array $currencyFactor = [];
 
+    /**
+     * @internal
+     */
     public function __construct(
         CartPersisterInterface $cartPersister,
         Processor $processor,

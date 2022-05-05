@@ -8,6 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1649315608AllowDisable;
 
+/**
+ * @internal
+ */
 class Migration1649315608AllowDisableTest extends TestCase
 {
     use KernelTestBehaviour;

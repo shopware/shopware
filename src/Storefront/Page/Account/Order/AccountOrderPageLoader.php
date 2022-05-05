@@ -31,6 +31,9 @@ class AccountOrderPageLoader
 
     private AccountService $accountService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,

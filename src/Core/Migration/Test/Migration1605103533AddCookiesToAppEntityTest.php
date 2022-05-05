@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Migration1605103533AddCookiesToAppEntity;
 
+/**
+ * @internal
+ */
 class Migration1605103533AddCookiesToAppEntityTest extends TestCase
 {
     use IntegrationTestBehaviour;

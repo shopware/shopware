@@ -29,6 +29,9 @@ class StoreLoginCommand extends Command
 
     private EntityRepositoryInterface $userRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         StoreClient $storeClient,
         EntityRepositoryInterface $userRepository,

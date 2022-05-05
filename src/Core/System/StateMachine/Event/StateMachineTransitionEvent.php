@@ -33,6 +33,9 @@ class StateMachineTransitionEvent extends NestedEvent
      */
     protected $context;
 
+    /**
+     * @internal
+     */
     public function __construct(
         string $entityName,
         string $entityId,

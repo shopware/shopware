@@ -14,6 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ */
 class CustomFieldsSerializer extends JsonFieldSerializer
 {
     /**

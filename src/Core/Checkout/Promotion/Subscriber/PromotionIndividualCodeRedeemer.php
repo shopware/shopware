@@ -24,6 +24,9 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
      */
     private $codesRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $codesRepository)
     {
         $this->codesRepository = $codesRepository;

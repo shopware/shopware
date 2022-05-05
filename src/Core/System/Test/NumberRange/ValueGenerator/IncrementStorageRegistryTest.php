@@ -12,6 +12,9 @@ use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\Inc
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageInterface;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageRegistry;
 
+/**
+ * @internal
+ */
 class IncrementStorageRegistryTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -23,6 +23,9 @@ class TaskRegistry
      */
     private $tasks;
 
+    /**
+     * @internal
+     */
     public function __construct(
         iterable $tasks,
         EntityRepositoryInterface $scheduledTaskRepository

@@ -18,6 +18,9 @@ class HttpCacheWarmUpCommand extends Command
      */
     private $warmer;
 
+    /**
+     * @internal
+     */
     public function __construct(CacheWarmer $warmer)
     {
         parent::__construct();

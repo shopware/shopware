@@ -15,6 +15,9 @@ class IconTemplateLoader extends AbstractTemplateLoader
 
     private string $projectDir;
 
+    /**
+     * @internal
+     */
     public function __construct(
         AbstractTemplateLoader $inner,
         AbstractStorefrontPluginConfigurationFactory $storefrontPluginConfigurationFactory,

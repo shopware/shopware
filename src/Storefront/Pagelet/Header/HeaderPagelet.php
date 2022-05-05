@@ -37,6 +37,9 @@ class HeaderPagelet extends NavigationPagelet
      */
     protected $serviceMenu;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Tree $navigation,
         LanguageCollection $languages,

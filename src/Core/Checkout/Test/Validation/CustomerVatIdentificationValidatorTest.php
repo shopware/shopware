@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 
+/**
+ * @internal
+ */
 class CustomerVatIdentificationValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;

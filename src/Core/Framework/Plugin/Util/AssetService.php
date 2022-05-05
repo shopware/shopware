@@ -25,6 +25,9 @@ class AssetService
 
     private string $coreDir;
 
+    /**
+     * @internal
+     */
     public function __construct(
         FilesystemInterface $filesystem,
         KernelInterface $kernel,

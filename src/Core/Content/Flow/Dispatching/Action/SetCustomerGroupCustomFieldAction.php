@@ -18,6 +18,9 @@ class SetCustomerGroupCustomFieldAction extends FlowAction
 
     private EntityRepositoryInterface $customerGroupRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Connection $connection,
         EntityRepositoryInterface $customerGroupRepository

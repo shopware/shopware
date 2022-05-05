@@ -10,6 +10,9 @@ use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\Routing\Route;
 
+/**
+ * @internal
+ */
 class RoutesAclTest extends TestCase
 {
     use KernelTestBehaviour;

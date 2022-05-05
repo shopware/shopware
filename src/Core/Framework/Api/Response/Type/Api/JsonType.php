@@ -29,6 +29,9 @@ class JsonType extends JsonFactoryBase
      */
     private $structEncoder;
 
+    /**
+     * @internal
+     */
     public function __construct(JsonEntityEncoder $encoder, StructEncoder $structEncoder)
     {
         $this->encoder = $encoder;

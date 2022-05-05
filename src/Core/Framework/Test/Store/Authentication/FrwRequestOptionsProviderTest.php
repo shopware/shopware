@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class FrwRequestOptionsProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;

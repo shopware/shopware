@@ -19,6 +19,9 @@ use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigDefinition;
 use Shopware\Core\System\User\UserDefinition;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
 {
     use IntegrationTestBehaviour;

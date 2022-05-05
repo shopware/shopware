@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Twig\Loader\ArrayLoader;
 
+/**
+ * @internal
+ */
 class MediaExtensionTest extends TestCase
 {
     use IntegrationTestBehaviour;

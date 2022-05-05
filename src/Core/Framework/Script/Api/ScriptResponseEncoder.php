@@ -12,6 +12,9 @@ class ScriptResponseEncoder
 {
     private StructEncoder $structEncoder;
 
+    /**
+     * @internal
+     */
     public function __construct(StructEncoder $structEncoder)
     {
         $this->structEncoder = $structEncoder;

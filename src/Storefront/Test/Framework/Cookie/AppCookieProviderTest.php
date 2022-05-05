@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\Cookie\AppCookieProvider;
 use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
 
+/**
+ * @internal
+ */
 class AppCookieProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;

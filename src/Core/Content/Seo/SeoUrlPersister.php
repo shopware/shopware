@@ -22,6 +22,9 @@ class SeoUrlPersister
 
     private EventDispatcherInterface $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Connection $connection,
         EntityRepositoryInterface $seoUrlRepository,

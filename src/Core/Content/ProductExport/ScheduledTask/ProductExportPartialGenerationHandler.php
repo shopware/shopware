@@ -50,6 +50,9 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
 
     private LanguageLocaleCodeProvider $languageLocaleProvider;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ProductExportGeneratorInterface $productExportGenerator,
         AbstractSalesChannelContextFactory $salesChannelContextFactory,

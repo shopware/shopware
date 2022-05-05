@@ -42,6 +42,9 @@ class PromotionDeliveryCalculator
 
     private PromotionItemBuilder $builder;
 
+    /**
+     * @internal
+     */
     public function __construct(QuantityPriceCalculator $quantityPriceCalculator, PercentagePriceCalculator $percentagePriceCalculator, PromotionItemBuilder $builder)
     {
         $this->quantityPriceCalculator = $quantityPriceCalculator;

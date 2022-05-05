@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class HookableValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;

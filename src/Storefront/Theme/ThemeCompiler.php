@@ -48,6 +48,9 @@ class ThemeCompiler implements ThemeCompilerInterface
 
     private string $projectDir;
 
+    /**
+     * @internal
+     */
     public function __construct(
         FilesystemInterface $filesystem,
         FilesystemInterface $tempFilesystem,

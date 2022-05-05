@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class AddOrderTagActionTest extends TestCase
 {
     use OrderActionTrait;

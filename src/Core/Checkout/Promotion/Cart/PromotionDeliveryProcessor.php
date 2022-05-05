@@ -24,6 +24,9 @@ class PromotionDeliveryProcessor implements CartProcessorInterface
      */
     private $groupBuilder;
 
+    /**
+     * @internal
+     */
     public function __construct(PromotionDeliveryCalculator $calculator, LineItemGroupBuilder $groupBuilder)
     {
         $this->calculator = $calculator;

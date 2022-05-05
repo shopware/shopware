@@ -18,6 +18,9 @@ class ApiVersionConverter
      */
     private $converterRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(ConverterRegistry $converterRegistry)
     {
         $this->converterRegistry = $converterRegistry;

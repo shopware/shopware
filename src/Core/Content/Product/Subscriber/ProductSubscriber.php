@@ -37,6 +37,9 @@ class ProductSubscriber implements EventSubscriberInterface
 
     private AbstractIsNewDetector $isNewDetector;
 
+    /**
+     * @internal
+     */
     public function __construct(
         AbstractSalesChannelProductBuilder $salesChannelProductBuilder,
         AbstractProductVariationBuilder $productVariationBuilder,

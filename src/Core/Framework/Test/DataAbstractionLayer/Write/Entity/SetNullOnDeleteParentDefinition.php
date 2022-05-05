@@ -17,6 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class SetNullOnDeleteParentDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'set_null_on_delete_parent';
@@ -44,6 +47,9 @@ class SetNullOnDeleteParentDefinition extends EntityDefinition
     }
 }
 
+/**
+ * @internal
+ */
 class SetNullOnDeleteChildDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'set_null_on_delete_child';
@@ -71,6 +77,9 @@ class SetNullOnDeleteChildDefinition extends EntityDefinition
     }
 }
 
+/**
+ * @internal
+ */
 class SetNullOnDeleteManyToOneDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'set_null_on_delete_many_to_one';

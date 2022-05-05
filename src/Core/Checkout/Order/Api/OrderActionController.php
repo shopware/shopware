@@ -38,6 +38,9 @@ class OrderActionController extends AbstractController
 
     private PaymentRefundProcessor $paymentRefundProcessor;
 
+    /**
+     * @internal
+     */
     public function __construct(
         OrderService $orderService,
         ApiVersionConverter $apiVersionConverter,

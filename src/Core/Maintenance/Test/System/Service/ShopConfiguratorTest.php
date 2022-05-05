@@ -13,6 +13,9 @@ use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @internal
+ */
 class ShopConfiguratorTest extends TestCase
 {
     use IntegrationTestBehaviour;

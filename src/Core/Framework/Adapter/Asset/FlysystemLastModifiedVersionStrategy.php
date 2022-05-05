@@ -16,6 +16,9 @@ class FlysystemLastModifiedVersionStrategy implements VersionStrategyInterface
 
     private string $cacheTag;
 
+    /**
+     * @internal
+     */
     public function __construct(string $cacheTag, FilesystemInterface $filesystem, TagAwareAdapterInterface $cacheAdapter)
     {
         $this->filesystem = $filesystem;

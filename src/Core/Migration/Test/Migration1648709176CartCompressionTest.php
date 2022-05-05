@@ -15,6 +15,9 @@ use Shopware\Core\Migration\V6_4\Migration1648709176CartCompression;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class Migration1648709176CartCompressionTest extends TestCase
 {
     use KernelTestBehaviour;

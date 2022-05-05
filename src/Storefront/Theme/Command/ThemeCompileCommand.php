@@ -21,6 +21,9 @@ class ThemeCompileCommand extends Command
 
     private AbstractAvailableThemeProvider $themeProvider;
 
+    /**
+     * @internal
+     */
     public function __construct(ThemeService $themeService, AbstractAvailableThemeProvider $themeProvider)
     {
         parent::__construct();

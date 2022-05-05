@@ -82,6 +82,9 @@ class OrderConverter
 
     private InitialStateIdLoader $initialStateIdLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $customerRepository,
         AbstractSalesChannelContextFactory $salesChannelContextFactory,

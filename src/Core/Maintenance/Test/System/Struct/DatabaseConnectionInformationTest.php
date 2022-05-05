@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 
+/**
+ * @internal
+ */
 class DatabaseConnectionInformationTest extends TestCase
 {
     use EnvTestBehaviour;

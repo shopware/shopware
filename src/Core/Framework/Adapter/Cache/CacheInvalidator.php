@@ -26,6 +26,9 @@ class CacheInvalidator extends ScheduledTaskHandler
 
     private int $count;
 
+    /**
+     * @internal
+     */
     public function __construct(
         int $delay,
         int $count,

@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Page\Cms\DefaultMediaResolver;
 
+/**
+ * @internal
+ */
 class DefaultMediaResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -42,6 +42,9 @@ class CartItemUpdateRoute extends AbstractCartItemUpdateRoute
      */
     private $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(CartPersisterInterface $cartPersister, CartCalculator $cartCalculator, LineItemFactoryRegistry $lineItemFactory, EventDispatcherInterface $eventDispatcher)
     {
         $this->cartPersister = $cartPersister;

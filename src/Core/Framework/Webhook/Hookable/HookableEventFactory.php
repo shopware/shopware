@@ -23,6 +23,9 @@ class HookableEventFactory
      */
     private $writeResultMerger;
 
+    /**
+     * @internal
+     */
     public function __construct(BusinessEventEncoder $eventEncoder, WriteResultMerger $writeResultMerger)
     {
         $this->eventEncoder = $eventEncoder;

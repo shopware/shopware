@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class PhpSyntaxExtensionTest extends TestCase
 {
     use IntegrationTestBehaviour;

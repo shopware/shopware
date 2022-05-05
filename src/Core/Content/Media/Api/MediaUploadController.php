@@ -44,6 +44,9 @@ class MediaUploadController extends AbstractController
      */
     private $mediaDefinition;
 
+    /**
+     * @internal
+     */
     public function __construct(
         MediaService $mediaService,
         FileSaver $fileSaver,

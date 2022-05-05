@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Test\DependencyInjection\fixtures;
 
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ActionEventCompilerPass;
 
+/**
+ * @internal
+ */
 class TestActionEventCompilerPass extends ActionEventCompilerPass
 {
     protected function getReflectionClass(): \ReflectionClass

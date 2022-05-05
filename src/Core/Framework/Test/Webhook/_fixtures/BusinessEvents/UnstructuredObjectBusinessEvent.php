@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
 
+/**
+ * @internal
+ */
 class UnstructuredObjectBusinessEvent implements BusinessEventInterface, BusinessEventEncoderTestInterface
 {
     /**

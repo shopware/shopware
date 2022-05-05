@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1635388654CreateIncrementTable;
 
+/**
+ * @internal
+ */
 class Migration1635388654CreateIncrementTableTest extends TestCase
 {
     use KernelTestBehaviour;

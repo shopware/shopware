@@ -18,6 +18,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigDefinition;
 use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyDefinition;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class EntityProtectionValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -30,6 +30,7 @@ use Shopware\Core\System\StateMachine\Transition;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @internal
  * @group slow
  */
 class StockUpdaterTest extends TestCase

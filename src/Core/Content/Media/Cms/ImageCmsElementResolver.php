@@ -20,6 +20,9 @@ class ImageCmsElementResolver extends AbstractCmsElementResolver
 
     private AbstractDefaultMediaResolver $mediaResolver;
 
+    /**
+     * @internal
+     */
     public function __construct(AbstractDefaultMediaResolver $mediaResolver)
     {
         $this->mediaResolver = $mediaResolver;

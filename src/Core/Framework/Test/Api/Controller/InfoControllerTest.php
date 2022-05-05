@@ -31,6 +31,9 @@ use Symfony\Component\Asset\Package;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
+/**
+ * @internal
+ */
 class InfoControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

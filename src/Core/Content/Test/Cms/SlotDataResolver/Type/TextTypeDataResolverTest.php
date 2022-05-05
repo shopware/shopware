@@ -19,6 +19,9 @@ use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class TextTypeDataResolverTest extends TestCase
 {
     use KernelTestBehaviour;

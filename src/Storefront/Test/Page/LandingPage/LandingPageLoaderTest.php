@@ -15,6 +15,9 @@ use Shopware\Storefront\Page\LandingPage\LandingPageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class LandingPageLoaderTest extends TestCase
 {
     use StorefrontPageTestBehaviour;

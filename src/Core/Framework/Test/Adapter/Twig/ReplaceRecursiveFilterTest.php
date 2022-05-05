@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Adapter\Twig\Filter\ReplaceRecursiveFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Twig\TwigFilter;
 
+/**
+ * @internal
+ */
 class ReplaceRecursiveFilterTest extends TestCase
 {
     use KernelTestBehaviour;

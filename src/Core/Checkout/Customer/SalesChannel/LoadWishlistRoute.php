@@ -53,6 +53,9 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
      */
     private $systemConfigService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $wishlistRepository,
         SalesChannelRepositoryInterface $productRepository,

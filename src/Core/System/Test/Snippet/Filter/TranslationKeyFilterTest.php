@@ -5,6 +5,9 @@ namespace Shopware\Core\System\Test\Snippet\Filter;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\Snippet\Filter\TranslationKeyFilter;
 
+/**
+ * @internal
+ */
 class TranslationKeyFilterTest extends TestCase
 {
     public function testGetFilterName(): void

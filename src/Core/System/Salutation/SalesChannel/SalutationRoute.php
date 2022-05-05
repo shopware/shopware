@@ -26,6 +26,9 @@ class SalutationRoute extends AbstractSalutationRoute
      */
     private $salesChannelRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         SalesChannelRepositoryInterface $salesChannelRepository
     ) {

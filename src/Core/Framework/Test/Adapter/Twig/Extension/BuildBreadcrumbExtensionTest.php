@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+/**
+ * @internal
+ */
 class BuildBreadcrumbExtensionTest extends TestCase
 {
     use IntegrationTestBehaviour;

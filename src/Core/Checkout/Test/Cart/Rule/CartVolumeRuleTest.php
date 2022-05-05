@@ -27,6 +27,7 @@ use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @internal
  * @group rules
  */
 class CartVolumeRuleTest extends TestCase

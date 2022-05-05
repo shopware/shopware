@@ -46,6 +46,9 @@ class ProductListingRoute extends AbstractProductListingRoute
      */
     private $productStreamBuilder;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ProductListingLoader $listingLoader,
         EventDispatcherInterface $eventDispatcher,

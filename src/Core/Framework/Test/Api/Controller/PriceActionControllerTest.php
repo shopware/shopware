@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Test\TaxFixtures;
 use Symfony\Component\Serializer\Serializer;
 
+/**
+ * @internal
+ */
 class PriceActionControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

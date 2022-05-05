@@ -44,6 +44,9 @@ class CartOrderRoute extends AbstractCartOrderRoute
 
     private PreparedPaymentService $preparedPaymentService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         CartCalculator $cartCalculator,
         EntityRepositoryInterface $orderRepository,

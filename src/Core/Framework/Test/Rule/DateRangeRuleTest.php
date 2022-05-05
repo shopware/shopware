@@ -17,6 +17,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
+/**
+ * @internal
+ */
 class DateRangeRuleTest extends TestCase
 {
     use KernelTestBehaviour;

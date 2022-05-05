@@ -12,6 +12,9 @@ class CsvFileWriterFactory extends AbstractWriterFactory
      */
     private $filesystem;
 
+    /**
+     * @internal
+     */
     public function __construct(FilesystemInterface $filesystem)
     {
         $this->filesystem = $filesystem;

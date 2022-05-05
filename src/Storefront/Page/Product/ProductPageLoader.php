@@ -42,6 +42,9 @@ class ProductPageLoader
 
     private AbstractProductCrossSellingRoute $crossSellingRoute;
 
+    /**
+     * @internal
+     */
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,

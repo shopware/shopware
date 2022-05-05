@@ -10,6 +10,9 @@ class ThemeConfigChangedEvent extends Event
 
     private string $themeId;
 
+    /**
+     * @internal
+     */
     public function __construct(string $themeId, array $config)
     {
         $this->config = $config;

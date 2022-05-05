@@ -24,6 +24,9 @@ class CountryRoute extends AbstractCountryRoute
      */
     private $countryRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         SalesChannelRepositoryInterface $countryRepository
     ) {

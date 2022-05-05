@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Page\LandingPage\LandingPageLoadedHook;
 
+/**
+ * @internal
+ */
 class LandingPageControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

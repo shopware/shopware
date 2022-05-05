@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @internal
+ */
 class DeleteNotUsedMediaCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

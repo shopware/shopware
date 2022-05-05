@@ -23,6 +23,9 @@ class UserCredentialsChangedSubscriber implements EventSubscriberInterface
      */
     private $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(RefreshTokenRepository $refreshTokenRepository, Connection $connection)
     {
         $this->refreshTokenRepository = $refreshTokenRepository;

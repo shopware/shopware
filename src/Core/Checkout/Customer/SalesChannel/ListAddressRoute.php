@@ -33,6 +33,9 @@ class ListAddressRoute extends AbstractListAddressRoute
      */
     private $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $addressRepository, EventDispatcherInterface $eventDispatcher)
     {
         $this->addressRepository = $addressRepository;

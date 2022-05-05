@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\AfterSort;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class AfterSortTest extends TestCase
 {
     public function testSortingAfterIdWithoutData(): void
@@ -186,6 +189,9 @@ class AfterSortTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class AfterSortCollection extends EntityCollection
 {
     public function sortByAfter(): self
@@ -201,6 +207,9 @@ class AfterSortCollection extends EntityCollection
     }
 }
 
+/**
+ * @internal
+ */
 class TestEntity extends Entity
 {
     use EntityIdTrait;

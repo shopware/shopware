@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Test\Cart\Rule\Helper;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Rule\LineItemPropertyRule;
 
+/**
+ * @internal
+ */
 class CartRuleScopeCase
 {
     public string $description;

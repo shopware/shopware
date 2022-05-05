@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Migration1604056363CustomerWishlist;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoCustomerTest extends TestCase
 {
     use IntegrationTestBehaviour;

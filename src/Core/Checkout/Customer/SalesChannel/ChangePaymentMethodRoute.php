@@ -43,6 +43,9 @@ class ChangePaymentMethodRoute extends AbstractChangePaymentMethodRoute
      */
     private $paymentMethodRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $customerRepository, EventDispatcherInterface $eventDispatcher, EntityRepositoryInterface $paymentMethodRepository)
     {
         $this->customerRepository = $customerRepository;

@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Migration1598885384RedirectToLatestSeoUrl;
 
+/**
+ * @internal
+ */
 class Migration1598885384RedirectToLatestSeoUrlTest extends TestCase
 {
     use IntegrationTestBehaviour;

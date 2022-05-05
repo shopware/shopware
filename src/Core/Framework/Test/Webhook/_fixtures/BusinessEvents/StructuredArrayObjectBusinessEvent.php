@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 
+/**
+ * @internal
+ */
 class StructuredArrayObjectBusinessEvent implements BusinessEventInterface, BusinessEventEncoderTestInterface
 {
     /**

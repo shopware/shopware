@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class NonIdPrimaryKeyTestDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'non_id_primary_key_test';

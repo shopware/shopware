@@ -19,6 +19,9 @@ class BundleConfigDumper implements EventSubscriberInterface
      */
     private $projectDir;
 
+    /**
+     * @internal
+     */
     public function __construct(
         BundleConfigGeneratorInterface $bundleConfigGenerator,
         string $projectDir

@@ -26,6 +26,9 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
      */
     private $shippingMethodRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         SalesChannelRepositoryInterface $shippingMethodRepository
     ) {

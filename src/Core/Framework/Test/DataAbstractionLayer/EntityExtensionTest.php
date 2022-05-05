@@ -38,6 +38,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxEntity;
 
+/**
+ * @internal
+ */
 class EntityExtensionTest extends TestCase
 {
     use IntegrationTestBehaviour;

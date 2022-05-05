@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Migration1595422169AddProductSorting;
 use Shopware\Core\Migration\Migration1600338271AddTopsellerSorting;
 
+/**
+ * @internal
+ */
 class Migration1595422169ProductSortingTest extends TestCase
 {
     use IntegrationTestBehaviour;

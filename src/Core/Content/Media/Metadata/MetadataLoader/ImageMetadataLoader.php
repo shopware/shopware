@@ -13,6 +13,9 @@ class ImageMetadataLoader implements MetadataLoaderInterface
      */
     private $fastImage;
 
+    /**
+     * @internal
+     */
     public function __construct()
     {
         $this->fastImage = new FastImageSize();

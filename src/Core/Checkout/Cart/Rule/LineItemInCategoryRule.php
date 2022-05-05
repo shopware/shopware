@@ -19,6 +19,9 @@ class LineItemInCategoryRule extends Rule
 
     protected string $operator;
 
+    /**
+     * @internal
+     */
     public function __construct(string $operator = self::OPERATOR_EQ, array $categoryIds = [])
     {
         parent::__construct();

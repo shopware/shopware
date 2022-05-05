@@ -12,6 +12,9 @@ class StorefrontMediaValidatorRegistry
      */
     private $validators;
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $validators)
     {
         $this->validators = $validators;

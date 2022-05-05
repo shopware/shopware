@@ -44,6 +44,8 @@ class CachedPaymentMethodRoute extends AbstractPaymentMethodRoute
     private EventDispatcherInterface $dispatcher;
 
     /**
+     * @internal
+     *
      * @param AbstractCacheTracer<PaymentMethodRouteResponse> $tracer
      */
     public function __construct(

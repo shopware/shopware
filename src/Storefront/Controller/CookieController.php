@@ -19,6 +19,8 @@ use Symfony\Component\Routing\Annotation\Route;
  * A group is structured as described above the "getCookieGroup"-method
  *
  * @Route(defaults={"_routeScope"={"storefront"}})
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
 class CookieController extends StorefrontController
 {
@@ -32,6 +34,9 @@ class CookieController extends StorefrontController
      */
     private $systemConfigService;
 
+    /**
+     * @internal
+     */
     public function __construct(CookieProviderInterface $cookieProvider, SystemConfigService $systemConfigService)
     {
         $this->cookieProvider = $cookieProvider;

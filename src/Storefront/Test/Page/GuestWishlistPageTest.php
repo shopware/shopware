@@ -9,6 +9,9 @@ use Shopware\Storefront\Page\Wishlist\GuestWishlistPageLoadedEvent;
 use Shopware\Storefront\Page\Wishlist\GuestWishlistPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class GuestWishlistPageTest extends TestCase
 {
     use IntegrationTestBehaviour;

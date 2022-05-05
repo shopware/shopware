@@ -41,6 +41,8 @@ class CachedProductCrossSellingRoute extends AbstractProductCrossSellingRoute
     private EventDispatcherInterface $dispatcher;
 
     /**
+     * @internal
+     *
      * @param AbstractCacheTracer<ProductCrossSellingRouteResponse> $tracer
      */
     public function __construct(

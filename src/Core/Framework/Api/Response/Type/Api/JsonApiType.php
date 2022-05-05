@@ -29,6 +29,9 @@ class JsonApiType extends JsonFactoryBase
      */
     private $structEncoder;
 
+    /**
+     * @internal
+     */
     public function __construct(JsonApiEncoder $serializer, StructEncoder $structEncoder)
     {
         $this->serializer = $serializer;

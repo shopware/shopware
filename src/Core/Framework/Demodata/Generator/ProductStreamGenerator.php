@@ -22,6 +22,9 @@ class ProductStreamGenerator implements DemodataGeneratorInterface
      */
     private $productStreamDefinition;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityWriterInterface $writer, ProductStreamDefinition $productStreamDefinition)
     {
         $this->writer = $writer;

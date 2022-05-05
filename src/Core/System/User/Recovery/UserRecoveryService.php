@@ -43,6 +43,9 @@ class UserRecoveryService
 
     private SalesChannelContextServiceInterface $salesChannelContextService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $userRecoveryRepo,
         EntityRepositoryInterface $userRepo,

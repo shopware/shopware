@@ -18,6 +18,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tag\Service\FilterTagIdsService;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class FilterTagIdsServiceTest extends TestCase
 {
     use KernelTestBehaviour;

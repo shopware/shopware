@@ -47,6 +47,9 @@ class AccountOverviewPageLoader
      */
     private NewsletterAccountPageletLoader $newsletterAccountPageletLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,

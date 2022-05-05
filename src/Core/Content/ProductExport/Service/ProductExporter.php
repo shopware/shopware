@@ -38,6 +38,9 @@ class ProductExporter implements ProductExporterInterface
      */
     private $productExportFileHandler;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $productExportRepository,
         ProductExportGeneratorInterface $productExportGenerator,

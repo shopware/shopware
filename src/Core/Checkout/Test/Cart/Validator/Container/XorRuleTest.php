@@ -9,6 +9,9 @@ use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Framework\Rule\Container\XorRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class XorRuleTest extends TestCase
 {
     public function testSingleTrueRule(): void

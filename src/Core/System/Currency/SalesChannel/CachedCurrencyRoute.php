@@ -44,6 +44,8 @@ class CachedCurrencyRoute extends AbstractCurrencyRoute
     private EventDispatcherInterface $dispatcher;
 
     /**
+     * @internal
+     *
      * @param AbstractCacheTracer<CurrencyRouteResponse> $tracer
      */
     public function __construct(

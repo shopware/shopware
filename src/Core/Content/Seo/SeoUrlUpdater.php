@@ -48,6 +48,9 @@ class SeoUrlUpdater
      */
     private $salesChannelRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $languageRepository,
         SeoUrlRouteRegistry $seoUrlRouteRegistry,

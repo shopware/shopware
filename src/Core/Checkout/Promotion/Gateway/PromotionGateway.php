@@ -15,6 +15,9 @@ class PromotionGateway implements PromotionGatewayInterface
      */
     private $promotionRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $promotionRepository)
     {
         $this->promotionRepository = $promotionRepository;

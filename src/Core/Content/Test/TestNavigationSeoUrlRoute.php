@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @internal
  * @Route(defaults={"_routeScope"={"store-api"}})
  */
 class TestNavigationSeoUrlRoute implements SeoUrlRouteInterface

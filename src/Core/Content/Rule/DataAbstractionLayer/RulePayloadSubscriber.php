@@ -21,6 +21,9 @@ class RulePayloadSubscriber implements EventSubscriberInterface
 
     private bool $debug;
 
+    /**
+     * @internal
+     */
     public function __construct(
         RulePayloadUpdater $updater,
         ScriptTraces $traces,

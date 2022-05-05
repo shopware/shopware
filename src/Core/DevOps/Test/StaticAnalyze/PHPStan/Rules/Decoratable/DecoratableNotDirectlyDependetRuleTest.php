@@ -9,6 +9,7 @@ use Shopware\Core\DevOps\Test\StaticAnalyze\PHPStan\Rules\Decoratable\_fixtures\
 use Shopware\Core\DevOps\Test\StaticAnalyze\PHPStan\Rules\Decoratable\_fixtures\DecoratableNotDirectlyDependet\Test;
 
 /**
+ * @internal
  * @extends RuleTestCase<DecoratableNotDirectlyDependetRule>
  */
 class DecoratableNotDirectlyDependetRuleTest extends RuleTestCase

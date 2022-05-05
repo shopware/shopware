@@ -14,6 +14,9 @@ class PluginIdProvider
      */
     private $pluginRepo;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $pluginRepo)
     {
         $this->pluginRepo = $pluginRepo;

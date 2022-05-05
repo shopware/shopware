@@ -48,6 +48,9 @@ class CartService implements ResetInterface
 
     private CartPersisterInterface $persister;
 
+    /**
+     * @internal
+     */
     public function __construct(
         CartPersisterInterface $persister,
         EventDispatcherInterface $eventDispatcher,

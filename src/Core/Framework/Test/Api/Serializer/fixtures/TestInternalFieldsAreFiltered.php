@@ -9,6 +9,9 @@ use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 
+/**
+ * @internal
+ */
 class TestInternalFieldsAreFiltered extends SerializationFixture
 {
     public function getInput()

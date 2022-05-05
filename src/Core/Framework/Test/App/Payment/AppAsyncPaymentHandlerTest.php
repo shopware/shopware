@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 
+/**
+ * @internal
+ */
 class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
 {
     public const REDIRECT_URL = 'http://payment.app/do/something';

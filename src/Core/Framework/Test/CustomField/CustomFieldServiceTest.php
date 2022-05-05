@@ -16,6 +16,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 
+/**
+ * @internal
+ */
 class CustomFieldServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

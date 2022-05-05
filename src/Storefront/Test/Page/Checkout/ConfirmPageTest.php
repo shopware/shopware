@@ -18,6 +18,9 @@ use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
 use Shopware\Storefront\Test\Page\StorefrontPageTestConstants;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class ConfirmPageTest extends TestCase
 {
     use IntegrationTestBehaviour;

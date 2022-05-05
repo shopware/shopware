@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1639139581AddPriorityToPromotions;
 
+/**
+ * @internal
+ */
 class Migration1639139581AddPriorityToPromotionsTest extends TestCase
 {
     use KernelTestBehaviour;

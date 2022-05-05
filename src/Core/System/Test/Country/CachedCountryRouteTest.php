@@ -28,6 +28,7 @@ use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @internal
  * @group cache
  * @group store-api
  */

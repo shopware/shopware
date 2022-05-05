@@ -14,6 +14,9 @@ class FormCmsElementResolver extends Element\AbstractCmsElementResolver
 {
     private EntityRepositoryInterface $salutationRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $salutationRepository)
     {
         $this->salutationRepository = $salutationRepository;

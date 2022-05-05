@@ -25,6 +25,9 @@ use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\RouterInterface;
 
+/**
+ * @internal
+ */
 class PaymentTransactionChainProcessorTest extends TestCase
 {
     private IdsCollection $ids;

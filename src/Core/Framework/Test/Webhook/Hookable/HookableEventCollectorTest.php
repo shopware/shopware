@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 
+/**
+ * @internal
+ */
 class HookableEventCollectorTest extends TestCase
 {
     use IntegrationTestBehaviour;

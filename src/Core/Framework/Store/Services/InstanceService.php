@@ -10,6 +10,9 @@ class InstanceService
 
     private ?string $instanceId;
 
+    /**
+     * @internal
+     */
     public function __construct(string $shopwareVersion, ?string $instanceId)
     {
         $this->shopwareVersion = $shopwareVersion;

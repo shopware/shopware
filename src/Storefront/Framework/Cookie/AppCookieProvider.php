@@ -22,6 +22,9 @@ class AppCookieProvider implements CookieProviderInterface
      */
     private $appRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(CookieProviderInterface $inner, EntityRepositoryInterface $appRepository)
     {
         $this->inner = $inner;

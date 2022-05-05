@@ -26,6 +26,9 @@ class PercentagePriceCalculator
      */
     private $percentageTaxRuleBuilder;
 
+    /**
+     * @internal
+     */
     public function __construct(
         CashRounding $rounding,
         QuantityPriceCalculator $priceCalculator,

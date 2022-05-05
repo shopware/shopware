@@ -21,6 +21,9 @@ class ProductGateway implements ProductGatewayInterface
      */
     private $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         SalesChannelRepositoryInterface $repository,
         EventDispatcherInterface $eventDispatcher

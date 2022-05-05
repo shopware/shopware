@@ -38,6 +38,9 @@ class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
      */
     private $cartPersister;
 
+    /**
+     * @internal
+     */
     public function __construct(EventDispatcherInterface $eventDispatcher, CartCalculator $cartCalculator, CartPersisterInterface $cartPersister)
     {
         $this->eventDispatcher = $eventDispatcher;

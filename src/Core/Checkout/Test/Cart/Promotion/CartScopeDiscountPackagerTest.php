@@ -16,6 +16,9 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager\CartScopeDiscou
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class CartScopeDiscountPackagerTest extends TestCase
 {
     use IntegrationTestBehaviour;

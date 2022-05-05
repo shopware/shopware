@@ -28,6 +28,9 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 use Shopware\Core\System\StateMachine\StateMachineDefinition;
 use Shopware\Core\System\StateMachine\StateMachineTranslationDefinition;
 
+/**
+ * @internal
+ */
 class EntityDefinitionTest extends TestCase
 {
     use KernelTestBehaviour;

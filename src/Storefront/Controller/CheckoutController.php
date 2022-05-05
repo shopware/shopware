@@ -43,6 +43,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"storefront"}})
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
 class CheckoutController extends StorefrontController
 {
@@ -66,6 +68,9 @@ class CheckoutController extends StorefrontController
 
     private AbstractLogoutRoute $logoutRoute;
 
+    /**
+     * @internal
+     */
     public function __construct(
         CartService $cartService,
         CheckoutCartPageLoader $cartPageLoader,

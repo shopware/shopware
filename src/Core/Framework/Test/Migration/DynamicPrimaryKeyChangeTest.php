@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use function sprintf;
 
 /**
+ * @internal
  * @group slow
  */
 class DynamicPrimaryKeyChangeTest extends TestCase

@@ -49,6 +49,9 @@ class StateMachineRegistry
      */
     private array $initialStates = [];
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $stateMachineRepository,
         EntityRepositoryInterface $stateMachineStateRepository,

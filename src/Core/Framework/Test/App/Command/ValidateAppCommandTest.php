@@ -8,6 +8,9 @@ use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @internal
+ */
 class ValidateAppCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -13,6 +13,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\IpUtils;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ */
 class RemoteAddressFieldSerializer extends AbstractFieldSerializer
 {
     protected const CONFIG_KEY = 'core.loginRegistration.customerIpAddressesNotAnonymously';

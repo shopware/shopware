@@ -17,6 +17,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
+/**
+ * @internal
+ */
 class PriceFieldSerializerTest extends TestCase
 {
     use KernelTestBehaviour;

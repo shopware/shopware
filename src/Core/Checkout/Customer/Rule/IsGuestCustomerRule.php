@@ -11,6 +11,9 @@ class IsGuestCustomerRule extends Rule
 {
     protected bool $isGuest;
 
+    /**
+     * @internal
+     */
     public function __construct(bool $isGuest = true)
     {
         parent::__construct();

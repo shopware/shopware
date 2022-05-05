@@ -26,6 +26,9 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
 
     private RequestStack $requestStack;
 
+    /**
+     * @internal
+     */
     public function __construct(CartService $cartService, RequestStack $requestStack)
     {
         $this->cartService = $cartService;

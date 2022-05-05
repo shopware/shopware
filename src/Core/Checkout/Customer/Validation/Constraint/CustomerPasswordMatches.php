@@ -27,6 +27,9 @@ class CustomerPasswordMatches extends Constraint
         self::CUSTOMER_PASSWORD_NOT_CORRECT => 'CUSTOMER_PASSWORD_NOT_CORRECT',
     ];
 
+    /**
+     * @internal
+     */
     public function __construct($options = null)
     {
         $options = array_merge(

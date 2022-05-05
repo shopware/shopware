@@ -32,6 +32,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class AuthControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

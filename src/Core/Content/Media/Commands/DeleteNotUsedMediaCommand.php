@@ -18,6 +18,9 @@ class DeleteNotUsedMediaCommand extends Command
      */
     private $deleteMediaService;
 
+    /**
+     * @internal
+     */
     public function __construct(DeleteNotUsedMediaService $deleteMediaService)
     {
         parent::__construct();

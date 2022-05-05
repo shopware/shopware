@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCodeTuple;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 
+/**
+ * @internal
+ */
 class PromotionCodeTupleTest extends TestCase
 {
     /**

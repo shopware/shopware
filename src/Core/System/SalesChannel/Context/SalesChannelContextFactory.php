@@ -51,6 +51,9 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
     private AbstractBaseContextFactory $baseContextFactory;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $customerRepository,
         EntityRepositoryInterface $customerGroupRepository,

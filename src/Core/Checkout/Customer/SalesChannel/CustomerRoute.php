@@ -25,6 +25,9 @@ class CustomerRoute extends AbstractCustomerRoute
      */
     private $customerRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $customerRepository
     ) {

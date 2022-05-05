@@ -16,6 +16,9 @@ class File implements ConfigHandlerInterface
      */
     private $customUrls;
 
+    /**
+     * @internal
+     */
     public function __construct($sitemapConfig)
     {
         $this->customUrls = $sitemapConfig[ConfigHandler::CUSTOM_URLS_KEY];

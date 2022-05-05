@@ -42,6 +42,9 @@ use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
 class SendMailActionTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -692,6 +695,9 @@ class SendMailActionTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class TestMailSendSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array
@@ -715,6 +721,9 @@ class TestMailSendSubscriber implements EventSubscriberInterface
     }
 }
 
+/**
+ * @internal
+ */
 class TestStopSendSubscriber implements EventSubscriberInterface
 {
     /**
@@ -736,6 +745,9 @@ class TestStopSendSubscriber implements EventSubscriberInterface
     }
 }
 
+/**
+ * @internal
+ */
 class TestStringTemplateRenderer extends StringTemplateRenderer
 {
     /**
@@ -767,6 +779,9 @@ class TestStringTemplateRenderer extends StringTemplateRenderer
     }
 }
 
+/**
+ * @internal
+ */
 class TestEmailService extends EMailService
 {
     public $calls = 0;

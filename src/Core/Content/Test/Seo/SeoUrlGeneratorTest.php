@@ -25,6 +25,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class SeoUrlGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;

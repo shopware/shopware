@@ -28,6 +28,9 @@ class SalesChannelRepositoryFacade
 
     private SalesChannelContext $context;
 
+    /**
+     * @internal
+     */
     public function __construct(
         SalesChannelDefinitionInstanceRegistry $registry,
         RequestCriteriaBuilder $criteriaBuilder,

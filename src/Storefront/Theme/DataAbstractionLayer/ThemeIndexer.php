@@ -26,6 +26,9 @@ class ThemeIndexer extends EntityIndexer
 
     private Connection $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,

@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Migration\V6_4\Migration1624967118updateMailTemplatesWithOptionalSalutation as MigrationTested;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @internal
+ */
 class Migration1624967118updateMailTemplatesWithOptionalSalutationTest extends TestCase
 {
     private const TEMPLATE_DIR = __DIR__ . '/../Fixtures/mails/';

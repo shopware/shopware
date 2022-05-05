@@ -44,6 +44,8 @@ class CachedSalutationRoute extends AbstractSalutationRoute
     private EventDispatcherInterface $dispatcher;
 
     /**
+     * @internal
+     *
      * @param AbstractCacheTracer<SalutationRouteResponse> $tracer
      */
     public function __construct(

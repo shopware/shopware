@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Framework\Store\Struct\ReviewStruct;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class ReviewStructTest extends TestCase
 {
     public function testFromRequest(): void

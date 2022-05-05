@@ -31,6 +31,9 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\Scala
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\User\UserDefinition;
 
+/**
+ * @internal
+ */
 class JsonEntityEncoderTest extends TestCase
 {
     use KernelTestBehaviour;

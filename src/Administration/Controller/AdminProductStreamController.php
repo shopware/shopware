@@ -30,6 +30,9 @@ class AdminProductStreamController extends AbstractController
 
     private RequestCriteriaBuilder $criteriaBuilder;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ProductDefinition $productDefinition,
         SalesChannelRepositoryInterface $salesChannelProductRepository,

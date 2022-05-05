@@ -20,6 +20,9 @@ class UpdateSubscriber implements EventSubscriberInterface
 
     private EntityRepositoryInterface $salesChannelRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ThemeService $themeService,
         ThemeLifecycleService $themeLifecycleService,

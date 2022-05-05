@@ -7,6 +7,9 @@ use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportRecordEv
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 
+/**
+ * @internal
+ */
 class ImportExportExceptionRecordTest extends TestCase
 {
     /**

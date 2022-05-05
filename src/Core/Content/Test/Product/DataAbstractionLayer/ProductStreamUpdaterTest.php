@@ -17,6 +17,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class ProductStreamUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;

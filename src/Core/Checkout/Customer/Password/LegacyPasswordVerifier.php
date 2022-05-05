@@ -13,6 +13,9 @@ class LegacyPasswordVerifier
      */
     private $encoder;
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $encoder)
     {
         $this->encoder = $encoder;

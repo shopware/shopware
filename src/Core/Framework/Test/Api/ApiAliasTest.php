@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
 
 /**
+ * @internal
  * @group skip-paratest
  */
 class ApiAliasTest extends TestCase

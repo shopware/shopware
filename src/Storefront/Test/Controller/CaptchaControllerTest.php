@@ -12,6 +12,9 @@ use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Pagelet\Captcha\BasicCaptchaPagelet;
 
+/**
+ * @internal
+ */
 class CaptchaControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

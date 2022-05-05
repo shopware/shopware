@@ -37,6 +37,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
+ * @internal
  * @group slow
  * @group skip-paratest
  */

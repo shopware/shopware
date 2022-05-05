@@ -24,6 +24,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class AmountCalculatorTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\ListFieldTest;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\SearchCriteriaBuilderTest;
 
 /**
+ * @internal
  * Helper class to debug data problems in the test suite
  */
 class TestValidityListener implements TestListener

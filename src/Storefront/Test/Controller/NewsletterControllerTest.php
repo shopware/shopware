@@ -17,6 +17,9 @@ use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class NewsletterControllerTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;

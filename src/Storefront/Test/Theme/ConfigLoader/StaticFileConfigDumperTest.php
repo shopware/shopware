@@ -10,6 +10,9 @@ use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
 use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigDumper;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 
+/**
+ * @internal
+ */
 class StaticFileConfigDumperTest extends TestCase
 {
     public function testDumping(): void

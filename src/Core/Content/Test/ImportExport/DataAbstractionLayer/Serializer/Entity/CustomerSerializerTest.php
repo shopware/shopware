@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 
+/**
+ * @internal
+ */
 class CustomerSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;

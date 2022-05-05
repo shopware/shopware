@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 
+/**
+ * @internal
+ */
 class ShippingMethodRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

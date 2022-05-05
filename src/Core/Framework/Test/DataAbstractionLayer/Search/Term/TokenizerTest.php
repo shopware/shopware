@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Term;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
 
+/**
+ * @internal
+ */
 class TokenizerTest extends TestCase
 {
     /**

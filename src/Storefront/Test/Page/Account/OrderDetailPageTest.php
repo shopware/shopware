@@ -15,6 +15,9 @@ use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+/**
+ * @internal
+ */
 class OrderDetailPageTest extends TestCase
 {
     use IntegrationTestBehaviour;

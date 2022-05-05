@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Migration\V6_4\Migration1639992771MoveDataFromEventActionToFlow;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class Migration1639992771MoveDataFromEventActionToFlowTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -24,6 +24,9 @@ use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\Script\Execution\TestHook;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class RepositoryFacadeTest extends TestCase
 {
     use IntegrationTestBehaviour;

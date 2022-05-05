@@ -35,6 +35,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class Migration1612442786ChangeVersionOfDocumentsTest extends TestCase
 {
     use BasicTestDataBehaviour;

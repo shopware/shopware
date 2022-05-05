@@ -29,6 +29,9 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
+/**
+ * @internal
+ */
 class CustomerValueResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;

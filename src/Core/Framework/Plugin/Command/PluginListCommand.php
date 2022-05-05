@@ -23,6 +23,9 @@ class PluginListCommand extends Command
      */
     private $pluginRepo;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $pluginRepo)
     {
         parent::__construct();

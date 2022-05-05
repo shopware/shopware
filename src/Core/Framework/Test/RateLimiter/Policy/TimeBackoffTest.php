@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\RateLimiter\Policy;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoff;
 
+/**
+ * @internal
+ */
 class TimeBackoffTest extends TestCase
 {
     public function testThrowsExceptionOnInvalidLimits(): void

@@ -25,6 +25,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
 class CustomFieldTranslationTest extends TestCase
 {
     use KernelTestBehaviour;

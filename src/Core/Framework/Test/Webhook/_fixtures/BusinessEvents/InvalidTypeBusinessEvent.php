@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 
+/**
+ * @internal
+ */
 class InvalidTypeBusinessEvent implements BusinessEventInterface
 {
     public static function getAvailableData(): EventDataCollection

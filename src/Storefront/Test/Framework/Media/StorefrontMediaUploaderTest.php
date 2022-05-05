@@ -16,6 +16,9 @@ use Shopware\Storefront\Framework\Media\StorefrontMediaUploader;
 use Shopware\Storefront\Framework\Media\StorefrontMediaValidatorRegistry;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+/**
+ * @internal
+ */
 class StorefrontMediaUploaderTest extends TestCase
 {
     use KernelTestBehaviour;

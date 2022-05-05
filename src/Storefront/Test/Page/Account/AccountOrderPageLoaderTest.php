@@ -15,6 +15,9 @@ use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class AccountOrderPageLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;

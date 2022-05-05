@@ -26,6 +26,9 @@ use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+/**
+ * @internal
+ */
 class CaptchaRouteListenerTest extends TestCase
 {
     use IntegrationTestBehaviour;

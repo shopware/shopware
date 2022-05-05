@@ -17,6 +17,9 @@ use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatter
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternIncrement;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry;
 
+/**
+ * @internal
+ */
 class NumberRangeValueGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;

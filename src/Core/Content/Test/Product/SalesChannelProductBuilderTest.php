@@ -12,6 +12,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class SalesChannelProductBuilderTest extends TestCase
 {
     use IntegrationTestBehaviour;

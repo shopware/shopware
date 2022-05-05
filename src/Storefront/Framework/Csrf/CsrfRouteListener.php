@@ -40,6 +40,9 @@ class CsrfRouteListener implements EventSubscriberInterface
      */
     private $translator;
 
+    /**
+     * @internal
+     */
     public function __construct(
         CsrfTokenManagerInterface $csrfTokenManager,
         bool $csrfEnabled,

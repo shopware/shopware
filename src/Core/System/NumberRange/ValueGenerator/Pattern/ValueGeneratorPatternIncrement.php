@@ -19,6 +19,8 @@ class ValueGeneratorPatternIncrement extends AbstractValueGenerator implements V
     private $incrementConnector;
 
     /**
+     * @internal
+     *
      * @param IncrementStorageInterface|AbstractIncrementStorage $incrementConnector
      *
      * @deprecated tag:v6.5.0 incrementConnector will require a AbstractIncrementStorage

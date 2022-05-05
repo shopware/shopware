@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Asset\FlysystemLastModifiedVersionStrategy;
 use Shopware\Core\Framework\Adapter\Asset\PrefixVersionStrategy;
 
+/**
+ * @internal
+ */
 class PrefixVersionStrategyTest extends TestCase
 {
     /**

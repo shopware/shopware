@@ -15,6 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Language\LanguageDefinition;
 
+/**
+ * @internal
+ */
 class ExtendedProductManufacturerDefinition extends EntityDefinition
 {
     public function getEntityName(): string

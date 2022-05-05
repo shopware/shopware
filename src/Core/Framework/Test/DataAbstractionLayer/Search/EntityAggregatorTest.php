@@ -42,6 +42,7 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\Tax\TaxDefinition;
 
 /**
+ * @internal
  * @group slow
  */
 class EntityAggregatorTest extends TestCase

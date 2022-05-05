@@ -22,6 +22,9 @@ class CategoryUrlExtension extends AbstractExtension
      */
     private $categoryUrlGenerator;
 
+    /**
+     * @internal
+     */
     public function __construct(RoutingExtension $extension, AbstractCategoryUrlGenerator $categoryUrlGenerator)
     {
         $this->routingExtension = $extension;

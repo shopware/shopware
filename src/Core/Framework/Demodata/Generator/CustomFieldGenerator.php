@@ -23,6 +23,9 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
 
     private array $attributeSets = [];
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $attributeSetRepository, Connection $connection, DefinitionInstanceRegistry $definitionRegistry)
     {
         $this->attributeSetRepository = $attributeSetRepository;

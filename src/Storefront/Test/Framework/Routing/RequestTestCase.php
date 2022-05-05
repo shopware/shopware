@@ -4,6 +4,9 @@ namespace Shopware\Storefront\Test\Framework\Routing;
 
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class RequestTestCase
 {
     /**

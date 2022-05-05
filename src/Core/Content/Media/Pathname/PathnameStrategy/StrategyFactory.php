@@ -11,6 +11,9 @@ class StrategyFactory
      */
     private $strategies;
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $strategies)
     {
         $this->strategies = $strategies;

@@ -10,6 +10,9 @@ use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class PropertySortTest extends TestCase
 {
     private static $notShuffledName = [];

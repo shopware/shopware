@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1643366069AddSeoUrlUpdaterIndex;
 
+/**
+ * @internal
+ */
 class Migration1643366069AddSeoUrlUpdaterIndexTest extends TestCase
 {
     use KernelTestBehaviour;

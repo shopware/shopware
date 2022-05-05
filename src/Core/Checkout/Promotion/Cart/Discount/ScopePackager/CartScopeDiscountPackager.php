@@ -25,6 +25,9 @@ class CartScopeDiscountPackager extends DiscountPackager
      */
     private $lineItemQuantitySplitter;
 
+    /**
+     * @internal
+     */
     public function __construct(LineItemQuantitySplitter $lineItemQuantitySplitter)
     {
         $this->lineItemQuantitySplitter = $lineItemQuantitySplitter;

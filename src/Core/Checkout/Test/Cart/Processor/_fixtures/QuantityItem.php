@@ -7,6 +7,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class QuantityItem extends LineItem
 {
     public function __construct(float $price, TaxRuleCollection $taxes, bool $good = true, int $quantity = 1)

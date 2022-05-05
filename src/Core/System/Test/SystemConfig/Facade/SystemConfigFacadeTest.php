@@ -22,6 +22,9 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class SystemConfigFacadeTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -22,6 +22,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
+/**
+ * @internal
+ */
 class ErrorControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

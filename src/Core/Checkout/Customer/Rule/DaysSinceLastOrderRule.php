@@ -25,6 +25,9 @@ class DaysSinceLastOrderRule extends Rule
      */
     private $dateTime;
 
+    /**
+     * @internal
+     */
     public function __construct(?\DateTimeInterface $dateTime = null)
     {
         parent::__construct();

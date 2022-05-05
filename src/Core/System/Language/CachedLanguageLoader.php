@@ -13,6 +13,9 @@ class CachedLanguageLoader implements LanguageLoaderInterface, EventSubscriberIn
 
     private LanguageLoaderInterface $loader;
 
+    /**
+     * @internal
+     */
     public function __construct(LanguageLoaderInterface $loader, CacheInterface $cache)
     {
         $this->cache = $cache;

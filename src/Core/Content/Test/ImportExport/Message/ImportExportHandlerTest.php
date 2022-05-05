@@ -12,6 +12,9 @@ use Shopware\Core\Content\Test\ImportExport\ImportExportTestCase;
 use Shopware\Core\Framework\Context;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+/**
+ * @internal
+ */
 class ImportExportHandlerTest extends ImportExportTestCase
 {
     public function testImportExportHandlerDispatchesMessage(): void

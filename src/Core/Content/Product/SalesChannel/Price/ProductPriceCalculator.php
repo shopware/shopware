@@ -29,6 +29,9 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator implements R
 
     private ?UnitCollection $units = null;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $unitRepository, QuantityPriceCalculator $calculator)
     {
         $this->unitRepository = $unitRepository;

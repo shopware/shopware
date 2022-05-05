@@ -27,6 +27,9 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayer
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class EntitySerializerTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -178,6 +181,9 @@ class EntitySerializerTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class TestExtensionDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'test_extension';
@@ -199,6 +205,9 @@ class TestExtensionDefinition extends EntityDefinition
     }
 }
 
+/**
+ * @internal
+ */
 class TestExtension extends EntityExtension
 {
     public function extendFields(FieldCollection $collection): void
@@ -214,6 +223,9 @@ class TestExtension extends EntityExtension
     }
 }
 
+/**
+ * @internal
+ */
 class TestExtensionMigration extends MigrationStep
 {
     public function getCreationTimestamp(): int

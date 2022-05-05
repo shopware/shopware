@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1624262862UpdateDefaultValueOnCaptchaV2;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @internal
+ */
 class Migration1624262862UpdateDefaultValueOnCaptchaV2Test extends TestCase
 {
     use KernelTestBehaviour;

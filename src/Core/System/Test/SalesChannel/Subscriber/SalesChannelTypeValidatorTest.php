@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviou
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Exception\DefaultSalesChannelTypeCannotBeDeleted;
 
+/**
+ * @internal
+ */
 class SalesChannelTypeValidatorTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;

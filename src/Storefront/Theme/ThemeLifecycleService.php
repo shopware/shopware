@@ -70,6 +70,9 @@ class ThemeLifecycleService
 
     private Connection $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(
         StorefrontPluginRegistryInterface $pluginRegistry,
         EntityRepositoryInterface $themeRepository,

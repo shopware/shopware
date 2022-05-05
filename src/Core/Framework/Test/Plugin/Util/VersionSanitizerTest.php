@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\Plugin\Util;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 
+/**
+ * @internal
+ */
 class VersionSanitizerTest extends TestCase
 {
     /**

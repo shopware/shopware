@@ -16,6 +16,9 @@ class CachedSnippetFinder implements SnippetFinderInterface
      */
     private $cache;
 
+    /**
+     * @internal
+     */
     public function __construct(SnippetFinder $snippetFinder, AdapterInterface $cache)
     {
         $this->snippetFinder = $snippetFinder;

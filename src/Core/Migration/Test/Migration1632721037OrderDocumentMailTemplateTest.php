@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1632721037OrderDocumentMailTemplate;
 
+/**
+ * @internal
+ */
 class Migration1632721037OrderDocumentMailTemplateTest extends TestCase
 {
     use IntegrationTestBehaviour;

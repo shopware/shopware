@@ -13,6 +13,9 @@ class ProductUpdater implements EventSubscriberInterface
 
     private EntityDefinition $definition;
 
+    /**
+     * @internal
+     */
     public function __construct(ElasticsearchIndexer $indexer, EntityDefinition $definition)
     {
         $this->indexer = $indexer;

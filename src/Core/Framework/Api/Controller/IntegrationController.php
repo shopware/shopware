@@ -26,6 +26,9 @@ class IntegrationController extends AbstractController
      */
     private $integrationRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $integrationRepository
     ) {

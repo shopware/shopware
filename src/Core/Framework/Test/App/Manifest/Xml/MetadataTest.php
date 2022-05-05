@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\Error\MissingTranslationError;
 
+/**
+ * @internal
+ */
 class MetadataTest extends TestCase
 {
     public function testFromXml(): void

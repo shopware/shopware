@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
+/**
+ * @internal
+ */
 class UrlGeneratorTest extends TestCase
 {
     public function testAbsoluteMediaUrl(): void

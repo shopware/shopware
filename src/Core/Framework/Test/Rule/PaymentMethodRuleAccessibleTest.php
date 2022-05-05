@@ -14,6 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDelete
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class PaymentMethodRuleAccessibleTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -21,6 +21,7 @@ use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 /**
+ * @internal
  * @group cache
  */
 class CacheResponseSubscriberTest extends TestCase

@@ -21,6 +21,9 @@ class PreWriteValidationEvent extends Event implements ShopwareEvent
      */
     private $commands;
 
+    /**
+     * @internal
+     */
     public function __construct(WriteContext $writeContext, array $commands)
     {
         $this->writeContext = $writeContext;

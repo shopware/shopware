@@ -24,6 +24,9 @@ class PrimaryKeyResolver
 
     private AbstractFieldSerializer $fieldSerializer;
 
+    /**
+     * @internal
+     */
     public function __construct(DefinitionInstanceRegistry $definitionInstanceRegistry, AbstractFieldSerializer $fieldSerializer)
     {
         $this->definitionInstanceRegistry = $definitionInstanceRegistry;

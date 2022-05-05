@@ -22,6 +22,8 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
     private AbstractCacheTracer $tracer;
 
     /**
+     * @internal
+     *
      * @param AbstractCacheTracer<SalesChannelContext> $tracer
      */
     public function __construct(

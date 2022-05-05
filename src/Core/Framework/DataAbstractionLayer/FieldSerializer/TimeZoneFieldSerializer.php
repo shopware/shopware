@@ -15,6 +15,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Timezone;
 use Symfony\Component\Validator\Constraints\Type;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ */
 class TimeZoneFieldSerializer extends AbstractFieldSerializer
 {
     public function encode(

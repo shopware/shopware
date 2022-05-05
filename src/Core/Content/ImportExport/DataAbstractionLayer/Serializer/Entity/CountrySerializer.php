@@ -21,6 +21,9 @@ class CountrySerializer extends EntitySerializer implements ResetInterface
      */
     private array $cacheCountries = [];
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $countryRepository)
     {
         $this->countryRepository = $countryRepository;

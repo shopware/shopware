@@ -6,6 +6,9 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class Migration1635237551ScriptTest extends TestCase
 {
     use IntegrationTestBehaviour;

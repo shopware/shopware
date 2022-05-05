@@ -14,6 +14,9 @@ class RegisteredIndexerSubscriber implements EventSubscriberInterface
 
     private EntityIndexerRegistry $indexerRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(IndexerQueuer $indexerQueuer, EntityIndexerRegistry $indexerRegistry)
     {
         $this->indexerQueuer = $indexerQueuer;

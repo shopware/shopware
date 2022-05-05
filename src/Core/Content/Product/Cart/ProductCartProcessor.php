@@ -57,6 +57,9 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
     private SalesChannelRepositoryInterface $repository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ProductGatewayInterface $productGateway,
         QuantityPriceCalculator $calculator,

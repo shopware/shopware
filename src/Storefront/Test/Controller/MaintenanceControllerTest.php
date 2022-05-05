@@ -17,6 +17,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Page\Maintenance\MaintenancePageLoadedHook;
 
+/**
+ * @internal
+ */
 class MaintenanceControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class DateTimeDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'date_time_test';

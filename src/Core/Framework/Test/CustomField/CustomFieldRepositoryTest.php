@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
 use Shopware\Core\System\CustomField\CustomFieldEntity;
 
+/**
+ * @internal
+ */
 class CustomFieldRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

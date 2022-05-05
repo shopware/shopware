@@ -22,6 +22,9 @@ class FileService extends AbstractFileService
 
     private CsvFileWriter $writer;
 
+    /**
+     * @internal
+     */
     public function __construct(
         FilesystemInterface $filesystem,
         EntityRepositoryInterface $fileRepository

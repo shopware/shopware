@@ -11,6 +11,9 @@ use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV2;
 use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV3;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class CookieControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

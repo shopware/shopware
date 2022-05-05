@@ -15,6 +15,9 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
+/**
+ * @internal
+ */
 class RouteEventSubscriberTest extends TestCase
 {
     public function testRequestEvent(): void

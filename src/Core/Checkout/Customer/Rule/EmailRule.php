@@ -17,6 +17,9 @@ class EmailRule extends Rule
 
     protected string $operator;
 
+    /**
+     * @internal
+     */
     public function __construct(string $operator = self::OPERATOR_EQ, ?string $email = null)
     {
         parent::__construct();

@@ -28,6 +28,9 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
      */
     private $csrfMode;
 
+    /**
+     * @internal
+     */
     public function __construct(
         RequestStack $requestStack,
         bool $csrfEnabled,

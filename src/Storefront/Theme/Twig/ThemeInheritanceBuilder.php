@@ -9,6 +9,9 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
 {
     private StorefrontPluginRegistryInterface $themeRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(StorefrontPluginRegistryInterface $themeRegistry)
     {
         $this->themeRegistry = $themeRegistry;

@@ -9,6 +9,9 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionLineItemTestFixtureBehaviour;
 
+/**
+ * @internal
+ */
 class DiscountPackageTest extends TestCase
 {
     use PromotionLineItemTestFixtureBehaviour;

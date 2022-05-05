@@ -36,6 +36,9 @@ class OrderConverterController extends AbstractController
      */
     private $orderRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         OrderConverter $orderConverter,
         CartPersisterInterface $cartPersister,

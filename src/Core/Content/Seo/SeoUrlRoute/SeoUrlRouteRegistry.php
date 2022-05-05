@@ -14,6 +14,9 @@ class SeoUrlRouteRegistry
      */
     private $definitionToRoutes = [];
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $seoUrlRoutes)
     {
         /** @var SeoUrlRouteInterface $seoUrlRoute */

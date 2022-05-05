@@ -30,6 +30,9 @@ class StorefrontRenderEvent extends NestedEvent implements ShopwareSalesChannelE
      */
     protected $context;
 
+    /**
+     * @internal
+     */
     public function __construct(string $view, array $parameters, Request $request, SalesChannelContext $context)
     {
         $this->view = $view;

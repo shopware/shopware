@@ -27,6 +27,9 @@ class DumpClassSchemaCommand extends Command
      */
     protected $schemaPath;
 
+    /**
+     * @internal
+     */
     public function __construct(array $bundles)
     {
         parent::__construct();

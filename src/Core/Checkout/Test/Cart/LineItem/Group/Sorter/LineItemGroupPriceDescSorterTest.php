@@ -8,6 +8,9 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\Sorter\LineItemGroupPriceDescSort
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 
+/**
+ * @internal
+ */
 class LineItemGroupPriceDescSorterTest extends TestCase
 {
     use LineItemTestFixtureBehaviour;

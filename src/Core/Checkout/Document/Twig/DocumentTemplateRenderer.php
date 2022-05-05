@@ -44,6 +44,9 @@ class DocumentTemplateRenderer
      */
     private $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         TemplateFinder $templateFinder,
         Environment $twig,

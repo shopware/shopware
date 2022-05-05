@@ -15,6 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
 class AttachmentLoaderTest extends TestCase
 {
     private AttachmentLoader $attachmentLoader;

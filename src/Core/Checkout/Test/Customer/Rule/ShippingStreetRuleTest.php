@@ -20,6 +20,9 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
+/**
+ * @internal
+ */
 class ShippingStreetRuleTest extends TestCase
 {
     use KernelTestBehaviour;

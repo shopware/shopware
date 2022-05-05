@@ -5,6 +5,10 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-final - Will be @final
+ * @final
+ */
 class TermsAggregation extends BucketAggregation
 {
     /**

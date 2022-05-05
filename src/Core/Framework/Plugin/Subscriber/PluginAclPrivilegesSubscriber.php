@@ -16,6 +16,9 @@ class PluginAclPrivilegesSubscriber implements EventSubscriberInterface
      */
     private $plugins;
 
+    /**
+     * @internal
+     */
     public function __construct(KernelPluginCollection $plugins)
     {
         $this->plugins = $plugins;

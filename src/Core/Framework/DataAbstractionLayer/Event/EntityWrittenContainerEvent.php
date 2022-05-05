@@ -24,6 +24,9 @@ class EntityWrittenContainerEvent extends NestedEvent
      */
     private $errors;
 
+    /**
+     * @internal
+     */
     public function __construct(Context $context, NestedEventCollection $events, array $errors)
     {
         $this->context = $context;

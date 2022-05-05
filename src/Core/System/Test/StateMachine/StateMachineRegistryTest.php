@@ -23,6 +23,9 @@ use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class StateMachineRegistryTest extends TestCase
 {
     use KernelTestBehaviour;

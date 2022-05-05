@@ -37,6 +37,9 @@ class CustomerSerializer extends EntitySerializer implements ResetInterface
      */
     private array $cacheSalesChannels = [];
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $customerGroupRepository,
         EntityRepositoryInterface $paymentMethodRepository,

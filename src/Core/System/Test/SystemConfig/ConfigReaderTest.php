@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 
+/**
+ * @internal
+ */
 class ConfigReaderTest extends TestCase
 {
     /**

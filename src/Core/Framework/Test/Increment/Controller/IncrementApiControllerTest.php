@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class IncrementApiControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

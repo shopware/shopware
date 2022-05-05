@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1647443222AllowLongLogEntryMessages;
 
+/**
+ * @internal
+ */
 class Migration1647443222AllowLongLogEntryMessagesTest extends TestCase
 {
     use KernelTestBehaviour;

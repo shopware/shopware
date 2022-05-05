@@ -18,6 +18,9 @@ class StoreClientFactory
 
     private OpenSSLVerifier $openSSLVerifier;
 
+    /**
+     * @internal
+     */
     public function __construct(SystemConfigService $configService, OpenSSLVerifier $openSSLVerifier)
     {
         $this->configService = $configService;

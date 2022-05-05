@@ -18,6 +18,9 @@ class SortedShippingMethodRoute extends AbstractShippingMethodRoute
 {
     private AbstractShippingMethodRoute $decorated;
 
+    /**
+     * @internal
+     */
     public function __construct(AbstractShippingMethodRoute $decorated)
     {
         $this->decorated = $decorated;

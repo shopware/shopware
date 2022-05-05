@@ -89,6 +89,9 @@ class SalesChannelProxyController extends AbstractController
 
     private Connection $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(
         KernelInterface $kernel,
         EntityRepositoryInterface $salesChannelRepository,

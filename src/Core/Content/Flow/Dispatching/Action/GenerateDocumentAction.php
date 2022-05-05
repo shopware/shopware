@@ -27,6 +27,9 @@ class GenerateDocumentAction extends FlowAction
 
     private NumberRangeValueGeneratorInterface $valueGenerator;
 
+    /**
+     * @internal
+     */
     public function __construct(
         DocumentService $documentService,
         NumberRangeValueGeneratorInterface $valueGenerator,

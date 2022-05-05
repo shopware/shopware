@@ -17,6 +17,9 @@ class CountryTaxFreeDeprecationUpdater implements EventSubscriberInterface
 
     private Connection $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(bool $blueGreenEnabled, Connection $connection)
     {
         $this->blueGreenEnabled = $blueGreenEnabled;

@@ -8,6 +8,9 @@ use Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTask;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1633347511ChangeProductExportInterval;
 
+/**
+ * @internal
+ */
 class Migration1633347511ChangeProductExportIntervalTest extends TestCase
 {
     use IntegrationTestBehaviour;

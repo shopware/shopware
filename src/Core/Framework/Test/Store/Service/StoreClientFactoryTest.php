@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Store\Services\StoreClientFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @internal
+ */
 class StoreClientFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

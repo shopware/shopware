@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Storefront\Theme\ConfigLoader\StaticFileAvailableThemeProvider;
 
+/**
+ * @internal
+ */
 class StaticFileAvailableThemeProviderTest extends TestCase
 {
     public function testFileNotExisting(): void

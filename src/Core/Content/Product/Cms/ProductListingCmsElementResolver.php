@@ -18,6 +18,9 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
 {
     private AbstractProductListingRoute $listingRoute;
 
+    /**
+     * @internal
+     */
     public function __construct(AbstractProductListingRoute $listingRoute)
     {
         $this->listingRoute = $listingRoute;

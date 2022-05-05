@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\RouterInterface;
 
+/**
+ * @internal
+ */
 class RoutesHaveSinceAnnotationTest extends TestCase
 {
     use KernelTestBehaviour;

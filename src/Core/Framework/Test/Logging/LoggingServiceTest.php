@@ -19,6 +19,9 @@ use Shopware\Core\Framework\Test\Logging\Event\LogAwareTestBusinessEvent;
 use Shopware\Core\Framework\Test\Logging\Event\LogAwareTestFlowEvent;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class LoggingServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -7,6 +7,9 @@ use Shopware\Core\Content\Media\Message\DeleteFileHandler;
 use Shopware\Core\Content\Media\Message\DeleteFileMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class DeleteFileHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;

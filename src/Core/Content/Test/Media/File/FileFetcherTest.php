@@ -14,6 +14,9 @@ use Symfony\Component\HttpFoundation\HeaderBag;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class FileFetcherTest extends TestCase
 {
     public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';

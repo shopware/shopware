@@ -15,6 +15,9 @@ class EntitySearcherProfiler implements EntitySearcherInterface
 {
     private EntitySearcherInterface $decorated;
 
+    /**
+     * @internal
+     */
     public function __construct(EntitySearcherInterface $decorated)
     {
         $this->decorated = $decorated;

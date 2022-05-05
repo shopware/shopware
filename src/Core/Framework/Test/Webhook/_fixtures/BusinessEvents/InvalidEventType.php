@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents;
 
 use Shopware\Core\Framework\Event\EventData\EventDataType;
 
+/**
+ * @internal
+ */
 class InvalidEventType implements EventDataType
 {
     public function toArray(): array

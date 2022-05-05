@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Update\Exception\UpdateFailedException;
 use Shopware\Core\Framework\Update\Services\Download;
 
 /**
+ * @internal
  * @group needsWebserver
  */
 class DownloadTest extends TestCase

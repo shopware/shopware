@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Test\DependencyInjection\fixtures;
 
+/**
+ * @internal
+ */
 final class TestBusinessEvents
 {
     /**

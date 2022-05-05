@@ -19,6 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpCache\HttpCache;
 
 /**
+ * @internal
  * @group skip-paratest
  * @group cache
  */

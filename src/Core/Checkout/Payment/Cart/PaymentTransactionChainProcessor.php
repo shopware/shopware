@@ -37,6 +37,9 @@ class PaymentTransactionChainProcessor
 
     private InitialStateIdLoader $initialStateIdLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(
         TokenFactoryInterfaceV2 $tokenFactory,
         EntityRepositoryInterface $orderRepository,

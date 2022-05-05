@@ -13,6 +13,9 @@ class CachedResolvedConfigLoader extends AbstractResolvedConfigLoader
 
     private CacheInterface $cache;
 
+    /**
+     * @internal
+     */
     public function __construct(AbstractResolvedConfigLoader $decorated, CacheInterface $cache)
     {
         $this->decorated = $decorated;

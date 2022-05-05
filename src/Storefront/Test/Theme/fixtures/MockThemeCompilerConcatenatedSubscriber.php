@@ -6,6 +6,9 @@ use Shopware\Storefront\Event\ThemeCompilerConcatenatedScriptsEvent;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
 class MockThemeCompilerConcatenatedSubscriber implements EventSubscriberInterface
 {
     public const STYLES_CONCAT = '.mock-selector {}';

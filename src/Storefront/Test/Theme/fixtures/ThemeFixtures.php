@@ -2,6 +2,9 @@
 
 namespace Shopware\Storefront\Test\Theme\fixtures;
 
+/**
+ * @internal
+ */
 class ThemeFixtures
 {
     public static function getThemeFields(): array

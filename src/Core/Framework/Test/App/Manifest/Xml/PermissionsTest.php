@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\App\Manifest\Xml\CustomFieldTypes;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 
+/**
+ * @internal
+ */
 class PermissionsTest extends TestCase
 {
     public function testFromXml(): void

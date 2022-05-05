@@ -23,6 +23,9 @@ class BuyBoxCmsElementResolver extends AbstractProductDetailCmsElementResolver
 
     private EntityRepositoryInterface $repository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ProductConfiguratorLoader $configuratorLoader,
         EntityRepositoryInterface $repository

@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Twig\Error\LoaderError;
 
+/**
+ * @internal
+ */
 class EntityTemplateLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;

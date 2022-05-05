@@ -7,6 +7,7 @@ use Shopware\Core\Test\TestBuilderTrait;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @internal
  * How to use:
  *
  * $x = (new CustomerBuilder(new IdsCollection(), 'p1'))

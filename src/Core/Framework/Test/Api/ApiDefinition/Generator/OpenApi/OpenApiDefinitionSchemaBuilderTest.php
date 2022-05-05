@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Test\Api\ApiDefinition\EntityDefinition\SinceDefinit
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
+/**
+ * @internal
+ */
 class OpenApiDefinitionSchemaBuilderTest extends TestCase
 {
     use KernelTestBehaviour;

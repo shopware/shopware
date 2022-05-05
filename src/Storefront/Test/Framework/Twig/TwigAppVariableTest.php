@@ -9,6 +9,9 @@ use Shopware\Storefront\Framework\Twig\TwigAppVariable;
 use Symfony\Bridge\Twig\AppVariable;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class TwigAppVariableTest extends TestCase
 {
     use IntegrationTestBehaviour;

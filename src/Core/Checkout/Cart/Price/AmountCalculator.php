@@ -19,6 +19,9 @@ class AmountCalculator
 
     private TaxCalculator $taxCalculator;
 
+    /**
+     * @internal
+     */
     public function __construct(
         CashRounding $rounding,
         PercentageTaxRuleBuilder $taxRuleBuilder,

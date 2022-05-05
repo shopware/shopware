@@ -13,6 +13,9 @@ class SalesChannelContextServiceProfiler implements SalesChannelContextServiceIn
 {
     private SalesChannelContextServiceInterface $decorated;
 
+    /**
+     * @internal
+     */
     public function __construct(SalesChannelContextServiceInterface $decorated)
     {
         $this->decorated = $decorated;

@@ -28,6 +28,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * This class acts only as helper/common class for all dbal operations for entity definitions.
  * It knows how an association should be joined, how a parent-child inheritance should act, how translation chains work, ...
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
 class EntityDefinitionQueryHelper
 {

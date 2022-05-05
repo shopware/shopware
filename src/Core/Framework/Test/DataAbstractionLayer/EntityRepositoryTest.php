@@ -49,6 +49,9 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\Locale\LocaleDefinition;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class EntityRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

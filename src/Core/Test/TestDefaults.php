@@ -3,6 +3,7 @@
 namespace Shopware\Core\Test;
 
 /**
+ * @internal
  * This class contains some defaults for test case
  */
 class TestDefaults

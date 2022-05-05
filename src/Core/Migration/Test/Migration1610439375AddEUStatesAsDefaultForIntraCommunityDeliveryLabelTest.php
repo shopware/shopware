@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Migration1610439375AddEUStatesAsDefaultForIntraCommunityDeliveryLabel;
 
+/**
+ * @internal
+ */
 class Migration1610439375AddEUStatesAsDefaultForIntraCommunityDeliveryLabelTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class PriceFieldDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = '_test_nullable';

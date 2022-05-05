@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class ScriptStoreApiRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

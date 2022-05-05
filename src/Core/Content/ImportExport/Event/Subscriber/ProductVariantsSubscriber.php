@@ -33,6 +33,9 @@ class ProductVariantsSubscriber implements EventSubscriberInterface
 
     private array $optionIdCache = [];
 
+    /**
+     * @internal
+     */
     public function __construct(
         SyncServiceInterface $syncService,
         Connection $connection,

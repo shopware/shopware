@@ -28,6 +28,9 @@ class CreateEntitiesCommand extends Command
      */
     private $dir;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityGenerator $entityGenerator,
         DefinitionInstanceRegistry $registry,

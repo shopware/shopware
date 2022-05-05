@@ -18,6 +18,9 @@ class PaymentHandlerRegistry
 
     private Connection $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ServiceProviderInterface $syncHandlers,
         ServiceProviderInterface $asyncHandlers,

@@ -23,6 +23,9 @@ class DocumentGeneratorController extends AbstractController
      */
     protected $documentService;
 
+    /**
+     * @internal
+     */
     public function __construct(DocumentService $documentService)
     {
         $this->documentService = $documentService;

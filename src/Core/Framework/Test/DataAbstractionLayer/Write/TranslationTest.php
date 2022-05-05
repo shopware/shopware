@@ -32,6 +32,9 @@ use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
 
+/**
+ * @internal
+ */
 class TranslationTest extends TestCase
 {
     use IntegrationTestBehaviour;

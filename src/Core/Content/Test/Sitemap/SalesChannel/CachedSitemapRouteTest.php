@@ -26,6 +26,7 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @internal
  * @group cache
  * @group store-api
  */
@@ -150,6 +151,9 @@ class CachedSitemapRouteTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class SitemapRouteCounter extends AbstractSitemapRoute
 {
     protected $count = 0;

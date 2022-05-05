@@ -8,6 +8,9 @@ use Shopware\Storefront\Theme\Command\ThemeCreateCommand;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @internal
+ */
 class ThemeCreateCommandTest extends TestCase
 {
     use KernelTestBehaviour;

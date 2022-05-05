@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 
+/**
+ * @internal
+ */
 class FallbackUrlPackageTest extends TestCase
 {
     public function testCliFallbacksToAppUrl(): void

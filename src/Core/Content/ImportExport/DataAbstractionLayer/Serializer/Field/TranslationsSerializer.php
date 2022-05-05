@@ -20,6 +20,9 @@ class TranslationsSerializer extends FieldSerializer
      */
     private $languageRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $languageRepository)
     {
         $this->languageRepository = $languageRepository;

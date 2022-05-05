@@ -11,6 +11,9 @@ use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class CustomerCustomFieldRuleTest extends TestCase
 {
     use CartRuleHelperTrait;

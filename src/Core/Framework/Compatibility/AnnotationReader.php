@@ -107,7 +107,8 @@ class AnnotationReader implements Reader
      */
     private $ignoredAnnotationNames = [];
 
-    /**
+    /** 
+     * @internal
      * Initializes a new AnnotationReader.
      *
      * @throws AnnotationException

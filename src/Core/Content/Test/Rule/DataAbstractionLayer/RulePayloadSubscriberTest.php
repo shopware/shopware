@@ -20,6 +20,9 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class RulePayloadSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;

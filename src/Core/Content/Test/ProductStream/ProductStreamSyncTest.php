@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Api\Controller\SyncController;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class ProductStreamSyncTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

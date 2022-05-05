@@ -55,6 +55,9 @@ class RuleGenerator implements DemodataGeneratorInterface
 
     private Generator $faker;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $ruleRepository,
         EntityWriterInterface $writer,

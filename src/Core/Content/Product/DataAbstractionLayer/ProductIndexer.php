@@ -67,6 +67,9 @@ class ProductIndexer extends EntityIndexer
 
     private MessageBusInterface $messageBus;
 
+    /**
+     * @internal
+     */
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,

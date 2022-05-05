@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\Migration1591361320ChargebackAndAuthorized;
 
+/**
+ * @internal
+ */
 class Migration1591361320ChargebackAndAuthorizedTest extends TestCase
 {
     use IntegrationTestBehaviour;

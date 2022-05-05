@@ -22,6 +22,9 @@ class CategoryListRoute extends AbstractCategoryListRoute
      */
     private $categoryRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(SalesChannelRepositoryInterface $categoryRepository)
     {
         $this->categoryRepository = $categoryRepository;

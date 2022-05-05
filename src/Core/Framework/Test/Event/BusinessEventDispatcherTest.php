@@ -20,6 +20,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @internal
+ *
  * @deprecated tag:v6.5.0 - Will be removed in v6.5.0, use FlowDispatcherTest instead.
  */
 class BusinessEventDispatcherTest extends TestCase

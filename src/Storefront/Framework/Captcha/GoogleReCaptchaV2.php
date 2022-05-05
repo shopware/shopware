@@ -14,6 +14,9 @@ class GoogleReCaptchaV2 extends AbstractCaptcha
 
     private ClientInterface $client;
 
+    /**
+     * @internal
+     */
     public function __construct(ClientInterface $client)
     {
         $this->client = $client;

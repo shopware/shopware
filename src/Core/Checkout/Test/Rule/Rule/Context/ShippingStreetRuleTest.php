@@ -12,6 +12,9 @@ use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class ShippingStreetRuleTest extends TestCase
 {
     public function testWithExactMatch(): void

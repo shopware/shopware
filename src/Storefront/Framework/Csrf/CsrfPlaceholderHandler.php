@@ -26,6 +26,9 @@ class CsrfPlaceholderHandler
 
     private SessionStorageFactoryInterface $sessionFactory;
 
+    /**
+     * @internal
+     */
     public function __construct(CsrfTokenManagerInterface $csrfTokenManager, bool $csrfEnabled, string $csrfMode, RequestStack $requestStack, SessionStorageFactoryInterface $sessionFactory)
     {
         $this->csrfTokenManager = $csrfTokenManager;

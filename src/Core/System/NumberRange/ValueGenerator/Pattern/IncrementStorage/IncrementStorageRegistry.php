@@ -14,6 +14,9 @@ class IncrementStorageRegistry
 
     private string $configuredStorage;
 
+    /**
+     * @internal
+     */
     public function __construct(\Traversable $storages, string $configuredStorage)
     {
         $this->storages = iterator_to_array($storages);

@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1631863869AddLogEntryCreateAndStateMachineTransitionReadPrivilege;
 
+/**
+ * @internal
+ */
 class Migration1631863869AddLogEntryCreateAndStateMachineTransitionReadPrivilegeTest extends TestCase
 {
     use IntegrationTestBehaviour;

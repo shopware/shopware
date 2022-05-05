@@ -32,6 +32,9 @@ class SetOrderStateAction extends FlowAction
 
     private OrderService $orderService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Connection $connection,
         LoggerInterface $logger,

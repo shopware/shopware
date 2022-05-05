@@ -10,6 +10,9 @@ class CleanupProductKeywordDictionaryTaskHandler extends ScheduledTaskHandler
 {
     private Connection $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $repository,
         Connection $connection

@@ -25,6 +25,9 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Definition\GroupByD
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class GroupByTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -165,6 +168,9 @@ class GroupByTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class TestData
 {
     /**
@@ -200,6 +206,9 @@ class TestData
     }
 }
 
+/**
+ * @internal
+ */
 class TestDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'test';

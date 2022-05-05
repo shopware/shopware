@@ -27,6 +27,9 @@ class SystemConfigFacade
 
     private array $appData = [];
 
+    /**
+     * @internal
+     */
     public function __construct(SystemConfigService $systemConfigService, Connection $connection, ?ScriptAppInformation $scriptAppInformation, ?string $salesChannelId)
     {
         $this->systemConfigService = $systemConfigService;

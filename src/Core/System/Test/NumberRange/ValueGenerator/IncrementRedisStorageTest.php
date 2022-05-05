@@ -13,6 +13,9 @@ use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\Inc
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\SharedLockInterface;
 
+/**
+ * @internal
+ */
 class IncrementRedisStorageTest extends TestCase
 {
     use IntegrationTestBehaviour;

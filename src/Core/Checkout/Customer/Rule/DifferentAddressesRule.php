@@ -15,6 +15,9 @@ class DifferentAddressesRule extends Rule
      */
     protected $isDifferent;
 
+    /**
+     * @internal
+     */
     public function __construct(bool $isDifferent = true)
     {
         parent::__construct();

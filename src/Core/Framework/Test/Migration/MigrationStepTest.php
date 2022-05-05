@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Test\Migration\_test_trigger_with_trigger_\Migration
 use Shopware\Core\Framework\Test\Migration\_test_trigger_with_trigger_\MigrationWithForwardTrigger;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class MigrationStepTest extends TestCase
 {
     use IntegrationTestBehaviour;

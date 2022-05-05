@@ -38,6 +38,9 @@ class S3FilesystemVisibilityCommand extends Command
      */
     private $filesystemAsset;
 
+    /**
+     * @internal
+     */
     public function __construct(
         FilesystemInterface $filesystemPrivate,
         FilesystemInterface $filesystemPublic,

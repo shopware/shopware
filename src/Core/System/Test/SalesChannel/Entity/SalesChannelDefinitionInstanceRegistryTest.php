@@ -10,6 +10,9 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegis
 use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundException;
 use Symfony\Component\DependencyInjection\Container;
 
+/**
+ * @internal
+ */
 class SalesChannelDefinitionInstanceRegistryTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -60,6 +60,9 @@ use Shopware\Core\System\CustomEntity\Xml\Field\TextField;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class CustomEntityTest extends TestCase
 {
     use KernelTestBehaviour;

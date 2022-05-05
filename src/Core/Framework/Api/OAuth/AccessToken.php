@@ -30,6 +30,9 @@ class AccessToken implements AccessTokenEntityInterface
      */
     private $scopes;
 
+    /**
+     * @internal
+     */
     public function __construct(ClientEntityInterface $clientEntity, array $scopes, $userIdentifier = null)
     {
         $this->client = $clientEntity;

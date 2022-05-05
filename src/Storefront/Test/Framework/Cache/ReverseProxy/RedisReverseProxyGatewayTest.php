@@ -10,6 +10,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Storefront\Framework\Cache\ReverseProxy\RedisReverseProxyGateway;
 
+/**
+ * @internal
+ */
 class RedisReverseProxyGatewayTest extends TestCase
 {
     private RedisReverseProxyGateway $gateway;

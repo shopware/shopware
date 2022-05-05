@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 
+/**
+ * @internal
+ */
 class MockRepository implements EntityRepositoryInterface
 {
     public $createCalls = 0;

@@ -60,6 +60,9 @@ class CacheWarmer extends AbstractMessageHandler
      */
     private $cacheTagCollection;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $domainRepository,
         MessageBusInterface $bus,

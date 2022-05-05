@@ -39,6 +39,9 @@ class ElasticsearchHelper
 
     private bool $throwException;
 
+    /**
+     * @internal
+     */
     public function __construct(
         string $environment,
         bool $searchEnabled,

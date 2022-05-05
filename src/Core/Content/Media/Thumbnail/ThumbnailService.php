@@ -34,6 +34,9 @@ class ThumbnailService
 
     private EntityRepositoryInterface $mediaFolderRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $thumbnailRepository,
         FilesystemInterface $fileSystemPublic,

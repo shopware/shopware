@@ -29,6 +29,9 @@ class SitemapMessage
      */
     private $finished;
 
+    /**
+     * @internal
+     */
     public function __construct(?string $lastSalesChannelId, ?string $lastLanguageId, ?string $lastProvider, ?int $nextOffset, bool $finished)
     {
         $this->lastSalesChannelId = $lastSalesChannelId;

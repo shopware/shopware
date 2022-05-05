@@ -8,6 +8,9 @@ use Shopware\Core\Content\Media\Cms\DefaultMediaResolver;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class DefaultMediaResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;

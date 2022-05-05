@@ -20,6 +20,9 @@ class NavigationRouteWarmer implements CacheRouteWarmer
      */
     private $definition;
 
+    /**
+     * @internal
+     */
     public function __construct(IteratorFactory $iteratorFactory, CategoryDefinition $definition)
     {
         $this->iteratorFactory = $iteratorFactory;

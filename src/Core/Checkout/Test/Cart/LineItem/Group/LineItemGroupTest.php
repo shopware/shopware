@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
 
+/**
+ * @internal
+ */
 class LineItemGroupTest extends TestCase
 {
     /**

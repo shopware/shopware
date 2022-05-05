@@ -22,6 +22,9 @@ class SnippetValidator implements SnippetValidatorInterface
      */
     private $projectDir;
 
+    /**
+     * @internal
+     */
     public function __construct(SnippetFileCollection $deprecatedSnippetFiles, SnippetFileHandler $snippetFileHandler, string $projectDir)
     {
         $this->deprecatedSnippetFiles = $deprecatedSnippetFiles;

@@ -8,6 +8,9 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\RequeueDeadMessagesHandle
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\RequeueDeadMessagesTask;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class RequeueDeadMessagesHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;

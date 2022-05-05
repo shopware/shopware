@@ -13,6 +13,8 @@ class RuleConditionRegistry
     private array $rules;
 
     /**
+     * @internal
+     *
      * @param iterable<Rule> $taggedRules
      */
     public function __construct(iterable $taggedRules)

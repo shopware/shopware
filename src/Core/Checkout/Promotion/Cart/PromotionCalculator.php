@@ -77,6 +77,9 @@ class PromotionCalculator
 
     private DiscountPackager $setScopeDiscountPackager;
 
+    /**
+     * @internal
+     */
     public function __construct(
         AmountCalculator $amountCalculator,
         AbsolutePriceCalculator $absolutePriceCalculator,

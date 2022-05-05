@@ -21,6 +21,9 @@ use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
+/**
+ * @internal
+ */
 class CartLineItemControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

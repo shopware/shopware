@@ -15,6 +15,9 @@ class ProductCombinationFinder
      */
     private $productRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(SalesChannelRepositoryInterface $productRepository)
     {
         $this->productRepository = $productRepository;

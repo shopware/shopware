@@ -11,6 +11,9 @@ class SnippetFilterFactory
      */
     private $filters = [];
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $filters)
     {
         $this->filters = $filters;

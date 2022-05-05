@@ -6,6 +6,9 @@ class Tokenizer implements TokenizerInterface
 {
     private int $tokenMinimumLength;
 
+    /**
+     * @internal
+     */
     public function __construct(int $tokenMinimumLength)
     {
         $this->tokenMinimumLength = $tokenMinimumLength;

@@ -17,6 +17,9 @@ class UserValidationService
      */
     private $userRepo;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $userRepo
     ) {

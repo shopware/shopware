@@ -11,6 +11,9 @@ use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxEntity;
 
+/**
+ * @internal
+ */
 class ArrayBusinessEvent implements BusinessEventInterface, BusinessEventEncoderTestInterface
 {
     /**

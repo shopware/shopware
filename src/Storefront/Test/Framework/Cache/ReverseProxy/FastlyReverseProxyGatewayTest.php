@@ -11,6 +11,9 @@ use Shopware\Storefront\Framework\Cache\ReverseProxy\FastlyReverseProxyGateway;
 use Symfony\Component\HttpFoundation\Response;
 use function array_fill;
 
+/**
+ * @internal
+ */
 class FastlyReverseProxyGatewayTest extends TestCase
 {
     private Client $client;

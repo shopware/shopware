@@ -13,6 +13,9 @@ class RouteEventSubscriber implements EventSubscriberInterface
 {
     private EventDispatcherInterface $dispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(EventDispatcherInterface $dispatcher)
     {
         $this->dispatcher = $dispatcher;

@@ -55,6 +55,9 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
 
     private SalesChannelContextServiceInterface $contextService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $customerRepository,
         EventDispatcherInterface $eventDispatcher,

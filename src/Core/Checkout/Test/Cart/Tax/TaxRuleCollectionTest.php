@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 
+/**
+ * @internal
+ */
 class TaxRuleCollectionTest extends TestCase
 {
     public function testCollectionIsCountable(): void

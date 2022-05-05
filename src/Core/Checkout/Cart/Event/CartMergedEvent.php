@@ -27,6 +27,8 @@ class CartMergedEvent extends Event implements ShopwareSalesChannelEvent
     protected ?Cart $previousCart;
 
     /**
+     * @internal
+     *
      * @deprecated tag:v6.5.0 - Parameter $previousCart will be required
      */
     public function __construct(Cart $cart, SalesChannelContext $context, ?Cart $previousCart = null)

@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
+/**
+ * @internal
+ */
 class SeoUrlTemplateRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

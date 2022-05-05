@@ -17,6 +17,9 @@ class CacheTracer extends AbstractCacheTracer
 
     private CacheTagCollection $collection;
 
+    /**
+     * @internal
+     */
     public function __construct(SystemConfigService $config, AbstractTranslator $translator, CacheTagCollection $collection)
     {
         $this->config = $config;

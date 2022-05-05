@@ -16,6 +16,9 @@ class GoodsPriceRule extends FilterRule
 
     protected string $operator;
 
+    /**
+     * @internal
+     */
     public function __construct(string $operator = self::OPERATOR_EQ, ?float $amount = null)
     {
         parent::__construct();

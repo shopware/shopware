@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigCollection;
 
+/**
+ * @internal
+ */
 class SystemConfigRepositoryTest extends TestCase
 {
     use KernelTestBehaviour;

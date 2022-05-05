@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class CheapestPriceAccessorBuilderTest extends TestCase
 {
     use KernelTestBehaviour;

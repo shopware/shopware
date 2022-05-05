@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Test\Page\Product\Review;
 use PHPUnit\Framework\TestCase;
 use Shopware\Storefront\Page\Product\Review\MatrixElement;
 
+/**
+ * @internal
+ */
 class MatrixElementTest extends TestCase
 {
     /**

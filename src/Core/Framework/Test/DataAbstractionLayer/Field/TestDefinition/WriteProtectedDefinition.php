@@ -15,6 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class WriteProtectedDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = '_test_nullable';

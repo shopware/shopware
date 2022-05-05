@@ -16,6 +16,9 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
+/**
+ * @internal
+ */
 class SitemapGenerateCommandTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;

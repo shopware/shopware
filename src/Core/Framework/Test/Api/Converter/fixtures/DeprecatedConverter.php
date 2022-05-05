@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Test\Api\Converter\fixtures;
 
 use Shopware\Core\Framework\Api\Converter\ApiConverter;
 
+/**
+ * @internal
+ */
 class DeprecatedConverter extends ApiConverter
 {
     public function getApiVersion(): int

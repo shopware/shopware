@@ -51,6 +51,9 @@ use Shopware\Core\System\Unit\UnitDefinition;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
 class ImportExportTest extends ImportExportTestCase
 {
     use SalesChannelApiTestBehaviour;

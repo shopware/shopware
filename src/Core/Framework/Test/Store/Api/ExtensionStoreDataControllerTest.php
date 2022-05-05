@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class ExtensionStoreDataControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

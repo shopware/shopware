@@ -31,6 +31,9 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
      */
     private $dataValidator;
 
+    /**
+     * @internal
+     */
     public function __construct(
         PaymentService $paymentService,
         DataValidator $dataValidator

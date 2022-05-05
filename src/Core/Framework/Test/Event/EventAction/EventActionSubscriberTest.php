@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @internal
+ *
  * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
  */
 class EventActionSubscriberTest extends TestCase

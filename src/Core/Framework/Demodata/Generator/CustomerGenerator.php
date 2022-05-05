@@ -32,6 +32,9 @@ class CustomerGenerator implements DemodataGeneratorInterface
 
     private Generator $faker;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityWriterInterface $writer,
         Connection $connection,

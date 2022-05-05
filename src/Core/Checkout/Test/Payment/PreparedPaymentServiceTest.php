@@ -39,6 +39,7 @@ use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @internal
  * This test handles transactions itself, because it shuts down the kernel in the setUp method.
  */
 class PreparedPaymentServiceTest extends TestCase

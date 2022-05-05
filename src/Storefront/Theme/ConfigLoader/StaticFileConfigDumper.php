@@ -18,6 +18,9 @@ class StaticFileConfigDumper implements EventSubscriberInterface
 
     private AbstractAvailableThemeProvider $availableThemeProvider;
 
+    /**
+     * @internal
+     */
     public function __construct(
         AbstractConfigLoader $configLoader,
         AbstractAvailableThemeProvider $availableThemeProvider,

@@ -31,6 +31,9 @@ class SyncController extends AbstractController
 
     private SyncServiceInterface $syncService;
 
+    /**
+     * @internal
+     */
     public function __construct(SyncServiceInterface $syncService, Serializer $serializer)
     {
         $this->serializer = $serializer;

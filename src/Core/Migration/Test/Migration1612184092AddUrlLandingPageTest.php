@@ -9,6 +9,9 @@ use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1612184092AddUrlLandingPage;
 
+/**
+ * @internal
+ */
 class Migration1612184092AddUrlLandingPageTest extends TestCase
 {
     use KernelTestBehaviour;

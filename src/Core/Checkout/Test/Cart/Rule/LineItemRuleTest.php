@@ -22,6 +22,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
+/**
+ * @internal
+ */
 class LineItemRuleTest extends TestCase
 {
     use CartRuleHelperTrait;

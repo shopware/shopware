@@ -7,6 +7,9 @@ use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\SnippetFileHandler;
 use Shopware\Core\System\Snippet\SnippetValidator;
 
+/**
+ * @internal
+ */
 class SnippetValidatorTest extends TestCase
 {
     public function testValidateShouldFindMissingSnippets(): void

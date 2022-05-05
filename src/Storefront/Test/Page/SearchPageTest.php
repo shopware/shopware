@@ -11,6 +11,9 @@ use Shopware\Storefront\Page\Search\SearchPageLoadedEvent;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class SearchPageTest extends TestCase
 {
     use IntegrationTestBehaviour;

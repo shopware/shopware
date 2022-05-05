@@ -43,6 +43,9 @@ class StorefrontPluginConfiguration extends Struct
      */
     private array $configInheritance = [];
 
+    /**
+     * @internal
+     */
     public function __construct(string $technicalName)
     {
         $this->technicalName = $technicalName;

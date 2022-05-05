@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1629204538AddTimeZoneField;
 
+/**
+ * @internal
+ */
 class Migration1629204538AddTimeZoneFieldTest extends TestCase
 {
     use KernelTestBehaviour;

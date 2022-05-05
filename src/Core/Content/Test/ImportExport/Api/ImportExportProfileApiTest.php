@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class ImportExportProfileApiTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

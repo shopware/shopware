@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 
+/**
+ * @internal
+ */
 class EventDataCollectionTest extends TestCase
 {
     public function testToArray(): void

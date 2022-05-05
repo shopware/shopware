@@ -17,6 +17,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class AdminExtensionApiControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

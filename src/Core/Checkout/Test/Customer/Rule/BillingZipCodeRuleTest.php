@@ -20,6 +20,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+/**
+ * @internal
+ */
 class BillingZipCodeRuleTest extends TestCase
 {
     use KernelTestBehaviour;

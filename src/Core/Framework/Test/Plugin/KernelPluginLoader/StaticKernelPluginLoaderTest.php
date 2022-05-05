@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Test\Plugin\PluginIntegrationTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
+/**
+ * @internal
+ */
 class StaticKernelPluginLoaderTest extends TestCase
 {
     use PluginIntegrationTestBehaviour;

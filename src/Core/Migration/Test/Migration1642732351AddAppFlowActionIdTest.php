@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1642732351AddAppFlowActionId;
 
+/**
+ * @internal
+ */
 class Migration1642732351AddAppFlowActionIdTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -23,6 +23,9 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use function array_map;
 use function array_values;
 
+/**
+ * @internal
+ */
 class NavigationLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -348,6 +351,9 @@ class NavigationLoaderTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class TestTreeAware extends CategoryEntity
 {
     public function __construct(string $id, ?string $parentId)

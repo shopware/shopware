@@ -17,6 +17,9 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
+/**
+ * @internal
+ */
 class SeoActionControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

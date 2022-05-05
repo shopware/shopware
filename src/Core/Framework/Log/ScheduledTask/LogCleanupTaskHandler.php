@@ -20,6 +20,9 @@ class LogCleanupTaskHandler extends ScheduledTaskHandler
      */
     protected $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $scheduledTaskRepository,
         SystemConfigService $systemConfigService,

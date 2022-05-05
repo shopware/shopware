@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
 use Shopware\Core\Migration\V6_4\Migration1636014089UpdateOrderConfirmationMailTemplates;
 
+/**
+ * @internal
+ */
 class Migration1636014089UpdateOrderConfirmationMailTemplatesTest extends TestCase
 {
     use IntegrationTestBehaviour;

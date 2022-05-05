@@ -51,6 +51,9 @@ use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFiel
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
 class AppLifecycleTest extends TestCase
 {
     use GuzzleTestClientBehaviour;

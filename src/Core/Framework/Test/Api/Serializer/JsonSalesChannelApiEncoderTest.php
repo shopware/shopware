@@ -23,6 +23,9 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\Exten
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ScalarRuntimeExtension;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
+/**
+ * @internal
+ */
 class JsonSalesChannelApiEncoderTest extends TestCase
 {
     use KernelTestBehaviour;

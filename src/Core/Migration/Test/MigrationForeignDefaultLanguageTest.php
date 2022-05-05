@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Traits\MigrationUntouchedDbTestTrait;
 
 /**
+ * @internal
  * @group slow
  */
 class MigrationForeignDefaultLanguageTest extends TestCase

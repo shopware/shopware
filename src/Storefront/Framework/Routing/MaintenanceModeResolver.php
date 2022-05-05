@@ -14,6 +14,9 @@ class MaintenanceModeResolver
      */
     protected $requestStack;
 
+    /**
+     * @internal
+     */
     public function __construct(RequestStack $requestStack)
     {
         $this->requestStack = $requestStack;

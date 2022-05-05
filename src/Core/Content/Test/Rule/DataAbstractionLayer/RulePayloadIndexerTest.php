@@ -33,6 +33,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\Rule\CurrencyRule;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
 class RulePayloadIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -481,6 +484,9 @@ class RulePayloadIndexerTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class RulePlugin extends Plugin
 {
 }

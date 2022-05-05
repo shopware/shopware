@@ -16,6 +16,9 @@ class RegisterScheduledTasksCommand extends Command
      */
     private $taskRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(TaskRegistry $taskRegistry)
     {
         parent::__construct();

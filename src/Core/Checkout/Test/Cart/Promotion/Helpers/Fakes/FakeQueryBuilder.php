@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Fakes;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 
+/**
+ * @internal
+ */
 class FakeQueryBuilder extends QueryBuilder
 {
     /**

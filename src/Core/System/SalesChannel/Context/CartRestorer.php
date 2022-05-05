@@ -24,6 +24,9 @@ class CartRestorer
 
     private CartRuleLoader $cartRuleLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(
         AbstractSalesChannelContextFactory $factory,
         SalesChannelContextPersister $contextPersister,

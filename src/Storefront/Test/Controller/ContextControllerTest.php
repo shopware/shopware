@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviou
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Routing\RequestContext;
 
+/**
+ * @internal
+ */
 class ContextControllerTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;

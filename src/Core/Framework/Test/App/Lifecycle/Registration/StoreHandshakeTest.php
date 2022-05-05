@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Kernel;
 
+/**
+ * @internal
+ */
 class StoreHandshakeTest extends TestCase
 {
     use IntegrationTestBehaviour;

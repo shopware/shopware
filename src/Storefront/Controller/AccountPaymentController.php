@@ -21,6 +21,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"storefront"}})
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
 class AccountPaymentController extends StorefrontController
 {
@@ -28,6 +30,9 @@ class AccountPaymentController extends StorefrontController
 
     private AbstractChangePaymentMethodRoute $changePaymentMethodRoute;
 
+    /**
+     * @internal
+     */
     public function __construct(
         AccountPaymentMethodPageLoader $paymentMethodPageLoader,
         AbstractChangePaymentMethodRoute $changePaymentMethodRoute

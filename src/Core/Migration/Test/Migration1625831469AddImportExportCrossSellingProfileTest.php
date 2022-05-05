@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1625831469AddImportExportCrossSellingProfile;
 
+/**
+ * @internal
+ */
 class Migration1625831469AddImportExportCrossSellingProfileTest extends TestCase
 {
     use IntegrationTestBehaviour;

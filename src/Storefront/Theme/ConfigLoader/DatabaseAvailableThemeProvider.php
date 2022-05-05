@@ -16,6 +16,9 @@ class DatabaseAvailableThemeProvider extends AbstractAvailableThemeProvider
 {
     private EntityRepositoryInterface $salesChannelRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $salesChannelRepository)
     {
         $this->salesChannelRepository = $salesChannelRepository;

@@ -19,6 +19,9 @@ class SitemapLister implements SitemapListerInterface
      */
     private $package;
 
+    /**
+     * @internal
+     */
     public function __construct(FilesystemInterface $filesystem, Package $package)
     {
         $this->filesystem = $filesystem;

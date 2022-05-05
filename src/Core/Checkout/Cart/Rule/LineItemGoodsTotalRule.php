@@ -16,6 +16,9 @@ class LineItemGoodsTotalRule extends FilterRule
 
     protected string $operator;
 
+    /**
+     * @internal
+     */
     public function __construct(string $operator = self::OPERATOR_EQ, ?int $count = null)
     {
         parent::__construct();

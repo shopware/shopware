@@ -16,6 +16,9 @@ class ChildCountUpdater
 
     private Connection $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(DefinitionInstanceRegistry $registry, Connection $connection)
     {
         $this->registry = $registry;

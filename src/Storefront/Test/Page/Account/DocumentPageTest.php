@@ -14,6 +14,9 @@ use Shopware\Storefront\Page\Account\Document\DocumentPageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class DocumentPageTest extends TestCase
 {
     use IntegrationTestBehaviour;

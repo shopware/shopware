@@ -14,6 +14,9 @@ class LineItemOfTypeRule extends Rule
 
     protected string $operator;
 
+    /**
+     * @internal
+     */
     public function __construct(string $operator = self::OPERATOR_EQ, ?string $lineItemType = null)
     {
         parent::__construct();

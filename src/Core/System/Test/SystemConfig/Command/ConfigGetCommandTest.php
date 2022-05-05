@@ -9,6 +9,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @internal
+ */
 class ConfigGetCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

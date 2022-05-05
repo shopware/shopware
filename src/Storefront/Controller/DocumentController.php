@@ -14,6 +14,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"storefront"}})
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
 class DocumentController extends StorefrontController
 {
@@ -22,6 +24,9 @@ class DocumentController extends StorefrontController
      */
     protected $documentPageLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(DocumentPageLoader $documentPageLoader)
     {
         $this->documentPageLoader = $documentPageLoader;

@@ -16,6 +16,9 @@ class ImportExportHandler extends AbstractMessageHandler
 
     private ImportExportFactory $importExportFactory;
 
+    /**
+     * @internal
+     */
     public function __construct(MessageBusInterface $messageBus, ImportExportFactory $importExportFactory)
     {
         $this->messageBus = $messageBus;

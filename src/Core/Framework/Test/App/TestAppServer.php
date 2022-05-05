@@ -7,6 +7,9 @@ use GuzzleHttp\Promise\Promise;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\RequestInterface;
 
+/**
+ * @internal
+ */
 class TestAppServer
 {
     public const TEST_SETUP_SECRET = 's3cr3t';

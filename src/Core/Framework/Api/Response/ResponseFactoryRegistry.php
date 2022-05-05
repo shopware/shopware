@@ -18,6 +18,9 @@ class ResponseFactoryRegistry
      */
     private $responseFactories;
 
+    /**
+     * @internal
+     */
     public function __construct(ResponseFactoryInterface ...$responseFactories)
     {
         $this->responseFactories = $responseFactories;

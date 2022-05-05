@@ -14,6 +14,9 @@ class TwigVariableParser
 {
     private Environment $twig;
 
+    /**
+     * @internal
+     */
     public function __construct(Environment $twig)
     {
         $this->twig = $twig;

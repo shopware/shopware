@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\Rule\CurrencyRule;
 
+/**
+ * @internal
+ */
 class ContextRepositoryTest extends TestCase
 {
     use KernelTestBehaviour;

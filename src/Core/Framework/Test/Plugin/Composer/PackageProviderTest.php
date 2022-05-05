@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Composer\PackageProvider;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 
+/**
+ * @internal
+ */
 class PackageProviderTest extends TestCase
 {
     public function testGetPluginInformation(): void

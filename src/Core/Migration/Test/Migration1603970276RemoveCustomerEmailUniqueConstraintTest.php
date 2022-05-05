@@ -6,6 +6,9 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
+/**
+ * @internal
+ */
 class Migration1603970276RemoveCustomerEmailUniqueConstraintTest extends TestCase
 {
     use KernelTestBehaviour;

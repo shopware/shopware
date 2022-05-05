@@ -14,6 +14,9 @@ class DataValidator
      */
     private $validator;
 
+    /**
+     * @internal
+     */
     public function __construct(ValidatorInterface $validator)
     {
         $this->validator = $validator;

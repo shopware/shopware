@@ -30,6 +30,9 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
      */
     private $routeScopeRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Connection $connection,
         RouteScopeRegistry $routeScopeRegistry

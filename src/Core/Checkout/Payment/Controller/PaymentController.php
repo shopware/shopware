@@ -33,6 +33,9 @@ class PaymentController extends AbstractController
 
     private EntityRepositoryInterface $orderRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         PaymentService $paymentService,
         OrderConverter $orderConverter,

@@ -21,6 +21,9 @@ class PaymentMethodRepositoryDecorator implements EntityRepositoryInterface
      */
     private $innerRepo;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $innerRepo)
     {
         $this->innerRepo = $innerRepo;

@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxDefinition;
 
+/**
+ * @internal
+ */
 class CollectionBusinessEvent implements BusinessEventInterface, BusinessEventEncoderTestInterface
 {
     /**

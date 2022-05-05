@@ -16,6 +16,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
 class ThemeAppLifecycleHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;

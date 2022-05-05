@@ -8,6 +8,9 @@ use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportRecordEv
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @internal
+ */
 class TestSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array

@@ -11,6 +11,9 @@ use Shopware\Core\System\Snippet\Files\AppSnippetFileLoader;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
 
+/**
+ * @internal
+ */
 class AppSnippetFileLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;

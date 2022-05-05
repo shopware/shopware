@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1643878976AddCaptureRefundStateMachines;
 
+/**
+ * @internal
+ */
 class Migration1643878976AddCaptureRefundStateMachinesTest extends TestCase
 {
     use KernelTestBehaviour;

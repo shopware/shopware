@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\EntityCompilerPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
+/**
+ * @internal
+ */
 class EntityCompilerPassTest extends TestCase
 {
     public function testEntityRepositoryAutowiring(): void

@@ -48,6 +48,9 @@ class EntityNotExists extends Constraint
         self::ENTITY_EXISTS => 'ENTITY_EXISTS',
     ];
 
+    /**
+     * @internal
+     */
     public function __construct(array $options)
     {
         $options = array_merge(

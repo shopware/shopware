@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Increment\MySQLIncrementer;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class MySQLIncrementerTest extends TestCase
 {
     use IntegrationTestBehaviour;

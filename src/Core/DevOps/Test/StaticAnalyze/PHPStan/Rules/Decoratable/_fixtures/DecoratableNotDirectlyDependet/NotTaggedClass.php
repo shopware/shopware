@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\DevOps\Test\StaticAnalyze\PHPStan\Rules\Decoratable\_fixtures\DecoratableNotDirectlyDependet;
 
+/**
+ * @internal
+ */
 class NotTaggedClass
 {
 }

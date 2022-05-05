@@ -17,6 +17,9 @@ class ScriptResponse
 
     private ResponseCacheConfiguration $cache;
 
+    /**
+     * @internal
+     */
     public function __construct(?Response $inner = null, int $code = Response::HTTP_OK)
     {
         $this->body = new ArrayFacade([]);

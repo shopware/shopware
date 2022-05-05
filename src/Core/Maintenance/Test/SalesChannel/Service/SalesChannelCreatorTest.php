@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+/**
+ * @internal
+ */
 class SalesChannelCreatorTest extends TestCase
 {
     use IntegrationTestBehaviour;

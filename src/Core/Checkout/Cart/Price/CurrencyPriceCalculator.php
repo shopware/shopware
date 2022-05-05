@@ -17,6 +17,9 @@ class CurrencyPriceCalculator
 
     private PercentageTaxRuleBuilder $percentageTaxRuleBuilder;
 
+    /**
+     * @internal
+     */
     public function __construct(QuantityPriceCalculator $priceCalculator, PercentageTaxRuleBuilder $percentageTaxRuleBuilder)
     {
         $this->priceCalculator = $priceCalculator;

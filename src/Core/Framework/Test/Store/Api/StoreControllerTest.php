@@ -19,6 +19,9 @@ use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 
+/**
+ * @internal
+ */
 class StoreControllerTest extends TestCase
 {
     use KernelTestBehaviour;

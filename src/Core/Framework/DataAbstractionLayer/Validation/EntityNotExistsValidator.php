@@ -21,6 +21,9 @@ class EntityNotExistsValidator extends ConstraintValidator
      */
     private $entitySearcher;
 
+    /**
+     * @internal
+     */
     public function __construct(DefinitionInstanceRegistry $definitionRegistry, EntitySearcherInterface $entitySearcher)
     {
         $this->definitionRegistry = $definitionRegistry;

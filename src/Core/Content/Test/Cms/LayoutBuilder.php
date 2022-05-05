@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @internal
  * $builder = (new LayoutBuilder($ids, $key))
  *     ->productSlider('slider', $ids->getList(['product-1', 'product-2', 'product-3']));
  *     ->productThreeColumnBlock('boxes', [

@@ -4,6 +4,9 @@ namespace Shopware\Core\System\Test\Snippet\Mock;
 
 use Shopware\Core\System\Snippet\Files\SnippetFileInterface;
 
+/**
+ * @internal
+ */
 class MockSnippetFile implements SnippetFileInterface
 {
     /**

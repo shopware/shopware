@@ -15,6 +15,9 @@ use Shopware\Core\System\Test\SystemConfig\_fixtures\MemoizedSystemConfigLoaderT
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
 class MemoizedSystemConfigLoaderTest extends TestCase
 {
     use KernelTestBehaviour;

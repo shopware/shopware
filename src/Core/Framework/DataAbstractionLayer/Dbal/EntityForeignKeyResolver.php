@@ -26,6 +26,8 @@ use Shopware\Core\System\Language\LanguageDefinition;
 /**
  * Determines all associated data for a definition.
  * Used to determines which associated will be deleted to or which associated data would restrict a delete operation.
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
 class EntityForeignKeyResolver
 {

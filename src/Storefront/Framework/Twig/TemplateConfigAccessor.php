@@ -18,6 +18,9 @@ class TemplateConfigAccessor
      */
     private $themeConfigAccessor;
 
+    /**
+     * @internal
+     */
     public function __construct(SystemConfigService $config, ThemeConfigValueAccessor $themeConfigAccessor)
     {
         $this->systemConfigService = $config;

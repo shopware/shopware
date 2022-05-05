@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\Currency\CurrencyFormatter;
 
+/**
+ * @internal
+ */
 class CurrencyFormatterTest extends TestCase
 {
     use KernelTestBehaviour;

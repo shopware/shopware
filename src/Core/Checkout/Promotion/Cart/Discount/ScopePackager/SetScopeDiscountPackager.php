@@ -26,6 +26,9 @@ class SetScopeDiscountPackager extends DiscountPackager
      */
     private $groupBuilder;
 
+    /**
+     * @internal
+     */
     public function __construct(LineItemGroupBuilder $groupBuilder)
     {
         $this->groupBuilder = $groupBuilder;

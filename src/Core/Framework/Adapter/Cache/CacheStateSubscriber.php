@@ -20,6 +20,9 @@ class CacheStateSubscriber implements EventSubscriberInterface
 
     private CartService $cartService;
 
+    /**
+     * @internal
+     */
     public function __construct(CartService $cartService)
     {
         $this->cartService = $cartService;

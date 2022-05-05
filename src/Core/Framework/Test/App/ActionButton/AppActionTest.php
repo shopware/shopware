@@ -8,6 +8,9 @@ use Shopware\Core\Framework\App\Exception\InvalidArgumentException;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class AppActionTest extends TestCase
 {
     public function testAsPayload(): void

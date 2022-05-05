@@ -45,6 +45,9 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @internal
+ */
 class SalesChannelContextRestorerTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -9,6 +9,9 @@ class SnippetFinder implements SnippetFinderInterface
 {
     private Kernel $kernel;
 
+    /**
+     * @internal
+     */
     public function __construct(Kernel $kernel)
     {
         $this->kernel = $kernel;

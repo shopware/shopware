@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1631703921MigrateLineItemsInCartRule;
 
+/**
+ * @internal
+ */
 class Migration1631703921MigrateLineItemsInCartRuleTest extends TestCase
 {
     use KernelTestBehaviour;

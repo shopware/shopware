@@ -9,6 +9,9 @@ use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class ManifestValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;

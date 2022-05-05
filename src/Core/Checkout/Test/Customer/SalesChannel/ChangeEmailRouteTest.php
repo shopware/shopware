@@ -14,6 +14,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @internal
  * @group store-api
  */
 class ChangeEmailRouteTest extends TestCase

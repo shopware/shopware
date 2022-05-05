@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Update\Checkers\LicenseCheck;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @internal
+ */
 class LicenseCheckTest extends TestCase
 {
     public function testLicenseIsValidWithoutLicenseHost(): void

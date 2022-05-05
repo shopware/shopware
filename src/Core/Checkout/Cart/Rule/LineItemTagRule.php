@@ -18,6 +18,9 @@ class LineItemTagRule extends Rule
      */
     protected ?array $identifiers;
 
+    /**
+     * @internal
+     */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $identifiers = null)
     {
         parent::__construct();

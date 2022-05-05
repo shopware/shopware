@@ -14,6 +14,9 @@ use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 use Shopware\Core\System\User\Recovery\UserRecoveryService;
 use Shopware\Core\System\User\UserEntity;
 
+/**
+ * @internal
+ */
 class UserRecoveryServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -169,6 +172,9 @@ class UserRecoveryServiceTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class RuleValidator extends CallableClass
 {
     /**

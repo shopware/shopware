@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class AclControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

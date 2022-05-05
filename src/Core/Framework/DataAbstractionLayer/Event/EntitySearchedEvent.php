@@ -25,6 +25,9 @@ class EntitySearchedEvent extends Event implements ShopwareEvent
      */
     private $context;
 
+    /**
+     * @internal
+     */
     public function __construct(Criteria $criteria, EntityDefinition $definition, Context $context)
     {
         $this->criteria = $criteria;

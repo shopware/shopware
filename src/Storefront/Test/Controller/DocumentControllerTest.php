@@ -30,6 +30,9 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class DocumentControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

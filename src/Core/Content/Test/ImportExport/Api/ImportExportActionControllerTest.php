@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class ImportExportActionControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

@@ -10,6 +10,9 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 
+/**
+ * @internal
+ */
 class DummyScheduledTaskHandler extends ScheduledTaskHandler
 {
     /**

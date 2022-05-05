@@ -28,6 +28,9 @@ class CustomerBeforeLoginEvent extends Event implements BusinessEventInterface, 
      */
     private $email;
 
+    /**
+     * @internal
+     */
     public function __construct(SalesChannelContext $salesChannelContext, string $email)
     {
         $this->email = $email;

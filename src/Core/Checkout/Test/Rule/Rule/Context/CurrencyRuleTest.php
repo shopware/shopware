@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\System\Currency\Rule\CurrencyRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class CurrencyRuleTest extends TestCase
 {
     public function testMatch(): void

@@ -10,6 +10,9 @@ use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Filesystem\Filesystem;
 
+/**
+ * @internal
+ */
 class BundleDumpCommandTest extends TestCase
 {
     public function testDumperWritesFile(): void

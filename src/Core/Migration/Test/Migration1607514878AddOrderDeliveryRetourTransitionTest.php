@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\Migration1607514878AddOrderDeliveryRetourTransition;
 
+/**
+ * @internal
+ */
 class Migration1607514878AddOrderDeliveryRetourTransitionTest extends TestCase
 {
     use KernelTestBehaviour;

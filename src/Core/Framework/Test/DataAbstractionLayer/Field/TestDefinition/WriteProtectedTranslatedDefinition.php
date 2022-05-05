@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class WriteProtectedTranslatedDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = '_test_nullable';

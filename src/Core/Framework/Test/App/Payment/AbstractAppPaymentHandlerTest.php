@@ -40,6 +40,9 @@ use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 abstract class AbstractAppPaymentHandlerTest extends TestCase
 {
     use GuzzleTestClientBehaviour;

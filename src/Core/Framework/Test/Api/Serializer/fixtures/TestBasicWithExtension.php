@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use function sprintf;
 
+/**
+ * @internal
+ */
 class TestBasicWithExtension extends SerializationFixture
 {
     public function getInput()

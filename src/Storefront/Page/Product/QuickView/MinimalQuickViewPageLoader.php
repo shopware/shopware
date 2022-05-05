@@ -22,6 +22,9 @@ class MinimalQuickViewPageLoader
      */
     private $productRoute;
 
+    /**
+     * @internal
+     */
     public function __construct(EventDispatcherInterface $eventDispatcher, AbstractProductDetailRoute $productRoute)
     {
         $this->eventDispatcher = $eventDispatcher;

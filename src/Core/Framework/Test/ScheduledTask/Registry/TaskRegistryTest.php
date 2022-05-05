@@ -14,6 +14,9 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\TestMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class TaskRegistryTest extends TestCase
 {
     use IntegrationTestBehaviour;

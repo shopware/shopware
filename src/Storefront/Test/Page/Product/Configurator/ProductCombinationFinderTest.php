@@ -14,6 +14,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 
+/**
+ * @internal
+ */
 class ProductCombinationFinderTest extends TestCase
 {
     use IntegrationTestBehaviour;

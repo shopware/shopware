@@ -53,6 +53,9 @@ class MediaRepositoryDecorator implements EntityRepositoryInterface
      */
     private $foreignKeyResolver;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $innerRepo,
         EventDispatcherInterface $eventDispatcher,

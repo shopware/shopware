@@ -8,6 +8,9 @@ use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
 use Symfony\Component\Routing\Loader\AnnotationFileLoader;
 use Symfony\Component\Routing\RouteCollection;
 
+/**
+ * @internal
+ */
 class TestRouteLoader extends AnnotationFileLoader
 {
     private AnnotationDirectoryLoader $decorated;

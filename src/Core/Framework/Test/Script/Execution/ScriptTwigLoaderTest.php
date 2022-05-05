@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptTwigLoader;
 use Twig\Error\LoaderError;
 
+/**
+ * @internal
+ */
 class ScriptTwigLoaderTest extends TestCase
 {
     private Script $script;

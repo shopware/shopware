@@ -17,6 +17,9 @@ class DeleteCascadeAppsHandler extends ScheduledTaskHandler
 
     private EntityRepositoryInterface $integrationRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $scheduledTaskRepository, EntityRepositoryInterface $aclRoleRepository, EntityRepositoryInterface $integrationRepository)
     {
         parent::__construct($scheduledTaskRepository);

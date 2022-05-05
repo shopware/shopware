@@ -32,6 +32,9 @@ class NotificationController extends AbstractController
 
     private NotificationService $notificationService;
 
+    /**
+     * @internal
+     */
     public function __construct(RateLimiter $rateLimiter, NotificationService $notificationService)
     {
         $this->rateLimiter = $rateLimiter;

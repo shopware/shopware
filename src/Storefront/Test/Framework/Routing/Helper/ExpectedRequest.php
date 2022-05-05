@@ -2,6 +2,9 @@
 
 namespace Shopware\Storefront\Test\Framework\Routing\Helper;
 
+/**
+ * @internal
+ */
 class ExpectedRequest
 {
     /**

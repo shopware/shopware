@@ -28,6 +28,9 @@ class SnippetController extends AbstractController
      */
     private $snippetFileCollection;
 
+    /**
+     * @internal
+     */
     public function __construct(
         SnippetService $snippetService,
         SnippetFileCollection $snippetFileCollection

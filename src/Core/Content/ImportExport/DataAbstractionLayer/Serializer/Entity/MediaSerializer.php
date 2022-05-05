@@ -36,6 +36,9 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
      */
     private array $cacheMediaFiles = [];
 
+    /**
+     * @internal
+     */
     public function __construct(
         MediaService $mediaService,
         FileSaver $fileSaver,

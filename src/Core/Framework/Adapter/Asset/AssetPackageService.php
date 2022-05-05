@@ -15,6 +15,9 @@ class AssetPackageService
 
     private VersionStrategyInterface $versionStrategy;
 
+    /**
+     * @internal
+     */
     public function __construct(Packages $packages, Package $package, VersionStrategyInterface $versionStrategy)
     {
         $this->packages = $packages;

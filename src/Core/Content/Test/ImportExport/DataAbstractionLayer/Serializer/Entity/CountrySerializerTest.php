@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Country\CountryDefinition;
 
+/**
+ * @internal
+ */
 class CountrySerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;

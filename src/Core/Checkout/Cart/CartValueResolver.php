@@ -16,6 +16,9 @@ class CartValueResolver implements ArgumentValueResolverInterface
      */
     private $cartService;
 
+    /**
+     * @internal
+     */
     public function __construct(CartService $cartService)
     {
         $this->cartService = $cartService;

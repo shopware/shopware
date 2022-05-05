@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 
 /**
+ * @internal
  * @group store-api
  */
 class CategoryListRouteTest extends TestCase

@@ -49,6 +49,9 @@ class StoreApiSeoResolver implements EventSubscriberInterface
      */
     private $salesChannelDefinitionInstanceRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(
         SalesChannelRepositoryInterface $salesChannelRepository,
         DefinitionInstanceRegistry $definitionInstanceRegistry,

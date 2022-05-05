@@ -57,6 +57,9 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
 
     private InitialStateIdLoader $initialStateIdLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(
         OrderService $orderService,
         EntityRepositoryInterface $orderRepository,

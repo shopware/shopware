@@ -70,6 +70,9 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
      */
     private $dispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Connection $connection,
         EntityRepositoryInterface $optionRepository,

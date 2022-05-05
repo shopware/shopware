@@ -42,6 +42,8 @@ class EntityRepository implements EntityRepositoryInterface
     private ?EntityLoadedEventFactory $eventFactory;
 
     /**
+     * @internal
+     *
      * @deprecated tag:v6.5.0 - parameter $eventFactory will be required
      */
     public function __construct(

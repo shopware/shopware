@@ -15,6 +15,9 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
      */
     private $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(Connection $connection)
     {
         $this->connection = $connection;

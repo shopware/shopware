@@ -10,6 +10,9 @@ class DefaultMediaResolver extends AbstractDefaultMediaResolver
 {
     private FilesystemInterface $filesystem;
 
+    /**
+     * @internal
+     */
     public function __construct(FilesystemInterface $filesystem)
     {
         $this->filesystem = $filesystem;

@@ -38,6 +38,9 @@ class CsvReader extends AbstractReader
      */
     private $header = [];
 
+    /**
+     * @internal
+     */
     public function __construct(string $delimiter = ';', string $enclosure = '"', string $escape = '\\', bool $withHeader = true)
     {
         $this->delimiter = $delimiter;

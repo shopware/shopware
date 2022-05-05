@@ -21,6 +21,9 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
      */
     private $tokenFilter;
 
+    /**
+     * @internal
+     */
     public function __construct(TokenizerInterface $tokenizer, AbstractTokenFilter $tokenFilter)
     {
         $this->tokenizer = $tokenizer;

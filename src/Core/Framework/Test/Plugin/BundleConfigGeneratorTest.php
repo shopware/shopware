@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 
+/**
+ * @internal
+ */
 class BundleConfigGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;

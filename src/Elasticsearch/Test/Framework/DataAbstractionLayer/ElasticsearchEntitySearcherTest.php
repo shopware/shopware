@@ -16,6 +16,9 @@ use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * @internal
+ */
 class ElasticsearchEntitySearcherTest extends TestCase
 {
     use ElasticsearchTestTestBehaviour;

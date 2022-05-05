@@ -18,6 +18,9 @@ class LicenseCheck implements CheckerInterface
      */
     private $storeClient;
 
+    /**
+     * @internal
+     */
     public function __construct(SystemConfigService $systemConfigService, StoreClient $storeClient)
     {
         $this->systemConfigService = $systemConfigService;

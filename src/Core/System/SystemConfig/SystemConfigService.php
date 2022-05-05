@@ -40,6 +40,9 @@ class SystemConfigService
 
     private EventDispatcherInterface $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Connection $connection,
         EntityRepositoryInterface $systemConfigRepository,

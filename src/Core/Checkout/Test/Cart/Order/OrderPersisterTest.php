@@ -32,6 +32,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class OrderPersisterTest extends TestCase
 {
     use IntegrationTestBehaviour;

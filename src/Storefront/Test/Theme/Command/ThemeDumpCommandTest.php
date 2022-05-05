@@ -16,6 +16,9 @@ use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeFileResolver;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @internal
+ */
 class ThemeDumpCommandTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
@@ -124,6 +127,9 @@ class ThemeDumpCommandTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class ThemeFileResolverMock extends ThemeFileResolver
 {
     public $themeConfig;

@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Update\Steps\FinishResult;
 use Shopware\Core\Framework\Update\Steps\UnpackStep;
 
+/**
+ * @internal
+ */
 class UnpackStepTest extends TestCase
 {
     public function testUnpackingOverCount(): void

@@ -9,6 +9,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\Migration1582011195FixCountryStateGermanTranslation;
 
+/**
+ * @internal
+ */
 class Migration1582011195FixCountryStateGermanTranslationTest extends TestCase
 {
     use KernelTestBehaviour;

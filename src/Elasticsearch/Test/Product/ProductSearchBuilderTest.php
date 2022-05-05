@@ -11,6 +11,9 @@ use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Product\ProductSearchBuilder;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class ProductSearchBuilderTest extends TestCase
 {
     public function testArraySearchTerm(): void

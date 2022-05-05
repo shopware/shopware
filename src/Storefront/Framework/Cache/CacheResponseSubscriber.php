@@ -43,6 +43,9 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
     private MaintenanceModeResolver $maintenanceResolver;
 
+    /**
+     * @internal
+     */
     public function __construct(
         CartService $cartService,
         int $defaultTtl,

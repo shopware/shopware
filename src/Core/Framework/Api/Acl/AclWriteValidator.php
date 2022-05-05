@@ -22,6 +22,9 @@ class AclWriteValidator implements EventSubscriberInterface
      */
     private $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(EventDispatcherInterface $eventDispatcher)
     {
         $this->eventDispatcher = $eventDispatcher;

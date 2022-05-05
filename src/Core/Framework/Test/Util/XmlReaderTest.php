@@ -6,6 +6,9 @@ use Composer\InstalledVersions;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Util\XmlReader;
 
+/**
+ * @internal
+ */
 class XmlReaderTest extends TestCase
 {
     /**

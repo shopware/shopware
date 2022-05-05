@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 
+/**
+ * @internal
+ */
 class AppCmsControllerTest extends TestCase
 {
     use GuzzleTestClientBehaviour;

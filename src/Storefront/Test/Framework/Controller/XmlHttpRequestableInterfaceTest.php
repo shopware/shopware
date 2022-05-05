@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Test\Framework\Controller;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 
+/**
+ * @internal
+ */
 class XmlHttpRequestableInterfaceTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;

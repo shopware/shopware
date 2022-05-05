@@ -9,6 +9,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\ApiProtectionExceptio
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-final - Will be @final
+ * @final
+ */
 class ApiCriteriaValidator
 {
     /**
@@ -16,6 +20,9 @@ class ApiCriteriaValidator
      */
     private $registry;
 
+    /**
+     * @internal
+     */
     public function __construct(DefinitionInstanceRegistry $registry)
     {
         $this->registry = $registry;

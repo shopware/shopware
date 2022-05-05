@@ -36,6 +36,7 @@ class ScriptExecutor
     private TranslationExtension $translationExtension;
 
     /**
+     * @internal
      * @psalm-suppress ContainerDependency
      */
     public function __construct(

@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Unit\Cart\Discount\Filter\M
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\MaxUsage\MaxUsage;
 
+/**
+ * @internal
+ */
 class MaxUsageTest extends TestCase
 {
     /**

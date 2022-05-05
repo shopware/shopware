@@ -26,6 +26,9 @@ class MenuOffcanvasPageletLoader implements MenuOffcanvasPageletLoaderInterface
      */
     private $navigationLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(EventDispatcherInterface $eventDispatcher, NavigationLoaderInterface $navigationLoader)
     {
         $this->eventDispatcher = $eventDispatcher;

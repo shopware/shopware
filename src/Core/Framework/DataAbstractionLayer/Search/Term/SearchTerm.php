@@ -2,6 +2,10 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-final - Will be @final
+ * @final
+ */
 class SearchTerm
 {
     /**
@@ -14,6 +18,9 @@ class SearchTerm
      */
     protected $score;
 
+    /**
+     * @internal
+     */
     public function __construct(string $term, float $score = 1.0)
     {
         $this->term = $term;

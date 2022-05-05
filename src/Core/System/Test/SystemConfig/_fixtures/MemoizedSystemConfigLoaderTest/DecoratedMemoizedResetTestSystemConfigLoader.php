@@ -4,6 +4,9 @@ namespace Shopware\Core\System\Test\SystemConfig\_fixtures\MemoizedSystemConfigL
 
 use Shopware\Core\System\SystemConfig\AbstractSystemConfigLoader;
 
+/**
+ * @internal
+ */
 class DecoratedMemoizedResetTestSystemConfigLoader extends AbstractSystemConfigLoader
 {
     private AbstractSystemConfigLoader $decorated;

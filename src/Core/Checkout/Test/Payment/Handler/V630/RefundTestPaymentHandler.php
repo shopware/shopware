@@ -6,6 +6,9 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTr
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\RefundPaymentHandlerInterface;
 use Shopware\Core\Framework\Context;
 
+/**
+ * @internal
+ */
 class RefundTestPaymentHandler implements RefundPaymentHandlerInterface
 {
     private OrderTransactionCaptureRefundStateHandler $stateHandler;

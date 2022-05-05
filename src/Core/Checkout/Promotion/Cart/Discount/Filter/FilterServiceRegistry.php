@@ -17,6 +17,9 @@ class FilterServiceRegistry
      */
     private $pickers;
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $sorters, iterable $pickers)
     {
         $this->sorters = $sorters;

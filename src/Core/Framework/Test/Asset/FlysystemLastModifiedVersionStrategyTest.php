@@ -10,6 +10,9 @@ use Symfony\Component\Asset\Package;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Cache\Adapter\FilesystemTagAwareAdapter;
 
+/**
+ * @internal
+ */
 class FlysystemLastModifiedVersionStrategyTest extends TestCase
 {
     /**

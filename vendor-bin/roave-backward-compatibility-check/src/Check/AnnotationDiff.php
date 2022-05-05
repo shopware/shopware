@@ -2,18 +2,31 @@
 
 namespace Shopware\RoaveBackwardCompatibility\Check;
 
+use Doctrine\Common\Annotations\DocParser;
 use phpDocumentor\Reflection\DocBlock\Tags\BaseTag;
 use phpDocumentor\Reflection\DocBlock\Tags\Generic;
 use phpDocumentor\Reflection\DocBlockFactory;
 use Roave\BackwardCompatibility\Change;
 use Roave\BackwardCompatibility\Changes;
-use Shopware\RoaveBackwardCompatibility\SimpleAnnotation\ParseConfig;
-use Shopware\RoaveBackwardCompatibility\SimpleAnnotation\SimpleAnnotationParser;
+use Shopware\Core\Framework\Routing\Annotation\Acl;
+use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
+use Shopware\Core\Framework\Routing\Annotation\Entity;
+use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
+use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Routing\RouteScope;
+use Symfony\Component\Routing\Annotation\Route;
+use function dirname;
+use function get_class;
+use function get_object_vars;
+use function json_encode;
+use function sprintf;
+use function strtolower;
 
 class AnnotationDiff
 {
     private const ANNOTATION_MAPPING = [
         'Route' => [
+            'class' => Route::class,
             'index' => 'name',
             'numeric' => ['path', 'name'],
             'check' => [
@@ -23,6 +36,7 @@ class AnnotationDiff
             ]
         ],
         'RouteScope' => [
+            'class' => RouteScope::class,
             'index' => 'scopes',
             'numeric' => ['scopes'],
             'check' => [
@@ -30,6 +44,7 @@ class AnnotationDiff
             ]
         ],
         'LoginRequired' => [
+            'class' => LoginRequired::class,
             'index' => 'unknown',
             'numeric' => ['allowGuest'],
             'check' => [
@@ -37,6 +52,7 @@ class AnnotationDiff
             ]
         ],
         'ContextTokenRequired' => [
+            'class' => ContextTokenRequired::class,
             'index' => 'unknown',
             'numeric' => ['required'],
             'check' => [
@@ -44,6 +60,7 @@ class AnnotationDiff
             ]
         ],
         'Entity' => [
+            'class' => Entity::class,
             'index' => 'unknown',
             'numeric' => ['value'],
             'check' => [
@@ -51,6 +68,7 @@ class AnnotationDiff
             ]
         ],
         'Since' => [
+            'class' => Since::class,
             'index' => 'unknown',
             'numeric' => ['value'],
             'check' => [
@@ -58,6 +76,7 @@ class AnnotationDiff
             ],
         ],
         'Acl' => [
+            'class' => Acl::class,
             'index' => 'unknown',
             'numeric' => ['privileges'],
             'check' => [
@@ -66,10 +85,10 @@ class AnnotationDiff
         ],
     ];
 
+    private static ?DocParser $docParser = null;
+
     public static function diff(string $identifier, string $before, string $after): Changes
     {
-        return Changes::empty();
-
         $mapping = self::ANNOTATION_MAPPING;
         $factoryConfig = [];
 
@@ -102,11 +121,9 @@ class AnnotationDiff
                 continue;
             }
 
-            $config = new ParseConfig($cfg['numeric']);
-
             if (\count($beforeTags) > 0) {
-                $beforeParsed = self::convertList($beforeTags, $config, $cfg['index']);
-                $afterParsed = self::convertList($afterTags, $config, $cfg['index']);
+                $beforeParsed = self::convertList($beforeTags, $cfg['index']);
+                $afterParsed = self::convertList($afterTags, $cfg['index']);
 
                 foreach ($beforeParsed as $index => $beforeAnnotation) {
                     // Annotation has been completely removed
@@ -173,15 +190,33 @@ class AnnotationDiff
         return Changes::empty();
     }
 
-    private static function convertList(array $tags, ParseConfig $config, string $index): array
+    private static function convertList(array $tags, string $index): array
     {
         $result = [];
 
         /** @var BaseTag $tag */
         foreach ($tags as $tag) {
+            if (!isset(self::ANNOTATION_MAPPING[$tag->getName()])) {
+                continue;
+            }
+
             preg_match('/^\(.*\)/Us', $tag->getDescription()->render(), $match);
 
-            $parsed = SimpleAnnotationParser::parse($match[0], $config);
+            $comment = sprintf('/** * @%s%s */', $tag->getName(), $match[0]);
+
+            try {
+                $parsedObject = self::getParser()->parse($comment)[0];
+
+            } catch (\Throwable $e) {
+                $comment = sprintf('/** * @%s%s */', $tag->getName(), $tag->getDescription()->render());
+                $parsedObject = self::getParser()->parse($comment)[0];
+            }
+
+            $caller = \Closure::bind(static function (object $parsedObject) {
+                return get_object_vars($parsedObject);
+            }, null, get_class($parsedObject));
+
+            $parsed = $caller($parsedObject);
 
             $indexValue = $parsed[$index] ?? 'unknown';
             if (\is_array($indexValue)) {
@@ -193,5 +228,35 @@ class AnnotationDiff
         }
 
         return $result;
+    }
+
+    private static function getParser(): DocParser
+    {
+        if (self::$docParser !== null) {
+            return self::$docParser;
+        }
+
+        require_once dirname(__DIR__, 4) . '/vendor/symfony/routing/Annotation/Route.php';
+        require_once dirname(__DIR__, 4) . '/vendor/sensio/framework-extra-bundle/src/Configuration/ConfigurationInterface.php';
+        require_once dirname(__DIR__, 4) . '/vendor/sensio/framework-extra-bundle/src/Configuration/ConfigurationAnnotation.php';
+        require_once dirname(__DIR__, 4) . '/src/Core/Framework/Routing/Annotation/RouteScope.php';
+        require_once dirname(__DIR__, 4) . '/src/Core/Framework/Routing/Annotation/RouteScope.php';
+        require_once dirname(__DIR__, 4) . '/src/Core/Framework/Routing/Annotation/LoginRequired.php';
+        require_once dirname(__DIR__, 4) . '/src/Core/Framework/Routing/Annotation/ContextTokenRequired.php';
+        require_once dirname(__DIR__, 4) . '/src/Core/Framework/Routing/Annotation/Entity.php';
+        require_once dirname(__DIR__, 4) . '/src/Core/Framework/Routing/Annotation/Since.php';
+        require_once dirname(__DIR__, 4) . '/src/Core/Framework/Routing/Annotation/Acl.php';
+
+        self::$docParser = new DocParser();
+        $mapping = [];
+
+        foreach (self::ANNOTATION_MAPPING as $key => $config) {
+            $mapping[strtolower($key)] = $config['class'];
+            $mapping[strtolower($config['class'])] = $config['class'];
+        }
+
+        self::$docParser->setImports($mapping);
+
+        return self::$docParser;
     }
 }

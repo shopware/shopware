@@ -1,6 +1,331 @@
 UPGRADE FROM 6.3.x.x to 6.4
 =======================
 
+# 6.4.11.0
+## Introduce BeforeDeleteEvent
+The event is dispatched before delete commands are executed, so you can add success callbacks into the event when the delete command is successfully executed. Or you add error callbacks to the event when the execution meets some errors.
+
+**Reference: Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent**
+
+**Examples:**
+
+```php
+class YourBeforeDeleteEvent implements EventSubscriberInterface
+    public static function getSubscribedEvents()
+    {
+        return [
+            BeforeDeleteEvent::class => 'beforeDelete',
+        ];
+    }
+
+    public function beforeDelete(BeforeDeleteEvent $event): void
+    {
+        $context = $event->getContext();
+        
+        // Delete ids of the given entity
+        // At the given point, the ids are not deleted yet
+        $ids = $event->getIds(CustomerDefinition::ENTITY_NAME);
+
+        $event->addSuccess(function (): void {
+            // Implement the hook when the entities got deleted successfully
+            // At the given point, the $ids are deleted
+        });
+
+        $event->addError(function (): void {
+            // At the given point, the $ids are not deleted due to failure
+            // Implement the hook when the entities got deleted unsuccessfully
+        });
+    }
+}
+```
+## Modal Refactoring
+
+Previously you had to use the following snippet:
+```js
+import AjaxModalExtension from 'src/utility/modal-extension/ajax-modal-extension.util';
+new AjaxModalExtension(false);
+```
+to activate modals on elements that match the selector `[data-toggle="modal"][data-url]`.
+This is error-prone when used multiple times throughout a single page lifetime as it will open up modals for every execution of this rigid helper.
+In the future you can use the new storefront plugin `AjaxModalPlugin` which has more configuration and entrypoints for developers to react to or adjust behaviour.
+The plugin is registered to the same selector to ensure non-breaking upgrading by default.
+## Removal of deprecated route specific annotations
+
+The following annotations has been removed `@Captcha`, `@LoginRequired`, `@Acl`, `@ContextTokenRequired` and `@RouteScope` and replaced with Route defaults. See below examples of the migration
+
+### @Captcha
+
+```php
+/**
+ * @Captcha
+ * @Route("/account/register", name="frontend.account.register.save", methods={"POST"})
+ */
+```
+
+to
+
+```php
+/**
+ * @Route("/account/register", name="frontend.account.register.save", methods={"POST"}, defaults={"_captcha"=true})
+ */
+```
+
+### @LoginRequired
+
+```php
+/**
+ * @LoginRequired
+ * @Route("/account/register", name="frontend.account.register.save", methods={"POST"})
+ */
+```
+
+to
+
+```php
+/**
+ * @Route("/account/register", name="frontend.account.register.save", methods={"POST"}, defaults={"_loginRequired"=true})
+ */
+```
+
+### @Acl
+
+```php
+/**
+ * @Acl({"my_plugin_do_something"})
+ * @Route("/account/register", name="frontend.account.register.save", methods={"POST"})
+ */
+```
+
+to
+
+```php
+/**
+ * @Route("/account/register", name="frontend.account.register.save", methods={"POST"}, defaults={"_acl"={"my_plugin_do_something"}})
+ */
+```
+
+
+### @ContextTokenRequired
+
+```php
+/**
+ * @ContextTokenRequired
+ * @Route("/account/register", name="frontend.account.register.save", methods={"POST"})
+ */
+```
+
+to
+
+```php
+/**
+ * @Route("/account/register", name="frontend.account.register.save", methods={"POST"}, defaults={"_contextTokenRequired"=true})
+ */
+```
+
+### @RouteScope
+
+```php
+/**
+ * @RouteScope(scopes={"api"})
+ * @Route("/account/register", name="frontend.account.register.save", methods={"POST"})
+ */
+```
+
+to
+
+```php
+/**
+ * @Route("/account/register", name="frontend.account.register.save", methods={"POST"}, defaults={"_routeScope"={"api"}})
+ */
+```
+## New Twig filter sw_icon_cache
+From now on, all icons implemented via `sw_icon` is wrapped with `sw_icon_cache`. 
+This causes all icons only be defined once per html page and multiple occurences be referenced by id.
+### Example
+First implementation of the `star` icon:
+```html
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     width="24" height="24" viewBox="0 0 24 24">
+    <defs>
+        <path id="icons-solid-star" 
+              d="M6.7998 23.3169c-1.0108.4454-2.1912-.0129-2.6367-1.0237a2 2 0 0 1-.1596-1.008l.5724-5.6537L.7896 11.394c-.736-.8237-.6648-2.088.1588-2.824a2 2 0 0 1 .9093-.4633l5.554-1.2027 2.86-4.9104c.556-.9545 1.7804-1.2776 2.7349-.7217a2 2 0 0 1 .7216.7217l2.86 4.9104 5.554 1.2027c1.0796.2338 1.7652 1.2984 1.5314 2.378a2 2 0 0 1-.4633.9093l-3.7863 4.2375.5724 5.6538c.1113 1.0989-.6894 2.08-1.7883 2.1912a2 2 0 0 1-1.008-.1596L12 21.0254l-5.2002 2.2915z">
+        </path>
+    </defs>
+    <use xlink:href="#icons-solid-star"></use>
+</svg>
+```
+Following implementations of the `star` icon:
+```html
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     width="24" height="24" viewBox="0 0 24 24">
+    <use xlink:href="#icons-solid-star"></use>
+</svg>
+```
+This behaviour can be disabled by setting the system config `core.storefrontSettings.iconCache` to `false`.
+The Setting can be found in the administration under `Settings`-> `System`->`Storefront`->`Activate icon cache`
+From 6.5.0.0 on this will be enabled by default.
+
+You can enable and disable this behaviour on a template basis by calling the new twig function `sw_icon_cache_enable`
+and `sw_icon_cache_disable`.
+
+## New Command theme:prepare-icons
+The new command `theme:prepare-icons` prepares svg icons for usage in the storefront with compatibility with the icon cache.
+The command requires a path for the icons to prepare and a package name for the icons and will save all updated icons to a subdirectory `prepared`.
+Optional you can also set the following options:
+* --cleanup (true|false) - This will remove all unnecessary attributes from the icons.
+* --fillcolor (color) - This will add this colorcode to the `fill` attribute.
+* --fillrule (svg fill rule) - This will add the fill rule to the `fill-rule` attribute
+```
+/bin/console theme:prepare-icons /app/platform/src/Storefront/Resources/app/storefront/dist/assets/icon/default/ default -c true -r evenodd -f #12ef21
+```
+## Better profiling integration
+Shopware now supports better profiling for multiple integrations.
+To activate profiling and a specific integration, add the corresponding integration name to the `shopware.profiler.integrations` parameter in your shopware.yaml file.
+## Translation overwrite priority specified for write payloads
+
+We specified the following rules for overwrites of translation values in write-payloads inside the DAL.
+1. Translations indexed by `iso-code` take precedence over values indexed by `language-id`
+2. Translations specified on the `translations`-association take precedence over values specified directly on the translated field.
+
+For a more information on those rules refer to the [according ADR](../../adr/2022-03-29-specify-priority-of-translations-in-dal-write-payloads.md).
+
+Let's take a look on some example payloads, to see what those rules mean.
+**Note:** For all examples we assume that `en-GB` is the system language.
+
+### Example 1
+Payload:
+```php
+[
+    'name' => 'default',
+    'translations' => [
+        'name' => [
+            'en-GB' => 'en translation',
+         ],
+    ],
+]
+```
+Result: `en translation`, because values in `translations` take precedence over those directly on the translated fields.
+### Example 2
+Payload:
+```php
+[
+    'name' => 'default',
+    'translations' => [
+        'name' => [
+            Defaults::SYSTEM_LANGUAGE => 'en translation',
+         ],
+    ],
+]
+```
+Result: `en translation`, because of the same reasons as above.
+### Example 3
+Payload:
+```php
+[
+    'name' => [
+        Defaults::SYSTEM_LANGUAGE => 'id translation',
+        'en-GB' => 'iso-code translation',
+    ],
+]
+```
+Result: `iso-code translation`, because `iso-code` take precedence over `language-id`.
+### Example 4
+Payload:
+```php
+[
+    'name' => 'default',
+    'translations' => [
+        'name' => [
+            Defaults::SYSTEM_LANGUAGE => 'id translation',
+            'en-GB' => 'iso-code translation',
+         ],
+    ],
+]
+```
+Result: `iso-code translation`, because `iso-code` take precedence over `language-id`.
+### Example 5
+Payload:
+```php
+[
+    'name' => [
+       Defaults::SYSTEM_LANGUAGE => 'default', 
+    ],
+    'translations' => [
+        'name' => [
+            Defaults::SYSTEM_LANGUAGE => 'en translation',
+         ],
+    ],
+]
+```
+Result: `en translation`, because values in `translations` take precedence over those directly on the translated fields.
+### Example 6
+Payload:
+```php
+[
+    'name' => [
+       'en-GB' => 'default', 
+    ],
+    'translations' => [
+        'name' => [
+            Defaults::SYSTEM_LANGUAGE => 'en translation',
+         ],
+    ],
+]
+```
+Result: `default`, because `iso-code` take precedence over `language-id`, and that rule has a higher priority then the second "association rule".
+## Webhooks contain unique event identifier
+All webhooks now contain a unique identifier that allows your app to identify the event.
+The identifier can be found in the JSON-payload under the `source.eventId` key.
+
+```json
+{
+    "source": {
+        "url": "http:\/\/localhost:8000",
+        "appVersion": "0.0.1",
+        "shopId": "dgrH7nLU6tlE",
+        "eventId": "7b04ebe416db4ebc93de4d791325e1d9"
+    }
+}
+
+```
+This identifier is unique for each original event, it will not change if the same request is sent multiple times due to retries, 
+because your app maybe did not return a successful HTTP-status on the first try.
+## Redis store for number range increments
+You can now generate the number range increments using redis instead of the Database.
+In your `shopware.yaml` specify that you want to use the redis storage and the url that should be used to connect to the redis server to activate this feature:
+```yaml
+shopware:
+  number_range:
+    increment_storage: "Redis"
+    redis_url: "redis://redis-host:port/dbIndex"
+```
+
+To migrate the increment data that is currently stored in the Database you can run the following CLI-command:
+```shell
+bin/console number-range:migrate SQL Redis
+```
+This command will migrate the current state in the `SQL` storage to the `Redis` storage.
+**Note:** When running this command under load it may lead to the same number range increment being generated twice.
+## Apps can now require additional ACL privileges
+
+In addition to requiring CRUD-permission on entity basis, apps can now also require additional ACL privileges.
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Manifest/Schema/manifest-1.0.xsd">
+    <meta>
+    ...
+    </meta>
+    <permissions>
+        <create>product</create>
+        <update>product</update>
+        <permission>user_change_me</permission>
+    </permissions>
+</manifest>
+```
+
 # 6.4.9.0
 ## Bootstrap v5 preview
 

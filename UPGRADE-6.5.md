@@ -1,4 +1,137 @@
 # 6.5.0.0
+## Introduced in 6.4.11.0
+## ArrayEntity::getVars():
+* The `ArrayEntity::getVars()` has been changed so that the `data` property is no longer in the payload but applied to the `root` level.
+  * This change affects all entity definitions that do not have their own entity class defined.
+  * The API routes should not be affected, because they did not work with an ArrayEntity before the change, so no before/after payload can be shown.
+  * before
+  ```php 
+  $entity = new ArrayEntity(['foo' => 'bar']);
+  assert($entity->getVars(), ['data' => ['foo' => 'bar'], 'foo' => 'bar']);
+  ```
+
+  * after
+  ```json 
+  $entity = new ArrayEntity(['foo' => 'bar']);
+  assert($entity->getVars(), ['foo' => 'bar']);
+  ```
+## Skipping of the cart calculation if the cart is empty
+
+If the cart is empty the cart calculation will be skipped.
+This means that all `\Shopware\Core\Checkout\Cart\CartProcessorInterface` and `\Shopware\Core\Checkout\Cart\CartDataCollectorInterface` will not be executed anymore if the cart is empty.
+## Possible empty response in checkout info route
+
+The route `/widgets/checkout/info` will now return an empty response with HTTP status code `204 - No Content`, as long as the cart is empty, instead of loading the page and responding with a rendered template.
+
+If you call that route manually in your extensions, please ensure to handle the `204` status code correctly.
+
+Additionally, as the whole info widget pagelet will not be loaded anymore for empty carts, your event subscriber or app scripts for that page also won't be executed anymore for empty carts.
+## New Profiling pattern
+Due to a new and better profiling pattern we removed the following services:
+* `\Shopware\Core\Profiling\Checkout\SalesChannelContextServiceProfiler`
+* `\Shopware\Core\Profiling\Entity\EntityAggregatorProfiler`
+* `\Shopware\Core\Profiling\Entity\EntitySearcherProfiler`
+* `\Shopware\Core\Profiling\Entity\EntityReaderProfiler`
+
+You can now use the `Profiler::trace()` function to add custom traces directly from your services.
+## Refactoring of Number Ranges
+
+We refactored the number range handling, to be faster and allow different storages to be used.
+### Removal of `IncrementStorageInterface`
+
+We removed the `Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageInterface`.
+If you have implemented a custom increment storage please use the abstract class `Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage`.
+Before:
+```php
+class CustomIncrementStorage implements IncrementStorageInterface
+{
+    public function pullState(\Shopware\Core\System\NumberRange\NumberRangeEntity $configuration): string
+    {
+        return $this->increment($configuration->getId(), $configuration->getPattern());
+    }
+    
+    public function getNext(\Shopware\Core\System\NumberRange\NumberRangeEntity $configuration): string
+    {
+        return $this->get($configuration->getId(), $configuration->getPattern());
+    }
+}
+```
+After:
+```php
+class CustomIncrementStorage extends AbstractIncrementStorage
+{
+    public function reserve(array $config): string
+    {
+        return $this->increment($config['id'], $config['pattern']);
+    }
+    
+    public function preview(array $config): string
+    {
+        return $this->get($config['id'], $config['pattern']);
+    }
+    
+    public function getDecorated(): self
+    {
+        return $this->decorated;
+    }
+}
+```
+### Removal of `ValueGeneratorPatternInterface`
+
+We removed the `Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternInterface`.
+If you have implemented a custom value pattern please use the abstract class `Shopware\Core\System\NumberRange\ValueGenerator\Pattern\AbstractValueGenerator`.
+
+```php
+class CustomPattern implements ValueGeneratorPatternInterface
+{
+    public function resolve(NumberRangeEntity $configuration, ?array $args = null, ?bool $preview = false): string
+    {
+        return $this->createPattern($configuration->getId(), $configuration->getPattern());
+    }
+    
+    public function getPatternId(): string
+    {
+        return 'custom';
+    }
+}
+```
+After:
+```php
+class CustomIncrementStorage extends AbstractValueGenerator
+{
+    public function generate(array $config, ?array $args = null, ?bool $preview = false): string
+    {
+        return $this->createPattern($config['id'], $config['pattern']);
+    }
+    
+    public function getPatternId(): string
+    {
+        return 'custom';
+    }
+    
+    public function getDecorated(): self
+    {
+        return $this->decorated;
+    }
+}
+```
+### Removal of `\Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry::getPatternResolver()`
+
+We removed the `ValueGeneratorPatternRegistry::getPatternResolver()` method, please call the `generatePattern()` method now directly.
+Before:
+```php
+$patternResolver = $this->valueGeneratorPatternRegistry->getPatternResolver($pattern);
+if ($patternResolver) {
+    $generated .= $patternResolver->resolve($configuration, $patternArg, $preview);
+} else {
+    $generated .= $patternPart;
+}
+```
+After:
+```php
+$generated .= $this->valueGeneratorPatternRegistry->generatePattern($pattern, $patternPart, $configuration, $patternArg, $preview);
+```
+
 ## Introduced in 6.4.10.0
 * Deprecated function `logBusinessEvent` at `src/Core/Framework/Log/LoggingService.php`.
 * Deprecated `src/Core/Framework/Log/LogAwareBusinessEventInterface.php` use `LogAware` instead.

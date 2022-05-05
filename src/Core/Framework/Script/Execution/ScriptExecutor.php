@@ -6,6 +6,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
+use Shopware\Core\Framework\App\Event\Hooks\AppLifecycleHook;
 use Shopware\Core\Framework\Script\Debugging\Debug;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Exception\NoHookServiceFactoryException;
@@ -71,6 +72,10 @@ class ScriptExecutor
             $scriptAppInfo = $script->getScriptAppInformation();
             if ($scriptAppInfo && $hook instanceof AppSpecificHook && $hook->getAppId() !== $scriptAppInfo->getAppId()) {
                 // only execute scripts from the app the hook specifies
+                continue;
+            }
+
+            if (!$hook instanceof AppLifecycleHook && !$script->isActive()) {
                 continue;
             }
 

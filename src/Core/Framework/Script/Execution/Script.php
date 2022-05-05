@@ -21,7 +21,9 @@ class Script extends Struct
 
     private ?ScriptAppInformation $scriptAppInformation;
 
-    public function __construct(string $name, string $script, \DateTimeInterface $lastModified, ?ScriptAppInformation $scriptAppInformation = null, array $twigOptions = [], array $includes = [])
+    private bool $active;
+
+    public function __construct(string $name, string $script, \DateTimeInterface $lastModified, ?ScriptAppInformation $scriptAppInformation = null, array $twigOptions = [], array $includes = [], bool $active = true)
     {
         $this->name = $name;
         $this->script = $script;
@@ -29,6 +31,7 @@ class Script extends Struct
         $this->lastModified = $lastModified;
         $this->includes = $includes;
         $this->scriptAppInformation = $scriptAppInformation;
+        $this->active = $active;
     }
 
     public function getName(): string
@@ -67,5 +70,10 @@ class Script extends Struct
     public function getScriptAppInformation(): ?ScriptAppInformation
     {
         return $this->scriptAppInformation;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->active;
     }
 }

@@ -82,6 +82,8 @@ use Shopware\Elasticsearch\Product\Event\ElasticsearchProductCustomFieldsMapping
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use function array_column;
+use function array_combine;
 
 /**
  * @internal
@@ -2285,7 +2287,7 @@ class ElasticsearchProductTest extends TestCase
         );
 
         $called = false;
-        $this->addEventListener($eventDispatcher, ElasticsearchProductCustomFieldsMappingEvent::class, static function (ElasticsearchProductCustomFieldsMappingEvent $event) use(&$called) {
+        $this->addEventListener($eventDispatcher, ElasticsearchProductCustomFieldsMappingEvent::class, static function (ElasticsearchProductCustomFieldsMappingEvent $event) use (&$called): void {
             $called = true;
 
             static::assertSame('datetime', $event->getMapping('test_custom_date_field'));
@@ -2293,7 +2295,6 @@ class ElasticsearchProductTest extends TestCase
         });
 
         $mapping = $definition->getMapping(Context::createDefaultContext());
-
 
         static::assertTrue($called, 'Event is not fired');
         static::assertArrayHasKey('properties', $mapping);
@@ -2635,6 +2636,12 @@ class ElasticsearchProductTest extends TestCase
                 'test_unmapped' => [
                     'type' => 'keyword',
                 ],
+                'testFloatingField' => [
+                    'type' => 'double',
+                ],
+                'testField' => [
+                    'type' => 'text',
+                ],
             ],
         ];
 
@@ -2898,6 +2905,53 @@ class ElasticsearchProductTest extends TestCase
 
         $customFieldRepository = $this->getContainer()->get('custom_field_set.repository');
 
+        $customFields = [
+            [
+                'name' => 'test_int',
+                'type' => CustomFieldTypes::INT,
+            ],
+            [
+                'name' => 'testFloatingField',
+                'type' => CustomFieldTypes::FLOAT,
+            ],
+            [
+                'name' => 'testField',
+                'type' => CustomFieldTypes::TEXT,
+            ],
+            [
+                'name' => 'test_select',
+                'type' => CustomFieldTypes::SELECT,
+            ],
+            [
+                'name' => 'test_text',
+                'type' => CustomFieldTypes::TEXT,
+            ],
+            [
+                'name' => 'test_html',
+                'type' => CustomFieldTypes::HTML,
+            ],
+            [
+                'name' => 'test_date',
+                'type' => CustomFieldTypes::DATETIME,
+            ],
+            [
+                'name' => 'test_object',
+                'type' => CustomFieldTypes::JSON,
+            ],
+            [
+                'name' => 'test_float',
+                'type' => CustomFieldTypes::FLOAT,
+            ],
+            [
+                'name' => 'test_bool',
+                'type' => CustomFieldTypes::BOOL,
+            ],
+            [
+                'name' => 'test_unmapped',
+                'type' => 'unknown_type',
+            ],
+        ];
+
         $customFieldRepository->create([
             [
                 'name' => 'swag_example_set',
@@ -2910,46 +2964,11 @@ class ElasticsearchProductTest extends TestCase
                 'relations' => [[
                     'entityName' => 'product',
                 ]],
-                'customFields' => [
-                    [
-                        'name' => 'test_int',
-                        'type' => CustomFieldTypes::INT,
-                    ],
-                    [
-                        'name' => 'test_select',
-                        'type' => CustomFieldTypes::SELECT,
-                    ],
-                    [
-                        'name' => 'test_text',
-                        'type' => CustomFieldTypes::TEXT,
-                    ],
-                    [
-                        'name' => 'test_html',
-                        'type' => CustomFieldTypes::HTML,
-                    ],
-                    [
-                        'name' => 'test_date',
-                        'type' => CustomFieldTypes::DATETIME,
-                    ],
-                    [
-                        'name' => 'test_object',
-                        'type' => CustomFieldTypes::JSON,
-                    ],
-                    [
-                        'name' => 'test_float',
-                        'type' => CustomFieldTypes::FLOAT,
-                    ],
-                    [
-                        'name' => 'test_bool',
-                        'type' => CustomFieldTypes::BOOL,
-                    ],
-                    [
-                        'name' => 'test_unmapped',
-                        'type' => 'unknown_type',
-                    ],
-                ],
+                'customFields' => $customFields,
             ],
         ], $this->ids->getContext());
+
+        ReflectionHelper::getProperty(ElasticsearchProductDefinition::class, 'customMapping')->setValue($this->definition, array_combine(array_column($customFields, 'name'), array_column($customFields, 'type')));
 
         $products = [
             (new ProductBuilder($this->ids, 'product-1'))

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Elasticsearch\Product\Event;
 
@@ -29,7 +29,6 @@ class ElasticsearchProductCustomFieldsMappingEvent implements ShopwareEvent
         return $this->context;
     }
 
-
     /**
      * @param CustomFieldTypes::* $type
      */
@@ -40,8 +39,9 @@ class ElasticsearchProductCustomFieldsMappingEvent implements ShopwareEvent
 
     /**
      * @return CustomFieldTypes::*|null
+     * @return string|null
      */
-    public function getMapping(string $field): string|null
+    public function getMapping(string $field)
     {
         return $this->mapping[$field] ?? null;
     }

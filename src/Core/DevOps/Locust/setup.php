@@ -1,10 +1,13 @@
 <?php declare(strict_types=1);
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Filesystem\Filesystem;
 
 $connection = require __DIR__ . '/boot.php';
+
+$connection->executeStatement('SET sql_mode=(SELECT REPLACE(@@sql_mode,\'ONLY_FULL_GROUP_BY\',\'\'))');
 
 $fs = new Filesystem();
 
@@ -13,21 +16,82 @@ if (file_exists(__DIR__ . '/env.json')) {
     $env = array_replace_recursive($env, json_decode((string) file_get_contents(__DIR__ . '/env.json'), true, 512, \JSON_THROW_ON_ERROR));
 }
 
-/** @var \Doctrine\DBAL\Connection $connection */
+/** @var Connection $connection */
 $limit = $env['category_page_limit'] !== null ? ' LIMIT ' . (int) $env['category_page_limit'] : '';
+
+$salesChannel = $connection->fetchAssociative(
+    '
+SELECT
+        LOWER(HEX(sales_channel.country_id)) as countryId,
+        sales_channel.access_key,
+        LOWER(HEX(sales_channel.id)) as id,
+        sales_channel_domain.url
+FROM sales_channel
+    INNER JOIN sales_channel_domain ON(sales_channel_domain.sales_channel_id = sales_channel.id)
+    INNER JOIN sales_channel_translation ON (sales_channel_translation.sales_channel_id = sales_channel.id AND sales_channel_translation.language_id = 0x2fbb5fe2e29a4d70aa5854ce7ce3e20b)
+WHERE JSON_UNQUOTE(JSON_EXTRACT(sales_channel_translation.custom_fields, "$.is_for_benchmark")) = "true"'
+);
+
+if (empty($salesChannel)) {
+    /** @var array $salesChannel */
+    $salesChannel = $connection->fetchAssociative(
+        '
+        SELECT
+            LOWER(HEX(sales_channel.country_id)) as countryId,
+            sales_channel.access_key,
+            LOWER(HEX(sales_channel.id)) as id,
+            sales_channel_domain.url
+
+        FROM sales_channel
+            INNER JOIN sales_channel_domain ON(sales_channel_domain.sales_channel_id = sales_channel.id)
+
+        WHERE sales_channel.type_id = :type
+        GROUP BY sales_channel.id
+        ORDER BY LENGTH(url) ASC
+        LIMIT 1
+        ',
+        ['type' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_STOREFRONT)]
+    );
+}
 
 $ids = $connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM category WHERE level <= 3 ' . $limit);
 
 $listings = $connection->fetchFirstColumn(
-    "SELECT CONCAT('/', seo_path_info) FROM seo_url WHERE route_name = 'frontend.navigation.page' AND is_deleted = 0 AND is_canonical = 1 AND foreign_key IN (:ids)",
-    ['ids' => Uuid::fromHexToBytesList($ids)],
-    ['ids' => \Doctrine\DBAL\Connection::PARAM_STR_ARRAY]
+    "
+    SELECT
+        CONCAT('/', seo_path_info)
+    FROM seo_url
+    INNER JOIN category ON(category.id = seo_url.foreign_key)
+    WHERE
+        route_name = 'frontend.navigation.page' AND
+        is_deleted = 0 AND
+        is_canonical = 1 AND
+        foreign_key IN (:ids)
+",
+    [
+        'ids' => Uuid::fromHexToBytesList($ids),
+    ],
+    ['ids' => Connection::PARAM_STR_ARRAY]
 );
 
 $storeApiCategories = $connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM category WHERE level <= 5 ' . $limit);
 
 $limit = $env['product_page_limit'] !== null ? ' LIMIT ' . (int) $env['product_page_limit'] : '';
-$details = $connection->fetchFirstColumn("SELECT CONCAT('/', seo_path_info) FROM seo_url  WHERE route_name = 'frontend.detail.page' AND is_deleted = 0 AND is_canonical = 1" . $limit);
+$details = $connection->fetchFirstColumn("
+SELECT
+  CONCAT('/', seo_path_info)
+FROM seo_url
+    INNER JOIN product ON(product.id = seo_url.foreign_key AND product.version_id = :versionId)
+    INNER JOIN product_visibility ON(product_visibility.product_id = product.id AND product_visibility.product_version_id = :versionId AND product_visibility.sales_channel_id = :salesChannelId)
+WHERE
+  route_name = 'frontend.detail.page' AND
+  is_deleted = 0 AND
+  is_canonical = 1
+GROUP BY product.id
+" . $limit, [
+    'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+    'salesChannelId' => Uuid::fromHexToBytes($salesChannel['id']),
+]);
 
 $keywords = array_map(static function (string $term) {
     $terms = explode(' ', $term);
@@ -49,11 +113,6 @@ $categories = $connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id FROM
 
 $taxId = $connection->fetchOne('SELECT LOWER(HEX(id)) FROM tax LIMIT 1');
 
-$salesChannel = $connection->fetchAssociative(
-    'SELECT LOWER(HEX(country_id)) as countryId, access_key, LOWER(HEX(id)) as id FROM sales_channel WHERE type_id = :type LIMIT 1',
-    ['type' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL_TYPE_STOREFRONT)]
-);
-
 $advertisements = $connection->fetchAllAssociative(
     "
     SELECT product_number as number, CONCAT('/', seo_path_info) as url
@@ -74,7 +133,7 @@ $connection->executeStatement(
     ['version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)]
 );
 
-if ($salesChannel === false) {
+if (empty($salesChannel)) {
     throw new RuntimeException('No storefront sales channel found');
 }
 

@@ -35,6 +35,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     private const PRODUCT_CUSTOM_FIELDS = ['product_translation.translation.custom_fields', 'product_translation.translation.fallback_1.custom_fields', 'product_translation.translation.fallback_2.custom_fields'];
 
     protected ProductDefinition $definition;
+
     protected EventDispatcherInterface $eventDispatcher;
 
     private array $customMapping;
@@ -528,6 +529,7 @@ SQL;
 
             if ($type === null && Feature::isActive('v6.5.0.0')) {
                 unset($customFields[$name]);
+
                 continue;
             }
 
@@ -563,6 +565,7 @@ SQL;
             return $this->customFieldsTypes;
         }
 
+        /** @var array<string, string> $mappings */
         $mappings = $this->connection->fetchAllKeyValue('
 SELECT
     custom_field.`name`,

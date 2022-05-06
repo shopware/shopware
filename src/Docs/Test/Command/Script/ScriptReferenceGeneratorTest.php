@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Command\Script;
+namespace Shopware\Docs\Test\Command\Script;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;

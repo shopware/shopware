@@ -25,7 +25,10 @@ class DocumentGeneratorRegistry
 
     public function hasGenerator(string $documentType): bool
     {
-        Feature::throwException('v6.5.0.0', 'Will be removed');
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
 
         foreach ($this->documentGenerators as $documentGenerator) {
             if ($documentGenerator->supports() !== $documentType) {
@@ -43,7 +46,10 @@ class DocumentGeneratorRegistry
      */
     public function getGenerator(string $documentType): DocumentGeneratorInterface
     {
-        Feature::throwException('v6.5.0.0', 'Will be removed');
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
 
         foreach ($this->documentGenerators as $documentGenerator) {
             if ($documentGenerator->supports() !== $documentType) {
@@ -58,7 +64,10 @@ class DocumentGeneratorRegistry
 
     public function getGenerators(string $documentType): \Generator
     {
-        Feature::throwException('v6.5.0.0', 'Will be removed');
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
 
         foreach ($this->documentGenerators as $documentGenerator) {
             if ($documentGenerator->supports() !== $documentType) {

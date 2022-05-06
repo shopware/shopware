@@ -36,6 +36,9 @@ class StornoRenderer extends AbstractDocumentRenderer
 
     private ReferenceInvoiceLoader $referenceInvoiceLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $orderRepository,
         DocumentConfigLoader $documentConfigLoader,
@@ -71,7 +74,7 @@ class StornoRenderer extends AbstractDocumentRenderer
             return [];
         }
 
-        $criteria = new DocumentCriteria($rendererConfig->deepLinkCode, $ids);
+        $criteria = OrderDocumentCriteriaFactory::create($ids, $rendererConfig->deepLinkCode);
 
         // TODO: future implementation (only fetch required data and associations)
 

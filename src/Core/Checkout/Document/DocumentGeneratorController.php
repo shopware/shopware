@@ -130,7 +130,10 @@ class DocumentGeneratorController extends AbstractController
      */
     public function createDocument(Request $request, string $orderId, string $documentTypeName, Context $context): JsonResponse
     {
-        Feature::throwException('v6.5.0.0', 'will be removed - use createDocuments instead');
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            'will be removed - use createDocuments instead'
+        );
 
         $fileType = $request->query->getAlnum('fileType', FileTypes::PDF);
         $config = DocumentConfigurationFactory::createConfiguration($request->request->all('config'));
@@ -232,7 +235,7 @@ class DocumentGeneratorController extends AbstractController
     {
         $documents = $this->serializer->decode($request->getContent(), 'json');
 
-        if ($documents === null || !\is_array($documents)) {
+        if (empty($documents) || !\is_array($documents)) {
             throw new InvalidRequestParameterException('Request parameters must be an array of documents object');
         }
 
@@ -259,10 +262,6 @@ class DocumentGeneratorController extends AbstractController
                 $operation['referencedDocumentId'] ?? null,
                 $operation['static'] ?? false
             );
-        }
-
-        if (\count($operations) <= 0) {
-            return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
         }
 
         $responseData = $this->documentGenerator->generate($documentTypeName, $operations, $context);

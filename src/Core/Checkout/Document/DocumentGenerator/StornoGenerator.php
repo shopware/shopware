@@ -39,6 +39,11 @@ class StornoGenerator implements DocumentGeneratorInterface
 
     public function supports(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         return self::STORNO;
     }
 
@@ -51,7 +56,10 @@ class StornoGenerator implements DocumentGeneratorInterface
         Context $context,
         ?string $templatePath = null
     ): string {
-        Feature::throwException('v6.5.0.0', 'Will be removed, use StornoRenderer instead');
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'StornoRenderer::render')
+        );
 
         $templatePath = $templatePath ?? self::DEFAULT_TEMPLATE;
 
@@ -76,6 +84,11 @@ class StornoGenerator implements DocumentGeneratorInterface
 
     public function getFileName(DocumentConfiguration $config): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         return $config->getFilenamePrefix() . $config->getDocumentNumber() . $config->getFilenameSuffix();
     }
 

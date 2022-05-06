@@ -3,60 +3,102 @@
 namespace Shopware\Core\Checkout\Test\Document\Renderer;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\Event\StornoOrdersEvent;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
+use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\StornoRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
-use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
-use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
+use Shopware\Core\Checkout\Test\Document\DocumentTrait;
+use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 
 class StornoRendererTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-    use OrderFixture;
+    use DocumentTrait;
+
+    private SalesChannelContext $salesChannelContext;
 
     private Context $context;
 
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepositoryInterface $productRepository;
+
+    private StornoRenderer $stornoRenderer;
+
+    private CartService $cartService;
+
+    private DocumentGenerator $documentGenerator;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->context = Context::createDefaultContext();
-        $this->orderRepository = $this->getContainer()->get('order.repository');
+
+        $priceRuleId = Uuid::randomHex();
+
+        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+            Uuid::randomHex(),
+            TestDefaults::SALES_CHANNEL,
+            [
+                SalesChannelContextService::CUSTOMER_ID => $this->createCustomer(),
+            ]
+        );
+
+        $this->salesChannelContext->setRuleIds([$priceRuleId]);
+        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->stornoRenderer = $this->getContainer()->get(StornoRenderer::class);
+        $this->cartService = $this->getContainer()->get(CartService::class);
+        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
     }
 
-    public function testRender(): void
+    /**
+     * @dataProvider stornoNoteRendererDataProvider
+     */
+    public function testRender(array $additionalConfig, \Closure $assertionCallback): void
     {
-        $stornoRenderer = $this->getContainer()->get(StornoRenderer::class);
-        $pdfGenerator = $this->getContainer()->get(PdfRenderer::class);
-        $orderId = Uuid::randomHex();
-        $orderData = $this->getOrderData($orderId, $this->context);
-        $this->orderRepository->create($orderData, $this->context);
+        $cart = $this->generateDemoCart([7]);
+        $orderId = $this->cartService->order($cart, $this->salesChannelContext, new RequestDataBag());
 
-        $invoiceNumber = '1000';
-        $stornoNumber = '2000';
+        $invoiceConfig = new DocumentConfiguration();
+        $invoiceConfig->setDocumentNumber('1001');
 
-        $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, [
+        $operationInvoice = new DocumentGenerateOperation($orderId, FileTypes::PDF, $invoiceConfig->jsonSerialize());
+
+        $result = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operationInvoice], $this->context);
+        $invoiceId = $result->first()->getId();
+
+        $config = [
             'displayLineItems' => true,
             'itemsPerPage' => 10,
             'displayFooter' => true,
             'displayHeader' => true,
-            'documentNumber' => $stornoNumber,
-            'custom' => [
-                'invoiceNumber' => $invoiceNumber,
-                'stornoNumber' => $stornoNumber,
-            ],
-        ]);
+        ];
+
+        if (!empty($additionalConfig)) {
+            $config = array_merge($config, $additionalConfig);
+        }
+
+        $operation = new DocumentGenerateOperation(
+            $orderId,
+            FileTypes::PDF,
+            $config,
+            $invoiceId
+        );
 
         $caughtEvent = null;
 
@@ -65,7 +107,7 @@ class StornoRendererTest extends TestCase
                 $caughtEvent = $event;
             });
 
-        $processedTemplate = $stornoRenderer->render(
+        $processedTemplate = $this->stornoRenderer->render(
             [$orderId => $operation],
             $this->context,
             new DocumentRendererConfig()
@@ -73,78 +115,116 @@ class StornoRendererTest extends TestCase
 
         static::assertInstanceOf(StornoOrdersEvent::class, $caughtEvent);
         static::assertCount(1, $caughtEvent->getOrders());
-        static::assertInstanceOf(RenderedDocument::class, $processedTemplate[$orderId]);
+        $order = $caughtEvent->getOrders()->get($orderId);
+        static::assertNotNull($order);
+
+        if (empty($processedTemplate)) {
+            $assertionCallback();
+
+            return;
+        }
+
         $rendered = $processedTemplate[$orderId];
-        $html = $rendered->getHtml();
+        static::assertInstanceOf(RenderedDocument::class, $rendered);
+        static::assertArrayHasKey($orderId, $processedTemplate);
+        static::assertStringContainsString('<html>', $rendered->getHtml());
+        static::assertStringContainsString('</html>', $rendered->getHtml());
 
-        static::assertStringContainsString('<html>', $html);
-        static::assertStringContainsString('</html>', $html);
-
-        static::assertStringContainsString('Cancellation number ' . $stornoNumber, $html);
-        static::assertStringContainsString(sprintf('Cancellation %s for invoice %s ', $stornoNumber, $invoiceNumber), $html);
-
-        $generatorOutput = $pdfGenerator->render($rendered);
-        static::assertNotEmpty($generatorOutput);
-
-        $finfo = new \finfo(\FILEINFO_MIME_TYPE);
-        static::assertEquals('application/pdf', $finfo->buffer($generatorOutput));
+        $assertionCallback($rendered);
     }
 
-    public function testRenderStornoWithInvoiceNumber(): void
+    public function stornoNoteRendererDataProvider(): \Generator
     {
-        $stornoRenderer = $this->getContainer()->get(StornoRenderer::class);
-        $orderId = Uuid::randomHex();
-        $orderData = $this->getOrderData($orderId, $this->context);
-        $this->orderRepository->create($orderData, $this->context);
+        yield 'render delivery_note successfully' => [
+            [
+                'documentNumber' => '1000',
+                'custom' => [
+                    'stornoNumber' => '1000',
+                    'invoiceNumber' => '2000',
+                ],
+            ],
+            function (?RenderedDocument $rendered = null): void {
+                static::assertNotNull($rendered);
+                static::assertStringContainsString('Cancellation number 1000', $rendered->getHtml());
+                static::assertStringContainsString('Cancellation 1000 for invoice 2000', $rendered->getHtml());
+            },
+        ];
 
-        $documentService = $this->getContainer()->get(DocumentGenerator::class);
+        yield 'render storno with document number' => [
+            [
+                'documentNumber' => 'STORNO_9999',
+            ],
+            function (?RenderedDocument $rendered = null): void {
+                static::assertNotNull($rendered);
+                static::assertEquals('STORNO_9999', $rendered->getNumber());
+                static::assertEquals('storno_STORNO_9999', $rendered->getName());
+            },
+        ];
 
-        $invoiceConfig = new DocumentConfiguration();
-        $invoiceConfig->setDocumentNumber('1001');
+        yield 'render storno with invoice number' => [
+            [
+                'custom' => [
+                    'invoiceNumber' => 'INVOICE_9999',
+                ],
+            ],
+            function (?RenderedDocument $rendered = null): void {
+                static::assertNotNull($rendered);
+                $config = $rendered->getConfig();
+                static::assertArrayHasKey('custom', $config);
+                static::assertArrayHasKey('invoiceNumber', $config['custom']);
+                static::assertEquals('INVOICE_9999', $config['custom']['invoiceNumber']);
+            },
+        ];
 
-        $operationInvoice = new DocumentGenerateOperation($orderId, FileTypes::PDF, $invoiceConfig->jsonSerialize());
-        $invoice = $documentService->generate('invoice', [$orderId => $operationInvoice], $this->context)->first();
-
-        static::assertNotNull($invoice);
-
-        $stornoNumber = 'STORNO_NUMBER_001';
-
-        $stornoOperation = new DocumentGenerateOperation($orderId, FileTypes::PDF, [
-            'documentNumber' => $stornoNumber,
-        ]);
-
-        $rendered = $stornoRenderer->render([$orderId => $stornoOperation], $this->context, new DocumentRendererConfig());
-
-        static::assertEquals('STORNO_NUMBER_001', $rendered[$orderId]->getNumber());
-        static::assertEquals($stornoOperation->getReferencedDocumentId(), $invoice->getId());
+        yield 'render delivery_note without invoice number' => [
+            [],
+            function (?RenderedDocument $rendered = null): void {
+                static::assertNotNull($rendered);
+                $config = $rendered->getConfig();
+                static::assertArrayHasKey('custom', $config);
+                static::assertNotEmpty($config['custom']['invoiceNumber']);
+            },
+        ];
     }
 
-    public function testGenerateCustomConfigWithoutInvoiceNumber(): void
+    private function generateDemoCart(array $taxes): Cart
     {
-        $stornoRenderer = $this->getContainer()->get(StornoRenderer::class);
-        $orderId = Uuid::randomHex();
-        $orderData = $this->getOrderData($orderId, $this->context);
-        $this->orderRepository->create($orderData, $this->context);
+        $cart = $this->cartService->createNew('a-b-c', 'A');
 
-        $documentService = $this->getContainer()->get(DocumentGenerator::class);
+        $keywords = ['awesome', 'epic', 'high quality'];
 
-        $invoiceConfig = new DocumentConfiguration();
-        $invoiceConfig->setDocumentNumber('1001');
+        $products = [];
 
-        $operationInvoice = new DocumentGenerateOperation($orderId, FileTypes::PDF, $invoiceConfig->jsonSerialize());
-        $invoice = $documentService->generate('invoice', [$orderId => $operationInvoice], $this->context)->first();
+        $factory = new ProductLineItemFactory();
 
-        static::assertNotNull($invoice);
+        $ids = new IdsCollection();
 
-        $stornoNumber = 'STORNO_NUMBER_001';
+        $lineItems = [];
 
-        $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, [
-            'documentNumber' => $stornoNumber,
-        ]);
+        foreach ($taxes as $tax) {
+            $price = random_int(100, 200000) / 100.0;
 
-        $rendered = $stornoRenderer->render([$orderId => $operation], $this->context, new DocumentRendererConfig());
+            shuffle($keywords);
+            $name = ucfirst(implode(' ', $keywords) . ' product');
 
-        static::assertEquals($stornoNumber, $rendered[$orderId]->getNumber());
-        static::assertEquals($operation->getReferencedDocumentId(), $invoice->getId());
+            $number = Uuid::randomHex();
+
+            $product = (new ProductBuilder($ids, $number))
+                ->price($price)
+                ->name($name)
+                ->active(true)
+                ->tax('test-' . Uuid::randomHex(), $tax)
+                ->visibility()
+                ->build();
+
+            $products[] = $product;
+
+            $lineItems[] = $factory->create($ids->get($number));
+            $this->addTaxDataToSalesChannel($this->salesChannelContext, $product['tax']);
+        }
+
+        $this->productRepository->create($products, Context::createDefaultContext());
+
+        return $this->cartService->add($cart, $lineItems, $this->salesChannelContext);
     }
 }

@@ -19,6 +19,9 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
 
     private EntityRepositoryInterface $documentConfigRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $documentConfigRepository)
     {
         $this->documentConfigRepository = $documentConfigRepository;

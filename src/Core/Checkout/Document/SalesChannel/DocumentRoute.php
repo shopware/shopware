@@ -52,23 +52,23 @@ class DocumentRoute extends AbstractDocumentRoute
      */
     public function download(string $documentId, Request $request, SalesChannelContext $context, string $deepLinkCode = ''): Response
     {
-        if (!$context->getCustomer() && $deepLinkCode === '') {
+        if ($context->getCustomer() === null || ($context->getCustomer()->getGuest() && $deepLinkCode === '')) {
             throw new CustomerNotLoggedInException();
         }
 
         $download = $request->query->getBoolean('download');
 
-        $generatedDocument = $this->documentGenerator->readDocument($documentId, $context->getContext(), $deepLinkCode);
+        $document = $this->documentGenerator->readDocument($documentId, $context->getContext(), $deepLinkCode);
 
-        if ($generatedDocument === null) {
+        if ($document === null) {
             return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
         }
 
         return $this->createResponse(
-            $generatedDocument->getName(),
-            $generatedDocument->getContent(),
+            $document->getName(),
+            $document->getContent(),
             $download,
-            $generatedDocument->getContentType()
+            $document->getContentType()
         );
     }
 

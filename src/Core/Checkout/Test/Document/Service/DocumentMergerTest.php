@@ -5,26 +5,28 @@ namespace Shopware\Core\Checkout\Test\Document\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use setasign\Fpdi\Tcpdf\Fpdi;
+use Shopware\Core\Checkout\Document\DocumentIdCollection;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\DocumentMerger;
+use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Test\Document\DocumentTrait;
-use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @group slow
@@ -38,6 +40,16 @@ class DocumentMergerTest extends TestCase
     private Context $context;
 
     private Connection $connection;
+
+    private DocumentGenerator $documentGenerator;
+
+    private EntityRepositoryInterface $documentRepository;
+
+    private DocumentMerger $documentMerger;
+
+    private string $documentTypeId;
+
+    private string $orderId;
 
     protected function setUp(): void
     {
@@ -56,82 +68,59 @@ class DocumentMergerTest extends TestCase
                 SalesChannelContextService::CUSTOMER_ID => $customerId,
             ]
         );
-    }
 
-    public function testMergeWithoutDoc(): void
-    {
-        $merger = $this->getContainer()->get(DocumentMerger::class);
+        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
+        $this->documentRepository = $this->getContainer()->get('document.repository');
+        $this->documentMerger = $this->getContainer()->get(DocumentMerger::class);
 
-        $mergeResult = $merger->merge([Uuid::randomHex()], $this->context);
-
-        static::assertNull($mergeResult);
-    }
-
-    public function testMergeWithOneDoc(): void
-    {
-        $merger = $this->getContainer()->get(DocumentMerger::class);
-        $documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
-
-        $mergeResult = $merger->merge([Uuid::randomHex()], $this->context);
-
-        static::assertNull($mergeResult);
+        $documentTypeRepository = $this->getContainer()->get('document_type.repository');
+        $this->documentTypeId = $documentTypeRepository->searchIds(
+            (new Criteria())->addFilter(new EqualsFilter('technicalName', InvoiceRenderer::TYPE)),
+            Context::createDefaultContext()
+        )->firstId();
 
         $cart = $this->generateDemoCart(2);
-        $orderId = $this->persistCart($cart);
-
-        $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF);
-
-        $invoiceStruct = $documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operation], $this->context)->first();
-
-        $mergeResult = $merger->merge([$invoiceStruct->getId()], $this->context);
-
-        static::assertInstanceOf(RenderedDocument::class, $mergeResult);
-        static::assertNotNull($mergeResult->getContent());
-        static::assertNotNull($mergeResult->getName(), 'invoice_1000.pdf');
+        $this->orderId = $this->persistCart($cart);
     }
 
-    public function testMergeWithoutMedia(): void
+    public function testmergeWithoutDoc(): void
+    {
+        $mergeResult = $this->documentMerger->merge([Uuid::randomHex()], $this->context);
+
+        static::assertNull($mergeResult);
+    }
+
+    public function testMergeNonStaticDocumentsWithoutMedia(): void
     {
         $expectedBlob = 'expected blob';
 
         $mockFpdi = $this->getMockBuilder(Fpdi::class)->onlyMethods(['Output'])->getMock();
         $mockFpdi->expects(static::once())->method('OutPut')->willReturn($expectedBlob);
 
-        $documentRepository = $this->getContainer()->get('document.repository');
-
         $documentMerger = new DocumentMerger(
-            $documentRepository,
+            $this->documentRepository,
             $this->getContainer()->get(MediaService::class),
-            $this->getContainer()->get(DocumentGenerator::class),
+            $this->documentGenerator,
             $mockFpdi,
         );
-
-        $cart = $this->generateDemoCart(2);
-        $orderId = $this->persistCart($cart);
-
-        $documentTypeRepository = $this->getContainer()->get('document_type.repository');
-        $documentTypeId = $documentTypeRepository->searchIds(
-            (new Criteria())->addFilter(new EqualsFilter('technicalName', InvoiceRenderer::TYPE)),
-            Context::createDefaultContext()
-        )->firstId();
 
         $doc1 = Uuid::randomHex();
         $doc2 = Uuid::randomHex();
 
-        $documentRepository->create([[
+        $this->documentRepository->create([[
             'id' => $doc1,
-            'documentTypeId' => $documentTypeId,
+            'documentTypeId' => $this->documentTypeId,
             'fileType' => FileTypes::PDF,
-            'orderId' => $orderId,
+            'orderId' => $this->orderId,
             'static' => false,
             'documentMediaFileId' => null,
             'config' => [],
             'deepLinkCode' => Random::getAlphanumericString(32),
         ], [
             'id' => $doc2,
-            'documentTypeId' => $documentTypeId,
+            'documentTypeId' => $this->documentTypeId,
             'fileType' => FileTypes::PDF,
-            'orderId' => $orderId,
+            'orderId' => $this->orderId,
             'static' => false,
             'documentMediaFileId' => null,
             'config' => [],
@@ -142,46 +131,151 @@ class DocumentMergerTest extends TestCase
 
         static::assertInstanceOf(RenderedDocument::class, $mergeResult);
         static::assertEquals($mergeResult->getContent(), $expectedBlob);
-
-        $criteria = new Criteria([$doc1, $doc2]);
-        $criteria->addFilter(new NotFilter('AND', [new EqualsFilter('documentMediaId', null)]));
-
-        $documents = $documentRepository->search(new Criteria([$doc1, $doc2]), $this->context);
-
-        static::assertCount(2, $documents);
     }
 
-    public function testMerge(): void
+    public function testMergeWithoutStaticMedia(): void
     {
-        $expectedBlob = 'expected blob';
-
-        $mockFpdi = $this->getMockBuilder(Fpdi::class)->onlyMethods(['Output'])->getMock();
-        $mockFpdi->expects(static::once())->method('OutPut')->willReturn($expectedBlob);
+        $mockGenerator = $this->getMockBuilder(DocumentGenerator::class)->disableOriginalConstructor()->onlyMethods(['generate'])->getMock();
+        $mockGenerator->expects(static::once())->method('generate')->willReturn(new DocumentIdCollection());
 
         $documentMerger = new DocumentMerger(
-            $this->getContainer()->get('document.repository'),
+            $this->documentRepository,
             $this->getContainer()->get(MediaService::class),
-            $this->getContainer()->get(DocumentGenerator::class),
+            $mockGenerator,
+            $this->getContainer()->get('pdf.merger'),
+        );
+
+        $documentId = Uuid::randomHex();
+
+        $this->documentRepository->create([[
+            'id' => $documentId,
+            'documentTypeId' => $this->documentTypeId,
+            'fileType' => FileTypes::PDF,
+            'orderId' => $this->orderId,
+            'static' => false,
+            'documentMediaFileId' => null,
+            'config' => [],
+            'deepLinkCode' => Random::getAlphanumericString(32),
+        ]], $this->context);
+
+        $mergeResult = $documentMerger->merge([$documentId], $this->context);
+
+        static::assertNull($mergeResult);
+    }
+
+    /**
+     * @dataProvider documentMergeDataProvider
+     */
+    public function testMerge(int $numDocs, bool $static, bool $withMedia, \Closure $assertionCallback): void
+    {
+        $docIds = [];
+
+        for ($i = 0; $i < $numDocs; ++$i) {
+            $deliveryOperation = new DocumentGenerateOperation($this->orderId, FileTypes::PDF, [], null, $static);
+            $result = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$this->orderId => $deliveryOperation], $this->context)->first();
+            static::assertNotNull($result);
+            $docIds[] = $result->getId();
+
+            if ($static && $withMedia) {
+                $staticFileContent = 'this is some content';
+
+                $uploadFileRequest = new Request([
+                    'extension' => FileTypes::PDF,
+                    'fileName' => Uuid::randomHex(),
+                ], [], [], [], [], [
+                    'HTTP_CONTENT_LENGTH' => \strlen($staticFileContent),
+                    'HTTP_CONTENT_TYPE' => 'application/pdf',
+                ], $staticFileContent);
+
+                $this->documentGenerator->upload($result->getId(), $this->context, $uploadFileRequest);
+            }
+        }
+
+        $expectedBlob = 'Dummy output';
+
+        $mockFpdi = $this->getMockBuilder(Fpdi::class)->onlyMethods(['Output', 'setSourceFile', 'importPage'])->getMock();
+
+        $mockFpdi->expects(static::any())->method('setSourceFile')->willReturn($numDocs);
+        $mockFpdi->expects(static::any())->method('importPage')->willReturn('');
+
+        // Only use merge when merging more than 1 documents
+        if ($numDocs > 1 && $withMedia) {
+            $mockFpdi->expects(static::once())->method('OutPut')->willReturn($expectedBlob);
+        } else {
+            $mockFpdi->expects(static::exactly(0))->method('OutPut')->willReturn($expectedBlob);
+        }
+
+        $documentMerger = new DocumentMerger(
+            $this->documentRepository,
+            $this->getContainer()->get(MediaService::class),
+            $this->documentGenerator,
             $mockFpdi,
         );
 
-        $documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
+        $result = $documentMerger->merge($docIds, $this->context);
+        $assertionCallback($result);
+    }
 
-        $cart = $this->generateDemoCart(2);
-        $orderId = $this->persistCart($cart);
+    public function documentMergeDataProvider(): \Generator
+    {
+        yield 'merge 0 documents' => [
+            0,
+            true,
+            true,
+            function (?RenderedDocument $mergeResult): void {
+                static::assertNull($mergeResult);
+            },
+        ];
+        yield 'merge 1 document' => [
+            1,
+            false,
+            true,
+            function (?RenderedDocument $mergeResult): void {
+                static::assertInstanceOf(RenderedDocument::class, $mergeResult);
+                static::assertNotNull($mergeResult->getContent());
+                static::assertNotNull($mergeResult->getName());
+            },
+        ];
 
-        $deliveryOperation = new DocumentGenerateOperation($orderId);
-        $invoiceOperation = new DocumentGenerateOperation($orderId);
+        yield 'merge 1 document without media' => [
+            1,
+            true,
+            false,
+            function (?RenderedDocument $mergeResult): void {
+                static::assertNull($mergeResult);
+            },
+        ];
 
-        $invoiceDoc = $documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $invoiceOperation], $this->context)->first();
-        $deliveryDoc = $documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$orderId => $deliveryOperation], $this->context)->first();
+        yield 'merge non static documents' => [
+            2,
+            false,
+            true,
+            function (?RenderedDocument $mergeResult): void {
+                static::assertInstanceOf(RenderedDocument::class, $mergeResult);
+                static::assertEquals('Dummy output', $mergeResult->getContent());
+                static::assertEquals(PdfRenderer::FILE_CONTENT_TYPE, $mergeResult->getContentType());
+                static::assertNotNull($mergeResult->getName());
+            },
+        ];
+        yield 'merge static documents without media' => [
+            2,
+            true,
+            false,
+            function (?RenderedDocument $mergeResult): void {
+                static::assertNull($mergeResult);
+            },
+        ];
 
-        static::assertNotNull($invoiceDoc);
-        static::assertNotNull($deliveryDoc);
-
-        $mergeResult = $documentMerger->merge([$invoiceDoc->getId(), $deliveryDoc->getId()], $this->context);
-
-        static::assertInstanceOf(RenderedDocument::class, $mergeResult);
-        static::assertEquals($mergeResult->getContent(), $expectedBlob);
+        yield 'merge static documents with media' => [
+            2,
+            true,
+            true,
+            function (?RenderedDocument $mergeResult): void {
+                static::assertInstanceOf(RenderedDocument::class, $mergeResult);
+                static::assertEquals('Dummy output', $mergeResult->getContent());
+                static::assertEquals(PdfRenderer::FILE_CONTENT_TYPE, $mergeResult->getContentType());
+                static::assertNotNull($mergeResult->getName());
+            },
+        ];
     }
 }

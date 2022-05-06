@@ -6,13 +6,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
-class DocumentCriteria extends Criteria
+/**
+ * @internal
+ */
+final class OrderDocumentCriteriaFactory
 {
-    public function __construct(string $deepLinkCode = '', ?array $ids = null)
+    private function __construct()
     {
-        parent::__construct($ids);
+    }
 
-        $this->addAssociations([
+    public static function create(array $ids, string $deepLinkCode = ''): Criteria
+    {
+        $criteria = new Criteria($ids);
+
+        $criteria->addAssociations([
             'lineItems',
             'transactions.paymentMethod',
             'currency',
@@ -24,12 +31,14 @@ class DocumentCriteria extends Criteria
             'orderCustomer.customer',
         ]);
 
-        $this->getAssociation('lineItems')->addSorting(new FieldSorting('position'));
-        $this->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
-        $this->getAssociation('deliveries')->addSorting(new FieldSorting('createdAt'));
+        $criteria->getAssociation('lineItems')->addSorting(new FieldSorting('position'));
+        $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
+        $criteria->getAssociation('deliveries')->addSorting(new FieldSorting('createdAt'));
 
         if ($deepLinkCode !== '') {
-            $this->addFilter(new EqualsFilter('deepLinkCode', $deepLinkCode));
+            $criteria->addFilter(new EqualsFilter('deepLinkCode', $deepLinkCode));
         }
+
+        return $criteria;
     }
 }

@@ -3,27 +3,23 @@
 namespace Shopware\Core\Checkout\Test\Document;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\CartBehavior;
-use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
-use Shopware\Core\Checkout\Cart\Order\OrderPersister;
-use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\Document\DocumentIdCollection;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Test\TestDefaults;
 
 trait DocumentTrait
@@ -33,10 +29,7 @@ trait DocumentTrait
 
     private function persistCart(Cart $cart): string
     {
-        $cart = $this->getContainer()->get(CartService::class)->recalculate($cart, $this->salesChannelContext);
-        $orderId = $this->getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
-
-        return $orderId;
+        return $this->getContainer()->get(CartService::class)->order($cart, $this->salesChannelContext, new RequestDataBag());
     }
 
     private function createCustomer(): string
@@ -79,15 +72,11 @@ trait DocumentTrait
         return $customerId;
     }
 
-    /**
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws MixedLineItemTypeException
-     * @throws \Exception
-     */
     private function generateDemoCart(int $lineItemCount): Cart
     {
-        $cart = new Cart('A', 'a-b-c');
+        $cartService = $this->getContainer()->get(CartService::class);
+
+        $cart = $cartService->createNew('a-b-c', 'A');
 
         $keywords = ['awesome', 'epic', 'high quality'];
 
@@ -95,40 +84,35 @@ trait DocumentTrait
 
         $factory = new ProductLineItemFactory();
 
-        for ($i = 0; $i < $lineItemCount; ++$i) {
-            $id = Uuid::randomHex();
+        $ids = new IdsCollection();
 
+        $lineItems = [];
+
+        for ($i = 0; $i < $lineItemCount; ++$i) {
             $price = random_int(100, 200000) / 100.0;
 
             shuffle($keywords);
             $name = ucfirst(implode(' ', $keywords) . ' product');
 
-            $products[] = [
-                'id' => $id,
-                'name' => $name,
-                'price' => [
-                    ['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price, 'linked' => false],
-                ],
-                'productNumber' => Uuid::randomHex(),
-                'manufacturer' => ['id' => $id, 'name' => 'test'],
-                'tax' => ['id' => $id, 'taxRate' => 19, 'name' => 'test'],
-                'stock' => 10,
-                'active' => true,
-                'visibilities' => [
-                    ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-                ],
-            ];
+            $number = Uuid::randomHex();
 
-            $cart->add($factory->create($id));
-            $this->addTaxDataToSalesChannel($this->salesChannelContext, end($products)['tax']);
+            $product = (new ProductBuilder($ids, $number))
+                ->price($price)
+                ->name($name)
+                ->active(true)
+                ->tax('test-' . Uuid::randomHex(), 7)
+                ->visibility()
+                ->build();
+
+            $products[] = $product;
+
+            $lineItems[] = $factory->create($ids->get($number));
+            $this->addTaxDataToSalesChannel($this->salesChannelContext, $product['tax']);
         }
 
-        $this->getContainer()->get('product.repository')
-            ->create($products, Context::createDefaultContext());
+        $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
-        $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->salesChannelContext, new CartBehavior());
-
-        return $cart;
+        return $cartService->add($cart, $lineItems, $this->salesChannelContext);
     }
 
     private function getBaseConfig(string $documentType, ?string $salesChannelId = null): ?DocumentBaseConfigEntity

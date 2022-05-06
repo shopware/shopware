@@ -27,7 +27,7 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 
-final class DocumentGenerator
+class DocumentGenerator
 {
     private DocumentRendererRegistry $rendererRegistry;
 
@@ -39,6 +39,9 @@ final class DocumentGenerator
 
     private Connection $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(
         DocumentRendererRegistry $rendererRegistry,
         PdfRenderer $pdfRenderer,
@@ -61,8 +64,10 @@ final class DocumentGenerator
             $criteria->addFilter(new EqualsFilter('deepLinkCode', $deepLinkCode));
         }
 
-        $criteria->addAssociation('documentMediaFile');
-        $criteria->addAssociation('documentType');
+        $criteria->addAssociations([
+            'documentMediaFile',
+            'documentType',
+        ]);
 
         $document = $this->documentRepository->search($criteria, $context)->get($documentId);
 

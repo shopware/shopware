@@ -13,10 +13,12 @@ use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
 use Shopware\Core\Checkout\Document\Exception\DocumentNumberAlreadyExistsException;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
+use Shopware\Core\Checkout\Document\Exception\InvalidDocumentRendererException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
+use Shopware\Core\Checkout\Document\Renderer\StornoRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
@@ -52,6 +54,12 @@ class DocumentGeneratorTest extends TestCase
 
     private DocumentGenerator $documentGenerator;
 
+    private EntityRepositoryInterface $documentRepository;
+
+    private string $documentTypeId;
+
+    private string $orderId;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -71,33 +79,40 @@ class DocumentGeneratorTest extends TestCase
         );
 
         $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
+
+        $documentTypeRepository = $this->getContainer()->get('document_type.repository');
+
+        $this->documentTypeId = $documentTypeRepository->searchIds(
+            (new Criteria())->addFilter(new EqualsFilter('technicalName', InvoiceRenderer::TYPE)),
+            Context::createDefaultContext()
+        )->firstId();
+
+        $cart = $this->generateDemoCart(2);
+        $this->orderId = $this->persistCart($cart);
+
+        $this->documentRepository = $this->getContainer()->get('document.repository');
     }
 
     public function testCreateDeliveryNotePdf(): void
     {
-        $cart = $this->generateDemoCart(2);
-        $orderId = $this->persistCart($cart);
+        $operation = new DocumentGenerateOperation($this->orderId);
 
-        $operation = new DocumentGenerateOperation($orderId);
-
-        $documentStruct = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$orderId => $operation], $this->context)->first();
+        $documentStruct = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$this->orderId => $operation], $this->context)->first();
 
         static::assertTrue(Uuid::isValid($documentStruct->getId()));
-
-        $documentRepository = $this->getContainer()->get('document.repository');
 
         $criteria = new Criteria([$documentStruct->getId()]);
         $criteria->addAssociation('documentType');
 
-        $document = $documentRepository
+        $document = $this->documentRepository
             ->search($criteria, $this->context)
             ->get($documentStruct->getId());
 
         static::assertNotNull($document);
-        static::assertSame($orderId, $document->getOrderId());
+        static::assertSame($this->orderId, $document->getOrderId());
 
         static::assertSame(Defaults::LIVE_VERSION, $document->getOrderVersionId());
-        static::assertSame('delivery_note', $document->getDocumentType()->getTechnicalName());
+        static::assertSame(DeliveryNoteRenderer::TYPE, $document->getDocumentType()->getTechnicalName());
         static::assertSame(FileTypes::PDF, $document->getFileType());
     }
 
@@ -105,16 +120,22 @@ class DocumentGeneratorTest extends TestCase
     {
         $documentStruct = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [], $this->context);
         static::assertCount(0, $documentStruct);
+
+        $invalidOrderId = Uuid::randomHex();
+
+        $documentStruct = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [
+            $invalidOrderId => new DocumentGenerateOperation($invalidOrderId),
+        ], $this->context);
+
+        static::assertCount(0, $documentStruct);
     }
 
     public function testPreview(): void
     {
-        $cart = $this->generateDemoCart(2);
-        $orderId = $this->persistCart($cart);
         /** @var OrderEntity $order */
-        $order = $this->getContainer()->get('order.repository')->search(new Criteria([$orderId]), $this->context)->first();
+        $order = $this->getContainer()->get('order.repository')->search(new Criteria([$this->orderId]), $this->context)->first();
 
-        $operation = new DocumentGenerateOperation($orderId);
+        $operation = new DocumentGenerateOperation($this->orderId);
 
         $documentStruct = $this->documentGenerator->preview(InvoiceRenderer::TYPE, $operation, $order->getDeepLinkCode(), $this->context);
 
@@ -122,149 +143,114 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotEmpty($documentStruct->getContent());
     }
 
-    public function testUploadWithExistMedia(): void
+    /**
+     * @dataProvider uploadDataProvider
+     */
+    public function testUpload(bool $preGenerateDoc, Request $uploadFileRequest, bool $static = true, ?\Exception $expectedException = null): void
     {
-        static::expectException(DocumentGenerationException::class);
-        static::expectExceptionMessage('Unable to generate document. Document already exists');
-        $cart = $this->generateDemoCart(2);
-        $orderId = $this->persistCart($cart);
+        if ($expectedException !== null) {
+            static::expectExceptionObject($expectedException);
+        }
 
-        $operation = new DocumentGenerateOperation($orderId);
+        if ($preGenerateDoc) {
+            $operation = new DocumentGenerateOperation($this->orderId);
 
-        $documents = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operation], $this->context);
-        $document = $documents->first();
+            $documents = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context);
+            $document = $documents->first();
 
-        static::assertNotNull($document);
-        $uploadFileRequest = new Request();
-        $this->documentGenerator->upload($document->getId(), $this->context, $uploadFileRequest);
-    }
+            static::assertNotNull($document);
 
-    public function testUploadWithoutFileName(): void
-    {
-        static::expectException(DocumentGenerationException::class);
-        static::expectExceptionMessage('Unable to generate document. Parameter "fileName" is missing');
+            $documentId = $document->getId();
+        } else {
+            $documentId = Uuid::randomHex();
 
-        $cart = $this->generateDemoCart(2);
-        $orderId = $this->persistCart($cart);
+            $this->documentRepository->create([[
+                'id' => $documentId,
+                'documentTypeId' => $this->documentTypeId,
+                'fileType' => FileTypes::PDF,
+                'orderId' => $this->orderId,
+                'static' => $static,
+                'config' => [],
+                'documentMediaFileId' => null,
+                'deepLinkCode' => Random::getAlphanumericString(32),
+            ]], $this->context);
+        }
 
-        $documentRepository = $this->getContainer()->get('document.repository');
-        $documentId = Uuid::randomHex();
-        $documentTypeRepository = $this->getContainer()->get('document_type.repository');
-        $documentTypeId = $documentTypeRepository->searchIds(
-            (new Criteria())->addFilter(new EqualsFilter('technicalName', InvoiceRenderer::TYPE)),
-            Context::createDefaultContext()
-        )->firstId();
-
-        $documentRepository->create([[
-            'id' => $documentId,
-            'documentTypeId' => $documentTypeId,
-            'fileType' => FileTypes::PDF,
-            'orderId' => $orderId,
-            'static' => true,
-            'config' => [],
-            'documentMediaFileId' => null,
-            'deepLinkCode' => Random::getAlphanumericString(32),
-        ]], $this->context);
-
-        $uploadFileRequest = new Request([
-            'extension' => FileTypes::PDF,
-        ]);
-        $this->documentGenerator->upload($documentId, $this->context, $uploadFileRequest);
-    }
-
-    public function testUploadSuccessfully(): void
-    {
-        $cart = $this->generateDemoCart(2);
-        $orderId = $this->persistCart($cart);
-
-        $documentRepository = $this->getContainer()->get('document.repository');
-        $documentId = Uuid::randomHex();
-        $documentTypeRepository = $this->getContainer()->get('document_type.repository');
-        $documentTypeId = $documentTypeRepository->searchIds(
-            (new Criteria())->addFilter(new EqualsFilter('technicalName', InvoiceRenderer::TYPE)),
-            Context::createDefaultContext()
-        )->firstId();
-
-        $documentContent = 'this is document content';
-        $documentRepository->create([[
-            'id' => $documentId,
-            'documentTypeId' => $documentTypeId,
-            'fileType' => FileTypes::PDF,
-            'orderId' => $orderId,
-            'static' => true,
-            'config' => [],
-            'documentMediaFileId' => null,
-            'deepLinkCode' => Random::getAlphanumericString(32),
-        ]], $this->context);
-
-        $uploadFileRequest = new Request([
-            'extension' => FileTypes::PDF,
-            'fileName' => 'test',
-        ], [], [], [], [], [
-            'HTTP_CONTENT_LENGTH' => \strlen($documentContent),
-        ], $documentContent);
+        if (!$static) {
+            $this->documentRepository->update([[
+                'id' => $documentId,
+                'documentMediaFileId' => null,
+                'static' => false,
+            ]], $this->context);
+        }
 
         $this->documentGenerator->upload($documentId, $this->context, $uploadFileRequest);
 
-        $document = $documentRepository->search(new Criteria([$documentId]), $this->context)->get($documentId);
+        $document = $this->documentRepository->search(new Criteria([$documentId]), $this->context)->get($documentId);
 
         static::assertNotNull($document);
         static::assertNotNull($document->getDocumentMediaFileId());
 
         $savedContent = $this->getContainer()->get(MediaService::class)->loadFile($document->getDocumentMediaFileId(), $this->context);
-        static::assertEquals($documentContent, $savedContent);
+        static::assertEquals($uploadFileRequest->getContent(), $savedContent);
     }
 
-    public function testUploadToNonStaticDocument(): void
+    public function uploadDataProvider(): \Generator
     {
-        static::expectException(DocumentGenerationException::class);
-        static::expectExceptionMessage('This document is dynamically generated and cannot be overwritten');
+        yield 'upload successfully' => [
+            false,
+            new Request([
+                'extension' => FileTypes::PDF,
+                'fileName' => 'test',
+            ], [], [], [], [], [
+                'HTTP_CONTENT_LENGTH' => \strlen('this is some content'),
+            ], 'this is some content'),
+            true,
+            null,
+        ];
 
-        $cart = $this->generateDemoCart(2);
-        $orderId = $this->persistCart($cart);
+        yield 'upload without filename' => [
+            false,
+            new Request([
+                'extension' => FileTypes::PDF,
+            ]),
+            true,
+            new DocumentGenerationException('Parameter "fileName" is missing'),
+        ];
 
-        $operation = new DocumentGenerateOperation($orderId);
+        yield 'upload non static document' => [
+            true,
+            new Request(),
+            false,
+            new DocumentGenerationException('This document is dynamically generated and cannot be overwritten'),
+        ];
 
-        $documents = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operation], $this->context);
-        $document = $documents->first();
-
-        static::assertNotNull($document);
-
-        $documentRepository = $this->getContainer()->get('document.repository');
-
-        $documentRepository->update([[
-            'id' => $document->getId(),
-            'documentMediaFileId' => null,
-            'static' => false,
-        ]], $this->context);
-
-        $uploadFileRequest = new Request();
-        $this->documentGenerator->upload($document->getId(), $this->context, $uploadFileRequest);
+        yield 'upload with existed media' => [
+            true,
+            new Request(),
+            true,
+            new DocumentGenerationException('Document already exists'),
+        ];
     }
 
     public function testInvoiceWithComment(): void
     {
-        $cart = $this->generateDemoCart(2);
-        $orderId = $this->persistCart($cart);
-
         $comment = 'this is a comment';
-        $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, ['documentComment' => $comment]);
+        $operation = new DocumentGenerateOperation($this->orderId, FileTypes::PDF, ['documentComment' => $comment]);
 
-        $documentStruct = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$orderId => $operation], $this->context)->first();
+        $documentStruct = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$this->orderId => $operation], $this->context)->first();
 
         static::assertTrue(Uuid::isValid($documentStruct->getId()));
-
-        $documentRepository = $this->getContainer()->get('document.repository');
 
         $criteria = new Criteria([$documentStruct->getId()]);
         $criteria->addAssociation('documentType');
 
-        $document = $documentRepository
+        $document = $this->documentRepository
             ->search($criteria, $this->context)
             ->get($documentStruct->getId());
 
         static::assertNotNull($document);
-        static::assertSame($orderId, $document->getOrderId());
+        static::assertSame($this->orderId, $document->getOrderId());
 
         $config = DocumentConfigurationFactory::createConfiguration($document->getConfig());
 
@@ -279,29 +265,24 @@ class DocumentGeneratorTest extends TestCase
 
     public function testCreateStornoBillReferencingInvoice(): void
     {
-        // create an invoice
-        $cart = $this->generateDemoCart(2);
-        $orderId = $this->persistCart($cart);
+        $operation = new DocumentGenerateOperation($this->orderId);
 
-        $operation = new DocumentGenerateOperation($orderId);
-
-        $invoiceStruct = $this->documentGenerator->generate('invoice', [$orderId => $operation], $this->context)->first();
+        $invoiceStruct = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->first();
 
         static::assertTrue(Uuid::isValid($invoiceStruct->getId()));
 
-        $documentRepository = $this->getContainer()->get('document.repository');
         /** @var DocumentEntity $invoice */
-        $invoice = $documentRepository->search(new Criteria([$invoiceStruct->getId()]), $this->context)->get($invoiceStruct->getId());
+        $invoice = $this->documentRepository->search(new Criteria([$invoiceStruct->getId()]), $this->context)->get($invoiceStruct->getId());
 
         //create a storno bill which references the invoice
-        $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, [], $invoice->getId());
+        $operation = new DocumentGenerateOperation($this->orderId, FileTypes::PDF, [], $invoice->getId());
 
-        $stornoStruct = $this->documentGenerator->generate('storno', [$orderId => $operation], $this->context)->first();
+        $stornoStruct = $this->documentGenerator->generate(StornoRenderer::TYPE, [$this->orderId => $operation], $this->context)->first();
 
         static::assertTrue(Uuid::isValid($stornoStruct->getId()));
 
         /** @var DocumentEntity $storno */
-        $storno = $documentRepository->search(new Criteria([$stornoStruct->getId()]), $this->context)->get($stornoStruct->getId());
+        $storno = $this->documentRepository->search(new Criteria([$stornoStruct->getId()]), $this->context)->get($stornoStruct->getId());
 
         static::assertNotEmpty($storno);
         static::assertEquals($invoice->getId(), $storno->getReferencedDocumentId());
@@ -327,80 +308,22 @@ class DocumentGeneratorTest extends TestCase
         static::assertFalse($fileSystem->has($filePath));
     }
 
-    public function testGetStaticDocumentFile(): void
-    {
-        $cart = $this->generateDemoCart(2);
-        $orderId = $this->persistCart($cart);
-
-        /** @var FilesystemInterface $fileSystem */
-        $fileSystem = $this->getContainer()->get('shopware.filesystem.private');
-
-        /** @var UrlGenerator $urlGenerator */
-        $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
-
-        $documentRepository = $this->getContainer()->get('document.repository');
-
-        $documentTypeRepository = $this->getContainer()->get('document_type.repository');
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('technicalName', 'delivery_note'));
-
-        /** @var DocumentTypeEntity $documentType */
-        $documentType = $documentTypeRepository->search($criteria, $this->context)->first();
-
-        $documentId = Uuid::randomHex();
-        $mediaId = Uuid::randomHex();
-        $documentRepository->create(
-            [
-                [
-                    'id' => $documentId,
-                    'documentTypeId' => $documentType->getId(),
-                    'fileType' => FileTypes::PDF,
-                    'orderId' => $orderId,
-                    'orderVersionId' => Defaults::LIVE_VERSION,
-                    'config' => ['documentNumber' => '1001'],
-                    'deepLinkCode' => 'dfr',
-                    'static' => true,
-                    'documentMediaFile' => [
-                        'id' => $mediaId,
-                        'mimeType' => 'plain/txt',
-                        'fileExtension' => 'txt',
-                        'fileName' => 'textFileWithExtension',
-                        'fileSize' => 1024,
-                        'private' => true,
-                        'mediaType' => new BinaryType(),
-                        'uploadedAt' => new \DateTime('2011-01-01T15:03:01.012345Z'),
-                    ],
-                ],
-            ],
-            $this->context
-        );
-
-        $criteria = new Criteria([$documentId]);
-        $criteria->addAssociation('documentMediaFile');
-        /** @var DocumentEntity $document */
-        $document = $documentRepository->search($criteria, $this->context)->get($documentId);
-
-        $filePath = $urlGenerator->getRelativeMediaUrl($document->getDocumentMediaFile());
-
-        $fileSystem->put($filePath, 'test123');
-
-        static::assertTrue($fileSystem->has($filePath));
-
-        $generatedDocument = $this->documentGenerator->readDocument($document->getId(), $this->context);
-
-        static::assertEquals('test123', $generatedDocument->getContent());
-    }
-
-    public function testGetStaticDocumentFileWithIncorrectDeepLinkCode(): void
+    public function testReadDocumentFileWithInvalidDocumentId(): void
     {
         $documentId = Uuid::randomHex();
 
         static::expectException(InvalidDocumentException::class);
         static::expectExceptionMessage(\sprintf('The document with id "%s" is invalid or could not be found.', $documentId));
 
-        $cart = $this->generateDemoCart(2);
-        $orderId = $this->persistCart($cart);
+        $this->documentGenerator->readDocument($documentId, $this->context);
+    }
+
+    public function testReadDocumentFileWithIncorrectDeepLinkCode(): void
+    {
+        $documentId = Uuid::randomHex();
+
+        static::expectException(InvalidDocumentException::class);
+        static::expectExceptionMessage(\sprintf('The document with id "%s" is invalid or could not be found.', $documentId));
 
         /** @var FilesystemInterface $fileSystem */
         $fileSystem = $this->getContainer()->get('shopware.filesystem.private');
@@ -408,24 +331,22 @@ class DocumentGeneratorTest extends TestCase
         /** @var UrlGenerator $urlGenerator */
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
 
-        $documentRepository = $this->getContainer()->get('document.repository');
-
         $documentTypeRepository = $this->getContainer()->get('document_type.repository');
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('technicalName', 'delivery_note'));
+        $criteria->addFilter(new EqualsFilter('technicalName', DeliveryNoteRenderer::TYPE));
 
         /** @var DocumentTypeEntity $documentType */
         $documentType = $documentTypeRepository->search($criteria, $this->context)->first();
 
         $mediaId = Uuid::randomHex();
-        $documentRepository->create(
+        $this->documentRepository->create(
             [
                 [
                     'id' => $documentId,
                     'documentTypeId' => $documentType->getId(),
                     'fileType' => FileTypes::PDF,
-                    'orderId' => $orderId,
+                    'orderId' => $this->orderId,
                     'orderVersionId' => Defaults::LIVE_VERSION,
                     'config' => ['documentNumber' => '1001'],
                     'deepLinkCode' => 'dfr',
@@ -448,7 +369,7 @@ class DocumentGeneratorTest extends TestCase
         $criteria = new Criteria([$documentId]);
         $criteria->addAssociation('documentMediaFile');
         /** @var DocumentEntity $document */
-        $document = $documentRepository->search($criteria, $this->context)->get($documentId);
+        $document = $this->documentRepository->search($criteria, $this->context)->get($documentId);
 
         $filePath = $urlGenerator->getRelativeMediaUrl($document->getDocumentMediaFile());
 
@@ -461,29 +382,24 @@ class DocumentGeneratorTest extends TestCase
 
     public function testConfigurationWithSalesChannelOverride(): void
     {
-        $cart = $this->generateDemoCart(2);
-        $orderId = $this->persistCart($cart);
-
-        $base = $this->getBaseConfig('invoice');
+        $base = $this->getBaseConfig(InvoiceRenderer::TYPE);
         $globalConfig = $base === null ? [] : $base->getConfig();
         $globalConfig['companyName'] = 'Test corp.';
         $globalConfig['displayCompanyAddress'] = true;
-        $this->upsertBaseConfig($globalConfig, 'invoice');
+        $this->upsertBaseConfig($globalConfig, InvoiceRenderer::TYPE);
 
         $salesChannelConfig = [
             'companyName' => 'Custom corp.',
             'displayCompanyAddress' => false,
         ];
-        $this->upsertBaseConfig($salesChannelConfig, 'invoice', $this->salesChannelContext->getSalesChannel()->getId());
+        $this->upsertBaseConfig($salesChannelConfig, InvoiceRenderer::TYPE, $this->salesChannelContext->getSalesChannel()->getId());
 
-        $operation = new DocumentGenerateOperation($orderId);
+        $operation = new DocumentGenerateOperation($this->orderId);
 
-        $documentId = $this->documentGenerator->generate('invoice', [$orderId => $operation], $this->context)->first();
+        $documentId = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->first();
 
-        /** @var EntityRepositoryInterface $documentRepository */
-        $documentRepository = $this->getContainer()->get('document.repository');
         /** @var DocumentEntity $document */
-        $document = $documentRepository->search(new Criteria([$documentId->getId()]), Context::createDefaultContext())->first();
+        $document = $this->documentRepository->search(new Criteria([$documentId->getId()]), Context::createDefaultContext())->first();
 
         $expectedConfig = array_merge($globalConfig, $salesChannelConfig);
 
@@ -499,18 +415,18 @@ class DocumentGeneratorTest extends TestCase
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
-        $base = $this->getBaseConfig('invoice');
+        $base = $this->getBaseConfig(InvoiceRenderer::TYPE);
         $globalConfig = $base === null ? [] : $base->getConfig();
         $globalConfig['companyName'] = 'Test corp.';
         $globalConfig['displayCompanyAddress'] = true;
-        $this->upsertBaseConfig($globalConfig, 'invoice');
+        $this->upsertBaseConfig($globalConfig, InvoiceRenderer::TYPE);
 
         $salesChannelConfig = [
             'companyName' => 'Custom corp.',
             'displayCompanyAddress' => false,
             'pageSize' => 'a5',
         ];
-        $this->upsertBaseConfig($salesChannelConfig, 'invoice', $this->salesChannelContext->getSalesChannel()->getId());
+        $this->upsertBaseConfig($salesChannelConfig, InvoiceRenderer::TYPE, $this->salesChannelContext->getSalesChannel()->getId());
 
         $overrides = [
             'companyName' => 'Override corp.',
@@ -519,12 +435,10 @@ class DocumentGeneratorTest extends TestCase
 
         $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, $overrides);
 
-        $documentIdWithOverride = $this->documentGenerator->generate('invoice', [$orderId => $operation], $this->context)->first();
+        $documentIdWithOverride = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operation], $this->context)->first();
 
-        /** @var EntityRepositoryInterface $documentRepository */
-        $documentRepository = $this->getContainer()->get('document.repository');
         /** @var DocumentEntity $document */
-        $document = $documentRepository->search(new Criteria([$documentIdWithOverride->getId()]), Context::createDefaultContext())->first();
+        $document = $this->documentRepository->search(new Criteria([$documentIdWithOverride->getId()]), Context::createDefaultContext())->first();
 
         $expectedConfig = array_merge($globalConfig, $salesChannelConfig, $overrides);
 
@@ -537,38 +451,38 @@ class DocumentGeneratorTest extends TestCase
 
     public function testCreateInvoicePdf(): void
     {
-        $cart = $this->generateDemoCart(2);
-        $orderId = $this->persistCart($cart);
-
         $documentConfiguration = new DocumentConfiguration();
         $documentConfiguration->setDocumentNumber('1001');
 
-        $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, $documentConfiguration->jsonSerialize());
+        $operation = new DocumentGenerateOperation($this->orderId, FileTypes::PDF, $documentConfiguration->jsonSerialize());
 
-        $documentInvoice = $this->documentGenerator->generate('invoice', [$orderId => $operation], $this->context)->first();
+        $documentInvoice = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->first();
 
         static::assertTrue(Uuid::isValid($documentInvoice->getId()));
-
-        $documentRepository = $this->getContainer()->get('document.repository');
 
         $criteria = new Criteria([$documentInvoice->getId()]);
         $criteria->addAssociation('documentType');
 
-        $document = $documentRepository
+        $document = $this->documentRepository
             ->search($criteria, $this->context)
             ->get($documentInvoice->getId());
 
         static::assertNotNull($document);
-        static::assertSame($orderId, $document->getOrderId());
-        static::assertSame('invoice', $document->getDocumentType()->getTechnicalName());
+        static::assertSame($this->orderId, $document->getOrderId());
+        static::assertSame(InvoiceRenderer::TYPE, $document->getDocumentType()->getTechnicalName());
         static::assertSame(FileTypes::PDF, $document->getFileType());
+    }
+
+    public function testGenerateWithInvalidType(): void
+    {
+        static::expectException(InvalidDocumentRendererException::class);
+        static::expectExceptionMessage('Unable to find a document renderer with type "invalid_type"');
+        $this->documentGenerator->generate('invalid_type', [], $this->context);
     }
 
     public function testGenerate(): void
     {
-        $cart = $this->generateDemoCart(2);
-        $orderId = $this->persistCart($cart);
-
+        $orderId = $this->orderId;
         $documentConfiguration = new DocumentConfiguration();
         $documentConfiguration->setDocumentNumber('1001');
 
@@ -576,12 +490,12 @@ class DocumentGeneratorTest extends TestCase
         $operationDelivery = new DocumentGenerateOperation($orderId, FileTypes::PDF, $documentConfiguration->jsonSerialize());
 
         $documentIds = [];
-        $invoice = $this->documentGenerator->generate('invoice', [$orderId => $operationInvoice], $this->context)->first();
+        $invoice = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operationInvoice], $this->context)->first();
 
         static::assertNotNull($invoice);
         $documentIds[] = $invoice->getId();
 
-        $delivery = $this->documentGenerator->generate('delivery_note', [$orderId => $operationDelivery], $this->context)->first();
+        $delivery = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$orderId => $operationDelivery], $this->context)->first();
 
         static::assertNotNull($invoice);
         $documentIds[] = $delivery->getId();
@@ -591,13 +505,12 @@ class DocumentGeneratorTest extends TestCase
         $criteria = new Criteria($documentIds);
         $criteria->addAssociation('documentType');
 
-        $documentRepository = $this->getContainer()->get('document.repository');
-        $documents = $documentRepository->search($criteria, $this->context);
+        $documents = $this->documentRepository->search($criteria, $this->context);
 
         static::assertCount(2, $documents);
 
         $invoiceDoc = $documents->filter(function (DocumentEntity $doc) {
-            return $doc->getDocumentType()->getTechnicalName() === 'invoice';
+            return $doc->getDocumentType()->getTechnicalName() === InvoiceRenderer::TYPE;
         })->first();
 
         static::assertNotNull($invoiceDoc);
@@ -605,7 +518,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertSame(FileTypes::PDF, $invoiceDoc->getFileType());
 
         $deliveryDoc = $documents->filter(function (DocumentEntity $doc) {
-            return $doc->getDocumentType()->getTechnicalName() === 'invoice';
+            return $doc->getDocumentType()->getTechnicalName() === InvoiceRenderer::TYPE;
         })->first();
 
         static::assertNotNull($deliveryDoc);
@@ -617,50 +530,42 @@ class DocumentGeneratorTest extends TestCase
     {
         $this->expectException(DocumentNumberAlreadyExistsException::class);
 
-        $cart = $this->generateDemoCart(2);
-        $orderId = $this->persistCart($cart);
-
         $documentInvoiceConfiguration = new DocumentConfiguration();
         $documentInvoiceConfiguration->setDocumentNumber('1002');
 
-        $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, $documentInvoiceConfiguration->jsonSerialize());
+        $operation = new DocumentGenerateOperation($this->orderId, FileTypes::PDF, $documentInvoiceConfiguration->jsonSerialize());
 
-        $documentInvoice = $this->documentGenerator->generate('delivery_note', [$orderId => $operation], $this->context)->first();
+        $documentInvoice = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$this->orderId => $operation], $this->context)->first();
 
         static::assertTrue(Uuid::isValid($documentInvoice->getId()));
-
-        $documentRepository = $this->getContainer()->get('document.repository');
 
         $criteria = new Criteria([$documentInvoice->getId()]);
         $criteria->addAssociation('documentType');
 
-        $document = $documentRepository
+        $document = $this->documentRepository
             ->search($criteria, $this->context)
             ->get($documentInvoice->getId());
 
         static::assertNotNull($document);
-        static::assertSame($orderId, $document->getOrderId());
+        static::assertSame($this->orderId, $document->getOrderId());
 
         $documentInvoiceConfiguration = new DocumentConfiguration();
         $documentInvoiceConfiguration->setDocumentNumber('1002');
 
         $operation = new DocumentGenerateOperation(
-            $orderId,
+            $this->orderId,
             FileTypes::PDF,
             $documentInvoiceConfiguration->jsonSerialize()
         );
 
-        $this->documentGenerator->generate('delivery_note', [$orderId => $operation], $this->context)->first();
+        $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$this->orderId => $operation], $this->context)->first();
     }
 
     public function testGenerateStaticDocument(): void
     {
-        $cart = $this->generateDemoCart(2);
-        $orderId = $this->persistCart($cart);
+        $operation = new DocumentGenerateOperation($this->orderId, FileTypes::PDF, [], null, true);
 
-        $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, [], null, true);
-
-        $generatedDocument = $this->documentGenerator->generate('invoice', [$orderId => $operation], $this->context)->first();
+        $generatedDocument = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->first();
 
         static::assertInstanceOf(DocumentIdStruct::class, $generatedDocument);
         static::assertNotNull($generatedDocument->getId());
@@ -670,12 +575,9 @@ class DocumentGeneratorTest extends TestCase
 
     public function testGenerateNonStaticDocument(): void
     {
-        $cart = $this->generateDemoCart(2);
-        $orderId = $this->persistCart($cart);
+        $operation = new DocumentGenerateOperation($this->orderId, FileTypes::PDF, [], null, false);
 
-        $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, [], null, false);
-
-        $generatedDocument = $this->documentGenerator->generate('invoice', [$orderId => $operation], $this->context)->first();
+        $generatedDocument = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->first();
 
         static::assertInstanceOf(DocumentIdStruct::class, $generatedDocument);
         static::assertNotNull($generatedDocument->getId());
@@ -685,12 +587,9 @@ class DocumentGeneratorTest extends TestCase
 
     public function testReadNonStaticGeneratedDocument(): void
     {
-        $cart = $this->generateDemoCart(2);
-        $orderId = $this->persistCart($cart);
+        $operation = new DocumentGenerateOperation($this->orderId, FileTypes::PDF);
 
-        $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF);
-
-        $invoiceStruct = $this->documentGenerator->generate('invoice', [$orderId => $operation], $this->context)->first();
+        $invoiceStruct = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->first();
 
         $generatedDocument = $this->documentGenerator->readDocument($invoiceStruct->getId(), $this->context);
 
@@ -699,7 +598,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($generatedDocument->getContent());
         static::assertEquals(PdfRenderer::FILE_CONTENT_TYPE, $generatedDocument->getContentType());
 
-        $document = $this->getContainer()->get('document.repository')->search(
+        $document = $this->documentRepository->search(
             new Criteria([$invoiceStruct->getId()]),
             $this->context,
         )->first();
@@ -716,12 +615,9 @@ class DocumentGeneratorTest extends TestCase
 
     public function testReadStaticGeneratedDocument(): void
     {
-        $cart = $this->generateDemoCart(2);
-        $orderId = $this->persistCart($cart);
+        $operation = new DocumentGenerateOperation($this->orderId, FileTypes::PDF, [], null, true);
 
-        $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, [], null, true);
-
-        $invoiceStruct = $this->documentGenerator->generate('invoice', [$orderId => $operation], $this->context)->first();
+        $invoiceStruct = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->first();
         static::assertNotNull($invoiceStruct);
 
         $generatedDocument = $this->documentGenerator->readDocument($invoiceStruct->getId(), $this->context);
@@ -729,28 +625,166 @@ class DocumentGeneratorTest extends TestCase
         static::assertNull($generatedDocument);
     }
 
+    public function testReadNonStaticDocumentWithMissingFile(): void
+    {
+        $documentId = Uuid::randomHex();
+
+        $this->documentRepository->create([[
+            'id' => $documentId,
+            'documentTypeId' => $this->documentTypeId,
+            'fileType' => FileTypes::PDF,
+            'orderId' => $this->orderId,
+            'static' => false,
+            'documentMediaFileId' => null,
+            'config' => [],
+            'deepLinkCode' => Random::getAlphanumericString(32),
+        ]], $this->context);
+
+        $generatedDocument = $this->documentGenerator->readDocument($documentId, $this->context);
+
+        static::assertInstanceOf(RenderedDocument::class, $generatedDocument);
+        static::assertNotNull($generatedDocument->getHtml());
+        static::assertNotNull($generatedDocument->getContent());
+        static::assertEquals(PdfRenderer::FILE_CONTENT_TYPE, $generatedDocument->getContentType());
+
+        $document = $this->documentRepository->search(
+            new Criteria([$documentId]),
+            $this->context,
+        )->first();
+
+        static::assertNotNull($document);
+        $mediaId = $document->getDocumentMediaFileId();
+
+        $media = $this->context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mediaId) {
+            return $this->getContainer()->get(FileLoader::class)->loadMediaResource($mediaId, $context);
+        });
+
+        static::assertNotNull($media);
+    }
+
+    /**
+     * @dataProvider readDocumentDataProvider
+     */
+    public function testReadDocument(bool $withMedia, bool $static): void
+    {
+        $operation = new DocumentGenerateOperation($this->orderId, FileTypes::PDF, [], null, $static);
+
+        $invoiceStruct = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->first();
+
+        $documentMediaFileId = $invoiceStruct->getMediaId();
+        $documentId = $invoiceStruct->getId();
+
+        if ($static && $withMedia === false) {
+            $generatedDocument = $this->documentGenerator->readDocument($invoiceStruct->getId(), $this->context);
+
+            static::assertNull($generatedDocument);
+
+            return;
+        }
+
+        $staticFileContent = null;
+        if ($static) {
+            $staticFileContent = 'this is some content';
+
+            $uploadFileRequest = new Request([
+                'extension' => FileTypes::PDF,
+                'fileName' => 'test',
+            ], [], [], [], [], [
+                'HTTP_CONTENT_LENGTH' => \strlen($staticFileContent),
+                'HTTP_CONTENT_TYPE' => 'application/pdf',
+            ], $staticFileContent);
+
+            $documentMediaFileStruct = $this->documentGenerator->upload($invoiceStruct->getId(), $this->context, $uploadFileRequest);
+            static::assertNotNull($documentMediaFileStruct);
+            $documentMediaFileId = $documentMediaFileStruct->getMediaId();
+            $documentId = $invoiceStruct->getId();
+        }
+
+        static::assertNotNull($documentMediaFileId);
+
+        if ($withMedia === false) {
+            $fileSystem = $this->getContainer()->get('shopware.filesystem.private');
+            $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
+            $mediaRepository = $this->getContainer()->get('media.repository');
+            $media = $mediaRepository->search(new Criteria([$documentMediaFileId]), $this->context)->get($documentMediaFileId);
+
+            static::assertNotNull($media);
+
+            $filePath = $urlGenerator->getRelativeMediaUrl($media);
+
+            static::assertTrue($fileSystem->has($filePath));
+            $fileSystem->delete($filePath);
+
+            $this->documentRepository->update([[
+                'id' => $documentId,
+                'documentMediaFileId' => null,
+            ]], $this->context);
+
+            $mediaRepository->delete([[
+                'id' => $documentMediaFileId,
+            ]], $this->context);
+        }
+
+        $generatedDocument = $this->documentGenerator->readDocument($documentId, $this->context);
+
+        static::assertInstanceOf(RenderedDocument::class, $generatedDocument);
+        static::assertNotNull($generatedDocument->getHtml());
+        static::assertNotNull($generatedDocument->getContent());
+
+        if ($staticFileContent) {
+            static::assertEquals($staticFileContent, $generatedDocument->getContent());
+        }
+
+        $document = $this->documentRepository->search(
+            new Criteria([$invoiceStruct->getId()]),
+            $this->context,
+        )->first();
+
+        static::assertNotNull($document);
+
+        $mediaId = $document->getDocumentMediaFileId();
+
+        $media = $this->context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mediaId) {
+            return $this->getContainer()->get(FileLoader::class)->loadMediaResource($mediaId, $context);
+        });
+
+        static::assertNotNull($media);
+    }
+
+    public function readDocumentDataProvider(): \Generator
+    {
+        yield 'read static document' => [
+            true,
+            true,
+        ];
+        yield 'read non static document with media' => [
+            true,
+            false,
+        ];
+        yield 'read non static document without media' => [
+            false,
+            false,
+        ];
+    }
+
     private function createDocumentWithFile(): DocumentEntity
     {
-        $cart = $this->generateDemoCart(2);
-        $orderId = $this->persistCart($cart);
-
-        $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF);
-        $documentStruct = $this->documentGenerator->generate('invoice', [$orderId => $operation], $this->context)->first();
+        $operation = new DocumentGenerateOperation($this->orderId, FileTypes::PDF);
+        $documentStruct = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->first();
 
         static::assertTrue(Uuid::isValid($documentStruct->getId()));
 
-        $documentRepository = $this->getContainer()->get('document.repository');
         $criteria = new Criteria([$documentStruct->getId()]);
         $criteria->addAssociation('documentMediaFile');
         $criteria->addAssociation('documentType');
 
         /** @var DocumentEntity $document */
-        $document = $documentRepository->search($criteria, $this->context)->get($documentStruct->getId());
+        $document = $this->documentRepository->search($criteria, $this->context)->get($documentStruct->getId());
 
         $this->documentGenerator->readDocument($document->getId(), $this->context);
 
         /** @var DocumentEntity $document */
-        $document = $documentRepository->search($criteria, $this->context)->get($documentStruct->getId());
+        $document = $this->documentRepository->search($criteria, $this->context)->get($documentStruct->getId());
 
         return $document;
     }

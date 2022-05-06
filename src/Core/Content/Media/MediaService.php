@@ -130,6 +130,7 @@ class MediaService
         }
 
         $contentType = $request->headers->get('content_type', '');
+
         if (str_starts_with($contentType, 'application/json')) {
             return $this->fileFetcher->fetchFileFromURL($request, $tempFile);
         }

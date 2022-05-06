@@ -87,7 +87,9 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
         ]], Context::createDefaultContext());
 
         $browser = $this->createClient();
-        $browser->request('POST', '/api/_action/customer-group-registration/accept/' . $this->ids->get('customer'));
+        $browser->request('POST', '/api/_action/customer-group-registration/accept', [
+            'customerIds' => [$this->ids->get('customer')],
+        ]);
 
         /** @var CustomerGroupEntity $customerGroup */
         $customerGroup = $this->getContainer()->get('customer_group.repository')

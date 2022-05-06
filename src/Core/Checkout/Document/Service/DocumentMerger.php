@@ -18,7 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Util\Random;
 
-final class DocumentMerger
+class DocumentMerger
 {
     private EntityRepositoryInterface $documentRepository;
 
@@ -28,6 +28,9 @@ final class DocumentMerger
 
     private DocumentGenerator $documentGenerator;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $documentRepository,
         MediaService $mediaService,
@@ -42,6 +45,10 @@ final class DocumentMerger
 
     public function merge(array $documentIds, Context $context): ?RenderedDocument
     {
+        if (empty($documentIds)) {
+            return null;
+        }
+
         $criteria = new Criteria($documentIds);
         $criteria->addAssociation('documentType');
 

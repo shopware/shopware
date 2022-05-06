@@ -29,13 +29,13 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
  */
-class DocumentApiTest extends TestCase
+class DocumentGeneratorControllerTest extends TestCase
 {
     use DocumentTrait;
     use AdminApiTestBehaviour;
@@ -63,7 +63,7 @@ class DocumentApiTest extends TestCase
 
         $paymentMethod = $this->getAvailablePaymentMethod();
 
-        $this->customerId = $this->createCustomer($paymentMethod->getId());
+        $this->customerId = $this->createCustomer();
         $shippingMethod = $this->getAvailableShippingMethod();
 
         $this->addCountriesToSalesChannel();
@@ -151,8 +151,8 @@ class DocumentApiTest extends TestCase
 
     public function testCreateDocuments(): void
     {
-        $order1 = $this->createOrder($this->salesChannelContext->getCustomer()->getId(), $this->context);
-        $order2 = $this->createOrder($this->salesChannelContext->getCustomer()->getId(), $this->context);
+        $order1 = $this->createOrder($this->customerId, $this->context);
+        $order2 = $this->createOrder($this->customerId, $this->context);
         $this->createDocument(InvoiceRenderer::TYPE, $order1->getId(), [
             'documentType' => 'invoice',
             'custom' => [
@@ -232,7 +232,7 @@ class DocumentApiTest extends TestCase
 
     public function testCreateDocumentWithInvalidDocumentTypeName(): void
     {
-        $order = $this->createOrder($this->salesChannelContext->getCustomer()->getId(), $this->context);
+        $order = $this->createOrder($this->customerId, $this->context);
         $content = [
             [
                 'orderId' => $order->getId(),
@@ -257,9 +257,28 @@ class DocumentApiTest extends TestCase
         static::assertEquals('DOCUMENT__INVALID_RENDERER_TYPE', $response['errors'][0]['code']);
     }
 
+    public function testCreateWithoutDocumentsParameter(): void
+    {
+        $this->getBrowser()->request(
+            'POST',
+            '/api/_action/order/document/receipt/create',
+            [],
+            [],
+            [],
+            json_encode([])
+        );
+
+        $response = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+
+        static::assertArrayHasKey('errors', $response);
+        static::assertEquals(400, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertNotEmpty($response['errors']);
+        static::assertEquals('FRAMEWORK__INVALID_REQUEST_PARAMETER', $response['errors'][0]['code']);
+    }
+
     public function testCreateStornoDocumentsWithoutInvoiceDocument(): void
     {
-        $order = $this->createOrder($this->salesChannelContext->getCustomer()->getId(), $this->context);
+        $order = $this->createOrder($this->customerId, $this->context);
 
         $content = [
             [
@@ -358,7 +377,7 @@ class DocumentApiTest extends TestCase
     private function createOrder(string $customerId, Context $context): OrderEntity
     {
         $orderId = Uuid::randomHex();
-        $stateId = $this->getContainer()->get(StateMachineRegistry::class)->getInitialState(OrderStates::STATE_MACHINE, $context)->getId();
+        $stateId = $this->getContainer()->get(InitialStateIdLoader::class)->get(OrderStates::STATE_MACHINE);
         $billingAddressId = Uuid::randomHex();
 
         $order = [

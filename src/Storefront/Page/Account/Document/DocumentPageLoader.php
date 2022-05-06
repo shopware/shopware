@@ -63,7 +63,10 @@ class DocumentPageLoader
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext): DocumentPage
     {
-        Feature::throwException('v6.5.0.0', 'will be removed');
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
 
         if (!$salesChannelContext->getCustomer() && $request->get('deepLinkCode', false) === false) {
             throw new CustomerNotLoggedInException();

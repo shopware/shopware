@@ -127,7 +127,10 @@ class DocumentService
         ?string $referencedDocumentId = null,
         bool $static = false
     ): DocumentIdStruct {
-        Feature::throwException('v6.5.0.0', 'Will be removed');
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
 
         $documentType = $this->getDocumentTypeByName($documentTypeName, $context);
 
@@ -193,7 +196,10 @@ class DocumentService
 
     public function getDocument(DocumentEntity $document, Context $context): GeneratedDocument
     {
-        Feature::throwException('v6.5.0.0', 'Will be removed');
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
 
         $config = DocumentConfigurationFactory::createConfiguration($document->getConfig());
 
@@ -242,7 +248,10 @@ class DocumentService
         DocumentConfiguration $config,
         Context $context
     ): GeneratedDocument {
-        Feature::throwException('v6.5.0.0', 'Will be removed');
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
 
         $documentType = $this->getDocumentTypeByName($documentTypeName, $context);
 
@@ -293,7 +302,10 @@ class DocumentService
         Context $context,
         Request $uploadedFileRequest
     ): DocumentIdStruct {
-        Feature::throwException('v6.5.0.0', 'Will be removed');
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
 
         /** @var DocumentEntity $document */
         $document = $this->documentRepository->search(new Criteria([$documentId]), $context)->first();

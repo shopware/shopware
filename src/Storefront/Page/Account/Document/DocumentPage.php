@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\Account\Document;
 
 use Shopware\Core\Checkout\Document\GeneratedDocument;
+use Shopware\Core\Framework\Feature;
 use Shopware\Storefront\Page\Page;
 
 /**
@@ -22,21 +23,41 @@ class DocumentPage extends Page
 
     public function getDeepLinkCode(): ?string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         return $this->deepLinkCode;
     }
 
     public function setDeepLinkCode(?string $deepLinkCode): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         $this->deepLinkCode = $deepLinkCode;
     }
 
     public function getDocument(): GeneratedDocument
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         return $this->document;
     }
 
     public function setDocument(GeneratedDocument $document): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         $this->document = $document;
     }
 }

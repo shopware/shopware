@@ -39,6 +39,11 @@ class DeliveryNoteGenerator implements DocumentGeneratorInterface
 
     public function supports(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'DeliveryNoteRenderer::render')
+        );
+
         return self::DELIVERY_NOTE;
     }
 
@@ -51,7 +56,10 @@ class DeliveryNoteGenerator implements DocumentGeneratorInterface
         Context $context,
         ?string $templatePath = null
     ): string {
-        Feature::throwException('v6.5.0.0', 'Will be removed, use DeliveryNoteRenderer instead');
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            'will be removed, use DeliveryNoteRenderer::render instead'
+        );
 
         $templatePath = $templatePath ?? self::DEFAULT_TEMPLATE;
 
@@ -80,6 +88,11 @@ class DeliveryNoteGenerator implements DocumentGeneratorInterface
 
     public function getFileName(DocumentConfiguration $config): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         return $config->getFilenamePrefix() . $config->getDocumentNumber() . $config->getFilenameSuffix();
     }
 }

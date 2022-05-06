@@ -5,35 +5,25 @@ namespace Shopware\Core\Checkout\Test\Document\Renderer;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\CartBehavior;
-use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
-use Shopware\Core\Checkout\Cart\Processor;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Document\Event\InvoiceOrdersEvent;
-use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
+use Shopware\Core\Checkout\Document\Renderer\OrderDocumentCriteriaFactory;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
-use Shopware\Core\Checkout\Document\Service\PdfRenderer;
+use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Checkout\Test\Document\DocumentTrait;
-use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
-use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
-use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyFormatter;
-use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -42,55 +32,37 @@ use Shopware\Core\Test\TestDefaults;
 class InvoiceRendererTest extends TestCase
 {
     use DocumentTrait;
-    use CountryAddToSalesChannelTestBehaviour;
 
     private SalesChannelContext $salesChannelContext;
 
     private Context $context;
 
-    private Connection $connection;
+    private EntityRepositoryInterface $productRepository;
+
+    private InvoiceRenderer $invoiceRenderer;
+
+    private CartService $cartService;
+
+    private DocumentGenerator $documentGenerator;
 
     private CurrencyFormatter $currencyFormatter;
+
+    private string $deLanguageId;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->context = Context::createDefaultContext();
-        $this->connection = $this->getContainer()->get(Connection::class);
-        $this->currencyFormatter = $this->getContainer()->get(CurrencyFormatter::class);
-
-        $priceRuleId = Uuid::randomHex();
-        $customerId = $this->createCustomer();
-        $shippingMethodId = $this->createShippingMethod($priceRuleId);
-        $paymentMethodId = $this->createPaymentMethod($priceRuleId);
-
-        $this->addCountriesToSalesChannel();
-
-        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
-            Uuid::randomHex(),
-            TestDefaults::SALES_CHANNEL,
-            [
-                SalesChannelContextService::CUSTOMER_ID => $customerId,
-                SalesChannelContextService::SHIPPING_METHOD_ID => $shippingMethodId,
-                SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId,
-            ]
-        );
-
-        $this->salesChannelContext->setRuleIds([$priceRuleId]);
+        $this->initServices();
     }
 
-    public function testRenderWithDifferentTaxes(): void
+    /**
+     * @dataProvider invoiceDataProvider
+     */
+    public function testRender(array $possibleTaxes, ?\Closure $beforeRenderHook, \Closure $assertionCallback): void
     {
-        $invoiceRenderer = $this->getContainer()->get(InvoiceRenderer::class);
-        $pdfGenerator = $this->getContainer()->get(PdfRenderer::class);
-
-        $possibleTaxes = [7, 19, 22];
-        //generates one line item for each tax
         $cart = $this->generateDemoCart($possibleTaxes);
         $orderId = $this->persistCart($cart);
-        /** @var OrderEntity $order */
-        $order = $this->getOrderById($orderId);
 
         $operationInvoice = new DocumentGenerateOperation($orderId);
 
@@ -101,14 +73,21 @@ class InvoiceRendererTest extends TestCase
                 $caughtEvent = $event;
             });
 
-        $processedTemplate = $invoiceRenderer->render(
-            [$order->getId() => $operationInvoice],
+        if ($beforeRenderHook) {
+            $beforeRenderHook($operationInvoice);
+        }
+
+        $processedTemplate = $this->invoiceRenderer->render(
+            [$orderId => $operationInvoice],
             $this->context,
             new DocumentRendererConfig()
         );
 
         static::assertInstanceOf(InvoiceOrdersEvent::class, $caughtEvent);
         static::assertCount(1, $caughtEvent->getOrders());
+        $order = $caughtEvent->getOrders()->get($orderId);
+        static::assertNotNull($order);
+
         static::assertInstanceOf(RenderedDocument::class, $processedTemplate[$orderId]);
 
         $rendered = $processedTemplate[$orderId];
@@ -117,127 +96,150 @@ class InvoiceRendererTest extends TestCase
         static::assertStringContainsString('</html>', $rendered->getHtml());
         static::assertStringContainsString($order->getLineItems()->first()->getLabel(), $rendered->getHtml());
         static::assertStringContainsString($order->getLineItems()->last()->getLabel(), $rendered->getHtml());
-        static::assertStringContainsString(
-            $this->currencyFormatter->formatCurrencyByLanguage(
-                $order->getAmountTotal(),
-                $order->getCurrency()->getIsoCode(),
-                $this->context->getLanguageId(),
-                $this->context
-            ),
-            $rendered->getHtml()
-        );
-        foreach ($possibleTaxes as $possibleTax) {
-            static::assertStringContainsString(
-                sprintf('plus %d%% VAT', $possibleTax),
-                $rendered->getHtml()
-            );
-        }
 
-        $generatorOutput = $pdfGenerator->render($rendered);
-        static::assertNotEmpty($generatorOutput);
-
-        $finfo = new \finfo(\FILEINFO_MIME_TYPE);
-        static::assertEquals('application/pdf', $finfo->buffer($generatorOutput));
-
-        $deLanguageId = $this->getDeDeLanguageId();
-
-        $this->getContainer()->get('order.repository')->upsert([[
-            'id' => $order->getId(),
-            'languageId' => $deLanguageId,
-        ]], $this->context);
-
-        $processedTemplate = $invoiceRenderer->render(
-            [$orderId => $operationInvoice],
-            $this->context,
-            new DocumentRendererConfig()
-        );
-
-        static::assertInstanceOf(RenderedDocument::class, $processedTemplate[$orderId]);
-
-        $rendered = $processedTemplate[$orderId];
-
-        static::assertStringContainsString(
-            preg_replace('/\xc2\xa0/', ' ', $this->currencyFormatter->formatCurrencyByLanguage(
-                $order->getAmountTotal(),
-                $order->getCurrency()->getIsoCode(),
-                $deLanguageId,
-                $this->context
-            )),
-            preg_replace('/\xc2\xa0/', ' ', $rendered->getHtml())
-        );
+        $assertionCallback($rendered, $order);
     }
 
-    public function testRenderWithShippingAddress(): void
+    public function invoiceDataProvider(): \Generator
     {
-        $invoiceRenderer = $this->getContainer()->get(InvoiceRenderer::class);
+        $this->initServices();
 
-        $possibleTaxes = [7, 19, 22];
-        //generates one line item for each tax
-        $cart = $this->generateDemoCart($possibleTaxes);
-        $orderId = $this->persistCart($cart);
-        /** @var OrderEntity $order */
-        $order = $this->getOrderById($orderId);
-        $country = $order->getDeliveries()->getShippingAddress()->getCountries()->first();
-        $country->setCompanyTax(new TaxFreeConfig(true, Defaults::CURRENCY, 0));
+        yield 'render with default language' => [
+            [7],
+            null,
+            function (RenderedDocument $rendered, OrderEntity $order): void {
+                static::assertStringContainsString(
+                    $this->currencyFormatter->formatCurrencyByLanguage(
+                        $order->getAmountTotal(),
+                        $order->getCurrency()->getIsoCode(),
+                        $this->context->getLanguageId(),
+                        $this->context
+                    ),
+                    $rendered->getHtml()
+                );
+            },
+        ];
 
-        $this->getContainer()->get('country.repository')->update([[
-            'id' => $country->getId(),
-            'companyTax' => ['enabled' => true, 'currencyId' => Defaults::CURRENCY, 'amount' => 0],
-        ]], $this->context);
-        $companyPhone = '123123123';
-        $vatIds = ['VAT-123123'];
-        $order->getOrderCustomer()->setVatIds($vatIds);
+        yield 'render with different language' => [
+            [7],
+            function (DocumentGenerateOperation $operation): void {
+                $this->getContainer()->get('order.repository')->upsert([[
+                    'id' => $operation->getOrderId(),
+                    'languageId' => $this->deLanguageId,
+                ]], $this->context);
+            },
+            function (RenderedDocument $rendered, OrderEntity $order): void {
+                static::assertStringContainsString(
+                    preg_replace('/\xc2\xa0/', ' ', $this->currencyFormatter->formatCurrencyByLanguage(
+                        $order->getAmountTotal(),
+                        $order->getCurrency()->getIsoCode(),
+                        $this->deLanguageId,
+                        $this->context
+                    )),
+                    preg_replace('/\xc2\xa0/', ' ', $rendered->getHtml())
+                );
+            },
+        ];
 
-        $this->getContainer()->get('order_customer.repository')->update([[
-            'id' => $order->getOrderCustomer()->getId(),
-            'vatIds' => $vatIds,
-        ]], $this->context);
+        yield 'render with different taxes' => [
+            [7, 19, 22],
+            null,
+            function (RenderedDocument $rendered): void {
+                foreach ([7, 19, 22] as $possibleTax) {
+                    static::assertStringContainsString(
+                        sprintf('plus %d%% VAT', $possibleTax),
+                        $rendered->getHtml()
+                    );
+                }
+            },
+        ];
 
-        $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, [
-            'displayLineItems' => true,
-            'itemsPerPage' => 10,
-            'displayFooter' => true,
-            'displayHeader' => true,
-            'executiveDirector' => true,
-            'displayDivergentDeliveryAddress' => true,
-            'companyPhone' => $companyPhone,
-            'intraCommunityDelivery' => true,
-            'displayAdditionalNoteDelivery' => true,
-            'deliveryCountries' => [$country->getId()],
-        ]);
+        yield 'render with shipping address' => [
+            [7],
+            function (DocumentGenerateOperation $operation): void {
+                $orderId = $operation->getOrderId();
+                $criteria = OrderDocumentCriteriaFactory::create([$orderId]);
+                $order = $this->getContainer()->get('order.repository')->search($criteria, $this->context)->get($orderId);
+                static::assertNotNull($order);
+                $country = $order->getDeliveries()->getShippingAddress()->getCountries()->first();
+                $country->setCompanyTax(new TaxFreeConfig(true, Defaults::CURRENCY, 0));
 
-        $processedTemplate = $invoiceRenderer->render(
-            [$orderId => $operation],
-            $this->context,
-            new DocumentRendererConfig()
-        );
+                $this->getContainer()->get('country.repository')->update([[
+                    'id' => $country->getId(),
+                    'companyTax' => ['enabled' => true, 'currencyId' => Defaults::CURRENCY, 'amount' => 0],
+                ]], $this->context);
+                $companyPhone = '123123123';
+                $vatIds = ['VAT-123123'];
+                $order->getOrderCustomer()->setVatIds($vatIds);
 
-        $shippingAddress = $order->getDeliveries()->getShippingAddress()->first();
+                $this->getContainer()->get('order_customer.repository')->update([[
+                    'id' => $order->getOrderCustomer()->getId(),
+                    'vatIds' => $vatIds,
+                ]], $this->context);
 
-        static::assertInstanceOf(RenderedDocument::class, $processedTemplate[$orderId]);
+                $operation->assign([
+                    'config' => [
+                        'displayLineItems' => true,
+                        'itemsPerPage' => 10,
+                        'displayFooter' => true,
+                        'displayHeader' => true,
+                        'executiveDirector' => true,
+                        'displayDivergentDeliveryAddress' => true,
+                        'companyPhone' => $companyPhone,
+                        'intraCommunityDelivery' => true,
+                        'displayAdditionalNoteDelivery' => true,
+                        'deliveryCountries' => [$country->getId()],
+                    ],
+                ]);
+            },
+            function (RenderedDocument $rendered, OrderEntity $order): void {
+                $shippingAddress = $order->getDeliveries()->getShippingAddress()->first();
 
-        $rendered = $processedTemplate[$orderId]->getHtml();
+                static::assertInstanceOf(RenderedDocument::class, $rendered);
 
-        static::assertStringContainsString('Shipping address', $rendered);
-        static::assertStringContainsString($shippingAddress->getStreet(), $rendered);
-        static::assertStringContainsString($shippingAddress->getCity(), $rendered);
-        static::assertStringContainsString($shippingAddress->getFirstName(), $rendered);
-        static::assertStringContainsString($shippingAddress->getLastName(), $rendered);
-        static::assertStringContainsString($shippingAddress->getZipcode(), $rendered);
-        static::assertStringContainsString('Intra-community delivery (EU)', $rendered);
-        static::assertStringContainsString($vatIds[0], $rendered);
-        static::assertStringContainsString($companyPhone, $rendered);
+                $rendered = $rendered->getHtml();
+
+                static::assertStringContainsString('Shipping address', $rendered);
+                static::assertStringContainsString($shippingAddress->getStreet(), $rendered);
+                static::assertStringContainsString($shippingAddress->getCity(), $rendered);
+                static::assertStringContainsString($shippingAddress->getFirstName(), $rendered);
+                static::assertStringContainsString($shippingAddress->getLastName(), $rendered);
+                static::assertStringContainsString($shippingAddress->getZipcode(), $rendered);
+                static::assertStringContainsString('Intra-community delivery (EU)', $rendered);
+                static::assertStringContainsString('VAT-123123', $rendered);
+                static::assertStringContainsString('123123123', $rendered);
+            },
+        ];
+
+        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM customer');
     }
 
-    /**
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws MixedLineItemTypeException
-     * @throws \Exception
-     */
+    private function initServices(): void
+    {
+        $this->context = Context::createDefaultContext();
+
+        $priceRuleId = Uuid::randomHex();
+
+        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+            Uuid::randomHex(),
+            TestDefaults::SALES_CHANNEL,
+            [
+                SalesChannelContextService::CUSTOMER_ID => $this->createCustomer(),
+            ]
+        );
+
+        $this->salesChannelContext->setRuleIds([$priceRuleId]);
+        $this->productRepository = $this->getContainer()->get('product.repository');
+        $this->invoiceRenderer = $this->getContainer()->get(InvoiceRenderer::class);
+        $this->cartService = $this->getContainer()->get(CartService::class);
+        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
+        $this->currencyFormatter = $this->getContainer()->get(CurrencyFormatter::class);
+        $this->deLanguageId = $this->getDeDeLanguageId();
+    }
+
     private function generateDemoCart(array $taxes): Cart
     {
-        $cart = new Cart('A', 'a-b-c');
+        $cart = $this->cartService->createNew('a-b-c', 'A');
 
         $keywords = ['awesome', 'epic', 'high quality'];
 
@@ -245,175 +247,34 @@ class InvoiceRendererTest extends TestCase
 
         $factory = new ProductLineItemFactory();
 
-        foreach ($taxes as $tax) {
-            $id = Uuid::randomHex();
+        $ids = new IdsCollection();
 
+        $lineItems = [];
+
+        foreach ($taxes as $tax) {
             $price = random_int(100, 200000) / 100.0;
 
             shuffle($keywords);
             $name = ucfirst(implode(' ', $keywords) . ' product');
 
-            $products[] = [
-                'id' => $id,
-                'name' => $name,
-                'price' => [
-                    ['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price, 'linked' => false],
-                ],
-                'productNumber' => Uuid::randomHex(),
-                'manufacturer' => ['id' => $id, 'name' => 'test'],
-                'tax' => ['id' => $id, 'taxRate' => $tax, 'name' => 'test'],
-                'stock' => 10,
-                'active' => true,
-                'visibilities' => [
-                    ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-                ],
-            ];
+            $number = Uuid::randomHex();
 
-            $cart->add($factory->create($id));
-            $this->addTaxDataToSalesChannel($this->salesChannelContext, end($products)['tax']);
+            $product = (new ProductBuilder($ids, $number))
+                ->price($price)
+                ->name($name)
+                ->active(true)
+                ->tax('test-' . Uuid::randomHex(), $tax)
+                ->visibility()
+                ->build();
+
+            $products[] = $product;
+
+            $lineItems[] = $factory->create($ids->get($number));
+            $this->addTaxDataToSalesChannel($this->salesChannelContext, $product['tax']);
         }
 
-        $this->getContainer()->get('product.repository')
-            ->create($products, Context::createDefaultContext());
+        $this->productRepository->create($products, Context::createDefaultContext());
 
-        $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->salesChannelContext, new CartBehavior());
-
-        return $cart;
-    }
-
-    private function createShippingMethod(string $priceRuleId): string
-    {
-        $shippingMethodId = Uuid::randomHex();
-        $repository = $this->getContainer()->get('shipping_method.repository');
-
-        $ruleRegistry = $this->getContainer()->get(RuleConditionRegistry::class);
-        $prop = ReflectionHelper::getProperty(RuleConditionRegistry::class, 'rules');
-        $prop->setValue($ruleRegistry, array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
-
-        $data = [
-            'id' => $shippingMethodId,
-            'type' => 0,
-            'name' => 'test shipping method',
-            'bindShippingfree' => false,
-            'active' => true,
-            'prices' => [
-                [
-                    'name' => 'Std',
-                    'currencyPrice' => [
-                        [
-                            'currencyId' => Defaults::CURRENCY,
-                            'net' => 10.00,
-                            'gross' => 10.00,
-                            'linked' => false,
-                        ],
-                    ],
-                    'currencyId' => Defaults::CURRENCY,
-                    'calculation' => 1,
-                    'quantityStart' => 1,
-                ],
-            ],
-            'deliveryTime' => $this->createDeliveryTimeData(),
-            'availabilityRule' => [
-                'id' => $priceRuleId,
-                'name' => 'true',
-                'priority' => 1,
-                'conditions' => [
-                    [
-                        'type' => (new TrueRule())->getName(),
-                    ],
-                ],
-            ],
-        ];
-
-        $repository->create([$data], $this->context);
-
-        return $shippingMethodId;
-    }
-
-    private function createDeliveryTimeData(): array
-    {
-        return [
-            'id' => Uuid::randomHex(),
-            'name' => 'test',
-            'min' => 1,
-            'max' => 90,
-            'unit' => DeliveryTimeEntity::DELIVERY_TIME_DAY,
-        ];
-    }
-
-    private function createPaymentMethod(string $ruleId): string
-    {
-        $paymentMethodId = Uuid::randomHex();
-        $repository = $this->getContainer()->get('payment_method.repository');
-
-        $ruleRegistry = $this->getContainer()->get(RuleConditionRegistry::class);
-        $prop = ReflectionHelper::getProperty(RuleConditionRegistry::class, 'rules');
-        $prop->setValue($ruleRegistry, array_merge($prop->getValue($ruleRegistry), ['true' => new TrueRule()]));
-
-        $data = [
-            'id' => $paymentMethodId,
-            'handlerIdentifier' => SyncTestPaymentHandler::class,
-            'name' => 'Payment',
-            'active' => true,
-            'position' => 0,
-            'availabilityRules' => [
-                [
-                    'id' => $ruleId,
-                    'name' => 'true',
-                    'priority' => 0,
-                    'conditions' => [
-                        [
-                            'type' => 'true',
-                        ],
-                    ],
-                ],
-            ],
-            'salesChannels' => [
-                [
-                    'id' => TestDefaults::SALES_CHANNEL,
-                ],
-            ],
-        ];
-
-        $repository->create([$data], $this->context);
-
-        return $paymentMethodId;
-    }
-
-    /**
-     * @throws InconsistentCriteriaIdsException
-     *
-     * @return mixed|null
-     */
-    private function getOrderById(string $orderId)
-    {
-        $criteria = (new Criteria([$orderId]))
-            ->addAssociation('lineItems')
-            ->addAssociation('currency')
-            ->addAssociation('language.locale')
-            ->addAssociation('transactions')
-            ->addAssociation('deliveries.shippingOrderAddress.country')
-            ->addAssociation('orderCustomer.customer');
-
-        $order = $this->getContainer()->get('order.repository')
-            ->search($criteria, $this->context)
-            ->get($orderId);
-
-        static::assertNotNull($orderId);
-
-        return $order;
-    }
-
-    private function getDefaultPaymentMethod(): ?string
-    {
-        $id = $this->connection->executeQuery(
-            'SELECT `id` FROM `payment_method` WHERE `active` = 1 ORDER BY `position` ASC'
-        )->fetchColumn();
-
-        if (!$id) {
-            return null;
-        }
-
-        return Uuid::fromBytesToHex($id);
+        return $this->cartService->add($cart, $lineItems, $this->salesChannelContext);
     }
 }

@@ -13,7 +13,6 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Content\Test\Flow\FlowActionTestSubscriber;
 use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -69,7 +68,9 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
     {
         $browser = $this->createClient();
 
-        $browser->request('POST', '/api/_action/customer-group-registration/accept/' . Defaults::CURRENCY);
+        $browser->request('POST', '/api/_action/customer-group-registration/accept', [
+            'customerIds' => [Uuid::randomHex()],
+        ]);
         $json = json_decode($browser->getResponse()->getContent(), true);
 
         static::assertSame('Cannot find Customers', $json['errors'][0]['detail']);
@@ -90,7 +91,9 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $browser = $this->createClient();
         $customer = $this->createCustomer();
 
-        $browser->request('POST', '/api/_action/customer-group-registration/accept/' . $customer);
+        $browser->request('POST', '/api/_action/customer-group-registration/accept', [
+            'customerIds' => [$customer],
+        ]);
         $json = json_decode($browser->getResponse()->getContent(), true);
 
         static::assertSame('User ' . $customer . ' dont have approval', $json['errors'][0]['detail']);
@@ -101,7 +104,9 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $browser = $this->createClient();
         $customer = $this->createCustomer(true);
 
-        $browser->request('POST', '/api/_action/customer-group-registration/accept/' . $customer);
+        $browser->request('POST', '/api/_action/customer-group-registration/accept', [
+            'customerIds' => [$customer],
+        ]);
 
         $criteria = new Criteria([$customer]);
         $criteria->addAssociation('group');
@@ -120,7 +125,9 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $browser = $this->createClient();
         $customer = $this->createCustomer(true);
         $this->createFlow(CustomerGroupRegistrationAccepted::EVENT_NAME);
-        $browser->request('POST', '/api/_action/customer-group-registration/accept/' . $customer);
+        $browser->request('POST', '/api/_action/customer-group-registration/accept', [
+            'customerIds' => [$customer],
+        ]);
 
         static::assertEquals(1, $this->flowActionTestSubscriber->actions['unit_test_action_true'] ?? 0);
         static::assertEquals(0, $this->flowActionTestSubscriber->actions['unit_test_action_false'] ?? 0);
@@ -131,7 +138,9 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $browser = $this->createClient();
         $customer = $this->createCustomer(true);
         $this->createFlow(CustomerGroupRegistrationDeclined::EVENT_NAME);
-        $browser->request('POST', '/api/_action/customer-group-registration/decline/' . $customer);
+        $browser->request('POST', '/api/_action/customer-group-registration/decline', [
+            'customerIds' => [$customer],
+        ]);
 
         static::assertEquals(1, $this->flowActionTestSubscriber->actions['unit_test_action_true'] ?? 0);
         static::assertEquals(0, $this->flowActionTestSubscriber->actions['unit_test_action_false'] ?? 0);
@@ -189,7 +198,9 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $browser = $this->createClient();
         $customer = $this->createCustomer(true);
 
-        $browser->request('POST', '/api/_action/customer-group-registration/decline/' . $customer);
+        $browser->request('POST', '/api/_action/customer-group-registration/decline', [
+            'customerIds' => [$customer],
+        ]);
 
         $criteria = new Criteria([$customer]);
         $criteria->addAssociation('group');

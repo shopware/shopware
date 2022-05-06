@@ -12,6 +12,9 @@ class DocumentRendererRegistry
      */
     protected $documentRenderers;
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $documentRenderers)
     {
         $this->documentRenderers = $documentRenderers;

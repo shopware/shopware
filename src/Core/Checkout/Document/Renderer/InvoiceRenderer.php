@@ -32,6 +32,9 @@ class InvoiceRenderer extends AbstractDocumentRenderer
 
     private NumberRangeValueGeneratorInterface $numberRangeValueGenerator;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $orderRepository,
         DocumentConfigLoader $documentConfigLoader,
@@ -65,7 +68,7 @@ class InvoiceRenderer extends AbstractDocumentRenderer
             return [];
         }
 
-        $criteria = new DocumentCriteria($rendererConfig->deepLinkCode, $ids);
+        $criteria = OrderDocumentCriteriaFactory::create($ids, $rendererConfig->deepLinkCode);
 
         // TODO: future implementation (only fetch required data and associations)
 

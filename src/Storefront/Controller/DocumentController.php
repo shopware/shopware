@@ -43,6 +43,9 @@ class DocumentController extends StorefrontController
     public function downloadDocument(Request $request, SalesChannelContext $context): Response
     {
         if (Feature::isActive('v6.5.0.0')) {
+            /**
+             * @deprecated tag:v6.5.0 - $documentId request parameter will be injected as a third argument parameter
+             */
             $documentId = $request->get('documentId', false);
 
             if ($documentId === false) {

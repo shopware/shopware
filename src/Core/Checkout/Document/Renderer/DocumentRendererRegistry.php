@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentGeneratorTypeException;
+use Shopware\Core\Framework\Context;
 
 class DocumentRendererRegistry
 {
@@ -16,30 +17,14 @@ class DocumentRendererRegistry
         $this->documentRenderers = $documentRenderers;
     }
 
-    public function hasGenerator(string $documentType): bool
+    public function render(string $documentType, array $operations, Context $context, DocumentRendererConfig $rendererConfig): array
     {
         foreach ($this->documentRenderers as $documentRenderer) {
             if ($documentRenderer->supports() !== $documentType) {
                 continue;
             }
 
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @throws InvalidDocumentGeneratorTypeException
-     */
-    public function getRenderer(string $documentType): AbstractDocumentRenderer
-    {
-        foreach ($this->documentRenderers as $documentRenderer) {
-            if ($documentRenderer->supports() !== $documentType) {
-                continue;
-            }
-
-            return $documentRenderer;
+            return $documentRenderer->render($operations, $context, $rendererConfig);
         }
 
         throw new InvalidDocumentGeneratorTypeException($documentType);

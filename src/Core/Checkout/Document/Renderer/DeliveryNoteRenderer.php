@@ -2,14 +2,15 @@
 
 namespace Shopware\Core\Checkout\Document\Renderer;
 
-use Shopware\Core\Checkout\Document\Event\DocumentGeneratorCriteriaEvent;
+use Shopware\Core\Checkout\Document\Event\DeliveryNoteOrdersEvent;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
+use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
@@ -52,17 +53,26 @@ class DeliveryNoteRenderer extends AbstractDocumentRenderer
         return self::TYPE;
     }
 
-    public function render(array $operations, Context $context, string $deepLinkCode = ''): array
+    public function render(array $operations, Context $context, DocumentRendererConfig $rendererConfig): array
     {
         $template = '@Framework/documents/delivery_note.html.twig';
 
-        $criteria = new Criteria();
+        $ids = \array_map(function (DocumentGenerateOperation $operation) {
+            return $operation->getOrderId();
+        }, $operations);
+
+        if (empty($ids)) {
+            return [];
+        }
+
+        $criteria = new DocumentCriteria($rendererConfig->deepLinkCode, $ids);
 
         // TODO: future implementation (only fetch required data and associations)
 
-        $this->eventDispatcher->dispatch(new DocumentGeneratorCriteriaEvent(self::TYPE, $operations, $criteria, $context));
+        /** @var OrderCollection $orders */
+        $orders = $this->orderRepository->search($criteria, $context)->getEntities();
 
-        $orders = $this->fetchOrders($this->orderRepository, $operations, $criteria, $context, $deepLinkCode);
+        $this->eventDispatcher->dispatch(new DeliveryNoteOrdersEvent($orders, $context));
 
         $rendered = [];
 
@@ -78,16 +88,7 @@ class DeliveryNoteRenderer extends AbstractDocumentRenderer
 
             $config->merge($operation->getConfig());
 
-            $number = $config->getDocumentNumber();
-
-            if (empty($number)) {
-                $number = $this->numberRangeValueGenerator->getValue(
-                    'document_' . self::TYPE,
-                    $context,
-                    $order->getSalesChannelId(),
-                    $operation->isPreview()
-                );
-            }
+            $number = $config->getDocumentNumber() ?: $this->getNumber($context, $order, $operation);
 
             $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
             $customConfig = $operation->getConfig()['custom'] ?? [];
@@ -102,6 +103,12 @@ class DeliveryNoteRenderer extends AbstractDocumentRenderer
                 ],
             ]);
 
+            if ($operation->isStatic()) {
+                $rendered[$order->getId()] = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
+
+                continue;
+            }
+
             $deliveries = null;
             if ($order->getDeliveries()) {
                 $deliveries = $order->getDeliveries()->first();
@@ -110,7 +117,7 @@ class DeliveryNoteRenderer extends AbstractDocumentRenderer
             /** @var LocaleEntity $locale */
             $locale = $order->getLanguage()->getLocale();
 
-            $html = $operation->isStatic() ? '' : $this->documentTemplateRenderer->render(
+            $html = $this->documentTemplateRenderer->render(
                 $template,
                 [
                     'order' => $order,
@@ -142,5 +149,15 @@ class DeliveryNoteRenderer extends AbstractDocumentRenderer
     public function getDecorated(): AbstractDocumentRenderer
     {
         throw new DecorationPatternException(self::class);
+    }
+
+    private function getNumber(Context $context, OrderEntity $order, DocumentGenerateOperation $operation): string
+    {
+        return $this->numberRangeValueGenerator->getValue(
+            'document_' . self::TYPE,
+            $context,
+            $order->getSalesChannelId(),
+            $operation->isPreview()
+        );
     }
 }

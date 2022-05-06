@@ -4,17 +4,23 @@ namespace Shopware\Core\Content\Test\MailTemplate\Service;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
-use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
+use Shopware\Core\Checkout\Document\DocumentService;
+use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\Document\Service\PdfRenderer;
+use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\Test\Document\DocumentTrait;
 use Shopware\Core\Content\MailTemplate\Service\AttachmentLoader;
 use Shopware\Core\Content\MailTemplate\Service\Event\AttachmentLoaderCriteriaEvent;
+use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -22,33 +28,41 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class AttachmentLoaderTest extends TestCase
 {
+    use DocumentTrait;
+
     private AttachmentLoader $attachmentLoader;
 
-    /**
-     * @var MockObject|EntityRepositoryInterface
-     */
-    private $documentRepositoryMock;
-
-    /**
-     * @var MockObject|DocumentGenerator
-     */
-    private $documentGeneratorMock;
+    private DocumentGenerator $documentGenerator;
 
     /**
      * @var MockObject|EventDispatcherInterface
      */
     private $eventDispatcherMock;
 
+    private SalesChannelContext $salesChannelContext;
+
     protected function setUp(): void
     {
-        $this->documentRepositoryMock = $this->createMock(EntityRepositoryInterface::class);
-        $this->documentGeneratorMock = $this->createMock(DocumentGenerator::class);
+        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
         $this->eventDispatcherMock = $this->createMock(EventDispatcherInterface::class);
 
         $this->attachmentLoader = new AttachmentLoader(
-            $this->documentRepositoryMock,
-            $this->documentGeneratorMock,
+            $this->getContainer()->get('document.repository'),
+            $this->documentGenerator,
+            $this->getContainer()->get(DocumentService::class),
             $this->eventDispatcherMock
+        );
+
+        $this->context = Context::createDefaultContext();
+
+        $customerId = $this->createCustomer();
+
+        $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+            Uuid::randomHex(),
+            TestDefaults::SALES_CHANNEL,
+            [
+                SalesChannelContextService::CUSTOMER_ID => $customerId,
+            ]
         );
     }
 
@@ -60,35 +74,37 @@ class AttachmentLoaderTest extends TestCase
             return $criteria->hasAssociation('documentMediaFile') && $criteria->hasAssociation('documentType');
         }));
 
-        $document = new DocumentEntity();
-        $document->setId(Uuid::randomHex());
-        $documentCollection = new DocumentCollection([$document]);
-        $searchResult = new EntitySearchResult(
-            'document',
-            1,
-            $documentCollection,
-            null,
-            new Criteria(),
-            Context::createDefaultContext()
-        );
-        $this->documentRepositoryMock->expects(static::once())->method('search')->willReturn($searchResult);
+        $cart = $this->generateDemoCart(2);
+        $orderId = $this->persistCart($cart);
 
-        $generatedDocument = new RenderedDocument();
-        $generatedDocument->setContent('foo');
-        $generatedDocument->setName('bar.pdf');
-        $generatedDocument->setContentType('application/pdf');
-        $this->documentGeneratorMock->expects(static::once())->method('readDocument')->willReturn($generatedDocument);
+        $operation = new DocumentGenerateOperation($orderId);
+
+        $document = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operation], $this->context)->first();
+
+        static::assertNotNull($document);
 
         $attachments = $this->attachmentLoader->load([$document->getId()], Context::createDefaultContext());
         static::assertCount(1, $attachments);
         static::assertIsArray($attachments[0]);
         static::assertArrayHasKey('content', $attachments[0]);
-        static::assertSame($generatedDocument->getContent(), $attachments[0]['content']);
 
+        $criteria = new Criteria([$document->getId()]);
+        $criteria->addAssociation('documentMediaFile');
+
+        /** @var DocumentEntity $actualDocument */
+        $actualDocument = $this->getContainer()->get('document.repository')->search($criteria, $this->context)->first();
+
+        static::assertNotNull($actualDocument);
+        static::assertNotNull($actualDocument->getDocumentMediaFile());
+
+        $content = $this->getContainer()->get(MediaService::class)->loadFile($actualDocument->getDocumentMediaFileId(), $this->context);
+
+        $fileName = $actualDocument->getDocumentMediaFile()->getFileName() . '.' . $actualDocument->getDocumentMediaFile()->getFileExtension();
+        static::assertNotNull($content);
+        static::assertSame($content, $attachments[0]['content']);
         static::assertArrayHasKey('fileName', $attachments[0]);
-        static::assertSame($generatedDocument->getName(), $attachments[0]['fileName']);
-
+        static::assertSame($fileName, $attachments[0]['fileName']);
         static::assertArrayHasKey('mimeType', $attachments[0]);
-        static::assertSame($generatedDocument->getContentType(), $attachments[0]['mimeType']);
+        static::assertSame(PdfRenderer::FILE_CONTENT_TYPE, $attachments[0]['mimeType']);
     }
 }

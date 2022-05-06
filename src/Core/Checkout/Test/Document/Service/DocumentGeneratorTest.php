@@ -5,49 +5,44 @@ namespace Shopware\Core\Checkout\Test\Document\Service;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemInterface;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\CartBehavior;
-use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
-use Shopware\Core\Checkout\Cart\Order\OrderPersister;
-use Shopware\Core\Checkout\Cart\Processor;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
+use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
+use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
 use Shopware\Core\Checkout\Document\Exception\DocumentNumberAlreadyExistsException;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
+use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Test\Document\DocumentTrait;
 use Shopware\Core\Content\Media\File\FileLoader;
+use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Media\MediaType\BinaryType;
 use Shopware\Core\Content\Media\Pathname\UrlGenerator;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
+use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\HttpFoundation\Request;
 
 class DocumentGeneratorTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-    use TaxAddToSalesChannelTestBehaviour;
+    use DocumentTrait;
 
     private SalesChannelContext $salesChannelContext;
 
@@ -85,7 +80,7 @@ class DocumentGeneratorTest extends TestCase
 
         $operation = new DocumentGenerateOperation($orderId);
 
-        $documentStruct = $this->documentGenerator->generate('delivery_note', [$orderId => $operation], $this->context)->first();
+        $documentStruct = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$orderId => $operation], $this->context)->first();
 
         static::assertTrue(Uuid::isValid($documentStruct->getId()));
 
@@ -103,6 +98,182 @@ class DocumentGeneratorTest extends TestCase
 
         static::assertSame(Defaults::LIVE_VERSION, $document->getOrderVersionId());
         static::assertSame('delivery_note', $document->getDocumentType()->getTechnicalName());
+        static::assertSame(FileTypes::PDF, $document->getFileType());
+    }
+
+    public function testGenerateEmpty(): void
+    {
+        $documentStruct = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [], $this->context);
+        static::assertCount(0, $documentStruct);
+    }
+
+    public function testPreview(): void
+    {
+        $cart = $this->generateDemoCart(2);
+        $orderId = $this->persistCart($cart);
+        /** @var OrderEntity $order */
+        $order = $this->getContainer()->get('order.repository')->search(new Criteria([$orderId]), $this->context)->first();
+
+        $operation = new DocumentGenerateOperation($orderId);
+
+        $documentStruct = $this->documentGenerator->preview(InvoiceRenderer::TYPE, $operation, $order->getDeepLinkCode(), $this->context);
+
+        static::assertInstanceOf(RenderedDocument::class, $documentStruct);
+        static::assertNotEmpty($documentStruct->getContent());
+    }
+
+    public function testUploadWithExistMedia(): void
+    {
+        static::expectException(DocumentGenerationException::class);
+        static::expectExceptionMessage('Unable to generate document. Document already exists');
+        $cart = $this->generateDemoCart(2);
+        $orderId = $this->persistCart($cart);
+
+        $operation = new DocumentGenerateOperation($orderId);
+
+        $documents = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operation], $this->context);
+        $document = $documents->first();
+
+        static::assertNotNull($document);
+        $uploadFileRequest = new Request();
+        $this->documentGenerator->upload($document->getId(), $this->context, $uploadFileRequest);
+    }
+
+    public function testUploadWithoutFileName(): void
+    {
+        static::expectException(DocumentGenerationException::class);
+        static::expectExceptionMessage('Unable to generate document. Parameter "fileName" is missing');
+
+        $cart = $this->generateDemoCart(2);
+        $orderId = $this->persistCart($cart);
+
+        $documentRepository = $this->getContainer()->get('document.repository');
+        $documentId = Uuid::randomHex();
+        $documentTypeRepository = $this->getContainer()->get('document_type.repository');
+        $documentTypeId = $documentTypeRepository->searchIds(
+            (new Criteria())->addFilter(new EqualsFilter('technicalName', InvoiceRenderer::TYPE)),
+            Context::createDefaultContext()
+        )->firstId();
+
+        $documentRepository->create([[
+            'id' => $documentId,
+            'documentTypeId' => $documentTypeId,
+            'fileType' => FileTypes::PDF,
+            'orderId' => $orderId,
+            'static' => true,
+            'config' => [],
+            'documentMediaFileId' => null,
+            'deepLinkCode' => Random::getAlphanumericString(32),
+        ]], $this->context);
+
+        $uploadFileRequest = new Request([
+            'extension' => FileTypes::PDF,
+        ]);
+        $this->documentGenerator->upload($documentId, $this->context, $uploadFileRequest);
+    }
+
+    public function testUploadSuccessfully(): void
+    {
+        $cart = $this->generateDemoCart(2);
+        $orderId = $this->persistCart($cart);
+
+        $documentRepository = $this->getContainer()->get('document.repository');
+        $documentId = Uuid::randomHex();
+        $documentTypeRepository = $this->getContainer()->get('document_type.repository');
+        $documentTypeId = $documentTypeRepository->searchIds(
+            (new Criteria())->addFilter(new EqualsFilter('technicalName', InvoiceRenderer::TYPE)),
+            Context::createDefaultContext()
+        )->firstId();
+
+        $documentContent = 'this is document content';
+        $documentRepository->create([[
+            'id' => $documentId,
+            'documentTypeId' => $documentTypeId,
+            'fileType' => FileTypes::PDF,
+            'orderId' => $orderId,
+            'static' => true,
+            'config' => [],
+            'documentMediaFileId' => null,
+            'deepLinkCode' => Random::getAlphanumericString(32),
+        ]], $this->context);
+
+        $uploadFileRequest = new Request([
+            'extension' => FileTypes::PDF,
+            'fileName' => 'test',
+        ], [], [], [], [], [
+            'HTTP_CONTENT_LENGTH' => \strlen($documentContent),
+        ], $documentContent);
+
+        $this->documentGenerator->upload($documentId, $this->context, $uploadFileRequest);
+
+        $document = $documentRepository->search(new Criteria([$documentId]), $this->context)->get($documentId);
+
+        static::assertNotNull($document);
+        static::assertNotNull($document->getDocumentMediaFileId());
+
+        $savedContent = $this->getContainer()->get(MediaService::class)->loadFile($document->getDocumentMediaFileId(), $this->context);
+        static::assertEquals($documentContent, $savedContent);
+    }
+
+    public function testUploadToNonStaticDocument(): void
+    {
+        static::expectException(DocumentGenerationException::class);
+        static::expectExceptionMessage('This document is dynamically generated and cannot be overwritten');
+
+        $cart = $this->generateDemoCart(2);
+        $orderId = $this->persistCart($cart);
+
+        $operation = new DocumentGenerateOperation($orderId);
+
+        $documents = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operation], $this->context);
+        $document = $documents->first();
+
+        static::assertNotNull($document);
+
+        $documentRepository = $this->getContainer()->get('document.repository');
+
+        $documentRepository->update([[
+            'id' => $document->getId(),
+            'documentMediaFileId' => null,
+            'static' => false,
+        ]], $this->context);
+
+        $uploadFileRequest = new Request();
+        $this->documentGenerator->upload($document->getId(), $this->context, $uploadFileRequest);
+    }
+
+    public function testInvoiceWithComment(): void
+    {
+        $cart = $this->generateDemoCart(2);
+        $orderId = $this->persistCart($cart);
+
+        $comment = 'this is a comment';
+        $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, ['documentComment' => $comment]);
+
+        $documentStruct = $this->documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$orderId => $operation], $this->context)->first();
+
+        static::assertTrue(Uuid::isValid($documentStruct->getId()));
+
+        $documentRepository = $this->getContainer()->get('document.repository');
+
+        $criteria = new Criteria([$documentStruct->getId()]);
+        $criteria->addAssociation('documentType');
+
+        $document = $documentRepository
+            ->search($criteria, $this->context)
+            ->get($documentStruct->getId());
+
+        static::assertNotNull($document);
+        static::assertSame($orderId, $document->getOrderId());
+
+        $config = DocumentConfigurationFactory::createConfiguration($document->getConfig());
+
+        static::assertNotNull($config->getDocumentDate());
+        static::assertSame($comment, $config->getDocumentComment());
+        static::assertNotNull($config->getDocumentNumber());
+
+        static::assertSame(Defaults::LIVE_VERSION, $document->getOrderVersionId());
+        static::assertSame(DeliveryNoteRenderer::TYPE, $document->getDocumentType()->getTechnicalName());
         static::assertSame(FileTypes::PDF, $document->getFileType());
     }
 
@@ -158,8 +329,6 @@ class DocumentGeneratorTest extends TestCase
 
     public function testGetStaticDocumentFile(): void
     {
-        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
-
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
@@ -230,8 +399,6 @@ class DocumentGeneratorTest extends TestCase
         static::expectException(InvalidDocumentException::class);
         static::expectExceptionMessage(\sprintf('The document with id "%s" is invalid or could not be found.', $documentId));
 
-        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
-
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
@@ -294,8 +461,6 @@ class DocumentGeneratorTest extends TestCase
 
     public function testConfigurationWithSalesChannelOverride(): void
     {
-        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
-
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
@@ -331,8 +496,6 @@ class DocumentGeneratorTest extends TestCase
 
     public function testConfigurationWithOverrides(): void
     {
-        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
-
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
@@ -374,8 +537,6 @@ class DocumentGeneratorTest extends TestCase
 
     public function testCreateInvoicePdf(): void
     {
-        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
-
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
@@ -405,8 +566,6 @@ class DocumentGeneratorTest extends TestCase
 
     public function testGenerate(): void
     {
-        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
-
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
@@ -458,8 +617,6 @@ class DocumentGeneratorTest extends TestCase
     {
         $this->expectException(DocumentNumberAlreadyExistsException::class);
 
-        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
-
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
@@ -498,8 +655,6 @@ class DocumentGeneratorTest extends TestCase
 
     public function testGenerateStaticDocument(): void
     {
-        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
-
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
@@ -515,8 +670,6 @@ class DocumentGeneratorTest extends TestCase
 
     public function testGenerateNonStaticDocument(): void
     {
-        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
-
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
@@ -532,8 +685,6 @@ class DocumentGeneratorTest extends TestCase
 
     public function testReadNonStaticGeneratedDocument(): void
     {
-        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
-
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
@@ -557,16 +708,14 @@ class DocumentGeneratorTest extends TestCase
         $mediaId = $document->getDocumentMediaFileId();
 
         $media = $this->context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($mediaId) {
-            return $this->getContainer()->get(FileLoader::class)->loadMediaResource($mediaId, $context);
+            return $this->getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context);
         });
 
-        static::assertNotNull($media);
+        static::assertNotNull($media->getContents());
     }
 
     public function testReadStaticGeneratedDocument(): void
     {
-        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
-
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
@@ -580,185 +729,8 @@ class DocumentGeneratorTest extends TestCase
         static::assertNull($generatedDocument);
     }
 
-    private function getBaseConfig(string $documentType, ?string $salesChannelId = null): ?DocumentBaseConfigEntity
-    {
-        /** @var EntityRepositoryInterface $documentTypeRepository */
-        $documentTypeRepository = $this->getContainer()->get('document_type.repository');
-        $documentTypeId = $documentTypeRepository->searchIds(
-            (new Criteria())->addFilter(new EqualsFilter('technicalName', $documentType)),
-            Context::createDefaultContext()
-        )->firstId();
-
-        /** @var EntityRepositoryInterface $documentBaseConfigRepository */
-        $documentBaseConfigRepository = $this->getContainer()->get('document_base_config.repository');
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('documentTypeId', $documentTypeId));
-        $criteria->addFilter(new EqualsFilter('global', true));
-
-        if ($salesChannelId !== null) {
-            $criteria->addFilter(new EqualsFilter('salesChannels.salesChannelId', $salesChannelId));
-            $criteria->addFilter(new EqualsFilter('salesChannels.documentTypeId', $documentTypeId));
-        }
-
-        return $documentBaseConfigRepository->search($criteria, Context::createDefaultContext())->first();
-    }
-
-    private function upsertBaseConfig($config, string $documentType, ?string $salesChannelId = null): void
-    {
-        $baseConfig = $this->getBaseConfig($documentType, $salesChannelId);
-
-        /** @var EntityRepositoryInterface $documentTypeRepository */
-        $documentTypeRepository = $this->getContainer()->get('document_type.repository');
-        $documentTypeId = $documentTypeRepository->searchIds(
-            (new Criteria())->addFilter(new EqualsFilter('technicalName', $documentType)),
-            Context::createDefaultContext()
-        )->firstId();
-
-        if ($baseConfig === null) {
-            $documentConfigId = Uuid::randomHex();
-        } else {
-            $documentConfigId = $baseConfig->getId();
-        }
-
-        $data = [
-            'id' => $documentConfigId,
-            'typeId' => $documentTypeId,
-            'documentTypeId' => $documentTypeId,
-            'config' => $config,
-        ];
-        if ($baseConfig === null) {
-            $data['name'] = $documentConfigId;
-        }
-        if ($salesChannelId !== null) {
-            $data['salesChannels'] = [
-                [
-                    'documentBaseConfigId' => $documentConfigId,
-                    'documentTypeId' => $documentTypeId,
-                    'salesChannelId' => $salesChannelId,
-                ],
-            ];
-        }
-
-        /** @var EntityRepositoryInterface $documentBaseConfigRepository */
-        $documentBaseConfigRepository = $this->getContainer()->get('document_base_config.repository');
-        $documentBaseConfigRepository->upsert([$data], Context::createDefaultContext());
-    }
-
-    /**
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws MixedLineItemTypeException
-     * @throws \Exception
-     */
-    private function generateDemoCart(int $lineItemCount): Cart
-    {
-        $cart = new Cart('A', 'a-b-c');
-
-        $keywords = ['awesome', 'epic', 'high quality'];
-
-        $products = [];
-
-        $factory = new ProductLineItemFactory();
-
-        for ($i = 0; $i < $lineItemCount; ++$i) {
-            $id = Uuid::randomHex();
-
-            $price = random_int(100, 200000) / 100.0;
-
-            shuffle($keywords);
-            $name = ucfirst(implode(' ', $keywords) . ' product');
-
-            $products[] = [
-                'id' => $id,
-                'name' => $name,
-                'price' => [
-                    ['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price, 'linked' => false],
-                ],
-                'productNumber' => Uuid::randomHex(),
-                'manufacturer' => ['id' => $id, 'name' => 'test'],
-                'tax' => ['id' => $id, 'taxRate' => 19, 'name' => 'test'],
-                'stock' => 10,
-                'active' => true,
-                'visibilities' => [
-                    ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-                ],
-            ];
-
-            $cart->add($factory->create($id));
-            $this->addTaxDataToSalesChannel($this->salesChannelContext, end($products)['tax']);
-        }
-
-        $this->getContainer()->get('product.repository')
-            ->create($products, Context::createDefaultContext());
-
-        $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->salesChannelContext, new CartBehavior());
-
-        return $cart;
-    }
-
-    private function persistCart(Cart $cart): string
-    {
-        $cart = $this->getContainer()->get(CartService::class)->recalculate($cart, $this->salesChannelContext);
-        $orderId = $this->getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
-
-        return $orderId;
-    }
-
-    private function createCustomer(): string
-    {
-        $customerId = Uuid::randomHex();
-        $addressId = Uuid::randomHex();
-
-        $customer = [
-            'id' => $customerId,
-            'number' => '1337',
-            'salutationId' => $this->getValidSalutationId(),
-            'firstName' => 'Max',
-            'lastName' => 'Mustermann',
-            'customerNumber' => '1337',
-            'languageId' => Defaults::LANGUAGE_SYSTEM,
-            'email' => Uuid::randomHex() . '@example.com',
-            'password' => 'shopware',
-            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-            'salesChannelId' => TestDefaults::SALES_CHANNEL,
-            'defaultBillingAddressId' => $addressId,
-            'defaultShippingAddressId' => $addressId,
-            'addresses' => [
-                [
-                    'id' => $addressId,
-                    'customerId' => $customerId,
-                    'countryId' => $this->getValidCountryId(),
-                    'salutationId' => $this->getValidSalutationId(),
-                    'firstName' => 'Max',
-                    'lastName' => 'Mustermann',
-                    'street' => 'Ebbinghoff 10',
-                    'zipcode' => '48624',
-                    'city' => 'Schöppingen',
-                ],
-            ],
-        ];
-
-        $this->getContainer()->get('customer.repository')->upsert([$customer], $this->context);
-
-        return $customerId;
-    }
-
-    private function getValidSalutationId(): string
-    {
-        /** @var EntityRepositoryInterface $repository */
-        $repository = $this->getContainer()->get('salutation.repository');
-
-        $criteria = (new Criteria())->setLimit(1);
-
-        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
-    }
-
     private function createDocumentWithFile(): DocumentEntity
     {
-        $this->documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
-
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 

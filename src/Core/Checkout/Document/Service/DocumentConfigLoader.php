@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
-class DocumentConfigLoader implements EventSubscriberInterface, ResetInterface
+final class DocumentConfigLoader implements EventSubscriberInterface, ResetInterface
 {
     private array $configs = [];
 

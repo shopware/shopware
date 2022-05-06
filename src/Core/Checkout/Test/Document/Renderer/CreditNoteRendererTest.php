@@ -11,13 +11,13 @@ use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
-use Shopware\Core\Checkout\Document\Event\DocumentGeneratorCriteriaEvent;
+use Shopware\Core\Checkout\Document\Event\CreditNoteOrdersEvent;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\CreditNoteRenderer;
+use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
@@ -25,6 +25,7 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
+use Shopware\Core\Checkout\Test\Document\DocumentTrait;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
@@ -35,8 +36,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyFormatter;
@@ -48,8 +47,7 @@ use Shopware\Core\Test\TestDefaults;
 
 class CreditNoteRendererTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-    use TaxAddToSalesChannelTestBehaviour;
+    use DocumentTrait;
     use CountryAddToSalesChannelTestBehaviour;
     use OrderFixture;
 
@@ -131,18 +129,18 @@ class CreditNoteRendererTest extends TestCase
         $caughtEvent = null;
 
         $this->getContainer()->get('event_dispatcher')
-            ->addListener(DocumentGeneratorCriteriaEvent::class, function (DocumentGeneratorCriteriaEvent $event) use (&$caughtEvent): void {
+            ->addListener(CreditNoteOrdersEvent::class, function (CreditNoteOrdersEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             });
 
         $processedTemplate = $creditNoteRenderer->render(
             [$orderId => $operation],
-            $this->context
+            $this->context,
+            new DocumentRendererConfig()
         );
 
-        static::assertInstanceOf(DocumentGeneratorCriteriaEvent::class, $caughtEvent);
-        static::assertEquals($caughtEvent->getDocumentType(), 'credit_note');
-        static::assertCount(1, $caughtEvent->getOperations());
+        static::assertInstanceOf(CreditNoteOrdersEvent::class, $caughtEvent);
+        static::assertCount(1, $caughtEvent->getOrders());
         static::assertInstanceOf(RenderedDocument::class, $processedTemplate[$orderId]);
         $lineItems = $order->getLineItems()->filterByType(LineItem::CREDIT_LINE_ITEM_TYPE);
 
@@ -217,7 +215,8 @@ class CreditNoteRendererTest extends TestCase
 
         $processedTemplate = $creditNoteRenderer->render(
             [$orderId => $operation],
-            $this->context
+            $this->context,
+            new DocumentRendererConfig()
         );
 
         static::assertEmpty($processedTemplate);
@@ -260,7 +259,8 @@ class CreditNoteRendererTest extends TestCase
 
         $processedTemplate = $creditNoteRenderer->render(
             [$orderId => $operation],
-            $this->context
+            $this->context,
+            new DocumentRendererConfig()
         );
 
         static::assertNotEmpty($processedTemplate[$orderId]);
@@ -303,7 +303,8 @@ class CreditNoteRendererTest extends TestCase
 
         $processedTemplate = $creditNoteRenderer->render(
             [$orderId => $operation],
-            $this->context
+            $this->context,
+            new DocumentRendererConfig()
         );
 
         static::assertNotEmpty($processedTemplate[$orderId]);
@@ -376,52 +377,6 @@ class CreditNoteRendererTest extends TestCase
         $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->salesChannelContext, new CartBehavior());
 
         return $cart;
-    }
-
-    private function persistCart(Cart $cart): string
-    {
-        $orderId = $this->getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
-
-        return $orderId;
-    }
-
-    private function createCustomer(): string
-    {
-        $customerId = Uuid::randomHex();
-        $addressId = Uuid::randomHex();
-
-        $customer = [
-            'id' => $customerId,
-            'number' => '1337',
-            'salutationId' => $this->getValidSalutationId(),
-            'firstName' => 'Max',
-            'lastName' => 'Mustermann',
-            'customerNumber' => '1337',
-            'email' => Uuid::randomHex() . '@example.com',
-            'password' => 'shopware',
-            'defaultPaymentMethodId' => $this->getDefaultPaymentMethod(),
-            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-            'salesChannelId' => TestDefaults::SALES_CHANNEL,
-            'defaultBillingAddressId' => $addressId,
-            'defaultShippingAddressId' => $addressId,
-            'addresses' => [
-                [
-                    'id' => $addressId,
-                    'customerId' => $customerId,
-                    'countryId' => $this->getValidCountryId(),
-                    'salutationId' => $this->getValidSalutationId(),
-                    'firstName' => 'Max',
-                    'lastName' => 'Mustermann',
-                    'street' => 'Ebbinghoff 10',
-                    'zipcode' => '48624',
-                    'city' => 'Schöppingen',
-                ],
-            ],
-        ];
-
-        $this->getContainer()->get('customer.repository')->upsert([$customer], $this->context);
-
-        return $customerId;
     }
 
     private function createShippingMethod(string $priceRuleId): string

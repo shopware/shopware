@@ -127,6 +127,8 @@ class DocumentService
         ?string $referencedDocumentId = null,
         bool $static = false
     ): DocumentIdStruct {
+        Feature::throwException('v6.5.0.0', 'Will be removed');
+
         $documentType = $this->getDocumentTypeByName($documentTypeName, $context);
 
         if ($documentType === null || !$this->documentGeneratorRegistry->hasGenerator($documentTypeName)) {
@@ -191,6 +193,8 @@ class DocumentService
 
     public function getDocument(DocumentEntity $document, Context $context): GeneratedDocument
     {
+        Feature::throwException('v6.5.0.0', 'Will be removed');
+
         $config = DocumentConfigurationFactory::createConfiguration($document->getConfig());
 
         $generatedDocument = new GeneratedDocument();
@@ -238,6 +242,8 @@ class DocumentService
         DocumentConfiguration $config,
         Context $context
     ): GeneratedDocument {
+        Feature::throwException('v6.5.0.0', 'Will be removed');
+
         $documentType = $this->getDocumentTypeByName($documentTypeName, $context);
 
         if ($documentType === null || !$this->documentGeneratorRegistry->hasGenerator($documentTypeName)) {
@@ -287,6 +293,8 @@ class DocumentService
         Context $context,
         Request $uploadedFileRequest
     ): DocumentIdStruct {
+        Feature::throwException('v6.5.0.0', 'Will be removed');
+
         /** @var DocumentEntity $document */
         $document = $this->documentRepository->search(new Criteria([$documentId]), $context)->first();
 

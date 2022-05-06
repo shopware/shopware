@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Twig\Error\Error;
 
 /**
@@ -58,6 +59,8 @@ class CreditNoteGenerator implements DocumentGeneratorInterface
         Context $context,
         ?string $templatePath = null
     ): string {
+        Feature::throwException('v6.5.0.0', 'Will be removed, use CreditNoteRenderer instead');
+
         $templatePath = $templatePath ?? self::DEFAULT_TEMPLATE;
         $lineItems = $order->getLineItems();
         $creditItems = new OrderLineItemCollection();

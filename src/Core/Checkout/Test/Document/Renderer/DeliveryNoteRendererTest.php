@@ -3,21 +3,22 @@
 namespace Shopware\Core\Checkout\Test\Document\Renderer;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Document\Event\DocumentGeneratorCriteriaEvent;
+use Shopware\Core\Checkout\Document\Event\DeliveryNoteOrdersEvent;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
+use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
+use Shopware\Core\Checkout\Test\Document\DocumentTrait;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class DeliveryNoteRendererTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use DocumentTrait;
     use OrderFixture;
 
     private Context $context;
@@ -49,18 +50,18 @@ class DeliveryNoteRendererTest extends TestCase
         $caughtEvent = null;
 
         $this->getContainer()->get('event_dispatcher')
-            ->addListener(DocumentGeneratorCriteriaEvent::class, function (DocumentGeneratorCriteriaEvent $event) use (&$caughtEvent): void {
+            ->addListener(DeliveryNoteOrdersEvent::class, function (DeliveryNoteOrdersEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             });
 
         $processedTemplate = $deliveryNoteRenderer->render(
             [$orderId => $operation],
-            $this->context
+            $this->context,
+            new DocumentRendererConfig()
         );
 
-        static::assertInstanceOf(DocumentGeneratorCriteriaEvent::class, $caughtEvent);
-        static::assertEquals($caughtEvent->getDocumentType(), 'delivery_note');
-        static::assertCount(1, $caughtEvent->getOperations());
+        static::assertInstanceOf(DeliveryNoteOrdersEvent::class, $caughtEvent);
+        static::assertCount(1, $caughtEvent->getOrders());
         static::assertInstanceOf(RenderedDocument::class, $processedTemplate[$orderId]);
 
         $html = $processedTemplate[$orderId]->getHtml();

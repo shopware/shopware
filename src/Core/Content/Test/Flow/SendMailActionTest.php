@@ -13,7 +13,9 @@ use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
@@ -34,6 +36,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\FlowEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -106,6 +109,7 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get(MediaService::class),
             $this->getContainer()->get('media.repository'),
             $this->getContainer()->get('document.repository'),
+            $this->getContainer()->get(DocumentService::class),
             $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
@@ -239,6 +243,7 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get(MediaService::class),
             $this->getContainer()->get('media.repository'),
             $this->getContainer()->get('document.repository'),
+            $this->getContainer()->get(DocumentService::class),
             $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
@@ -312,6 +317,7 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get(MediaService::class),
             $this->getContainer()->get('media.repository'),
             $this->getContainer()->get('document.repository'),
+            $this->getContainer()->get(DocumentService::class),
             $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
@@ -381,6 +387,7 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get(MediaService::class),
             $this->getContainer()->get('media.repository'),
             $this->getContainer()->get('document.repository'),
+            $this->getContainer()->get(DocumentService::class),
             $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
@@ -440,6 +447,7 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get(MediaService::class),
             $this->getContainer()->get('media.repository'),
             $this->getContainer()->get('document.repository'),
+            $this->getContainer()->get(DocumentService::class),
             $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
@@ -503,6 +511,7 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get(MediaService::class),
             $this->getContainer()->get('media.repository'),
             $this->getContainer()->get('document.repository'),
+            $this->getContainer()->get(DocumentService::class),
             $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
@@ -582,6 +591,7 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get(MediaService::class),
             $this->getContainer()->get('media.repository'),
             $this->getContainer()->get('document.repository'),
+            $this->getContainer()->get(DocumentService::class),
             $this->getContainer()->get(DocumentGenerator::class),
             $this->getContainer()->get('logger'),
             $this->getContainer()->get('event_dispatcher'),
@@ -702,6 +712,15 @@ class SendMailActionTest extends TestCase
 
     private function createDocumentWithFile(string $orderId, Context $context): string
     {
+        if (Feature::isActive('v6.5.0.0')) {
+            $documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
+
+            $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, []);
+            $document = $documentGenerator->generate(InvoiceRenderer::TYPE, [$orderId => $operation], $context)->first();
+
+            return $document->getId();
+        }
+
         $documentService = $this->getContainer()->get(DocumentService::class);
 
         $documentStruct = $documentService->create(

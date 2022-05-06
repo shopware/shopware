@@ -6,6 +6,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @deprecated tag:v6.5.0 - Will removed, using DocumentRoute instead to load generated document blob
+ */
 class DocumentPageLoadedEvent extends PageLoadedEvent
 {
     /**

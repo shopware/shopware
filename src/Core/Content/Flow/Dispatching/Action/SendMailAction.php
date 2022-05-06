@@ -4,6 +4,8 @@ namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Checkout\Document\DocumentCollection;
+use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
@@ -25,6 +27,7 @@ use Shopware\Core\Framework\Event\DelayAware;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -65,6 +68,8 @@ class SendMailAction extends FlowAction
 
     private DocumentGenerator $documentGenerator;
 
+    private DocumentService $documentService;
+
     /**
      * @internal
      */
@@ -74,6 +79,7 @@ class SendMailAction extends FlowAction
         MediaService $mediaService,
         EntityRepositoryInterface $mediaRepository,
         EntityRepositoryInterface $documentRepository,
+        DocumentService $documentService,
         DocumentGenerator $documentGenerator,
         LoggerInterface $logger,
         EventDispatcherInterface $eventDispatcher,
@@ -96,6 +102,7 @@ class SendMailAction extends FlowAction
         $this->languageLocaleProvider = $languageLocaleProvider;
         $this->updateMailTemplate = $updateMailTemplate;
         $this->documentGenerator = $documentGenerator;
+        $this->documentService = $documentService;
     }
 
     public static function getName(): string
@@ -331,7 +338,11 @@ class SendMailAction extends FlowAction
 
         if (!empty($documentIds)) {
             $extensions->setDocumentIds($documentIds);
-            $attachments = $this->buildOrderAttachments($documentIds, $attachments, $mailEvent->getContext());
+            if (Feature::isActive('v6.5.0.0')) {
+                $attachments = $this->mappingAttachments($documentIds, $attachments, $mailEvent->getContext());
+            } else {
+                $attachments = $this->buildOrderAttachments($documentIds, $attachments, $mailEvent->getContext());
+            }
         }
 
         return $attachments;
@@ -395,9 +406,10 @@ class SendMailAction extends FlowAction
         $criteria->addAssociation('documentMediaFile');
         $criteria->addAssociation('documentType');
 
-        $entities = $this->documentRepository->search($criteria, $context);
+        /** @var DocumentCollection $documents */
+        $documents = $this->documentRepository->search($criteria, $context)->getEntities();
 
-        return $this->mappingAttachmentsInfo($entities->getIds(), $attachments, $context);
+        return $this->mappingAttachmentsInfo($documents, $attachments, $context);
     }
 
     private function getLatestDocumentsOfTypes(string $orderId, array $documentTypeIds): array
@@ -433,7 +445,24 @@ class SendMailAction extends FlowAction
         return $documentIds;
     }
 
-    private function mappingAttachmentsInfo(array $documentIds, array $attachments, Context $context): array
+    private function mappingAttachmentsInfo(DocumentCollection $documents, array $attachments, Context $context): array
+    {
+        foreach ($documents as $document) {
+            $documentId = $document->getId();
+            $document = $this->documentService->getDocument($document, $context);
+
+            $attachments[] = [
+                'id' => $documentId,
+                'content' => $document->getFileBlob(),
+                'fileName' => $document->getFilename(),
+                'mimeType' => $document->getContentType(),
+            ];
+        }
+
+        return $attachments;
+    }
+
+    private function mappingAttachments(array $documentIds, array $attachments, Context $context): array
     {
         foreach ($documentIds as $documentId) {
             $document = $this->documentGenerator->readDocument($documentId, $context);

@@ -4,29 +4,20 @@ namespace Shopware\Core\Checkout\Test\Document;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\CartBehavior;
-use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
-use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
-use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
-use Shopware\Core\Checkout\Cart\Processor;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentIdCollection;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -34,8 +25,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -48,9 +37,8 @@ use Shopware\Core\Test\TestDefaults;
  */
 class DocumentApiTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use DocumentTrait;
     use AdminApiTestBehaviour;
-    use TaxAddToSalesChannelTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
 
     private SalesChannelContext $salesChannelContext;
@@ -165,14 +153,14 @@ class DocumentApiTest extends TestCase
     {
         $order1 = $this->createOrder($this->salesChannelContext->getCustomer()->getId(), $this->context);
         $order2 = $this->createOrder($this->salesChannelContext->getCustomer()->getId(), $this->context);
-        $this->createInvoiceDocument($order1->getId(), [
+        $this->createDocument(InvoiceRenderer::TYPE, $order1->getId(), [
             'documentType' => 'invoice',
             'custom' => [
                 'invoiceNumber' => '1100',
             ],
         ], $this->context);
 
-        $this->createInvoiceDocument($order2->getId(), [
+        $this->createDocument(InvoiceRenderer::TYPE, $order2->getId(), [
             'documentType' => 'invoice',
             'documentRangerType' => 'document_invoice',
             'custom' => [
@@ -367,106 +355,6 @@ class DocumentApiTest extends TestCase
         static::assertEquals('application/pdf', $response->headers->get('Content-Type'));
     }
 
-    /**
-     * @throws InvalidPayloadException
-     * @throws InvalidQuantityException
-     * @throws MixedLineItemTypeException
-     * @throws \Exception
-     */
-    private function generateDemoCart(int $lineItemCount): Cart
-    {
-        $cart = new Cart('A', 'a-b-c');
-
-        $keywords = ['awesome', 'epic', 'high quality'];
-
-        $products = [];
-
-        $factory = new ProductLineItemFactory();
-
-        for ($i = 0; $i < $lineItemCount; ++$i) {
-            $id = Uuid::randomHex();
-
-            $price = random_int(100, 200000) / 100.0;
-
-            shuffle($keywords);
-            $name = ucfirst(implode(' ', $keywords) . ' product');
-
-            $products[] = [
-                'id' => $id,
-                'name' => $name,
-                'price' => [
-                    ['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price, 'linked' => false],
-                ],
-                'productNumber' => Uuid::randomHex(),
-                'manufacturer' => ['id' => $id, 'name' => 'test'],
-                'tax' => ['id' => $id, 'taxRate' => 19, 'name' => 'test'],
-                'stock' => 10,
-                'active' => true,
-                'visibilities' => [
-                    ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-                ],
-            ];
-
-            $cart->add($factory->create($id));
-            $this->addTaxDataToSalesChannel($this->salesChannelContext, end($products)['tax']);
-        }
-
-        $this->getContainer()->get('product.repository')
-            ->create($products, Context::createDefaultContext());
-
-        $cart = $this->getContainer()->get(Processor::class)->process($cart, $this->salesChannelContext, new CartBehavior());
-
-        return $cart;
-    }
-
-    private function persistCart(Cart $cart): string
-    {
-        $cart = $this->getContainer()->get(CartService::class)->recalculate($cart, $this->salesChannelContext);
-        $orderId = $this->getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
-
-        return $orderId;
-    }
-
-    private function createCustomer(string $paymentMethodId): string
-    {
-        $customerId = Uuid::randomHex();
-        $addressId = Uuid::randomHex();
-
-        $customer = [
-            'id' => $customerId,
-            'number' => '1337',
-            'salutationId' => $this->getValidSalutationId(),
-            'firstName' => 'Max',
-            'lastName' => 'Mustermann',
-            'customerNumber' => '1337',
-            'languageId' => Defaults::LANGUAGE_SYSTEM,
-            'email' => Uuid::randomHex() . '@example.com',
-            'password' => 'shopware',
-            'defaultPaymentMethodId' => $paymentMethodId,
-            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-            'salesChannelId' => TestDefaults::SALES_CHANNEL,
-            'defaultBillingAddressId' => $addressId,
-            'defaultShippingAddressId' => $addressId,
-            'addresses' => [
-                [
-                    'id' => $addressId,
-                    'customerId' => $customerId,
-                    'countryId' => $this->getValidCountryId(),
-                    'salutationId' => $this->getValidSalutationId(),
-                    'firstName' => 'Max',
-                    'lastName' => 'Mustermann',
-                    'street' => 'Ebbinghoff 10',
-                    'zipcode' => '48624',
-                    'city' => 'Schöppingen',
-                ],
-            ],
-        ];
-
-        $this->getContainer()->get('customer.repository')->upsert([$customer], $this->context);
-
-        return $customerId;
-    }
-
     private function createOrder(string $customerId, Context $context): OrderEntity
     {
         $orderId = Uuid::randomHex();
@@ -525,15 +413,6 @@ class DocumentApiTest extends TestCase
         $order = $this->orderRepository->search(new Criteria([$orderId]), $context);
 
         return $order->first();
-    }
-
-    private function createInvoiceDocument(string $orderId, array $config, Context $context): void
-    {
-        $operations = [];
-        $operation = new DocumentGenerateOperation($orderId, FileTypes::PDF, $config);
-        $operations[$orderId] = $operation;
-
-        $this->documentGenerator->generate('invoice', $operations, $context);
     }
 
     private function getDocumentIds($data): array

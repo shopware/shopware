@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Document\DocumentGenerator;
 
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentGeneratorTypeException;
+use Shopware\Core\Framework\Feature;
 
 /**
  * @deprecated tag:v6.5.0 - Will be removed
@@ -24,6 +25,8 @@ class DocumentGeneratorRegistry
 
     public function hasGenerator(string $documentType): bool
     {
+        Feature::throwException('v6.5.0.0', 'Will be removed');
+
         foreach ($this->documentGenerators as $documentGenerator) {
             if ($documentGenerator->supports() !== $documentType) {
                 continue;
@@ -40,6 +43,8 @@ class DocumentGeneratorRegistry
      */
     public function getGenerator(string $documentType): DocumentGeneratorInterface
     {
+        Feature::throwException('v6.5.0.0', 'Will be removed');
+
         foreach ($this->documentGenerators as $documentGenerator) {
             if ($documentGenerator->supports() !== $documentType) {
                 continue;
@@ -53,6 +58,8 @@ class DocumentGeneratorRegistry
 
     public function getGenerators(string $documentType): \Generator
     {
+        Feature::throwException('v6.5.0.0', 'Will be removed');
+
         foreach ($this->documentGenerators as $documentGenerator) {
             if ($documentGenerator->supports() !== $documentType) {
                 continue;

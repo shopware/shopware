@@ -18,6 +18,9 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
+use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
@@ -26,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -99,18 +103,25 @@ class Migration1612442786ChangeVersionOfDocumentsTest extends TestCase
 
     public function testMigrationWorks(): void
     {
-        $documentService = $this->getContainer()->get(DocumentService::class);
-
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
-        $documentStruct = $documentService->create(
-            $orderId,
-            DeliveryNoteGenerator::DELIVERY_NOTE,
-            FileTypes::PDF,
-            new DocumentConfiguration(),
-            $this->context
-        );
+        if (Feature::isActive('v6.5.0.0')) {
+            $documentGenerator = $this->getContainer()->get(DocumentGenerator::class);
+            $operation = new DocumentGenerateOperation($orderId);
+            $result = $documentGenerator->generate(DeliveryNoteRenderer::TYPE, [$orderId => $operation], $this->context);
+
+            $documentStruct = $result->first();
+        } else {
+            $documentService = $this->getContainer()->get(DocumentService::class);
+            $documentStruct = $documentService->create(
+                $orderId,
+                DeliveryNoteGenerator::DELIVERY_NOTE,
+                FileTypes::PDF,
+                new DocumentConfiguration(),
+                $this->context
+            );
+        }
 
         static::assertTrue(Uuid::isValid($documentStruct->getId()));
 
@@ -134,6 +145,11 @@ class Migration1612442786ChangeVersionOfDocumentsTest extends TestCase
         /** @var DocumentEntity $document */
         $document = $documentRepository->search(new Criteria([$documentStruct->getId()]), $this->context)->first();
 
+        if (Feature::isActive('v6.5.0.0')) {
+            static::assertEquals(Defaults::LIVE_VERSION, $document->getOrderVersionId());
+
+            return;
+        }
         static::assertNotEquals(Defaults::LIVE_VERSION, $document->getOrderVersionId());
 
         $documentRepository

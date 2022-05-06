@@ -69,6 +69,8 @@ class DocumentServiceTest extends TestCase
     {
         parent::setUp();
 
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $this->context = Context::createDefaultContext();
 
         $paymentMethod = $this->getAvailablePaymentMethod();

@@ -4,8 +4,9 @@ namespace Shopware\Core\Checkout\Test\Document\Renderer;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
-use Shopware\Core\Checkout\Document\Event\DocumentGeneratorCriteriaEvent;
+use Shopware\Core\Checkout\Document\Event\StornoOrdersEvent;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\StornoRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
@@ -60,18 +61,18 @@ class StornoRendererTest extends TestCase
         $caughtEvent = null;
 
         $this->getContainer()->get('event_dispatcher')
-            ->addListener(DocumentGeneratorCriteriaEvent::class, function (DocumentGeneratorCriteriaEvent $event) use (&$caughtEvent): void {
+            ->addListener(StornoOrdersEvent::class, function (StornoOrdersEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             });
 
         $processedTemplate = $stornoRenderer->render(
             [$orderId => $operation],
-            $this->context
+            $this->context,
+            new DocumentRendererConfig()
         );
 
-        static::assertInstanceOf(DocumentGeneratorCriteriaEvent::class, $caughtEvent);
-        static::assertEquals($caughtEvent->getDocumentType(), 'storno');
-        static::assertCount(1, $caughtEvent->getOperations());
+        static::assertInstanceOf(StornoOrdersEvent::class, $caughtEvent);
+        static::assertCount(1, $caughtEvent->getOrders());
         static::assertInstanceOf(RenderedDocument::class, $processedTemplate[$orderId]);
         $rendered = $processedTemplate[$orderId];
         $html = $rendered->getHtml();
@@ -112,7 +113,7 @@ class StornoRendererTest extends TestCase
             'documentNumber' => $stornoNumber,
         ]);
 
-        $rendered = $stornoRenderer->render([$orderId => $stornoOperation], $this->context);
+        $rendered = $stornoRenderer->render([$orderId => $stornoOperation], $this->context, new DocumentRendererConfig());
 
         static::assertEquals('STORNO_NUMBER_001', $rendered[$orderId]->getNumber());
         static::assertEquals($stornoOperation->getReferencedDocumentId(), $invoice->getId());
@@ -141,7 +142,7 @@ class StornoRendererTest extends TestCase
             'documentNumber' => $stornoNumber,
         ]);
 
-        $rendered = $stornoRenderer->render([$orderId => $operation], $this->context);
+        $rendered = $stornoRenderer->render([$orderId => $operation], $this->context, new DocumentRendererConfig());
 
         static::assertEquals($stornoNumber, $rendered[$orderId]->getNumber());
         static::assertEquals($operation->getReferencedDocumentId(), $invoice->getId());

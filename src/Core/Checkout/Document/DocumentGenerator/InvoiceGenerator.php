@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Twig\Error\Error;
 
 /**
@@ -52,6 +53,8 @@ class InvoiceGenerator implements DocumentGeneratorInterface
         Context $context,
         ?string $templatePath = null
     ): string {
+        Feature::throwException('v6.5.0.0', 'Will be removed, use InvoiceRenderer instead');
+
         $templatePath = $templatePath ?? self::DEFAULT_TEMPLATE;
 
         $config = DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->jsonSerialize();

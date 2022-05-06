@@ -1,5 +1,7 @@
 import ApiService from '../api.service';
 
+const { Feature } = Shopware;
+
 const DocumentEvents = {
     DOCUMENT_FAILED: 'create-document-fail',
     DOCUMENT_FINISHED: 'create-document-finished',
@@ -26,48 +28,92 @@ class DocumentApiService extends ApiService {
         additionalHeaders = {},
         file = null,
     ) {
-        let route = `/_action/order/document/${documentTypeName}/create`;
-        const headers = this.getBasicHeaders(additionalHeaders);
+        if (Feature.isActive('v6.5.0.0')) {
+            let route = `_action/order/document/${documentTypeName}/create`;
+            const headers = this.getBasicHeaders(additionalHeaders);
 
-        const params = {
-            orderId,
-            config,
-            referencedDocumentId,
-        };
+            const params = {
+                orderId,
+                config,
+                referencedDocumentId,
+            };
 
-        if (file || documentConfig.documentMediaFileId) {
-            params.static = true;
+            if (file || config.documentMediaFileId) {
+                params.static = true;
+            }
+
+            this.httpClient
+                .post(route, [params], {
+                    additionalParams,
+                    headers,
+                })
+                .then((response) => {
+                    const responseDoc = response.data[0];
+
+                    if (file && file instanceof File && responseDoc?.documentId) {
+                        const fileName = file.name.split('.').shift();
+                        const fileExtension = file.name.split('.').pop();
+                        // eslint-disable-next-line max-len
+                        route = `/_action/document/${responseDoc.documentId}/upload?fileName=${config.documentNumber}_${fileName}&extension=${fileExtension}`;
+                        headers['Content-Type'] = file.type;
+                        this.httpClient.post(route, file, {
+                            additionalParams,
+                            headers,
+                        });
+                    }
+
+                    this.$listener(this.createDocumentEvent(DocumentEvents.DOCUMENT_FINISHED));
+
+                    return Promise.resolve(true);
+                })
+                .catch((error) => {
+                    if (error.response?.data?.errors) {
+                        this.$listener(
+                            this.createDocumentEvent(DocumentEvents.DOCUMENT_FAILED, error.response.data.errors.pop()),
+                        );
+                    }
+                });
+        } else {
+            let route = `/_action/order/${orderId}/document/${documentTypeName}`;
+            const headers = this.getBasicHeaders(additionalHeaders);
+
+            const params = {
+                config,
+                referenced_document_id: referencedDocumentId,
+            };
+
+            if (file || config.documentMediaFileId) {
+                params.static = true;
+            }
+
+            this.httpClient
+                .post(route, params, {
+                    additionalParams,
+                    headers,
+                }).then((response) => {
+                    if (file && file instanceof File && response.data.documentId) {
+                        const fileName = file.name.split('.').shift();
+                        const fileExtension = file.name.split('.').pop();
+                        // eslint-disable-next-line max-len
+                        route = `/_action/document/${response.data.documentId}/upload?fileName=${config.documentNumber}_${fileName}&extension=${fileExtension}`;
+                        headers['Content-Type'] = file.type;
+                        this.httpClient.post(route, file, {
+                            additionalParams,
+                            headers,
+                        });
+                    }
+
+                    this.$listener(this.createDocumentEvent(DocumentEvents.DOCUMENT_FINISHED));
+
+                    return Promise.resolve(true);
+                }).catch((error) => {
+                    if (error.response?.data?.errors) {
+                        this.$listener(
+                            this.createDocumentEvent(DocumentEvents.DOCUMENT_FAILED, error.response.data.errors.pop()),
+                        );
+                    }
+                });
         }
-
-        this.httpClient
-            .post(route, [params], {
-                additionalParams,
-                headers,
-            }).then((response) => {
-                const responseDoc = response.data[0];
-
-                if (file && file instanceof File && responseDoc?.documentId) {
-                    const fileName = file.name.split('.').shift();
-                    const fileExtension = file.name.split('.').pop();
-                    // eslint-disable-next-line max-len
-                    route = `/_action/document/${responseDoc.documentId}/upload?fileName=${config.documentNumber}_${fileName}&extension=${fileExtension}`;
-                    headers['Content-Type'] = file.type;
-                    docCreated = this.httpClient.post(route, file, {
-                        additionalParams,
-                        headers,
-                    });
-                }
-
-                this.$listener(this.createDocumentEvent(DocumentEvents.DOCUMENT_FINISHED));
-
-                return Promise.resolve(docCreated);
-            }).catch((error) => {
-                if (error.response?.data?.errors) {
-                    this.$listener(
-                        this.createDocumentEvent(DocumentEvents.DOCUMENT_FAILED, error.response.data.errors.pop()),
-                    );
-                }
-            });
     }
 
     getDocumentPreview(orderId, orderDeepLink, documentTypeName, params) {

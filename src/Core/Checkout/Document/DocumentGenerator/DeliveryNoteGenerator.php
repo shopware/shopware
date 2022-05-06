@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Twig\Error\Error;
 
 /**
@@ -50,6 +51,8 @@ class DeliveryNoteGenerator implements DocumentGeneratorInterface
         Context $context,
         ?string $templatePath = null
     ): string {
+        Feature::throwException('v6.5.0.0', 'Will be removed, use DeliveryNoteRenderer instead');
+
         $templatePath = $templatePath ?? self::DEFAULT_TEMPLATE;
 
         $deliveries = null;

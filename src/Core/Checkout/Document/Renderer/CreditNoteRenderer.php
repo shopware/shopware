@@ -2,18 +2,20 @@
 
 namespace Shopware\Core\Checkout\Document\Renderer;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Document\Event\DocumentGeneratorCriteriaEvent;
+use Shopware\Core\Checkout\Document\Event\CreditNoteOrdersEvent;
 use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
+use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
+use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
+use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
@@ -35,7 +37,7 @@ class CreditNoteRenderer extends AbstractDocumentRenderer
 
     private NumberRangeValueGeneratorInterface $numberRangeValueGenerator;
 
-    private Connection $connection;
+    private ReferenceInvoiceLoader $referenceInvoiceLoader;
 
     public function __construct(
         EntityRepositoryInterface $orderRepository,
@@ -43,7 +45,7 @@ class CreditNoteRenderer extends AbstractDocumentRenderer
         EventDispatcherInterface $eventDispatcher,
         DocumentTemplateRenderer $documentTemplateRenderer,
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
-        Connection $connection,
+        ReferenceInvoiceLoader $referenceInvoiceLoader,
         string $rootDir
     ) {
         $this->documentConfigLoader = $documentConfigLoader;
@@ -52,7 +54,7 @@ class CreditNoteRenderer extends AbstractDocumentRenderer
         $this->rootDir = $rootDir;
         $this->orderRepository = $orderRepository;
         $this->numberRangeValueGenerator = $numberRangeValueGenerator;
-        $this->connection = $connection;
+        $this->referenceInvoiceLoader = $referenceInvoiceLoader;
     }
 
     public function supports(): string
@@ -60,17 +62,26 @@ class CreditNoteRenderer extends AbstractDocumentRenderer
         return self::TYPE;
     }
 
-    public function render(array $operations, Context $context, string $deepLinkCode = ''): array
+    public function render(array $operations, Context $context, DocumentRendererConfig $rendererConfig): array
     {
         $template = '@Framework/documents/credit_note.html.twig';
 
-        $criteria = new Criteria();
+        $ids = \array_map(function (DocumentGenerateOperation $operation) {
+            return $operation->getOrderId();
+        }, $operations);
+
+        if (empty($ids)) {
+            return [];
+        }
+
+        $criteria = new DocumentCriteria($rendererConfig->deepLinkCode, $ids);
 
         // TODO: future implementation (only fetch required data and associations)
 
-        $this->eventDispatcher->dispatch(new DocumentGeneratorCriteriaEvent(self::TYPE, $operations, $criteria, $context));
+        /** @var OrderCollection $orders */
+        $orders = $this->orderRepository->search($criteria, $context)->getEntities();
 
-        $orders = $this->fetchOrders($this->orderRepository, $operations, $criteria, $context, $deepLinkCode);
+        $this->eventDispatcher->dispatch(new CreditNoteOrdersEvent($orders, $context));
 
         $rendered = [];
 
@@ -96,32 +107,9 @@ class CreditNoteRenderer extends AbstractDocumentRenderer
 
             $config->merge($operation->getConfig());
 
-            $number = $config->getDocumentNumber();
+            $number = $config->getDocumentNumber() ?: $this->getNumber($context, $order, $operation);
 
-            if (empty($number)) {
-                $number = $this->numberRangeValueGenerator->getValue(
-                    'document_' . self::TYPE,
-                    $context,
-                    $order->getSalesChannelId(),
-                    $operation->isPreview()
-                );
-            }
-
-            if (!empty($operation->getConfig()['custom']['invoiceNumber'])) {
-                $referenceDocumentNumber = $operation->getConfig()['custom']['invoiceNumber'];
-            } else {
-                $invoice = $this->getReferenceInvoice($this->connection, $operation);
-
-                if (empty($invoice)) {
-                    throw new DocumentGenerationException('Can not generate credit note because no invoice document exists. OrderId: ' . $operation->getOrderId());
-                }
-
-                $documentRefer = json_decode($invoice['config'], true, 512, \JSON_THROW_ON_ERROR);
-
-                $operation->setReferencedDocumentId($invoice['id']);
-
-                $referenceDocumentNumber = $documentRefer['documentNumber'];
-            }
+            $referenceDocumentNumber = $this->getReferenceDocumentNumber($operation);
 
             $config->merge([
                 'documentDate' => $operation->getConfig()['documentDate'] ?? (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -132,42 +120,24 @@ class CreditNoteRenderer extends AbstractDocumentRenderer
                 ],
             ]);
 
-            foreach ($creditItems as $creditItem) {
-                $creditItem->setUnitPrice($creditItem->getUnitPrice() !== 0.0 ? -$creditItem->getUnitPrice() : 0.0);
-                $creditItem->setTotalPrice($creditItem->getTotalPrice() !== 0.0 ? -$creditItem->getTotalPrice() : 0.0);
+            if ($operation->isStatic()) {
+                $rendered[$order->getId()] = new RenderedDocument('', $number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
+
+                continue;
             }
 
-            $creditItemsCalculatedPrice = $creditItems->getPrices()->sum();
-            $totalPrice = $creditItemsCalculatedPrice->getTotalPrice();
-            $taxAmount = $creditItemsCalculatedPrice->getCalculatedTaxes()->getAmount();
-            $taxes = $creditItemsCalculatedPrice->getCalculatedTaxes();
-
-            foreach ($taxes as $tax) {
-                $tax->setTax($tax->getTax() !== 0.0 ? -$tax->getTax() : 0.0);
-            }
-
-            $price = new CartPrice(
-                -($totalPrice - $taxAmount),
-                -$totalPrice,
-                -$order->getPositionPrice(),
-                $taxes,
-                $creditItemsCalculatedPrice->getTaxRules(),
-                $order->getTaxStatus()
-            );
-
-            $order->setLineItems($creditItems);
-            $order->setPrice($price);
-            $order->setAmountNet($price->getNetPrice());
+            $price = $this->calculatePrice($creditItems, $order);
 
             /** @var LocaleEntity $locale */
             $locale = $order->getLanguage()->getLocale();
-            $html = $operation->isStatic() ? '' : $this->documentTemplateRenderer->render(
+
+            $html = $this->documentTemplateRenderer->render(
                 $template,
                 [
                     'order' => $order,
                     'creditItems' => $creditItems,
-                    'price' => $totalPrice,
-                    'amountTax' => $taxAmount,
+                    'price' => $price->getTotalPrice() * -1,
+                    'amountTax' => $price->getCalculatedTaxes()->getAmount(),
                     'config' => $config,
                     'rootDir' => $this->rootDir,
                     'context' => $context,
@@ -195,5 +165,66 @@ class CreditNoteRenderer extends AbstractDocumentRenderer
     public function getDecorated(): AbstractDocumentRenderer
     {
         throw new DecorationPatternException(self::class);
+    }
+
+    private function getReferenceDocumentNumber(DocumentGenerateOperation $operation): ?string
+    {
+        if (!empty($operation->getConfig()['custom']['invoiceNumber'])) {
+            return $operation->getConfig()['custom']['invoiceNumber'];
+        }
+
+        $invoice = $this->referenceInvoiceLoader->load($operation->getOrderId(), $operation->getReferencedDocumentId());
+
+        if (empty($invoice)) {
+            throw new DocumentGenerationException('Can not generate credit note because no invoice document exists. OrderId: ' . $operation->getOrderId());
+        }
+
+        $documentRefer = json_decode($invoice['config'], true, 512, \JSON_THROW_ON_ERROR);
+
+        $operation->setReferencedDocumentId($invoice['id']);
+
+        return $documentRefer['documentNumber'];
+    }
+
+    private function getNumber(Context $context, OrderEntity $order, DocumentGenerateOperation $operation): string
+    {
+        return $this->numberRangeValueGenerator->getValue(
+            'document_' . self::TYPE,
+            $context,
+            $order->getSalesChannelId(),
+            $operation->isPreview()
+        );
+    }
+
+    private function calculatePrice(OrderLineItemCollection $creditItems, OrderEntity $order): CartPrice
+    {
+        foreach ($creditItems as $creditItem) {
+            $creditItem->setUnitPrice($creditItem->getUnitPrice() !== 0.0 ? -$creditItem->getUnitPrice() : 0.0);
+            $creditItem->setTotalPrice($creditItem->getTotalPrice() !== 0.0 ? -$creditItem->getTotalPrice() : 0.0);
+        }
+
+        $creditItemsCalculatedPrice = $creditItems->getPrices()->sum();
+        $totalPrice = $creditItemsCalculatedPrice->getTotalPrice();
+        $taxAmount = $creditItemsCalculatedPrice->getCalculatedTaxes()->getAmount();
+        $taxes = $creditItemsCalculatedPrice->getCalculatedTaxes();
+
+        foreach ($taxes as $tax) {
+            $tax->setTax($tax->getTax() !== 0.0 ? -$tax->getTax() : 0.0);
+        }
+
+        $price = new CartPrice(
+            -($totalPrice - $taxAmount),
+            -$totalPrice,
+            -$order->getPositionPrice(),
+            $taxes,
+            $creditItemsCalculatedPrice->getTaxRules(),
+            $order->getTaxStatus()
+        );
+
+        $order->setLineItems($creditItems);
+        $order->setPrice($price);
+        $order->setAmountNet($price->getNetPrice());
+
+        return $price;
     }
 }

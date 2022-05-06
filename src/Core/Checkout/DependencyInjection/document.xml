@@ -112,6 +112,10 @@
             <tag name="kernel.event_subscriber" />
         </service>
 
+        <service id="Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+        </service>
+
         <service id="Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer">
             <argument type="service" id="order.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentConfigLoader"/>
@@ -140,7 +144,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer"/>
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
-            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader" />
             <argument>%kernel.project_dir%</argument>
 
             <tag name="document.renderer"/>
@@ -152,7 +156,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer"/>
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>
-            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader" />
             <argument>%kernel.project_dir%</argument>
 
             <tag name="document.renderer"/>
@@ -183,6 +187,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentGenerator"/>
             <argument type="service" id="Shopware\Core\Checkout\Document\Service\DocumentMerger"/>
+            <argument type="service" id="document.repository"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

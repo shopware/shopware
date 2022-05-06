@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Page\Account\Document;
 use Shopware\Core\Checkout\Document\GeneratedDocument;
 use Shopware\Storefront\Page\Page;
 
+/**
+ * @deprecated tag:v6.5.0 - Will be removed
+ */
 class DocumentPage extends Page
 {
     /**

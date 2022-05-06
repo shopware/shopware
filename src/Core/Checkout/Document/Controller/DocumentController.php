@@ -3,13 +3,19 @@
 namespace Shopware\Core\Checkout\Document\Controller;
 
 use OpenApi\Annotations as OA;
+use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentService;
+use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\DocumentMerger;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
@@ -34,17 +40,21 @@ class DocumentController extends AbstractController
 
     private DocumentMerger $documentMerger;
 
+    private EntityRepositoryInterface $documentRepository;
+
     /**
      * @internal
      */
     public function __construct(
         DocumentService $documentService,
         DocumentGenerator $documentGenerator,
-        DocumentMerger $documentMerger
+        DocumentMerger $documentMerger,
+        EntityRepositoryInterface $documentRepository
     ) {
         $this->documentService = $documentService;
         $this->documentGenerator = $documentGenerator;
         $this->documentMerger = $documentMerger;
+        $this->documentRepository = $documentRepository;
     }
 
     /**
@@ -91,24 +101,51 @@ class DocumentController extends AbstractController
      */
     public function downloadDocument(Request $request, string $documentId, string $deepLinkCode, Context $context): Response
     {
-        /**
-         * @deprecated tag:v6.5.0 - Put the check on the annotation instead: defaults={"_acl"={"document.viewer"}}
-         */
-        if (Feature::isActive('v6.5.0.0') && !$context->isAllowed('document.viewer')) {
-            throw new MissingPrivilegeException(['document.viewer']);
+        if (Feature::isActive('v6.5.0.0')) {
+            /**
+             * @deprecated tag:v6.5.0 - Put the check on the annotation instead: defaults={"_acl"={"document.viewer"}}
+             */
+            if (!$context->isAllowed('document.viewer')) {
+                throw new MissingPrivilegeException(['document.viewer']);
+            }
+
+            $download = $request->query->getBoolean('download');
+
+            $generatedDocument = $this->documentGenerator->readDocument($documentId, $context, $deepLinkCode);
+
+            if ($generatedDocument === null) {
+                return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
+            }
+
+            return $this->createResponse(
+                $generatedDocument->getName(),
+                $generatedDocument->getContent(),
+                $download,
+                $generatedDocument->getContentType()
+            );
         }
 
-        $download = $request->query->getBoolean('download');
+        $download = $request->query->getBoolean('download', false);
 
-        $generatedDocument = $this->documentGenerator->readDocument($documentId, $context, $deepLinkCode);
+        $criteria = new Criteria();
+        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
+            new EqualsFilter('id', $documentId),
+            new EqualsFilter('deepLinkCode', $deepLinkCode),
+        ]));
+        $criteria->addAssociation('documentMediaFile');
+        $criteria->addAssociation('documentType');
 
-        if ($generatedDocument === null) {
-            return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
+        $document = $this->documentRepository->search($criteria, $context)->get($documentId);
+
+        if (!$document) {
+            throw new InvalidDocumentException($documentId);
         }
+
+        $generatedDocument = $this->documentService->getDocument($document, $context);
 
         return $this->createResponse(
-            $generatedDocument->getName(),
-            $generatedDocument->getContent(),
+            $generatedDocument->getFilename(),
+            $generatedDocument->getFileBlob(),
             $download,
             $generatedDocument->getContentType()
         );
@@ -129,27 +166,52 @@ class DocumentController extends AbstractController
         string $documentTypeName,
         Context $context
     ): Response {
-        /**
-         * @deprecated tag:v6.5.0 - Put the check on the annotation instead: defaults={"_acl"={"document.viewer"}}
-         */
-        if (Feature::isActive('v6.5.0.0') && !$context->isAllowed('document.viewer')) {
-            throw new MissingPrivilegeException(['document.viewer']);
+        if (Feature::isActive('v6.5.0.0')) {
+            /**
+             * @deprecated tag:v6.5.0 - Put the check on the annotation instead: defaults={"_acl"={"document.viewer"}}
+             */
+            if (!$context->isAllowed('document.viewer')) {
+                throw new MissingPrivilegeException(['document.viewer']);
+            }
+
+            $config = $request->query->get('config');
+            $config = \is_string($config) ? json_decode($config, true, 512, \JSON_THROW_ON_ERROR) : [];
+
+            $fileType = $request->query->getAlnum('fileType', FileTypes::PDF);
+            $download = $request->query->getBoolean('download');
+            $referencedDocumentId = $request->query->getAlnum('referencedDocumentId');
+
+            $operation = new DocumentGenerateOperation($orderId, $fileType, $config, $referencedDocumentId, false, true);
+
+            $generatedDocument = $this->documentGenerator->preview($documentTypeName, $operation, $deepLinkCode, $context);
+
+            return $this->createResponse(
+                $generatedDocument->getName(),
+                $generatedDocument->getContent(),
+                $download,
+                $generatedDocument->getContentType()
+            );
         }
 
         $config = $request->query->get('config');
         $config = \is_string($config) ? json_decode($config, true, 512, \JSON_THROW_ON_ERROR) : [];
+        $documentConfig = DocumentConfigurationFactory::createConfiguration($config);
 
         $fileType = $request->query->getAlnum('fileType', FileTypes::PDF);
         $download = $request->query->getBoolean('download');
-        $referencedDocumentId = $request->query->getAlnum('referencedDocumentId');
 
-        $operation = new DocumentGenerateOperation($orderId, $fileType, $config, $referencedDocumentId, false, true);
-
-        $generatedDocument = $this->documentGenerator->preview($documentTypeName, $operation, $deepLinkCode, $context);
+        $generatedDocument = $this->documentService->preview(
+            $orderId,
+            $deepLinkCode,
+            $documentTypeName,
+            $fileType,
+            $documentConfig,
+            $context
+        );
 
         return $this->createResponse(
-            $generatedDocument->getName(),
-            $generatedDocument->getContent(),
+            $generatedDocument->getFilename(),
+            $generatedDocument->getFileBlob(),
             $download,
             $generatedDocument->getContentType()
         );
@@ -193,7 +255,7 @@ class DocumentController extends AbstractController
         }
 
         $download = $request->query->getBoolean('download', true);
-        $combinedDocument = $this->documentMerger->mergeDocuments($documentIds, $context);
+        $combinedDocument = $this->documentMerger->merge($documentIds, $context);
 
         if ($combinedDocument === null) {
             return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);

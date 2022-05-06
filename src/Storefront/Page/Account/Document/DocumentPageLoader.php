@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
@@ -16,7 +17,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @deprecated tag:v6.5.0 - Will removed, using DocumentRoute instead to load generated document blob
+ * @deprecated tag:v6.5.0 - Will be removed, using DocumentRoute instead to load generated document blob
  */
 class DocumentPageLoader
 {
@@ -62,6 +63,8 @@ class DocumentPageLoader
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext): DocumentPage
     {
+        Feature::throwException('v6.5.0.0', 'will be removed');
+
         if (!$salesChannelContext->getCustomer() && $request->get('deepLinkCode', false) === false) {
             throw new CustomerNotLoggedInException();
         }

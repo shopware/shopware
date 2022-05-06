@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\Service;
 
+use setasign\Fpdi\PdfParser\StreamReader;
 use setasign\Fpdi\Tcpdf\Fpdi;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentCollection;
@@ -17,7 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Util\Random;
 
-class DocumentMerger
+final class DocumentMerger
 {
     private EntityRepositoryInterface $documentRepository;
 
@@ -39,7 +40,7 @@ class DocumentMerger
         $this->documentGenerator = $documentGenerator;
     }
 
-    public function mergeDocuments(array $documentIds, Context $context): ?RenderedDocument
+    public function merge(array $documentIds, Context $context): ?RenderedDocument
     {
         $criteria = new Criteria($documentIds);
         $criteria->addAssociation('documentType');
@@ -88,7 +89,7 @@ class DocumentMerger
                 return $this->mediaService->loadFileStream($documentMediaId, $context)->getContents();
             });
 
-            $numPages = $this->fpdi->setSourceFile($media);
+            $numPages = $this->fpdi->setSourceFile(StreamReader::createByString($media));
 
             $totalPage += $numPages;
             for ($i = 1; $i <= $numPages; ++$i) {

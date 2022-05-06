@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Document\Exception\DocumentNumberAlreadyExistsExcepti
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentRendererException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
@@ -26,7 +27,7 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 
-class DocumentGenerator
+final class DocumentGenerator
 {
     private DocumentRendererRegistry $rendererRegistry;
 
@@ -96,9 +97,10 @@ class DocumentGenerator
 
     public function preview(string $documentType, DocumentGenerateOperation $operation, string $deepLinkCode, Context $context): RenderedDocument
     {
-        $renderer = $this->rendererRegistry->getRenderer($documentType);
+        $config = new DocumentRendererConfig();
+        $config->deepLinkCode = $deepLinkCode;
 
-        $rendered = $renderer->render([$operation->getOrderId() => $operation], $context, $deepLinkCode);
+        $rendered = $this->rendererRegistry->render($documentType, [$operation->getOrderId() => $operation], $context, $config);
 
         $document = $rendered[$operation->getOrderId()];
 
@@ -114,12 +116,11 @@ class DocumentGenerator
     {
         $documentTypeId = $this->getDocumentTypeByName($documentType);
 
-        if ($documentTypeId === null || !$this->rendererRegistry->hasGenerator($documentType)) {
+        if ($documentTypeId === null) {
             throw new InvalidDocumentRendererException($documentType);
         }
 
-        $renderer = $this->rendererRegistry->getRenderer($documentType);
-        $rendered = $renderer->render($operations, $context);
+        $rendered = $this->rendererRegistry->render($documentType, $operations, $context, new DocumentRendererConfig());
 
         $result = new DocumentIdCollection();
         $records = [];
@@ -136,20 +137,7 @@ class DocumentGenerator
             $deepLinkCode = Random::getAlphanumericString(32);
             $id = $operation->getDocumentId() ?? Uuid::randomHex();
 
-            $mediaId = null;
-
-            if ($operation->isStatic() === false) {
-                $mediaId = $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($document): string {
-                    return $this->mediaService->saveFile(
-                        $this->pdfRenderer->render($document),
-                        $document->getExtension(),
-                        $this->pdfRenderer->getContentType(),
-                        $document->getName(),
-                        $context,
-                        'document'
-                    );
-                });
-            }
+            $mediaId = $this->resolveMediaId($operation, $context, $document);
 
             $records[] = [
                 'id' => $id,
@@ -192,10 +180,7 @@ class DocumentGenerator
             throw new DocumentGenerationException('Parameter "fileName" is missing');
         }
 
-        $mediaId = $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use (
-            $fileName,
-            $mediaFile
-        ): string {
+        $mediaId = $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($fileName, $mediaFile): string {
             return $this->mediaService->saveMediaFile($mediaFile, $fileName, $context, 'document');
         });
 
@@ -220,11 +205,12 @@ class DocumentGenerator
 
     private function getDocumentTypeByName(string $documentType): ?string
     {
-        return $this->connection->fetchOne('
-            SELECT LOWER(HEX(id)) as id FROM document_type WHERE technical_name = :technicalName
-        ', [
-            'technicalName' => $documentType,
-        ]) ?: null;
+        $id = $this->connection->fetchOne(
+            'SELECT LOWER(HEX(id)) as id FROM document_type WHERE technical_name = :technicalName',
+            ['technicalName' => $documentType]
+        );
+
+        return $id ?: null;
     }
 
     private function checkDocumentNumberAlreadyExits(
@@ -295,5 +281,23 @@ class DocumentGenerator
         $document = $this->documentRepository->search($criteria, $context)->get($documentId);
 
         return $document;
+    }
+
+    private function resolveMediaId(DocumentGenerateOperation $operation, Context $context, RenderedDocument $document): ?string
+    {
+        if ($operation->isStatic()) {
+            return null;
+        }
+
+        return $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($document): string {
+            return $this->mediaService->saveFile(
+                $this->pdfRenderer->render($document),
+                $document->getExtension(),
+                $this->pdfRenderer->getContentType(),
+                $document->getName(),
+                $context,
+                'document'
+            );
+        });
     }
 }

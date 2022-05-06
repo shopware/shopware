@@ -54,6 +54,9 @@ describe('Media: Visual tests', () => {
             cy.awaitAndCheckNotification('File has been saved.');
             cy.get('.sw-media-base-item__name[title="sw-login-background.png"]')
                 .should('be.visible');
+            cy.get('.sw-media-preview-v2__item').should('have.attr', 'src');
+            cy.get('.icon--multicolor-file-thumbnail-broken').should('not.exist');
+            cy.get('.icon--multicolor-file-thumbnail-normal').should('not.exist');
         }
 
         if (Cypress.isBrowser('firefox')) {
@@ -69,6 +72,9 @@ describe('Media: Visual tests', () => {
             cy.awaitAndCheckNotification('File has been saved.');
             cy.get('.sw-media-base-item__name[title="sw_logo_white.png"]')
                 .should('be.visible');
+            cy.get('.sw-media-preview-v2__item').should('have.attr', 'src');
+            cy.get('.icon--multicolor-file-thumbnail-broken').should('not.exist');
+            cy.get('.icon--multicolor-file-thumbnail-normal').should('not.exist');
         }
 
         // Take snapshot for visual testing

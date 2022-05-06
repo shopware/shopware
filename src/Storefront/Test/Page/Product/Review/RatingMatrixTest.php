@@ -4,11 +4,17 @@ namespace Shopware\Storefront\Test\Page\Product\Review;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\Bucket;
+use Shopware\Core\Framework\Feature;
 use Shopware\Storefront\Page\Product\Review\MatrixElement;
 use Shopware\Storefront\Page\Product\Review\RatingMatrix;
 
 class RatingMatrixTest extends TestCase
 {
+    public function setUp(): void
+    {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+    }
+
     /**
      * check that constants are defined as expected
      *

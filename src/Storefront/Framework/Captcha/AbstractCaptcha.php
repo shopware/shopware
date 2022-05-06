@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Captcha;
 
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\ConstraintViolationList;
 
@@ -14,8 +15,15 @@ abstract class AbstractCaptcha
      *
      * @deprecated tag:v6.5.0 - Parameter $captchaConfig will be mandatory in future implementation
      */
-    public function supports(Request $request /* , array $captchaConfig = [] */): bool
+    public function supports(Request $request /* , array $captchaConfig */): bool
     {
+        if (\func_num_args() < 2 || !\is_array(func_get_arg(1))) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'Method `supports()` in `AbstractCaptcha` expects passing the `$captchaConfig` as array as the second parameter in v6.5.0.0.'
+            );
+        }
+
         if (!$request->isMethod(Request::METHOD_POST)) {
             return false;
         }
@@ -34,7 +42,7 @@ abstract class AbstractCaptcha
      *
      * @deprecated tag:v6.5.0 - Parameter $captchaConfig will be mandatory in future implementation
      */
-    abstract public function isValid(Request $request /* , array $captchaConfig = [] */): bool;
+    abstract public function isValid(Request $request /* , array $captchaConfig */): bool;
 
     /**
      * getName returns a unique technical name identifying this captcha.

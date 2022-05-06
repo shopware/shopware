@@ -35,6 +35,7 @@ class Storefront extends Bundle implements ThemeInterface
         $loader->load('controller.xml');
         $loader->load('theme.xml');
 
+        /** @var string $environment */
         $environment = $container->getParameter('kernel.environment');
 
         $this->buildConfig($container, $environment);
@@ -46,7 +47,7 @@ class Storefront extends Bundle implements ThemeInterface
         $container->addCompilerPass(new StorefrontMigrationReplacementCompilerPass());
     }
 
-    private function buildConfig(ContainerBuilder $container, $environment): void
+    private function buildConfig(ContainerBuilder $container, string $environment): void
     {
         $locator = new FileLocator('Resources/config');
 

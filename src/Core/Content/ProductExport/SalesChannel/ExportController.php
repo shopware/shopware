@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -151,7 +152,7 @@ class ExportController
                 break;
         }
 
-        if (\class_exists(StorefrontProductExportContentTypeEvent::class)) {
+        if (!Feature::isActive('v6.5.0.0') && \class_exists(StorefrontProductExportContentTypeEvent::class)) {
             $event = new StorefrontProductExportContentTypeEvent($fileFormat, $contentType);
             $this->eventDispatcher->dispatch($event);
         }

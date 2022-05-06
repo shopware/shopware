@@ -7,7 +7,9 @@ use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Symfony\Component\HttpFoundation\Response;
 use function sprintf;
 
 class RedisReverseProxyGateway extends AbstractReverseProxyGateway
@@ -78,6 +80,13 @@ LUA;
      */
     public function tag(array $tags, string $url/*, Response $response */): void
     {
+        if (\func_num_args() < 3 || !func_get_arg(2) instanceof Response) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'Method `tag()` in "RedisReverseProxyGateway" expects third parameter of type `Response` in v6.5.0.0.'
+            );
+        }
+
         foreach ($tags as $tag) {
             $this->redis->lPush($tag, $url);
         }

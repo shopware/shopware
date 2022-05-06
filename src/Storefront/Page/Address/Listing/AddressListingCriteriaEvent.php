@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -31,16 +32,31 @@ class AddressListingCriteriaEvent extends NestedEvent implements ShopwareSalesCh
 
     public function getCriteria(): Criteria
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'Shopware\Core\Checkout\Customer\Event\AddressListingCriteriaEvent')
+        );
+
         return $this->criteria;
     }
 
     public function getContext(): Context
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'Shopware\Core\Checkout\Customer\Event\AddressListingCriteriaEvent')
+        );
+
         return $this->salesChannelContext->getContext();
     }
 
     public function getSalesChannelContext(): SalesChannelContext
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'Shopware\Core\Checkout\Customer\Event\AddressListingCriteriaEvent')
+        );
+
         return $this->salesChannelContext;
     }
 }

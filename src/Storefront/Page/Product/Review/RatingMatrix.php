@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\Product\Review;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\Bucket;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
@@ -35,6 +36,11 @@ class RatingMatrix extends Struct
      */
     public function __construct(array $matrix)
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix')
+        );
+
         for ($points = self::MAX_POINTS; $points > 0; --$points) {
             foreach ($matrix as $rating) {
                 $rawRatingKey = (float) $rating->getKey();
@@ -65,26 +71,51 @@ class RatingMatrix extends Struct
 
     public function getMatrix(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix')
+        );
+
         return $this->matrix;
     }
 
     public function getTotalReviewCount(): int
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix')
+        );
+
         return $this->totalReviewCount;
     }
 
     public function getPointSum(): float
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix')
+        );
+
         return $this->pointSum;
     }
 
     public function getMaxPoints(): int
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix')
+        );
+
         return self::MAX_POINTS;
     }
 
     public function getAverageRating(): float
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix')
+        );
+
         if ($this->getPointSum() > 0) {
             return $this->getPointSum() / $this->getTotalReviewCount();
         }

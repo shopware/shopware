@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Contact;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,6 +25,11 @@ class ContactPageLoadedEvent extends PageLoadedEvent
 
     public function getPage(): ContactPage
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'ContactRoute')
+        );
+
         return $this->page;
     }
 }

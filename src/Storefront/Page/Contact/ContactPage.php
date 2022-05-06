@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Contact;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Storefront\Page\Page;
 
@@ -17,11 +18,21 @@ class ContactPage extends Page
 
     public function getSalutations(): SalutationCollection
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'ContactRoute')
+        );
+
         return $this->salutations;
     }
 
     public function setSalutations(SalutationCollection $salutations): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'ContactRoute')
+        );
+
         $this->salutations = $salutations;
     }
 }

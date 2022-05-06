@@ -9,6 +9,7 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Storefront\Framework\Cache\ReverseProxy\RedisReverseProxyGateway;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class RedisReverseProxyGatewayTest extends TestCase
 {
@@ -45,7 +46,7 @@ class RedisReverseProxyGatewayTest extends TestCase
     {
         $this->redis->expects(static::exactly(2))->method('lPush')->withConsecutive(['product-1', '/foo'], ['product-2', '/foo']);
 
-        $this->gateway->tag(['product-1', 'product-2'], '/foo');
+        $this->gateway->tag(['product-1', 'product-2'], '/foo', new SymfonyResponse());
     }
 
     public function testInvalidate(): void

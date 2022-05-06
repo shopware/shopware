@@ -59,7 +59,7 @@ class CaptchaController extends StorefrontController
             throw new MissingRequestParameterException('formId');
         }
 
-        if ($this->basicCaptcha->isValid($request)) {
+        if ($this->basicCaptcha->isValid($request, [])) {
             $fakeSession = $request->get(BasicCaptcha::CAPTCHA_REQUEST_PARAMETER);
             $request->getSession()->set($formId . BasicCaptcha::BASIC_CAPTCHA_SESSION, $fakeSession);
 

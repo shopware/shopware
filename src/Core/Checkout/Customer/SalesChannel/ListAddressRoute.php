@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\Event\AddressListingCriteriaEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
@@ -70,7 +71,7 @@ class ListAddressRoute extends AbstractListAddressRoute
             ->addAssociation('countryState')
             ->addFilter(new EqualsFilter('customer_address.customerId', $customer->getId()));
 
-        if (\class_exists(StorefrontAddressListingCriteriaEvent::class)) {
+        if (!Feature::isActive('v6.5.0.0') && \class_exists(StorefrontAddressListingCriteriaEvent::class)) {
             $this->eventDispatcher->dispatch(new StorefrontAddressListingCriteriaEvent($criteria, $context));
         }
         $this->eventDispatcher->dispatch(new AddressListingCriteriaEvent($criteria, $context));

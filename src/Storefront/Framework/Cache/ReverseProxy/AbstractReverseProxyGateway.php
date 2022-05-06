@@ -2,6 +2,8 @@
 
 namespace Shopware\Storefront\Framework\Cache\ReverseProxy;
 
+use Shopware\Core\Framework\Feature;
+
 abstract class AbstractReverseProxyGateway
 {
     abstract public function getDecorated(): AbstractReverseProxyGateway;
@@ -16,10 +18,15 @@ abstract class AbstractReverseProxyGateway
     abstract public function ban(array $urls): void;
 
     /**
-     * @deprecated tag:v6.5.0 - banAll method will be required
+     * @deprecated tag:v6.5.0 - banAll method will be abstract and required to be implemented by all implementations of this class
      */
     public function banAll(): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            'Method `banAll()` in "AbstractReverseProxyGateway" will be abstract in v6.5.0.0 and needs to be implemented by all implementations.'
+        );
+
         $this->ban(['/']);
     }
 }

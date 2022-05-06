@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Rule\Aggregate\RuleCondition;
 
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -25,6 +26,11 @@ class RuleConditionEntity extends Entity
     /**
      * @var string|null
      */
+    protected $scriptId;
+
+    /**
+     * @var string|null
+     */
     protected $parentId;
 
     /**
@@ -36,6 +42,11 @@ class RuleConditionEntity extends Entity
      * @var RuleEntity|null
      */
     protected $rule;
+
+    /**
+     * @var AppScriptConditionEntity|null
+     */
+    protected $appScriptCondition;
 
     /**
      * @var RuleConditionCollection|null
@@ -72,6 +83,16 @@ class RuleConditionEntity extends Entity
         $this->ruleId = $ruleId;
     }
 
+    public function getScriptId(): ?string
+    {
+        return $this->scriptId;
+    }
+
+    public function setScriptId(?string $scriptId): void
+    {
+        $this->scriptId = $scriptId;
+    }
+
     public function getParentId(): ?string
     {
         return $this->parentId;
@@ -100,6 +121,16 @@ class RuleConditionEntity extends Entity
     public function setRule(?RuleEntity $rule): void
     {
         $this->rule = $rule;
+    }
+
+    public function getAppScriptCondition(): ?AppScriptConditionEntity
+    {
+        return $this->appScriptCondition;
+    }
+
+    public function setAppScriptCondition(?AppScriptConditionEntity $appScriptCondition): void
+    {
+        $this->appScriptCondition = $appScriptCondition;
     }
 
     public function getChildren(): ?RuleConditionCollection

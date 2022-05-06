@@ -4,14 +4,18 @@ namespace Shopware\Core\Content\Rule\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\ConditionTypeNotFound;
+use Shopware\Core\Framework\App\Event\AppScriptConditionEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\ContainerInterface;
+use Shopware\Core\Framework\Rule\ScriptRule;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class RulePayloadUpdater
+class RulePayloadUpdater implements EventSubscriberInterface
 {
     private Connection $connection;
 
@@ -23,10 +27,21 @@ class RulePayloadUpdater
         $this->ruleConditionRegistry = $ruleConditionRegistry;
     }
 
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            AppScriptConditionEvents::APP_SCRIPT_CONDITION_WRITTEN_EVENT => 'updatePayloads',
+        ];
+    }
+
     public function update(array $ids): array
     {
         $conditions = $this->connection->fetchAll(
-            'SELECT LOWER(HEX(rc.rule_id)) as array_key, rc.* FROM rule_condition rc  WHERE rc.rule_id IN (:ids) ORDER BY rc.rule_id',
+            'SELECT LOWER(HEX(rc.rule_id)) as array_key, rc.*, rs.script, rs.identifier, rs.updated_at as lastModified
+            FROM rule_condition rc
+            LEFT JOIN app_script_condition rs ON rc.script_id = rs.id AND rs.active = 1
+            WHERE rc.rule_id IN (:ids)
+            ORDER BY rc.rule_id',
             ['ids' => Uuid::fromHexToBytesList($ids)],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
@@ -66,6 +81,24 @@ class RulePayloadUpdater
         return $updated;
     }
 
+    public function updatePayloads(EntityWrittenEvent $event): void
+    {
+        $ruleIds = $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT rc.rule_id
+                FROM rule_condition rc
+                INNER JOIN app_script_condition rs ON rc.script_id = rs.id
+                WHERE rs.id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList(array_values($event->getIds()))],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
+
+        if (empty($ruleIds)) {
+            return;
+        }
+
+        $this->update(Uuid::fromBytesToHexList($ruleIds));
+    }
+
     private function buildNested(array $rules, ?string $parentId): array
     {
         $nested = [];
@@ -80,6 +113,19 @@ class RulePayloadUpdater
 
             $ruleClass = $this->ruleConditionRegistry->getRuleClass($rule['type']);
             $object = new $ruleClass();
+
+            if ($object instanceof ScriptRule) {
+                $object->assign([
+                    'script' => $rule['script'] ?? '',
+                    'lastModified' => $rule['lastModified'] ? new \DateTimeImmutable($rule['lastModified']) : null,
+                    'identifier' => $rule['identifier'] ?? null,
+                    'values' => $rule['value'] ? json_decode($rule['value'], true) : [],
+                ]);
+
+                $nested[] = $object;
+
+                continue;
+            }
 
             if ($rule['value'] !== null) {
                 $object->assign(json_decode($rule['value'], true));

@@ -93,6 +93,17 @@
                         <xs:field xpath="@identifier"/>
                     </xs:unique>
                 </xs:element>
+                <xs:element name="rule-conditions" type="rule-conditions" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation xml:lang="en">
+                            Register rule conditions your app provides.
+                        </xs:documentation>
+                    </xs:annotation>
+                    <xs:unique name="uniqueRuleConditionName">
+                        <xs:selector xpath="rule-condition"/>
+                        <xs:field xpath="@identifier"/>
+                    </xs:unique>
+                </xs:element>
             </xs:all>
         </xs:complexType>
     </xs:element>
@@ -453,6 +464,20 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="rule-conditions">
+        <xs:sequence>
+            <xs:element name="rule-condition" type="rule-condition" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="rule-condition">
+        <xs:choice maxOccurs="unbounded">
+            <xs:element type="xs:string" name="identifier"/>
+            <xs:element type="translatableString" name="name" maxOccurs="unbounded"/>
+            <xs:element type="xs:string" name="group"/>
+            <xs:element type="xs:string" name="script"/>
+            <xs:element name="constraints" maxOccurs="unbounded" type="custom-field-list"/>
         </xs:choice>
     </xs:complexType>
 </xs:schema>

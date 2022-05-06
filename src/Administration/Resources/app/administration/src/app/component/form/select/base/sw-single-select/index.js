@@ -127,6 +127,7 @@ Component.register('sw-single-select', {
             },
             set(newValue) {
                 this.currentValue = this.getKey(newValue, this.valueProperty);
+                this.$emit('item-selected', newValue);
             },
         },
 

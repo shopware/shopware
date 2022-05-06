@@ -50,6 +50,14 @@ Component.register('sw-condition-type-select', {
     },
 
     computed: {
+        currentValue() {
+            return this.condition.scriptId ?? this.condition.type;
+        },
+
+        valueProperty() {
+            return this.condition.scriptId ? 'scriptId' : 'type';
+        },
+
         ucTerm() {
             return this.typeSearchTerm.toUpperCase();
         },
@@ -108,7 +116,24 @@ Component.register('sw-condition-type-select', {
         },
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            if (this.condition.type === 'scriptRule' && !this.condition.scriptId) {
+                this.condition.type = null;
+            }
+        },
+
+        changeItem(item) {
+            const { type, scriptId, appScriptCondition } = item ?? {};
+            this.condition.type = type;
+            this.condition.scriptId = scriptId;
+            this.condition.appScriptCondition = appScriptCondition;
+        },
+
         changeType(type) {
             this.condition.value = null;
             if (this.condition[this.childAssociationField] && this.condition[this.childAssociationField].length > 0) {

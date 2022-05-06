@@ -30,6 +30,8 @@ describe('Rule builder: Test assigning tags', () => {
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-skeleton').should('not.exist');
 
+        cy.get('.sw-skeleton').should('not.exist');
+
         // fill basic data
         cy.get('.sw-field').contains('.sw-field', 'Name').then((field) => {
             cy.get('input', { withinSubject: field }).type('Rule 1st');

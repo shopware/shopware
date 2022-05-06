@@ -11,6 +11,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
+use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
+use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionEntity;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockEntity;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
@@ -269,6 +271,45 @@ class AppLifecycleTest extends TestCase
 
         static::expectException(InvalidAppConfigurationException::class);
         $this->appLifecycle->install($manifest, true, $this->context);
+    }
+
+    public function testInstallAndUpdateSavesRuleConditions(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withRuleConditions/manifest.xml');
+        $this->appLifecycle->install($manifest, true, $this->context);
+
+        $criteria = new Criteria();
+        $criteria->addAssociation('scriptConditions');
+        /** @var AppCollection $apps */
+        $apps = $this->appRepository->search($criteria, $this->context)->getEntities();
+
+        static::assertCount(1, $apps);
+        static::assertEquals('withRuleConditions', $apps->first()->getName());
+        /** @var AppScriptConditionCollection $scriptCollection */
+        $scriptCollection = $apps->first()->getScriptConditions();
+        static::assertCount(14, $scriptCollection);
+
+        foreach ($scriptCollection as $scriptCondition) {
+            static::assertStringContainsString('app\withRuleConditions_', $scriptCondition->getIdentifier());
+            static::assertStringContainsString('{% return true %}', $scriptCondition->getScript());
+            static::assertIsArray($scriptCondition->getConfig());
+
+            $this->assertScriptConditionFieldConfig($scriptCondition);
+        }
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withRuleConditionsUpdated/manifest.xml');
+        $this->appLifecycle->update($manifest, ['id' => $apps->first()->getId(), 'roleId' => Uuid::randomHex()], $this->context);
+
+        /** @var AppCollection $apps */
+        $apps = $this->appRepository->search($criteria, $this->context)->getEntities();
+
+        /** @var AppScriptConditionCollection $scriptCollection */
+        $scriptCollection = $apps->first()->getScriptConditions();
+        static::assertCount(1, $scriptCollection);
+        static::assertEquals('app\withRuleConditions_testcondition0', $scriptCollection->first()->getIdentifier());
+        static::assertArrayHasKey('number', $scriptCollection->first()->getConstraints());
+        static::assertCount(1, $scriptCollection->first()->getConfig());
+        static::assertEquals('int', $scriptCollection->first()->getConfig()[0]['type']);
     }
 
     public function testInstallThrowsIfAppIsAlreadyInstalled(): void
@@ -1595,6 +1636,84 @@ class AppLifecycleTest extends TestCase
         $filesystem = $this->getContainer()->get('shopware.filesystem.asset');
 
         static::assertTrue($filesystem->has('bundles/' . strtolower($appName) . '/asset.txt'));
+    }
+
+    private function assertScriptConditionFieldConfig(AppScriptConditionEntity $scriptCondition): void
+    {
+        switch ($scriptCondition->getIdentifier()) {
+            case 'app\withRuleConditions_testcondition0':
+                static::assertArrayHasKey('operator', $scriptCondition->getConstraints());
+                static::assertEquals('select', $scriptCondition->getConfig()[0]['type']);
+
+                break;
+            case 'app\withRuleConditions_testcondition1':
+                static::assertArrayHasKey('customerGroupIds', $scriptCondition->getConstraints());
+                static::assertEquals('entity', $scriptCondition->getConfig()[0]['type']);
+
+                break;
+            case 'app\withRuleConditions_testcondition2':
+                static::assertArrayHasKey('firstName', $scriptCondition->getConstraints());
+                static::assertEquals('text', $scriptCondition->getConfig()[0]['type']);
+
+                break;
+            case 'app\withRuleConditions_testcondition3':
+                static::assertArrayHasKey('number', $scriptCondition->getConstraints());
+                static::assertEquals('int', $scriptCondition->getConfig()[0]['type']);
+
+                break;
+            case 'app\withRuleConditions_testcondition4':
+                static::assertArrayHasKey('number', $scriptCondition->getConstraints());
+                static::assertEquals('float', $scriptCondition->getConfig()[0]['type']);
+
+                break;
+            case 'app\withRuleConditions_testcondition5':
+                static::assertArrayHasKey('productId', $scriptCondition->getConstraints());
+                static::assertEquals('entity', $scriptCondition->getConfig()[0]['type']);
+
+                break;
+            case 'app\withRuleConditions_testcondition6':
+                static::assertArrayHasKey('expected', $scriptCondition->getConstraints());
+                static::assertEquals('bool', $scriptCondition->getConfig()[0]['type']);
+
+                break;
+            case 'app\withRuleConditions_testcondition7':
+                static::assertArrayHasKey('datetime', $scriptCondition->getConstraints());
+                static::assertEquals('datetime', $scriptCondition->getConfig()[0]['type']);
+
+                break;
+            case 'app\withRuleConditions_testcondition8':
+                static::assertArrayHasKey('colorcode', $scriptCondition->getConstraints());
+                static::assertEquals('text', $scriptCondition->getConfig()[0]['type']);
+
+                break;
+            case 'app\withRuleConditions_testcondition9':
+                static::assertArrayHasKey('mediaId', $scriptCondition->getConstraints());
+                static::assertEquals('text', $scriptCondition->getConfig()[0]['type']);
+
+                break;
+            case 'app\withRuleConditions_testcondition10':
+                static::assertArrayHasKey('price', $scriptCondition->getConstraints());
+                static::assertEquals('price', $scriptCondition->getConfig()[0]['type']);
+
+                break;
+            case 'app\withRuleConditions_testcondition11':
+                static::assertArrayHasKey('firstName', $scriptCondition->getConstraints());
+                static::assertEquals('html', $scriptCondition->getConfig()[0]['type']);
+
+                break;
+            case 'app\withRuleConditions_testcondition12':
+                static::assertArrayHasKey('multiselection', $scriptCondition->getConstraints());
+                static::assertEquals('select', $scriptCondition->getConfig()[0]['type']);
+
+                break;
+            case 'app\withRuleConditions_testcondition13':
+                static::assertCount(0, $scriptCondition->getConstraints());
+                static::assertCount(0, $scriptCondition->getConfig());
+
+                break;
+            default:
+                static::fail(sprintf('Did not expect to find app script condition with identifier %s', $scriptCondition->getIdentifier()));
+        }
     }
 
     private function assertFlowActionExists(string $appId): void

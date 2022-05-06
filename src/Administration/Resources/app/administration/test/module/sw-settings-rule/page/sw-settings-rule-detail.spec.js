@@ -1,5 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
+import { kebabCase } from 'lodash';
 import 'src/module/sw-settings-rule/page/sw-settings-rule-detail';
+import flushPromises from 'flush-promises';
+
+const { EntityCollection } = Shopware.Data;
 
 function createRuleMock(isNew) {
     return {
@@ -10,6 +14,18 @@ function createRuleMock(isNew) {
             source: 'foo/rule'
         }
     };
+}
+
+function getCollection(repository) {
+    return new EntityCollection(
+        `/${kebabCase(repository)}`,
+        repository,
+        null,
+        { isShopwareContext: true },
+        [],
+        0,
+        null
+    );
 }
 
 function createWrapper(privileges = [], isNewRule = false) {
@@ -53,12 +69,13 @@ function createWrapper(privileges = [], isNewRule = false) {
                 getModuleTypes: () => []
             },
             repositoryFactory: {
-                create: () => {
+                create: (repository) => {
                     return {
                         create: () => {
                             return createRuleMock(true);
                         },
                         get: () => Promise.resolve(createRuleMock(false)),
+                        search: () => Promise.resolve(getCollection(repository)),
                         hasChanges: (rule, hasChanges) => { return hasChanges ?? false; },
                     };
                 }
@@ -97,6 +114,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     it('should have disabled fields', async () => {
         const wrapper = createWrapper();
 
+        await flushPromises();
+
         const buttonSave = wrapper.find('.sw-settings-rule-detail__save-action');
 
         expect(buttonSave.attributes().disabled).toBe('true');
@@ -106,6 +125,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         const wrapper = createWrapper([
             'rule.editor'
         ]);
+
+        await flushPromises();
 
         const buttonSave = wrapper.find('.sw-settings-rule-detail__save-action');
 
@@ -117,7 +138,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
             'rule.editor'
         ]);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-settings-rule-detail__tabs').exists()).toBeTruthy();
     });
@@ -127,7 +148,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
             'rule.editor'
         ], true);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-settings-rule-detail__tabs').exists()).toBeFalsy();
     });
@@ -136,6 +157,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         const wrapper = createWrapper([
             'rule.editor'
         ], false);
+
+        await flushPromises();
 
         expect(wrapper.vm.conditionsTreeContainsUserChanges).toBeFalsy();
         wrapper.vm.setTreeFinishedLoading();
@@ -148,6 +171,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         const wrapper = createWrapper([
             'rule.editor'
         ], false);
+
+        await flushPromises();
 
         wrapper.setData({
             conditionsTreeContainsUserChanges: true
@@ -167,6 +192,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
             'rule.editor'
         ], false);
 
+        await flushPromises();
+
         wrapper.setData({
             conditionsTreeContainsUserChanges: true
         });
@@ -185,6 +212,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         const wrapper = createWrapper([
             'rule.editor'
         ], false);
+
+        await flushPromises();
 
         wrapper.setData({
             conditionsTreeContainsUserChanges: false

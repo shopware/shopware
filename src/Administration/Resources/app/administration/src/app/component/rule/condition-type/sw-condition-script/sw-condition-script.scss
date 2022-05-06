@@ -1,0 +1,73 @@
+@import "~scss/variables";
+
+.sw-condition-script {
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr)) !important;
+
+    &.has--operator-first {
+        grid-template-columns: minmax(128px, max-content) repeat(auto-fit, minmax(0, 1fr)) !important;
+    }
+
+    .sw-arrow-field:last-child {
+        .sw-arrow-field__arrow {
+            display: none;
+        }
+    }
+
+    .sw-field--checkbox {
+        margin: 12px 0 0 14px;
+    }
+
+    .sw-media-field {
+        margin: 0 0 0 14px;
+        height: 100%;
+        width: auto;
+
+        .sw-media-field__label {
+            display: none;
+        }
+
+        .sw-media-field__input-container {
+            grid-template-rows: 100%;
+            height: 100%;
+
+            .sw-media-field__input {
+                border: 0;
+                padding: 0;
+            }
+
+            .sw-button--square {
+                border: 0;
+                padding: 0;
+                height: 100%;
+                border-left: 1px solid $color-gray-300;
+            }
+        }
+    }
+
+    .sw-media-base-item.is--list {
+        grid-template-columns: auto minmax(60px, 1fr);
+        grid-template-rows: 100%;
+
+        .sw-media-base-item__preview-container {
+            height: 28px;
+            margin: 5px 0;
+        }
+    }
+
+    .sw-entity-single-select {
+        .sw-entity-single-select__selection-text {
+            max-width: 100%;
+        }
+
+        .sw-product-variant-info {
+            max-width: 100%;
+            transform: translateY(6px);
+        }
+    }
+
+    .sw-field--datepicker {
+        .sw-field__hint {
+            display: none;
+        }
+    }
+}

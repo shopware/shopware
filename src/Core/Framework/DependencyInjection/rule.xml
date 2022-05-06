@@ -27,6 +27,10 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Rule\ScriptRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Rule\DateRangeRule">
             <tag name="shopware.rule.definition"/>
         </service>

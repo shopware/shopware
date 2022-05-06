@@ -30,6 +30,7 @@ Shopware.Service('privileges')
                     'promotion_discount:read',
                     'promotion_setgroup:read',
                     'event_action:read',
+                    'app_script_condition:read',
                 ],
                 dependencies: [],
             },

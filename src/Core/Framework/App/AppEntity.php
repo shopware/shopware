@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodCollection;
+use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockCollection;
 use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionCollection;
@@ -193,6 +194,13 @@ class AppEntity extends Entity
      * @var AppPaymentMethodCollection|null
      */
     protected $paymentMethods;
+
+    /**
+     * @internal
+     *
+     * @var AppScriptConditionCollection|null
+     */
+    protected $scriptConditions;
 
     /**
      * @internal
@@ -551,6 +559,24 @@ class AppEntity extends Entity
     public function setPaymentMethods(AppPaymentMethodCollection $paymentMethods): void
     {
         $this->paymentMethods = $paymentMethods;
+    }
+
+    /**
+     * @internal
+     */
+    public function getScriptConditions(): ?AppScriptConditionCollection
+    {
+        $this->checkIfPropertyAccessIsAllowed('scriptConditions');
+
+        return $this->scriptConditions;
+    }
+
+    /**
+     * @internal
+     */
+    public function setScriptConditions(AppScriptConditionCollection $scriptConditions): void
+    {
+        $this->scriptConditions = $scriptConditions;
     }
 
     /**

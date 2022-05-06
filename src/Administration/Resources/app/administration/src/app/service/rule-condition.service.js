@@ -194,12 +194,22 @@ export default function createConditionService() {
             return getByType('placeholder');
         }
 
+        if (type === 'scriptRule') {
+            const scriptRule = getConditions().filter((condition) => {
+                return condition.type === 'scriptRule';
+            }).shift();
+
+            if (scriptRule) {
+                return scriptRule;
+            }
+        }
+
         return $store[type];
     }
 
     function addCondition(type, condition) {
         condition.type = type;
-        $store[type] = condition;
+        $store[condition.scriptId ?? type] = condition;
     }
 
     function getOperatorSet(operatorSetName) {

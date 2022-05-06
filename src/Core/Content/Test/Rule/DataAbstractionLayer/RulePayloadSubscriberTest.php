@@ -10,13 +10,13 @@ use Shopware\Core\Content\Rule\DataAbstractionLayer\RulePayloadUpdater;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -57,7 +57,9 @@ class RulePayloadSubscriberTest extends TestCase
 
         $this->rulePayloadSubscriber = new RulePayloadSubscriber(
             $this->updater,
-            $this->getContainer()->get(CacheClearer::class)
+            $this->getContainer()->get(ScriptTraces::class),
+            $this->getContainer()->getParameter('kernel.cache_dir'),
+            $this->getContainer()->getParameter('kernel.debug')
         );
 
         $this->ruleDefinition = $this->getContainer()->get(RuleDefinition::class);

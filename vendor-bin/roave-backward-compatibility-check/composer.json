@@ -26,7 +26,8 @@
         }
     },
     "require": {
-        "cweagans/composer-patches": "^1.7"
+        "cweagans/composer-patches": "^1.7",
+        "doctrine/annotations": "^1.13"
     },
     "extra": {
         "patches": {

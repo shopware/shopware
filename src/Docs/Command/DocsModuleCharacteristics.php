@@ -22,6 +22,9 @@ class DocsModuleCharacteristics extends Command
      */
     private $moduleInspector;
 
+    /**
+     * @internal
+     */
     public function __construct(ModuleInspector $moduleInspector)
     {
         parent::__construct();

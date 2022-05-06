@@ -41,6 +41,9 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
 
     private AppConfirmationDeltaProvider $appDeltaService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         StoreClient $storeClient,
         AbstractAppLoader $appLoader,

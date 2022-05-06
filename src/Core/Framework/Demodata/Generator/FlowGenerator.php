@@ -49,6 +49,9 @@ class FlowGenerator implements DemodataGeneratorInterface
 
     private FlowActionCollector $flowActionCollector;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Connection $connection,
         DefinitionInstanceRegistry $registry,

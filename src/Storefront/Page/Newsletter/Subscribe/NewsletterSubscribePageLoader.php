@@ -22,6 +22,9 @@ class NewsletterSubscribePageLoader
      */
     private $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher

@@ -12,6 +12,9 @@ class LineItemIsNewRule extends Rule
 {
     protected bool $isNew;
 
+    /**
+     * @internal
+     */
     public function __construct(bool $isNew = false)
     {
         parent::__construct();

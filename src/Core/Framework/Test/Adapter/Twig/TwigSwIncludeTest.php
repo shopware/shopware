@@ -15,6 +15,9 @@ use Shopware\Core\Kernel;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
+/**
+ * @internal
+ */
 class TwigSwIncludeTest extends TestCase
 {
     use KernelTestBehaviour;

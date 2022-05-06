@@ -7,6 +7,9 @@ use Shopware\Core\Checkout\Test\Cart\Common\FalseRule;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 
+/**
+ * @internal
+ */
 class ContainerTest extends TestCase
 {
     public function testConstructorWithRules(): void

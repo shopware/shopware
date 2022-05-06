@@ -15,6 +15,9 @@ class EntityReaderProfiler implements EntityReaderInterface
 {
     private EntityReaderInterface $decorated;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityReaderInterface $decorated)
     {
         $this->decorated = $decorated;

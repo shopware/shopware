@@ -23,6 +23,9 @@ class DeleteNotUsedMediaService
      */
     private $defaultFolderRepo;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $mediaRepo, EntityRepositoryInterface $defaultFolderRepo)
     {
         $this->mediaRepo = $mediaRepo;

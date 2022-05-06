@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\Cleanup\CleanupSalesChannelContextTaskHandler;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class CleanupSalesChannelContextTaskHandlerTest extends TestCase
 {
     use KernelTestBehaviour;

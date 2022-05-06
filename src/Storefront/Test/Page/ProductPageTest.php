@@ -20,6 +20,9 @@ use Shopware\Storefront\Page\Product\Review\RatingMatrix;
 use Shopware\Storefront\Page\Product\Review\ReviewLoaderResult;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class ProductPageTest extends TestCase
 {
     use IntegrationTestBehaviour;

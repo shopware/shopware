@@ -34,6 +34,9 @@ class AccountOrderDetailPageLoader
      */
     private $orderRoute;
 
+    /**
+     * @internal
+     */
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,

@@ -31,6 +31,9 @@ class UserConfigController extends AbstractController
 
     private Connection $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $userConfigRepository, Connection $connection)
     {
         $this->userConfigRepository = $userConfigRepository;

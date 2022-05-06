@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelListCommand;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @internal
+ */
 class SalesChannelListCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -15,6 +15,9 @@ class DeleteUnusedGuestCustomersCommand extends Command
 
     private DeleteUnusedGuestCustomerService $deleteUnusedGuestCustomerService;
 
+    /**
+     * @internal
+     */
     public function __construct(DeleteUnusedGuestCustomerService $deleteUnusedGuestCustomerService)
     {
         parent::__construct();

@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-final - Will be @final
+ */
 class IdSearchResult extends Struct
 {
     use StateAwareTrait;

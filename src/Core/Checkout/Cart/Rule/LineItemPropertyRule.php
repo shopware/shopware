@@ -17,6 +17,9 @@ class LineItemPropertyRule extends Rule
 
     protected string $operator;
 
+    /**
+     * @internal
+     */
     public function __construct(array $identifiers = [], string $operator = self::OPERATOR_EQ)
     {
         parent::__construct();

@@ -11,6 +11,9 @@ class SnippetFixer
      */
     private $snippetFileHandler;
 
+    /**
+     * @internal
+     */
     public function __construct(SnippetFileHandler $snippetFileHandler)
     {
         $this->snippetFileHandler = $snippetFileHandler;

@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1638993987AddAppFlowActionTable;
 
+/**
+ * @internal
+ */
 class Migration1638993987AddAppFlowActionTableTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -13,6 +13,9 @@ use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class HttpKernelTest extends TestCase
 {
     use EnvTestBehaviour;
@@ -42,6 +45,8 @@ class HttpKernelTest extends TestCase
 }
 
 /**
+ * @internal
+ *
  * @method void configureContainer(ContainerBuilder $container, LoaderInterface $loader)
  */
 class TestKernel extends Kernel

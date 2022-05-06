@@ -20,6 +20,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class DefaultMappingsTest extends TestCase
 {
     use KernelTestBehaviour;

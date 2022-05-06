@@ -8,6 +8,9 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldSet;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\CustomFieldTypeFactory;
 
+/**
+ * @internal
+ */
 class CustomFieldTypeFactoryTest extends TestCase
 {
     public function testCreateFromXmlThrowsExceptionOnInvalidTag(): void

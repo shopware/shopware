@@ -17,6 +17,9 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
 use function file_get_contents;
 
+/**
+ * @internal
+ */
 class ChangelogCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -37,6 +37,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class ProcessorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -388,6 +391,9 @@ class ProcessorTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class PersistentError extends Error
 {
     public function getId(): string
@@ -421,6 +427,9 @@ class PersistentError extends Error
     }
 }
 
+/**
+ * @internal
+ */
 class NonePersistentError extends PersistentError
 {
     public function getId(): string

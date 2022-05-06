@@ -19,6 +19,9 @@ use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class QuantityPriceCalculatorTest extends TestCase
 {
     /**

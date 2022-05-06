@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviou
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class ResponseHeaderListenerTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;

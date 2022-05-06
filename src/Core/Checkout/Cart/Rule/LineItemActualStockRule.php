@@ -16,6 +16,9 @@ class LineItemActualStockRule extends Rule
 
     protected string $operator;
 
+    /**
+     * @internal
+     */
     public function __construct(string $operator = self::OPERATOR_EQ, ?int $stock = null)
     {
         parent::__construct();

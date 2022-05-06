@@ -13,6 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
+ * @internal
  * @group rules
  */
 class LineItemIsNewRuleTest extends TestCase

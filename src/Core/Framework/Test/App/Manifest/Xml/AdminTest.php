@@ -7,6 +7,9 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 
+/**
+ * @internal
+ */
 class AdminTest extends TestCase
 {
     public function testFromXml(): void

@@ -28,6 +28,9 @@ class HappyPathValidator implements ValidatorInterface
 {
     private ValidatorInterface $inner;
 
+    /**
+     * @internal
+     */
     public function __construct(ValidatorInterface $inner)
     {
         $this->inner = $inner;

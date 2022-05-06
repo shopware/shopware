@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Test\CustomEntity\CustomEntityTest;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class CustomEntityApiControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

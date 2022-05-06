@@ -48,6 +48,8 @@ class CachedNavigationRoute extends AbstractNavigationRoute
     private EventDispatcherInterface $dispatcher;
 
     /**
+     * @internal
+     *
      * @param AbstractCacheTracer<NavigationRouteResponse> $tracer
      */
     public function __construct(

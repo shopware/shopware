@@ -28,6 +28,9 @@ class DatabaseConfigLoader extends AbstractConfigLoader
 
     private string $baseTheme;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $themeRepository,
         StorefrontPluginRegistryInterface $extensionRegistry,

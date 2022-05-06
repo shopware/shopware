@@ -39,6 +39,9 @@ class ImportEntityCommand extends Command
 
     private FilesystemInterface $filesystem;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ImportExportService $initiationService,
         EntityRepositoryInterface $profileRepository,

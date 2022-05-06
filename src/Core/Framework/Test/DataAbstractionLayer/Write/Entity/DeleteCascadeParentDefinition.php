@@ -17,6 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class DeleteCascadeParentDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'delete_cascade_parent';
@@ -44,6 +47,9 @@ class DeleteCascadeParentDefinition extends EntityDefinition
     }
 }
 
+/**
+ * @internal
+ */
 class DeleteCascadeChildDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'delete_cascade_child';
@@ -71,6 +77,9 @@ class DeleteCascadeChildDefinition extends EntityDefinition
     }
 }
 
+/**
+ * @internal
+ */
 class DeleteCascadeManyToOneDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'delete_cascade_many_to_one';

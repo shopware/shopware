@@ -13,6 +13,9 @@ class ProductExportValidator implements ProductExportValidatorInterface
      */
     private $validators;
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $validators)
     {
         $this->validators = $validators;

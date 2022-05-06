@@ -8,6 +8,9 @@ use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
+/**
+ * @internal
+ */
 class MaintenanceModeResolverTest extends TestCase
 {
     public function testShouldInstantiate(): void

@@ -16,6 +16,8 @@ class DoctrineSQLHandler extends AbstractProcessingHandler
     protected $connection;
 
     /**
+     * @internal
+     *
      * @param 100|200|250|300|400|500|550|600 $level
      */
     public function __construct(Connection $connection, int $level = Logger::DEBUG, bool $bubble = true)

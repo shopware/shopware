@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
+ * @internal
  * @group skip-paratest
  */
 class ExtensionLifecycleServiceTest extends TestCase

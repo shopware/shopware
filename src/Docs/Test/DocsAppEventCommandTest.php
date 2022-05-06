@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Docs\Command\App\DocsAppEventCommand;
 
+/**
+ * @internal
+ */
 class DocsAppEventCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

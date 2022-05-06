@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Test\Plugin\PluginIntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class ComposerPluginLoaderTest extends TestCase
 {
     use PluginIntegrationTestBehaviour;

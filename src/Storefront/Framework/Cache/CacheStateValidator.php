@@ -9,6 +9,9 @@ class CacheStateValidator implements CacheStateValidatorInterface
 {
     private array $states;
 
+    /**
+     * @internal
+     */
     public function __construct(array $states)
     {
         $this->states = $states;

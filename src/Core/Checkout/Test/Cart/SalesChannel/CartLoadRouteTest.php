@@ -22,6 +22,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
+ * @internal
  * @group store-api
  */
 class CartLoadRouteTest extends TestCase

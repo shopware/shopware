@@ -17,6 +17,9 @@ use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV2;
 use Shopware\Storefront\Framework\Captcha\HoneypotCaptcha;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class GoogleReCaptchaV2Test extends TestCase
 {
     use KernelTestBehaviour;

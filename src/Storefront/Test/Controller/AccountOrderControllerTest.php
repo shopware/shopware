@@ -28,6 +28,9 @@ use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoadedHook;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class AccountOrderControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

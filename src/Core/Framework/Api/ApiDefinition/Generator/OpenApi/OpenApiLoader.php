@@ -36,6 +36,9 @@ class OpenApiLoader
      */
     private $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(RouterInterface $router, EventDispatcherInterface $eventDispatcher)
     {
         $this->router = $router;

@@ -8,6 +8,9 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class PromotionSetGroupEntityTest extends TestCase
 {
     private const KEY_PACKAGER_COUNT = 'PACKAGER_COUNT';

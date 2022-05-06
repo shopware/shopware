@@ -7,6 +7,9 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 
+/**
+ * @internal
+ */
 class RequestSignerTest extends TestCase
 {
     private string $authSecret;

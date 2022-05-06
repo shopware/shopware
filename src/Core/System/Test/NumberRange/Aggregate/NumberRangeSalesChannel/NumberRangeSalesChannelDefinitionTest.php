@@ -12,6 +12,9 @@ use Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRan
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRangeSalesChannelEntity;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class NumberRangeSalesChannelDefinitionTest extends TestCase
 {
     use IntegrationTestBehaviour;

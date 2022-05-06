@@ -19,6 +19,9 @@ class TypeDetector implements TypeDetectorInterface
      */
     private $typeDetector;
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $typeDetector)
     {
         $this->typeDetector = $typeDetector;

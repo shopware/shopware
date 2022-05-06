@@ -21,6 +21,9 @@ class ChangelogCheckCommand extends Command
      */
     private $validator;
 
+    /**
+     * @internal
+     */
     public function __construct(ChangelogValidator $validator)
     {
         parent::__construct();

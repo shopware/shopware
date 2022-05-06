@@ -13,6 +13,9 @@ class DeleteFileHandler extends AbstractMessageHandler
 
     private FilesystemInterface $filesystemPrivate;
 
+    /**
+     * @internal
+     */
     public function __construct(FilesystemInterface $filesystemPublic, FilesystemInterface $filesystemPrivate)
     {
         $this->filesystemPublic = $filesystemPublic;

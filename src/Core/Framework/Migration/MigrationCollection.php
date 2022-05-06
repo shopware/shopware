@@ -34,6 +34,9 @@ class MigrationCollection
      */
     private $logger;
 
+    /**
+     * @internal
+     */
     public function __construct(
         MigrationSource $migrationSource,
         MigrationRuntime $migrationRuntime,

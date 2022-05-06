@@ -16,6 +16,9 @@ class ProductCrossSellingSerializer extends EntitySerializer
 {
     private EntityRepositoryInterface $assignedProductsRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $assignedProductsRepository)
     {
         $this->assignedProductsRepository = $assignedProductsRepository;

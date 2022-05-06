@@ -61,6 +61,9 @@ class CriteriaParser
 {
     private EntityDefinitionQueryHelper $helper;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityDefinitionQueryHelper $helper)
     {
         $this->helper = $helper;

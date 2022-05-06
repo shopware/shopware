@@ -17,6 +17,9 @@ class IncrementApiController
 {
     private IncrementGatewayRegistry $gatewayRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(IncrementGatewayRegistry $gatewayRegistry)
     {
         $this->gatewayRegistry = $gatewayRegistry;

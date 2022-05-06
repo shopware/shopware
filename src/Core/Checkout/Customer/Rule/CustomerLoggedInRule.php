@@ -11,6 +11,9 @@ class CustomerLoggedInRule extends Rule
 {
     protected bool $isLoggedIn;
 
+    /**
+     * @internal
+     */
     public function __construct(bool $isLoggedIn = false)
     {
         parent::__construct();

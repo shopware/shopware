@@ -28,6 +28,9 @@ class ProductExportGenerateCommand extends Command
      */
     private $productExportService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         AbstractSalesChannelContextFactory $salesChannelContextFactory,
         ProductExporterInterface $productExportService

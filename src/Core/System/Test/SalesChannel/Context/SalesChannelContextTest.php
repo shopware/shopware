@@ -21,6 +21,9 @@ use Shopware\Core\System\Tax\TaxRuleType\ZipCodeRangeRuleTypeFilter;
 use Shopware\Core\System\Tax\TaxRuleType\ZipCodeRuleTypeFilter;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class SalesChannelContextTest extends TestCase
 {
     use IntegrationTestBehaviour;

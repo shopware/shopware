@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Update\Checkers\WriteableCheck;
 use Shopware\Core\Framework\Update\Services\Filesystem;
 
+/**
+ * @internal
+ */
 class WritableCheckTest extends TestCase
 {
     use KernelTestBehaviour;

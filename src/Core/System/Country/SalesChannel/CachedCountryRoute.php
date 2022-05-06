@@ -44,6 +44,8 @@ class CachedCountryRoute extends AbstractCountryRoute
     private EventDispatcherInterface $dispatcher;
 
     /**
+     * @internal
+     *
      * @param AbstractCacheTracer<CountryRouteResponse> $tracer
      */
     public function __construct(

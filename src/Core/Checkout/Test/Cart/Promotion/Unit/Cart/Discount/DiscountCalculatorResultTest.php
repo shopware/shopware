@@ -9,6 +9,9 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositionItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorResult;
 
+/**
+ * @internal
+ */
 class DiscountCalculatorResultTest extends TestCase
 {
     /**

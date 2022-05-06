@@ -8,6 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 
+/**
+ * @internal
+ */
 class HtmlSanitizerTest extends TestCase
 {
     use IntegrationTestBehaviour;

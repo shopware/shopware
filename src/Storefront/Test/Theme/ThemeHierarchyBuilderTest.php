@@ -13,6 +13,9 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+/**
+ * @internal
+ */
 class ThemeHierarchyBuilderTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -122,6 +125,9 @@ class ThemeHierarchyBuilderTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class TestInheritanceBuilder implements ThemeInheritanceBuilderInterface
 {
     public function build(array $bundles, array $themes): array

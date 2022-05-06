@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Test\Translation\_fixtures;
 
 use Shopware\Core\System\Snippet\Files\SnippetFileInterface;
 
+/**
+ * @internal
+ */
 class SnippetFile_UnitTest implements SnippetFileInterface
 {
     public function getName(): string

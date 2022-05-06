@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
+/**
+ * @internal
+ */
 class TokenFilterTest extends TestCase
 {
     use KernelTestBehaviour;

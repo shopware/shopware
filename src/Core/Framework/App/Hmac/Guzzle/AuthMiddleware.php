@@ -28,6 +28,9 @@ class AuthMiddleware
 
     private AppLocaleProvider $localeProvider;
 
+    /**
+     * @internal
+     */
     public function __construct(string $shopwareVersion, AppLocaleProvider $localeProvider)
     {
         $this->shopwareVersion = $shopwareVersion;

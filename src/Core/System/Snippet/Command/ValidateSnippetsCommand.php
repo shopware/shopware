@@ -28,6 +28,9 @@ class ValidateSnippetsCommand extends Command
      */
     private $snippetFixer;
 
+    /**
+     * @internal
+     */
     public function __construct(SnippetValidatorInterface $snippetValidator, SnippetFixer $snippetFixer)
     {
         $this->snippetValidator = $snippetValidator;

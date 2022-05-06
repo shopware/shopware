@@ -16,6 +16,9 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
      */
     private $projectDir;
 
+    /**
+     * @internal
+     */
     public function __construct(string $projectDir)
     {
         $this->projectDir = $projectDir;

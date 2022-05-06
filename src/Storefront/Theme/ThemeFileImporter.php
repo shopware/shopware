@@ -17,6 +17,9 @@ class ThemeFileImporter implements ThemeFileImporterInterface
 {
     private string $projectDir;
 
+    /**
+     * @internal
+     */
     public function __construct(string $projectDir)
     {
         $this->projectDir = $projectDir;

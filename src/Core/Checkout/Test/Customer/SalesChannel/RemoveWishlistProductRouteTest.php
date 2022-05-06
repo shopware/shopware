@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
+ * @internal
  * @group store-api
  */
 class RemoveWishlistProductRouteTest extends TestCase

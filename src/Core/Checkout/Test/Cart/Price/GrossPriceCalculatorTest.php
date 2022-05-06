@@ -12,6 +12,9 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
+/**
+ * @internal
+ */
 class GrossPriceCalculatorTest extends TestCase
 {
     use KernelTestBehaviour;

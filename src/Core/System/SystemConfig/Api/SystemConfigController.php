@@ -30,6 +30,9 @@ class SystemConfigController extends AbstractController
      */
     private $systemConfig;
 
+    /**
+     * @internal
+     */
     public function __construct(ConfigurationService $configurationService, SystemConfigService $systemConfig)
     {
         $this->configurationService = $configurationService;

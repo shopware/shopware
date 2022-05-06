@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1620820321AddDefaultDomainForHeadlessSaleschannel;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class Migration1620820321AddDefaultDomainForHeadlessSaleschannelTest extends TestCase
 {
     use IntegrationTestBehaviour;

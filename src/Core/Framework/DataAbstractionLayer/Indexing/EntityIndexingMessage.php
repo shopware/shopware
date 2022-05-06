@@ -30,6 +30,9 @@ class EntityIndexingMessage
      */
     private array $skip = [];
 
+    /**
+     * @internal
+     */
     public function __construct($data, $offset = null, ?Context $context = null, bool $forceQueue = false)
     {
         $this->data = $data;

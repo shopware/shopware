@@ -10,6 +10,9 @@ use Shopware\Core\Checkout\Cart\Rule\GoodsCountRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class GoodsCountRuleTest extends TestCase
 {
     public function testRuleWithExactCountMatch(): void

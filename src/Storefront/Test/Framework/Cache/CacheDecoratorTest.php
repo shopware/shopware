@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheTagCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
+ * @internal
  * @group cache
  */
 class CacheDecoratorTest extends TestCase

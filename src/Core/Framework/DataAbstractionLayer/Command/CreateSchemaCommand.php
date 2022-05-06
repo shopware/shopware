@@ -28,6 +28,9 @@ class CreateSchemaCommand extends Command
      */
     private $dir;
 
+    /**
+     * @internal
+     */
     public function __construct(
         SchemaGenerator $generator,
         DefinitionInstanceRegistry $registry,

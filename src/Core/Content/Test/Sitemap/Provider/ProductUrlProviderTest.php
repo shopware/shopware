@@ -24,6 +24,9 @@ use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Component\Routing\RouterInterface;
 
+/**
+ * @internal
+ */
 class ProductUrlProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;

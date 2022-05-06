@@ -7,6 +7,9 @@ use Shopware\Core\Content\ProductExport\Error\ErrorCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Validator\XmlValidator;
 
+/**
+ * @internal
+ */
 class XmlValidatorTest extends TestCase
 {
     public function testEntityLoaderIsFalseAsBefore(): void

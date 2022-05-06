@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
+ * @internal
  * @group slow
  */
 class AuthControllerTest extends TestCase

@@ -21,6 +21,9 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
 
     private ?string $fallbackBaseUrl = null;
 
+    /**
+     * @internal
+     */
     public function __construct(
         PathnameStrategyInterface $pathnameStrategy,
         RequestStack $requestStack,

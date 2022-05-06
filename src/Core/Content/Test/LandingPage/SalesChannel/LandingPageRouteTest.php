@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser as KernelBrowserAlias;
 
 /**
+ * @internal
  * @group store-api
  */
 class LandingPageRouteTest extends TestCase

@@ -11,6 +11,9 @@ class RetryWebhookMessageFailedEvent
 
     private Context $context;
 
+    /**
+     * @internal
+     */
     public function __construct(DeadMessageEntity $deadMessage, Context $context)
     {
         $this->deadMessage = $deadMessage;

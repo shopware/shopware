@@ -19,6 +19,9 @@ class ElasticsearchOutdatedIndexDetector
 
     private ElasticsearchHelper $helper;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Client $client,
         ElasticsearchRegistry $esRegistry,

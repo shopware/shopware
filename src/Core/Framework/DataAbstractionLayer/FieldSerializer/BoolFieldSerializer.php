@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Symfony\Component\Validator\Constraints\Type;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ */
 class BoolFieldSerializer extends AbstractFieldSerializer
 {
     public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator

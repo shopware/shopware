@@ -19,6 +19,9 @@ use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Core\Test\TestDefaults;
 use function json_encode;
 
+/**
+ * @internal
+ */
 class SystemConfigServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

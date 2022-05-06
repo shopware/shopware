@@ -35,6 +35,8 @@ class CmsSlotsDataResolver
     private $definitionRegistry;
 
     /**
+     * @internal
+     *
      * @param CmsElementResolverInterface[] $resolvers
      */
     public function __construct(iterable $resolvers, array $repositories, DefinitionInstanceRegistry $definitionRegistry)

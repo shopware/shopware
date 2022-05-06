@@ -32,6 +32,9 @@ class StorefrontCartFacade
 
     private CartPersisterInterface $cartPersister;
 
+    /**
+     * @internal
+     */
     public function __construct(
         CartService $cartService,
         BlockedShippingMethodSwitcher $blockedShippingMethodSwitcher,

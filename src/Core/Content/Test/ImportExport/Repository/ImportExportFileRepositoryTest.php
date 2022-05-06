@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
+/**
+ * @internal
+ */
 class ImportExportFileRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

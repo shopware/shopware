@@ -9,6 +9,9 @@ use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class MetadataLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;

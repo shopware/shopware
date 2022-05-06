@@ -43,6 +43,9 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
      */
     private $lineItemFactory;
 
+    /**
+     * @internal
+     */
     public function __construct(
         CartCalculator $cartCalculator,
         CartPersisterInterface $cartPersister,

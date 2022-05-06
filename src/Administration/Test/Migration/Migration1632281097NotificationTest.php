@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Migration\Migration1632281097Notification;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
+/**
+ * @internal
+ */
 class Migration1632281097NotificationTest extends TestCase
 {
     use KernelTestBehaviour;

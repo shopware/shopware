@@ -33,6 +33,9 @@ class StoreApiInfoController
      */
     private $cspTemplates;
 
+    /**
+     * @internal
+     */
     public function __construct(DefinitionService $definitionService, Environment $twig, array $cspTemplates)
     {
         $this->definitionService = $definitionService;

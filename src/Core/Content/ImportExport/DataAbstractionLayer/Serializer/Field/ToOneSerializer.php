@@ -13,6 +13,9 @@ class ToOneSerializer extends FieldSerializer
 {
     private PrimaryKeyResolver $primaryKeyResolver;
 
+    /**
+     * @internal
+     */
     public function __construct(PrimaryKeyResolver $primaryKeyResolver)
     {
         $this->primaryKeyResolver = $primaryKeyResolver;

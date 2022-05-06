@@ -13,6 +13,9 @@ class CachedResolvedConfigLoaderInvalidator implements EventSubscriberInterface
 {
     private CacheInvalidator $logger;
 
+    /**
+     * @internal
+     */
     public function __construct(CacheInvalidator $logger)
     {
         $this->logger = $logger;

@@ -15,6 +15,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
+ * @internal
  * @group store-api
  */
 class ProductListingRouteTest extends TestCase

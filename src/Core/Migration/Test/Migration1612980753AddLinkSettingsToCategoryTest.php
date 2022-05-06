@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Migration1612980753AddLinkSettingsToCategory;
 
+/**
+ * @internal
+ */
 class Migration1612980753AddLinkSettingsToCategoryTest extends TestCase
 {
     use KernelTestBehaviour;

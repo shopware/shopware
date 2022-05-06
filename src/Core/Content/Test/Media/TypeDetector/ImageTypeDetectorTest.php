@@ -10,6 +10,9 @@ use Shopware\Core\Content\Media\TypeDetector\ImageTypeDetector;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class ImageTypeDetectorTest extends TestCase
 {
     use IntegrationTestBehaviour;

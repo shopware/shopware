@@ -9,6 +9,9 @@ use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\TypeDetector\AudioTypeDetector;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class AudioTypeDetectorTest extends TestCase
 {
     use IntegrationTestBehaviour;

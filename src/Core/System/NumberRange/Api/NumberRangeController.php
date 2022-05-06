@@ -23,6 +23,9 @@ class NumberRangeController extends AbstractController
      */
     private $valueGenerator;
 
+    /**
+     * @internal
+     */
     public function __construct(
         NumberRangeValueGeneratorInterface $valueGenerator
     ) {

@@ -35,6 +35,9 @@ class MailSentEvent extends Event implements BusinessEventInterface, LogAware
      */
     private $recipients;
 
+    /**
+     * @internal
+     */
     public function __construct(string $subject, array $recipients, array $contents, Context $context)
     {
         $this->subject = $subject;

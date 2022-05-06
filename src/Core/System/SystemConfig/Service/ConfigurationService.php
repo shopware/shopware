@@ -37,6 +37,8 @@ class ConfigurationService
     private $appRepository;
 
     /**
+     * @internal
+     *
      * @param BundleInterface[] $bundles
      */
     public function __construct(

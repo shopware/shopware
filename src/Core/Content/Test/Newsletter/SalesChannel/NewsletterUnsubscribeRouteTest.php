@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Test\TestDataCollection;
 
 /**
+ * @internal
  * @group store-api
  */
 class NewsletterUnsubscribeRouteTest extends TestCase

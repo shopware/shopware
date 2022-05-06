@@ -12,6 +12,9 @@ use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class ReverseProxyCacheTest extends TestCase
 {
     /**

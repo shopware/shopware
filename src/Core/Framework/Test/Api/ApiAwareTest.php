@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Storefront\Theme\ThemeDefinition;
 
 /**
+ * @internal
  * @group skip-paratest
  */
 class ApiAwareTest extends TestCase

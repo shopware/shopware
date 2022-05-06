@@ -34,6 +34,9 @@ class ImportExportAfterImportRecordEvent extends Event
      */
     private $context;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityWrittenContainerEvent $result,
         array $record,

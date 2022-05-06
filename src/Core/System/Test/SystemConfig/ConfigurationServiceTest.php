@@ -14,6 +14,9 @@ use SwagExampleTest\SwagExampleTest;
 use SwagInvalidTest\SwagInvalidTest;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
+/**
+ * @internal
+ */
 class ConfigurationServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

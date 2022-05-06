@@ -36,6 +36,9 @@ class CheckoutFinishPageLoader
      */
     private $orderRoute;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         GenericPageLoaderInterface $genericLoader,

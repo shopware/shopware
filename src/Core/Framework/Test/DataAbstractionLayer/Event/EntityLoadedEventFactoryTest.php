@@ -16,6 +16,9 @@ use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Tax\TaxEntity;
 
+/**
+ * @internal
+ */
 class EntityLoadedEventFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

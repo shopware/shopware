@@ -13,6 +13,9 @@ use Shopware\Storefront\Page\Wishlist\WishlistPageLoadedEvent;
 use Shopware\Storefront\Page\Wishlist\WishlistPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class WishlistPageTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -14,6 +14,9 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class DeleteCascadeAppsHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;

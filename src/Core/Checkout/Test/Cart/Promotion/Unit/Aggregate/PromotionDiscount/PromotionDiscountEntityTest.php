@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Unit\Aggregate\PromotionDis
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 
+/**
+ * @internal
+ */
 class PromotionDiscountEntityTest extends TestCase
 {
     /**

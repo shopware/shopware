@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class ApiRouteScopeTest extends TestCase
 {
     use IntegrationTestBehaviour;

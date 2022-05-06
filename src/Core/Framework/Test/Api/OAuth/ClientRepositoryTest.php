@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class ClientRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

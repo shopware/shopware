@@ -21,6 +21,9 @@ class StructEncoder
 
     private array $protections = [];
 
+    /**
+     * @internal
+     */
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
         Serializer $serializer

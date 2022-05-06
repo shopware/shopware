@@ -28,6 +28,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class PaymentHandlerRegistryTest extends TestCase
 {
     use GuzzleTestClientBehaviour;

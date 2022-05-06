@@ -14,6 +14,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class TestBrowser extends KernelBrowser
 {
     /**

@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1638365464CheapestPricePercentageDynamicProductGroups;
 
+/**
+ * @internal
+ */
 class Migration1638365464CheapestPricePercentageDynamicProductGroupsTest extends TestCase
 {
     use IntegrationTestBehaviour;

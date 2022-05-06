@@ -17,6 +17,9 @@ class WriteableCheck implements CheckerInterface
      */
     private $rootDir;
 
+    /**
+     * @internal
+     */
     public function __construct(Filesystem $filesystem, string $rootDir)
     {
         $this->filesystem = $filesystem;

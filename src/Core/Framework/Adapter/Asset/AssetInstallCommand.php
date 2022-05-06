@@ -20,6 +20,9 @@ class AssetInstallCommand extends Command
 
     private ActiveAppsLoader $activeAppsLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(KernelInterface $kernel, AssetService $assetService, ActiveAppsLoader $activeAppsLoader)
     {
         parent::__construct();

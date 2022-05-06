@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Migration\V6_3\Migration1604502151AddThemePreviewMediaConstraint;
 
 /**
+ * @internal
  * @group skip-paratest
  */
 class Migration1604502151AddThemePreviewMediaConstraintTest extends TestCase

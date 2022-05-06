@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Shopware\Core\Framework\Framework;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
+/**
+ * @internal
+ */
 class BusinessEventRegisterCompilerPassTest extends TestCase
 {
     public function testEventsGetAdded(): void

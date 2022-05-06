@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1645453538AddRuleTag;
 
+/**
+ * @internal
+ */
 class Migration1645453538AddRuleTagTest extends TestCase
 {
     use KernelTestBehaviour;

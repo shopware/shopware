@@ -27,6 +27,9 @@ class ProductExportEventListener implements EventSubscriberInterface
      */
     private $fileSystem;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $productExportRepository,
         ProductExportFileHandlerInterface $productExportFileHandler,

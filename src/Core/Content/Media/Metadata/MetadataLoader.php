@@ -20,6 +20,9 @@ class MetadataLoader
      */
     private $metadataLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $metadataLoader)
     {
         $this->metadataLoader = $metadataLoader;

@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
 use Shopware\Core\Migration\Traits\Translations;
 
+/**
+ * @internal
+ */
 class ImportTranslationTraitTest extends TestCase
 {
     use IntegrationTestBehaviour;

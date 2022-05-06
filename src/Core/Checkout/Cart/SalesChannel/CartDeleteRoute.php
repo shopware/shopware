@@ -28,6 +28,9 @@ class CartDeleteRoute extends AbstractCartDeleteRoute
      */
     private $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(CartPersisterInterface $cartPersister, EventDispatcherInterface $eventDispatcher)
     {
         $this->cartPersister = $cartPersister;

@@ -11,6 +11,9 @@ use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @internal
+ */
 class ThemePrepareIconsCommandTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviou
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class SalesChannelUserConfigSubscriberTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;

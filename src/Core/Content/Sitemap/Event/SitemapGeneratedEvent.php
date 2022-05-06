@@ -11,6 +11,9 @@ class SitemapGeneratedEvent extends Event implements ShopwareEvent
 {
     private SalesChannelContext $context;
 
+    /**
+     * @internal
+     */
     public function __construct(SalesChannelContext $context)
     {
         $this->context = $context;

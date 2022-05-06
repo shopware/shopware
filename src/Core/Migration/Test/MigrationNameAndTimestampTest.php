@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
+/**
+ * @internal
+ */
 class MigrationNameAndTimestampTest extends TestCase
 {
     use KernelTestBehaviour;

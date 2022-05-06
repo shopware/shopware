@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Test\Api\ApiDefinition\EntityDefinition\SimpleDefini
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class OpenApi3GeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -59,29 +62,6 @@ class OpenApi3GeneratorTest extends TestCase
 
         $this->schema = $this->openApiGenerator->getSchema($this->definitionRegistry->getDefinitions());
         $this->entityName = 'simple';
-    }
-
-    public function testGenerateStoreApiSchemaFeaturedInternalActive(): void
-    {
-        Feature::registerFeature('FEATURE_NEXT_12345', ['default' => true]);
-        $generatedSchema = $this->openApiGenerator->generate(
-            $this->definitionRegistry->getDefinitions(),
-            DefinitionService::STORE_API
-        );
-
-        static::assertArrayHasKey('paths', $generatedSchema);
-
-        //check for class internal annotation
-        static::assertArrayHasKey('/testinternal', $generatedSchema['paths']);
-
-        //check for method internal with flag
-        static::assertArrayHasKey('/testinternalother', $generatedSchema['paths']);
-
-        //check for method not internal
-        static::assertArrayHasKey('/testnotinternalother', $generatedSchema['paths']);
-
-        //check for method internal without flag
-        static::assertArrayNotHasKey('/testinternalnoflagother', $generatedSchema['paths']);
     }
 
     public function testGenerateStoreApiSchemaFeaturedInternalInActive(): void

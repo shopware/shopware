@@ -50,6 +50,9 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
      */
     private $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         DataValidator $validator,
         SalesChannelContextPersister $contextPersister,

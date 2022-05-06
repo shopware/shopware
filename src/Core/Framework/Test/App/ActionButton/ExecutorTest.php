@@ -21,6 +21,9 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @internal
+ */
 class ExecutorTest extends TestCase
 {
     use GuzzleTestClientBehaviour;

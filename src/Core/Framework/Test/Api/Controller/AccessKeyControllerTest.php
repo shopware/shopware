@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 
+/**
+ * @internal
+ */
 class AccessKeyControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

@@ -54,6 +54,8 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
     private ?EntityLoadedEventFactory $eventFactory;
 
     /**
+     * @internal
+     *
      * @deprecated tag:v6.5.0 - $eventFactory parameter will be required
      */
     public function __construct(

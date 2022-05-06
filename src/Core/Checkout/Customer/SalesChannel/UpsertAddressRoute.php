@@ -58,6 +58,9 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
      */
     private $systemConfigService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $addressRepository,
         DataValidator $validator,

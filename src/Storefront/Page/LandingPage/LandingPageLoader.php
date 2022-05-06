@@ -25,6 +25,9 @@ class LandingPageLoader
 
     private EventDispatcherInterface $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         GenericPageLoaderInterface $genericPageLoader,
         AbstractLandingPageRoute $landingPageRoute,

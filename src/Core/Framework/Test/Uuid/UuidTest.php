@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class UuidTest extends TestCase
 {
     public function testRandomHex(): void

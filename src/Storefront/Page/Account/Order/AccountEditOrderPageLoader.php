@@ -42,6 +42,9 @@ class AccountEditOrderPageLoader
 
     private OrderService $orderService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,

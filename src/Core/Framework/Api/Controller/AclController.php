@@ -30,6 +30,9 @@ class AclController extends AbstractController
 
     private RouterInterface $router;
 
+    /**
+     * @internal
+     */
     public function __construct(
         DefinitionInstanceRegistry $definitionInstanceRegistry,
         EventDispatcherInterface $eventDispatcher,

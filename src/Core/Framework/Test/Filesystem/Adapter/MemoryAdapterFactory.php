@@ -6,6 +6,9 @@ use League\Flysystem\AdapterInterface;
 use League\Flysystem\Memory\MemoryAdapter;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AdapterFactoryInterface;
 
+/**
+ * @internal
+ */
 class MemoryAdapterFactory implements AdapterFactoryInterface
 {
     /**

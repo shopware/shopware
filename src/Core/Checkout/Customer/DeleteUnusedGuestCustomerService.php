@@ -19,6 +19,9 @@ class DeleteUnusedGuestCustomerService
 
     private SystemConfigService $systemConfigService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $customerRepository,
         SystemConfigService $systemConfigService

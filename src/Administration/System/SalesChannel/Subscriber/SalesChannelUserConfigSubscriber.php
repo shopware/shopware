@@ -16,6 +16,9 @@ class SalesChannelUserConfigSubscriber implements EventSubscriberInterface
 
     private EntityRepository $userConfigRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepository $userConfigRepository)
     {
         $this->userConfigRepository = $userConfigRepository;

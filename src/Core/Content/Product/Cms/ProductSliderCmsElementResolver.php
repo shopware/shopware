@@ -33,6 +33,9 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
 
     private SystemConfigService $systemConfigService;
 
+    /**
+     * @internal
+     */
     public function __construct(ProductStreamBuilderInterface $productStreamBuilder, SystemConfigService $systemConfigService)
     {
         $this->productStreamBuilder = $productStreamBuilder;

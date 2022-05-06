@@ -10,6 +10,9 @@ use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\RateLimiter\Policy\TokenBucketLimiter;
 use Symfony\Component\RateLimiter\Storage\StorageInterface;
 
+/**
+ * @internal
+ */
 class RateLimiterFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

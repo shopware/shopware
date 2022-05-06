@@ -16,6 +16,9 @@ use Shopware\Storefront\Page\Navigation\Error\ErrorPageLoadedEvent;
 use Shopware\Storefront\Page\Navigation\Error\ErrorPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class ErrorPageTest extends TestCase
 {
     use IntegrationTestBehaviour;

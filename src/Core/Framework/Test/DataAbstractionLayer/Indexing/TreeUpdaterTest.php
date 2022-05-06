@@ -23,6 +23,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class TreeUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -193,6 +196,9 @@ class TreeUpdaterTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class TestTreeDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'test_tree';
@@ -222,6 +228,9 @@ class TestTreeDefinition extends EntityDefinition
     }
 }
 
+/**
+ * @internal
+ */
 class TestTreeDefinitionWithoutVersion extends EntityDefinition
 {
     public const ENTITY_NAME = 'test_tree_without_version';

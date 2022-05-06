@@ -40,6 +40,9 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
 
     private CartRuleLoader $cartRuleLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Connection $connection,
         IteratorFactory $iteratorFactory,

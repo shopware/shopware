@@ -10,6 +10,9 @@ class SwSanitizeTwigFilter extends AbstractExtension
 {
     private HtmlSanitizer $sanitizer;
 
+    /**
+     * @internal
+     */
     public function __construct(HtmlSanitizer $sanitizer)
     {
         $this->sanitizer = $sanitizer;

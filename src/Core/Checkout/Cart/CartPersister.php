@@ -26,6 +26,9 @@ class CartPersister extends AbstractCartPersister
 
     private bool $compress;
 
+    /**
+     * @internal
+     */
     public function __construct(Connection $connection, EventDispatcherInterface $eventDispatcher, bool $compress)
     {
         $this->connection = $connection;

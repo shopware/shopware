@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Test\App;
 
 use GuzzleHttp\Middleware;
 
+/**
+ * @internal
+ */
 class GuzzleHistoryCollector
 {
     /**

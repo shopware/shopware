@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Plugin\Exception\ExceptionCollection;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 
+/**
+ * @internal
+ */
 class PluginFinderTest extends TestCase
 {
     public function testFailsOnMissingRootComposerFile(): void

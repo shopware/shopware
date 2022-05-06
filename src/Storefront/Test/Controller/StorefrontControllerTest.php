@@ -28,6 +28,9 @@ use Twig\Cache\FilesystemCache;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
+/**
+ * @internal
+ */
 class StorefrontControllerTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -200,6 +203,9 @@ class StorefrontControllerTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class TestController extends StorefrontController
 {
     private TemplateFinder $templateFinder;

@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1628519513AddUnconfirmedTransactionState;
 
+/**
+ * @internal
+ */
 class Migration1628519513AddUnconfirmedTransactionStateTest extends TestCase
 {
     use IntegrationTestBehaviour;

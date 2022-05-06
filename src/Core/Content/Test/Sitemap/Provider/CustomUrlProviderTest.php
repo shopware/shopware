@@ -7,6 +7,9 @@ use Shopware\Core\Content\Sitemap\Provider\CustomUrlProvider;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class CustomUrlProviderTest extends TestCase
 {
     public function testGetUrlsReturnsNoUrls(): void

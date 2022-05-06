@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 
 /**
+ * @internal
  * @group slow
  */
 class RateLimiterTest extends TestCase

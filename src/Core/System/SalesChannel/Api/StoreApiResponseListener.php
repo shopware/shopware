@@ -15,6 +15,9 @@ class StoreApiResponseListener implements EventSubscriberInterface
      */
     private $encoder;
 
+    /**
+     * @internal
+     */
     public function __construct(StructEncoder $encoder)
     {
         $this->encoder = $encoder;

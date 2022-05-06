@@ -7,6 +7,9 @@ use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsDataDefinition;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCodeTuple;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 
+/**
+ * @internal
+ */
 class CartPromotionsDataDefinitionTest extends TestCase
 {
     /**

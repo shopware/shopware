@@ -31,6 +31,8 @@ class ProductIndexerEvent extends NestedEvent implements ProductChangedEventInte
     private array $skip;
 
     /**
+     * @internal
+     *
      * @deprecated tag:v6.5.0 - `$parentIds` and `$childrenIds` will be removed, for be compatible right now, use ::create method
      */
     public function __construct(array $ids, array $childrenIds, array $parentIds, Context $context, array $skip = [])

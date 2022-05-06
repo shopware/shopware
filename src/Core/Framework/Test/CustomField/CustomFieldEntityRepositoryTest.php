@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
 class CustomFieldEntityRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -9,6 +9,9 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\IsNewCustomerRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class IsNewCustomerRuleTest extends TestCase
 {
     public function testIsNewCustomer(): void

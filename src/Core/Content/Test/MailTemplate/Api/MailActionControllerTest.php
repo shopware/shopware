@@ -27,6 +27,7 @@ use Symfony\Component\Mailer\DataCollector\MessageDataCollector;
 use Symfony\Component\Mime\Email;
 
 /**
+ * @internal
  * @group slow
  */
 class MailActionControllerTest extends TestCase

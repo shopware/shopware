@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 
+/**
+ * @internal
+ */
 class CashRoundingTest extends TestCase
 {
     /**

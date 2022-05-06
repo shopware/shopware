@@ -20,6 +20,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @internal
  * @group store-api
  */
 class CartOrderRouteTest extends TestCase

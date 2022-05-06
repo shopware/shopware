@@ -17,6 +17,7 @@ use Shopware\Core\System\Salutation\SalesChannel\SalutationRoute;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @internal
  * @group store-api
  */
 class SalutationRouteTest extends TestCase

@@ -10,6 +10,8 @@ use Twig\Loader\LoaderInterface;
 use function Shopware\Core\Framework\Adapter\Twig\sw_escape_filter;
 
 /**
+ * @internal
+ *
  * @see Twig\Tests\Twig_Tests_Extension_EscaperTest
  */
 class SwEscapeFilterTest extends TestCase
@@ -419,6 +421,9 @@ function foo_escaper_for_test(Environment $twig, $string, $charset)
 interface Extension_SafeHtmlInterface
 {
 }
+/**
+ * @internal
+ */
 class Extension_TestClass implements Extension_SafeHtmlInterface
 {
     public function __toString()

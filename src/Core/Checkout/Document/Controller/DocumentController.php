@@ -35,6 +35,9 @@ class DocumentController extends AbstractController
      */
     private $documentRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(DocumentService $documentService, EntityRepositoryInterface $documentRepository)
     {
         $this->documentService = $documentService;

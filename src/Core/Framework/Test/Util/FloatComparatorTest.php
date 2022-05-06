@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\Util;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Util\FloatComparator;
 
+/**
+ * @internal
+ */
 class FloatComparatorTest extends TestCase
 {
     /**

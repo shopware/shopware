@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+/**
+ * @internal
+ */
 class ActiveDateRangeTest extends TestCase
 {
     /**

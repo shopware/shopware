@@ -30,6 +30,9 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
      */
     private $requestStack;
 
+    /**
+     * @internal
+     */
     public function __construct(SymfonyRouter $decorated, RequestStack $requestStack)
     {
         $this->decorated = $decorated;

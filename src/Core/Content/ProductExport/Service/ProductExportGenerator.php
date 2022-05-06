@@ -62,6 +62,9 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
 
     private LanguageLocaleCodeProvider $languageLocaleProvider;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ProductStreamBuilderInterface $productStreamBuilder,
         SalesChannelRepositoryInterface $productRepository,

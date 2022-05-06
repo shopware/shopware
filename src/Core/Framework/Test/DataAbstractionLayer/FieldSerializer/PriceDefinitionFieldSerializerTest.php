@@ -30,6 +30,9 @@ use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Currency\Rule\CurrencyRule;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 
+/**
+ * @internal
+ */
 class PriceDefinitionFieldSerializerTest extends TestCase
 {
     use KernelTestBehaviour;

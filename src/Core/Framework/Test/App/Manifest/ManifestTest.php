@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 
+/**
+ * @internal
+ */
 class ManifestTest extends TestCase
 {
     public function testCreateFromXml(): void

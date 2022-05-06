@@ -17,6 +17,9 @@ class HttpCacheKeyGenerator extends AbstractHttpCacheKeyGenerator
 
     private array $ignoredParameters;
 
+    /**
+     * @internal
+     */
     public function __construct(
         string $cacheHash,
         EventDispatcherInterface $eventDispatcher,

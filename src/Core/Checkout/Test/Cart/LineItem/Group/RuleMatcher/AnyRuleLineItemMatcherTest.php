@@ -16,6 +16,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class AnyRuleLineItemMatcherTest extends TestCase
 {
     use IntegrationTestBehaviour;

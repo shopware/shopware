@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Cms\CmsExtensions;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 
+/**
+ * @internal
+ */
 class CmsExtensionsTest extends TestCase
 {
     public function testCreateFromXmlWithBlocks(): void

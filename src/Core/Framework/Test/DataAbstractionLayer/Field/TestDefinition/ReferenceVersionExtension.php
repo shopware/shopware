@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class ReferenceVersionExtension extends EntityExtension
 {
     public function extendFields(FieldCollection $collection): void

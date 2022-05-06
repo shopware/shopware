@@ -40,6 +40,9 @@ final class ApiClient
      */
     private $shopwareUpdateEnabled;
 
+    /**
+     * @internal
+     */
     public function __construct(
         string $shopwareVersion,
         SystemConfigService $systemConfigService,

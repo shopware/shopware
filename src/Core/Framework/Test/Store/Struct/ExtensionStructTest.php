@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 use Shopware\Core\Framework\Store\Struct\PermissionCollection;
 
+/**
+ * @internal
+ */
 class ExtensionStructTest extends TestCase
 {
     public function testItCategorizesThePermissionCollectionWhenStructIsSerialized(): void

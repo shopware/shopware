@@ -19,6 +19,9 @@ class RawUrlFunctionExtension extends AbstractExtension
      */
     private $stack;
 
+    /**
+     * @internal
+     */
     public function __construct(RouterInterface $router, RequestStack $stack)
     {
         $this->router = $router;

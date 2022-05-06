@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @internal
  * @group slow
  */
 class SearchCriteriaBuilderTest extends TestCase

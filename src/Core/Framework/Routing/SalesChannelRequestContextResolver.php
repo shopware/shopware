@@ -47,6 +47,9 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
      */
     private $routeScopeRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(
         RequestContextResolverInterface $decorated,
         SalesChannelContextServiceInterface $contextService,

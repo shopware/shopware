@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\FlowAction\FlowAction;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 
+/**
+ * @internal
+ */
 class FlowActionTest extends TestCase
 {
     public function testCreateFromXmlWithFlowAction(): void

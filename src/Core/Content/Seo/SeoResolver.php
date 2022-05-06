@@ -14,6 +14,9 @@ class SeoResolver extends AbstractSeoResolver
      */
     private $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(Connection $connection)
     {
         $this->connection = $connection;

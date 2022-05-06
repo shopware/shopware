@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedAr
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ */
 class OneToManyAssociationFieldSerializer implements FieldSerializerInterface
 {
     /**

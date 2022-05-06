@@ -20,6 +20,9 @@ class CommandExecutor
      */
     private $projectDir;
 
+    /**
+     * @internal
+     */
     public function __construct(string $projectDir)
     {
         $this->application = new Application();

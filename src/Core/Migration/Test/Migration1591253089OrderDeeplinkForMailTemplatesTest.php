@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\Migration1591253089OrderDeeplinkForMailTemplates;
 
+/**
+ * @internal
+ */
 class Migration1591253089OrderDeeplinkForMailTemplatesTest extends TestCase
 {
     use IntegrationTestBehaviour;

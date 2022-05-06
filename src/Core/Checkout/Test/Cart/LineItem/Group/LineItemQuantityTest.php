@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group\Exception;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
 
+/**
+ * @internal
+ */
 class LineItemQuantityTest extends TestCase
 {
     /**

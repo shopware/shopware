@@ -18,6 +18,9 @@ class SetOrderCustomFieldAction extends FlowAction
 
     private EntityRepositoryInterface $orderRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Connection $connection,
         EntityRepositoryInterface $orderRepository

@@ -40,6 +40,9 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tax\TaxEntity;
 
+/**
+ * @internal
+ */
 class DeliveryCalculatorTest extends TestCase
 {
     use KernelTestBehaviour;

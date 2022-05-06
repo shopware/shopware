@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Test\TestBuilderTrait;
 
+/**
+ * @internal
+ */
 class OrderTransactionBuilder
 {
     use BasicTestDataBehaviour;

@@ -21,6 +21,9 @@ class ProductFeatureBuilder
 
     private LanguageLocaleCodeProvider $languageLocaleProvider;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $customFieldRepository,
         LanguageLocaleCodeProvider $languageLocaleProvider

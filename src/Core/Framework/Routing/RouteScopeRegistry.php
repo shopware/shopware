@@ -12,6 +12,9 @@ class RouteScopeRegistry
      */
     private $routeScopes;
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $routeScopes)
     {
         $this->routeScopes = $routeScopes;

@@ -26,6 +26,9 @@ use Twig\Cache\FilesystemCache;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
+/**
+ * @internal
+ */
 class IconCacheTwigFilterTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -8,6 +8,9 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelperTransformerInterface;
 use Shopware\Core\DevOps\Test\Environment\_fixtures\EnvironmentHelperTransformer;
 use Shopware\Core\DevOps\Test\Environment\_fixtures\EnvironmentHelperTransformer2;
 
+/**
+ * @internal
+ */
 class EnvironmentHelperTest extends TestCase
 {
     public function tearDown(): void

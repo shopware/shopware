@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1649040981CorrectStateMachineStateTranslationName;
 
+/**
+ * @internal
+ */
 class Migration1649040981CorrectStateMachineStateTranslationNameTest extends TestCase
 {
     use IntegrationTestBehaviour;

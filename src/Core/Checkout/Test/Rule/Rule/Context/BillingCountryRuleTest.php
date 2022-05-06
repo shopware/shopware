@@ -11,6 +11,9 @@ use Shopware\Core\Checkout\Customer\Rule\BillingCountryRule;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class BillingCountryRuleTest extends TestCase
 {
     public function testWithExactMatch(): void

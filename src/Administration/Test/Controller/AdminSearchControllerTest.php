@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
+ * @internal
  * @group slow
  */
 class AdminSearchControllerTest extends TestCase

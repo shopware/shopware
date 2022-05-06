@@ -17,6 +17,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
+ * @internal
  * @group rules
  */
 class LineItemReleaseDateRuleTest extends TestCase

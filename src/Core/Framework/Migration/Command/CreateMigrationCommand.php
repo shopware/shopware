@@ -20,6 +20,9 @@ class CreateMigrationCommand extends Command
 
     private string $shopwareVersion;
 
+    /**
+     * @internal
+     */
     public function __construct(KernelPluginCollection $kernelPluginCollection, string $coreDir, string $shopwareVersion)
     {
         parent::__construct();

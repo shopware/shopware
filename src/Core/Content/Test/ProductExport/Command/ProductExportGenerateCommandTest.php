@@ -23,6 +23,9 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
+/**
+ * @internal
+ */
 class ProductExportGenerateCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

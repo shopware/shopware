@@ -22,6 +22,9 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 
+/**
+ * @internal
+ */
 class CartMigrateCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

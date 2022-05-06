@@ -13,6 +13,9 @@ class LineItemQuantitySplitter
      */
     private $quantityPriceCalculator;
 
+    /**
+     * @internal
+     */
     public function __construct(QuantityPriceCalculator $quantityPriceCalculator)
     {
         $this->quantityPriceCalculator = $quantityPriceCalculator;

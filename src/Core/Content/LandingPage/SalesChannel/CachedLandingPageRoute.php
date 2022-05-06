@@ -42,6 +42,8 @@ class CachedLandingPageRoute extends AbstractLandingPageRoute
     private EventDispatcherInterface $dispatcher;
 
     /**
+     * @internal
+     *
      * @param AbstractCacheTracer<LandingPageRouteResponse> $tracer
      */
     public function __construct(

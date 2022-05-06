@@ -44,6 +44,9 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
      */
     private $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $newsletterRecipientRepository,
         DataValidator $validator,

@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\DateD
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class DateFieldTest extends TestCase
 {
     use KernelTestBehaviour;

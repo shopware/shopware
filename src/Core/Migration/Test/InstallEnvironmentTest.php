@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
+/**
+ * @internal
+ */
 class InstallEnvironmentTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -63,6 +66,9 @@ class InstallEnvironmentTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class ExampleMigration extends MigrationStep
 {
     public function getCreationTimestamp(): int

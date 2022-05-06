@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ */
 class EmailFieldSerializer extends AbstractFieldSerializer
 {
     public function encode(

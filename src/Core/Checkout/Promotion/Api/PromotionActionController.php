@@ -44,6 +44,9 @@ class PromotionActionController extends AbstractController
      */
     private $filterServiceRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(PromotionCodesLoader $codesLoader, PromotionCodesRemover $codesRemover, LineItemGroupServiceRegistry $serviceRegistry, FilterServiceRegistry $filterServiceRegistry)
     {
         $this->codesLoader = $codesLoader;

@@ -19,6 +19,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
+ * @internal
  * @group store-api
  */
 class ContactFormRouteTest extends TestCase

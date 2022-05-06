@@ -45,6 +45,9 @@ class ProductListingLoader
      */
     private $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         SalesChannelRepositoryInterface $repository,
         SystemConfigService $systemConfigService,

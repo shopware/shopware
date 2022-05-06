@@ -20,6 +20,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use function print_r;
 
+/**
+ * @internal
+ */
 class AclAnnotationValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;

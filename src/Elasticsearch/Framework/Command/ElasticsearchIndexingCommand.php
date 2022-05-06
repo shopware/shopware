@@ -23,6 +23,9 @@ class ElasticsearchIndexingCommand extends Command
 
     private CreateAliasTaskHandler $aliasHandler;
 
+    /**
+     * @internal
+     */
     public function __construct(ElasticsearchIndexer $indexer, MessageBusInterface $messageBus, CreateAliasTaskHandler $aliasHandler)
     {
         parent::__construct();

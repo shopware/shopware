@@ -22,6 +22,9 @@ use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 
+/**
+ * @internal
+ */
 class BusinessEventEncoderTest extends TestCase
 {
     use IntegrationTestBehaviour;

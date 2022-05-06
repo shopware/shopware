@@ -49,6 +49,9 @@ class RuleValidator implements EventSubscriberInterface
      */
     private $appScriptConditionRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ValidatorInterface $validator,
         RuleConditionRegistry $ruleConditionRegistry,

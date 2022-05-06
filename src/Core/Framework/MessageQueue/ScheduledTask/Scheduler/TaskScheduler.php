@@ -29,6 +29,9 @@ class TaskScheduler
      */
     private $bus;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $scheduledTaskRepository,
         MessageBusInterface $bus

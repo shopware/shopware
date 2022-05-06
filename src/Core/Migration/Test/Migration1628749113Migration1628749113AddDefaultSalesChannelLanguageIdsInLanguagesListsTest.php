@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1628749113Migration1628749113AddDefaultSalesChannelLanguageIdsInLanguagesLists;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class Migration1628749113Migration1628749113AddDefaultSalesChannelLanguageIdsInLanguagesListsTest extends TestCase
 {
     use IntegrationTestBehaviour;

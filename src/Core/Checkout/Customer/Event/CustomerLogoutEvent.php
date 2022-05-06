@@ -30,6 +30,9 @@ class CustomerLogoutEvent extends Event implements BusinessEventInterface, Sales
      */
     private $salesChannelContext;
 
+    /**
+     * @internal
+     */
     public function __construct(SalesChannelContext $salesChannelContext, CustomerEntity $customer)
     {
         $this->customer = $customer;

@@ -10,6 +10,9 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Controller\ProductController;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class CoreSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;

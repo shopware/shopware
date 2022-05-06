@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
+/**
+ * @internal
+ */
 class CustomerGroupRuleTest extends TestCase
 {
     use KernelTestBehaviour;

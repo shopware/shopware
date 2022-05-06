@@ -37,6 +37,9 @@ class CleanPersonalDataCommand extends Command
      */
     private $customerRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Connection $connection,
         EntityRepositoryInterface $customerRepository

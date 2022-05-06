@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class TemplateStateServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

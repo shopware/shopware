@@ -21,6 +21,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * @internal
+ */
 class PromotionSetGroupCalculationTest extends TestCase
 {
     use IntegrationTestBehaviour;

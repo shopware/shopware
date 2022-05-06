@@ -26,6 +26,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use SwagTest\SwagTest;
 
 /**
+ * @internal
  * @group slow
  * @group skip-paratest
  */

@@ -35,6 +35,9 @@ class ThemeChangeCommand extends Command
 
     private EntityRepositoryInterface $themeRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ThemeService $themeService,
         StorefrontPluginRegistryInterface $pluginRegistry,

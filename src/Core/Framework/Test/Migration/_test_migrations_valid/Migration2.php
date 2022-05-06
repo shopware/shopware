@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\Migration\_test_migrations_valid;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
+/**
+ * @internal
+ */
 class Migration2 extends MigrationStep
 {
     public function getCreationTimestamp(): int

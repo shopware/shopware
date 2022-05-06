@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
+/**
+ * @internal
+ */
 class NotificationRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

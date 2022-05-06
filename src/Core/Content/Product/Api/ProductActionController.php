@@ -20,6 +20,9 @@ class ProductActionController extends AbstractController
      */
     private $combinationLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(VariantCombinationLoader $combinationLoader)
     {
         $this->combinationLoader = $combinationLoader;

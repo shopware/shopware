@@ -19,6 +19,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
 class CustomerFlowEventsSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;

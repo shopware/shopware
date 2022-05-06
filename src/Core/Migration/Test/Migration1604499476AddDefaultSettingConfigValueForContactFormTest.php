@@ -6,6 +6,9 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Migration\Migration1604499476AddDefaultSettingConfigValueForContactForm;
 
+/**
+ * @internal
+ */
 class Migration1604499476AddDefaultSettingConfigValueForContactFormTest extends TestCase
 {
     /**

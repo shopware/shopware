@@ -38,6 +38,9 @@ class CheckoutConfirmPageLoader
 
     private DataValidator $validator;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         StorefrontCartFacade $cartService,

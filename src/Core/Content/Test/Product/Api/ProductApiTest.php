@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class ProductApiTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

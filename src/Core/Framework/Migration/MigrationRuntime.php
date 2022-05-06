@@ -20,6 +20,9 @@ class MigrationRuntime
      */
     private $logger;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Connection $connection,
         LoggerInterface $logger

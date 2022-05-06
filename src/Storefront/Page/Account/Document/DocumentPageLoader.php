@@ -37,6 +37,9 @@ class DocumentPageLoader
      */
     private $documentRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,

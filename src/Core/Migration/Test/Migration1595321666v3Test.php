@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\Migration1595321666v3;
 
+/**
+ * @internal
+ */
 class Migration1595321666v3Test extends TestCase
 {
     use KernelTestBehaviour;

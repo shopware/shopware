@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Fakes;
 
 use Shopware\Core\Checkout\Promotion\Service\PromotionDateTimeServiceInterface;
 
+/**
+ * @internal
+ */
 class FakePromotionDateTimeService implements PromotionDateTimeServiceInterface
 {
     public function getNow(): string

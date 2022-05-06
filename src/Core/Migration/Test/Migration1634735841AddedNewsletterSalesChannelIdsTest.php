@@ -8,6 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1634735841AddedNewsletterSalesChannelIds;
 
+/**
+ * @internal
+ */
 class Migration1634735841AddedNewsletterSalesChannelIdsTest extends TestCase
 {
     use IntegrationTestBehaviour;

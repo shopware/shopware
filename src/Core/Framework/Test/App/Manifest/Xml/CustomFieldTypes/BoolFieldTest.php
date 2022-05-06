@@ -9,6 +9,9 @@ use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\BoolField;
 use Shopware\Core\Framework\Test\App\CustomFieldTypeTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class BoolFieldTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -23,6 +23,9 @@ class BuildBreadcrumbExtension extends AbstractExtension
      */
     private $categoryRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(CategoryBreadcrumbBuilder $categoryBreadcrumbBuilder, EntityRepositoryInterface $categoryRepository)
     {
         $this->categoryBreadcrumbBuilder = $categoryBreadcrumbBuilder;

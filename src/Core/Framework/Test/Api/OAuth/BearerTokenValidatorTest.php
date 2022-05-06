@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 
+/**
+ * @internal
+ */
 class BearerTokenValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;

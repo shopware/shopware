@@ -23,6 +23,7 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
+ * @internal
  * @group slow
  * @group store-api
  */

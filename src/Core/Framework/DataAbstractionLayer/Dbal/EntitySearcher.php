@@ -21,6 +21,8 @@ use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
  * Used for all search operations in the system.
  * The dbal entity searcher only joins and select fields which defined in sorting, filter or query classes.
  * Fields which are not necessary to determines which ids are affected are not fetched.
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
 class EntitySearcher implements EntitySearcherInterface
 {

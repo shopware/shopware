@@ -8,6 +8,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(".well-known/", defaults={"_routeScope"={"storefront"}})
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
 class WellKnownController extends StorefrontController
 {

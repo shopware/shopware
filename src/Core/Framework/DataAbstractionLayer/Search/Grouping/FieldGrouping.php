@@ -4,6 +4,10 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-final - Will be @final
+ * @final
+ */
 class FieldGrouping implements CriteriaPartInterface
 {
     /**

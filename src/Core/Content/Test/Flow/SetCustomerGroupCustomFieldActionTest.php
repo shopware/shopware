@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class SetCustomerGroupCustomFieldActionTest extends TestCase
 {
     use OrderActionTrait;

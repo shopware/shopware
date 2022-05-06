@@ -14,6 +14,9 @@ class CustomerPasswordMatchesValidator extends ConstraintValidator
      */
     private $accountService;
 
+    /**
+     * @internal
+     */
     public function __construct(AccountService $accountService)
     {
         $this->accountService = $accountService;

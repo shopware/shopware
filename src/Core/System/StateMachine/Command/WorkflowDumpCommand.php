@@ -20,6 +20,9 @@ class WorkflowDumpCommand extends Command
      */
     private $stateMachineRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(StateMachineRegistry $stateMachineRegistry)
     {
         parent::__construct();

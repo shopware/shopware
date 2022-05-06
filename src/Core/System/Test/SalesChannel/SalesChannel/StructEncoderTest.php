@@ -20,6 +20,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 
+/**
+ * @internal
+ */
 class StructEncoderTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -313,6 +316,9 @@ class StructEncoderTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class MyTestStruct extends Struct
 {
     public $foo;
@@ -331,6 +337,9 @@ class MyTestStruct extends Struct
     }
 }
 
+/**
+ * @internal
+ */
 class AnotherStruct extends MyTestStruct
 {
     public function getApiAlias(): string
@@ -339,6 +348,9 @@ class AnotherStruct extends MyTestStruct
     }
 }
 
+/**
+ * @internal
+ */
 class MyEntity extends Entity
 {
     /**
@@ -387,6 +399,9 @@ class MyEntity extends Entity
     }
 }
 
+/**
+ * @internal
+ */
 class MyEntityDefinition extends EntityDefinition
 {
     public function getEntityName(): string
@@ -409,6 +424,9 @@ class MyEntityDefinition extends EntityDefinition
     }
 }
 
+/**
+ * @internal
+ */
 class StructWithCustomFields extends Entity
 {
     use EntityCustomFieldsTrait;

@@ -26,6 +26,9 @@ class CustomerGroupRegistrationPageLoader extends AbstractCustomerGroupRegistrat
      */
     private $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         AccountLoginPageLoader $accountLoginPageLoader,
         AbstractCustomerGroupRegistrationSettingsRoute $customerGroupRegistrationRoute,

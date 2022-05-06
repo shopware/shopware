@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Kernel;
 
+/**
+ * @internal
+ */
 class PrivateHandshakeTest extends TestCase
 {
     use IntegrationTestBehaviour;

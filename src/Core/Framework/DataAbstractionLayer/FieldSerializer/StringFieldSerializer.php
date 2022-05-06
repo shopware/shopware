@@ -18,6 +18,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ */
 class StringFieldSerializer extends AbstractFieldSerializer
 {
     private HtmlSanitizer $sanitizer;

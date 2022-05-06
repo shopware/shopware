@@ -29,6 +29,9 @@ class CategoryGenerator implements DemodataGeneratorInterface
 
     private Connection $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $categoryRepository,
         EntityRepositoryInterface $cmsPageRepository,

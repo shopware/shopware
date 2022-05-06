@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @internal
+ *
  * @deprecated tag:v6.5.0 - Remove compatibility bridge to make parameters case insensitive
  * @see https://github.com/doctrine/annotations/issues/421
  * @Route(defaults={"_routeScope"={"store-api"}})

@@ -22,6 +22,9 @@ class ResolveCriteriaProductListingRoute extends AbstractProductListingRoute
 
     private EventDispatcherInterface $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(AbstractProductListingRoute $decorated, EventDispatcherInterface $eventDispatcher)
     {
         $this->decorated = $decorated;

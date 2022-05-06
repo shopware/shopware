@@ -25,6 +25,9 @@ use Shopware\Core\System\StateMachine\Transition;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
+/**
+ * @internal
+ */
 class OrderTotalAmountRuleTest extends TestCase
 {
     use KernelTestBehaviour;

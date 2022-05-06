@@ -44,6 +44,8 @@ class CachedShippingMethodRoute extends AbstractShippingMethodRoute
     private EventDispatcherInterface $dispatcher;
 
     /**
+     * @internal
+     *
      * @param AbstractCacheTracer<ShippingMethodRouteResponse> $tracer
      */
     public function __construct(

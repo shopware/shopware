@@ -19,6 +19,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+/**
+ * @internal
+ */
 class TaskSchedulerTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -21,6 +21,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"storefront"}})
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
 class SearchController extends StorefrontController
 {
@@ -39,6 +41,9 @@ class SearchController extends StorefrontController
      */
     private $productSearchRoute;
 
+    /**
+     * @internal
+     */
     public function __construct(
         SearchPageLoader $searchPageLoader,
         SuggestPageLoader $suggestPageLoader,

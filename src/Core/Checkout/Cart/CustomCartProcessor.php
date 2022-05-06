@@ -16,6 +16,9 @@ class CustomCartProcessor implements CartProcessorInterface, CartDataCollectorIn
      */
     private $calculator;
 
+    /**
+     * @internal
+     */
     public function __construct(QuantityPriceCalculator $calculator)
     {
         $this->calculator = $calculator;

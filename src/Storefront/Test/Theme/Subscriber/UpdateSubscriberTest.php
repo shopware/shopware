@@ -15,6 +15,9 @@ use Shopware\Storefront\Theme\Subscriber\UpdateSubscriber;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Shopware\Storefront\Theme\ThemeService;
 
+/**
+ * @internal
+ */
 class UpdateSubscriberTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;

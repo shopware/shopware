@@ -9,6 +9,9 @@ class EncryptedMessage
      */
     private $message;
 
+    /**
+     * @internal
+     */
     public function __construct(string $message)
     {
         $this->message = $message;

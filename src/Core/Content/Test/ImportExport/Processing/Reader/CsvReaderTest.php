@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReader;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 
+/**
+ * @internal
+ */
 class CsvReaderTest extends TestCase
 {
     private const BOM_UTF8 = "\xEF\xBB\xBF";

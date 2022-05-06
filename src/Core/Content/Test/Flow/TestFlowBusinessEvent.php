@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @internal
+ */
 class TestFlowBusinessEvent extends Event implements FlowEventAware
 {
     public const EVENT_NAME = 'test.business_event';

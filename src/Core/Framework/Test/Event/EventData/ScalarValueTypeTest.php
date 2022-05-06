@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\Event\EventData;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 
+/**
+ * @internal
+ */
 class ScalarValueTypeTest extends TestCase
 {
     public function testToArray(): void

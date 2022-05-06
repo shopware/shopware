@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class SetOrderCustomFieldActionTest extends TestCase
 {
     use OrderActionTrait;

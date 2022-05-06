@@ -27,6 +27,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class ProductBoxTypeDataResolverTest extends TestCase
 {
     private ProductBoxCmsElementResolver $productBoxResolver;

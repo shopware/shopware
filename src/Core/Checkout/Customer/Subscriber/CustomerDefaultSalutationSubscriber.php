@@ -22,6 +22,9 @@ class CustomerDefaultSalutationSubscriber implements EventSubscriberInterface
 
     private ?SalutationEntity $defaultSalutation = null;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $salutationRepository)
     {
         $this->salutationRepository = $salutationRepository;

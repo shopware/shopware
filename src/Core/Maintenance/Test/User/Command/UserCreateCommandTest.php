@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Maintenance\User\Command\UserCreateCommand;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @internal
+ */
 class UserCreateCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

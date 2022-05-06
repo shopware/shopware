@@ -36,6 +36,9 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
 {
     private DefinitionInstanceRegistry $registry;
 
+    /**
+     * @internal
+     */
     public function __construct(DefinitionInstanceRegistry $registry)
     {
         $this->registry = $registry;

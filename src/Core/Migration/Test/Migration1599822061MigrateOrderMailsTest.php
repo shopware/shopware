@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Migration1599822061MigrateOrderMails;
 
+/**
+ * @internal
+ */
 class Migration1599822061MigrateOrderMailsTest extends TestCase
 {
     use IntegrationTestBehaviour;

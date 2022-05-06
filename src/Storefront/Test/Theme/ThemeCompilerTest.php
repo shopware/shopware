@@ -33,6 +33,9 @@ use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
 class ThemeCompilerTest extends TestCase
 {
     use KernelTestBehaviour;

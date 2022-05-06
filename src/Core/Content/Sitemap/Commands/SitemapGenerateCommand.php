@@ -34,6 +34,9 @@ class SitemapGenerateCommand extends Command
 
     private EventDispatcherInterface $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $salesChannelRepository,
         SitemapExporterInterface $sitemapExporter,

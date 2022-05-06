@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Test\Theme\fixtures\ThemeWithStorefrontBootstrapSc
 use Shopware\Core\Framework\Bundle;
 use Shopware\Storefront\Framework\ThemeInterface;
 
+/**
+ * @internal
+ */
 class ThemeWithStorefrontBootstrapScss extends Bundle implements ThemeInterface
 {
 }

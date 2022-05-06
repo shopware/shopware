@@ -13,6 +13,9 @@ class CleanupCartTaskHandler extends ScheduledTaskHandler
 
     private int $days;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $repository,
         Connection $connection,

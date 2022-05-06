@@ -23,6 +23,9 @@ class CmsRoute extends AbstractCmsRoute
      */
     private $cmsPageLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(SalesChannelCmsPageLoaderInterface $cmsPageLoader)
     {
         $this->cmsPageLoader = $cmsPageLoader;

@@ -24,6 +24,9 @@ class DateRangeRule extends Rule
      */
     protected $useTime;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ?\DateTimeInterface $fromDate = null,
         ?\DateTimeInterface $toDate = null,

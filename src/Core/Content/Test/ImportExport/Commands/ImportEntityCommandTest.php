@@ -14,6 +14,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 
 /**
+ * @internal
  * @group slow
  */
 class ImportEntityCommandTest extends TestCase

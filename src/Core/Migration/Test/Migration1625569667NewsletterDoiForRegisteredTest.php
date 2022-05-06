@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1625569667NewsletterDoiForRegistered;
 
+/**
+ * @internal
+ */
 class Migration1625569667NewsletterDoiForRegisteredTest extends TestCase
 {
     use KernelTestBehaviour;

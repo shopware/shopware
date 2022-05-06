@@ -18,6 +18,9 @@ class OrderPersister implements OrderPersisterInterface
 
     private OrderConverter $converter;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $repository,
         OrderConverter $converter

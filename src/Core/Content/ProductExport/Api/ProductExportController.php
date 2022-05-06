@@ -34,6 +34,9 @@ class ProductExportController extends AbstractController
 
     private EventDispatcherInterface $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $salesChannelDomainRepository,
         ProductExportGeneratorInterface $productExportGenerator,

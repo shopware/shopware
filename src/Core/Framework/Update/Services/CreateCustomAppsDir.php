@@ -9,6 +9,9 @@ class CreateCustomAppsDir implements EventSubscriberInterface
 {
     private string $appDir;
 
+    /**
+     * @internal
+     */
     public function __construct(string $appDir)
     {
         $this->appDir = $appDir;

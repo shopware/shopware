@@ -29,6 +29,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @internal
  * @group rules
  */
 class LineItemListPriceRuleTest extends TestCase

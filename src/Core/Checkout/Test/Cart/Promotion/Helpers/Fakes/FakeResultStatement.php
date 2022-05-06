@@ -4,6 +4,9 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Fakes;
 
 use Doctrine\DBAL\Driver\ResultStatement;
 
+/**
+ * @internal
+ */
 class FakeResultStatement implements \IteratorAggregate, ResultStatement
 {
     /**

@@ -32,6 +32,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class EntityWriteGatewayTest extends TestCase
 {
     use IntegrationTestBehaviour;

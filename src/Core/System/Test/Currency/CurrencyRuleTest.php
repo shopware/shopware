@@ -15,6 +15,9 @@ use Shopware\Core\System\Currency\Rule\CurrencyRule;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
+/**
+ * @internal
+ */
 class CurrencyRuleTest extends TestCase
 {
     use KernelTestBehaviour;

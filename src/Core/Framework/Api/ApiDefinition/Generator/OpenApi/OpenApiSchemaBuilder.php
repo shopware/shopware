@@ -36,6 +36,9 @@ class OpenApiSchemaBuilder
      */
     private $version;
 
+    /**
+     * @internal
+     */
     public function __construct(string $version)
     {
         $this->version = $version;

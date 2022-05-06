@@ -41,6 +41,9 @@ class SearchKeywordUpdater implements ResetInterface
      */
     private $config = [];
 
+    /**
+     * @internal
+     */
     public function __construct(
         Connection $connection,
         EntityRepositoryInterface $languageRepository,

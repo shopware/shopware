@@ -24,6 +24,8 @@ use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @Route(defaults={"_routeScope"={"storefront"}})
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
 class ContextController extends StorefrontController
 {
@@ -52,6 +54,9 @@ class ContextController extends StorefrontController
      */
     private $customerRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         SalesChannelContextSwitcher $contextSwitcher,
         EntityRepositoryInterface $domainRepository,

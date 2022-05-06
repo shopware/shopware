@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @internal
+ */
 class AssetInstallCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -21,6 +21,9 @@ use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
+/**
+ * @internal
+ */
 class HandlePaymentMethodRouteResponseTest extends TestCase
 {
     use IntegrationTestBehaviour;

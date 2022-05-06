@@ -46,6 +46,9 @@ class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
 
     private EventDispatcherInterface $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $wishlistRepository,
         SalesChannelRepositoryInterface $productRepository,

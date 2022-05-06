@@ -11,6 +11,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Finder\Finder;
 
 /**
+ * @internal
  * @group slow
  */
 class ServiceDefinitionTest extends TestCase

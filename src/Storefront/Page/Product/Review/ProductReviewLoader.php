@@ -34,6 +34,9 @@ class ProductReviewLoader
      */
     private $route;
 
+    /**
+     * @internal
+     */
     public function __construct(
         AbstractProductReviewRoute $route,
         EventDispatcherInterface $eventDispatcher

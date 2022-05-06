@@ -6,6 +6,9 @@ class ElasticsearchRegistry
 {
     private iterable $definitions;
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $definitions)
     {
         $this->definitions = $definitions;

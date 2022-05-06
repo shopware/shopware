@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 
+/**
+ * @internal
+ */
 class AppUpdatedEventTest extends TestCase
 {
     public function testGetter(): void

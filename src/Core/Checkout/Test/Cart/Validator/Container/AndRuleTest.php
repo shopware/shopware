@@ -11,6 +11,9 @@ use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class AndRuleTest extends TestCase
 {
     public function testTrue(): void

@@ -21,6 +21,9 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Mime\Email;
 
+/**
+ * @internal
+ */
 class MailServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -245,6 +248,9 @@ class MailServiceTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class TestRenderer extends StringTemplateRenderer
 {
     private array $calls = [];

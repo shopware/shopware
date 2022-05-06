@@ -9,6 +9,9 @@ class UpdateApiHttpClientFactory
 {
     private SystemConfigService $systemConfigService;
 
+    /**
+     * @internal
+     */
     public function __construct(SystemConfigService $systemConfigService)
     {
         $this->systemConfigService = $systemConfigService;

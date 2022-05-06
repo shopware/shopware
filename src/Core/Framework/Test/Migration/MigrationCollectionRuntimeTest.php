@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class MigrationCollectionRuntimeTest extends TestCase
 {
     use IntegrationTestBehaviour;

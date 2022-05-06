@@ -18,6 +18,9 @@ class CartChangedEvent extends Event
      */
     protected $context;
 
+    /**
+     * @internal
+     */
     public function __construct(Cart $cart, SalesChannelContext $context)
     {
         $this->cart = $cart;

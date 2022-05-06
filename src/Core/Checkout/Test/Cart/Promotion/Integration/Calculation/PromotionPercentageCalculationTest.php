@@ -19,6 +19,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class PromotionPercentageCalculationTest extends TestCase
 {
     use IntegrationTestBehaviour;

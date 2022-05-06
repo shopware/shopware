@@ -12,6 +12,9 @@ class PluginPostDeactivateEvent extends PluginLifecycleEvent
      */
     private $context;
 
+    /**
+     * @internal
+     */
     public function __construct(PluginEntity $plugin, DeactivateContext $context)
     {
         parent::__construct($plugin);

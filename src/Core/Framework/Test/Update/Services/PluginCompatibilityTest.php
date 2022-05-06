@@ -19,6 +19,9 @@ use Shopware\Core\Framework\Update\Struct\Version;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class PluginCompatibilityTest extends TestCase
 {
     use IntegrationTestBehaviour;

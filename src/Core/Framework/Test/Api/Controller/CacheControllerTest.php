@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
+ * @internal
  * @group skip-paratest
  */
 class CacheControllerTest extends TestCase

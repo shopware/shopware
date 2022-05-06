@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 
 /**
+ * @internal
  * @group store-api
  */
 class ChangePasswordRouteTest extends TestCase

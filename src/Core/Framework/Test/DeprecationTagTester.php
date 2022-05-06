@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Test;
 
+/**
+ * @internal
+ */
 class DeprecationTagTester
 {
     /**

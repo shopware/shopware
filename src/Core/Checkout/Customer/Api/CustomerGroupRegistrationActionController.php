@@ -28,6 +28,9 @@ class CustomerGroupRegistrationActionController
 
     private SalesChannelContextRestorer $restorer;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $customerRepository,
         EventDispatcherInterface $eventDispatcher,

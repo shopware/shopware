@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\Migration1595492052SeoUrl;
 use Shopware\Core\Migration\V6_4\Migration1643366069AddSeoUrlUpdaterIndex;
 
+/**
+ * @internal
+ */
 class Migration1595492052SeoUrlTest extends TestCase
 {
     use KernelTestBehaviour;

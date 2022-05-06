@@ -35,6 +35,9 @@ class ProductSerializer extends EntitySerializer
 
     private EntityRepositoryInterface $productConfiguratorSettingRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $visibilityRepository,
         EntityRepositoryInterface $salesChannelRepository,

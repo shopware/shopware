@@ -7,6 +7,9 @@ use Shopware\Administration\Snippet\SnippetFinder;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @internal
+ */
 class SnippetFinderTest extends TestCase
 {
     use IntegrationTestBehaviour;

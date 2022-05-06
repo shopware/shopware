@@ -45,6 +45,9 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
 
     private EventDispatcherInterface $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $wishlistRepository,
         EntityRepositoryInterface $productRepository,

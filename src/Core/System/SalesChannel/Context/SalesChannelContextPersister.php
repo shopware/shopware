@@ -27,6 +27,9 @@ class SalesChannelContextPersister
      */
     private CartPersisterInterface $cartPersister;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Connection $connection,
         EventDispatcherInterface $eventDispatcher,

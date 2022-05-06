@@ -14,6 +14,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
+/**
+ * @internal
+ */
 class ExpectationSubscriberTest extends TestCase
 {
     private ExpectationSubscriber $expectationSubscriber;

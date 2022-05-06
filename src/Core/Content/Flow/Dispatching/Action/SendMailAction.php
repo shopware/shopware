@@ -65,6 +65,9 @@ class SendMailAction extends FlowAction
 
     private bool $updateMailTemplate;
 
+    /**
+     * @internal
+     */
     public function __construct(
         AbstractMailService $emailService,
         EntityRepositoryInterface $mailTemplateRepository,

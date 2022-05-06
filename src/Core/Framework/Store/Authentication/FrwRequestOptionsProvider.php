@@ -19,6 +19,9 @@ class FrwRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
 
     private EntityRepositoryInterface $userConfigRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         AbstractStoreRequestOptionsProvider $optionsProvider,
         EntityRepositoryInterface $userConfigRepository

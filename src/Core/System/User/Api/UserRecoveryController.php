@@ -21,6 +21,9 @@ class UserRecoveryController extends AbstractController
 
     private RateLimiter $rateLimiter;
 
+    /**
+     * @internal
+     */
     public function __construct(
         UserRecoveryService $userRecoveryService,
         RateLimiter $rateLimiter

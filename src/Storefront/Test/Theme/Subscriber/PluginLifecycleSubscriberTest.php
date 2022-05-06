@@ -18,6 +18,9 @@ use Shopware\Storefront\Theme\ThemeLifecycleHandler;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
 use SwagTest\SwagTest;
 
+/**
+ * @internal
+ */
 class PluginLifecycleSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;

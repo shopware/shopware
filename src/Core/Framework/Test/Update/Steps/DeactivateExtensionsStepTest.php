@@ -22,6 +22,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class DeactivateExtensionsStepTest extends TestCase
 {
     use IntegrationTestBehaviour;

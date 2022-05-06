@@ -88,6 +88,9 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
 
     private SystemConfigService $systemConfigService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $newsletterRecipientRepository,
         DataValidator $validator,

@@ -19,6 +19,9 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
 
     private Connection $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(Configuration $configuration, Connection $connection)
     {
         $this->configuration = $configuration;

@@ -23,6 +23,9 @@ class CriteriaValueResolver implements ArgumentValueResolverInterface
      */
     private $criteriaBuilder;
 
+    /**
+     * @internal
+     */
     public function __construct(DefinitionInstanceRegistry $registry, RequestCriteriaBuilder $criteriaBuilder)
     {
         $this->registry = $registry;

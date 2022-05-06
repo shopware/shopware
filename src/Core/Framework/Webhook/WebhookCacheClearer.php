@@ -9,6 +9,9 @@ class WebhookCacheClearer implements EventSubscriberInterface, ResetInterface
 {
     private WebhookDispatcher $dispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(WebhookDispatcher $dispatcher)
     {
         $this->dispatcher = $dispatcher;

@@ -34,6 +34,9 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
      */
     private $routeScopeRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Connection $connection,
         RouteScopeRegistry $routeScopeRegistry

@@ -11,6 +11,9 @@ class AdminSearcher
 {
     private DefinitionInstanceRegistry $definitionRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(DefinitionInstanceRegistry $definitionRegistry)
     {
         $this->definitionRegistry = $definitionRegistry;

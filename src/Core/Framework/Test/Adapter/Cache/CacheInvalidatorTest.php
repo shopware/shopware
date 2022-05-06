@@ -12,6 +12,7 @@ use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\CacheItem;
 
 /**
+ * @internal
  * @group cache
  */
 class CacheInvalidatorTest extends TestCase
@@ -161,6 +162,9 @@ class CacheInvalidatorTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class TracedCacheAdapter extends ArrayAdapter implements TagAwareAdapterInterface
 {
     private array $invalidated = [];

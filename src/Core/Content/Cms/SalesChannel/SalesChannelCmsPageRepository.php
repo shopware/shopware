@@ -14,6 +14,9 @@ class SalesChannelCmsPageRepository
 {
     private EntityRepositoryInterface $cmsPageRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $repository)
     {
         $this->cmsPageRepository = $repository;

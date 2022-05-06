@@ -8,6 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1623305620ChangeSalutationIdNullable as MigrationTested;
 
+/**
+ * @internal
+ */
 class Migration1623305620ChangeSalutationIdNullableTest extends TestCase
 {
     use IntegrationTestBehaviour;

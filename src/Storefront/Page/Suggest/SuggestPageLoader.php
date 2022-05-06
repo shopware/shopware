@@ -29,6 +29,9 @@ class SuggestPageLoader
      */
     private $genericLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         AbstractProductSuggestRoute $productSuggestRoute,

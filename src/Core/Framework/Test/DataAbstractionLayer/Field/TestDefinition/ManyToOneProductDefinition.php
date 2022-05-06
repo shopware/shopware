@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class ManyToOneProductDefinition extends EntityDefinition
 {
     public function getEntityName(): string

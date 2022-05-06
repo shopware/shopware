@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\Update\Services;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Update\Services\UpdateHtaccess;
 
+/**
+ * @internal
+ */
 class UpdateHtaccessTest extends TestCase
 {
     /**

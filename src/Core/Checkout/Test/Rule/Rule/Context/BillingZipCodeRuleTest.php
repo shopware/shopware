@@ -10,6 +10,9 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\BillingZipCodeRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class BillingZipCodeRuleTest extends TestCase
 {
     public function testEqualsWithSingleCode(): void

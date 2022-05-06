@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviourTest;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\Routing\Router;
 
+/**
+ * @internal
+ */
 class RouteScopeTest extends KernelTestBehaviourTest
 {
     public function testAllRoutesHaveRouteScopes(): void

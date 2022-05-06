@@ -44,6 +44,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"storefront"}})
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
 class AccountOrderController extends StorefrontController
 {
@@ -71,6 +73,9 @@ class AccountOrderController extends StorefrontController
 
     private OrderService $orderService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         AccountOrderPageLoader $orderPageLoader,
         AccountEditOrderPageLoader $accountEditOrderPageLoader,

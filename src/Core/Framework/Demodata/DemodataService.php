@@ -30,6 +30,8 @@ class DemodataService
     private $registry;
 
     /**
+     * @internal
+     *
      * @param \IteratorAggregate<DemodataGeneratorInterface> $generators
      */
     public function __construct(

@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Unit\Cart\Extension;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
 
+/**
+ * @internal
+ */
 class CartExtensionTest extends TestCase
 {
     /**

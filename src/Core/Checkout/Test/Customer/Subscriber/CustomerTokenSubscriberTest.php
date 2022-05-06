@@ -21,6 +21,9 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use function json_decode;
 
+/**
+ * @internal
+ */
 class CustomerTokenSubscriberTest extends TestCase
 {
     use KernelTestBehaviour;

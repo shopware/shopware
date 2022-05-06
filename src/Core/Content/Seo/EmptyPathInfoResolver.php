@@ -9,6 +9,9 @@ class EmptyPathInfoResolver extends AbstractSeoResolver
      */
     private $decorated;
 
+    /**
+     * @internal
+     */
     public function __construct(AbstractSeoResolver $decorated)
     {
         $this->decorated = $decorated;

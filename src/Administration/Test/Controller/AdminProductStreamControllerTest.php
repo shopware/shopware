@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @internal
  * @group slow
  */
 class AdminProductStreamControllerTest extends TestCase

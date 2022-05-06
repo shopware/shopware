@@ -82,6 +82,9 @@ EOL;
      */
     private $projectDir;
 
+    /**
+     * @internal
+     */
     public function __construct(string $projectDir)
     {
         parent::__construct();

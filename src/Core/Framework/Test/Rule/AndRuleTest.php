@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints\Type;
 
+/**
+ * @internal
+ */
 class AndRuleTest extends TestCase
 {
     use KernelTestBehaviour;

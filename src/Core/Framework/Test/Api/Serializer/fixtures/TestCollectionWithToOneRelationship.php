@@ -7,6 +7,9 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\System\User\UserEntity;
 
+/**
+ * @internal
+ */
 class TestCollectionWithToOneRelationship extends SerializationFixture
 {
     public function getInput()

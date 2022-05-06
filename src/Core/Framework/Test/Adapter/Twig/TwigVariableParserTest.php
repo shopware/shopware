@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class TwigVariableParserTest extends TestCase
 {
     use IntegrationTestBehaviour;

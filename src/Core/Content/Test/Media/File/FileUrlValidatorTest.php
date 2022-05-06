@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Test\Media\File;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\FileUrlValidator;
 
+/**
+ * @internal
+ */
 class FileUrlValidatorTest extends TestCase
 {
     /**

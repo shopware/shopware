@@ -24,6 +24,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class PromotionExtensionCodesTest extends TestCase
 {
     use IntegrationTestBehaviour;

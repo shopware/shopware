@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
+ * @internal
  * @group store-api
  */
 class ListAddressRouteTest extends TestCase

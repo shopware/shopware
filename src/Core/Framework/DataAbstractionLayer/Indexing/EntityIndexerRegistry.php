@@ -39,6 +39,9 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
 
     private EventDispatcherInterface $dispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $indexer, MessageBusInterface $messageBus, EventDispatcherInterface $dispatcher)
     {
         $this->indexer = $indexer;

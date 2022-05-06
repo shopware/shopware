@@ -23,6 +23,9 @@ class CompositeEntitySearcher
      */
     private $definitions;
 
+    /**
+     * @internal
+     */
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
         iterable $definitions

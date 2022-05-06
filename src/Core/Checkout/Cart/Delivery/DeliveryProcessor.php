@@ -36,6 +36,9 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
      */
     protected $shippingMethodRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         DeliveryBuilder $builder,
         DeliveryCalculator $deliveryCalculator,

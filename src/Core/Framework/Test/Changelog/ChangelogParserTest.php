@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Changelog\ChangelogParser;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * @internal
+ */
 class ChangelogParserTest extends TestCase
 {
     use IntegrationTestBehaviour;

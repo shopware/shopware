@@ -11,6 +11,9 @@ use Shopware\Core\Checkout\Customer\Rule\ShippingZipCodeRule;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class ShippingZipCodeRuleTest extends TestCase
 {
     public function testEqualsWithSingleCode(): void

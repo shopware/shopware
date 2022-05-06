@@ -20,6 +20,9 @@ class LockValidator implements EventSubscriberInterface
      */
     private $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(Connection $connection)
     {
         $this->connection = $connection;

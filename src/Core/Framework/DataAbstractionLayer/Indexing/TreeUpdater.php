@@ -31,6 +31,9 @@ class TreeUpdater
 
     private ?Statement $updateEntityStatement = null;
 
+    /**
+     * @internal
+     */
     public function __construct(DefinitionInstanceRegistry $registry, Connection $connection)
     {
         $this->registry = $registry;

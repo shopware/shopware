@@ -21,6 +21,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
+/**
+ * @internal
+ */
 class SalesChannelContextPersisterTest extends TestCase
 {
     use IntegrationTestBehaviour;

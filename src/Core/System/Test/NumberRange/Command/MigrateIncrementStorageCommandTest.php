@@ -12,6 +12,9 @@ use Shopware\Core\System\Test\NumberRange\ValueGenerator\IncrementArrayStorage;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @internal
+ */
 class MigrateIncrementStorageCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

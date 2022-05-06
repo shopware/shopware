@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\Migration1608624028RemoveDefaultSalesChannelAssignmentForCustomerRecoveryEvent;
 
+/**
+ * @internal
+ */
 class Migration1608624028RemoveDefaultSalesChannelAssignmentForCustomerRecoveryEventTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -17,6 +17,9 @@ class PropertyGroupGenerator implements DemodataGeneratorInterface
      */
     private $propertyGroupRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $propertyGroupRepository)
     {
         $this->propertyGroupRepository = $propertyGroupRepository;

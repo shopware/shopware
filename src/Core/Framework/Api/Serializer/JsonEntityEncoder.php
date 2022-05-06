@@ -23,6 +23,9 @@ class JsonEntityEncoder
      */
     private $serializer;
 
+    /**
+     * @internal
+     */
     public function __construct(Serializer $serializer)
     {
         $this->serializer = $serializer;

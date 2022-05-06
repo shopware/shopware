@@ -26,6 +26,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class AddressControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

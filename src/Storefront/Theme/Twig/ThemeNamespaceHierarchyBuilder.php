@@ -15,6 +15,9 @@ class ThemeNamespaceHierarchyBuilder implements TemplateNamespaceHierarchyBuilde
 
     private ThemeInheritanceBuilderInterface $themeInheritanceBuilder;
 
+    /**
+     * @internal
+     */
     public function __construct(ThemeInheritanceBuilderInterface $themeInheritanceBuilder)
     {
         $this->themeInheritanceBuilder = $themeInheritanceBuilder;

@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Sitemap\ConfigHandler\File;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 
+/**
+ * @internal
+ */
 class FileTest extends TestCase
 {
     public function testAddLastModDate(): void

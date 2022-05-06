@@ -65,6 +65,9 @@ class ConsumeMessagesController extends AbstractController
 
     private string $memoryLimit;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ServiceLocator $receiverLocator,
         MessageBusInterface $bus,

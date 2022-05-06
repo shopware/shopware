@@ -14,6 +14,9 @@ class ResponseExceptionListener implements EventSubscriberInterface
      */
     private $debug;
 
+    /**
+     * @internal
+     */
     public function __construct($debug = false)
     {
         $this->debug = $debug;

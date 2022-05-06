@@ -27,6 +27,9 @@ class MaintenancePageLoader
      */
     private $cmsPageLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(
         SalesChannelCmsPageLoaderInterface $cmsPageLoader,
         GenericPageLoaderInterface $genericLoader,

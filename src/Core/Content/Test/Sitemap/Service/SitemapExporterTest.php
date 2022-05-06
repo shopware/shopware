@@ -25,6 +25,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
+/**
+ * @internal
+ */
 class SitemapExporterTest extends TestCase
 {
     use IntegrationTestBehaviour;

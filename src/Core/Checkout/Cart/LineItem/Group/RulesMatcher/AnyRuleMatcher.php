@@ -11,6 +11,9 @@ class AnyRuleMatcher implements LineItemGroupRuleMatcherInterface
 {
     private AbstractAnyRuleLineItemMatcher $anyRuleProvider;
 
+    /**
+     * @internal
+     */
     public function __construct(AbstractAnyRuleLineItemMatcher $anyRuleProvider)
     {
         $this->anyRuleProvider = $anyRuleProvider;

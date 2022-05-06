@@ -33,6 +33,9 @@ class AccountProfilePageLoader
      */
     private $salutationRoute;
 
+    /**
+     * @internal
+     */
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,

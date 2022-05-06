@@ -12,6 +12,9 @@ use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
+/**
+ * @internal
+ */
 class CustomerValidationFactoryTest extends TestCase
 {
     /**

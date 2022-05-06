@@ -51,6 +51,9 @@ class SnippetService
      */
     private $salesChannelDomain;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Connection $connection,
         SnippetFileCollection $snippetFileCollection,

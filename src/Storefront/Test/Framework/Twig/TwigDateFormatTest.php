@@ -9,6 +9,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Twig\Loader\ArrayLoader;
 
+/**
+ * @internal
+ */
 class TwigDateFormatTest extends TestCase
 {
     use KernelTestBehaviour;

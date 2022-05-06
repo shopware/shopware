@@ -15,6 +15,9 @@ class MigrateIncrementStorageCommand extends Command
 
     private IncrementStorageRegistry $registry;
 
+    /**
+     * @internal
+     */
     public function __construct(IncrementStorageRegistry $registry)
     {
         $this->registry = $registry;

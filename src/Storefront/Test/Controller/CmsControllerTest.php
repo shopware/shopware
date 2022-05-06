@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Storefront\Page\Cms\CmsPageLoadedHook;
 
+/**
+ * @internal
+ */
 class CmsControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

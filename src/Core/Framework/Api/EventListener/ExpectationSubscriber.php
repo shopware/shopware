@@ -31,6 +31,9 @@ class ExpectationSubscriber implements EventSubscriberInterface
      */
     private array $plugins;
 
+    /**
+     * @internal
+     */
     public function __construct(string $shopwareVersion, array $plugins)
     {
         $this->shopwareVersion = $shopwareVersion;

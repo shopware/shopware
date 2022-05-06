@@ -19,6 +19,9 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 
+/**
+ * @internal
+ */
 class AbsolutePriceCalculatorTest extends TestCase
 {
     /**
@@ -124,6 +127,9 @@ class AbsolutePriceCalculatorTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class AbsoluteCalculation
 {
     /**

@@ -24,6 +24,8 @@ class FilesystemFactory
     private $filesystemPlugins;
 
     /**
+     * @internal
+     *
      * @param AdapterFactoryInterface[]|iterable $adapterFactories
      * @param PluginInterface[]|iterable         $filesystemPlugins
      *

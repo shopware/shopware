@@ -30,6 +30,9 @@ class DefinitionService
      */
     private $definitionRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
         SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionRegistry,

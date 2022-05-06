@@ -50,6 +50,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
+ * @internal
  * @group slow
  */
 class ControllerRateLimiterTest extends TestCase

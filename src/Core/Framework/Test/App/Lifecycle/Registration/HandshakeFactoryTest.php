@@ -16,6 +16,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @internal
+ */
 class HandshakeFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

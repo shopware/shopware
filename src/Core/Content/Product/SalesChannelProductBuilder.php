@@ -18,6 +18,9 @@ class SalesChannelProductBuilder extends AbstractSalesChannelProductBuilder
 
     private AbstractIsNewDetector $isNewDetector;
 
+    /**
+     * @internal
+     */
     public function __construct(
         AbstractPropertyGroupSorter $propertyGroupSorter,
         AbstractProductMaxPurchaseCalculator $maxPurchaseCalculator,

@@ -17,6 +17,9 @@ class AppLocaleProvider
 
     private LanguageLocaleCodeProvider $languageLocaleProvider;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $userRepository, LanguageLocaleCodeProvider $languageLocaleProvider)
     {
         $this->userRepository = $userRepository;

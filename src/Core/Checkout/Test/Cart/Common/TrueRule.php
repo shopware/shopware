@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Test\Cart\Common;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
+/**
+ * @internal
+ */
 class TrueRule extends Rule
 {
     public function match(RuleScope $matchContext): bool

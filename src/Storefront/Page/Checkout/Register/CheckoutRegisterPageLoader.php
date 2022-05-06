@@ -38,6 +38,9 @@ class CheckoutRegisterPageLoader
 
     private AbstractListAddressRoute $listAddressRoute;
 
+    /**
+     * @internal
+     */
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         AbstractListAddressRoute $listAddressRoute,

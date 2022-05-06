@@ -17,6 +17,9 @@ class DefaultMediaResolver extends AbstractDefaultMediaResolver
 
     private AbstractDefaultMediaResolver $decorated;
 
+    /**
+     * @internal
+     */
     public function __construct(AbstractDefaultMediaResolver $decorated, Translator $translator, Packages $packages)
     {
         $this->decorated = $decorated;

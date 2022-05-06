@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class ExtensionStoreLicensesControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -8,6 +8,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
 /**
+ * @internal
+ *
  * @method void configureContainer(ContainerBuilder $container, LoaderInterface $loader)
  */
 class TestKernel extends Kernel

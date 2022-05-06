@@ -12,6 +12,9 @@ class PaymentDistinguishableNameGenerator
 {
     private EntityRepositoryInterface $paymentMethodRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $paymentMethodRepository
     ) {

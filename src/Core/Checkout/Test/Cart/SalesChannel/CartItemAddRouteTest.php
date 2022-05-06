@@ -20,6 +20,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 
 /**
+ * @internal
  * @group store-api
  * @group cart
  */

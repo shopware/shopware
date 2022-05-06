@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class IndexingControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

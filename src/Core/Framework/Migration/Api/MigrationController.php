@@ -29,6 +29,9 @@ class MigrationController extends AbstractController
      */
     private $shopwareVersion;
 
+    /**
+     * @internal
+     */
     public function __construct(
         MigrationCollectionLoader $loader,
         string $shopwareVersion

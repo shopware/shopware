@@ -7,6 +7,9 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\TranslationValidator;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class TranslationValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;

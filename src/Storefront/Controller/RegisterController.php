@@ -42,6 +42,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @Route(defaults={"_routeScope"={"storefront"}})
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
 class RegisterController extends StorefrontController
 {
@@ -63,6 +65,9 @@ class RegisterController extends StorefrontController
 
     private EntityRepositoryInterface $domainRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         AccountLoginPageLoader $loginPageLoader,
         AbstractRegisterRoute $registerRoute,

@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @internal
+ */
 class AppUrlChangeControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

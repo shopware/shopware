@@ -32,6 +32,9 @@ use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class OrderStateChangeEventListenerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -311,6 +314,9 @@ class OrderStateChangeEventListenerTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class RuleValidator extends CallableClass
 {
     /**

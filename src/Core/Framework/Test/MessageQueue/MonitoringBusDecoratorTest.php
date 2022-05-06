@@ -14,6 +14,9 @@ use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 use Symfony\Component\Messenger\Stamp\SentStamp;
 use Symfony\Component\Messenger\Stamp\StampInterface;
 
+/**
+ * @internal
+ */
 class MonitoringBusDecoratorTest extends TestCase
 {
     use IntegrationTestBehaviour;

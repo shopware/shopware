@@ -92,6 +92,9 @@ class Cart extends Struct
 
     private ?CartBehavior $behavior = null;
 
+    /**
+     * @internal
+     */
     public function __construct(string $name, string $token)
     {
         $this->name = $name;

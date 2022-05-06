@@ -43,6 +43,9 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
      */
     private $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $newsletterRecipientRepository,
         DataValidator $validator,

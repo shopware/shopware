@@ -22,6 +22,9 @@ use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class EditOrderPageTest extends TestCase
 {
     use IntegrationTestBehaviour;

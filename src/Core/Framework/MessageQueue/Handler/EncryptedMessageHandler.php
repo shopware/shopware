@@ -21,6 +21,9 @@ class EncryptedMessageHandler extends AbstractMessageHandler
      */
     private $bus;
 
+    /**
+     * @internal
+     */
     public function __construct(MessageBusInterface $bus, $privateKey)
     {
         $this->bus = $bus;

@@ -8,6 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1631790054AddedStreamIds;
 
+/**
+ * @internal
+ */
 class Migration1631790054AddedStreamIdsTest extends TestCase
 {
     use IntegrationTestBehaviour;

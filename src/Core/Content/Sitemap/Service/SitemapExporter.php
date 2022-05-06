@@ -36,6 +36,9 @@ class SitemapExporter implements SitemapExporterInterface
 
     private EventDispatcherInterface $dispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         iterable $urlProvider,
         CacheItemPoolInterface $cache,

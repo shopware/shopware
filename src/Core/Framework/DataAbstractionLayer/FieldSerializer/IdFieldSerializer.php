@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Constraint\Uuid as UuidConstraint;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ */
 class IdFieldSerializer extends AbstractFieldSerializer
 {
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array

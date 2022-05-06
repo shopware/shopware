@@ -30,6 +30,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\IpUtils;
 
+/**
+ * @internal
+ */
 class RemoteAddressFieldTest extends TestCase
 {
     use IntegrationTestBehaviour;

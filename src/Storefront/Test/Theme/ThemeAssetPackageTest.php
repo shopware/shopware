@@ -12,6 +12,9 @@ use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
+/**
+ * @internal
+ */
 class ThemeAssetPackageTest extends TestCase
 {
     public function testEmptyStack(): void

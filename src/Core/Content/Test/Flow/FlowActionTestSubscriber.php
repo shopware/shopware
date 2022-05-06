@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
 
+/**
+ * @internal
+ */
 class FlowActionTestSubscriber extends FlowAction
 {
     public $events = [];

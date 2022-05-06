@@ -71,6 +71,9 @@ class UpdateController extends AbstractController
 
     private AbstractExtensionLifecycle $extensionLifecycleService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         string $rootDir,
         ApiClient $apiClient,

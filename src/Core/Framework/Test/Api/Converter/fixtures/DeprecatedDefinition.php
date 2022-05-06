@@ -16,6 +16,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Tax\TaxDefinition;
 
+/**
+ * @internal
+ */
 class DeprecatedDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'deprecated';

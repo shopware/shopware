@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @internal
  * @group store-api
  */
 class ChangePaymentMethodRouteTest extends TestCase

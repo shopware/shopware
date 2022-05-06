@@ -6,6 +6,9 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 
+/**
+ * @internal
+ */
 class TestCollectionWithSelfReference extends SerializationFixture
 {
     public function getInput()

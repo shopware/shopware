@@ -9,6 +9,9 @@ use Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\Product
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
+/**
+ * @internal
+ */
 class ProductFeatureSetTranslationEntityTest extends TestCase
 {
     use KernelTestBehaviour;

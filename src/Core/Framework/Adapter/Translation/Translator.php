@@ -58,6 +58,9 @@ class Translator extends AbstractTranslator
 
     private LanguageLocaleCodeProvider $languageLocaleProvider;
 
+    /**
+     * @internal
+     */
     public function __construct(
         TranslatorInterface $translator,
         RequestStack $requestStack,

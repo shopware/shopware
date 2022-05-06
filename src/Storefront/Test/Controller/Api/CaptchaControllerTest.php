@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Storefront\Controller\Api\CaptchaController;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 
+/**
+ * @internal
+ */
 class CaptchaControllerTest extends TestCase
 {
     private const CAPTCHA_NAME = 'lorem-ipsum';

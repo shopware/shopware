@@ -35,6 +35,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class ProductExportGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;

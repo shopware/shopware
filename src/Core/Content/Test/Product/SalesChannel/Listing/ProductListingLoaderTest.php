@@ -19,6 +19,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
+ * @internal
  * @group slow
  */
 class ProductListingLoaderTest extends TestCase

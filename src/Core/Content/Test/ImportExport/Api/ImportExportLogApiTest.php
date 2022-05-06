@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class ImportExportLogApiTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

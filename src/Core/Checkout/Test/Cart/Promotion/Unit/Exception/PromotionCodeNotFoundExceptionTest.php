@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Unit\Exception;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Exception\PromotionCodeNotFoundException;
 
+/**
+ * @internal
+ */
 class PromotionCodeNotFoundExceptionTest extends TestCase
 {
     /**

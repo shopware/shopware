@@ -24,6 +24,9 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
+/**
+ * @internal
+ */
 class DaysSinceLastOrderRuleTest extends TestCase
 {
     use KernelTestBehaviour;

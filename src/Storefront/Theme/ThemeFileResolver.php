@@ -16,6 +16,9 @@ class ThemeFileResolver
 
     private ThemeFileImporterInterface $themeFileImporter;
 
+    /**
+     * @internal
+     */
     public function __construct(ThemeFileImporterInterface $themeFileImporter)
     {
         $this->themeFileImporter = $themeFileImporter;

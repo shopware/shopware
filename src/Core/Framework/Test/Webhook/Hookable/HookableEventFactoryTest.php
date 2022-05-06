@@ -19,6 +19,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Hookable\HookableBusinessEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 
+/**
+ * @internal
+ */
 class HookableEventFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

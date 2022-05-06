@@ -18,6 +18,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class ShippingMethodValidatorTest extends TestCase
 {
     public function testValidateWithEmptyCart(): void

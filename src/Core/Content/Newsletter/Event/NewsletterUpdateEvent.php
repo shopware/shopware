@@ -41,6 +41,9 @@ class NewsletterUpdateEvent extends Event implements SalesChannelAware, MailAwar
      */
     private $salesChannelId;
 
+    /**
+     * @internal
+     */
     public function __construct(Context $context, NewsletterRecipientEntity $newsletterRecipient, string $salesChannelId)
     {
         $this->context = $context;

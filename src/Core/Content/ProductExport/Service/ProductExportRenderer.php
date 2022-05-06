@@ -34,6 +34,9 @@ class ProductExportRenderer implements ProductExportRendererInterface
      */
     private $seoUrlPlaceholderHandler;
 
+    /**
+     * @internal
+     */
     public function __construct(StringTemplateRenderer $templateRenderer, EventDispatcherInterface $eventDispatcher, SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler)
     {
         $this->templateRenderer = $templateRenderer;

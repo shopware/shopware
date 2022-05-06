@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class BreadcrumbIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -296,6 +299,9 @@ class BreadcrumbIndexerTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class SetUpData
 {
     /**

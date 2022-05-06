@@ -6,6 +6,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-final - Will be @final
+ * @final
+ */
 class AggregatorResult extends Struct
 {
     /**

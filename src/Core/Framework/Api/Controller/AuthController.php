@@ -27,6 +27,9 @@ class AuthController extends AbstractController
 
     private RateLimiter $rateLimiter;
 
+    /**
+     * @internal
+     */
     public function __construct(
         AuthorizationServer $authorizationServer,
         PsrHttpFactory $psrHttpFactory,

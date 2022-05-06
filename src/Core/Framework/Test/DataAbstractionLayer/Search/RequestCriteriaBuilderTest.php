@@ -16,6 +16,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class RequestCriteriaBuilderTest extends TestCase
 {
     use KernelTestBehaviour;

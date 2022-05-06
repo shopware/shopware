@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1635936029MigrateMessageQueueStatsToIncrement;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexingMessage;
 
+/**
+ * @internal
+ */
 class Migration1635936029MigrateMessageQueueStatsToIncrementTest extends TestCase
 {
     use KernelTestBehaviour;

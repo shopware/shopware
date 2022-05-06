@@ -6,6 +6,9 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
+/**
+ * @internal
+ */
 class Migration1602494495SetUsersAsAdminsTest extends TestCase
 {
     use KernelTestBehaviour;

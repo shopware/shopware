@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelBrowser;
 
+/**
+ * @internal
+ */
 class VersionTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

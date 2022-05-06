@@ -14,6 +14,9 @@ class ChangelogService
      */
     private $changelogParser;
 
+    /**
+     * @internal
+     */
     public function __construct(ChangelogParser $changelogParser)
     {
         $this->changelogParser = $changelogParser;

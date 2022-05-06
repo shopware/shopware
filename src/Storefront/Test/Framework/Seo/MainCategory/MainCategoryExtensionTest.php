@@ -20,6 +20,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
+/**
+ * @internal
+ */
 class MainCategoryExtensionTest extends TestCase
 {
     use IntegrationTestBehaviour;

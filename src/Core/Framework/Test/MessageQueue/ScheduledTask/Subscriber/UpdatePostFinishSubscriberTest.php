@@ -7,6 +7,9 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Subscriber\UpdatePostFinishSubscriber;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 
+/**
+ * @internal
+ */
 class UpdatePostFinishSubscriberTest extends TestCase
 {
     public function testGetSubscribedEvents(): void

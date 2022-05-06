@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerial
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ListFieldSerializer;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * @internal
+ */
 class ListFieldSerializerTest extends TestCase
 {
     /**

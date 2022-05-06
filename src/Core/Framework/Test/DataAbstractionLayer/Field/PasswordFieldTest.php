@@ -19,6 +19,9 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\User\UserDefinition;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+/**
+ * @internal
+ */
 class PasswordFieldTest extends TestCase
 {
     use IntegrationTestBehaviour;

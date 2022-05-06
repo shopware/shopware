@@ -29,6 +29,7 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @internal
  * @group store-api
  */
 class RegisterRouteTest extends TestCase

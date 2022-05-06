@@ -51,6 +51,7 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
+ * @internal
  * @group slow
  * @group skip-paratest
  */

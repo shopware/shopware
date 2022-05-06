@@ -23,6 +23,9 @@ use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\BufferedOutput;
 
+/**
+ * @internal
+ */
 class CleanPersonalDataCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

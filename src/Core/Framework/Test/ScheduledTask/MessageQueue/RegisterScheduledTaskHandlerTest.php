@@ -7,6 +7,9 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\MessageQueue\RegisterSche
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\MessageQueue\RegisterScheduledTaskMessage;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
 
+/**
+ * @internal
+ */
 class RegisterScheduledTaskHandlerTest extends TestCase
 {
     public function testItHandlesTheRightMessage(): void

@@ -23,6 +23,9 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+/**
+ * @internal
+ */
 class GenerateThumbnailsCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

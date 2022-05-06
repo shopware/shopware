@@ -11,6 +11,9 @@ class CleanupImportExportFileTaskHandler extends ScheduledTaskHandler
 {
     private DeleteExpiredFilesService $deleteExpiredFilesService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $repository,
         DeleteExpiredFilesService $deleteExpiredFilesService

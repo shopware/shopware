@@ -18,6 +18,9 @@ class SystemConfigLoader extends AbstractSystemConfigLoader
 
     protected Kernel $kernel;
 
+    /**
+     * @internal
+     */
     public function __construct(Connection $connection, Kernel $kernel)
     {
         $this->connection = $connection;

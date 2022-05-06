@@ -36,6 +36,9 @@ class BeforeDeleteEvent extends Event implements ShopwareEvent
 
     private array $ids = [];
 
+    /**
+     * @internal
+     */
     private function __construct(WriteContext $writeContext, array $commands)
     {
         $this->writeContext = $writeContext;

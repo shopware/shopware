@@ -5,6 +5,9 @@ namespace Shopware\Storefront\Test\Controller;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class WellKnownControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

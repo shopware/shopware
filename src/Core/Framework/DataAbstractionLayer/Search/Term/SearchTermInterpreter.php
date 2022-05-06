@@ -9,6 +9,9 @@ class SearchTermInterpreter
      */
     private $tokenizer;
 
+    /**
+     * @internal
+     */
     public function __construct(TokenizerInterface $tokenizer)
     {
         $this->tokenizer = $tokenizer;

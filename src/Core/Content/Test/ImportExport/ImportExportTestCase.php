@@ -40,6 +40,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 
+/**
+ * @internal
+ */
 abstract class ImportExportTestCase extends TestCase
 {
     use KernelTestBehaviour;

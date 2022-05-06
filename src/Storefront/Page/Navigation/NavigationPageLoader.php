@@ -38,6 +38,9 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
      */
     private $seoUrlReplacer;
 
+    /**
+     * @internal
+     */
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,

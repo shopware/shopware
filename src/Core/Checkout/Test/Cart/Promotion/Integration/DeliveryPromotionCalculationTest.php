@@ -20,6 +20,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @internal
  * @group slow
  */
 class DeliveryPromotionCalculationTest extends TestCase

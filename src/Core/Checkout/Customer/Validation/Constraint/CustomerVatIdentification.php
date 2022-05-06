@@ -41,6 +41,9 @@ class CustomerVatIdentification extends Constraint
         self::VAT_ID_FORMAT_NOT_CORRECT => 'VAT_ID_FORMAT_NOT_CORRECT',
     ];
 
+    /**
+     * @internal
+     */
     public function __construct($options = null)
     {
         parent::__construct($options);

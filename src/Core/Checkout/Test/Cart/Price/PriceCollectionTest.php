@@ -9,6 +9,9 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 
+/**
+ * @internal
+ */
 class PriceCollectionTest extends TestCase
 {
     public function testCollectionIsCountable(): void

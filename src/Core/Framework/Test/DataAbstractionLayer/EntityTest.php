@@ -15,6 +15,9 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer {
     use Test\Foo\FooEntity;
     use Test\Foo\ProductEntityRelationEntity;
 
+    /**
+     * @internal
+     */
     class EntityTest extends TestCase
     {
         public function apiAliasDefaultsDataProvider(): iterable

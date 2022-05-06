@@ -44,6 +44,7 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @internal
  * @group slow
  */
 class ProductRepositoryTest extends TestCase

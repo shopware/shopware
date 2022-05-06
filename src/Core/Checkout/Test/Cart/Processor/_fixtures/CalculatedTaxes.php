@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Test\Cart\Processor\_fixtures;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 
+/**
+ * @internal
+ */
 class CalculatedTaxes extends CalculatedTaxCollection
 {
     public function __construct(array $taxes = [])

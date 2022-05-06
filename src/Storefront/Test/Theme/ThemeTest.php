@@ -30,6 +30,9 @@ use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\KernelInterface;
 
+/**
+ * @internal
+ */
 class ThemeTest extends TestCase
 {
     use IntegrationTestBehaviour;

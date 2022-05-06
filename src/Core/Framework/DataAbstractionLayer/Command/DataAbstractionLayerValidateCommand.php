@@ -18,6 +18,9 @@ class DataAbstractionLayerValidateCommand extends Command
      */
     private $validator;
 
+    /**
+     * @internal
+     */
     public function __construct(DefinitionValidator $validator)
     {
         parent::__construct();

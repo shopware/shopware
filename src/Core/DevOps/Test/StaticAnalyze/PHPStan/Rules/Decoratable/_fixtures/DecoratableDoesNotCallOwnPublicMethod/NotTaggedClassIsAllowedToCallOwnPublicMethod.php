@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\DevOps\Test\StaticAnalyze\PHPStan\Rules\Decoratable\_fixtures\DecoratableDoesNotCallOwnPublicMethod;
 
+/**
+ * @internal
+ */
 class NotTaggedClassIsAllowedToCallOwnPublicMethod implements DecoratableInterface
 {
     public function run(): void

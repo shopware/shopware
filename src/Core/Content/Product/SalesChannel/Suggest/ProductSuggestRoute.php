@@ -43,6 +43,9 @@ class ProductSuggestRoute extends AbstractProductSuggestRoute
      */
     private $productListingLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ProductSearchBuilderInterface $searchBuilder,
         EventDispatcherInterface $eventDispatcher,

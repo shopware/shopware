@@ -7,6 +7,9 @@ use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Service\DatabaseInitializer;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 
+/**
+ * @internal
+ */
 class DatabaseInitializerTest extends TestCase
 {
     public function testInitialize(): void

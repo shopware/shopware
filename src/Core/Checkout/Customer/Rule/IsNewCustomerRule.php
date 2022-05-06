@@ -14,6 +14,9 @@ class IsNewCustomerRule extends Rule
      */
     protected $isNew;
 
+    /**
+     * @internal
+     */
     public function __construct(bool $isNew = true)
     {
         parent::__construct();

@@ -20,6 +20,9 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
 
     private Connection $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(
         RequestStack $requestStack,
         RouterInterface $router,

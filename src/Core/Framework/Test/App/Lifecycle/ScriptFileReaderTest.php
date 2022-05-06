@@ -7,6 +7,9 @@ use Shopware\Core\Framework\App\Lifecycle\ScriptFileReader;
 use Shopware\Core\Framework\App\Lifecycle\ScriptFileReaderInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class ScriptFileReaderTest extends TestCase
 {
     use IntegrationTestBehaviour;

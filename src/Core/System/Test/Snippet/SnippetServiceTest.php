@@ -16,6 +16,9 @@ use Shopware\Core\System\Test\Snippet\Mock\MockSnippetFile;
 use Symfony\Component\Translation\MessageCatalogue;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
+/**
+ * @internal
+ */
 class SnippetServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

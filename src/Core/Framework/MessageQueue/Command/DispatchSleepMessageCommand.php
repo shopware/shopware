@@ -19,6 +19,9 @@ class DispatchSleepMessageCommand extends Command
 
     private MessageBusInterface $messageBus;
 
+    /**
+     * @internal
+     */
     public function __construct(MessageBusInterface $messageBus)
     {
         parent::__construct();

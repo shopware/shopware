@@ -8,6 +8,9 @@ use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\Migration1607500561UpdateSignUpMailTemplateTranslation;
 
+/**
+ * @internal
+ */
 class Migration1607500561UpdateSignUpMailTemplateTranslationTest extends TestCase
 {
     use KernelTestBehaviour;

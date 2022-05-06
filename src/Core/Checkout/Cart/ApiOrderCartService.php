@@ -15,6 +15,9 @@ class ApiOrderCartService
 
     protected SalesChannelContextPersister $contextPersister;
 
+    /**
+     * @internal
+     */
     public function __construct(CartService $cartService, SalesChannelContextPersister $contextPersister)
     {
         $this->cartService = $cartService;

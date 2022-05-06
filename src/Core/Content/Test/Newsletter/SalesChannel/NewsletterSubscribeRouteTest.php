@@ -18,6 +18,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @internal
  * @group store-api
  */
 class NewsletterSubscribeRouteTest extends TestCase

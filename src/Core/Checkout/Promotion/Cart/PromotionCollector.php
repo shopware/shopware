@@ -41,6 +41,9 @@ class PromotionCollector implements CartDataCollectorInterface
 
     private array $requiredDalAssociations;
 
+    /**
+     * @internal
+     */
     public function __construct(PromotionGatewayInterface $gateway, PromotionItemBuilder $itemBuilder, HtmlSanitizer $htmlSanitizer)
     {
         $this->gateway = $gateway;

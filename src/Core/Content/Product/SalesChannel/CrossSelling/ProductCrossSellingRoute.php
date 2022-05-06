@@ -47,6 +47,9 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
     private ProductListingLoader $listingLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $crossSellingRepository,
         EventDispatcherInterface $eventDispatcher,

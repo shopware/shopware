@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
 
+/**
+ * @internal
+ */
 class KernelTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\Update\Checkers;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Update\Checkers\PhpVersionCheck;
 
+/**
+ * @internal
+ */
 class PhpVersionCheckTest extends TestCase
 {
     public function testPhp74Min(): void

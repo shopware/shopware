@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\Api\Serializer\fixtures;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 
+/**
+ * @internal
+ */
 class TestBasicStruct extends SerializationFixture
 {
     public function getInput()

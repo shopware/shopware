@@ -16,6 +16,9 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class ProductExportControllerTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;

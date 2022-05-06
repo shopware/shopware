@@ -10,6 +10,9 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidTokenException;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class JWTFactoryV2Test extends TestCase
 {
     use KernelTestBehaviour;

@@ -27,6 +27,9 @@ class CartLoadRoute extends AbstractCartLoadRoute
 
     private CartCalculator $cartCalculator;
 
+    /**
+     * @internal
+     */
     public function __construct(
         CartPersisterInterface $persister,
         EventDispatcherInterface $eventDispatcher,

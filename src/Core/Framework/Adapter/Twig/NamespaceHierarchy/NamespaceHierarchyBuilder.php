@@ -17,6 +17,9 @@ class NamespaceHierarchyBuilder
      */
     private $namespaceHierarchyBuilders;
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $namespaceHierarchyBuilders)
     {
         $this->namespaceHierarchyBuilders = $namespaceHierarchyBuilders;

@@ -38,6 +38,9 @@ class FlowIndexer extends EntityIndexer implements EventSubscriberInterface
 
     private MessageBusInterface $messageBus;
 
+    /**
+     * @internal
+     */
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,

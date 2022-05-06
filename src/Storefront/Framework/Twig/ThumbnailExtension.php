@@ -14,6 +14,9 @@ class ThumbnailExtension extends AbstractExtension
      */
     private $finder;
 
+    /**
+     * @internal
+     */
     public function __construct(TemplateFinder $finder)
     {
         $this->finder = $finder;

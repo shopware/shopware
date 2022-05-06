@@ -19,6 +19,9 @@ class SeoUrlFunctionExtension extends AbstractExtension
      */
     private $seoUrlReplacer;
 
+    /**
+     * @internal
+     */
     public function __construct(RoutingExtension $extension, SeoUrlPlaceholderHandlerInterface $seoUrlReplacer)
     {
         $this->routingExtension = $extension;

@@ -49,6 +49,9 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
      */
     private $validator;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $customerRepository,
         EventDispatcherInterface $eventDispatcher,

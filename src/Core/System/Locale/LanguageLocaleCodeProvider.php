@@ -12,6 +12,9 @@ class LanguageLocaleCodeProvider implements ResetInterface
 
     private array $languages = [];
 
+    /**
+     * @internal
+     */
     public function __construct(LanguageLoaderInterface $languageLoader)
     {
         $this->languageLoader = $languageLoader;

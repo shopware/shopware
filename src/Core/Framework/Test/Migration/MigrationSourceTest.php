@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Storefront\Controller\ProductController;
 
+/**
+ * @internal
+ */
 class MigrationSourceTest extends TestCase
 {
     use KernelTestBehaviour;

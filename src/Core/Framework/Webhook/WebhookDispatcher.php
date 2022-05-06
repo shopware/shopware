@@ -59,6 +59,7 @@ class WebhookDispatcher implements EventDispatcherInterface
     private bool $isAdminWorkerEnabled;
 
     /**
+     * @internal
      * @psalm-suppress ContainerDependency
      */
     public function __construct(

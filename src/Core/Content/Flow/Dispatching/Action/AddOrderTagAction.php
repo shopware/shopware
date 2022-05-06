@@ -11,6 +11,9 @@ class AddOrderTagAction extends FlowAction
 {
     private EntityRepositoryInterface $orderRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $orderRepository)
     {
         $this->orderRepository = $orderRepository;

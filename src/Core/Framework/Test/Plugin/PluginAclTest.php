@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\Subscriber\PluginAclPrivilegesSubscriber;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class PluginAclTest extends TestCase
 {
     private const PLUGINS_NAMESPACE = 'SwagTestPluginAcl';

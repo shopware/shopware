@@ -12,6 +12,9 @@ class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterfa
 
     private Connection $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(KernelInterface $kernel, Connection $connection)
     {
         $this->kernel = $kernel;

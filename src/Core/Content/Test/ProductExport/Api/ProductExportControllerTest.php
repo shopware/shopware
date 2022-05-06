@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class ProductExportControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

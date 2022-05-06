@@ -5,6 +5,9 @@ namespace Shopware\Core\System\Test\Snippet\Filter;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\Snippet\Filter\EmptySnippetFilter;
 
+/**
+ * @internal
+ */
 class EmptySnippetFilterTest extends TestCase
 {
     public function testGetFilterName(): void

@@ -10,6 +10,9 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class AppConfirmationDeltaProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;

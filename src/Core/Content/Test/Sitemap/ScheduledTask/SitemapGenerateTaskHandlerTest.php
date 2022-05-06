@@ -23,6 +23,9 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+/**
+ * @internal
+ */
 class SitemapGenerateTaskHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;

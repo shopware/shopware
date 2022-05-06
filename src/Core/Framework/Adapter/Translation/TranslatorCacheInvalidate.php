@@ -22,6 +22,9 @@ class TranslatorCacheInvalidate implements EventSubscriberInterface
      */
     private $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(CacheItemPoolInterface $cache, Connection $connection)
     {
         $this->cache = $cache;

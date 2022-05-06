@@ -38,6 +38,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class ProductSliderTypeDataResolverTest extends TestCase
 {
     use KernelTestBehaviour;

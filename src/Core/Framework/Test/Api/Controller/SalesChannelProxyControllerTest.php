@@ -36,6 +36,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
+ * @internal
  * @group slow
  */
 class SalesChannelProxyControllerTest extends TestCase

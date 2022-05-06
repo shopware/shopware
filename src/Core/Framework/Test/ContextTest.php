@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class ContextTest extends TestCase
 {
     public function testDefaultValues(): void

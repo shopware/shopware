@@ -37,6 +37,9 @@ class AdminSearchController extends AbstractController
 
     private DefinitionInstanceRegistry $definitionRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(
         RequestCriteriaBuilder $requestCriteriaBuilder,
         DefinitionInstanceRegistry $definitionInstanceRegistry,

@@ -14,6 +14,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class SalesChannelContextServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

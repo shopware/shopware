@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class Migration1594104496CashRoundingTest extends TestCase
 {
     use KernelTestBehaviour;

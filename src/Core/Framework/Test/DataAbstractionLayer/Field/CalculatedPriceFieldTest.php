@@ -18,6 +18,9 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Version\CalculatedPriceFie
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 
+/**
+ * @internal
+ */
 class CalculatedPriceFieldTest extends TestCase
 {
     use IntegrationTestBehaviour;

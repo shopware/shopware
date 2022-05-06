@@ -19,8 +19,8 @@ return [
         'Type.+documentation.+for.+property', // Doc type to native type conversions seems to not correctly be detected by the BC checker
         'Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\RetryableTransaction::retryable()', // This is a static method so extending this class is not necessary
         'The annotation "LoginRequired" parameter "allowGuest" has been changed on.+from "" to "true"',
-        'The.+#__construct().+', // Todo make service constructors @internal
-        'Default.+#__construct().+', // Todo make service constructors @internal
+        '.+#__construct().+', // Todo make service constructors @internal
+
         'The return type of Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Command\\\\Changelog(Check|Change|Create)Command#execute\(\) changed from no type to int',
         'Symfony\\\\Component\\\\HttpFoundation\\\\Response::\\$statusTexts',
         'Symfony\\\\Component\\\\HttpKernel\\\\Kernel#\\$bundles',

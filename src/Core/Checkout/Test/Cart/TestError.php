@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Test\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class TestError extends Error
 {
     public const LEVEL_UNKNOWN = \PHP_INT_MAX;

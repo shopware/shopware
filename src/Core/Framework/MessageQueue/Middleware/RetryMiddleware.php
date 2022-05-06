@@ -27,6 +27,9 @@ class RetryMiddleware implements MiddlewareInterface
 
     private EventDispatcherInterface $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $deadMessageRepository, EventDispatcherInterface $eventDispatcher)
     {
         $this->deadMessageRepository = $deadMessageRepository;

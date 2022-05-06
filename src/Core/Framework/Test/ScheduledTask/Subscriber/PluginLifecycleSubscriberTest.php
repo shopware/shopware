@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
+/**
+ * @internal
+ */
 class PluginLifecycleSubscriberTest extends TestCase
 {
     public function testGetSubscribedEvents(): void

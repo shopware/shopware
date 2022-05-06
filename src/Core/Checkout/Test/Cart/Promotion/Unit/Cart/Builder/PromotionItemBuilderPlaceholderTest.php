@@ -7,6 +7,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 
+/**
+ * @internal
+ */
 class PromotionItemBuilderPlaceholderTest extends TestCase
 {
     /**

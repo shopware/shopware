@@ -18,6 +18,9 @@ class AppFlowActionProvider
 
     private StringTemplateRenderer $templateRenderer;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Connection $connection,
         BusinessEventEncoder $businessEventEncoder,

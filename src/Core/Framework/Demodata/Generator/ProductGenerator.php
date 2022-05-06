@@ -32,6 +32,9 @@ class ProductGenerator implements DemodataGeneratorInterface
 
     private InheritanceUpdater $updater;
 
+    /**
+     * @internal
+     */
     public function __construct(Connection $connection, DefinitionInstanceRegistry $registry, InheritanceUpdater $updater)
     {
         $this->connection = $connection;

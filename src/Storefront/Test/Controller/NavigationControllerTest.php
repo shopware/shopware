@@ -14,6 +14,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoadedHook;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoadedHook;
 
+/**
+ * @internal
+ */
 class NavigationControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -27,6 +27,9 @@ class CheckoutOrderPlacedEvent extends Event implements SalesChannelAware, Order
 
     private string $salesChannelId;
 
+    /**
+     * @internal
+     */
     public function __construct(Context $context, OrderEntity $order, string $salesChannelId, ?MailRecipientStruct $mailRecipientStruct = null)
     {
         $this->order = $order;

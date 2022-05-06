@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
+/**
+ * @internal
+ */
 class IncrementerGatewayCompilerPassTest extends TestCase
 {
     use IntegrationTestBehaviour;

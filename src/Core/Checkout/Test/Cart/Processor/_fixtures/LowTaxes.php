@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Test\Cart\Processor\_fixtures;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 
+/**
+ * @internal
+ */
 class LowTaxes extends TaxRuleCollection
 {
     public function __construct()

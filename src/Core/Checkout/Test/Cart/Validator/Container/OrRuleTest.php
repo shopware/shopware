@@ -9,6 +9,9 @@ use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class OrRuleTest extends TestCase
 {
     public function testTrue(): void

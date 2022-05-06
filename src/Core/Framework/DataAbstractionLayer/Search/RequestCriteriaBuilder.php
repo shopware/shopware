@@ -34,6 +34,9 @@ class RequestCriteriaBuilder
 
     private CriteriaArrayConverter $converter;
 
+    /**
+     * @internal
+     */
     public function __construct(
         AggregationParser $aggregationParser,
         ApiCriteriaValidator $validator,

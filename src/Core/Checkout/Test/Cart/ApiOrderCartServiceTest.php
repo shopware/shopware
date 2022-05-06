@@ -16,6 +16,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
+/**
+ * @internal
+ */
 class ApiOrderCartServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

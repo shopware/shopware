@@ -21,6 +21,9 @@ use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
 class AppStateServiceThemeTest extends TestCase
 {
     use IntegrationTestBehaviour;

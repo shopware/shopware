@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 
+/**
+ * @internal
+ */
 class CountingEntitySearcher implements EntitySearcherInterface
 {
     /**

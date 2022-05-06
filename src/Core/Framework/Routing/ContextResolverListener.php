@@ -13,6 +13,9 @@ class ContextResolverListener implements EventSubscriberInterface
      */
     private $requestContextResolver;
 
+    /**
+     * @internal
+     */
     public function __construct(
         RequestContextResolverInterface $requestContextResolver
     ) {

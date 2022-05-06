@@ -11,6 +11,9 @@ class ExcludeExceptionHandler extends AbstractHandler
 
     private array $excludeExceptionList;
 
+    /**
+     * @internal
+     */
     public function __construct(HandlerInterface $handler, array $excludeExceptionList)
     {
         parent::__construct();

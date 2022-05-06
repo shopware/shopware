@@ -17,6 +17,9 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @internal
+ */
 class LogCleanupTaskHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;

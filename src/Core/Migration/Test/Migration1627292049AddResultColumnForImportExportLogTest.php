@@ -8,6 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1627292049AddResultColumnForImportExportLog;
 
+/**
+ * @internal
+ */
 class Migration1627292049AddResultColumnForImportExportLogTest extends TestCase
 {
     use IntegrationTestBehaviour;

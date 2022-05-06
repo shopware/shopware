@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Rule\WeekdayRule;
 
+/**
+ * @internal
+ */
 class WeekdayRuleTest extends TestCase
 {
     public function testMatchForCurrentDay(): void

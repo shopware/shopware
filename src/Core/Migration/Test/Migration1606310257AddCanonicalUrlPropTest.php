@@ -8,6 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\Migration1606310257AddCanonicalUrlProp;
 
+/**
+ * @internal
+ */
 class Migration1606310257AddCanonicalUrlPropTest extends TestCase
 {
     use IntegrationTestBehaviour;

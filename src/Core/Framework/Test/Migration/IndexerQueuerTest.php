@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Migration\IndexerQueuer;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class IndexerQueuerTest extends TestCase
 {
     use IntegrationTestBehaviour;

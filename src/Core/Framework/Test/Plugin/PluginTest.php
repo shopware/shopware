@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\Plugin;
 use PHPUnit\Framework\TestCase;
 use SwagTest\SwagTest;
 
+/**
+ * @internal
+ */
 class PluginTest extends TestCase
 {
     /**

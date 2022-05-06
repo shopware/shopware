@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseHelper;
 
+/**
+ * @internal
+ */
 class ReflectionHelper
 {
     public static function getMethod(string $className, string $methodName): \ReflectionMethod

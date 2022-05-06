@@ -16,6 +16,9 @@ class ThemeCreateCommand extends Command
 
     private string $projectDir;
 
+    /**
+     * @internal
+     */
     public function __construct(string $projectDir)
     {
         parent::__construct();

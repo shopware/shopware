@@ -30,6 +30,9 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
 
     private ThemeLifecycleService $themeLifecycleService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         StorefrontPluginRegistryInterface $storefrontPluginRegistry,
         string $projectDirectory,

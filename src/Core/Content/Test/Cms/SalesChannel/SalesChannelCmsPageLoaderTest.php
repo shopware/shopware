@@ -18,6 +18,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class SalesChannelCmsPageLoaderTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;

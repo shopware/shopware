@@ -7,6 +7,9 @@ use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
 use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Content\Media\File\FileNameValidator;
 
+/**
+ * @internal
+ */
 class FileNameValidatorTest extends TestCase
 {
     public function restrictedCharacters()

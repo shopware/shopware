@@ -35,6 +35,9 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
 class ProductListingFeaturesSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -10,6 +10,9 @@ use Shopware\Core\Checkout\Payment\Exception\UnknownRefundHandlerException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payment\Response\RefundResponse;
 
+/**
+ * @internal
+ */
 class AppRefundHandlerTest extends AbstractAppPaymentHandlerTest
 {
     public function testRefund(): void

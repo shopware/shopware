@@ -16,6 +16,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
+ * @internal
  * @group store-api
  */
 class UpsertAddressRouteTest extends TestCase

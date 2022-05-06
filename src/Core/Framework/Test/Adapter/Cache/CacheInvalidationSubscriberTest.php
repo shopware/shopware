@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class CacheInvalidationSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;

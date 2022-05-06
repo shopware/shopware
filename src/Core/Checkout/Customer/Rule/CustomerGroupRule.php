@@ -20,6 +20,9 @@ class CustomerGroupRule extends Rule
      */
     protected $operator;
 
+    /**
+     * @internal
+     */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $customerGroupIds = null)
     {
         parent::__construct();

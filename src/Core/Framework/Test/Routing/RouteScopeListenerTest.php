@@ -19,6 +19,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
+/**
+ * @internal
+ */
 class RouteScopeListenerTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -14,6 +14,9 @@ class LocaleProvider
 {
     private EntityRepositoryInterface $userRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $userRepository)
     {
         $this->userRepository = $userRepository;

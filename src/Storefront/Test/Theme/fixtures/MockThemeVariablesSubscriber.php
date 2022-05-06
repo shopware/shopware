@@ -6,6 +6,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
 class MockThemeVariablesSubscriber implements EventSubscriberInterface
 {
     /**

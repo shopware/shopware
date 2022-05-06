@@ -20,6 +20,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
 class FirstRunWizardClientTest extends TestCase
 {
     use IntegrationTestBehaviour;

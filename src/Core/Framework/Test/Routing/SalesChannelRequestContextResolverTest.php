@@ -32,6 +32,9 @@ use Symfony\Component\HttpFoundation\Request;
 use function array_unshift;
 use function print_r;
 
+/**
+ * @internal
+ */
 class SalesChannelRequestContextResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;

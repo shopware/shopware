@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1620376945AddCompanyTaxAndCustomerTaxToCountry;
 
+/**
+ * @internal
+ */
 class Migration1620376945AddCompanyTaxAndCustomerTaxToCountryTest extends TestCase
 {
     use KernelTestBehaviour;

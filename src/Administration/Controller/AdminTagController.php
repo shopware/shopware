@@ -19,6 +19,9 @@ class AdminTagController extends AbstractController
 {
     private FilterTagIdsService $filterTagIdsService;
 
+    /**
+     * @internal
+     */
     public function __construct(FilterTagIdsService $filterTagIdsService)
     {
         $this->filterTagIdsService = $filterTagIdsService;

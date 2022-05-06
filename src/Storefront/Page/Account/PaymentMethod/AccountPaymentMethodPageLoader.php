@@ -23,6 +23,9 @@ class AccountPaymentMethodPageLoader
      */
     private $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher

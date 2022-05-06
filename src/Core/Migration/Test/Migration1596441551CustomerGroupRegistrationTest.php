@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Migration1596441551CustomerGroupRegistration;
 
+/**
+ * @internal
+ */
 class Migration1596441551CustomerGroupRegistrationTest extends TestCase
 {
     use KernelTestBehaviour;

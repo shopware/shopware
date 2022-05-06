@@ -33,6 +33,9 @@ class Calculator
      */
     private $absolutePriceCalculator;
 
+    /**
+     * @internal
+     */
     public function __construct(
         QuantityPriceCalculator $quantityPriceCalculator,
         PercentagePriceCalculator $percentagePriceCalculator,

@@ -24,6 +24,9 @@ class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
      */
     private $productDefinition;
 
+    /**
+     * @internal
+     */
     public function __construct(ProductDefinition $productDefinition)
     {
         $this->productDefinition = $productDefinition;

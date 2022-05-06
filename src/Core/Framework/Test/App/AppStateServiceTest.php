@@ -24,6 +24,9 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
 class AppStateServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

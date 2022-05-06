@@ -16,6 +16,9 @@ class OrderTransactionCaptureRefundStateHandler
 {
     private StateMachineRegistry $stateMachineRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(StateMachineRegistry $stateMachineRegistry)
     {
         $this->stateMachineRegistry = $stateMachineRegistry;

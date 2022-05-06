@@ -25,6 +25,9 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface
 
     private array $categoryIdCache = [];
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $categoryRepository, SyncServiceInterface $syncService)
     {
         $this->categoryRepository = $categoryRepository;

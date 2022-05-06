@@ -20,6 +20,9 @@ class ScheduledTaskController extends AbstractController
      */
     private $taskScheduler;
 
+    /**
+     * @internal
+     */
     public function __construct(TaskScheduler $taskScheduler)
     {
         $this->taskScheduler = $taskScheduler;

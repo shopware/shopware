@@ -57,6 +57,9 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
      */
     private $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $wishlistRepository,
         SalesChannelRepositoryInterface $productRepository,

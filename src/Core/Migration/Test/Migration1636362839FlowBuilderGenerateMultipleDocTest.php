@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1636362839FlowBuilderGenerateMultipleDoc;
 
+/**
+ * @internal
+ */
 class Migration1636362839FlowBuilderGenerateMultipleDocTest extends TestCase
 {
     use IntegrationTestBehaviour;

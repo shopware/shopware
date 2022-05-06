@@ -18,6 +18,9 @@ class ElasticsearchCleanIndicesCommand extends Command
 
     private Client $client;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Client $client,
         ElasticsearchOutdatedIndexDetector $indexCleaner

@@ -34,6 +34,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @Route(defaults={"_routeScope"={"storefront"}})
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
 class WishlistController extends StorefrontController
 {
@@ -53,6 +55,9 @@ class WishlistController extends StorefrontController
 
     private EventDispatcherInterface $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         WishlistPageLoader $wishlistPageLoader,
         AbstractLoadWishlistRoute $wishlistLoadRoute,

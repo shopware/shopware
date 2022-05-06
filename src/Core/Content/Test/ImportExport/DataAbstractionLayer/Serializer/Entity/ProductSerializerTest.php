@@ -26,6 +26,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class ProductSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;

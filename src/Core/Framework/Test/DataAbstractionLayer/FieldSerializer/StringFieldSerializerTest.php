@@ -20,6 +20,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
+/**
+ * @internal
+ */
 class StringFieldSerializerTest extends TestCase
 {
     use KernelTestBehaviour;

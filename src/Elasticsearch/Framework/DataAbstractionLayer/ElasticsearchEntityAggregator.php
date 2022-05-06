@@ -27,6 +27,9 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
 
     private EventDispatcherInterface $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ElasticsearchHelper $helper,
         Client $client,

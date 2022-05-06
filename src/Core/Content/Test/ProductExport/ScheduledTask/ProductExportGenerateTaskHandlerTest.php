@@ -25,6 +25,7 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
 /**
+ * @internal
  * @group slow
  */
 class ProductExportGenerateTaskHandlerTest extends TestCase

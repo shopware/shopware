@@ -4,6 +4,9 @@ namespace Shopware\Core\System\Test\Snippet\Files\_fixtures\ShopwareBundleWithSn
 
 use Shopware\Core\Framework\Bundle;
 
+/**
+ * @internal
+ */
 class ShopwareBundleWithSnippets extends Bundle
 {
 }

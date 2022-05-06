@@ -21,6 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
+ * @internal
  * @group cache
  */
 class CacheStoreTest extends TestCase

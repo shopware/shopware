@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\Migration1603179023AddDefaultSettingConfigValueForProductListingPerPage;
 
+/**
+ * @internal
+ */
 class Migration1603179023AddDefaultSettingConfigValueForProductListingPerPageTest extends TestCase
 {
     use IntegrationTestBehaviour;

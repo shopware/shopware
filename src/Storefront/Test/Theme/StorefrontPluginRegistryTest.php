@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 
+/**
+ * @internal
+ */
 class StorefrontPluginRegistryTest extends TestCase
 {
     use IntegrationTestBehaviour;

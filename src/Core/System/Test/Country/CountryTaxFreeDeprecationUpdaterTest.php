@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 
+/**
+ * @internal
+ */
 class CountryTaxFreeDeprecationUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;

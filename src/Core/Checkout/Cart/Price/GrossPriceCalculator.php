@@ -23,6 +23,9 @@ class GrossPriceCalculator
      */
     private $priceRounding;
 
+    /**
+     * @internal
+     */
     public function __construct(
         TaxCalculator $taxCalculator,
         CashRounding $priceRounding

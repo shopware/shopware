@@ -8,6 +8,9 @@ use Shopware\Core\Framework\App\Template\AbstractTemplateLoader;
 use Shopware\Core\Framework\App\Template\TemplateLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class TemplateLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;

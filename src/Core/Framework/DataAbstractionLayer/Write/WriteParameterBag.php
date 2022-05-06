@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ */
 class WriteParameterBag
 {
     /**

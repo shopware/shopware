@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Script\Execution\ScriptLoader;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class ScriptLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;

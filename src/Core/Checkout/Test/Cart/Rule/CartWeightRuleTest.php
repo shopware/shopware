@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @internal
  * @group rules
  */
 class CartWeightRuleTest extends TestCase

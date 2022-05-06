@@ -29,6 +29,9 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 
+/**
+ * @internal
+ */
 class WishlistControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

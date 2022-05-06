@@ -10,6 +10,9 @@ use Shopware\Storefront\Page\Search\SearchPageLoadedHook;
 use Shopware\Storefront\Page\Search\SearchWidgetLoadedHook;
 use Shopware\Storefront\Page\Suggest\SuggestPageLoadedHook;
 
+/**
+ * @internal
+ */
 class SearchControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -16,6 +16,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\Salutation\SalutationEntity;
 
+/**
+ * @internal
+ */
 class CustomerDefaultSalutationSubscriberTest extends TestCase
 {
     use KernelTestBehaviour;

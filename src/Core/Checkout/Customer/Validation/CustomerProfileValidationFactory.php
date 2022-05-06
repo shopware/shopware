@@ -29,6 +29,9 @@ class CustomerProfileValidationFactory implements DataValidationFactoryInterface
      */
     private $systemConfigService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         SalutationDefinition $salutationDefinition,
         SystemConfigService $systemConfigService

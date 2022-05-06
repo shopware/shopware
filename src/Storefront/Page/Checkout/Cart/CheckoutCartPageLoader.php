@@ -32,6 +32,9 @@ class CheckoutCartPageLoader
 
     private AbstractCountryRoute $countryRoute;
 
+    /**
+     * @internal
+     */
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,

@@ -26,6 +26,7 @@ use function json_decode;
 use function sprintf;
 
 /**
+ * @internal
  * @group store-api
  */
 class ProductSearchRouteTest extends TestCase

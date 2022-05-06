@@ -24,6 +24,9 @@ class PromotionController extends AbstractController
      */
     private $codeService;
 
+    /**
+     * @internal
+     */
     public function __construct(PromotionCodeService $codeService)
     {
         $this->codeService = $codeService;

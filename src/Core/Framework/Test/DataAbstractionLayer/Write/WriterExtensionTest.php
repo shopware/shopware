@@ -17,6 +17,9 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\Produ
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class WriterExtensionTest extends TestCase
 {
     use IntegrationTestBehaviour;

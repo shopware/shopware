@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Event\BusinessEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
+ * @internal
+ *
  * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
  */
 class ActionTestSubscriber implements EventSubscriberInterface

@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @internal
  * @Route(defaults={"_routeScope"={"api"}})
  */
 class AclTestController extends AbstractController

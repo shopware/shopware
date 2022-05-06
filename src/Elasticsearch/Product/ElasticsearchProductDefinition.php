@@ -41,6 +41,9 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
     private ?array $customFieldsTypes = null;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ProductDefinition $definition,
         EntityMapper $mapper,

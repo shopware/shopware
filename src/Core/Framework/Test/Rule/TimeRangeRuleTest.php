@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Rule\TimeRangeRule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class TimeRangeRuleTest extends TestCase
 {
     use IntegrationTestBehaviour;

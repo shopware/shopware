@@ -9,6 +9,9 @@ class SalesChannelContextSwitcher
 {
     private AbstractContextSwitchRoute $contextSwitchRoute;
 
+    /**
+     * @internal
+     */
     public function __construct(AbstractContextSwitchRoute $contextSwitchRoute)
     {
         $this->contextSwitchRoute = $contextSwitchRoute;

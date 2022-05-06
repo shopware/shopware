@@ -8,6 +8,9 @@ use Shopware\Core\Framework\App\Command\ResolveAppUrlChangeCommand;
 use Shopware\Core\Framework\Context;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @internal
+ */
 class ResolveAppUrlChangeCommandTest extends TestCase
 {
     public function testResolveAppUrlChangeChoosesRightStrategy(): void

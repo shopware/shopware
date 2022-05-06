@@ -16,6 +16,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1627929168UpdatePriceFieldInProductTable;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class Migration1627929168UpdatePriceFieldInProductTableTest extends TestCase
 {
     use KernelTestBehaviour;

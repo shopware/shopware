@@ -39,6 +39,9 @@ class MediaGenerator implements DemodataGeneratorInterface
 
     private Connection $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityWriterInterface $writer,
         FileSaver $mediaUpdater,

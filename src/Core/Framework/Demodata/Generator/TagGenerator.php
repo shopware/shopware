@@ -15,6 +15,9 @@ class TagGenerator implements DemodataGeneratorInterface
 
     private TagDefinition $tagDefinition;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityWriterInterface $writer,
         TagDefinition $tagDefinition

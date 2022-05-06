@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class CalculatedPriceFieldTestDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'calculated_price_field_test';

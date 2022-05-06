@@ -30,6 +30,9 @@ class Processor
 
     private ScriptExecutor $executor;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Validator $validator,
         AmountCalculator $amountCalculator,

@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_3\Migration1610965670RemoveDeprecatedColumns;
 
+/**
+ * @internal
+ */
 class Migration1610965670RemoveDeprecatedColumnsTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -36,6 +36,9 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 use function array_filter;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ */
 class EntityReader implements EntityReaderInterface
 {
     public const INTERNAL_MAPPING_STORAGE = 'internal_mapping_storage';

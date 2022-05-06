@@ -39,6 +39,9 @@ class GenerateMediaTypesCommand extends Command
      */
     private $batchSize;
 
+    /**
+     * @internal
+     */
     public function __construct(TypeDetector $typeDetector, EntityRepositoryInterface $mediaRepository)
     {
         parent::__construct();

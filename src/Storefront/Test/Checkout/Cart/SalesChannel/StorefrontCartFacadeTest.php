@@ -28,6 +28,9 @@ use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Checkout\Payment\BlockedPaymentMethodSwitcher;
 use Shopware\Storefront\Checkout\Shipping\BlockedShippingMethodSwitcher;
 
+/**
+ * @internal
+ */
 class StorefrontCartFacadeTest extends TestCase
 {
     use IntegrationTestBehaviour;

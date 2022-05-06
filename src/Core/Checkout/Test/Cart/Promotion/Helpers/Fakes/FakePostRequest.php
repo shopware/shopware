@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Fakes;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class FakePostRequest extends Request
 {
     public function __construct(array $params)

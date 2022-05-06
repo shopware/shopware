@@ -45,6 +45,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+/**
+ * @internal
+ */
 class WebhookDispatcherTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
@@ -1528,6 +1531,9 @@ class WebhookDispatcherTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class MockSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array

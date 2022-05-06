@@ -21,6 +21,9 @@ class BasicCaptcha extends AbstractCaptcha
 
     private SystemConfigService $systemConfigService;
 
+    /**
+     * @internal
+     */
     public function __construct(RequestStack $requestStack, SystemConfigService $systemConfigService)
     {
         $this->requestStack = $requestStack;

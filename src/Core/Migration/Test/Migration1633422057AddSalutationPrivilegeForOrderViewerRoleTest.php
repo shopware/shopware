@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1633422057AddSalutationPrivilegeForOrderViewerRole;
 
+/**
+ * @internal
+ */
 class Migration1633422057AddSalutationPrivilegeForOrderViewerRoleTest extends TestCase
 {
     use IntegrationTestBehaviour;

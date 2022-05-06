@@ -33,6 +33,9 @@ class MappingService extends AbstractMappingService
 
     private DefinitionInstanceRegistry $definitionInstanceRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(
         AbstractFileService $fileService,
         EntityRepositoryInterface $profileRepository,

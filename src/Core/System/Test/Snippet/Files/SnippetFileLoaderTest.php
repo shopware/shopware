@@ -16,6 +16,9 @@ use Shopware\Core\System\Test\Snippet\Files\_fixtures\BaseSnippetSet\BaseSnippet
 use Shopware\Core\System\Test\Snippet\Files\_fixtures\ShopwareBundleWithSnippets\ShopwareBundleWithSnippets;
 use Shopware\Core\System\Test\Snippet\Files\_fixtures\SnippetSet\SnippetSet;
 
+/**
+ * @internal
+ */
 class SnippetFileLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;

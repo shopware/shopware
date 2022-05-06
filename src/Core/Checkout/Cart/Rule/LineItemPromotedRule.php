@@ -11,6 +11,9 @@ class LineItemPromotedRule extends Rule
 {
     protected bool $isPromoted;
 
+    /**
+     * @internal
+     */
     public function __construct(bool $isPromoted = false)
     {
         parent::__construct();

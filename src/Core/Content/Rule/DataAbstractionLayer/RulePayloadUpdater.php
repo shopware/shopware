@@ -21,6 +21,9 @@ class RulePayloadUpdater implements EventSubscriberInterface
 
     private RuleConditionRegistry $ruleConditionRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(Connection $connection, RuleConditionRegistry $ruleConditionRegistry)
     {
         $this->connection = $connection;

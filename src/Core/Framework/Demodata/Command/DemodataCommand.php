@@ -40,6 +40,9 @@ class DemodataCommand extends Command
 
     private EventDispatcherInterface $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         DemodataService $demodataService,
         EventDispatcherInterface $eventDispatcher,

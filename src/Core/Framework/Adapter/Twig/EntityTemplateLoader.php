@@ -19,6 +19,9 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
 
     private string $environment;
 
+    /**
+     * @internal
+     */
     public function __construct(Connection $connection, string $environment)
     {
         $this->connection = $connection;

@@ -33,6 +33,9 @@ use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class StateMachineActionControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;

@@ -40,6 +40,9 @@ class OrderRoute extends AbstractOrderRoute
 
     private RateLimiter $rateLimiter;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $orderRepository,
         EntityRepositoryInterface $promotionRepository,

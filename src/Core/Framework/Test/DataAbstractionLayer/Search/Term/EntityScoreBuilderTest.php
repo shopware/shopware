@@ -24,6 +24,9 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayer
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class EntityScoreBuilderTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -289,6 +292,9 @@ class EntityScoreBuilderTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class ScoreBuilderTestDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'test';
@@ -314,6 +320,9 @@ class ScoreBuilderTestDefinition extends EntityDefinition
     }
 }
 
+/**
+ * @internal
+ */
 class NestedDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'nested';
@@ -336,6 +345,9 @@ class NestedDefinition extends EntityDefinition
     }
 }
 
+/**
+ * @internal
+ */
 class OnlyTranslatedFieldDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'translated';
@@ -358,6 +370,9 @@ class OnlyTranslatedFieldDefinition extends EntityDefinition
     }
 }
 
+/**
+ * @internal
+ */
 class OnlyDateFieldDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'dates';
@@ -380,6 +395,9 @@ class OnlyDateFieldDefinition extends EntityDefinition
     }
 }
 
+/**
+ * @internal
+ */
 class ShouldTokenizeFieldDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'only_tokenize_field';
@@ -402,6 +420,9 @@ class ShouldTokenizeFieldDefinition extends EntityDefinition
     }
 }
 
+/**
+ * @internal
+ */
 class ShouldNotTokenizeFieldDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'only_not_tokenize_field';

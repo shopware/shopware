@@ -59,6 +59,9 @@ class SeoActionController extends AbstractController
 
     private DefinitionInstanceRegistry $definitionInstanceRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(
         SeoUrlGenerator $seoUrlGenerator,
         SeoUrlPersister $seoUrlPersister,

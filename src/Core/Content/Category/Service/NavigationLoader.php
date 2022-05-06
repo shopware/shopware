@@ -36,6 +36,9 @@ class NavigationLoader implements NavigationLoaderInterface
      */
     private $navigationRoute;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         AbstractNavigationRoute $navigationRoute

@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_3\Migration1536233560BasicData;
 
+/**
+ * @internal
+ */
 class BasicDataUntouchedTest extends TestCase
 {
     use KernelTestBehaviour;

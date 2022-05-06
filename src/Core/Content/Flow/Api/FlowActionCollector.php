@@ -18,6 +18,9 @@ class FlowActionCollector
 
     private EntityRepositoryInterface $appFlowActionRepo;
 
+    /**
+     * @internal
+     */
     public function __construct(
         iterable $actions,
         EventDispatcherInterface $eventDispatcher,

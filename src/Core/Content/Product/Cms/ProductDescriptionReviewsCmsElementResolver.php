@@ -32,6 +32,9 @@ class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailC
 
     private AbstractProductReviewRoute $productReviewRoute;
 
+    /**
+     * @internal
+     */
     public function __construct(AbstractProductReviewRoute $productReviewRoute)
     {
         $this->productReviewRoute = $productReviewRoute;

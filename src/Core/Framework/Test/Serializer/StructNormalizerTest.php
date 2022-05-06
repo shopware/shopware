@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 
+/**
+ * @internal
+ */
 class StructNormalizerTest extends TestCase
 {
     /**
@@ -194,6 +197,9 @@ class StructNormalizerTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class TestStruct extends Struct
 {
     /**
@@ -212,6 +218,9 @@ class TestStruct extends Struct
     }
 }
 
+/**
+ * @internal
+ */
 class TestStructCollection extends Collection
 {
     protected function getExpectedClass(): ?string
@@ -220,6 +229,9 @@ class TestStructCollection extends Collection
     }
 }
 
+/**
+ * @internal
+ */
 class AdvancedTestStruct extends TestStruct
 {
     /**
@@ -262,6 +274,9 @@ class AdvancedTestStruct extends TestStruct
     }
 }
 
+/**
+ * @internal
+ */
 class ConstructorStruct extends Struct
 {
     /**

@@ -14,6 +14,9 @@ class IsCompanyRule extends Rule
      */
     protected $isCompany;
 
+    /**
+     * @internal
+     */
     public function __construct(bool $isCompany = true)
     {
         parent::__construct();

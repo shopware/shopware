@@ -21,6 +21,9 @@ class ResolvedConfigLoader extends AbstractResolvedConfigLoader
      */
     private $service;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $repository, ThemeService $service)
     {
         $this->repository = $repository;

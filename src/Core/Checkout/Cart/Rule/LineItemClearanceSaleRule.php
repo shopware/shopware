@@ -12,6 +12,9 @@ class LineItemClearanceSaleRule extends Rule
 {
     protected bool $clearanceSale;
 
+    /**
+     * @internal
+     */
     public function __construct(bool $clearanceSale = false)
     {
         parent::__construct();

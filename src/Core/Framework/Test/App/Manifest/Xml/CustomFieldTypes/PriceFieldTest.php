@@ -9,6 +9,9 @@ use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\PriceField;
 use Shopware\Core\Framework\Test\App\CustomFieldTypeTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class PriceFieldTest extends TestCase
 {
     use IntegrationTestBehaviour;

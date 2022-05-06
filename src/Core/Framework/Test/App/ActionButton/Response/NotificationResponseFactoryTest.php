@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class NotificationResponseFactoryTest extends TestCase
 {
     use GuzzleTestClientBehaviour;

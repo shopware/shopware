@@ -21,6 +21,9 @@ class TwigAppVariable extends AppVariable
 
     private array $allowList;
 
+    /**
+     * @internal
+     */
     public function __construct(AppVariable $appVariable, array $allowList = [])
     {
         $this->allowList = $allowList;

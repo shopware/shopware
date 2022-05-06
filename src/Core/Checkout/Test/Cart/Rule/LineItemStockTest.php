@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @internal
  * @group rules
  */
 class LineItemStockTest extends TestCase

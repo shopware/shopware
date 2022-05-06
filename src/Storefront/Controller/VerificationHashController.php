@@ -12,6 +12,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route(defaults={"_routeScope"={"api"}})
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
 class VerificationHashController extends AbstractController
 {
@@ -20,6 +22,9 @@ class VerificationHashController extends AbstractController
      */
     private $systemConfigService;
 
+    /**
+     * @internal
+     */
     public function __construct(SystemConfigService $systemConfigService)
     {
         $this->systemConfigService = $systemConfigService;

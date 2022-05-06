@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @internal
  * @group rules
  */
 class LineItemClearanceSaleRuleTest extends TestCase

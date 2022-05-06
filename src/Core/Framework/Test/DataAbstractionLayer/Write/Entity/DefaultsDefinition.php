@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class DefaultsDefinition extends EntityDefinition
 {
     public const SCHEMA = 'CREATE TABLE IF NOT EXISTS `defaults` (

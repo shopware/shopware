@@ -19,6 +19,9 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
 
     private Connection $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ValueGeneratorPatternRegistry $valueGeneratorPatternRegistry,
         EventDispatcherInterface $eventDispatcher,

@@ -17,6 +17,7 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
+ * @internal
  * @group rules
  */
 class LineItemInProductStreamRuleTest extends TestCase

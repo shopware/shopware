@@ -10,6 +10,9 @@ use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 
+/**
+ * @internal
+ */
 class LineItemTest extends TestCase
 {
     /**

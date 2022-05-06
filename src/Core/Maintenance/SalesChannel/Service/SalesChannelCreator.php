@@ -26,6 +26,9 @@ class SalesChannelCreator
 
     private EntityRepositoryInterface $categoryRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
         EntityRepositoryInterface $salesChannelRepository,

@@ -27,6 +27,9 @@ class FileFetcher
      */
     private $fileUrlValidator;
 
+    /**
+     * @internal
+     */
     public function __construct(FileUrlValidatorInterface $fileUrlValidator, bool $enableUrlUploadFeature = true, bool $enableUrlValidation = true)
     {
         $this->fileUrlValidator = $fileUrlValidator;

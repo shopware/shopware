@@ -24,6 +24,9 @@ class ProductStreamBuilder implements ProductStreamBuilderInterface
      */
     private $productDefinition;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $productStreamRepository, EntityDefinition $productDefinition)
     {
         $this->repository = $productStreamRepository;

@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack;
 
 /**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ *
  * Start with original raw result
  *  -> each step removes one from the raw set and possibly adds one to the result set
  * if raw set is empty, reiterate the result set
@@ -22,7 +24,6 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack;
  *          foreach($provider($kvPair) as $key => $value) {
  *              $stack->update($key, $value); // determine state
  *          }
- *
  *
  *      }
  *

@@ -36,6 +36,7 @@ use Symfony\Component\RateLimiter\Storage\CacheStorage;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
+ * @internal
  * @group slow
  */
 class RateLimiterTest extends TestCase

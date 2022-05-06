@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class NamedOptionalGroupDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'named_optional_group';

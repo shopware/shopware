@@ -12,6 +12,9 @@ use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\LineItemTestF
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class ProductLineItemProviderTest extends TestCase
 {
     use LineItemTestFixtureBehaviour;

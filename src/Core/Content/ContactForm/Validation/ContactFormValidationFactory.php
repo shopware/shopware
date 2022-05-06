@@ -29,6 +29,9 @@ class ContactFormValidationFactory implements DataValidationFactoryInterface
      */
     private $systemConfigService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         SystemConfigService $systemConfigService

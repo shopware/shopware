@@ -15,6 +15,9 @@ class CreditCartProcessor implements CartProcessorInterface
      */
     private $calculator;
 
+    /**
+     * @internal
+     */
     public function __construct(AbsolutePriceCalculator $absolutePriceCalculator)
     {
         $this->calculator = $absolutePriceCalculator;

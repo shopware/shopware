@@ -17,6 +17,9 @@ class LoggingService implements EventSubscriberInterface
 
     protected string $environment;
 
+    /**
+     * @internal
+     */
     public function __construct(
         string $kernelEnv,
         Logger $logger

@@ -14,6 +14,9 @@ class TextCmsElementResolver extends AbstractCmsElementResolver
 {
     private HtmlSanitizer $sanitizer;
 
+    /**
+     * @internal
+     */
     public function __construct(HtmlSanitizer $sanitizer)
     {
         $this->sanitizer = $sanitizer;

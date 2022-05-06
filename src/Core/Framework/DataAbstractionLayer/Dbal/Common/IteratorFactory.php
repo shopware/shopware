@@ -6,10 +6,17 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-final - Will be final
+ * @final
+ */
 class IteratorFactory
 {
     private Connection $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(Connection $connection)
     {
         $this->connection = $connection;

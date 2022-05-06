@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @internal
+ */
 class WriteProtectedRelationDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = '_test_relation';

@@ -19,6 +19,9 @@ class CustomerRemoteAddressSubscriber implements EventSubscriberInterface
      */
     private $requestStack;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $customerRepository,
         RequestStack $requestStack

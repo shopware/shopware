@@ -29,6 +29,9 @@ class WarmUpMessage
      */
     protected $parameters;
 
+    /**
+     * @internal
+     */
     public function __construct(string $route, array $parameters, ?array $offset = null)
     {
         $this->offset = $offset;

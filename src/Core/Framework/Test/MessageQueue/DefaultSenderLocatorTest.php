@@ -8,6 +8,9 @@ use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Transport\Sender\SenderInterface;
 use Symfony\Component\Messenger\Transport\Sender\SendersLocatorInterface;
 
+/**
+ * @internal
+ */
 class DefaultSenderLocatorTest extends TestCase
 {
     public function testDefaultAsFallback(): void

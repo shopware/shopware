@@ -8,6 +8,9 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @internal
+ */
 class CollectionTest extends TestCase
 {
     public function testConstructor(): void
@@ -225,6 +228,9 @@ class CollectionTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class TestCollection extends Collection
 {
 }

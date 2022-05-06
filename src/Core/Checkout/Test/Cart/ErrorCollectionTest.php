@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Test\Cart;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 
+/**
+ * @internal
+ */
 class ErrorCollectionTest extends TestCase
 {
     public function testErrorTypes(): void

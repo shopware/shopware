@@ -27,6 +27,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
+ * @internal
  * @group slow
  */
 class ThumbnailServiceTest extends TestCase

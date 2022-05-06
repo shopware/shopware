@@ -8,6 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1646817331AddCmsClassColumnCmsPage;
 
+/**
+ * @internal
+ */
 class Migration1646817331AddCmsClassColumnCmsPageTest extends TestCase
 {
     use KernelTestBehaviour;

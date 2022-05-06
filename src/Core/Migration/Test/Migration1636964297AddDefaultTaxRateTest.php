@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1636964297AddDefaultTaxRate;
 
+/**
+ * @internal
+ */
 class Migration1636964297AddDefaultTaxRateTest extends TestCase
 {
     use IntegrationTestBehaviour;

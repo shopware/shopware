@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket
 use Shopware\Storefront\Page\Product\Review\MatrixElement;
 use Shopware\Storefront\Page\Product\Review\RatingMatrix;
 
+/**
+ * @internal
+ */
 class RatingMatrixTest extends TestCase
 {
     /**

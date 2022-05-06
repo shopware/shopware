@@ -22,6 +22,9 @@ class ThemeRefreshCommand extends Command
      */
     private $context;
 
+    /**
+     * @internal
+     */
     public function __construct(ThemeLifecycleService $themeLifecycleService)
     {
         parent::__construct();

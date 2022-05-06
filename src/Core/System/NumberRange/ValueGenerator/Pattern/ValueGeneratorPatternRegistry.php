@@ -13,6 +13,9 @@ class ValueGeneratorPatternRegistry
      */
     private $pattern = [];
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $patterns)
     {
         /** @var ValueGeneratorPatternInterface|AbstractValueGenerator $pattern */

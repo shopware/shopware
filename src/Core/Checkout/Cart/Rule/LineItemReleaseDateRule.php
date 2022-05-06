@@ -15,6 +15,9 @@ class LineItemReleaseDateRule extends Rule
 
     protected string $operator;
 
+    /**
+     * @internal
+     */
     public function __construct(string $operator = self::OPERATOR_EQ, ?string $lineItemReleaseDate = null)
     {
         parent::__construct();

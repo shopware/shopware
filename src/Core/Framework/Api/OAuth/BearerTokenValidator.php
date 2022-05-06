@@ -28,6 +28,9 @@ class BearerTokenValidator implements AuthorizationValidatorInterface
      */
     private $configuration;
 
+    /**
+     * @internal
+     */
     public function __construct(
         AuthorizationValidatorInterface $decorated,
         Connection $connection,

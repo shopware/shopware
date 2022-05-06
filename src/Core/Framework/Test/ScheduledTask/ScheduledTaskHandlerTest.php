@@ -16,6 +16,9 @@ use Shopware\Core\Framework\Test\ScheduledTask\fixtures\DummyScheduledTaskHandle
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class ScheduledTaskHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;

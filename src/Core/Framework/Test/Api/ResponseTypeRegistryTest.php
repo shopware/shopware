@@ -21,6 +21,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
 
+/**
+ * @internal
+ */
 class ResponseTypeRegistryTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;

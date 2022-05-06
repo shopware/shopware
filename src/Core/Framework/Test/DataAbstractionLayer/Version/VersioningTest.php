@@ -58,6 +58,7 @@ use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\Test\TestDefaults;
 
 /**
+ * @internal
  * @group slow
  */
 class VersioningTest extends TestCase

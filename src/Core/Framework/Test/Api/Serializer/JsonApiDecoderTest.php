@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Api\Serializer\JsonApiDecoder;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 
+/**
+ * @internal
+ */
 class JsonApiDecoderTest extends TestCase
 {
     /**

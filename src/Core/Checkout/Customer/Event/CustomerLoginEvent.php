@@ -36,6 +36,9 @@ class CustomerLoginEvent extends Event implements BusinessEventInterface, SalesC
      */
     private $contextToken;
 
+    /**
+     * @internal
+     */
     public function __construct(SalesChannelContext $salesChannelContext, CustomerEntity $customer, string $contextToken)
     {
         $this->customer = $customer;

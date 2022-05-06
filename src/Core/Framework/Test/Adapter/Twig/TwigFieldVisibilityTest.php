@@ -20,6 +20,9 @@ use function method_exists;
 use function sprintf;
 use function ucfirst;
 
+/**
+ * @internal
+ */
 class TwigFieldVisibilityTest extends TestCase
 {
     use IntegrationTestBehaviour;

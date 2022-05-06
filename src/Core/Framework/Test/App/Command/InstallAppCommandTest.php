@@ -15,6 +15,9 @@ use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @internal
+ */
 class InstallAppCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

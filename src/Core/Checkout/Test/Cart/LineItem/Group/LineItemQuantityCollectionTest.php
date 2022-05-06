@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
 
+/**
+ * @internal
+ */
 class LineItemQuantityCollectionTest extends TestCase
 {
     /**

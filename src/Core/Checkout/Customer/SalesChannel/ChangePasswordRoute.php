@@ -56,6 +56,9 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
      */
     private $validator;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $customerRepository,
         EventDispatcherInterface $eventDispatcher,

@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
+/**
+ * @internal
+ */
 class TimeZoneFieldTest extends TestCase
 {
     use KernelTestBehaviour;

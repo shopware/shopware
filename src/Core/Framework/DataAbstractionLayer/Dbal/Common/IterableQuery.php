@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
 use Doctrine\DBAL\Query\QueryBuilder;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ */
 interface IterableQuery
 {
     public function fetch(): array;

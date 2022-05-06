@@ -18,6 +18,9 @@ abstract class FileNameProvider
      */
     private $mediaRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $mediaRepository)
     {
         $this->mediaRepository = $mediaRepository;

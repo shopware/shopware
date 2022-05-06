@@ -54,6 +54,9 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
      */
     private $customerProfileValidationFactory;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $customerRepository,
         EventDispatcherInterface $eventDispatcher,

@@ -14,6 +14,9 @@ class AppLifecycleSubscriber implements EventSubscriberInterface
 
     private EntityRepositoryInterface $appRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(ThemeLifecycleService $themeLifecycleService, EntityRepositoryInterface $appRepository)
     {
         $this->themeLifecycleService = $themeLifecycleService;

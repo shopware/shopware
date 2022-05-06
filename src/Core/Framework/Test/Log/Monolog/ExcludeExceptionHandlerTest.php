@@ -6,6 +6,9 @@ use Monolog\Handler\FingersCrossedHandler;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Monolog\ExcludeExceptionHandler;
 
+/**
+ * @internal
+ */
 class ExcludeExceptionHandlerTest extends TestCase
 {
     /**

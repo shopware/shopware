@@ -17,6 +17,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\ThemeAppLifecycleHandler;
 
+/**
+ * @internal
+ */
 class UninstallAppsStrategyTest extends TestCase
 {
     use IntegrationTestBehaviour;

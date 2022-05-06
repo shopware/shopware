@@ -21,6 +21,9 @@ use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Test\Framework\Routing\Helper\ExpectedRequest;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class RequestTransformerTest extends TestCase
 {
     use IntegrationTestBehaviour;

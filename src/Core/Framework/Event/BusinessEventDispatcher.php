@@ -35,6 +35,9 @@ class BusinessEventDispatcher implements EventDispatcherInterface
      */
     private $definitionRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EventDispatcherInterface $dispatcher,
         DefinitionInstanceRegistry $definitionRegistry,

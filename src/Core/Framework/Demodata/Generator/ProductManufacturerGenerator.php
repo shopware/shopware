@@ -21,6 +21,9 @@ class ProductManufacturerGenerator implements DemodataGeneratorInterface
      */
     private $productManufacturerDefinition;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityWriterInterface $writer,
         ProductManufacturerDefinition $productManufacturerDefinition

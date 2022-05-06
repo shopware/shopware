@@ -89,6 +89,9 @@ class FileSaver
      */
     private $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $mediaRepository,
         FilesystemInterface $filesystemPublic,

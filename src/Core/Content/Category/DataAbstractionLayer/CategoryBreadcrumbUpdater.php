@@ -31,6 +31,9 @@ class CategoryBreadcrumbUpdater
      */
     private $languageRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(Connection $connection, EntityRepositoryInterface $categoryRepository, EntityRepositoryInterface $languageRepository)
     {
         $this->connection = $connection;

@@ -10,6 +10,9 @@ use Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoadedEvent;
 use Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoader;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class GuestWishlistPageletTest extends TestCase
 {
     use IntegrationTestBehaviour;

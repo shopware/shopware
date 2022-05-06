@@ -22,6 +22,8 @@ class SystemConfigChangedEvent extends Event
     private $salesChannelId;
 
     /**
+     * @internal
+     *
      * @param array|bool|float|int|string|null $value
      */
     public function __construct(string $key, $value, ?string $salesChannelId)

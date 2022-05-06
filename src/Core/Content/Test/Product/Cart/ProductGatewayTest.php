@@ -13,6 +13,9 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
 class ProductGatewayTest extends TestCase
 {
     public function testSendCriteriaEvent(): void

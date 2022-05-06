@@ -21,6 +21,9 @@ class CheapestPriceUpdater
      */
     private $quantitySelector;
 
+    /**
+     * @internal
+     */
     public function __construct(Connection $connection, AbstractCheapestPriceQuantitySelector $quantitySelector)
     {
         $this->connection = $connection;

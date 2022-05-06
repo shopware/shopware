@@ -38,6 +38,9 @@ class UserRecoveryRequestEvent extends Event implements BusinessEventInterface, 
      */
     private $mailRecipientStruct;
 
+    /**
+     * @internal
+     */
     public function __construct(UserRecoveryEntity $userRecovery, string $resetUrl, Context $context)
     {
         $this->userRecovery = $userRecovery;

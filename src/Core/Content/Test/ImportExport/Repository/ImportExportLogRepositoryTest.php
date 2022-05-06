@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
+/**
+ * @internal
+ */
 class ImportExportLogRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

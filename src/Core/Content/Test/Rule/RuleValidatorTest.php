@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class RuleValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;

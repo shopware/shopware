@@ -22,6 +22,9 @@ class ChangelogReleaseCommand extends Command
      */
     private $releaseCreator;
 
+    /**
+     * @internal
+     */
     public function __construct(ChangelogReleaseCreator $releaseCreator)
     {
         parent::__construct();

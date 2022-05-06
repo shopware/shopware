@@ -29,6 +29,9 @@ class PromotionIndexer extends EntityIndexer
 
     private EventDispatcherInterface $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,

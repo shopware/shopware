@@ -12,6 +12,9 @@ class ElasticsearchIndexingMessage
 
     private Context $context;
 
+    /**
+     * @internal
+     */
     public function __construct(IndexingDto $data, ?IndexerOffset $offset, Context $context)
     {
         $this->data = $data;

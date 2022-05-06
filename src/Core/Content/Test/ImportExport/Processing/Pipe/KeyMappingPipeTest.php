@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\KeyMappingPipe;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 
+/**
+ * @internal
+ */
 class KeyMappingPipeTest extends TestCase
 {
     public function testEmptyMapping(): void

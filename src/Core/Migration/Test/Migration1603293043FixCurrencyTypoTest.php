@@ -8,6 +8,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\Migration1603293043FixCurrencyTypo;
 
+/**
+ * @internal
+ */
 class Migration1603293043FixCurrencyTypoTest extends TestCase
 {
     use IntegrationTestBehaviour;

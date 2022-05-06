@@ -34,6 +34,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class CartFacadeTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -436,6 +439,9 @@ class CartFacadeTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class ExpectedPrice extends CalculatedPrice
 {
     public function __construct(float $unitPrice, ?float $totalPrice = null, ?CalculatedTaxCollection $calculatedTaxes = null, ?TaxRuleCollection $taxRules = null, int $quantity = 1)

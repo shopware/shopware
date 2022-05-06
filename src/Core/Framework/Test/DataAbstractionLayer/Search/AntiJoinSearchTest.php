@@ -17,6 +17,9 @@ use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class AntiJoinSearchTest extends TestCase
 {
     use IntegrationTestBehaviour;

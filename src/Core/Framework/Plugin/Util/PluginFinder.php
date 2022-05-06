@@ -23,6 +23,9 @@ class PluginFinder
      */
     private $packageProvider;
 
+    /**
+     * @internal
+     */
     public function __construct(PackageProvider $packageProvider)
     {
         $this->packageProvider = $packageProvider;

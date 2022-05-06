@@ -25,6 +25,8 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         'reason:remove-decorator',
         // Classes that will be internal are still called from inside the core, therefore they do not trigger deprecations.
         'reason:becomes-internal',
+        // Classes that will be final, can only be changed with the next major
+        'reason:becomes-final',
         // If the return type change, the functionality itself is not deprecated, therefore they do not trigger deprecations.
         'reason:return-type-change',
     ];

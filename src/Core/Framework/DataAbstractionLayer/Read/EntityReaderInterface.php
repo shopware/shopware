@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ */
 interface EntityReaderInterface
 {
     public function read(EntityDefinition $definition, Criteria $criteria, Context $context): EntityCollection;

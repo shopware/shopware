@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\Migration1650444800AddDefaultSettingConfigValueForUseDefaultCookiesConsent;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @internal
+ */
 class Migration1650444800AddDefaultSettingConfigValueForUseDefaultCookiesConsentTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -26,6 +26,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParamete
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class PromotionCalculatorTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -24,6 +24,9 @@ class OffcanvasCartPageLoader
 
     private AbstractShippingMethodRoute $shippingMethodRoute;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         StorefrontCartFacade $cartService,

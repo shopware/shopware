@@ -10,6 +10,9 @@ use Shopware\Storefront\Page\Navigation\NavigationPageLoadedEvent;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class NavigationPageTest extends TestCase
 {
     use IntegrationTestBehaviour;

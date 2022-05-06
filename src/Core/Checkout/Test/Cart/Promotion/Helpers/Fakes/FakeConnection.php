@@ -9,6 +9,9 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\PDOMySql\Driver;
 use Doctrine\DBAL\Query\QueryBuilder;
 
+/**
+ * @internal
+ */
 class FakeConnection extends Connection
 {
     private array $dbRows;

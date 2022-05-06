@@ -8,6 +8,9 @@ class ThemeConfigResetEvent extends Event
 {
     private string $themeId;
 
+    /**
+     * @internal
+     */
     public function __construct(string $themeId)
     {
         $this->themeId = $themeId;

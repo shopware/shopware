@@ -4,6 +4,10 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Query;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-final - Will be @final
+ * @final
+ */
 class ScoreQuery extends Filter
 {
     /**

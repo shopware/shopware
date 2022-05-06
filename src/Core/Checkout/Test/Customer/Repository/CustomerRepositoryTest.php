@@ -16,6 +16,9 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class CustomerRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

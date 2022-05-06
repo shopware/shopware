@@ -11,6 +11,9 @@ class DocumentGeneratorRegistry
      */
     protected $documentGenerators;
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $documentGenerators)
     {
         $this->documentGenerators = $documentGenerators;

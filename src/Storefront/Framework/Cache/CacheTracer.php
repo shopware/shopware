@@ -18,6 +18,8 @@ class CacheTracer extends AbstractCacheTracer
     private ThemeConfigValueAccessor $themeConfigAccessor;
 
     /**
+     * @internal
+     *
      * @param AbstractCacheTracer<mixed|null> $decorated
      */
     public function __construct(AbstractCacheTracer $decorated, ThemeConfigValueAccessor $themeConfigAccessor)

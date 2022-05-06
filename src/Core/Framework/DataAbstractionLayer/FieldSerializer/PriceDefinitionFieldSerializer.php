@@ -24,6 +24,9 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ */
 class PriceDefinitionFieldSerializer extends JsonFieldSerializer
 {
     private RuleConditionRegistry $ruleConditionRegistry;

@@ -21,6 +21,9 @@ use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class ApiRequestContextResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;

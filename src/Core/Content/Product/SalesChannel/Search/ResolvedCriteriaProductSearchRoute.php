@@ -29,6 +29,9 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
 
     private RequestCriteriaBuilder $criteriaBuilder;
 
+    /**
+     * @internal
+     */
     public function __construct(AbstractProductSearchRoute $decorated, EventDispatcherInterface $eventDispatcher, DefinitionInstanceRegistry $registry, RequestCriteriaBuilder $criteriaBuilder)
     {
         $this->decorated = $decorated;

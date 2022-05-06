@@ -8,6 +8,9 @@ use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
+/**
+ * @internal
+ */
 class MappingCollectionTest extends TestCase
 {
     public function testGet(): void

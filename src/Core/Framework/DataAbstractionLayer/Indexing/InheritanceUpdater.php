@@ -30,6 +30,9 @@ class InheritanceUpdater
      */
     private $registry;
 
+    /**
+     * @internal
+     */
     public function __construct(Connection $connection, DefinitionInstanceRegistry $registry)
     {
         $this->connection = $connection;

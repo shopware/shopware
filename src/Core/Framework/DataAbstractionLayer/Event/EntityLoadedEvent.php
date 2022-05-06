@@ -43,6 +43,9 @@ class EntityLoadedEvent extends NestedEvent implements GenericEvent
      */
     protected $nested = true;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityDefinition $definition, array $entities, Context $context, bool $nested = true)
     {
         $this->entities = $entities;

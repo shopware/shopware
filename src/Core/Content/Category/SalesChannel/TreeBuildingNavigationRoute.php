@@ -20,6 +20,9 @@ class TreeBuildingNavigationRoute extends AbstractNavigationRoute
 {
     private AbstractNavigationRoute $decorated;
 
+    /**
+     * @internal
+     */
     public function __construct(AbstractNavigationRoute $decorated)
     {
         $this->decorated = $decorated;

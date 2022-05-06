@@ -51,6 +51,9 @@ class ContactFormRoute extends AbstractContactFormRoute
 
     private RateLimiter $rateLimiter;
 
+    /**
+     * @internal
+     */
     public function __construct(
         DataValidationFactoryInterface $contactFormValidationFactory,
         DataValidator $validator,

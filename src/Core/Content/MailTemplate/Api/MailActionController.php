@@ -27,6 +27,9 @@ class MailActionController extends AbstractController
 
     private AttachmentLoader $attachmentLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(
         AbstractMailService $mailService,
         StringTemplateRenderer $templateRenderer,

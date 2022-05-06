@@ -12,6 +12,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 
+/**
+ * @internal
+ */
 class LineItemCollectionTest extends TestCase
 {
     public function testCollectionIsCountable(): void

@@ -13,6 +13,9 @@ class BasicCaptchaPageletLoader extends AbstractBasicCaptchaPageletLoader
 
     private AbstractBasicCaptchaGenerator $basicCaptchaGenerator;
 
+    /**
+     * @internal
+     */
     public function __construct(EventDispatcherInterface $eventDispatcher, AbstractBasicCaptchaGenerator $basicCaptchaGenerator)
     {
         $this->eventDispatcher = $eventDispatcher;

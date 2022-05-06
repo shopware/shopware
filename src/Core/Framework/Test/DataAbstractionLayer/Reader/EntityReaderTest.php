@@ -41,6 +41,9 @@ use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class EntityReaderTest extends TestCase
 {
     use IntegrationTestBehaviour;

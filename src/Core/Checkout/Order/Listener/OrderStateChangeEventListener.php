@@ -36,6 +36,9 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
 
     private SalesChannelContextRestorer $salesChannelContextRestorer;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $orderRepository,
         EntityRepositoryInterface $transactionRepository,

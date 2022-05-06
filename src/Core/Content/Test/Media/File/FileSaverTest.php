@@ -27,6 +27,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
+/**
+ * @internal
+ */
 class FileSaverTest extends TestCase
 {
     use IntegrationTestBehaviour;

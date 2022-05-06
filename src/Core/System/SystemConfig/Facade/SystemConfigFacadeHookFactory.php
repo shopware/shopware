@@ -18,6 +18,9 @@ class SystemConfigFacadeHookFactory extends HookServiceFactory
 
     private Connection $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(SystemConfigService $systemConfigService, Connection $connection)
     {
         $this->systemConfigService = $systemConfigService;

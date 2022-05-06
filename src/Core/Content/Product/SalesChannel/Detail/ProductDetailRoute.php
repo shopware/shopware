@@ -64,6 +64,9 @@ class ProductDetailRoute extends AbstractProductDetailRoute
      */
     private $productDefinition;
 
+    /**
+     * @internal
+     */
     public function __construct(
         SalesChannelRepositoryInterface $productRepository,
         SystemConfigService $config,

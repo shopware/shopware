@@ -18,6 +18,9 @@ class RateLimiterFactory
 
     private ?LockFactory $lockFactory;
 
+    /**
+     * @internal
+     */
     public function __construct(array $config, StorageInterface $storage, ?LockFactory $lockFactory = null)
     {
         $this->config = $config;

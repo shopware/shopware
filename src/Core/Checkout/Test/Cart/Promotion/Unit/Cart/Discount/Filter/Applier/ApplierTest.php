@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Unit\Cart\Discount\Filter\A
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Applier\Applier;
 
+/**
+ * @internal
+ */
 class ApplierTest extends TestCase
 {
     /**

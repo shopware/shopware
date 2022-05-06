@@ -23,6 +23,9 @@ use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class DeleteUnusedGuestCustomerServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

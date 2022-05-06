@@ -24,6 +24,9 @@ class CaptchaRouteListener implements EventSubscriberInterface
 
     private SystemConfigService $systemConfigService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         iterable $captchas,
         ErrorController $errorController,

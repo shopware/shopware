@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\App\Manifest\Xml;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 
+/**
+ * @internal
+ */
 class PaymentMethodTest extends TestCase
 {
     public function testFromXml(): void

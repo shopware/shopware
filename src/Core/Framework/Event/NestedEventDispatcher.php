@@ -12,6 +12,9 @@ class NestedEventDispatcher implements EventDispatcherInterface
      */
     private $dispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(EventDispatcherInterface $dispatcher)
     {
         $this->dispatcher = $dispatcher;

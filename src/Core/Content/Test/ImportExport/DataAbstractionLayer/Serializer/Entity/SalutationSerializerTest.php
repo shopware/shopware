@@ -16,6 +16,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 
+/**
+ * @internal
+ */
 class SalutationSerializerTest extends TestCase
 {
     use KernelTestBehaviour;

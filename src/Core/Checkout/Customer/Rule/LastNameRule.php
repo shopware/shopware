@@ -20,6 +20,9 @@ class LastNameRule extends Rule
      */
     protected $operator;
 
+    /**
+     * @internal
+     */
     public function __construct(string $operator = self::OPERATOR_EQ, ?string $lastName = null)
     {
         parent::__construct();

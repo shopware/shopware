@@ -20,6 +20,9 @@ class BillingCountryRule extends Rule
      */
     protected $operator;
 
+    /**
+     * @internal
+     */
     public function __construct(string $operator = self::OPERATOR_EQ, ?array $countryIds = null)
     {
         parent::__construct();

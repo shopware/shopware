@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1647511158AddRefundUrlToAppPaymentMethod;
 
+/**
+ * @internal
+ */
 class Migration1647511158AddRefundUrlToAppPaymentMethodTest extends TestCase
 {
     use KernelTestBehaviour;

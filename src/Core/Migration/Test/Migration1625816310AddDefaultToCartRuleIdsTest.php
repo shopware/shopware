@@ -14,6 +14,9 @@ use Shopware\Core\Migration\V6_4\Migration1622010069AddCartRules;
 use Shopware\Core\Migration\V6_4\Migration1625816310AddDefaultToCartRuleIds;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class Migration1625816310AddDefaultToCartRuleIdsTest extends TestCase
 {
     use KernelTestBehaviour;

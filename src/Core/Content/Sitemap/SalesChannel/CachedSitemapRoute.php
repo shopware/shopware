@@ -45,6 +45,8 @@ class CachedSitemapRoute extends AbstractSitemapRoute
     private SystemConfigService $config;
 
     /**
+     * @internal
+     *
      *  @param AbstractCacheTracer<SitemapRouteResponse> $tracer
      */
     public function __construct(

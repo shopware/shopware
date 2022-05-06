@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1636449347AddImportExportAdvancedPricesProfile;
 
+/**
+ * @internal
+ */
 class Migration1636449347AddImportExportAdvancedPricesProfileTest extends TestCase
 {
     use IntegrationTestBehaviour;

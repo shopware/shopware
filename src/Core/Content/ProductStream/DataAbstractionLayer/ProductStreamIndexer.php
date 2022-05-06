@@ -36,6 +36,9 @@ class ProductStreamIndexer extends EntityIndexer
 
     private EventDispatcherInterface $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Connection $connection,
         IteratorFactory $iteratorFactory,

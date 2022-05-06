@@ -25,6 +25,9 @@ class ProductReviewRoute extends AbstractProductReviewRoute
      */
     private $repository;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $repository)
     {
         $this->repository = $repository;

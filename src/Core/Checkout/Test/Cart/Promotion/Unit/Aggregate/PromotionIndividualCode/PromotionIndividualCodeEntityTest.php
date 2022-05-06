@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeEntity;
 use Shopware\Core\Checkout\Promotion\Exception\CodeAlreadyRedeemedException;
 
+/**
+ * @internal
+ */
 class PromotionIndividualCodeEntityTest extends TestCase
 {
     /**

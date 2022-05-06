@@ -16,6 +16,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
 
+/**
+ * @internal
+ */
 class SeoUrlPlaceholderHandlerTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -23,6 +23,9 @@ abstract class Plugin extends Bundle
      */
     private $basePath;
 
+    /**
+     * @internal
+     */
     final public function __construct(bool $active, string $basePath, ?string $projectDir = null)
     {
         $this->active = $active;

@@ -18,6 +18,9 @@ class DebugDumpBusinessEventsCommand extends Command
      */
     protected $collector;
 
+    /**
+     * @internal
+     */
     public function __construct(BusinessEventCollector $collector)
     {
         parent::__construct();

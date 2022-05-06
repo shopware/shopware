@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 
+/**
+ * @internal
+ */
 class LineItemFlatCollectionTest extends TestCase
 {
     /**

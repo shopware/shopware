@@ -35,6 +35,9 @@ class ThemeDumpCommand extends Command
 
     private StaticFileConfigDumper $staticFileConfigDumper;
 
+    /**
+     * @internal
+     */
     public function __construct(
         StorefrontPluginRegistryInterface $pluginRegistry,
         ThemeFileResolver $themeFileResolver,

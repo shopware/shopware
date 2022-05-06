@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1643724178ChangePromotionCodesProfile;
 
+/**
+ * @internal
+ */
 class Migration1643724178ChangePromotionCodesProfileTest extends TestCase
 {
     use IntegrationTestBehaviour;

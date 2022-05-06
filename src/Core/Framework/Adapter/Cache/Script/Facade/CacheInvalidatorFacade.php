@@ -13,6 +13,9 @@ class CacheInvalidatorFacade
 {
     private CacheInvalidator $cacheInvalidator;
 
+    /**
+     * @internal
+     */
     public function __construct(CacheInvalidator $cacheInvalidator)
     {
         $this->cacheInvalidator = $cacheInvalidator;

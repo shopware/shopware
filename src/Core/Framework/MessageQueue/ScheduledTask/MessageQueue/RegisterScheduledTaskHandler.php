@@ -12,6 +12,9 @@ class RegisterScheduledTaskHandler extends AbstractMessageHandler
      */
     private $registry;
 
+    /**
+     * @internal
+     */
     public function __construct(TaskRegistry $registry)
     {
         $this->registry = $registry;

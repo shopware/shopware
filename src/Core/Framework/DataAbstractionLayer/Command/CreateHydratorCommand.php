@@ -51,6 +51,9 @@ class CreateHydratorCommand extends Command
      */
     private $dir;
 
+    /**
+     * @internal
+     */
     public function __construct(
         DefinitionInstanceRegistry $registry,
         string $rootDir

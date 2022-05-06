@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\Subscriber\RegisteredIndexerSubscriber;
 use Shopware\Core\Framework\Migration\IndexerQueuer;
 
+/**
+ * @internal
+ */
 class RegisteredIndexerSubscriberTest extends TestCase
 {
     public function testSendsMessage(): void

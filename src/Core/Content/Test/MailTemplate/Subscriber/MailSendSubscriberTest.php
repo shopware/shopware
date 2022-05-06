@@ -38,6 +38,8 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
+ * @internal
+ *
  * @deprecated tag:v6.5.0 - Will be removed in v6.5.0 Use SendMailActionTest instead
  */
 class MailSendSubscriberTest extends TestCase
@@ -304,6 +306,9 @@ class MailSendSubscriberTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class TestMailSendSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array
@@ -327,6 +332,9 @@ class TestMailSendSubscriber implements EventSubscriberInterface
     }
 }
 
+/**
+ * @internal
+ */
 class TestStopSendSubscriber implements EventSubscriberInterface
 {
     /**
@@ -348,6 +356,9 @@ class TestStopSendSubscriber implements EventSubscriberInterface
     }
 }
 
+/**
+ * @internal
+ */
 class TestStringTemplateRenderer extends StringTemplateRenderer
 {
     /**
@@ -379,6 +390,9 @@ class TestStringTemplateRenderer extends StringTemplateRenderer
     }
 }
 
+/**
+ * @internal
+ */
 class TestEmailService extends EMailService
 {
     public $calls = 0;

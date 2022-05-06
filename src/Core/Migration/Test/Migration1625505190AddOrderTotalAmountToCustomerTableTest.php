@@ -17,6 +17,9 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 
+/**
+ * @internal
+ */
 class Migration1625505190AddOrderTotalAmountToCustomerTableTest extends TestCase
 {
     use KernelTestBehaviour;

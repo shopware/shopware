@@ -8,6 +8,9 @@ use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1635147952ShowShippingCostsInCartAnMailTemplates;
 
+/**
+ * @internal
+ */
 class Migration1635147952ShowShippingCostsInCartAnMailTemplatesTest extends TestCase
 {
     use KernelTestBehaviour;

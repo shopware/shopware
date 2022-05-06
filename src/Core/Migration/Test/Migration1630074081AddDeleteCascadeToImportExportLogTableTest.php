@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1630074081AddDeleteCascadeToImportExportLogTable;
 
+/**
+ * @internal
+ */
 class Migration1630074081AddDeleteCascadeToImportExportLogTableTest extends TestCase
 {
     use KernelTestBehaviour;

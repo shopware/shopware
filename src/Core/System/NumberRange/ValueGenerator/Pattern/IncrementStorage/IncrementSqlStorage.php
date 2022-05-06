@@ -21,6 +21,9 @@ class IncrementSqlStorage extends AbstractIncrementStorage implements IncrementS
 
     private Connection $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(Connection $connection)
     {
         $this->connection = $connection;

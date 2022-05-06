@@ -31,6 +31,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class UpdateControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

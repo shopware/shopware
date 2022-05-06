@@ -49,6 +49,9 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
      */
     private $config;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $reviewRepository,
         DataValidator $validator,

@@ -23,6 +23,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class AddressValidatorTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -49,6 +49,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpret
 
 /**
  * Allows to execute aggregated queries for all entities in the system
+ *
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
  */
 class EntityAggregator implements EntityAggregatorInterface
 {

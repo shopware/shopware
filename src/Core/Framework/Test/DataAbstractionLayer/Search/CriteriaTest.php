@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 
+/**
+ * @internal
+ */
 class CriteriaTest extends TestCase
 {
     /**

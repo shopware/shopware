@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
+ * @internal
  * @group rules
  */
 class LineItemCustomFieldRuleTest extends TestCase

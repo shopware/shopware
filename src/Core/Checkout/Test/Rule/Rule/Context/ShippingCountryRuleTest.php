@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class ShippingCountryRuleTest extends TestCase
 {
     public function testEquals(): void

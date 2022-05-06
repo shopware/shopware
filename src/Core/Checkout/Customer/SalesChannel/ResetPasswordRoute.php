@@ -53,6 +53,9 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
 
     private RateLimiter $rateLimiter;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $customerRepository,
         EntityRepositoryInterface $customerRecoveryRepository,

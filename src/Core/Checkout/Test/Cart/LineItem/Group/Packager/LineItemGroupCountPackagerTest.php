@@ -10,6 +10,9 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class LineItemGroupCountPackagerTest extends TestCase
 {
     use LineItemTestFixtureBehaviour;

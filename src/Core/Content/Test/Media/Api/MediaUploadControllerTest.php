@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class MediaUploadControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

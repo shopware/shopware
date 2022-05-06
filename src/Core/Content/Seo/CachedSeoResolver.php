@@ -12,6 +12,9 @@ class CachedSeoResolver extends AbstractSeoResolver
 
     private CacheInterface $cache;
 
+    /**
+     * @internal
+     */
     public function __construct(AbstractSeoResolver $decorated, CacheInterface $cache)
     {
         $this->decorated = $decorated;

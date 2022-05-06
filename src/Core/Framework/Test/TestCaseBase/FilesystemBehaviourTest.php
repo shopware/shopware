@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @internal
+ */
 class FilesystemBehaviourTest extends TestCase
 {
     use FilesystemBehaviour;

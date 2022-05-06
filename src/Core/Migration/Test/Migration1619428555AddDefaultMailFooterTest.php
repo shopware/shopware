@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1619428555AddDefaultMailFooter;
 
+/**
+ * @internal
+ */
 class Migration1619428555AddDefaultMailFooterTest extends TestCase
 {
     use IntegrationTestBehaviour;

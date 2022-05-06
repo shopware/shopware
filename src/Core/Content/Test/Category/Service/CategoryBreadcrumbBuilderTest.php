@@ -22,6 +22,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
+/**
+ * @internal
+ */
 class CategoryBreadcrumbBuilderTest extends TestCase
 {
     use IntegrationTestBehaviour;

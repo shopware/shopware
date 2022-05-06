@@ -28,6 +28,9 @@ class IndexingController extends AbstractController
 
     private MessageBusInterface $messageBus;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityIndexerRegistry $registry, MessageBusInterface $messageBus)
     {
         $this->registry = $registry;

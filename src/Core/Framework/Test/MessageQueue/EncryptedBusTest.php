@@ -11,6 +11,9 @@ use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\SerializerStamp;
 
+/**
+ * @internal
+ */
 class EncryptedBusTest extends TestCase
 {
     use IntegrationTestBehaviour;

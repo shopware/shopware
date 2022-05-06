@@ -7,6 +7,9 @@ use Shopware\Core\Content\Flow\Dispatching\FlowBuilder;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class FlowBuilderTest extends TestCase
 {
     use IntegrationTestBehaviour;

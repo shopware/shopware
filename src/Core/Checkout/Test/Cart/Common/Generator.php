@@ -37,6 +37,9 @@ use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class Generator extends TestCase
 {
     public static function createSalesChannelContext(

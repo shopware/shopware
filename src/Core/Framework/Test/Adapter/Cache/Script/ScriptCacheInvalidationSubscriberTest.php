@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * @internal
+ */
 class ScriptCacheInvalidationSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;

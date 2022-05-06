@@ -11,6 +11,9 @@ class CustomerNewsletterSalesChannelsUpdater
 {
     private Connection $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(Connection $connection)
     {
         $this->connection = $connection;

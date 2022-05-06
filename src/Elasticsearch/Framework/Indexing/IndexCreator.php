@@ -14,6 +14,9 @@ class IndexCreator
 
     private array $mapping;
 
+    /**
+     * @internal
+     */
     public function __construct(Client $client, array $config, array $mapping = [])
     {
         $this->client = $client;

@@ -15,6 +15,9 @@ class CanonicalRedirectService
      */
     private $configService;
 
+    /**
+     * @internal
+     */
     public function __construct(SystemConfigService $configService)
     {
         $this->configService = $configService;

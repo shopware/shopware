@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
+/**
+ * @internal
+ */
 class ClassNamespaceTest extends TestCase
 {
     public function testAllProductionFilesAreNamespacedCorrectly(): void

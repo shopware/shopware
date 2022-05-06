@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @internal
+ */
 class DeleteExpiredFilesCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

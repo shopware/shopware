@@ -19,6 +19,9 @@ class PromotionCodesRemover
      */
     private $individualCodeRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $individualCodeRepository)
     {
         $this->individualCodeRepository = $individualCodeRepository;

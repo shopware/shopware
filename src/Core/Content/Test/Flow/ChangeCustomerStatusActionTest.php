@@ -22,6 +22,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
+/**
+ * @internal
+ */
 class ChangeCustomerStatusActionTest extends TestCase
 {
     use IntegrationTestBehaviour;

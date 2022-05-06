@@ -9,6 +9,9 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Test\TestBuilderTrait;
 
+/**
+ * @internal
+ */
 class OrderTransactionCaptureRefundPositionBuilder
 {
     use TestBuilderTrait;

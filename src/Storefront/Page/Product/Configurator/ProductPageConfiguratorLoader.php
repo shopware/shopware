@@ -15,6 +15,9 @@ class ProductPageConfiguratorLoader extends ProductConfiguratorLoader
      */
     private $loader;
 
+    /**
+     * @internal
+     */
     public function __construct(ProductConfiguratorLoader $decorated)
     {
         $this->loader = $decorated;

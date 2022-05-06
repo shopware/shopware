@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseAvailableThemeProvider;
 
+/**
+ * @internal
+ */
 class DatabaseAvailableThemeProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;

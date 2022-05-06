@@ -15,6 +15,9 @@ class QuantityPriceCalculator
 
     private NetPriceCalculator $netPriceCalculator;
 
+    /**
+     * @internal
+     */
     public function __construct(
         GrossPriceCalculator $grossPriceCalculator,
         NetPriceCalculator $netPriceCalculator

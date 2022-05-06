@@ -21,6 +21,9 @@ use Shopware\Core\Framework\Test\Script\Execution\TestHook;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Tax\TaxEntity;
 
+/**
+ * @internal
+ */
 class RepositoryWriterFacadeTest extends TestCase
 {
     use IntegrationTestBehaviour;

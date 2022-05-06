@@ -34,6 +34,9 @@ use Shopware\Core\Test\TestDefaults;
 use function array_keys;
 use function array_values;
 
+/**
+ * @internal
+ */
 class ProductLoadedSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -1330,6 +1333,9 @@ class ProductLoadedSubscriberTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class ListPriceTestCase
 {
     /**

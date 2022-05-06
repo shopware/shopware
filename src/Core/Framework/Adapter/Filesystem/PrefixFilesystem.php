@@ -11,6 +11,9 @@ class PrefixFilesystem extends AbstractFilesystem
      */
     private $prefix;
 
+    /**
+     * @internal
+     */
     public function __construct(FilesystemInterface $filesystem, string $prefix)
     {
         parent::__construct($filesystem);

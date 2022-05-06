@@ -20,6 +20,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class CrossSellingTypeDataResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;

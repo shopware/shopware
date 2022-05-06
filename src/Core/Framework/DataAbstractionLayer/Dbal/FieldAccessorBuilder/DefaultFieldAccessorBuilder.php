@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\FieldNotStorageA
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 
+/**
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal
+ */
 class DefaultFieldAccessorBuilder implements FieldAccessorBuilderInterface
 {
     public function buildAccessor(string $root, Field $field, Context $context, string $accessor): string

@@ -8,6 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTConfigurationFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class JWTConfigurationFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

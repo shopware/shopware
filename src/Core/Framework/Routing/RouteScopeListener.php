@@ -28,6 +28,9 @@ class RouteScopeListener implements EventSubscriberInterface
      */
     private $whitelists;
 
+    /**
+     * @internal
+     */
     public function __construct(
         RouteScopeRegistry $routeScopeRegistry,
         RequestStack $requestStack,

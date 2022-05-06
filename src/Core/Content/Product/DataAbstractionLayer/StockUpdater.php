@@ -32,6 +32,9 @@ class StockUpdater implements EventSubscriberInterface
 
     private EventDispatcherInterface $dispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Connection $connection,
         EventDispatcherInterface $dispatcher

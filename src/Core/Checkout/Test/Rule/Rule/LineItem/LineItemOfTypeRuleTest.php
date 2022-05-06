@@ -10,6 +10,9 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class LineItemOfTypeRuleTest extends TestCase
 {
     public function testRuleWithProductTypeMatch(): void

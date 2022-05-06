@@ -9,6 +9,9 @@ use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\TypeDetector\DocumentTypeDetector;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @internal
+ */
 class DocumentTypeDetectorTest extends TestCase
 {
     use IntegrationTestBehaviour;

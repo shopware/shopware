@@ -19,6 +19,9 @@ class DumpSchemaCommand extends Command
      */
     private $definitionService;
 
+    /**
+     * @internal
+     */
     public function __construct(DefinitionService $definitionService)
     {
         parent::__construct();

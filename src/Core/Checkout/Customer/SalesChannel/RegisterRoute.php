@@ -79,6 +79,9 @@ class RegisterRoute extends AbstractRegisterRoute
 
     private SalesChannelContextServiceInterface $contextService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         NumberRangeValueGeneratorInterface $numberRangeValueGenerator,

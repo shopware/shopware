@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @internal
+ */
 class ShopIdProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;

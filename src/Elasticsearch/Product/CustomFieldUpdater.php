@@ -18,6 +18,9 @@ class CustomFieldUpdater implements EventSubscriberInterface
 
     private ElasticsearchHelper $elasticsearchHelper;
 
+    /**
+     * @internal
+     */
     public function __construct(ElasticsearchOutdatedIndexDetector $indexDetector, Client $client, ElasticsearchHelper $elasticsearchHelper)
     {
         $this->indexDetector = $indexDetector;

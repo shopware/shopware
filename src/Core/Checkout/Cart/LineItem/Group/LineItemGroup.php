@@ -9,6 +9,9 @@ class LineItemGroup
      */
     private $items;
 
+    /**
+     * @internal
+     */
     public function __construct()
     {
         $this->items = [];

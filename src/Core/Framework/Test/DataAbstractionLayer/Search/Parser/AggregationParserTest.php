@@ -19,6 +19,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
+/**
+ * @internal
+ */
 class AggregationParserTest extends TestCase
 {
     use KernelTestBehaviour;

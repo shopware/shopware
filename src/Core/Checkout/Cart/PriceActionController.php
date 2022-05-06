@@ -40,6 +40,9 @@ class PriceActionController extends AbstractController
      */
     private $grossCalculator;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $taxRepository,
         NetPriceCalculator $netCalculator,

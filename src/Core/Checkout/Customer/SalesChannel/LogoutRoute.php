@@ -44,6 +44,9 @@ class LogoutRoute extends AbstractLogoutRoute
      */
     private $cartService;
 
+    /**
+     * @internal
+     */
     public function __construct(
         SalesChannelContextPersister $contextPersister,
         EventDispatcherInterface $eventDispatcher,

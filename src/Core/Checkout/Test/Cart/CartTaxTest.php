@@ -16,6 +16,9 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
+/**
+ * @internal
+ */
 class CartTaxTest extends TestCase
 {
     use IntegrationTestBehaviour;

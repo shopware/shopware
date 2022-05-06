@@ -15,6 +15,9 @@ class CrossSellingCmsElementResolver extends AbstractProductDetailCmsElementReso
 {
     private AbstractProductCrossSellingRoute $crossSellingLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(AbstractProductCrossSellingRoute $crossSellingLoader)
     {
         $this->crossSellingLoader = $crossSellingLoader;

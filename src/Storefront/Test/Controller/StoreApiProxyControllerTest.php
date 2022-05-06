@@ -24,6 +24,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
+/**
+ * @internal
+ */
 class StoreApiProxyControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

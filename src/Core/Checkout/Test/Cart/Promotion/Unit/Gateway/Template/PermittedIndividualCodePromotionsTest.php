@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+/**
+ * @internal
+ */
 class PermittedIndividualCodePromotionsTest extends TestCase
 {
     /**

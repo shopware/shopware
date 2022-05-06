@@ -40,6 +40,9 @@ abstract class KernelPluginLoader extends Bundle
      */
     private $initialized = false;
 
+    /**
+     * @internal
+     */
     public function __construct(ClassLoader $classLoader, ?string $pluginDir = null)
     {
         $this->classLoader = $classLoader;

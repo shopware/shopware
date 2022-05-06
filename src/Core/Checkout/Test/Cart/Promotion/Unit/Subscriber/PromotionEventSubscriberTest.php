@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Promotion\Subscriber\PromotionIndividualCodeRedeemer;
 
+/**
+ * @internal
+ */
 class PromotionEventSubscriberTest extends TestCase
 {
     /**

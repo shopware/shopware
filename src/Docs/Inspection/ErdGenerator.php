@@ -12,6 +12,9 @@ class ErdGenerator
      */
     private $typeMap;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ErdTypeMap $typeMap
     ) {

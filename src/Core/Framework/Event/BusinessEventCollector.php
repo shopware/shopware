@@ -19,6 +19,9 @@ class BusinessEventCollector
      */
     private $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         BusinessEventRegistry $registry,
         EventDispatcherInterface $eventDispatcher

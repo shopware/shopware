@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldSet;
 
+/**
+ * @internal
+ */
 class CustomFieldsTest extends TestCase
 {
     public function testFromXml(): void

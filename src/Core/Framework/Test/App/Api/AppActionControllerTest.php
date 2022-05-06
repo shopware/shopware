@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class AppActionControllerTest extends TestCase
 {
     use GuzzleTestClientBehaviour;

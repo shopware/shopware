@@ -14,6 +14,9 @@ class CachedRuleLoader extends AbstractRuleLoader
 
     private CacheInterface $cache;
 
+    /**
+     * @internal
+     */
     public function __construct(AbstractRuleLoader $decorated, CacheInterface $cache)
     {
         $this->decorated = $decorated;

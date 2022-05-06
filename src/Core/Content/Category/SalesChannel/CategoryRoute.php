@@ -41,6 +41,9 @@ class CategoryRoute extends AbstractCategoryRoute
      */
     private $categoryDefinition;
 
+    /**
+     * @internal
+     */
     public function __construct(
         SalesChannelRepositoryInterface $categoryRepository,
         SalesChannelCmsPageLoaderInterface $cmsPageLoader,

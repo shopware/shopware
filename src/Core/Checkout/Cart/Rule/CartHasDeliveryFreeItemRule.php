@@ -12,6 +12,9 @@ class CartHasDeliveryFreeItemRule extends Rule
 {
     protected bool $allowed;
 
+    /**
+     * @internal
+     */
     public function __construct(bool $allowed = true)
     {
         parent::__construct();

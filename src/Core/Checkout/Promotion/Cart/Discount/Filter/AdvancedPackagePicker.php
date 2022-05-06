@@ -12,6 +12,9 @@ class AdvancedPackagePicker
      */
     private $registry;
 
+    /**
+     * @internal
+     */
     public function __construct(FilterServiceRegistry $registry)
     {
         $this->registry = $registry;

@@ -28,6 +28,9 @@ class RepositoryFacade
 
     private Context $context;
 
+    /**
+     * @internal
+     */
     public function __construct(
         DefinitionInstanceRegistry $registry,
         RequestCriteriaBuilder $criteriaBuilder,

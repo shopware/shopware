@@ -20,6 +20,9 @@ class BillingStreetRule extends Rule
      */
     protected $operator;
 
+    /**
+     * @internal
+     */
     public function __construct(string $operator = self::OPERATOR_EQ, ?string $streetName = null)
     {
         parent::__construct();

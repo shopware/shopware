@@ -31,6 +31,9 @@ class CategoryUrlProvider extends AbstractUrlProvider
 
     private RouterInterface $router;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ConfigHandler $configHandler,
         Connection $connection,

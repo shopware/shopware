@@ -28,6 +28,9 @@ class MediaFolderService
      */
     private $mediaFolderConfigRepo;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $mediaRepo,
         EntityRepositoryInterface $mediaFolderRepo,

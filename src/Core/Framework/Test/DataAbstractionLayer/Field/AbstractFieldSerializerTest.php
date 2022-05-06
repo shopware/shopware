@@ -12,6 +12,9 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field {
     use Symfony\Component\Validator\Validator\ValidatorInterface;
     use TestSerializer\TestFieldSerializer;
 
+    /**
+     * @internal
+     */
     class AbstractFieldSerializerTest extends TestCase
     {
         public function testGetConstraintsOnlyCalledOnce(): void

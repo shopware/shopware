@@ -17,6 +17,9 @@ class LineItemGroupServiceRegistry
      */
     private $sorters;
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $packagers, iterable $sorters)
     {
         $this->packagers = $packagers;

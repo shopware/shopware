@@ -26,6 +26,9 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
 
     private AbstractTokenFilter $tokenFilter;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Connection $connection,
         TokenizerInterface $tokenizer,

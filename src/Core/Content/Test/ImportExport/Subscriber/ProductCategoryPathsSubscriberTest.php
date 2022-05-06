@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class ProductCategoryPathsSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;

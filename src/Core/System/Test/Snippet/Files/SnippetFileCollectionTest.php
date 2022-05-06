@@ -8,6 +8,9 @@ use Shopware\Core\System\Snippet\Exception\InvalidSnippetFileException;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Test\Snippet\Mock\MockSnippetFile;
 
+/**
+ * @internal
+ */
 class SnippetFileCollectionTest extends TestCase
 {
     public static function tearDownAfterClass(): void

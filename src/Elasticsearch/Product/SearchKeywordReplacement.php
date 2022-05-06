@@ -12,6 +12,9 @@ class SearchKeywordReplacement extends SearchKeywordUpdater
 
     private ElasticsearchHelper $helper;
 
+    /**
+     * @internal
+     */
     public function __construct(SearchKeywordUpdater $decorated, ElasticsearchHelper $helper)
     {
         $this->decorated = $decorated;

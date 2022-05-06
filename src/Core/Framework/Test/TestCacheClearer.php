@@ -6,6 +6,9 @@ use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\CacheClearer\CacheClearerInterface;
 
+/**
+ * @internal
+ */
 class TestCacheClearer
 {
     /**

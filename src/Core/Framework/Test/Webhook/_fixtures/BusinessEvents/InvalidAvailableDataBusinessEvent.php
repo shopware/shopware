@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 
+/**
+ * @internal
+ */
 class InvalidAvailableDataBusinessEvent implements BusinessEventInterface
 {
     public static function getAvailableData(): EventDataCollection

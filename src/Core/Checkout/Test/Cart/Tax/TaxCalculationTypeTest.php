@@ -20,6 +20,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class TaxCalculationTypeTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -173,6 +176,9 @@ class TaxCalculationTypeTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class ItemBlueprint
 {
     /**

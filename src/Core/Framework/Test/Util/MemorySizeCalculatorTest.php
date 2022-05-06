@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\Util;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
 
+/**
+ * @internal
+ */
 class MemorySizeCalculatorTest extends TestCase
 {
     /**

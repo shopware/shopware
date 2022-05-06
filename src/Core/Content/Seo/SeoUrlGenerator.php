@@ -39,6 +39,9 @@ class SeoUrlGenerator
 
     private TwigVariableParser $twigVariableParser;
 
+    /**
+     * @internal
+     */
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
         RouterInterface $router,

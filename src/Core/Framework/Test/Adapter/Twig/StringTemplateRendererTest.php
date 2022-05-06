@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Twig\Extension\CoreExtension;
 
+/**
+ * @internal
+ */
 class StringTemplateRendererTest extends TestCase
 {
     use KernelTestBehaviour;

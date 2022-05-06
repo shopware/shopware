@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
+/**
+ * @internal
+ */
 class TestBundle extends Bundle
 {
     public function build(ContainerBuilder $container): void

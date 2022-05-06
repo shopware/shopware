@@ -33,6 +33,9 @@ use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class OrderRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

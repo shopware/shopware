@@ -22,6 +22,9 @@ class MailHeaderFooterGenerator implements DemodataGeneratorInterface
      */
     private $mailHeaderFooterDefinition;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityWriterInterface $writer, MailHeaderFooterDefinition $mailHeaderFooterDefinition)
     {
         $this->writer = $writer;

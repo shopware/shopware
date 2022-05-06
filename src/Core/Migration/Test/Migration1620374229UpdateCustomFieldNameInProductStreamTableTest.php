@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1620374229UpdateCustomFieldNameInProductStreamTable;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 
+/**
+ * @internal
+ */
 class Migration1620374229UpdateCustomFieldNameInProductStreamTableTest extends TestCase
 {
     use KernelTestBehaviour;

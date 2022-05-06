@@ -19,6 +19,9 @@ class GuestWishlistPageLoader
      */
     private $genericPageLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(
         GenericPageLoaderInterface $genericPageLoader,
         EventDispatcherInterface $eventDispatcher

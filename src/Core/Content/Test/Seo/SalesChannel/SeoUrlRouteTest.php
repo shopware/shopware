@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
+ * @internal
  * @group store-api
  */
 class SeoUrlRouteTest extends TestCase

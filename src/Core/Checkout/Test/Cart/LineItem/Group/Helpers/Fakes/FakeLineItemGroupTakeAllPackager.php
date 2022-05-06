@@ -7,6 +7,9 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class FakeLineItemGroupTakeAllPackager implements LineItemGroupPackagerInterface
 {
     /**

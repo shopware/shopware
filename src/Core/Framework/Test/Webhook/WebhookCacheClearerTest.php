@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Webhook\WebhookCacheClearer;
 use Shopware\Core\Framework\Webhook\WebhookDispatcher;
 
+/**
+ * @internal
+ */
 class WebhookCacheClearerTest extends TestCase
 {
     public function testGetSubscribedEvents(): void

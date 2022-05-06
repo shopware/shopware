@@ -16,6 +16,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class ScriptControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

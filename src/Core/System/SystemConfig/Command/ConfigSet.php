@@ -18,6 +18,9 @@ class ConfigSet extends Command
      */
     private $systemConfigService;
 
+    /**
+     * @internal
+     */
     public function __construct(SystemConfigService $systemConfigService)
     {
         parent::__construct();

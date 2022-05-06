@@ -21,6 +21,9 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
      */
     private $restartSignalCachePool;
 
+    /**
+     * @internal
+     */
     public function __construct(TaskRegistry $registry, CacheItemPoolInterface $restartSignalCachePool)
     {
         $this->registry = $registry;

@@ -15,6 +15,9 @@ class CustomFieldsSerializer extends FieldSerializer
 
     private CustomFieldService $customFieldService;
 
+    /**
+     * @internal
+     */
     public function __construct(DalCustomFieldsSerializer $customFieldsSerializer, CustomFieldService $customFieldService)
     {
         $this->customFieldsSerializer = $customFieldsSerializer;

@@ -8,6 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @internal
+ */
 class ProductMaxPurchaseCalculatorTest extends TestCase
 {
     private ProductMaxPurchaseCalculator $service;

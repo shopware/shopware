@@ -14,6 +14,9 @@ use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
 use Shopware\Core\System\Snippet\Filter\TermFilter;
 use Shopware\Core\System\Snippet\Filter\TranslationKeyFilter;
 
+/**
+ * @internal
+ */
 class SnippetFilterFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

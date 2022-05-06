@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
+/**
+ * @internal
+ */
 class PromotionControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

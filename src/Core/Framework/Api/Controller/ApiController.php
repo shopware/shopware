@@ -106,6 +106,9 @@ class ApiController extends AbstractController
      */
     private $criteriaValidator;
 
+    /**
+     * @internal
+     */
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
         Serializer $serializer,

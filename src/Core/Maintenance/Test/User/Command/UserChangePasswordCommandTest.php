@@ -12,6 +12,9 @@ use Shopware\Core\Maintenance\User\Command\UserChangePasswordCommand;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Component\Console\Tester\CommandTester;
 
+/**
+ * @internal
+ */
 class UserChangePasswordCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

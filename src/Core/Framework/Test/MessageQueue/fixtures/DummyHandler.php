@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Test\MessageQueue\fixtures;
 
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 
+/**
+ * @internal
+ */
 class DummyHandler extends AbstractMessageHandler
 {
     private $lastMessage;

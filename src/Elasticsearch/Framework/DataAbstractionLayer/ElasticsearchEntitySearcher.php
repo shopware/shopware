@@ -35,6 +35,9 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
     private EventDispatcherInterface $eventDispatcher;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Client $client,
         EntitySearcherInterface $searcher,

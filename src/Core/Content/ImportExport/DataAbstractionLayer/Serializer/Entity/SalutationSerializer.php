@@ -21,6 +21,9 @@ class SalutationSerializer extends EntitySerializer implements ResetInterface
      */
     private array $cacheSalutations = [];
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $salutationRepository)
     {
         $this->salutationRepository = $salutationRepository;

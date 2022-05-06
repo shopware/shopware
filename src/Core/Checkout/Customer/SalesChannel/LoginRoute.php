@@ -47,6 +47,9 @@ class LoginRoute extends AbstractLoginRoute
 
     private RateLimiter $rateLimiter;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         EntityRepositoryInterface $customerRepository,

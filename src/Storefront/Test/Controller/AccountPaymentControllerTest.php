@@ -14,6 +14,9 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class AccountPaymentControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

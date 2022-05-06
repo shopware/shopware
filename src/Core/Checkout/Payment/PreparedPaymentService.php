@@ -33,6 +33,9 @@ class PreparedPaymentService
 
     private InitialStateIdLoader $initialStateIdLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(
         PaymentHandlerRegistry $paymentHandlerRegistry,
         EntityRepositoryInterface $appPaymentMethodRepository,

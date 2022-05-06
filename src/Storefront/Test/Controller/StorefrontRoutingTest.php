@@ -10,6 +10,9 @@ use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Page\Navigation\NavigationPage;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ */
 class StorefrontRoutingTest extends TestCase
 {
     use IntegrationTestBehaviour;

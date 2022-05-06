@@ -55,6 +55,9 @@ class RecalculationService
 
     private PromotionItemBuilder $promotionItemBuilder;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $orderRepository,
         OrderConverter $orderConverter,

@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\Plugin;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Struct\PluginFromFileSystemStruct;
 
+/**
+ * @internal
+ */
 class PluginFromFileSystemStructTest extends TestCase
 {
     /**

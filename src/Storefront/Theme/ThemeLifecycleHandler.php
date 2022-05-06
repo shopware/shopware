@@ -24,6 +24,9 @@ class ThemeLifecycleHandler
 
     private Connection $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ThemeLifecycleService $themeLifecycleService,
         ThemeService $themeService,

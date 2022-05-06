@@ -35,6 +35,9 @@ class DocsDumpErd extends Command
 
     private ErdGenerator $erdGenerator;
 
+    /**
+     * @internal
+     */
     public function __construct(
         DefinitionInstanceRegistry $registry,
         ErdGenerator $erdGenerator

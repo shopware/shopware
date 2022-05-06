@@ -9,6 +9,9 @@ use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @internal
+ */
 class SyncTestPaymentHandler implements SynchronousPaymentHandlerInterface
 {
     /**

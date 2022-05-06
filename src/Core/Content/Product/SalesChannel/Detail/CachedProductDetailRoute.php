@@ -41,6 +41,8 @@ class CachedProductDetailRoute extends AbstractProductDetailRoute
     private EventDispatcherInterface $dispatcher;
 
     /**
+     * @internal
+     *
      * @param AbstractCacheTracer<ProductDetailRouteResponse> $tracer
      */
     public function __construct(

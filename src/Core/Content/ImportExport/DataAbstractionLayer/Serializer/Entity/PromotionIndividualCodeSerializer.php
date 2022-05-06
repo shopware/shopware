@@ -23,6 +23,9 @@ class PromotionIndividualCodeSerializer extends EntitySerializer implements Rese
 
     private array $cachePromoCodeIds = [];
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $promoCodeRepository,
         EntityRepositoryInterface $promoRepository

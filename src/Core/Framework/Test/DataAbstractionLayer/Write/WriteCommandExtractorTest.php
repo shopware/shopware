@@ -16,6 +16,9 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Entity\DefaultsDefin
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @internal
+ */
 class WriteCommandExtractorTest extends TestCase
 {
     use IntegrationTestBehaviour;

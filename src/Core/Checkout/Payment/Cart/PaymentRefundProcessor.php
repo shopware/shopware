@@ -24,6 +24,9 @@ class PaymentRefundProcessor
 
     private PaymentHandlerRegistry $paymentHandlerRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(
         Connection $connection,
         OrderTransactionCaptureRefundStateHandler $stateHandler,

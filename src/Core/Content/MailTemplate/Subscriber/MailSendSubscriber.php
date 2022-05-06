@@ -55,6 +55,9 @@ class MailSendSubscriber implements EventSubscriberInterface
 
     private LanguageLocaleCodeProvider $languageLocaleProvider;
 
+    /**
+     * @internal
+     */
     public function __construct(
         AbstractMailService $emailService,
         EntityRepositoryInterface $mailTemplateRepository,

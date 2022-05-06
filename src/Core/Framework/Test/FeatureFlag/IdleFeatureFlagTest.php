@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @internal
+ */
 class IdleFeatureFlagTest extends TestCase
 {
     use KernelTestBehaviour;

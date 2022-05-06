@@ -27,6 +27,9 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
 
     private EntityRepositoryInterface $orderRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(OrderService $orderService, EntityRepositoryInterface $orderRepository)
     {
         $this->orderService = $orderService;

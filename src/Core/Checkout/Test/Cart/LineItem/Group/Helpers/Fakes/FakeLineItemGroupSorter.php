@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Fakes;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupSorterInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 
+/**
+ * @internal
+ */
 class FakeLineItemGroupSorter implements LineItemGroupSorterInterface
 {
     /**

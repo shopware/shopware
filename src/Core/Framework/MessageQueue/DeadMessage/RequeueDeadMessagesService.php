@@ -23,6 +23,9 @@ class RequeueDeadMessagesService
 
     private LoggerInterface $logger;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $deadMessageRepository,
         MessageBusInterface $bus,

@@ -16,6 +16,9 @@ class ApiRouteLoader extends Loader
 
     private bool $isLoaded = false;
 
+    /**
+     * @internal
+     */
     public function __construct(DefinitionInstanceRegistry $definitionRegistry)
     {
         $this->definitionRegistry = $definitionRegistry;

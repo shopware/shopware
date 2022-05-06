@@ -19,6 +19,9 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 
+/**
+ * @internal
+ */
 class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTest
 {
     public function testValidate(): void

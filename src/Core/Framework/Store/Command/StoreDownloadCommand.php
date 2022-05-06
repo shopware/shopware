@@ -50,6 +50,9 @@ class StoreDownloadCommand extends Command
      */
     private $userRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         StoreClient $storeClient,
         EntityRepositoryInterface $pluginRepo,

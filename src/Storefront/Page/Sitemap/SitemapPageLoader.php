@@ -20,6 +20,9 @@ class SitemapPageLoader
      */
     private $sitemapRoute;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         AbstractSitemapRoute $sitemapRoute

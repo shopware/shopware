@@ -32,6 +32,9 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
 
     private NavigationLoaderInterface $navigationLoader;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         AbstractCurrencyRoute $currencyRoute,

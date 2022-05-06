@@ -16,6 +16,9 @@ class MediaExtension extends AbstractExtension
      */
     private $mediaRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $mediaRepository)
     {
         $this->mediaRepository = $mediaRepository;

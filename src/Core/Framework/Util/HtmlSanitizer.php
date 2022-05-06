@@ -21,6 +21,9 @@ class HtmlSanitizer
 
     private array $cache = [];
 
+    /**
+     * @internal
+     */
     public function __construct(
         ?string $cacheDir = null,
         bool $cacheEnabled = true,

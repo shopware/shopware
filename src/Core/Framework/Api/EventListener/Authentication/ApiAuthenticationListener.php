@@ -53,6 +53,9 @@ class ApiAuthenticationListener implements EventSubscriberInterface
      */
     private $routeScopeRegistry;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ResourceServer $resourceServer,
         AuthorizationServer $authorizationServer,

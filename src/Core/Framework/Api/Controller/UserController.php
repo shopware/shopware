@@ -55,6 +55,9 @@ class UserController extends AbstractController
      */
     private $keyRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(
         EntityRepositoryInterface $userRepository,
         EntityRepositoryInterface $userRoleRepository,

@@ -22,6 +22,9 @@ class RepositoryFacadeHookFactory extends HookServiceFactory
 
     private AppContextCreator $appContextCreator;
 
+    /**
+     * @internal
+     */
     public function __construct(
         DefinitionInstanceRegistry $registry,
         AppContextCreator $appContextCreator,

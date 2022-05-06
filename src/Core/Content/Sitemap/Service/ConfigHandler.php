@@ -15,6 +15,9 @@ class ConfigHandler
      */
     private $configHandlers;
 
+    /**
+     * @internal
+     */
     public function __construct(iterable $configHandlers)
     {
         $this->configHandlers = $configHandlers;

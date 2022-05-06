@@ -26,6 +26,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxDefinition;
 
+/**
+ * @internal
+ */
 class WriterTest extends TestCase
 {
     use IntegrationTestBehaviour;

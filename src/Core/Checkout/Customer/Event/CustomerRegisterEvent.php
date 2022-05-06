@@ -34,6 +34,9 @@ class CustomerRegisterEvent extends Event implements SalesChannelAware, Shopware
      */
     private $mailRecipientStruct;
 
+    /**
+     * @internal
+     */
     public function __construct(SalesChannelContext $salesChannelContext, CustomerEntity $customer)
     {
         $this->customer = $customer;

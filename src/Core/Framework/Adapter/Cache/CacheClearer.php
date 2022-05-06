@@ -43,6 +43,9 @@ class CacheClearer extends AbstractMessageHandler
      */
     private $messageBus;
 
+    /**
+     * @internal
+     */
     public function __construct(
         array $adapters,
         CacheClearerInterface $cacheClearer,

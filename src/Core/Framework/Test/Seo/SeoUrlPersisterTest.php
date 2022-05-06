@@ -21,6 +21,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+/**
+ * @internal
+ */
 class SeoUrlPersisterTest extends TestCase
 {
     use IntegrationTestBehaviour;

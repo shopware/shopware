@@ -24,6 +24,9 @@ class PromotionCodeService
 
     private Connection $connection;
 
+    /**
+     * @internal
+     */
     public function __construct(EntityRepositoryInterface $promotionRepository, EntityRepositoryInterface $individualCodesRepository, Connection $connection)
     {
         $this->promotionRepository = $promotionRepository;

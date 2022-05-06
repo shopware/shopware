@@ -13,6 +13,9 @@ use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ */
 class HeaderPageletLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;

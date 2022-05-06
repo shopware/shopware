@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+/**
+ * @internal
+ */
 class CartAmountRuleTest extends TestCase
 {
     use KernelTestBehaviour;

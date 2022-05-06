@@ -22,6 +22,9 @@ class CustomLineItemFactory implements LineItemFactoryInterface
      */
     private $mediaRepository;
 
+    /**
+     * @internal
+     */
     public function __construct(PriceDefinitionFactory $priceDefinitionFactory, EntityRepositoryInterface $mediaRepository)
     {
         $this->priceDefinitionFactory = $priceDefinitionFactory;

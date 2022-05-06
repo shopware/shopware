@@ -8,6 +8,9 @@ class SleepMessage
 
     private bool $throwError;
 
+    /**
+     * @internal
+     */
     public function __construct(float $sleepTime, bool $throwError = false)
     {
         $this->sleepTime = $sleepTime;

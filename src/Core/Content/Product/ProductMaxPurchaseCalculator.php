@@ -11,6 +11,9 @@ class ProductMaxPurchaseCalculator extends AbstractProductMaxPurchaseCalculator
 {
     private SystemConfigService $systemConfigService;
 
+    /**
+     * @internal
+     */
     public function __construct(SystemConfigService $systemConfigService)
     {
         $this->systemConfigService = $systemConfigService;

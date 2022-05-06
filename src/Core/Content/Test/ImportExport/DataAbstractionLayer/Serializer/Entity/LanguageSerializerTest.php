@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageDefinition;
 
+/**
+ * @internal
+ */
 class LanguageSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;

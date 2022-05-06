@@ -61,6 +61,9 @@ class ExportController
      */
     private $contextFactory;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ProductExporterInterface $productExportService,
         ProductExportFileHandlerInterface $productExportFileHandler,

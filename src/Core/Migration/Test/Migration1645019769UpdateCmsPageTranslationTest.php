@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1645019769UpdateCmsPageTranslation;
 
+/**
+ * @internal
+ */
 class Migration1645019769UpdateCmsPageTranslationTest extends TestCase
 {
     use IntegrationTestBehaviour;

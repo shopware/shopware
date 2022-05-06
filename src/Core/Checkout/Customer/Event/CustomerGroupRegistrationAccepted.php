@@ -40,6 +40,9 @@ class CustomerGroupRegistrationAccepted extends Event implements SalesChannelAwa
      */
     private $mailRecipientStruct;
 
+    /**
+     * @internal
+     */
     public function __construct(CustomerEntity $customer, CustomerGroupEntity $customerGroup, Context $context, ?MailRecipientStruct $mailRecipientStruct = null)
     {
         $this->customer = $customer;

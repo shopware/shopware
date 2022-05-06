@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Test\App\Cms\Xml;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Cms\CmsExtensions;
 
+/**
+ * @internal
+ */
 class DefaultConfigTest extends TestCase
 {
     public function testDefaultConfigFromXml(): void

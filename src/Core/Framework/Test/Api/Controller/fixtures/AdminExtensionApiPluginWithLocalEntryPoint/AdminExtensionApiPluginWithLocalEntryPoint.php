@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Test\Api\Controller\fixtures\AdminExtensionApi
 
 use Shopware\Core\Framework\Plugin;
 
+/**
+ * @internal
+ */
 class AdminExtensionApiPluginWithLocalEntryPoint extends Plugin
 {
 }

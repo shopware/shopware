@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1626785125AddImportExportType;
 
+/**
+ * @internal
+ */
 class Migration1626785125AddImportExportTypeTest extends TestCase
 {
     use KernelTestBehaviour;

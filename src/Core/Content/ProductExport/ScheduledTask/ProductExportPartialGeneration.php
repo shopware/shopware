@@ -19,6 +19,9 @@ class ProductExportPartialGeneration
      */
     private $salesChannelId;
 
+    /**
+     * @internal
+     */
     public function __construct(string $productExportId, string $salesChannelId, int $offset = 0)
     {
         $this->offset = $offset;

@@ -18,6 +18,9 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
 class FlowDispatcherTest extends TestCase
 {
     use IntegrationTestBehaviour;

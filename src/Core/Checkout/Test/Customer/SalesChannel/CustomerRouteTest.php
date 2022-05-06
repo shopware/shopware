@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 
 /**
+ * @internal
  * @group store-api
  */
 class CustomerRouteTest extends TestCase

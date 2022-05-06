@@ -8,6 +8,9 @@ use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\Migration1638514913RemovedUnusedVarsInMailTemplates;
 
+/**
+ * @internal
+ */
 class Migration1638514913RemovedUnusedVarsInMailTemplatesTest extends TestCase
 {
     use KernelTestBehaviour;

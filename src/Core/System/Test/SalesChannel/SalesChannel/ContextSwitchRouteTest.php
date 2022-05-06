@@ -16,6 +16,7 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
+ * @internal
  * @group store-api
  */
 class ContextSwitchRouteTest extends TestCase

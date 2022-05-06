@@ -15,6 +15,9 @@ class CategoryUrlGenerator extends AbstractCategoryUrlGenerator
      */
     private $seoUrlReplacer;
 
+    /**
+     * @internal
+     */
     public function __construct(SeoUrlPlaceholderHandlerInterface $seoUrlReplacer)
     {
         $this->seoUrlReplacer = $seoUrlReplacer;

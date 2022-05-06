@@ -12,6 +12,9 @@ class CustomUrlProvider extends AbstractUrlProvider
 {
     private ConfigHandler $configHandler;
 
+    /**
+     * @internal
+     */
     public function __construct(ConfigHandler $configHandler)
     {
         $this->configHandler = $configHandler;

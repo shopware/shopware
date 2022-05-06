@@ -18,6 +18,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
 class Migration1610523204AddInheritanceForProductCmsPageTest extends TestCase
 {
     use IntegrationTestBehaviour;

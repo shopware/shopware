@@ -22,6 +22,9 @@ class AdvancedPackageFilter extends PackageFilter
      */
     private $registry;
 
+    /**
+     * @internal
+     */
     public function __construct(FilterServiceRegistry $registry)
     {
         $this->registry = $registry;

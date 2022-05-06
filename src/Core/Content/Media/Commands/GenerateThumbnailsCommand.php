@@ -69,6 +69,9 @@ class GenerateThumbnailsCommand extends Command
      */
     private $isStrict;
 
+    /**
+     * @internal
+     */
     public function __construct(
         ThumbnailService $thumbnailService,
         EntityRepositoryInterface $mediaRepository,

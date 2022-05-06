@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\Migration1595492053SeoUrlTemplate;
 
+/**
+ * @internal
+ */
 class Migration1595492053SeoUrlTemplateTest extends TestCase
 {
     use KernelTestBehaviour;

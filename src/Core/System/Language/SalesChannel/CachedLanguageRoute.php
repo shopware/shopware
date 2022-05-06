@@ -44,6 +44,8 @@ class CachedLanguageRoute extends AbstractLanguageRoute
     private EventDispatcherInterface $dispatcher;
 
     /**
+     * @internal
+     *
      * @param AbstractCacheTracer<LanguageRouteResponse> $tracer
      */
     public function __construct(

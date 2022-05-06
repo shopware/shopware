@@ -55,6 +55,7 @@ describe('Import/Export:  Visual tests', () => {
         // Take snapshot for visual testing
         cy.get('.sw-skeleton__listing').should('not.exist');
         cy.contains('.sw-data-grid__row--0', 'Default advanced prices').should('be.visible');
+        cy.get('.sw-admin-menu__sales-channel-item').should('be.visible');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Import export] Profiles overview',
             '.sw-import-export-view-profiles__listing',
@@ -83,6 +84,7 @@ describe('Import/Export:  Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-skeleton__listing').should('not.exist');
+        cy.get('.sw-admin-menu__sales-channel-item').should('be.visible');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Import export] Detail, Export overview', '.sw-import-export-view-export', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
@@ -115,6 +117,7 @@ describe('Import/Export:  Visual tests', () => {
         cy.awaitAndCheckNotification('Export started');
         cy.awaitAndCheckNotification('Export "Default product" completed.');
 
+        cy.get('.sw-admin-menu__sales-channel-item').should('be.visible');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Import export] Detail, Overview after export', '.sw-import-export-activity', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
@@ -127,6 +130,7 @@ describe('Import/Export:  Visual tests', () => {
 
         cy.get('.sw-import-export-activity-log-info-modal').should('be.visible');
         cy.get('.sw-import-export-activity-log-info-modal__description-list').should('be.visible');
+        cy.get('.sw-admin-menu__sales-channel-item').should('be.visible');
 
         // Take snapshot for visual testing
         cy.prepareAdminForScreenshot();
@@ -152,6 +156,7 @@ describe('Import/Export:  Visual tests', () => {
         // Take snapshot for visual testing
         cy.get('.sw-import-export-view-import').should('be.visible');
         cy.get('.sw-skeleton__listing').should('not.exist');
+        cy.get('.sw-admin-menu__sales-channel-item').should('be.visible');
 
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Import export] Detail, Import overview', '.sw-import-export-view-import', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
@@ -193,6 +198,7 @@ describe('Import/Export:  Visual tests', () => {
         cy.awaitAndCheckNotification('Import started');
         cy.awaitAndCheckNotification('Import "Default product" completed');
 
+        cy.get('.sw-admin-menu__sales-channel-item').should('be.visible');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Import export] Detail, Overview after import', '.sw-import-export-activity', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
@@ -207,6 +213,7 @@ describe('Import/Export:  Visual tests', () => {
         cy.get('.sw-import-export-activity-result-modal__info').should('be.visible');
 
         // Take snapshot for visual testing
+        cy.get('.sw-admin-menu__sales-channel-item').should('be.visible');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Import export] summary modal after import', '.sw-import-export-activity-result-modal', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
@@ -234,6 +241,7 @@ describe('Import/Export:  Visual tests', () => {
             .should('be.visible')
             .and('not.be.disabled');
 
+        cy.get('.sw-admin-menu__sales-channel-item').should('be.visible');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Import export] Wizard modal, general step', '.sw-modal__dialog', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
@@ -242,6 +250,7 @@ describe('Import/Export:  Visual tests', () => {
 
         cy.get('.sw-file-input__dropzone').should('be.visible');
 
+        cy.get('.sw-admin-menu__sales-channel-item').should('be.visible');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Import export], Wizard modal, upload csv file step', '.sw-modal__dialog', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
@@ -303,6 +312,7 @@ describe('Import/Export:  Visual tests', () => {
         cy.get('.sw-select-result-list__content')
             .should('not.exist');
 
+        cy.get('.sw-admin-menu__sales-channel-item').should('be.visible');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Import export] Wizard modal, mappings step', null, null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'})
     });

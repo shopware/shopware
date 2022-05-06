@@ -43,3 +43,6 @@ dist/
 
 # Cypress downloads
 downloads/*
+# Cypress build fixtures
+/cypress/fixtures/TestPlugin/src/Resources/public/
+!/cypress/fixtures/TestPlugin/src/Resources/app/administration/build/

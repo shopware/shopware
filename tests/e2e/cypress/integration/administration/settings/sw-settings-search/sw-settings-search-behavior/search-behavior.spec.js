@@ -66,6 +66,6 @@ describe('Product Search: Test crud operations', () => {
         cy.wait('@saveData')
             .its('response.statusCode').should('equal', 204);
 
-        cy.awaitAndCheckNotification('Configuration saved.');
+        cy.contains('.sw-alert__message', 'Configuration saved');
     });
 });

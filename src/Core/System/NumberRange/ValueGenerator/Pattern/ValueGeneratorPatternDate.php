@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\NumberRange\NumberRangeEntity;
 
 /**
- * @deprecated tag:v6.5.0 won't implement ValueGeneratorPatternInterface anymore
+ * @deprecated tag:v6.5.0 - reason:class-hierarchy-change - won't implement ValueGeneratorPatternInterface anymore
  */
 class ValueGeneratorPatternDate extends AbstractValueGenerator implements ValueGeneratorPatternInterface
 {

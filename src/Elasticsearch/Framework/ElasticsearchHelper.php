@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Elasticsearch\Exception\ServerNotAvailableException;
 use Shopware\Elasticsearch\Exception\UnsupportedElasticsearchDefinitionException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
@@ -66,6 +67,11 @@ class ElasticsearchHelper
      */
     public function logOrThrowException(\Throwable $exception): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'logAndThrowException()')
+        );
+
         return $this->logAndThrowException($exception);
     }
 
@@ -99,7 +105,7 @@ class ElasticsearchHelper
         }
 
         if (!$this->client->ping()) {
-            return $this->logOrThrowException(new ServerNotAvailableException());
+            return $this->logAndThrowException(new ServerNotAvailableException());
         }
 
         return true;

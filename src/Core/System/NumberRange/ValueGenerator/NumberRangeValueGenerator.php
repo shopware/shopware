@@ -55,7 +55,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
     }
 
     /**
-     * @deprecated tag:v6.5.0 will be made private
+     * @deprecated tag:v6.5.0 - reason:visibility-change - will be made private
      */
     protected function parsePattern(?string $pattern): ?array
     {
@@ -90,7 +90,7 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
     }
 
     /**
-     * @deprecated tag:v6.5.0 will be made private
+     * @deprecated tag:v6.5.0 - reason:visibility-change - will be made private
      */
     protected function endEvent(string $generatedValue, string $type, Context $context, ?string $salesChannelId, bool $preview): string
     {

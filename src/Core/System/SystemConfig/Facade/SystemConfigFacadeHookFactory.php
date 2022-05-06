@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
- * @deprecated tag:v6.5.0 will be internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal
  */
 class SystemConfigFacadeHookFactory extends HookServiceFactory
 {

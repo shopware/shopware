@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Test\NumberRange\ValueGenerator;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\Exception\IncrementStorageMigrationNotSupportedException;
@@ -113,6 +114,8 @@ class IncrementStorageRegistryTest extends TestCase
      */
     public function testMigrateWithLegacyFromStorageThrows(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $registry = new IncrementStorageRegistry(
             new \ArrayObject(
                 [
@@ -132,6 +135,8 @@ class IncrementStorageRegistryTest extends TestCase
      */
     public function testMigrateWithLegacyToStorageThrows(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $registry = new IncrementStorageRegistry(
             new \ArrayObject(
                 [

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 
 /**
- * @deprecated tag:v6.5.0 - Will be removed, use the static Profiler::trace method to directly trace functions
+ * @deprecated tag:v6.5.0 - reason:remove-decorator - Will be removed, use the static Profiler::trace method to directly trace functions
  */
 class EntityReaderProfiler implements EntityReaderInterface
 {

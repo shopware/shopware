@@ -43,7 +43,7 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
             $this->handleQueue();
         } catch (\Throwable $e) {
             // catch exception - otherwise the task will never be called again
-            $this->elasticsearchHelper->logOrThrowException($e);
+            $this->elasticsearchHelper->logAndThrowException($e);
         }
     }
 

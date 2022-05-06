@@ -5,11 +5,12 @@ namespace Shopware\Core\System\Country;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @deprecated tag:v6.5.0 - Will be remove on version 6.5.0
+ * @deprecated tag:v6.5.0 - reason:remove-subscriber - Will be remove on version 6.5.0
  */
 class CountryTaxFreeDeprecationUpdater implements EventSubscriberInterface
 {
@@ -25,6 +26,10 @@ class CountryTaxFreeDeprecationUpdater implements EventSubscriberInterface
 
     public static function getSubscribedEvents(): array
     {
+        if (Feature::isActive('v6.5.0.0')) {
+            return [];
+        }
+
         return [
             CountryEvents::COUNTRY_WRITTEN_EVENT => 'updated',
         ];

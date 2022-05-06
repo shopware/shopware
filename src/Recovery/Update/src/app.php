@@ -7,8 +7,6 @@ use Shopware\Recovery\Update\DependencyInjection\Container;
 use Shopware\Recovery\Update\Utils;
 
 date_default_timezone_set('Europe/Berlin');
-ini_set('display_errors', '1');
-error_reporting(-1);
 
 $config = require __DIR__ . '/../config/config.php';
 $container = new Container(new \Slim\Container(), $config);

@@ -24,6 +24,7 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister;
@@ -77,6 +78,8 @@ class AppLifecycle extends AbstractAppLifecycle
 
     private PaymentMethodPersister $paymentMethodPersister;
 
+    private RuleConditionPersister $ruleConditionPersister;
+
     private CmsBlockPersister $cmsBlockPersister;
 
     private EntityRepositoryInterface $languageRepository;
@@ -112,6 +115,7 @@ class AppLifecycle extends AbstractAppLifecycle
         ScriptPersister $scriptPersister,
         WebhookPersister $webhookPersister,
         PaymentMethodPersister $paymentMethodPersister,
+        RuleConditionPersister $ruleConditionPersister,
         CmsBlockPersister $cmsBlockPersister,
         AbstractAppLoader $appLoader,
         EventDispatcherInterface $eventDispatcher,
@@ -135,6 +139,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->customFieldPersister = $customFieldPersister;
         $this->webhookPersister = $webhookPersister;
         $this->paymentMethodPersister = $paymentMethodPersister;
+        $this->ruleConditionPersister = $ruleConditionPersister;
         $this->cmsBlockPersister = $cmsBlockPersister;
         $this->appLoader = $appLoader;
         $this->eventDispatcher = $eventDispatcher;
@@ -274,6 +279,7 @@ class AppLifecycle extends AbstractAppLifecycle
             $this->updateModules($manifest, $id, $defaultLocale, $context);
         }
 
+        $this->ruleConditionPersister->updateConditions($manifest, $id, $defaultLocale, $context);
         $this->actionButtonPersister->updateActions($manifest, $id, $defaultLocale, $context);
         $this->templatePersister->updateTemplates($manifest, $id, $context);
         $this->scriptPersister->updateScripts($manifest->getPath(), $id, $context);

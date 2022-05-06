@@ -9,16 +9,17 @@
         class="sw-condition-type-select__select"
         size="medium"
         label-value="label"
-        value-property="type"
+        :value-property="valueProperty"
         label-property="translatedLabel"
         :options="typeOptions"
         :groups="availableGroups"
         :placeholder="$tc('global.sw-condition.condition.placeholder')"
-        :value="condition.type"
+        :value="currentValue"
         :disabled="disabled"
         required
         show-clearable-button
         @change="changeType"
+        @item-selected="changeItem"
         @search-term-change="typeSearchTerm = $event"
     >
         <template

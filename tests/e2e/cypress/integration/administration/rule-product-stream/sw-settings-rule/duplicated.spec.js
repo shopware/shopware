@@ -33,6 +33,8 @@ describe('Rule builder: Test duplication of rule', () => {
 
         cy.get('a[href="#/sw/settings/rule/create"]').click();
 
+        cy.get('.sw-skeleton').should('not.exist');
+
         // fill basic data
         cy.get('.sw-field').contains('.sw-field', 'Name').then((field) => {
             cy.get('input', { withinSubject: field }).type('Duplication RuleBuilder');

@@ -81,6 +81,10 @@ Component.register('sw-settings-rule-detail', {
             return criteria;
         },
 
+        appScriptConditionRepository() {
+            return this.repositoryFactory.create('app_script_condition');
+        },
+
         conditionRepository() {
             if (!this.rule) {
                 return null;
@@ -136,14 +140,33 @@ Component.register('sw-settings-rule-detail', {
         ruleId: {
             immediate: true,
             handler() {
-                if (!this.ruleId) {
-                    this.createRule();
-                    return;
-                }
-
                 this.isLoading = true;
-                this.loadEntityData(this.ruleId).then(() => {
-                    this.isLoading = false;
+                const context = { ...Context.api, languageId: Shopware.State.get('session').languageId };
+
+                this.appScriptConditionRepository.search(new Criteria(1, 500), context).then((scripts) => {
+                    scripts.forEach((script) => {
+                        this.ruleConditionDataProviderService.addCondition('scriptRule', {
+                            component: 'sw-condition-script',
+                            label: script?.translated?.name || script.name,
+                            scopes: script.group === 'item' ? ['global', 'lineItem'] : ['global'],
+                            group: script.group,
+                            scriptId: script.id,
+                            appScriptCondition: {
+                                id: script.id,
+                                config: script.config,
+                            },
+                        });
+                    });
+
+                    if (!this.ruleId) {
+                        this.isLoading = false;
+                        this.createRule();
+                        return;
+                    }
+
+                    this.loadEntityData(this.ruleId).then(() => {
+                        this.isLoading = false;
+                    });
                     this.setTreeFinishedLoading();
                 });
             },

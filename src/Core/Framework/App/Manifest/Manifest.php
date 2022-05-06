@@ -9,6 +9,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\CustomFields;
 use Shopware\Core\Framework\App\Manifest\Xml\Metadata;
 use Shopware\Core\Framework\App\Manifest\Xml\Payments;
 use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
+use Shopware\Core\Framework\App\Manifest\Xml\RuleConditions;
 use Shopware\Core\Framework\App\Manifest\Xml\Setup;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhooks;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
@@ -41,6 +42,8 @@ class Manifest
 
     private ?Payments $payments;
 
+    private ?RuleConditions $ruleConditions;
+
     private function __construct(
         string $path,
         Metadata $metadata,
@@ -51,7 +54,8 @@ class Manifest
         ?CustomFields $customFields,
         ?Webhooks $webhooks,
         ?Cookies $cookies,
-        ?Payments $payments
+        ?Payments $payments,
+        ?RuleConditions $ruleConditions
     ) {
         $this->path = $path;
         $this->metadata = $metadata;
@@ -63,6 +67,7 @@ class Manifest
         $this->webhooks = $webhooks;
         $this->cookies = $cookies;
         $this->payments = $payments;
+        $this->ruleConditions = $ruleConditions;
     }
 
     public static function createFromXmlFile(string $xmlFile): self
@@ -89,11 +94,13 @@ class Manifest
             $cookies = $cookies === null ? null : Cookies::fromXml($cookies);
             $payments = $doc->getElementsByTagName('payments')->item(0);
             $payments = $payments === null ? null : Payments::fromXml($payments);
+            $ruleConditions = $doc->getElementsByTagName('rule-conditions')->item(0);
+            $ruleConditions = $ruleConditions === null ? null : RuleConditions::fromXml($ruleConditions);
         } catch (\Exception $e) {
             throw new XmlParsingException($xmlFile, $e->getMessage());
         }
 
-        return new self(\dirname($xmlFile), $metadata, $setup, $admin, $permissions, $allowedHosts, $customFields, $webhooks, $cookies, $payments);
+        return new self(\dirname($xmlFile), $metadata, $setup, $admin, $permissions, $allowedHosts, $customFields, $webhooks, $cookies, $payments, $ruleConditions);
     }
 
     public function getPath(): string
@@ -158,6 +165,11 @@ class Manifest
     public function getPayments(): ?Payments
     {
         return $this->payments;
+    }
+
+    public function getRuleConditions(): ?RuleConditions
+    {
+        return $this->ruleConditions;
     }
 
     /**

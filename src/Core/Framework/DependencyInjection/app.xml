@@ -18,6 +18,10 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Subscriber\AppScriptConditionConstraintsSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\ShopId\ShopIdProvider" public="true">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="app.repository"/>
@@ -93,6 +97,12 @@
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister">
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\ScriptFileReader"/>
+            <argument type="service" id="app_script_condition.repository"/>
+            <argument type="service" id="app.repository"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister">
             <argument type="service" id="app_cms_block.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Cms\BlockTemplateLoader"/>
@@ -112,6 +122,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Payment\PaymentMethodStateService"/>
             <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\ActiveAppsLoader">
@@ -181,6 +192,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
             <argument type="service" id="event_dispatcher"/>
@@ -457,6 +469,14 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Aggregate\AppScriptConditionTranslation\AppScriptConditionTranslationDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
 

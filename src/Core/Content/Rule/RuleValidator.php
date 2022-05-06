@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Rule;
 
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionEntity;
+use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValida
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Exception\InvalidConditionException;
+use Shopware\Core\Framework\Rule\ScriptRule;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -42,14 +44,21 @@ class RuleValidator implements EventSubscriberInterface
      */
     private $ruleConditionRepository;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $appScriptConditionRepository;
+
     public function __construct(
         ValidatorInterface $validator,
         RuleConditionRegistry $ruleConditionRegistry,
-        EntityRepositoryInterface $ruleConditionRepository
+        EntityRepositoryInterface $ruleConditionRepository,
+        EntityRepositoryInterface $appScriptConditionRepository
     ) {
         $this->validator = $validator;
         $this->ruleConditionRegistry = $ruleConditionRegistry;
         $this->ruleConditionRepository = $ruleConditionRepository;
+        $this->appScriptConditionRepository = $appScriptConditionRepository;
     }
 
     public static function getSubscribedEvents(): array
@@ -78,7 +87,7 @@ class RuleValidator implements EventSubscriberInterface
             }
 
             if ($command instanceof InsertCommand) {
-                $this->validateCondition(null, $command, $writeException);
+                $this->validateCondition(null, $command, $writeException, $event->getContext());
 
                 continue;
             }
@@ -100,7 +109,8 @@ class RuleValidator implements EventSubscriberInterface
     private function validateCondition(
         ?RuleConditionEntity $condition,
         WriteCommand $command,
-        WriteException $writeException
+        WriteException $writeException,
+        Context $context
     ): void {
         $payload = $command->getPayload();
         $violationList = new ConstraintViolationList();
@@ -137,6 +147,10 @@ class RuleValidator implements EventSubscriberInterface
 
         $value = $this->getConditionValue($condition, $payload);
         $ruleInstance->assign($value);
+
+        if ($ruleInstance instanceof ScriptRule) {
+            $this->setScriptConstraints($ruleInstance, $condition, $payload, $context);
+        }
 
         $this->validateConsistence(
             $ruleInstance->getConstraints(),
@@ -204,7 +218,7 @@ class RuleValidator implements EventSubscriberInterface
             $id = Uuid::fromBytesToHex($command->getPrimaryKey()['id']);
             $condition = $conditions->get($id);
 
-            $this->validateCondition($condition, $command, $writeException);
+            $this->validateCondition($condition, $command, $writeException, $context);
         }
     }
 
@@ -238,5 +252,26 @@ class RuleValidator implements EventSubscriberInterface
             null,
             $code
         );
+    }
+
+    private function setScriptConstraints(
+        ScriptRule $ruleInstance,
+        ?RuleConditionEntity $condition,
+        array $payload,
+        Context $context
+    ): void {
+        $script = null;
+        if (isset($payload['script_id'])) {
+            $scriptId = Uuid::fromBytesToHex($payload['script_id']);
+            $script = $this->appScriptConditionRepository->search(new Criteria([$scriptId]), $context)->get($scriptId);
+        } elseif ($condition && $condition->getAppScriptCondition()) {
+            $script = $condition->getAppScriptCondition();
+        }
+
+        if (!$script instanceof AppScriptConditionEntity || !\is_array($script->getConstraints())) {
+            return;
+        }
+
+        $ruleInstance->setConstraints($script->getConstraints());
     }
 }

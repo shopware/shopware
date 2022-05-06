@@ -19,6 +19,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
+use Symfony\Component\Validator\Constraints\Choice;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class AppStateServiceTest extends TestCase
@@ -133,6 +136,7 @@ class AppStateServiceTest extends TestCase
         $criteria->addAssociation('templates');
         $criteria->addAssociation('paymentMethods.paymentMethod');
         $criteria->addAssociation('scripts');
+        $criteria->addAssociation('scriptConditions');
 
         /** @var AppEntity|null $app */
         $app = $this->appRepository->search($criteria, $this->context)->first();
@@ -141,6 +145,7 @@ class AppStateServiceTest extends TestCase
         $this->assertDefaultTemplate($app);
         $this->assertDefaultPaymentMethods($app);
         $this->assertDefaultScripts($app);
+        $this->assertDefaultScriptConditions($app);
     }
 
     private function assertDefaultTemplate(AppEntity $app): void
@@ -165,5 +170,24 @@ class AppStateServiceTest extends TestCase
         $script = $app->getScripts()->first();
         static::assertNotNull($script);
         static::assertSame($app->isActive(), $script->isActive());
+    }
+
+    private function assertDefaultScriptConditions(AppEntity $app): void
+    {
+        $scriptCondition = $app->getScriptConditions()->first();
+        static::assertNotNull($scriptCondition);
+        static::assertSame($app->isActive(), $scriptCondition->isActive());
+        static::assertEquals(
+            file_get_contents(__DIR__ . '/Manifest/_fixtures/test/Resources/scripts/rule-conditions/customer-group-rule-script.twig'),
+            $scriptCondition->getScript()
+        );
+        static::assertIsArray($scriptCondition->getConstraints());
+        static::assertArrayHasKey('operator', $scriptCondition->getConstraints());
+        static::assertArrayHasKey('customerGroupIds', $scriptCondition->getConstraints());
+        static::assertInstanceOf(NotBlank::class, $scriptCondition->getConstraints()['operator'][0]);
+        static::assertInstanceOf(NotBlank::class, $scriptCondition->getConstraints()['customerGroupIds'][0]);
+        static::assertInstanceOf(Choice::class, $scriptCondition->getConstraints()['operator'][1]);
+        static::assertInstanceOf(ArrayOfUuid::class, $scriptCondition->getConstraints()['customerGroupIds'][1]);
+        static::assertEquals(['=', '!='], $scriptCondition->getConstraints()['operator'][1]->choices);
     }
 }

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Script\Execution\FunctionHook;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\InterfaceHook;
 use Shopware\Core\Framework\Script\Execution\OptionalFunctionHook;
+use Shopware\Core\Framework\Script\Execution\TraceHook;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
@@ -96,7 +97,7 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
                 continue;
             }
 
-            if (is_subclass_of($class, FunctionHook::class)) {
+            if (is_subclass_of($class, FunctionHook::class) || is_subclass_of($class, TraceHook::class)) {
                 continue;
             }
 

@@ -132,4 +132,33 @@ Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
             <description>This is another description</description>
         </payment-method>
     </payments>
+    <rule-conditions>
+        <rule-condition>
+            <identifier>myCustomCondition</identifier>
+            <name>My custom rule condition</name>
+            <group>customer</group>
+            <script>customer-group-rule-script.twig</script>
+            <constraints>
+                <single-select name="operator">
+                    <label>Operator</label>
+                    <placeholder>Choose an operator...</placeholder>
+                    <options>
+                        <option value="=">
+                            <name>Is equal to</name>
+                        </option>
+                        <option value="!=">
+                            <name>Is not equal to</name>
+                        </option>
+                    </options>
+                    <required>true</required>
+                </single-select>
+                <multi-entity-select name="customerGroupIds">
+                    <label>Customer groups</label>
+                    <placeholder>Choose customer groups...</placeholder>
+                    <entity>customer_group</entity>
+                    <required>true</required>
+                </multi-entity-select>
+            </constraints>
+        </rule-condition>
+    </rule-conditions>
 </manifest>

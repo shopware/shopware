@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/Framework/App/Manifest/Schema/manifest-1.0.xsd">
+    <meta>
+        <name>withRuleConditions</name>
+        <label>Swag App Test</label>
+        <label lang="de-DE">Swag App Test</label>
+        <description>Test for App System</description>
+        <description lang="de-DE">Test für das App System</description>
+        <author>shopware AG</author>
+        <copyright>(c) by shopware AG</copyright>
+        <version>1.0.0</version>
+        <icon>icon.png</icon>
+        <license>MIT</license>
+        <privacy>https://test.com/privacy</privacy>
+    </meta>
+    <setup>
+        <registrationUrl>https://my.app.com/withRuleConditions/registration</registrationUrl>
+        <secret>s3cr3t</secret>
+    </setup>
+    <rule-conditions>
+        <rule-condition>
+            <identifier>testcondition0</identifier>
+            <name>Custom single select</name>
+            <group>misc</group>
+            <script>mock.twig</script>
+            <constraints>
+                <single-select name="operator">
+                    <options>
+                        <option value="=">
+                            <name>Is equal to</name>
+                        </option>
+                        <option value="!=">
+                            <name>Is not equal to</name>
+                        </option>
+                    </options>
+                    <required>true</required>
+                </single-select>
+            </constraints>
+        </rule-condition>
+        <rule-condition>
+            <identifier>testcondition1</identifier>
+            <name>Custom entity multi select</name>
+            <group>misc</group>
+            <script>mock.twig</script>
+            <constraints>
+                <multi-entity-select name="customerGroupIds">
+                    <entity>customer_group</entity>
+                    <required>true</required>
+                </multi-entity-select>
+            </constraints>
+        </rule-condition>
+        <rule-condition>
+            <identifier>testcondition2</identifier>
+            <name>Custom text</name>
+            <group>misc</group>
+            <script>mock.twig</script>
+            <constraints>
+                <text name="firstName">
+                    <required>true</required>
+                </text>
+            </constraints>
+        </rule-condition>
+        <rule-condition>
+            <identifier>testcondition3</identifier>
+            <name>Custom int</name>
+            <group>misc</group>
+            <script>mock.twig</script>
+            <constraints>
+                <int name="number">
+                    <required>true</required>
+                </int>
+            </constraints>
+        </rule-condition>
+        <rule-condition>
+            <identifier>testcondition4</identifier>
+            <name>Custom float</name>
+            <group>misc</group>
+            <script>mock.twig</script>
+            <constraints>
+                <float name="number">
+                    <required>true</required>
+                </float>
+            </constraints>
+        </rule-condition>
+        <rule-condition>
+            <identifier>testcondition5</identifier>
+            <name>Custom entity single select</name>
+            <group>misc</group>
+            <script>mock.twig</script>
+            <constraints>
+                <single-entity-select name="productId">
+                    <entity>product</entity>
+                    <required>true</required>
+                </single-entity-select>
+            </constraints>
+        </rule-condition>
+        <rule-condition>
+            <identifier>testcondition6</identifier>
+            <name>Custom bool</name>
+            <group>misc</group>
+            <script>mock.twig</script>
+            <constraints>
+                <bool name="expected">
+                </bool>
+            </constraints>
+        </rule-condition>
+        <rule-condition>
+            <identifier>testcondition7</identifier>
+            <name>Custom date</name>
+            <group>misc</group>
+            <script>mock.twig</script>
+            <constraints>
+                <datetime name="datetime">
+                    <required>true</required>
+                </datetime>
+            </constraints>
+        </rule-condition>
+        <rule-condition>
+            <identifier>testcondition8</identifier>
+            <name>Custom color</name>
+            <group>misc</group>
+            <script>mock.twig</script>
+            <constraints>
+                <color-picker name="colorcode">
+                    <required>true</required>
+                </color-picker>
+            </constraints>
+        </rule-condition>
+        <rule-condition>
+            <identifier>testcondition9</identifier>
+            <name>Custom media</name>
+            <group>misc</group>
+            <script>mock.twig</script>
+            <constraints>
+                <media-selection name="mediaId">
+                    <required>true</required>
+                </media-selection>
+            </constraints>
+        </rule-condition>
+        <rule-condition>
+            <identifier>testcondition10</identifier>
+            <name>Custom price</name>
+            <group>misc</group>
+            <script>mock.twig</script>
+            <constraints>
+                <price name="price">
+                    <required>true</required>
+                </price>
+            </constraints>
+        </rule-condition>
+        <rule-condition>
+            <identifier>testcondition11</identifier>
+            <name>Custom text area</name>
+            <group>misc</group>
+            <script>mock.twig</script>
+            <constraints>
+                <text-area name="firstName">
+                    <required>true</required>
+                </text-area>
+            </constraints>
+        </rule-condition>
+        <rule-condition>
+            <identifier>testcondition12</identifier>
+            <name>Custom multi select</name>
+            <group>misc</group>
+            <script>mock.twig</script>
+            <constraints>
+                <multi-select name="multiselection">
+                    <options>
+                        <option value="product">
+                            <name>Product</name>
+                        </option>
+                        <option value="promotion">
+                            <name>Promotion</name>
+                        </option>
+                    </options>
+                    <required>true</required>
+                </multi-select>
+            </constraints>
+        </rule-condition>
+        <rule-condition>
+            <identifier>testcondition13</identifier>
+            <name>Custom without values</name>
+            <group>misc</group>
+            <script>mock.twig</script>
+        </rule-condition>
+    </rule-conditions>
+</manifest>

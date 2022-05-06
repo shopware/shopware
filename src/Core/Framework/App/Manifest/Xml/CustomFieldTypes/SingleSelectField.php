@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes;
 
+use Shopware\Core\Framework\Util\XmlReader;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 
 /**
@@ -87,7 +88,11 @@ class SingleSelectField extends CustomFieldType
                 continue;
             }
 
-            $values = self::mapTranslatedTag($child, $values);
+            if (\in_array($child->tagName, self::TRANSLATABLE_FIELDS, true)) {
+                $values = self::mapTranslatedTag($child, $values);
+            } else {
+                $values[self::kebabCaseToCamelCase($child->tagName)] = XmlReader::phpize($child->nodeValue);
+            }
         }
 
         return $values;

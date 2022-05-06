@@ -31,6 +31,7 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslation\Prop
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGroupTranslationCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation\ActionButtonTranslationCollection;
+use Shopware\Core\Framework\App\Aggregate\AppScriptConditionTranslation\AppScriptConditionTranslationCollection;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\App\Aggregate\CmsBlockTranslation\AppCmsBlockTranslationCollection;
 use Shopware\Core\Framework\App\Aggregate\FlowActionTranslation\AppFlowActionTranslationCollection;
@@ -354,6 +355,11 @@ class LanguageEntity extends Entity
      * @var AppCmsBlockTranslationCollection|null
      */
     protected $appCmsBlockTranslations;
+
+    /**
+     * @var AppScriptConditionTranslationCollection|null
+     */
+    protected $appScriptConditionTranslations;
 
     /**
      * @var AppFlowActionTranslationCollection|null
@@ -948,6 +954,16 @@ class LanguageEntity extends Entity
     public function setAppCmsBlockTranslations(AppCmsBlockTranslationCollection $appCmsBlockTranslations): void
     {
         $this->appCmsBlockTranslations = $appCmsBlockTranslations;
+    }
+
+    public function getAppScriptConditionTranslations(): ?AppScriptConditionTranslationCollection
+    {
+        return $this->appScriptConditionTranslations;
+    }
+
+    public function setAppScriptConditionTranslations(AppScriptConditionTranslationCollection $appScriptConditionTranslations): void
+    {
+        $this->appScriptConditionTranslations = $appScriptConditionTranslations;
     }
 
     public function getAppFlowActionTranslations(): ?AppFlowActionTranslationCollection

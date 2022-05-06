@@ -24,6 +24,7 @@ class ScriptFileReader implements ScriptFileReaderInterface
         $finder = new Finder();
         $finder->files()
             ->in($scriptDirectory)
+            ->exclude('rule-conditions')
             ->name(self::ALLOWED_FILE_EXTENSIONS)
             ->ignoreUnreadableDirs();
 

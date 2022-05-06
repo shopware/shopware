@@ -128,8 +128,6 @@ class LineItem extends Struct
     protected ?string $dataContextHash = null;
 
     /**
-     * @internal
-     *
      * @throws InvalidQuantityException
      */
     public function __construct(string $id, string $type, ?string $referencedId = null, int $quantity = 1)

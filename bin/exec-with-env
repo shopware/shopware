@@ -63,7 +63,7 @@ $isTty = (function () {
 $process->setTty($isTty);
 $process->run(function ($type, $buffer): void {
     if ($type === Process::ERR) {
-        fwrite(\STDERR, "$buffer\n");
+        fwrite(\STDERR, "$buffer");
     } else {
         echo $buffer;
     }

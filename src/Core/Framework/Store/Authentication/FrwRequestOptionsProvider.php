@@ -32,6 +32,9 @@ class FrwRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
         return array_filter([self::SHOPWARE_TOKEN_HEADER => $this->getFrwUserToken($context)]);
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - parameter $language will be removed and $context must not be null in the future
+     */
     public function getDefaultQueryParameters(?Context $context, ?string $language = null): array
     {
         return $this->optionsProvider->getDefaultQueryParameters($context, $language);

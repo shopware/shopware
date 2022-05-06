@@ -30,8 +30,8 @@ class MailSendSubscriberBridgeEvent implements ShopwareEvent
     public function getContext(): Context
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'FlowSendMailActionEvent'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'FlowSendMailActionEvent')
         );
 
         return $this->businessEvent->getContext();
@@ -40,8 +40,8 @@ class MailSendSubscriberBridgeEvent implements ShopwareEvent
     public function getDataBag(): DataBag
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'FlowSendMailActionEvent'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'FlowSendMailActionEvent')
         );
 
         return $this->dataBag;
@@ -50,8 +50,8 @@ class MailSendSubscriberBridgeEvent implements ShopwareEvent
     public function getMailTemplate(): MailTemplateEntity
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'FlowSendMailActionEvent'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'FlowSendMailActionEvent')
         );
 
         return $this->mailTemplate;
@@ -60,8 +60,8 @@ class MailSendSubscriberBridgeEvent implements ShopwareEvent
     public function getBusinessEvent(): BusinessEvent
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'FlowSendMailActionEvent'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'FlowSendMailActionEvent')
         );
 
         return $this->businessEvent;

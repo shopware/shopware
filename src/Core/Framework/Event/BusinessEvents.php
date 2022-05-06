@@ -145,7 +145,7 @@ final class BusinessEvents
     public const NEWSLETTER_UNSUBSCRIBE = NewsletterUnsubscribeEvent::EVENT_NAME;
 
     /**
-     * @Event("Shopware\Core\Content\Newsletter\Event\NewsletterUpdateEvent")
+     * @Event("Shopware\Core\Content\Newsletter\Event\NewsletterUpdateEvent", "v6.5.0.0")
      *
      * @deprecated tag:v6.5.0 will be removed as it was not thrown
      */

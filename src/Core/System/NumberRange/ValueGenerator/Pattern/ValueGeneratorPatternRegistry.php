@@ -50,8 +50,8 @@ class ValueGeneratorPatternRegistry
     public function getPatternResolver(string $patternId): ?ValueGeneratorPatternInterface
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'ValueGeneratorPatternRegistry::generatePattern()'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'ValueGeneratorPatternRegistry::generatePattern()')
         );
 
         $generator = $this->pattern[$patternId] ?? null;

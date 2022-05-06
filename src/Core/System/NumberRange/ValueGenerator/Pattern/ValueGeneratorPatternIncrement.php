@@ -66,8 +66,8 @@ class ValueGeneratorPatternIncrement extends AbstractValueGenerator implements V
     public function resolve(NumberRangeEntity $configuration, ?array $args = null, ?bool $preview = false): string
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'ValueGeneratorPatternIncrement::generate()'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'ValueGeneratorPatternIncrement::generate()')
         );
 
         $config = [

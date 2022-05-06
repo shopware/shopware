@@ -8,6 +8,7 @@ use Shopware\Core\Content\Seo\Hreflang\HreflangStruct;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -78,6 +79,11 @@ class HreflangLoader implements HreflangLoaderInterface
      */
     protected function generateHreflangHome(SalesChannelContext $salesChannelContext): HreflangCollection
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'load()')
+        );
+
         $collection = new HreflangCollection();
 
         $criteria = new Criteria();

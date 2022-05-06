@@ -462,7 +462,7 @@ class MediaEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
      */
     public function getMediaTypeRaw(): ?string
     {
@@ -472,7 +472,7 @@ class MediaEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
      */
     public function setMediaTypeRaw(string $mediaTypeRaw): void
     {
@@ -500,7 +500,7 @@ class MediaEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
      */
     public function getThumbnailsRo(): ?string
     {
@@ -510,7 +510,7 @@ class MediaEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
      */
     public function setThumbnailsRo(string $thumbnailsRo): void
     {

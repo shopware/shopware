@@ -98,7 +98,7 @@ class BusinessEventCollector
         return new BusinessEventDefinition(
             $name,
             $class,
-            $instance instanceof MailActionInterface,
+            $instance instanceof MailAware,
             $instance instanceof LogAware,
             $instance instanceof SalesChannelAware,
             $instance::getAvailableData()->toArray(),

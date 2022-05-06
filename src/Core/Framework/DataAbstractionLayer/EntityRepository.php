@@ -64,8 +64,8 @@ class EntityRepository implements EntityRepositoryInterface
             $this->eventFactory = $eventFactory;
         } else {
             Feature::triggerDeprecationOrThrow(
-                sprintf('EntityRepository constructor for definition %s requires the event factory as required 7th parameter in v6.5.0.0', $definition->getEntityName()),
-                'v6.5.0.0'
+                'v6.5.0.0',
+                sprintf('EntityRepository constructor for definition %s requires the event factory as required 7th parameter in v6.5.0.0', $definition->getEntityName())
             );
         }
     }

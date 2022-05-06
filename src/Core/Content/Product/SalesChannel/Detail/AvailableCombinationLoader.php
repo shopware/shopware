@@ -34,8 +34,8 @@ class AvailableCombinationLoader
 
         if ($salesChannelId === null) {
             Feature::triggerDeprecationOrThrow(
-                \sprintf('"%s::%s()" will require the salesChannelId as third parameter in v6.5.0.0', __CLASS__, __METHOD__),
-                'v6.5.0.0'
+                'v6.5.0.0',
+                \sprintf('"%s::%s()" will require the salesChannelId as third parameter in v6.5.0.0', __CLASS__, __METHOD__)
             );
         }
 

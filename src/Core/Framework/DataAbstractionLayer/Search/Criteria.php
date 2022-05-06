@@ -120,8 +120,8 @@ class Criteria extends Struct implements \Stringable
         $ids = array_filter($ids);
         if (empty($ids)) {
             Feature::triggerDeprecationOrThrow(
-                'The `Criteria()` constructor does not support passing an empty array of ids from v6.5.0.0 onwards',
-                'v6.5.0.0'
+                'v6.5.0.0',
+                'The `Criteria()` constructor does not support passing an empty array of ids from v6.5.0.0 onwards'
             );
             if (Feature::isActive('FEATURE_NEXT_16710')) {
                 throw new \RuntimeException('Empty ids provided in criteria');

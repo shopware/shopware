@@ -169,8 +169,8 @@ class CountryEntity extends Entity
     public function getTaxFree(): bool
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'CountryEntity->getCustomerTax->getEnabled()'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'CountryEntity->getCustomerTax->getEnabled()')
         );
 
         return $this->taxFree;
@@ -182,8 +182,8 @@ class CountryEntity extends Entity
     public function setTaxFree(bool $taxFree): void
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'CountryEntity->getCustomerTax->setEnabled()'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'CountryEntity->getCustomerTax->setEnabled()')
         );
 
         $this->taxFree = $taxFree;
@@ -245,8 +245,8 @@ class CountryEntity extends Entity
     public function getCompanyTaxFree(): bool
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'CountryEntity->getCompanyTax->getEnabled()'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'CountryEntity->getCompanyTax->getEnabled()')
         );
 
         return $this->companyTaxFree;
@@ -258,8 +258,8 @@ class CountryEntity extends Entity
     public function setCompanyTaxFree(bool $companyTaxFree): void
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'CountryEntity->getCompanyTax->setEnabled()'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'CountryEntity->getCompanyTax->setEnabled()')
         );
 
         $this->companyTaxFree = $companyTaxFree;

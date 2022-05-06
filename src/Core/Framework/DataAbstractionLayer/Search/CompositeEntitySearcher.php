@@ -34,8 +34,8 @@ class CompositeEntitySearcher
     public function search(string $term, int $limit, Context $context): array
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', '\Shopware\Administration\Service\AdminSearcher::search()'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', '\Shopware\Administration\Service\AdminSearcher::search()')
         );
 
         $entities = [];

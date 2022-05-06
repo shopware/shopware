@@ -26,7 +26,7 @@ class ProductActionController extends AbstractController
     }
 
     /**
-     * @deprecated tag:v6.5.0 - native return type JsonResponse will be added
+     * @deprecated tag:v6.5.0 - reason:return-type-change - native return type JsonResponse will be added
      *
      * @Since("6.0.0.0")
      * @Route("/api/_action/product/{productId}/combinations", name="api.action.product.combinations", methods={"GET"})

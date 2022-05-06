@@ -586,16 +586,6 @@ parameters:
 			path: src/Core/Checkout/Test/Payment/Handler/V630/SyncTestPaymentHandler.php
 
 		-
-			message: "#^Method \"getTotal\" of class \"Shopware\\\\Core\\\\Content\\\\Category\\\\DataAbstractionLayer\\\\CategoryIndexer\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Category/DataAbstractionLayer/CategoryIndexer.php
-
-		-
-			message: "#^Method \"iterate\" of class \"Shopware\\\\Core\\\\Content\\\\Category\\\\DataAbstractionLayer\\\\CategoryIndexer\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Category/DataAbstractionLayer/CategoryIndexer.php
-
-		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Content\\\\Category\\\\CategoryEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Category/Tree/Tree.php
@@ -664,21 +654,6 @@ parameters:
 			message: "#^Cannot call method getBlocks\\(\\) on Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSection\\\\CmsSectionCollection\\|null\\.$#"
 			count: 3
 			path: src/Core/Content/Cms/SalesChannel/SalesChannelCmsPageLoader.php
-
-		-
-			message: "#^Method \"getPayload\" of class \"Shopware\\\\Core\\\\Content\\\\Flow\\\\FlowEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Flow/FlowEntity.php
-
-		-
-			message: "#^Method \"setPayload\" of class \"Shopware\\\\Core\\\\Content\\\\Flow\\\\FlowEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Flow/FlowEntity.php
-
-		-
-			message: "#^Method \"iterate\" of class \"Shopware\\\\Core\\\\Content\\\\Flow\\\\Indexing\\\\FlowIndexer\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Flow/Indexing/FlowIndexer.php
 
 		-
 			message: "#^Cannot access offset 'path' on array\\{scheme\\?\\: string, host\\?\\: string, port\\?\\: int, user\\?\\: string, pass\\?\\: string, path\\?\\: string, query\\?\\: string, fragment\\?\\: string\\}\\|false\\.$#"
@@ -861,16 +836,6 @@ parameters:
 			path: src/Core/Content/ImportExport/ImportExportFactory.php
 
 		-
-			message: "#^Method \"getDefault\" of class \"Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Mapping\\\\Mapping\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Mapping/Mapping.php
-
-		-
-			message: "#^Method \"getMappedDefault\" of class \"Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Mapping\\\\Mapping\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Mapping/Mapping.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Mapping\\\\Mapping\\:\\:__construct\\(\\) has parameter \\$default with no type specified\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/Processing/Mapping/Mapping.php
@@ -971,11 +936,6 @@ parameters:
 			path: src/Core/Content/ImportExport/Struct/Config.php
 
 		-
-			message: "#^Method \"iterate\" of class \"Shopware\\\\Core\\\\Content\\\\LandingPage\\\\DataAbstractionLayer\\\\LandingPageIndexer\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/LandingPage/DataAbstractionLayer/LandingPageIndexer.php
-
-		-
 			message: "#^Method \"getMediaThumbnailSizesRo\" of class \"Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolderConfiguration\\\\MediaFolderConfigurationEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
 			count: 1
 			path: src/Core/Content/Media/Aggregate/MediaFolderConfiguration/MediaFolderConfigurationEntity.php
@@ -1016,24 +976,9 @@ parameters:
 			path: src/Core/Content/Media/Commands/GenerateMediaTypesCommand.php
 
 		-
-			message: "#^Method \"iterate\" of class \"Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaFolderConfigurationIndexer\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Media/DataAbstractionLayer/MediaFolderConfigurationIndexer.php
-
-		-
-			message: "#^Method \"iterate\" of class \"Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaFolderIndexer\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Media/DataAbstractionLayer/MediaFolderIndexer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaFolderRepositoryDecorator\\:\\:getRawIds\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Content/Media/DataAbstractionLayer/MediaFolderRepositoryDecorator.php
-
-		-
-			message: "#^Method \"iterate\" of class \"Shopware\\\\Core\\\\Content\\\\Media\\\\DataAbstractionLayer\\\\MediaIndexer\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Media/DataAbstractionLayer/MediaIndexer.php
 
 		-
 			message: "#^Cannot call method getIds\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailCollection\\|null\\.$#"
@@ -1126,26 +1071,6 @@ parameters:
 			path: src/Core/Content/Media/File/FileSaver.php
 
 		-
-			message: "#^Method \"getMediaTypeRaw\" of class \"Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Media/MediaEntity.php
-
-		-
-			message: "#^Method \"getThumbnailsRo\" of class \"Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Media/MediaEntity.php
-
-		-
-			message: "#^Method \"setMediaTypeRaw\" of class \"Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Media/MediaEntity.php
-
-		-
-			message: "#^Method \"setThumbnailsRo\" of class \"Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Media/MediaEntity.php
-
-		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolderConfiguration\\\\MediaFolderConfigurationEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Media/MediaFolderService.php
@@ -1202,16 +1127,6 @@ parameters:
 
 		-
 			message: "#^Cannot call method getIds\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaThumbnail\\\\MediaThumbnailCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
-
-		-
-			message: "#^Method \"generateThumbnails\" of class \"Shopware\\\\Core\\\\Content\\\\Media\\\\Thumbnail\\\\ThumbnailService\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
-
-		-
-			message: "#^Method \"updateThumbnails\" of class \"Shopware\\\\Core\\\\Content\\\\Media\\\\Thumbnail\\\\ThumbnailService\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
 			count: 1
 			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
 
@@ -1291,41 +1206,6 @@ parameters:
 			path: src/Core/Content/Media/TypeDetector/TypeDetector.php
 
 		-
-			message: "#^Method \"iterate\" of class \"Shopware\\\\Core\\\\Content\\\\Newsletter\\\\DataAbstractionLayer\\\\NewsletterRecipientIndexer\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Newsletter/DataAbstractionLayer/NewsletterRecipientIndexer.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Content\\\\Newsletter\\\\Event\\\\NewsletterUpdateEvent\" is marked as deprecated, but method \"getAvailableData\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Newsletter/Event/NewsletterUpdateEvent.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Content\\\\Newsletter\\\\Event\\\\NewsletterUpdateEvent\" is marked as deprecated, but method \"getContext\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Newsletter/Event/NewsletterUpdateEvent.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Content\\\\Newsletter\\\\Event\\\\NewsletterUpdateEvent\" is marked as deprecated, but method \"getMailStruct\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Newsletter/Event/NewsletterUpdateEvent.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Content\\\\Newsletter\\\\Event\\\\NewsletterUpdateEvent\" is marked as deprecated, but method \"getName\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Newsletter/Event/NewsletterUpdateEvent.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Content\\\\Newsletter\\\\Event\\\\NewsletterUpdateEvent\" is marked as deprecated, but method \"getNewsletterRecipient\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Newsletter/Event/NewsletterUpdateEvent.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Content\\\\Newsletter\\\\Event\\\\NewsletterUpdateEvent\" is marked as deprecated, but method \"getSalesChannelId\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Newsletter/Event/NewsletterUpdateEvent.php
-
-		-
 			message: "#^Cannot call method getElements\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelDomain\\\\SalesChannelDomainCollection\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Newsletter/SalesChannel/NewsletterSubscribeRoute.php
@@ -1351,11 +1231,6 @@ parameters:
 			path: src/Core/Content/Product/Aggregate/ProductReview/ProductReviewEntity.php
 
 		-
-			message: "#^Method \"getCombinations\" of class \"Shopware\\\\Core\\\\Content\\\\Product\\\\Api\\\\ProductActionController\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Api/ProductActionController.php
-
-		-
 			message: "#^Cannot call method format\\(\\) on DateTimeInterface\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Cart/ProductCartProcessor.php
@@ -1369,26 +1244,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Cart\\\\ProductLineItemCommandValidator\\:\\:findProducts\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Cart/ProductLineItemCommandValidator.php
-
-		-
-			message: "#^Method \"getDecorated\" of class \"Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductIndexer\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/ProductIndexer.php
-
-		-
-			message: "#^Method \"getTotal\" of class \"Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductIndexer\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/ProductIndexer.php
-
-		-
-			message: "#^Method \"iterate\" of class \"Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductIndexer\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/ProductIndexer.php
-
-		-
-			message: "#^Method \"iterate\" of class \"Shopware\\\\Core\\\\Content\\\\Product\\\\DataAbstractionLayer\\\\ProductStreamUpdater\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Product/DataAbstractionLayer/ProductStreamUpdater.php
 
 		-
 			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderLineItem\\\\OrderLineItemCollection\\|null supplied for foreach, only iterables are supported\\.$#"
@@ -1419,11 +1274,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$id of method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Service\\\\ProductStreamBuilderInterface\\:\\:buildFilters\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SalesChannel/CrossSelling/ProductCrossSellingRoute.php
-
-		-
-			message: "#^Method \"addCombination\" of class \"Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Detail\\\\AvailableCombinationResult\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Detail/AvailableCombinationResult.php
 
 		-
 			message: "#^Argument of an invalid type array\\|null supplied for foreach, only iterables are supported\\.$#"
@@ -1464,16 +1314,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Listing\\\\ProductListingResult\\:\\:getCurrentFilter\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SalesChannel/Listing/ProductListingResult.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannelProductBuilder\" is marked as deprecated, but method \"build\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannelProductBuilder.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannelProductBuilder\" is marked as deprecated, but method \"getDecorated\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannelProductBuilder.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductExport\\\\Api\\\\ProductExportController\\:\\:generateExportPreview\\(\\) should return Shopware\\\\Core\\\\Content\\\\ProductExport\\\\Struct\\\\ProductExportResult but returns Shopware\\\\Core\\\\Content\\\\ProductExport\\\\Struct\\\\ProductExportResult\\|null\\.$#"
@@ -1526,34 +1366,14 @@ parameters:
 			path: src/Core/Content/ProductExport/Service/ProductExporter.php
 
 		-
-			message: "#^Method \"iterate\" of class \"Shopware\\\\Core\\\\Content\\\\ProductStream\\\\DataAbstractionLayer\\\\ProductStreamIndexer\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/ProductStream/DataAbstractionLayer/ProductStreamIndexer.php
-
-		-
 			message: "#^Parameter \\#1 \\$object of static method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\:\\:createFrom\\(\\) expects Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct, Shopware\\\\Core\\\\Content\\\\Property\\\\PropertyGroupEntity\\|null given\\.$#"
 			count: 1
 			path: src/Core/Content/Property/Aggregate/PropertyGroupOption/PropertyGroupOptionCollection.php
 
 		-
-			message: "#^Method \"iterate\" of class \"Shopware\\\\Core\\\\Content\\\\Rule\\\\DataAbstractionLayer\\\\RuleIndexer\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Rule/DataAbstractionLayer/RuleIndexer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleCollection\\:\\:filterMatchingRules\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Content/Rule/RuleCollection.php
-
-		-
-			message: "#^Method \"getPayload\" of class \"Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Rule/RuleEntity.php
-
-		-
-			message: "#^Method \"setPayload\" of class \"Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Content/Rule/RuleEntity.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleEntity\\:\\:getPayload\\(\\) has no return type specified\\.$#"
@@ -1582,11 +1402,6 @@ parameters:
 
 		-
 			message: "#^Cannot call method getLocale\\(\\) on Shopware\\\\Core\\\\System\\\\Language\\\\LanguageEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/HreflangLoader.php
-
-		-
-			message: "#^Method \"generateHreflangHome\" of class \"Shopware\\\\Core\\\\Content\\\\Seo\\\\HreflangLoader\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
 			count: 1
 			path: src/Core/Content/Seo/HreflangLoader.php
 
@@ -3022,16 +2837,6 @@ parameters:
 
 		-
 			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexer\" is marked as deprecated, but method \"getOptions\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Indexing/EntityIndexer.php
-
-		-
-			message: "#^Method \"getDecorated\" of class \"Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexer\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Indexing/EntityIndexer.php
-
-		-
-			message: "#^Method \"getTotal\" of class \"Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexer\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Indexing/EntityIndexer.php
 
@@ -5511,19 +5316,9 @@ parameters:
 			path: src/Storefront/Framework/Cache/ReverseProxy/AbstractReverseProxyGateway.php
 
 		-
-			message: "#^Method \"banAll\" of class \"Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\FastlyReverseProxyGateway\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/ReverseProxy/FastlyReverseProxyGateway.php
-
-		-
 			message: "#^Method \"tag\" of class \"Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\FastlyReverseProxyGateway\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Cache/ReverseProxy/FastlyReverseProxyGateway.php
-
-		-
-			message: "#^Method \"banAll\" of class \"Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\RedisReverseProxyGateway\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/ReverseProxy/RedisReverseProxyGateway.php
 
 		-
 			message: "#^Method \"tag\" of class \"Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\RedisReverseProxyGateway\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
@@ -5569,11 +5364,6 @@ parameters:
 			message: "#^Method \"isValid\" of class \"Shopware\\\\Storefront\\\\Framework\\\\Captcha\\\\HoneypotCaptcha\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Captcha/HoneypotCaptcha.php
-
-		-
-			message: "#^Method \"configure\" of class \"Shopware\\\\Storefront\\\\Framework\\\\Command\\\\SalesChannelCreateStorefrontCommand\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Command/SalesChannelCreateStorefrontCommand.php
 
 		-
 			message: "#^Method \"getSnippetSetId\" of class \"Shopware\\\\Storefront\\\\Framework\\\\Command\\\\SalesChannelCreateStorefrontCommand\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
@@ -5799,17 +5589,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Storefront\\:\\:buildConfig\\(\\) has parameter \\$environment with no type specified\\.$#"
 			count: 1
 			path: src/Storefront/Storefront.php
-
-		-
-			message: "#^Method \"getDecorated\" of class \"Shopware\\\\Storefront\\\\Theme\\\\DataAbstractionLayer\\\\ThemeIndexer\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Theme/DataAbstractionLayer/ThemeIndexer.php
-
-		-
-			message: "#^Method \"getTotal\" of class \"Shopware\\\\Storefront\\\\Theme\\\\DataAbstractionLayer\\\\ThemeIndexer\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Theme/DataAbstractionLayer/ThemeIndexer.php
-
 		-
 			message: "#^Method \"iterate\" of class \"Shopware\\\\Storefront\\\\Theme\\\\DataAbstractionLayer\\\\ThemeIndexer\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
 			count: 1

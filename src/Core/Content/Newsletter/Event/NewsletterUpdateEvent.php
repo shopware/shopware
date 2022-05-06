@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
+use Shopware\Core\Framework\Feature;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
@@ -49,27 +50,52 @@ class NewsletterUpdateEvent extends Event implements SalesChannelAware, MailAwar
 
     public static function getAvailableData(): EventDataCollection
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0')
+        );
+
         return (new EventDataCollection())
             ->add('newsletterRecipient', new EntityType(NewsletterRecipientDefinition::class));
     }
 
     public function getName(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0')
+        );
+
         return self::EVENT_NAME;
     }
 
     public function getContext(): Context
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0')
+        );
+
         return $this->context;
     }
 
     public function getNewsletterRecipient(): NewsletterRecipientEntity
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0')
+        );
+
         return $this->newsletterRecipient;
     }
 
     public function getMailStruct(): MailRecipientStruct
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0')
+        );
+
         if (!$this->mailRecipientStruct instanceof MailRecipientStruct) {
             $this->mailRecipientStruct = new MailRecipientStruct([
                 $this->newsletterRecipient->getEmail() => $this->newsletterRecipient->getFirstName() . ' ' . $this->newsletterRecipient->getLastName(),
@@ -81,6 +107,11 @@ class NewsletterUpdateEvent extends Event implements SalesChannelAware, MailAwar
 
     public function getSalesChannelId(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0')
+        );
+
         return $this->salesChannelId;
     }
 }

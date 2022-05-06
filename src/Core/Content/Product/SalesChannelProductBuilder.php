@@ -3,11 +3,12 @@
 namespace Shopware\Core\Content\Product;
 
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @deprecated tag:v6.5.0 - Call the AbstractPropertyGroupSorter, AbstractProductMaxPurchaseCalculator, AbstractIsNewDetector by using the respective services instead.
+ * @deprecated tag:v6.5.0 - Will be removed, call the AbstractPropertyGroupSorter, AbstractProductMaxPurchaseCalculator, AbstractIsNewDetector by using the respective services instead.
  */
 class SalesChannelProductBuilder extends AbstractSalesChannelProductBuilder
 {
@@ -29,11 +30,21 @@ class SalesChannelProductBuilder extends AbstractSalesChannelProductBuilder
 
     public function getDecorated(): AbstractSalesChannelProductBuilder
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'AbstractPropertyGroupSorter, AbstractProductMaxPurchaseCalculator, AbstractIsNewDetector')
+        );
+
         throw new DecorationPatternException(self::class);
     }
 
     public function build(SalesChannelProductEntity $product, SalesChannelContext $context): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'AbstractPropertyGroupSorter, AbstractProductMaxPurchaseCalculator, AbstractIsNewDetector')
+        );
+
         if (($properties = $product->getProperties()) !== null) {
             $product->setSortedProperties(
                 $this->propertyGroupSorter->sort($properties)

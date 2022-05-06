@@ -39,8 +39,8 @@ class SalesChannelContextPersister
 
         if (!$cartPersister instanceof AbstractCartPersister) {
             Feature::triggerDeprecationOrThrow(
-                'CartPersister parameter in SalesChannelContextPersister::__construct needs to be instance of AbstractCartPersister in v6.5.0.0',
-                'v6.5.0.0'
+                'v6.5.0.0',
+                'CartPersister parameter in SalesChannelContextPersister::__construct needs to be instance of AbstractCartPersister in v6.5.0.0'
             );
         }
         $this->cartPersister = $cartPersister;
@@ -77,8 +77,8 @@ class SalesChannelContextPersister
     {
         if ($salesChannelId === null) {
             Feature::triggerDeprecationOrThrow(
-                'Parameter `$salesChannelId` in `SalesChannelContextPersister::delete` will be required with v6.5.0.0',
-                'v6.5.0.0'
+                'v6.5.0.0',
+                'Parameter `$salesChannelId` in `SalesChannelContextPersister::delete` will be required with v6.5.0.0'
             );
         }
 

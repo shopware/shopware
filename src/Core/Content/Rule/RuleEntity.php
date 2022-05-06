@@ -139,7 +139,7 @@ class RuleEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
      */
     public function getPayload()
     {
@@ -149,7 +149,7 @@ class RuleEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Will be internal from 6.5.0 onward
+     * @deprecated tag:v6.5.0 - reason:becomes-internal - Will be internal from 6.5.0 onward
      */
     public function setPayload($payload): void
     {
@@ -356,8 +356,8 @@ class RuleEntity extends Entity
     public function getEventActions(): ?EventActionCollection
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
         );
 
         return $this->eventActions;
@@ -369,8 +369,8 @@ class RuleEntity extends Entity
     public function setEventActions(EventActionCollection $eventActions): void
     {
         Feature::triggerDeprecationOrThrow(
-            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
         );
 
         $this->eventActions = $eventActions;

@@ -73,6 +73,8 @@ LUA;
 
     /**
      * @param string[] $tags
+     *
+     * @deprecated tag:v6.5.0 - Parameter $response will be required
      */
     public function tag(array $tags, string $url/*, Response $response */): void
     {

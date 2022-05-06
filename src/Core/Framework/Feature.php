@@ -105,8 +105,8 @@ class Feature
     public static function triggerDeprecated(string $flag, string $sinceVersion, string $removeVersion, string $message, ...$args): void
     {
         self::triggerDeprecationOrThrow(
-            self::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'Feature::triggerDeprecationOrThrow()'),
-            'v6.5.0.0'
+            'v6.5.0.0',
+            self::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'Feature::triggerDeprecationOrThrow()')
         );
 
         $message = 'Deprecated tag:' . $removeVersion . '(flag:' . $flag . '). ' . $message;
@@ -126,7 +126,7 @@ class Feature
         ScriptTraces::addDeprecationNotice($message);
     }
 
-    public static function triggerDeprecationOrThrow(string $message, string $majorFlag): void
+    public static function triggerDeprecationOrThrow(string $majorFlag, string $message): void
     {
         if (self::isActive($majorFlag) || !self::has($majorFlag)) {
             throw new \RuntimeException('Tried to access deprecated functionality: ' . $message);
@@ -152,7 +152,7 @@ class Feature
         return $message;
     }
 
-    public static function deprecatedClassMessage(string $class, string $majorVersion, ?string $replacement): string
+    public static function deprecatedClassMessage(string $class, string $majorVersion, ?string $replacement = null): string
     {
         $message = \sprintf(
             'Class "%s" is deprecated and will be removed in %s.',

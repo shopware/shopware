@@ -11,6 +11,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
@@ -59,6 +61,33 @@ class ProductListRouteTest extends TestCase
         static::assertSame(15, $response['total']);
         static::assertCount(15, $response['elements']);
         static::assertSame('product', $response['elements'][0]['apiAlias']);
+    }
+
+    public function testFetchingTranslations(): void
+    {
+        $this->browser->request(
+            'GET',
+            '/store-api/product',
+            [
+                'ids' => [$this->ids->get('product1')],
+                'associations' => ['translations' => []],
+            ]
+        );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertArrayHasKey('elements', $response);
+        static::assertCount(1, $response['elements']);
+        static::assertArrayHasKey('translations', $response['elements'][0]);
+        static::assertCount(2, $response['elements'][0]['translations']);
+
+        $languages = \array_column($response['elements'][0]['translations'], 'languageId');
+        static::assertContains(Defaults::LANGUAGE_SYSTEM, $languages);
+        static::assertContains($this->ids->get('language'), $languages);
+
+        $names = \array_column($response['elements'][0]['translations'], 'name');
+        static::assertContains('Test-Product', $names);
+        static::assertContains('Other translation', $names);
     }
 
     /**
@@ -203,28 +232,35 @@ class ProductListRouteTest extends TestCase
 
     private function createData(): void
     {
-        $product = [
-            'name' => 'test',
-            'stock' => 10,
-            'price' => [
-                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
-            ],
-            'tax' => ['name' => 'test', 'taxRate' => 15],
-            'active' => true,
-        ];
-
         $products = [];
-        for ($i = 0; $i < 15; ++$i) {
-            $products[] = array_merge(
+
+        $this->getContainer()->get('language.repository')->create(
+            [
                 [
-                    'id' => $this->ids->create('product' . $i),
-                    'active' => true,
-                    'manufacturer' => ['id' => $this->ids->create('manufacturer-' . $i), 'name' => 'test-' . $i],
-                    'productNumber' => $this->ids->get('product' . $i),
-                    'name' => 'Test-Product',
+                    'id' => $this->ids->create('language'),
+                    'name' => 'foo',
+                    'localeId' => $this->getLocaleIdOfSystemLanguage(),
+                    'translationCode' => [
+                        'code' => Uuid::randomHex(),
+                        'name' => 'Test locale',
+                        'territory' => 'test',
+                    ],
+                    'salesChannels' => [
+                        ['id' => TestDefaults::SALES_CHANNEL],
+                    ],
                 ],
-                $product
-            );
+            ],
+            Context::createDefaultContext()
+        );
+
+        for ($i = 0; $i < 15; ++$i) {
+            $products[] = (new ProductBuilder($this->ids, 'product' . $i))
+                ->name('Test-Product')
+                ->stock(10)
+                ->price(15)
+                ->translation($this->ids->create('language'), 'name', 'Other translation')
+                ->manufacturer('manufacturer-' . $i)
+                ->build();
         }
 
         $data = [

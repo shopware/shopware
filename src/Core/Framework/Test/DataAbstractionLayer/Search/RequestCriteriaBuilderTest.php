@@ -203,4 +203,32 @@ class RequestCriteriaBuilderTest extends TestCase
         static::assertCount(1, $sorting);
         static::assertEquals('_score', $sorting[0]->getField());
     }
+
+    public function testMaxLimitForAssociations(): void
+    {
+        $builder = new RequestCriteriaBuilder(
+            $this->getContainer()->get(AggregationParser::class),
+            $this->getContainer()->get(ApiCriteriaValidator::class),
+            $this->getContainer()->get(CriteriaArrayConverter::class),
+            100
+        );
+
+        $payload = [
+            'associations' => [
+                'options' => ['limit' => 101],
+                'prices' => ['limit' => null],
+                'categories' => [],
+            ],
+        ];
+
+        $criteria = $builder->fromArray($payload, new Criteria(), $this->getContainer()->get(ProductDefinition::class), Context::createDefaultContext());
+
+        static::assertTrue($criteria->hasAssociation('options'));
+        static::assertTrue($criteria->hasAssociation('categories'));
+
+        static::assertEquals(100, $criteria->getLimit());
+        static::assertEquals(101, $criteria->getAssociation('options')->getLimit());
+        static::assertNull($criteria->getAssociation('prices')->getLimit());
+        static::assertNull($criteria->getAssociation('categories')->getLimit());
+    }
 }

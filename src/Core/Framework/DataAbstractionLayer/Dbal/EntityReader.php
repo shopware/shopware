@@ -832,6 +832,16 @@ class EntityReader implements EntityReaderInterface
 
         $foreignKey = $association->getReferenceField();
 
+        if (!$association->getReferenceDefinition()->getField('id')) {
+            throw new \RuntimeException(
+                sprintf(
+                    'Paginated to many association must have an id field. No id field found for association %s.%s',
+                    $definition->getEntityName(),
+                    $association->getPropertyName()
+                )
+            );
+        }
+
         //build sql accessor for foreign key field in reference table `customer_address.customer_id`
         $sqlAccessor = EntityDefinitionQueryHelper::escape($association->getReferenceDefinition()->getEntityName()) . '.'
             . EntityDefinitionQueryHelper::escape($foreignKey);

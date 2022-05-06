@@ -1,6 +1,9 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/2020-08-03-Implement-New-Changelog.md).
 
+## 6.4.11.1
+*  [NEXT-21458 - Filter inactive root categories](/changelog/release-6-4-11-1/2022-05-05-filter-inactive-root-categories.md)
+
 ## 6.4.11.0
 *  [NEXT-21300 - Saving variant bulk edit action "Add" and "Overwrite" for advanced pricing not possible](/changelog/release-6-4-11-0/2020-04-26-fix-bulk-edit-variant-advanced-pricing-work-not-correct.md)
 *  [NEXT-19367 - Adding the new filter for product variants modal](/changelog/release-6-4-11-0/2022-01-04-adding-the-new-filter-for-product-variant-modal.md)

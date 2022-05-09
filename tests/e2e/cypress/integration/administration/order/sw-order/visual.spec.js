@@ -55,6 +55,7 @@ describe('Order: Visual tests', () => {
             .should('have.css', 'color', 'rgb(255, 255, 255)');
 
         // Take snapshot for visual testing
+        cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Order] Listing', '.sw-order-list', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
@@ -63,6 +64,7 @@ describe('Order: Visual tests', () => {
         cy.get('.sw-context-menu')
             .should('be.visible');
 
+        cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Order] Listing, Context menu open', '.sw-page', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
         cy.get('.sw-order-list__order-view-action').click();
@@ -107,7 +109,8 @@ describe('Order: Visual tests', () => {
                 .should('have.css', 'color', 'rgb(240, 242, 245)');
         });
         // Take snapshot for visual testing
-        cy.takeSnapshot('[Order] Detail', '.sw-order-detail');
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('[Order] Detail', '.sw-order-detail', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 
     it('@visual: check appearance of order creation workflow', () => {

@@ -171,8 +171,11 @@ export default class FormAutoSubmitPlugin extends Plugin {
     _updateRedirectParameters() {
         const urlParams = new URLSearchParams(window.location.search);
         const params = Object.fromEntries(urlParams.entries());
+        const formData = FormSerializeUtil.serialize(this._form);
 
-        Object.keys(params).map(param => this._createInputForRedirectParameter(param, params[param]))
+        Object.keys(params)
+            .filter(param => !formData.has(`redirectParameters[${param}]`))
+            .map(param => this._createInputForRedirectParameter(param, params[param]))
             .forEach((input) => {
                 this._form.appendChild(input);
             });

@@ -241,6 +241,66 @@ class CheckoutControllerTest extends TestCase
         }
     }
 
+    /**
+     * @dataProvider errorDataProvider
+     *
+     * @param string[] $errorKeys
+     */
+    public function testConfirmWithErrorsFlash(ErrorCollection $errors, array $errorKeys, bool $testSwitchToDefault = false): void
+    {
+        $browser = $this->getBrowserWithLoggedInCustomer();
+        $browser->followRedirects(true);
+        $browserSalesChannelId = $browser->getServerParameter('test-sales-channel-id');
+
+        $productId = Uuid::randomHex();
+        $this->createProductOnDatabase($productId, 'test.123', $browserSalesChannelId);
+
+        foreach ($errors as $error) {
+            $this->prepareErrors(
+                $error,
+                $browser,
+                $browserSalesChannelId,
+                $productId,
+                $testSwitchToDefault
+            );
+        }
+
+        // Always add a product to the cart
+        $browser->request(
+            'POST',
+            '/checkout/product/add-by-number',
+            [
+                'number' => 'test.123',
+            ]
+        );
+        $response = $browser->getResponse();
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $browser->request(
+            'GET',
+            '/checkout/confirm'
+        );
+        $response = $browser->getResponse();
+        $contentReturn = $response->getContent();
+        static::assertNotFalse($contentReturn);
+
+        $crawler = new Crawler();
+        $crawler->addHtmlContent($contentReturn);
+        $errorContent = implode('', $crawler->filterXPath('//div[@class="alert-content"]')->each(static function ($node) {
+            return $node->text();
+        }));
+        foreach ($errorKeys as $errorKey) {
+            static::assertStringContainsString($errorKey, $errorContent);
+        }
+        if ($testSwitchToDefault) {
+            $activeShippingMethod = $crawler->filterXPath('//div[contains(concat(" ",normalize-space(@class)," "), " shipping-method-radio ")][input/@checked]')->text();
+            static::assertStringContainsString('Standard', $activeShippingMethod);
+
+            $activePaymentMethod = $crawler->filterXPath('//div[contains(concat(" ",normalize-space(@class)," "), " payment-method-radio ")][input/@checked]')->text();
+            static::assertStringContainsString('Paid in advance', $activePaymentMethod);
+        }
+    }
+
     public function errorDataProvider(): array
     {
         return [

@@ -1,10 +1,11 @@
+import type { ShopwareClass } from 'src/core/shopware';
 import extensionStore from './extensions.store';
 
-export default function initState(Shopware) {
+export default function initState(Shopware: ShopwareClass): void {
     Shopware.State.registerModule('shopwareExtensions', extensionStore);
 
     let languageId = Shopware.State.get('session').languageId;
-    Shopware.State._store.subscribe(({ type }, state) => {
+    Shopware.State._store.subscribe(async ({ type }, state): Promise<void> => {
         if (!Shopware.Service('acl').can('system.plugin_maintain')) {
             return;
         }
@@ -16,8 +17,8 @@ export default function initState(Shopware) {
                 return;
             }
 
-            Shopware.Service('shopwareExtensionService').updateExtensionData();
             languageId = state.session.languageId;
+            await Shopware.Service('shopwareExtensionService').updateExtensionData().then();
         }
     });
 }

@@ -64,7 +64,13 @@ Component.register('sw-settings-rule-detail-assignments', {
 
     computed: {
         getRuleAssignmentConfiguration() {
-            return RuleAssignmentConfigurationService(this.rule.id, this.associationLimit).getConfiguration();
+            const config = RuleAssignmentConfigurationService(this.rule.id, this.associationLimit).getConfiguration();
+
+            if (this.feature.isActive('v6.5.0.0')) {
+                delete config.event_action;
+            }
+
+            return config;
         },
 
         /* eslint-disable max-len */

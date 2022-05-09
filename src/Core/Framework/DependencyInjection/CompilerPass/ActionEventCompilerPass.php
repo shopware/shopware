@@ -43,7 +43,7 @@ class ActionEventCompilerPass implements CompilerPassInterface
 
         $eventClasses = [];
         foreach ($reflectionClass->getReflectionConstants() as $constant) {
-            foreach ($docParser->parse($constant->getDocComment(), $reflectionClass->getName()) as $annotation) {
+            foreach ($docParser->parse($constant->getDocComment()) as $annotation) {
                 if ($annotation instanceof Event) {
                     $deprecationVersion = $annotation->getDeprecationVersion();
 

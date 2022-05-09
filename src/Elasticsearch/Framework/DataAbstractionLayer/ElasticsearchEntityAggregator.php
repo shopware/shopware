@@ -62,7 +62,7 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
                 'body' => $search->toArray(),
             ]);
         } catch (\Throwable $e) {
-            $this->helper->logOrThrowException($e);
+            $this->helper->logAndThrowException($e);
 
             return $this->decorated->aggregate($definition, $criteria, $context);
         }

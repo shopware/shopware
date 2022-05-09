@@ -5,6 +5,7 @@ namespace Shopware\Core\System\SalesChannel\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class SalesChannelEntityLoadedEvent extends EntityLoadedEvent implements ShopwareSalesChannelEvent
@@ -35,6 +36,11 @@ class SalesChannelEntityLoadedEvent extends EntityLoadedEvent implements Shopwar
      */
     protected function createNested(EntityDefinition $definition, array $entities): EntityLoadedEvent
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'EntityLoadedEventFactory')
+        );
+
         return new self($definition, $entities, $this->salesChannelContext, false);
     }
 }

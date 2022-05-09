@@ -5,6 +5,7 @@ namespace Shopware\Core\System\User\Aggregate\UserAccessKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\User\UserEntity;
 
 class UserAccessKeyEntity extends Entity
@@ -79,6 +80,11 @@ class UserAccessKeyEntity extends Entity
      */
     public function getWriteAccess(): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'ACL')
+        );
+
         return $this->writeAccess;
     }
 
@@ -87,6 +93,11 @@ class UserAccessKeyEntity extends Entity
      */
     public function setWriteAccess(bool $writeAccess): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'ACL')
+        );
+
         $this->writeAccess = $writeAccess;
     }
 

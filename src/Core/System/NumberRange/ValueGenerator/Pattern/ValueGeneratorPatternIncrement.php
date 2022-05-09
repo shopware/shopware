@@ -9,7 +9,7 @@ use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\Abs
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementStorageInterface;
 
 /**
- * @deprecated tag:v6.5.0 won't implement ValueGeneratorPatternInterface anymore
+ * @deprecated tag:v6.5.0 - reason:class-hierarchy-change - won't implement ValueGeneratorPatternInterface anymore
  */
 class ValueGeneratorPatternIncrement extends AbstractValueGenerator implements ValueGeneratorPatternInterface
 {
@@ -25,7 +25,7 @@ class ValueGeneratorPatternIncrement extends AbstractValueGenerator implements V
      *
      * @deprecated tag:v6.5.0 incrementConnector will require a AbstractIncrementStorage
      */
-    public function __construct($incrementConnector)
+    public function __construct(/*: AbstractIncrementStorage*/ $incrementConnector)
     {
         $this->incrementConnector = $incrementConnector;
     }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\NumberRange\Exception;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\ShopwareHttpException;
 
 /**
@@ -11,6 +12,11 @@ class IncrementStorageMigrationNotSupportedException extends ShopwareHttpExcepti
 {
     public function __construct(string $legacyStorage)
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0')
+        );
+
         parent::__construct(
             'The legacy number range increment storage "{{ storage }}" does not support migrations.',
             ['storage' => $legacyStorage]
@@ -19,6 +25,11 @@ class IncrementStorageMigrationNotSupportedException extends ShopwareHttpExcepti
 
     public function getErrorCode(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0')
+        );
+
         return 'FRAMEWORK__INCREMENT_STORAGE_MIGRATION_NOT_SUPPORTED';
     }
 }

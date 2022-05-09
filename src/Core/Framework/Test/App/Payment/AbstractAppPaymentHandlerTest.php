@@ -71,6 +71,8 @@ abstract class AbstractAppPaymentHandlerTest extends TestCase
 
     private StateMachineRegistry $stateMachineRegistry;
 
+    private InitialStateIdLoader $initialStateIdLoader;
+
     private AbstractSalesChannelContextFactory $salesChannelContextFactory;
 
     private EntityRepositoryInterface $orderTransactionRepository;
@@ -90,6 +92,7 @@ abstract class AbstractAppPaymentHandlerTest extends TestCase
         $this->orderTransactionCaptureRepository = $this->getContainer()->get('order_transaction_capture.repository');
         $this->orderTransactionCaptureRefundRepository = $this->getContainer()->get('order_transaction_capture_refund.repository');
         $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
+        $this->initialStateIdLoader = $this->getContainer()->get(InitialStateIdLoader::class);
         $this->salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $this->shopUrl = $_SERVER['APP_URL'];
         $this->shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
@@ -203,10 +206,7 @@ abstract class AbstractAppPaymentHandlerTest extends TestCase
     {
         $this->ids->set(
             'transaction_state',
-            $this->stateMachineRegistry->getInitialState(
-                OrderTransactionStates::STATE_MACHINE,
-                $this->context
-            )->getId()
+            $this->initialStateIdLoader->get(OrderTransactionStates::STATE_MACHINE)
         );
 
         $transaction = (new OrderTransactionBuilder($this->ids, 'transaction'))

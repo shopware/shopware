@@ -4336,26 +4336,6 @@ parameters:
 			path: src/Core/Migration/Migration1614249488ChangeProductSortingsToCheapestPrice.php
 
 		-
-			message: "#^Class \"Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1625583596CreateActionEventFlowMigrateTable\" is marked as deprecated, but method \"getCreationTimestamp\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1625583596CreateActionEventFlowMigrateTable.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1625583596CreateActionEventFlowMigrateTable\" is marked as deprecated, but method \"update\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1625583596CreateActionEventFlowMigrateTable.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Migration\\\\V6_4\\\\Migration1625583596CreateActionEventFlowMigrateTable\" is marked as deprecated, but method \"updateDestructive\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Migration/V6_4/Migration1625583596CreateActionEventFlowMigrateTable.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Profiling\\\\Checkout\\\\SalesChannelContextServiceProfiler\" is marked as deprecated, but method \"get\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Profiling/Checkout/SalesChannelContextServiceProfiler.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Doctrine\\\\ConnectionProfiler\\:\\:getQueries\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Profiling/Doctrine/ConnectionProfiler.php
@@ -4391,21 +4371,6 @@ parameters:
 			path: src/Core/Profiling/Doctrine/ConnectionProfiler.php
 
 		-
-			message: "#^Class \"Shopware\\\\Core\\\\Profiling\\\\Entity\\\\EntityAggregatorProfiler\" is marked as deprecated, but method \"aggregate\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Profiling/Entity/EntityAggregatorProfiler.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Profiling\\\\Entity\\\\EntityReaderProfiler\" is marked as deprecated, but method \"read\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Profiling/Entity/EntityReaderProfiler.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Profiling\\\\Entity\\\\EntitySearcherProfiler\" is marked as deprecated, but method \"search\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Profiling/Entity/EntitySearcherProfiler.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Profiling\\:\\:buildConfig\\(\\) has parameter \\$environment with no type specified\\.$#"
 			count: 1
 			path: src/Core/Profiling/Profiling.php
@@ -4429,21 +4394,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$search of function array_key_exists expects array, array\\|bool\\|float\\|int\\|string\\|Symfony\\\\Component\\\\VarDumper\\\\Cloner\\\\Data\\|null given\\.$#"
 			count: 4
 			path: src/Core/Profiling/Twig/DoctrineExtension.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\System\\\\Country\\\\CountryTaxFreeDeprecationUpdater\" is marked as deprecated, but method \"getSubscribedEvents\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/Country/CountryTaxFreeDeprecationUpdater.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\System\\\\Country\\\\CountryTaxFreeDeprecationUpdater\" is marked as deprecated, but method \"updated\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/Country/CountryTaxFreeDeprecationUpdater.php
-
-		-
-			message: "#^Method \"getDecimalPrecision\" of class \"Shopware\\\\Core\\\\System\\\\Currency\\\\CurrencyEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/Currency/CurrencyEntity.php
 
 		-
 			message: "#^Parameter \\#1 \\$str of function md5 expects string, string\\|false given\\.$#"
@@ -4476,22 +4426,7 @@ parameters:
 			path: src/Core/System/Language/TranslationValidator.php
 
 		-
-			message: "#^Class \"Shopware\\\\Core\\\\System\\\\NumberRange\\\\Exception\\\\IncrementStorageMigrationNotSupportedException\" is marked as deprecated, but method \"getErrorCode\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/Exception/IncrementStorageMigrationNotSupportedException.php
-
-		-
 			message: "#^Argument of an invalid type array\\|null supplied for foreach, only iterables are supported\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/NumberRangeValueGenerator.php
-
-		-
-			message: "#^Method \"endEvent\" of class \"Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\NumberRangeValueGenerator\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/NumberRangeValueGenerator.php
-
-		-
-			message: "#^Method \"parsePattern\" of class \"Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\NumberRangeValueGenerator\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
 			count: 1
 			path: src/Core/System/NumberRange/ValueGenerator/NumberRangeValueGenerator.php
 
@@ -4504,66 +4439,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$subject of function preg_split expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/System/NumberRange/ValueGenerator/NumberRangeValueGenerator.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\IncrementStorage\\\\IncrementSqlStorage\" is marked as deprecated, but method \"getDecorated\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/IncrementStorage/IncrementSqlStorage.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\IncrementStorage\\\\IncrementSqlStorage\" is marked as deprecated, but method \"list\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/IncrementStorage/IncrementSqlStorage.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\IncrementStorage\\\\IncrementSqlStorage\" is marked as deprecated, but method \"preview\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/IncrementStorage/IncrementSqlStorage.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\IncrementStorage\\\\IncrementSqlStorage\" is marked as deprecated, but method \"reserve\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/IncrementStorage/IncrementSqlStorage.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\IncrementStorage\\\\IncrementSqlStorage\" is marked as deprecated, but method \"set\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/IncrementStorage/IncrementSqlStorage.php
-
-		-
-			message: "#^Method \"getStorage\" of class \"Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\IncrementStorage\\\\IncrementStorageRegistry\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/IncrementStorage/IncrementStorageRegistry.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternDate\" is marked as deprecated, but method \"generate\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/ValueGeneratorPatternDate.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternDate\" is marked as deprecated, but method \"getDecorated\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/ValueGeneratorPatternDate.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternDate\" is marked as deprecated, but method \"getPatternId\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/ValueGeneratorPatternDate.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternIncrement\" is marked as deprecated, but method \"generate\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/ValueGeneratorPatternIncrement.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternIncrement\" is marked as deprecated, but method \"getDecorated\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/ValueGeneratorPatternIncrement.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\System\\\\NumberRange\\\\ValueGenerator\\\\Pattern\\\\ValueGeneratorPatternIncrement\" is marked as deprecated, but method \"getPatternId\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/NumberRange/ValueGenerator/Pattern/ValueGeneratorPatternIncrement.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelType\\\\SalesChannelTypeEntity\\:\\:getCoverUrl\\(\\) should return string but returns string\\|null\\.$#"
@@ -4584,26 +4459,10 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Api\\\\StructEncoder\\:\\:isStructArray\\(\\) has parameter \\$object with no type specified\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/Api/StructEncoder.php
-
-		-
-			message: "#^Method \"iterate\" of class \"Shopware\\\\Core\\\\System\\\\SalesChannel\\\\DataAbstractionLayer\\\\SalesChannelIndexer\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/DataAbstractionLayer/SalesChannelIndexer.php
-
-		-
-			message: "#^Method \"createNested\" of class \"Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelEntityLoadedEvent\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Entity/SalesChannelEntityLoadedEvent.php
-
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Exception\\\\LanguageOfSalesChannelDomainDeleteException\\:\\:__construct\\(\\) has parameter \\$e with no type specified\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/Exception/LanguageOfSalesChannelDomainDeleteException.php
-
-		-
-			message: "#^Method \"getFallbackCustomerGroup\" of class \"Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/SalesChannelContext.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\:\\:\\$analytics \\(Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelAnalytics\\\\SalesChannelAnalyticsEntity\\) does not accept Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelAnalytics\\\\SalesChannelAnalyticsEntity\\|null\\.$#"
@@ -4614,16 +4473,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\:\\:\\$analyticsId \\(string\\) does not accept string\\|null\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/SalesChannelEntity.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\System\\\\Salutation\\\\DefaultSalutationValidator\" is marked as deprecated, but method \"getSubscribedEvents\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/Salutation/DefaultSalutationValidator.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\System\\\\Salutation\\\\DefaultSalutationValidator\" is marked as deprecated, but method \"validate\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/Salutation/DefaultSalutationValidator.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Files\\\\SnippetFileCollection\\:\\:getByName\\(\\) has parameter \\$key with no type specified\\.$#"
@@ -4721,11 +4570,6 @@ parameters:
 			path: src/Core/System/StateMachine/StateMachineRegistry.php
 
 		-
-			message: "#^Method \"getInitialState\" of class \"Shopware\\\\Core\\\\System\\\\StateMachine\\\\StateMachineRegistry\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/StateMachine/StateMachineRegistry.php
-
-		-
 			message: "#^Argument of an invalid type Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineState\\\\StateMachineStateCollection\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 1
 			path: src/Core/System/StateMachine/Util/StateMachineGraphvizDumper.php
@@ -4739,16 +4583,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\StateMachine\\\\Util\\\\StateMachineGraphvizDumper\\:\\:dotize\\(\\) has parameter \\$id with no type specified\\.$#"
 			count: 1
 			path: src/Core/System/StateMachine/Util/StateMachineGraphvizDumper.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Facade\\\\SystemConfigFacadeHookFactory\" is marked as deprecated, but method \"factory\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/Facade/SystemConfigFacadeHookFactory.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Facade\\\\SystemConfigFacadeHookFactory\" is marked as deprecated, but method \"getName\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/Facade/SystemConfigFacadeHookFactory.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Service\\\\ConfigurationService\\:\\:\\$bundles \\(array\\) does not accept iterable\\<Symfony\\\\Component\\\\HttpKernel\\\\Bundle\\\\BundleInterface\\>\\.$#"
@@ -4781,16 +4615,6 @@ parameters:
 			path: src/Core/System/Tax/TaxRuleType/ZipCodeRuleTypeFilter.php
 
 		-
-			message: "#^Method \"getWriteAccess\" of class \"Shopware\\\\Core\\\\System\\\\User\\\\Aggregate\\\\UserAccessKey\\\\UserAccessKeyEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/User/Aggregate/UserAccessKey/UserAccessKeyEntity.php
-
-		-
-			message: "#^Method \"setWriteAccess\" of class \"Shopware\\\\Core\\\\System\\\\User\\\\Aggregate\\\\UserAccessKey\\\\UserAccessKeyEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/User/Aggregate/UserAccessKey/UserAccessKeyEntity.php
-
-		-
 			message: "#^Cannot call method getEmail\\(\\) on Shopware\\\\Core\\\\System\\\\User\\\\UserEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/System/User/Recovery/UserRecoveryRequestEvent.php
@@ -4814,26 +4638,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$userRecoveryEntity of method Shopware\\\\Core\\\\System\\\\User\\\\Recovery\\\\UserRecoveryService\\:\\:deleteRecoveryForUser\\(\\) expects Shopware\\\\Core\\\\System\\\\User\\\\Aggregate\\\\UserRecovery\\\\UserRecoveryEntity, Shopware\\\\Core\\\\System\\\\User\\\\Aggregate\\\\UserRecovery\\\\UserRecoveryEntity\\|null given\\.$#"
 			count: 1
 			path: src/Core/System/User/Recovery/UserRecoveryService.php
-
-		-
-			message: "#^Method \"getPassword\" of class \"Shopware\\\\Core\\\\System\\\\User\\\\UserEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/User/UserEntity.php
-
-		-
-			message: "#^Method \"getStoreToken\" of class \"Shopware\\\\Core\\\\System\\\\User\\\\UserEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/User/UserEntity.php
-
-		-
-			message: "#^Method \"setPassword\" of class \"Shopware\\\\Core\\\\System\\\\User\\\\UserEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/User/UserEntity.php
-
-		-
-			message: "#^Method \"setStoreToken\" of class \"Shopware\\\\Core\\\\System\\\\User\\\\UserEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/System/User/UserEntity.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\User\\\\UserEntity\\:\\:getAclRoles\\(\\) should return Shopware\\\\Core\\\\Framework\\\\Api\\\\Acl\\\\Role\\\\AclRoleCollection but returns Shopware\\\\Core\\\\Framework\\\\Api\\\\Acl\\\\Role\\\\AclRoleCollection\\|null\\.$#"
@@ -4959,11 +4763,6 @@ parameters:
 			message: "#^Property Shopware\\\\Elasticsearch\\\\Elasticsearch\\:\\:\\$name has no type specified\\.$#"
 			count: 1
 			path: src/Elasticsearch/Elasticsearch.php
-
-		-
-			message: "#^Method \"logOrThrowException\" of class \"Shopware\\\\Elasticsearch\\\\Framework\\\\ElasticsearchHelper\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/ElasticsearchHelper.php
 
 		-
 			message: "#^Cannot call method setDefaultBillingAddress\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"

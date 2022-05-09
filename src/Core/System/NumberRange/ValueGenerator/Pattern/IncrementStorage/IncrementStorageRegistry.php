@@ -26,9 +26,9 @@ class IncrementStorageRegistry
     /**
      * @return IncrementStorageInterface|AbstractIncrementStorage
      *
-     * @deprecated tag:v6.5.0 will always return AbstractIncrementStorage in the future, and thus will be natively typed
+     * @deprecated tag:v6.5.0 - reason:return-type-change - will always return AbstractIncrementStorage in the future, and thus will be natively typed
      */
-    public function getStorage(?string $storage = null)
+    public function getStorage(?string $storage = null)/*: AbstractIncrementStorage*/
     {
         if ($storage === null) {
             $storage = $this->configuredStorage;

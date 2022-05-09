@@ -39,9 +39,6 @@ class NewsletterConfirmEvent extends Event implements SalesChannelAware, MailAwa
      */
     private $salesChannelId;
 
-    /**
-     * @internal
-     */
     public function __construct(Context $context, NewsletterRecipientEntity $newsletterRecipient, string $salesChannelId)
     {
         $this->context = $context;

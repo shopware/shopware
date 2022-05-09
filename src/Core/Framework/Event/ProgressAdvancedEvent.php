@@ -13,9 +13,6 @@ class ProgressAdvancedEvent extends Event
      */
     private $step;
 
-    /**
-     * @internal
-     */
     public function __construct(int $step = 1)
     {
         $this->step = $step;

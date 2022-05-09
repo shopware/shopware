@@ -12,9 +12,6 @@ class ProductNoLongerAvailableEvent extends Event implements ShopwareEvent, Prod
 
     protected Context $context;
 
-    /**
-     * @internal
-     */
     public function __construct(array $ids, Context $context)
     {
         $this->ids = $ids;

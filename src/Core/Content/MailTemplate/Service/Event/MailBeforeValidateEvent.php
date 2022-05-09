@@ -30,9 +30,6 @@ class MailBeforeValidateEvent extends Event implements BusinessEventInterface, L
      */
     private $templateData;
 
-    /**
-     * @internal
-     */
     public function __construct(array $data, Context $context, array $templateData = [])
     {
         $this->data = $data;

@@ -13,9 +13,6 @@ class SalesChannelContextResolvedEvent extends Event implements ShopwareSalesCha
 
     private string $usedToken;
 
-    /**
-     * @internal
-     */
     public function __construct(SalesChannelContext $salesChannelContext, string $usedToken)
     {
         $this->salesChannelContext = $salesChannelContext;

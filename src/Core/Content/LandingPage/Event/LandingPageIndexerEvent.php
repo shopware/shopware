@@ -19,9 +19,6 @@ class LandingPageIndexerEvent extends NestedEvent
 
     private array $skip;
 
-    /**
-     * @internal
-     */
     public function __construct(array $ids, Context $context, array $skip = [])
     {
         $this->ids = $ids;

@@ -16,9 +16,6 @@ class UpdatePreFinishEvent extends UpdateEvent
      */
     private $newVersion;
 
-    /**
-     * @internal
-     */
     public function __construct(Context $context, string $oldVersion, string $newVersion)
     {
         parent::__construct($context);

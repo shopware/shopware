@@ -42,9 +42,6 @@ class NewsletterRegisterEvent extends Event implements SalesChannelAware, MailAw
      */
     private $salesChannelId;
 
-    /**
-     * @internal
-     */
     public function __construct(
         Context $context,
         NewsletterRecipientEntity $newsletterRecipient,

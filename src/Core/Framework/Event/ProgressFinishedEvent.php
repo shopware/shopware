@@ -13,9 +13,6 @@ class ProgressFinishedEvent extends Event
      */
     private $message;
 
-    /**
-     * @internal
-     */
     public function __construct(string $message)
     {
         $this->message = $message;

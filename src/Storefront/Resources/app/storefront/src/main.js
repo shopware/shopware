@@ -51,7 +51,7 @@ import FormPreserverPlugin from 'src/plugin/forms/form-preserver.plugin';
 import FormValidationPlugin from 'src/plugin/forms/form-validation.plugin';
 import FormSubmitLoaderPlugin from 'src/plugin/forms/form-submit-loader.plugin';
 import FormFieldTogglePlugin from 'src/plugin/forms/form-field-toggle.plugin';
-import FromScrollToInvalidFieldPlugin from 'src/plugin/forms/form-scroll-to-invalid-field.plugin';
+import FormScrollToInvalidFieldPlugin from 'src/plugin/forms/form-scroll-to-invalid-field.plugin';
 import OffCanvasTabsPlugin from 'src/plugin/offcanvas-tabs/offcanvas-tabs.plugin';
 import BaseSliderPlugin from 'src/plugin/slider/base-slider.plugin';
 import GallerySliderPlugin from 'src/plugin/slider/gallery-slider.plugin';
@@ -127,7 +127,7 @@ PluginManager.register('CollapseCheckoutConfirmMethods', CollapseCheckoutConfirm
 PluginManager.register('FlyoutMenu', FlyoutMenuPlugin, '[data-flyout-menu]');
 PluginManager.register('OffcanvasMenu', OffcanvasMenuPlugin, '[data-offcanvas-menu]');
 PluginManager.register('FormValidation', FormValidationPlugin, '[data-form-validation]');
-PluginManager.register('FormScrollToInvalidField', FromScrollToInvalidFieldPlugin, 'form');
+PluginManager.register('FormScrollToInvalidField', FormScrollToInvalidFieldPlugin, 'form');
 PluginManager.register('FormSubmitLoader', FormSubmitLoaderPlugin, '[data-form-submit-loader]');
 PluginManager.register('FormFieldToggle', FormFieldTogglePlugin, '[data-form-field-toggle]');
 PluginManager.register('FormAutoSubmit', FormAutoSubmitPlugin, '[data-form-auto-submit]');

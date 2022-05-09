@@ -25,6 +25,7 @@ Component.register('sw-settings-country-sidebar', {
             variables: ADDRESS_VARIABLES,
             customerId: null,
             previewData: null,
+            customer: null,
         };
     },
 
@@ -43,7 +44,7 @@ Component.register('sw-settings-country-sidebar', {
 
     methods: {
         onClickShowPreview() {
-            this.$emit('open-preview-modal', this.previewData);
+            this.$emit('open-preview-modal', this.customer);
         },
 
         onCopyVariable(variable) {
@@ -71,6 +72,7 @@ Component.register('sw-settings-country-sidebar', {
         },
 
         onChangeCustomer(customerId, customer) {
+            this.customer = null;
             if (!customerId || !customer) {
                 return;
             }
@@ -81,6 +83,7 @@ Component.register('sw-settings-country-sidebar', {
                 return;
             }
 
+            this.customer = customer;
             this.previewData = {
                 company: defaultBillingAddress?.company,
                 department: defaultBillingAddress?.department,

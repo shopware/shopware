@@ -4,9 +4,11 @@ namespace Shopware\Storefront\Page\Address\Listing;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractListAddressRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -14,6 +16,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\SalesChannel\AbstractCountryRoute;
+use Shopware\Core\System\Country\Service\CountryAddressFormattingService;
+use Shopware\Core\System\Country\Struct\CountryAddress;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Salutation\SalesChannel\AbstractSalutationRoute;
 use Shopware\Core\System\Salutation\SalutationCollection;
@@ -54,6 +58,8 @@ class AddressListingPageLoader
      */
     private $listAddressRoute;
 
+    private CountryAddressFormattingService $countryAddressFormattingService;
+
     /**
      * @internal
      */
@@ -63,7 +69,8 @@ class AddressListingPageLoader
         AbstractSalutationRoute $salutationRoute,
         AbstractListAddressRoute $listAddressRoute,
         EventDispatcherInterface $eventDispatcher,
-        CartService $cartService
+        CartService $cartService,
+        CountryAddressFormattingService $countryAddressFormattingService
     ) {
         $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;
@@ -71,6 +78,7 @@ class AddressListingPageLoader
         $this->countryRoute = $countryRoute;
         $this->salutationRoute = $salutationRoute;
         $this->listAddressRoute = $listAddressRoute;
+        $this->countryAddressFormattingService = $countryAddressFormattingService;
     }
 
     /**
@@ -99,11 +107,31 @@ class AddressListingPageLoader
             $page->getAddresses()->get($request->get('addressId'))
         );
 
+        $page->setFormattingCustomerAddresses($this->renderCustomerAddressFormatting($page->getAddresses(), $salesChannelContext->getContext()));
+
         $this->eventDispatcher->dispatch(
             new AddressListingPageLoadedEvent($page, $salesChannelContext, $request)
         );
 
         return $page;
+    }
+
+    private function renderCustomerAddressFormatting(CustomerAddressCollection $customerAddressCollection, Context $context): array
+    {
+        $formattingCustomerAddresses = [];
+        foreach ($customerAddressCollection->getElements() as $customerAddress) {
+            if (!$customerAddress->getCountry() || $customerAddress->getCountry()->getUseDefaultAddressFormat()) {
+                continue;
+            }
+
+            $formattingCustomerAddresses[$customerAddress->getId()] = $this->countryAddressFormattingService->render(
+                CountryAddress::createFromEntity($customerAddress),
+                $customerAddress->getCountry()->getAdvancedAddressFormatPlain(),
+                $context,
+            );
+        }
+
+        return $formattingCustomerAddresses;
     }
 
     /**

@@ -7,6 +7,10 @@ const { Component } = Shopware;
 Component.register('sw-customer-default-addresses', {
     template,
 
+    inject: [
+        'countryAddressService',
+    ],
+
     props: {
         customer: {
             type: Object,
@@ -18,6 +22,13 @@ Component.register('sw-customer-default-addresses', {
             required: false,
             default: false,
         },
+    },
+
+    data() {
+        return {
+            formattingShippingAddress: '',
+            formattingBillingAddress: '',
+        };
     },
 
     computed: {
@@ -45,6 +56,26 @@ Component.register('sw-customer-default-addresses', {
                     edit: this.customerEditMode,
                 },
             };
+        },
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            this.renderFormattingAddress();
+        },
+
+        renderFormattingAddress() {
+            this.countryAddressService.formattingAddress(this.customer.defaultShippingAddress).then((res) => {
+                this.formattingShippingAddress = res;
+            });
+
+            this.countryAddressService.formattingAddress(this.customer.defaultBillingAddress).then((res) => {
+                this.formattingBillingAddress = res;
+            });
         },
     },
 });

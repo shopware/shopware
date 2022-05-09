@@ -7,6 +7,10 @@ const { Component } = Shopware;
 Component.register('sw-order-delivery-metadata', {
     template,
 
+    inject: [
+        'countryAddressService',
+    ],
+
     props: {
         delivery: {
             type: Object,
@@ -27,6 +31,28 @@ Component.register('sw-order-delivery-metadata', {
             type: Boolean,
             required: false,
             default: false,
+        },
+    },
+
+    data() {
+        return {
+            formattingAddress: '',
+        };
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            this.renderFormattingAddress();
+        },
+
+        renderFormattingAddress() {
+            this.countryAddressService.formattingAddress(this.delivery.shippingOrderAddress).then((res) => {
+                this.formattingAddress = res;
+            });
         },
     },
 });

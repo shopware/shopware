@@ -18,6 +18,7 @@
         <service id="Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator">
             <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer"/>
             <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="Shopware\Core\System\Country\Service\CountryAddressFormattingService"/>
 
             <tag name="document.generator"/>
             <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
@@ -26,6 +27,7 @@
         <service id="Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator">
             <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer"/>
             <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="Shopware\Core\System\Country\Service\CountryAddressFormattingService"/>
 
             <tag name="document.generator"/>
             <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
@@ -34,6 +36,7 @@
         <service id="Shopware\Core\Checkout\Document\DocumentGenerator\StornoGenerator">
             <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer"/>
             <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="Shopware\Core\System\Country\Service\CountryAddressFormattingService"/>
 
             <tag name="document.generator"/>
             <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>
@@ -42,6 +45,7 @@
         <service id="Shopware\Core\Checkout\Document\DocumentGenerator\CreditNoteGenerator">
             <argument type="service" id="Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer"/>
             <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="Shopware\Core\System\Country\Service\CountryAddressFormattingService"/>
 
             <tag name="document.generator"/>
             <tag name="deprecated" flag="v6.5.0.0" version="tag:v6.5.0"/>

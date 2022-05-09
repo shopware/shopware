@@ -68,7 +68,7 @@
         {% block sw_settings_country_address_handling_formatting_card_field_check_default_address_format %}
         <sw-switch-field
             v-model="country.useDefaultAddressFormat"
-            class="sw-settings-country-general__option-items"
+            class="sw-settings-country-address-handling__option-items sw-settings-country-address-handling__use-default-address-format"
             bordered
             :disabled="!acl.can('country.editor')"
             :label="$tc('sw-settings-country.detail.labelCheckDefaultAddressFormat')"

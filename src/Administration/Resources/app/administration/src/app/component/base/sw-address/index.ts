@@ -40,7 +40,7 @@ interface Address {
  *     zipcode: '12456',
  *     city: 'Anytown',
  *     country: { name: 'Germany' }
- * }"></sw-address>
+ * }" :formattingAddress="First Name Last Name\nGermany"></sw-address>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-address', {
@@ -74,6 +74,12 @@ Component.register('sw-address', {
             default: '',
         },
 
+        formattingAddress: {
+            type: String,
+            required: false,
+            default: '',
+        },
+
         showEditButton: {
             type: Boolean,
             required: false,
@@ -92,6 +98,10 @@ Component.register('sw-address', {
             return {
                 'sw-address--headline': this.headline,
             };
+        },
+
+        displayFormattingAddress(): string {
+            return this.formattingAddress.replace(/\n/g, '<br>');
         },
     },
 });

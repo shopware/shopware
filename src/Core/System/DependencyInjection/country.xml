@@ -61,5 +61,12 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\System\Country\Service\CountryAddressFormattingService" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer"/>
+        </service>
+
+        <service id="Shopware\Core\System\Country\Api\CountryActionController" public="true">
+            <argument type="service" id="Shopware\Core\System\Country\Service\CountryAddressFormattingService"/>
+        </service>
     </services>
 </container>

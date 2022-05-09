@@ -16,9 +16,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
-use Shopware\Core\Checkout\Document\DocumentGenerator\CreditNoteGenerator;
-use Shopware\Core\Checkout\Document\FileGenerator\PdfGenerator;
-use Shopware\Core\Checkout\Document\GeneratedDocument;
+use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
@@ -28,7 +26,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -45,7 +42,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-class CreditNoteGeneratorTest extends TestCase
+class DeliveryNoteGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
@@ -60,182 +57,14 @@ class CreditNoteGeneratorTest extends TestCase
 
     private Context $context;
 
-    private Connection $connection;
+    private ?Connection $connection;
 
     protected function setUp(): void
     {
-        Feature::skipTestIfActive('v6.5.0.0', $this);
-
         parent::setUp();
 
         $this->context = Context::createDefaultContext();
         $this->connection = $this->getContainer()->get(Connection::class);
-    }
-
-    public function testGenerateCreditNotWithCustomerGroupNet(): void
-    {
-        $this->setSalesChannelContext(self::CUSTOMER_GROUP_NET);
-
-        static::assertNotNull($this->salesChannelContext->getCustomer());
-        $this->getContainer()->get('customer.repository')->update([
-            [
-                'id' => $this->salesChannelContext->getCustomer()->getId(),
-                'groupId' => $this->createNetCustomerGroup(),
-            ],
-        ], $this->salesChannelContext->getContext());
-
-        $creditNoteService = $this->getContainer()->get(CreditNoteGenerator::class);
-
-        $possibleTax = 7;
-        $cart = $this->generateDemoCart([$possibleTax]);
-        $creditPrice = -100;
-
-        $cart = $this->generateCreditItems($cart, [$creditPrice]);
-
-        $orderId = $this->persistCart($cart);
-        /** @var OrderEntity $order */
-        $order = $this->getOrderById($orderId);
-
-        $documentConfiguration = DocumentConfigurationFactory::mergeConfiguration(
-            new DocumentConfiguration(),
-            [
-                'displayLineItems' => true,
-                'itemsPerPage' => 10,
-                'displayFooter' => true,
-                'displayHeader' => true,
-            ]
-        );
-        $context = Context::createDefaultContext();
-
-        $creditNoteService->generate(
-            $order,
-            $documentConfiguration,
-            $context
-        );
-
-        static::assertEquals($order->getPrice()->getTotalPrice(), \abs($possibleTax) + \abs($creditPrice));
-        static::assertEquals($order->getAmountNet(), \abs($creditPrice));
-    }
-
-    public function testGenerateCreditNotWithCustomerGroupGross(): void
-    {
-        $this->setSalesChannelContext(self::CUSTOMER_GROUP_GROSS);
-
-        static::assertNotNull($this->salesChannelContext->getCustomer());
-        $this->getContainer()->get('customer.repository')->update([
-            [
-                'id' => $this->salesChannelContext->getCustomer()->getId(),
-                'groupId' => $this->createGrossCustomerGroup(),
-            ],
-        ], $this->salesChannelContext->getContext());
-
-        $creditNoteService = $this->getContainer()->get(CreditNoteGenerator::class);
-
-        $possibleTax = 7;
-        $cart = $this->generateDemoCart([$possibleTax]);
-        $creditPrice = -100;
-
-        $cart = $this->generateCreditItems($cart, [$creditPrice]);
-
-        $orderId = $this->persistCart($cart);
-        /** @var OrderEntity $order */
-        $order = $this->getOrderById($orderId);
-
-        $documentConfiguration = DocumentConfigurationFactory::mergeConfiguration(
-            new DocumentConfiguration(),
-            [
-                'displayLineItems' => true,
-                'itemsPerPage' => 10,
-                'displayFooter' => true,
-                'displayHeader' => true,
-            ]
-        );
-        $context = Context::createDefaultContext();
-
-        $creditNoteService->generate(
-            $order,
-            $documentConfiguration,
-            $context
-        );
-
-        static::assertNotNull($lineItems = $order->getLineItems());
-        $taxAmount = $lineItems->getPrices()->sum()->getCalculatedTaxes()->getAmount();
-
-        static::assertEquals($order->getPrice()->getTotalPrice(), -$creditPrice);
-        static::assertEquals($order->getAmountNet(), -($creditPrice - $taxAmount));
-    }
-
-    public function testGenerateWithDifferentTaxes(): void
-    {
-        $this->setSalesChannelContext();
-
-        $creditNoteService = $this->getContainer()->get(CreditNoteGenerator::class);
-        $pdfGenerator = $this->getContainer()->get(PdfGenerator::class);
-
-        $possibleTaxes = [7, 19, 22];
-        //generates one line item for each tax
-        $cart = $this->generateDemoCart($possibleTaxes);
-        $creditPrices = [-100, -200, -300];
-        //generates credit items for each price
-        $cart = $this->generateCreditItems($cart, $creditPrices);
-
-        $orderId = $this->persistCart($cart);
-        /** @var OrderEntity $order */
-        $order = $this->getOrderById($orderId);
-
-        $documentConfiguration = DocumentConfigurationFactory::mergeConfiguration(
-            new DocumentConfiguration(),
-            [
-                'displayLineItems' => true,
-                'itemsPerPage' => 10,
-                'displayFooter' => true,
-                'displayHeader' => true,
-            ]
-        );
-        $context = Context::createDefaultContext();
-
-        $processedTemplate = $creditNoteService->generate(
-            $order,
-            $documentConfiguration,
-            $context
-        );
-
-        $lineItems = $order->getLineItems();
-
-        static::assertNotNull($lineItems);
-        static::assertCount(\count($creditPrices), $lineItems);
-
-        foreach ($lineItems as $lineItem) {
-            static::assertEquals(LineItem::CREDIT_LINE_ITEM_TYPE, $lineItem->getType());
-        }
-
-        static::assertStringContainsString('<html>', $processedTemplate);
-        static::assertStringContainsString('</html>', $processedTemplate);
-
-        foreach ($creditPrices as $price) {
-            static::assertStringContainsString('credit' . $price, $processedTemplate);
-        }
-
-        foreach ($possibleTaxes as $possibleTax) {
-            static::assertStringContainsString(
-                sprintf('plus %d%% VAT', $possibleTax),
-                $processedTemplate
-            );
-        }
-
-        static::assertStringContainsString(
-            sprintf('€%s', number_format((float) -array_sum($creditPrices), 2)),
-            $processedTemplate
-        );
-
-        $generatedDocument = new GeneratedDocument();
-        $generatedDocument->setHtml($processedTemplate);
-
-        $generatorOutput = $pdfGenerator->generate($generatedDocument);
-        static::assertNotEmpty($generatorOutput);
-
-        $finfo = new \finfo(\FILEINFO_MIME_TYPE);
-        static::assertEquals('application/pdf', $finfo->buffer($generatorOutput));
     }
 
     public function testGenerateWithFormattingAddress(): void
@@ -244,7 +73,7 @@ class CreditNoteGeneratorTest extends TestCase
         $this->setUseAdvancedFormatForCountry($this->connection);
         $this->setAdvancedAddressFormatPlainForCountry($this->connection, "{{firstName}}\n{{lastName}}");
 
-        $creditNoteService = $this->getContainer()->get(CreditNoteGenerator::class);
+        $deliveryNoteService = $this->getContainer()->get(DeliveryNoteGenerator::class);
 
         $possibleTaxes = [7];
         //generates one line item for each tax
@@ -268,7 +97,7 @@ class CreditNoteGeneratorTest extends TestCase
         );
         $context = Context::createDefaultContext();
 
-        $processedTemplate = $creditNoteService->generate(
+        $processedTemplate = $deliveryNoteService->generate(
             $order,
             $documentConfiguration,
             $context
@@ -326,27 +155,6 @@ class CreditNoteGeneratorTest extends TestCase
                 ],
                 'de-DE' => [
                     'name' => 'Nettopreis-Kundengruppe',
-                ],
-            ],
-        ];
-
-        $this->getContainer()->get('customer_group.repository')->create([$data], Context::createDefaultContext());
-
-        return $id;
-    }
-
-    private function createGrossCustomerGroup(): string
-    {
-        $id = Uuid::randomHex();
-        $data = [
-            'id' => $id,
-            'displayGross' => true,
-            'translations' => [
-                'en-GB' => [
-                    'name' => 'Standard customer group',
-                ],
-                'de-DE' => [
-                    'name' => 'Standard-Kundengruppe',
                 ],
             ],
         ];
@@ -571,8 +379,10 @@ class CreditNoteGeneratorTest extends TestCase
 
     /**
      * @throws InconsistentCriteriaIdsException
+     *
+     * @return mixed|null
      */
-    private function getOrderById(string $orderId): OrderEntity
+    private function getOrderById(string $orderId)
     {
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems')
@@ -585,16 +395,16 @@ class CreditNoteGeneratorTest extends TestCase
             ->search($criteria, $this->context)
             ->get($orderId);
 
-        static::assertNotNull($order);
+        static::assertNotNull($orderId);
 
         return $order;
     }
 
     private function getDefaultPaymentMethod(): ?string
     {
-        $id = $this->connection->fetchOne(
+        $id = $this->connection->executeQuery(
             'SELECT `id` FROM `payment_method` WHERE `active` = 1 ORDER BY `position` ASC'
-        );
+        )->fetchColumn();
 
         if (!$id) {
             return null;

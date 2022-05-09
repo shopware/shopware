@@ -9,6 +9,8 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\System\Country\Service\CountryAddressFormattingService;
+use Shopware\Core\System\Country\Struct\CountryAddress;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
@@ -32,13 +34,19 @@ class InvoiceGenerator implements DocumentGeneratorInterface
      */
     private $documentTemplateRenderer;
 
+    private CountryAddressFormattingService $countryAddressFormattingService;
+
     /**
      * @internal
      */
-    public function __construct(DocumentTemplateRenderer $documentTemplateRenderer, string $rootDir)
-    {
+    public function __construct(
+        DocumentTemplateRenderer $documentTemplateRenderer,
+        string $rootDir,
+        CountryAddressFormattingService $countryAddressFormattingService
+    ) {
         $this->rootDir = $rootDir;
         $this->documentTemplateRenderer = $documentTemplateRenderer;
+        $this->countryAddressFormattingService = $countryAddressFormattingService;
     }
 
     public function supports(): string
@@ -76,14 +84,20 @@ class InvoiceGenerator implements DocumentGeneratorInterface
         /** @var LocaleEntity $locale */
         $locale = $language->getLocale();
 
+        $parameters = [
+            'order' => $order,
+            'config' => $config,
+            'rootDir' => $this->rootDir,
+            'context' => $context,
+        ];
+
+        if ($formattingAddress = $this->renderFormattingAddress($order, $context)) {
+            $parameters['formattingAddress'] = $formattingAddress;
+        }
+
         return $this->documentTemplateRenderer->render(
             $templatePath,
-            [
-                'order' => $order,
-                'config' => $config,
-                'rootDir' => $this->rootDir,
-                'context' => $context,
-            ],
+            $parameters,
             $context,
             $order->getSalesChannelId(),
             $order->getLanguageId(),
@@ -128,5 +142,23 @@ class InvoiceGenerator implements DocumentGeneratorInterface
         $isCompanyTaxFree = $country->getCompanyTax()->getEnabled();
 
         return $isCompanyTaxFree && \in_array($country->getId(), $config['deliveryCountries'], true);
+    }
+
+    private function renderFormattingAddress(OrderEntity $order, Context $context): ?string
+    {
+        if (!$order->getAddresses()) {
+            return null;
+        }
+
+        $billingAddress = $order->getAddresses()->get($order->getBillingAddressId());
+        if ($billingAddress && $billingAddress->getCountry() && !$billingAddress->getCountry()->getUseDefaultAddressFormat()) {
+            return $this->countryAddressFormattingService->render(
+                CountryAddress::createFromEntity($billingAddress),
+                $billingAddress->getCountry()->getAdvancedAddressFormatPlain(),
+                $context,
+            );
+        }
+
+        return null;
     }
 }

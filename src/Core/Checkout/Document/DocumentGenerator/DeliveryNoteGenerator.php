@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
+use Shopware\Core\System\Country\Service\CountryAddressFormattingService;
+use Shopware\Core\System\Country\Struct\CountryAddress;
 use Twig\Error\Error;
 
 /**
@@ -30,13 +32,19 @@ class DeliveryNoteGenerator implements DocumentGeneratorInterface
      */
     private $documentTemplateRenderer;
 
+    private CountryAddressFormattingService $countryAddressFormattingService;
+
     /**
      * @internal
      */
-    public function __construct(DocumentTemplateRenderer $documentTemplateRenderer, string $rootDir)
-    {
+    public function __construct(
+        DocumentTemplateRenderer $documentTemplateRenderer,
+        string $rootDir,
+        CountryAddressFormattingService $countryAddressFormattingService
+    ) {
         $this->rootDir = $rootDir;
         $this->documentTemplateRenderer = $documentTemplateRenderer;
+        $this->countryAddressFormattingService = $countryAddressFormattingService;
     }
 
     public function supports(): string
@@ -75,15 +83,21 @@ class DeliveryNoteGenerator implements DocumentGeneratorInterface
         /** @var LocaleEntity $locale */
         $locale = $language->getLocale();
 
+        $parameters = [
+            'order' => $order,
+            'orderDelivery' => $deliveries,
+            'config' => DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->jsonSerialize(),
+            'rootDir' => $this->rootDir,
+            'context' => $context,
+        ];
+
+        if ($formattingAddress = $this->renderFormattingAddress($order, $context)) {
+            $parameters['formattingAddress'] = $formattingAddress;
+        }
+
         $documentString = $this->documentTemplateRenderer->render(
             $templatePath,
-            [
-                'order' => $order,
-                'orderDelivery' => $deliveries,
-                'config' => DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->jsonSerialize(),
-                'rootDir' => $this->rootDir,
-                'context' => $context,
-            ],
+            $parameters,
             $context,
             $order->getSalesChannelId(),
             $order->getLanguageId(),
@@ -101,5 +115,23 @@ class DeliveryNoteGenerator implements DocumentGeneratorInterface
         );
 
         return $config->getFilenamePrefix() . $config->getDocumentNumber() . $config->getFilenameSuffix();
+    }
+
+    private function renderFormattingAddress(OrderEntity $order, Context $context): ?string
+    {
+        if (!$order->getAddresses()) {
+            return null;
+        }
+
+        $billingAddress = $order->getAddresses()->get($order->getBillingAddressId());
+        if ($billingAddress && $billingAddress->getCountry() && !$billingAddress->getCountry()->getUseDefaultAddressFormat()) {
+            return $this->countryAddressFormattingService->render(
+                CountryAddress::createFromEntity($billingAddress),
+                $billingAddress->getCountry()->getAdvancedAddressFormatPlain(),
+                $context,
+            );
+        }
+
+        return null;
     }
 }

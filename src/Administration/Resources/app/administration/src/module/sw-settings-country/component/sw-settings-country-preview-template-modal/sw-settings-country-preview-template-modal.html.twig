@@ -3,7 +3,7 @@
     :title="$tc('sw-settings-country.detail.previewModalTitle')"
     @modal-close="onCancelShowPreview"
 >
-    <span v-html="previewAddress"></span>
+    <span v-html="displayFormattingAddress"></span>
 
     {% block sw_settings_country_preview_template_modal_footer %}
     <template #modal-footer>

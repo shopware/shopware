@@ -165,21 +165,6 @@ describe('module/sw-settings-country/component/sw-settings-country-sidebar', () 
         await buttonPreview.trigger('click');
 
         expect(JSON.stringify(wrapper.emitted()['open-preview-modal'][0][0]))
-            .toEqual(JSON.stringify({
-                company: 'shopware-AG',
-                department: 'Development',
-                title: '',
-                firstName: 'Quynh',
-                lastName: 'Nguyen',
-                street: 'Ebbinghoff 10',
-                city: 'Schöppingen',
-                country: 'Germany',
-                countryState: 'North Rhine-Westphalia',
-                salutation: 'Ms.',
-                phoneNumber: '123456789',
-                zipcode: '48624',
-                additionalAddressLine1: '',
-                additionalAddressLine2: '',
-            }));
+            .toEqual(JSON.stringify(customerData));
     });
 });

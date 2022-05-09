@@ -199,6 +199,7 @@
                 {% block sw_bulk_edit_product_content_advanced_prices_modal %}
                 <sw-modal
                     v-if="displayAdvancePricesModal"
+                    class="sw-bulk-edit-product-content-advanced-prices-modal"
                     variant="large"
                     :title="$tc('sw-bulk-edit.product.advancedPrices.cardTitle')"
                     @modal-close="displayAdvancePricesModal = false"
@@ -230,7 +231,6 @@
                 class="sw-bulk-edit-product-base__property"
                 position-identifier="sw-bulk-edit-product-property"
                 :title="$tc('sw-bulk-edit.product.property.cardTitle')"
-                :is-loading="isLoading"
             >
                 {% block sw_bulk_edit_product_content_property %}
                 <sw-bulk-edit-change-type-field-renderer
@@ -249,7 +249,6 @@
                 class="sw-bulk-edit-product-base__deliverability"
                 position-identifier="sw-bulk-edit-product-deliverability"
                 :title="$tc('sw-bulk-edit.product.deliverability.cardTitle')"
-                :is-loading="isLoading"
             >
                 {% block sw_bulk_edit_product_content_deliverability %}
                 <sw-bulk-edit-change-type-field-renderer
@@ -268,7 +267,6 @@
                 class="sw-bulk-edit-product-base__assignment"
                 position-identifier="sw-bulk-edit-product-assignment"
                 :title="$tc('sw-bulk-edit.product.assignment.cardTitle')"
-                :is-loading="isLoading"
             >
                 {% block sw_bulk_edit_product_content_assignments %}
                 <sw-bulk-edit-change-type-field-renderer
@@ -287,7 +285,6 @@
                 class="sw-bulk-edit-product-base__media"
                 position-identifier="sw-bulk-edit-product-media"
                 :title="$tc('sw-bulk-edit.product.media.cardTitle')"
-                :is-loading="isLoading"
             >
                 {% block media %}
                 <sw-bulk-edit-change-type-field-renderer
@@ -306,7 +303,6 @@
                 class="sw-bulk-edit-product-base__labelling"
                 position-identifier="sw-bulk-edit-product-labelling"
                 :title="$tc('sw-bulk-edit.product.labelling.cardTitle')"
-                :is-loading="isLoading"
             >
                 {% block sw_bulk_edit_product_content_labelling %}
                 <sw-bulk-edit-change-type-field-renderer
@@ -325,7 +321,6 @@
                 class="sw-bulk-edit-product-base__seo"
                 position-identifier="sw-bulk-edit-product-seo"
                 :title="$tc('sw-bulk-edit.product.seo.cardTitle')"
-                :is-loading="isLoading"
             >
                 {% block sw_bulk_edit_product_content_seo %}
                 <sw-bulk-edit-change-type-field-renderer
@@ -344,7 +339,6 @@
                 class="sw-bulk-edit-product-base__measures"
                 position-identifier="sw-bulk-edit-product-measures"
                 :title="$tc('sw-bulk-edit.product.measuresAndPackaging.cardTitle')"
-                :is-loading="isLoading"
             >
                 <sw-bulk-edit-change-type-field-renderer
                     :form-fields="measuresPackagingFields"
@@ -361,7 +355,6 @@
                 class="sw-bulk-edit-product-base___essential"
                 position-identifier="sw-bulk-edit-product-essential"
                 :title="$tc('sw-bulk-edit.product.featureSets.cardTitle')"
-                :is-loading="isLoading"
             >
                 <sw-bulk-edit-change-type-field-renderer
                     :form-fields="essentialCharacteristicsFormFields"
@@ -379,7 +372,6 @@
                 class="sw-bulk-edit-product-base__custom_fields"
                 position-identifier="sw-bulk-edit-product-custom-fields"
                 :title="$tc('sw-bulk-edit.product.customFields.cardTitle')"
-                :is-loading="isLoading"
             >
                 <sw-bulk-edit-custom-fields
                     class="sw-bulk-edit__custom-fields"

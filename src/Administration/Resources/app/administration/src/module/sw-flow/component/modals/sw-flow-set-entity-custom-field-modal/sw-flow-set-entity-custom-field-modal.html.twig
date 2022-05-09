@@ -85,12 +85,13 @@
         {% endblock %}
 
         {% block sw_flow_set_entity_custom_field_modal_field_value_options %}
-        <sw-select-field
+        <sw-single-select
             v-if="customFieldId"
             v-model="fieldOptionSelected"
             class="sw-flow-set-entity-custom-field-modal__custom-field-value-options"
             :options="fieldOptions"
             :label="$tc('sw-flow.modals.setEntityCustomField.customFieldOption')"
+            :highlight-search-term="false"
         />
         {% endblock %}
     </div>

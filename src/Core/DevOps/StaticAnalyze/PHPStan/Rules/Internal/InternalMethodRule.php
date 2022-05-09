@@ -8,6 +8,7 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Symfony\ServiceMap;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @implements Rule<ClassMethod>
@@ -52,8 +53,14 @@ class InternalMethodRule implements Rule
             return [];
         }
 
-        if ($this->isServiceConstructor($node, $scope)) {
-            return ['__construct of di container services has to be @internal'];
+        if ($this->isConstructor($node)) {
+            if ($this->isEvent($scope)) {
+                return [];
+            }
+
+            if ($this->isService($scope)) {
+                return ['__construct of di container services has to be @internal'];
+            }
         }
 
         return [];
@@ -70,12 +77,8 @@ class InternalMethodRule implements Rule
         return \str_contains($text, '@internal');
     }
 
-    private function isServiceConstructor(ClassMethod $node, Scope $scope): bool
+    private function isService(Scope $scope): bool
     {
-        if ($this->isConstructor($node)) {
-            return false;
-        }
-
         $class = $scope->getClassReflection();
         if ($class === null) {
             return false;
@@ -90,5 +93,15 @@ class InternalMethodRule implements Rule
     private function isConstructor(ClassMethod $node): bool
     {
         return (string) $node->name === '__construct';
+    }
+
+    private function isEvent(Scope $scope): bool
+    {
+        $class = $scope->getClassReflection();
+        if ($class === null) {
+            return false;
+        }
+
+        return $class->isSubclassOf(Event::class);
     }
 }

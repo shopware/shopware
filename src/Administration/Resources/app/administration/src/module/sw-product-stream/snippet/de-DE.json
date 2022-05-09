@@ -110,6 +110,7 @@
         "visible": "Sichtbar",
         "weight": "Gewicht",
         "width": "Breite",
+        "deliveryTime": "Lieferzeit",
         "configuratorSettings": "Konfigurator-Einstellungen",
         "options": "Variantenausprägung",
         "properties": "Eigenschaftsausprägung",

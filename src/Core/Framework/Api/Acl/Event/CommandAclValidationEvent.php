@@ -23,9 +23,6 @@ class CommandAclValidationEvent extends Event
      */
     private $command;
 
-    /**
-     * @internal
-     */
     public function __construct(array $missingPrivileges, AdminApiSource $source, WriteCommand $command)
     {
         $this->missingPrivileges = $missingPrivileges;

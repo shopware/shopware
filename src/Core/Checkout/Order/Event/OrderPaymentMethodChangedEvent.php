@@ -32,9 +32,6 @@ class OrderPaymentMethodChangedEvent extends Event implements SalesChannelAware,
 
     private string $salesChannelId;
 
-    /**
-     * @internal
-     */
     public function __construct(OrderEntity $order, OrderTransactionEntity $orderTransaction, Context $context, string $salesChannelId, ?MailRecipientStruct $mailRecipientStruct = null)
     {
         $this->order = $order;

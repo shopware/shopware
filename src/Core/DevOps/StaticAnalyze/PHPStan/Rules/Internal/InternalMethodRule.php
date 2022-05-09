@@ -72,7 +72,7 @@ class InternalMethodRule implements Rule
 
     private function isServiceConstructor(ClassMethod $node, Scope $scope): bool
     {
-        if ((string) $node->name !== '__construct') {
+        if ($this->isConstructor($node)) {
             return false;
         }
 
@@ -85,5 +85,10 @@ class InternalMethodRule implements Rule
         $service = $this->serviceMap->getService($class->getName());
 
         return $service !== null;
+    }
+
+    private function isConstructor(ClassMethod $node): bool
+    {
+        return (string) $node->name === '__construct';
     }
 }

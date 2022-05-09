@@ -36,9 +36,6 @@ class CustomerChangedPaymentMethodEvent extends Event implements BusinessEventIn
      */
     private $requestDataBag;
 
-    /**
-     * @internal
-     */
     public function __construct(SalesChannelContext $salesChannelContext, CustomerEntity $customer, RequestDataBag $requestDataBag)
     {
         $this->customer = $customer;

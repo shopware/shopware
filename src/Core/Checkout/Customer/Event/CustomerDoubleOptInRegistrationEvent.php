@@ -39,9 +39,6 @@ class CustomerDoubleOptInRegistrationEvent extends Event implements SalesChannel
      */
     private $mailRecipientStruct;
 
-    /**
-     * @internal
-     */
     public function __construct(
         CustomerEntity $customer,
         SalesChannelContext $salesChannelContext,

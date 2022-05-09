@@ -12,9 +12,6 @@ class PluginPostInstallEvent extends PluginLifecycleEvent
      */
     private $context;
 
-    /**
-     * @internal
-     */
     public function __construct(PluginEntity $plugin, InstallContext $context)
     {
         parent::__construct($plugin);

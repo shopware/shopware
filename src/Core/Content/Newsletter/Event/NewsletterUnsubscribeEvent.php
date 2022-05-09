@@ -39,9 +39,6 @@ class NewsletterUnsubscribeEvent extends Event implements SalesChannelAware, Mai
      */
     private $salesChannelId;
 
-    /**
-     * @internal
-     */
     public function __construct(Context $context, NewsletterRecipientEntity $newsletterRecipient, string $salesChannelId)
     {
         $this->context = $context;

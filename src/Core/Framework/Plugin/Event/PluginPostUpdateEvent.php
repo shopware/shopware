@@ -12,9 +12,6 @@ class PluginPostUpdateEvent extends PluginLifecycleEvent
      */
     private $context;
 
-    /**
-     * @internal
-     */
     public function __construct(PluginEntity $plugin, UpdateContext $context)
     {
         parent::__construct($plugin);

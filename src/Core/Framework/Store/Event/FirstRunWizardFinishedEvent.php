@@ -23,9 +23,6 @@ class FirstRunWizardFinishedEvent extends Event
      */
     private $context;
 
-    /**
-     * @internal
-     */
     public function __construct(FrwState $state, FrwState $previousState, Context $context)
     {
         $this->state = $state;

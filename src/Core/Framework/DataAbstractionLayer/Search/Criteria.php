@@ -115,9 +115,6 @@ class Criteria extends Struct implements \Stringable
 
     protected array $fields = [];
 
-    /**
-     * @internal
-     */
     public function __construct(?array $ids = null)
     {
         if ($ids === null) {

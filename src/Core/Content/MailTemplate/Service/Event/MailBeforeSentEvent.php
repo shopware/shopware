@@ -32,9 +32,6 @@ class MailBeforeSentEvent extends Event implements BusinessEventInterface, LogAw
      */
     private $context;
 
-    /**
-     * @internal
-     */
     public function __construct(array $data, Email $message, Context $context)
     {
         $this->data = $data;

@@ -26,9 +26,6 @@ class BusinessEvent extends Event implements BusinessEventInterface
      */
     private $actionName;
 
-    /**
-     * @internal
-     */
     public function __construct(string $actionName, BusinessEventInterface $event, ?array $config = [])
     {
         $this->actionName = $actionName;

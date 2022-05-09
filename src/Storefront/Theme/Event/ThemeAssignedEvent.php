@@ -10,9 +10,6 @@ class ThemeAssignedEvent extends Event
 
     private string $salesChannelId;
 
-    /**
-     * @internal
-     */
     public function __construct(string $themeId, string $salesChannelId)
     {
         $this->themeId = $themeId;

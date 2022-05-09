@@ -18,9 +18,6 @@ class EnrichExportCriteriaEvent extends Event
      */
     private $logEntity;
 
-    /**
-     * @internal
-     */
     public function __construct(Criteria $criteria, ImportExportLogEntity $logEntity)
     {
         $this->criteria = $criteria;

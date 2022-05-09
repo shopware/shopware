@@ -8,9 +8,6 @@ class SeoUrlUpdateEvent extends Event
 {
     protected array $seoUrls;
 
-    /**
-     * @internal
-     */
     public function __construct(array $seoUrls)
     {
         $this->seoUrls = $seoUrls;

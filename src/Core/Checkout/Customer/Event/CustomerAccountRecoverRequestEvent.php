@@ -47,9 +47,6 @@ class CustomerAccountRecoverRequestEvent extends Event implements SalesChannelAw
      */
     private $mailRecipientStruct;
 
-    /**
-     * @internal
-     */
     public function __construct(SalesChannelContext $salesChannelContext, CustomerRecoveryEntity $customerRecovery, string $resetUrl)
     {
         $this->salesChannelContext = $salesChannelContext;

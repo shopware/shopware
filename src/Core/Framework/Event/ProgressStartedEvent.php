@@ -18,9 +18,6 @@ class ProgressStartedEvent extends Event
      */
     private $total;
 
-    /**
-     * @internal
-     */
     public function __construct(string $message, int $total)
     {
         $this->message = $message;

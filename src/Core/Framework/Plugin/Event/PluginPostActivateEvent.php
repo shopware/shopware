@@ -12,9 +12,6 @@ class PluginPostActivateEvent extends PluginLifecycleEvent
      */
     private $context;
 
-    /**
-     * @internal
-     */
     public function __construct(PluginEntity $plugin, ActivateContext $context)
     {
         parent::__construct($plugin);

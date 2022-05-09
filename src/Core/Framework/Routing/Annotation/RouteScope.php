@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Routing\Annotation;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationAnnotation;
 
 /**
- * @deprecated tag:v6.5.0 - Use route defaults with "_route_scope". Example: @Route(defaults={"_route_scope"={"storefront"})
+ * @deprecated tag:v6.5.0 - Use route defaults with "_routeScope". Example: @Route(defaults={"_routeScope"={"storefront"}})
  * @Annotation
  *
  * @Attributes({

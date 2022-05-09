@@ -18,6 +18,8 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
  */
 class CustomEntitySchemaUpdater
 {
+    public const TABLE_PREFIX = 'custom_entity_';
+
     private const COMMENT = 'custom-entity-element';
 
     private Connection $connection;
@@ -42,8 +44,8 @@ class CustomEntitySchemaUpdater
             foreach ($tables as $table) {
                 $fields = \json_decode($table['fields'], true, 512, \JSON_THROW_ON_ERROR);
 
-                if (!\str_starts_with($table['name'], 'custom_entity_')) {
-                    throw new \RuntimeException(\sprintf('Table %s has to be prefixed with custom_', $table['name']));
+                if (!\str_starts_with($table['name'], self::TABLE_PREFIX)) {
+                    throw new \RuntimeException(\sprintf('Table "%s" has to be prefixed with "%s"', $table['name'], self::TABLE_PREFIX));
                 }
 
                 $this->defineTable($schema, $table['name'], $fields);

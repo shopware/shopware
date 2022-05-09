@@ -37,7 +37,7 @@ class FrwRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
     }
 
     /**
-     * @deprecated tag:v6.5.0 - $context must not be null in the future
+     * @deprecated tag:v6.5.0 - parameter $language will be removed and $context must not be null in the future
      */
     public function getDefaultQueryParameters(?Context $context, ?string $language = null): array
     {
@@ -48,7 +48,18 @@ class FrwRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
             );
         }
 
-        return $this->optionsProvider->getDefaultQueryParameters($context, $language);
+        if (\func_num_args() > 1) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'Second parameter `$language` of method "getDefaultQueryParameters()" in "StoreRequestOptionsProvider" is deprecated and will be removed in v6.5.0.0.'
+            );
+        }
+
+        if (!Feature::isActive('v6.5.0.0')) {
+            return $this->optionsProvider->getDefaultQueryParameters($context, $language);
+        }
+
+        return $this->optionsProvider->getDefaultQueryParameters($context);
     }
 
     private function getFrwUserToken(Context $context): ?string

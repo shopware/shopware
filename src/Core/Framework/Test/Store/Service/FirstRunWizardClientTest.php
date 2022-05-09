@@ -139,7 +139,7 @@ class FirstRunWizardClientTest extends TestCase
     public function testFrwLoginMustBeInUserScope(): void
     {
         static::expectException(InvalidContextSourceException::class);
-        $this->getSystemFwrClient()->frwLogin('1', 'shopware', 'en_GB', Context::createDefaultContext());
+        $this->getSystemFwrClient()->frwLogin('1', 'shopware', Context::createDefaultContext());
     }
 
     public function testFrwLogin(): void
@@ -151,7 +151,7 @@ class FirstRunWizardClientTest extends TestCase
             ],
         ])));
 
-        $this->getSystemFwrClient()->frwLogin('1', 'shopware', 'en_GB', $this->storeContext);
+        $this->getSystemFwrClient()->frwLogin('1', 'shopware', $this->storeContext);
 
         static::assertEquals('updatedToken', $this->getFrwUserTokenFromContext($this->storeContext));
 
@@ -162,7 +162,7 @@ class FirstRunWizardClientTest extends TestCase
 
         static::assertEquals([
             'shopwareVersion' => $this->instanceService->getShopwareVersion(),
-            'language' => 'en_GB',
+            'language' => 'en-GB',
             'domain' => '',
         ], Query::parse($lastRequest->getUri()->getQuery()));
 
@@ -188,7 +188,7 @@ class FirstRunWizardClientTest extends TestCase
             ]))
         );
 
-        $this->getSystemFwrClient()->upgradeAccessToken('en-GB', $this->storeContext);
+        $this->getSystemFwrClient()->upgradeAccessToken($this->storeContext);
 
         $lastRequest = $this->getRequestHandler()->getLastRequest();
 
@@ -312,7 +312,7 @@ class FirstRunWizardClientTest extends TestCase
             new Response(200, [], \file_get_contents(__DIR__ . '/../_fixtures/FirstRunWizard/languagePluginsResponse.json'))
         );
 
-        $plugins = $this->getSystemFwrClient()->getLanguagePlugins('en_GB', new PluginCollection(), $this->storeContext);
+        $plugins = $this->getSystemFwrClient()->getLanguagePlugins(new PluginCollection(), $this->storeContext);
 
         static::assertCount(1, $plugins);
 
@@ -333,7 +333,7 @@ class FirstRunWizardClientTest extends TestCase
             new Response(200, [], \file_get_contents(__DIR__ . '/../_fixtures/FirstRunWizard/demoDataPluginsResponse.json'))
         );
 
-        $plugins = $this->getSystemFwrClient()->getDemoDataPlugins('en_GB', new PluginCollection(), $this->storeContext);
+        $plugins = $this->getSystemFwrClient()->getDemoDataPlugins(new PluginCollection(), $this->storeContext);
 
         static::assertCount(1, $plugins);
 
@@ -354,7 +354,7 @@ class FirstRunWizardClientTest extends TestCase
             new Response(200, [], \file_get_contents(__DIR__ . '/../_fixtures/FirstRunWizard/recommendationRegionsResponse.json'))
         );
 
-        $regions = $this->getSystemFwrClient()->getRecommendationRegions('en_GB', $this->storeContext);
+        $regions = $this->getSystemFwrClient()->getRecommendationRegions($this->storeContext);
 
         static::assertCount(1, $regions);
 
@@ -388,7 +388,6 @@ class FirstRunWizardClientTest extends TestCase
 
         $frwClient = $this->getSystemFwrClient();
         $recommendations = $frwClient->getRecommendations(
-            'en_GB',
             new PluginCollection(),
             'dach',
             'shipping',
@@ -406,7 +405,7 @@ class FirstRunWizardClientTest extends TestCase
         static::assertEquals('/swplatform/firstrunwizard/plugins', $lastRequest->getUri()->getPath());
         static::assertEquals([
             'shopwareVersion' => $this->instanceService->getShopwareVersion(),
-            'language' => 'en_GB',
+            'language' => 'en-GB',
             'market' => 'dach',
             'region' => 'dach',
             'category' => 'shipping',
@@ -425,7 +424,7 @@ class FirstRunWizardClientTest extends TestCase
             new Response(200, [], \file_get_contents(__DIR__ . '/../_fixtures/FirstRunWizard/licenseDomainResponse.json'))
         );
 
-        $domains = $this->getSystemFwrClient()->getLicenseDomains('en_GB', $this->storeContext);
+        $domains = $this->getSystemFwrClient()->getLicenseDomains($this->storeContext);
 
         static::assertEquals([
             [
@@ -473,7 +472,6 @@ class FirstRunWizardClientTest extends TestCase
 
         $verifiedShop = $this->getSystemFwrClient()->verifyLicenseDomain(
             $shopDomain,
-            'en_GB',
             $this->storeContext,
             true
         );

@@ -143,11 +143,7 @@ Component.register('sw-first-run-wizard-welcome', {
         },
 
         getLanguagePlugins() {
-            const language = Shopware.State.get('session').currentLocale;
-
-            this.languagePluginService.getPlugins({
-                language,
-            }).then((response) => {
+            this.languagePluginService.getPlugins().then((response) => {
                 this.languagePlugins = response.items;
             });
         },

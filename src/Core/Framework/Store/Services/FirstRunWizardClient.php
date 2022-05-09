@@ -98,7 +98,7 @@ final class FirstRunWizardClient
      * @throws StoreLicenseDomainMissingException
      * @throws ClientException
      */
-    public function frwLogin(string $shopwareId, string $password, string $language, Context $context): void
+    public function frwLogin(string $shopwareId, string $password, Context $context): void
     {
         if (!$context->getSource() instanceof AdminApiSource) {
             throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
@@ -111,7 +111,7 @@ final class FirstRunWizardClient
                     'shopwareId' => $shopwareId,
                     'password' => $password,
                 ],
-                'query' => $this->optionsProvider->getDefaultQueryParameters($context, $language),
+                'query' => $this->optionsProvider->getDefaultQueryParameters($context),
             ]
         );
 
@@ -125,7 +125,7 @@ final class FirstRunWizardClient
         );
     }
 
-    public function upgradeAccessToken(string $language, Context $context): void
+    public function upgradeAccessToken(Context $context): void
     {
         if (!$context->getSource() instanceof AdminApiSource
             || $context->getSource()->getUserId() === null) {
@@ -135,7 +135,7 @@ final class FirstRunWizardClient
         $response = $this->client->post(
             '/swplatform/login/upgrade',
             [
-                'query' => $this->optionsProvider->getDefaultQueryParameters($context, $language),
+                'query' => $this->optionsProvider->getDefaultQueryParameters($context),
                 'headers' => $this->optionsProvider->getAuthenticationHeader($context),
                 'json' => [
                     'shopwareUserId' => $context->getSource()->getUserId(),
@@ -192,10 +192,10 @@ final class FirstRunWizardClient
      * @throws StoreLicenseDomainMissingException
      * @throws ClientException
      */
-    public function getLanguagePlugins(string $language, PluginCollection $pluginCollection, Context $context): array
+    public function getLanguagePlugins(PluginCollection $pluginCollection, Context $context): array
     {
         return $this->mapPluginData(
-            $this->getPluginsFromStore('/swplatform/firstrunwizard/localizations', $language, $context),
+            $this->getPluginsFromStore('/swplatform/firstrunwizard/localizations', $context),
             $pluginCollection
         );
     }
@@ -204,10 +204,10 @@ final class FirstRunWizardClient
      * @throws StoreLicenseDomainMissingException
      * @throws ClientException
      */
-    public function getDemoDataPlugins(string $language, PluginCollection $pluginCollection, Context $context): array
+    public function getDemoDataPlugins(PluginCollection $pluginCollection, Context $context): array
     {
         return $this->mapPluginData(
-            $this->getPluginsFromStore('/swplatform/firstrunwizard/demodataplugins', $language, $context),
+            $this->getPluginsFromStore('/swplatform/firstrunwizard/demodataplugins', $context),
             $pluginCollection
         );
     }
@@ -216,11 +216,11 @@ final class FirstRunWizardClient
      * @throws StoreLicenseDomainMissingException
      * @throws ClientException
      */
-    public function getRecommendationRegions(string $language, Context $context): PluginRegionCollection
+    public function getRecommendationRegions(Context $context): PluginRegionCollection
     {
         $response = $this->client->get(
             '/swplatform/firstrunwizard/categories',
-            ['query' => $this->optionsProvider->getDefaultQueryParameters($context, $language)]
+            ['query' => $this->optionsProvider->getDefaultQueryParameters($context)]
         );
         $data = \json_decode($response->getBody()->getContents(), true);
 
@@ -243,13 +243,12 @@ final class FirstRunWizardClient
     }
 
     public function getRecommendations(
-        string $language,
         PluginCollection $pluginCollection,
         ?string $region,
         ?string $category,
         Context $context
     ): PluginRecommendationCollection {
-        $query = $this->optionsProvider->getDefaultQueryParameters($context, $language);
+        $query = $this->optionsProvider->getDefaultQueryParameters($context);
         $query['region'] = $query['market'] = $region;
         $query['category'] = $category;
 
@@ -263,12 +262,12 @@ final class FirstRunWizardClient
         return new PluginRecommendationCollection($this->mapPluginData($data, $pluginCollection));
     }
 
-    public function getLicenseDomains(string $language, Context $context): LicenseDomainCollection
+    public function getLicenseDomains(Context $context): LicenseDomainCollection
     {
         $response = $this->client->get(
             '/swplatform/firstrunwizard/shops',
             [
-                'query' => $this->optionsProvider->getDefaultQueryParameters($context, $language),
+                'query' => $this->optionsProvider->getDefaultQueryParameters($context),
                 'headers' => $this->optionsProvider->getAuthenticationHeader($context),
             ]
         );
@@ -292,17 +291,17 @@ final class FirstRunWizardClient
         return new LicenseDomainCollection($domains);
     }
 
-    public function verifyLicenseDomain(string $domain, string $language, Context $context, bool $testEnvironment = false): LicenseDomainStruct
+    public function verifyLicenseDomain(string $domain, Context $context, bool $testEnvironment = false): LicenseDomainStruct
     {
-        $domains = $this->getLicenseDomains($language, $context);
+        $domains = $this->getLicenseDomains($context);
 
         $existing = $domains->get($domain);
         if (!$existing || !$existing->isVerified()) {
-            $secret = $this->fetchVerificationInfo($domain, $language, $context);
+            $secret = $this->fetchVerificationInfo($domain, $context);
             $this->storeVerificationSecret($domain, $secret);
             $this->checkVerificationSecret($domain, $context, $testEnvironment);
 
-            $domains = $this->getLicenseDomains($language, $context);
+            $domains = $this->getLicenseDomains($context);
             $existing = $domains->get($domain);
         }
 
@@ -329,11 +328,11 @@ final class FirstRunWizardClient
         return $accessTokenStruct;
     }
 
-    private function getPluginsFromStore(string $endpoint, string $language, Context $context): array
+    private function getPluginsFromStore(string $endpoint, Context $context): array
     {
         $response = $this->client->get(
             $endpoint,
-            ['query' => $this->optionsProvider->getDefaultQueryParameters($context, $language)]
+            ['query' => $this->optionsProvider->getDefaultQueryParameters($context)]
         );
 
         return \json_decode($response->getBody()->getContents(), true);
@@ -373,13 +372,13 @@ final class FirstRunWizardClient
         );
     }
 
-    private function fetchVerificationInfo(string $domain, string $language, Context $context): DomainVerificationRequestStruct
+    private function fetchVerificationInfo(string $domain, Context $context): DomainVerificationRequestStruct
     {
         $response = $this->client->post(
             '/swplatform/firstrunwizard/shopdomainverificationhash',
             [
                 'json' => ['domain' => $domain],
-                'query' => $this->optionsProvider->getDefaultQueryParameters($context, $language),
+                'query' => $this->optionsProvider->getDefaultQueryParameters($context),
                 'headers' => $this->optionsProvider->getAuthenticationHeader($context),
             ]
         );

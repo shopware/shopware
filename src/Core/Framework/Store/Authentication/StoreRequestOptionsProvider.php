@@ -55,7 +55,7 @@ class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
     }
 
     /**
-     * @deprecated tag:v6.5.0 - $context must not be null in the future
+     * @deprecated tag:v6.5.0 - parameter $language will be removed and $context must not be null in the future
      */
     public function getDefaultQueryParameters(?Context $context, ?string $language = null): array
     {
@@ -63,6 +63,13 @@ class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
             Feature::triggerDeprecationOrThrow(
                 'v6.5.0.0',
                 'First parameter `$context` of method "getDefaultQueryParameters()" in "StoreRequestOptionsProvider" will be required in v6.5.0.0.'
+            );
+        }
+
+        if (\func_num_args() > 1) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'Second parameter `$language` of method "getDefaultQueryParameters()" in "StoreRequestOptionsProvider" is deprecated and will be removed in v6.5.0.0.'
             );
         }
 

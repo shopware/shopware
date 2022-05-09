@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\SalesChannel\Context;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Exception\MissingOrderRelationException;
@@ -28,8 +27,6 @@ class SalesChannelContextRestorer
 
     private CartRuleLoader $cartRuleLoader;
 
-    private AbstractRuleLoader $ruleLoader;
-
     private OrderConverter $orderConverter;
 
     private EntityRepositoryInterface $orderRepository;
@@ -42,7 +39,6 @@ class SalesChannelContextRestorer
     public function __construct(
         AbstractSalesChannelContextFactory $factory,
         CartRuleLoader $cartRuleLoader,
-        AbstractRuleLoader $ruleLoader,
         OrderConverter $orderConverter,
         EntityRepositoryInterface $orderRepository,
         Connection $connection,
@@ -50,7 +46,6 @@ class SalesChannelContextRestorer
     ) {
         $this->factory = $factory;
         $this->cartRuleLoader = $cartRuleLoader;
-        $this->ruleLoader = $ruleLoader;
         $this->orderConverter = $orderConverter;
         $this->orderRepository = $orderRepository;
         $this->connection = $connection;
@@ -164,14 +159,14 @@ class SalesChannelContextRestorer
 
         $options = array_merge($options, $overrideOptions);
 
+        $token = Uuid::randomHex();
         $salesChannelContext = $this->factory->create(
-            Uuid::randomHex(),
+            $token,
             $salesChannelId,
             $options
         );
 
-        $rules = $this->ruleLoader->load($context);
-        $salesChannelContext->setRuleIds($rules->getIds());
+        $this->cartRuleLoader->loadByToken($salesChannelContext, $token);
         $salesChannelContext->getContext()->addState(...$context->getStates());
 
         return $salesChannelContext;

@@ -103,7 +103,6 @@
         <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer">
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\RuleLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
             <argument type="service" id="order.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>

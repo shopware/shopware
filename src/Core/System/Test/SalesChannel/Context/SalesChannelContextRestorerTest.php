@@ -15,7 +15,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
-use Shopware\Core\Checkout\Cart\RuleLoader;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -115,7 +114,6 @@ class SalesChannelContextRestorerTest extends TestCase
         $this->contextRestorer = new SalesChannelContextRestorer(
             $contextFactory,
             $cartRuleLoader,
-            $this->getContainer()->get(RuleLoader::class),
             $this->getContainer()->get(OrderConverter::class),
             $this->getContainer()->get('order.repository'),
             $this->connection,

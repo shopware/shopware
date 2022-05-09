@@ -126,59 +126,9 @@ parameters:
 			path: src/Core/Checkout/Cart/Processor.php
 
 		-
-			message: "#^Method \"merge\" of class \"Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Tax\\\\Struct\\\\CalculatedTaxCollection\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Tax/Struct/CalculatedTaxCollection.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Validator\\:\\:\\$validators \\(array\\<Shopware\\\\Core\\\\Checkout\\\\Cart\\\\CartValidatorInterface\\>\\) does not accept iterable\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Validator.php
-
-		-
-			message: "#^Method \"getLegacyEncoder\" of class \"Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/CustomerEntity.php
-
-		-
-			message: "#^Method \"getLegacyPassword\" of class \"Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/CustomerEntity.php
-
-		-
-			message: "#^Method \"getNewsletter\" of class \"Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/CustomerEntity.php
-
-		-
-			message: "#^Method \"getPassword\" of class \"Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/CustomerEntity.php
-
-		-
-			message: "#^Method \"setLegacyEncoder\" of class \"Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/CustomerEntity.php
-
-		-
-			message: "#^Method \"setLegacyPassword\" of class \"Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/CustomerEntity.php
-
-		-
-			message: "#^Method \"setNewsletter\" of class \"Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/CustomerEntity.php
-
-		-
-			message: "#^Method \"setPassword\" of class \"Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/CustomerEntity.php
-
-		-
-			message: "#^Method \"iterate\" of class \"Shopware\\\\Core\\\\Checkout\\\\Customer\\\\DataAbstractionLayer\\\\CustomerIndexer\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/DataAbstractionLayer/CustomerIndexer.php
 
 		-
 			message: "#^Cannot call method getEmail\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
@@ -411,46 +361,6 @@ parameters:
 			path: src/Core/Checkout/Order/SalesChannel/OrderRoute.php
 
 		-
-			message: "#^Method \"getAsyncHandler\" of class \"Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Cart\\\\PaymentHandler\\\\PaymentHandlerRegistry\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/Cart/PaymentHandler/PaymentHandlerRegistry.php
-
-		-
-			message: "#^Method \"getAsyncHandlerForPaymentMethod\" of class \"Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Cart\\\\PaymentHandler\\\\PaymentHandlerRegistry\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/Cart/PaymentHandler/PaymentHandlerRegistry.php
-
-		-
-			message: "#^Method \"getHandler\" of class \"Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Cart\\\\PaymentHandler\\\\PaymentHandlerRegistry\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/Cart/PaymentHandler/PaymentHandlerRegistry.php
-
-		-
-			message: "#^Method \"getHandlerForPaymentMethod\" of class \"Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Cart\\\\PaymentHandler\\\\PaymentHandlerRegistry\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/Cart/PaymentHandler/PaymentHandlerRegistry.php
-
-		-
-			message: "#^Method \"getPreparedHandlerForPaymentMethod\" of class \"Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Cart\\\\PaymentHandler\\\\PaymentHandlerRegistry\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/Cart/PaymentHandler/PaymentHandlerRegistry.php
-
-		-
-			message: "#^Method \"getRefundHandlerForPaymentMethod\" of class \"Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Cart\\\\PaymentHandler\\\\PaymentHandlerRegistry\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/Cart/PaymentHandler/PaymentHandlerRegistry.php
-
-		-
-			message: "#^Method \"getSyncHandler\" of class \"Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Cart\\\\PaymentHandler\\\\PaymentHandlerRegistry\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/Cart/PaymentHandler/PaymentHandlerRegistry.php
-
-		-
-			message: "#^Method \"getSyncHandlerForPaymentMethod\" of class \"Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Cart\\\\PaymentHandler\\\\PaymentHandlerRegistry\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/Cart/PaymentHandler/PaymentHandlerRegistry.php
-
-		-
 			message: "#^Array \\(array\\<Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\>\\) does not accept Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Payment/Cart/SyncPaymentTransactionStruct.php
@@ -459,16 +369,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$object of function get_class expects object, Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\|null given\\.$#"
 			count: 1
 			path: src/Core/Checkout/Payment/Cart/SyncPaymentTransactionStruct.php
-
-		-
-			message: "#^Method \"iterate\" of class \"Shopware\\\\Core\\\\Checkout\\\\Payment\\\\DataAbstractionLayer\\\\PaymentMethodIndexer\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/DataAbstractionLayer/PaymentMethodIndexer.php
-
-		-
-			message: "#^Parameter \\#1 \\$paymentMethodId of class Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Exception\\\\UnknownPaymentMethodException constructor expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/PaymentService.php
 
 		-
 			message: "#^Parameter \\#1 \\$paymentMethodId of method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\PaymentService\\:\\:getPaymentHandlerById\\(\\) expects string, string\\|null given\\.$#"
@@ -485,6 +385,7 @@ parameters:
 			count: 1
 			path: src/Core/Checkout/Payment/PaymentService.php
 
+# ToDo: NEXT-21442 - Fix deprecation handling for promotions
 		-
 			message: "#^Class \"Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Api\\\\PromotionActionController\" is marked as deprecated, but method \"deleteIndividualCodes\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
 			count: 1
@@ -509,6 +410,17 @@ parameters:
 			message: "#^Class \"Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Api\\\\PromotionActionController\" is marked as deprecated, but method \"getSetGroupSorters\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
 			count: 1
 			path: src/Core/Checkout/Promotion/Api/PromotionActionController.php
+
+		-
+			message: "#^Class \"Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Util\\\\PromotionCodesLoader\" is marked as deprecated, but method \"loadIndividualCodes\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
+			count: 1
+			path: src/Core/Checkout/Promotion/Util/PromotionCodesLoader.php
+
+		-
+			message: "#^Class \"Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Util\\\\PromotionCodesRemover\" is marked as deprecated, but method \"removeIndividualCodes\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
+			count: 1
+			path: src/Core/Checkout/Promotion/Util/PromotionCodesRemover.php
+# End-ToDo: NEXT-21442 - Fix deprecation handling for promotions
 
 		-
 			message: "#^Parameter \\#1 \\$str of function trim expects string, array\\|string given\\.$#"
@@ -541,11 +453,6 @@ parameters:
 			path: src/Core/Checkout/Promotion/Cart/PromotionDeliveryCalculator.php
 
 		-
-			message: "#^Method \"iterate\" of class \"Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\DataAbstractionLayer\\\\PromotionIndexer\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/DataAbstractionLayer/PromotionIndexer.php
-
-		-
 			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderLineItem\\\\OrderLineItemCollection\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 1
 			path: src/Core/Checkout/Promotion/Subscriber/PromotionIndividualCodeRedeemer.php
@@ -559,16 +466,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$customerId of method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Aggregate\\\\PromotionIndividualCode\\\\PromotionIndividualCodeEntity\\:\\:setRedeemed\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Checkout/Promotion/Subscriber/PromotionIndividualCodeRedeemer.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Util\\\\PromotionCodesLoader\" is marked as deprecated, but method \"loadIndividualCodes\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Util/PromotionCodesLoader.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Util\\\\PromotionCodesRemover\" is marked as deprecated, but method \"removeIndividualCodes\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Util/PromotionCodesRemover.php
 
 		-
 			message: "#^Parameter \\#1 \\$arr1 of function array_merge expects array, array\\|Shopware\\\\Core\\\\Checkout\\\\Shipping\\\\Aggregate\\\\ShippingMethodPrice\\\\ShippingMethodPriceCollection given\\.$#"
@@ -2544,11 +2441,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Exception\\\\InvalidLimitQueryException\\:\\:__construct\\(\\) has parameter \\$limit with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Exception/InvalidLimitQueryException.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Exception\\\\InvalidPageQueryException\\:\\:__construct\\(\\) has parameter \\$page with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Exception/InvalidPageQueryException.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Exception\\\\QueryLimitExceededException\\:\\:__construct\\(\\) has parameter \\$limit with no type specified\\.$#"

@@ -37,8 +37,6 @@ class PaymentService
 
     private TokenFactoryInterfaceV2 $tokenFactory;
 
-    private EntityRepositoryInterface $paymentMethodRepository;
-
     private PaymentHandlerRegistry $paymentHandlerRegistry;
 
     private EntityRepositoryInterface $orderTransactionRepository;
@@ -57,7 +55,6 @@ class PaymentService
     public function __construct(
         PaymentTransactionChainProcessor $paymentProcessor,
         TokenFactoryInterfaceV2 $tokenFactory,
-        EntityRepositoryInterface $paymentMethodRepository,
         PaymentHandlerRegistry $paymentHandlerRegistry,
         EntityRepositoryInterface $orderTransactionRepository,
         OrderTransactionStateHandler $transactionStateHandler,
@@ -67,7 +64,6 @@ class PaymentService
     ) {
         $this->paymentProcessor = $paymentProcessor;
         $this->tokenFactory = $tokenFactory;
-        $this->paymentMethodRepository = $paymentMethodRepository;
         $this->paymentHandlerRegistry = $paymentHandlerRegistry;
         $this->orderTransactionRepository = $orderTransactionRepository;
         $this->transactionStateHandler = $transactionStateHandler;
@@ -157,10 +153,6 @@ class PaymentService
 
         $paymentHandler = $this->getPaymentHandlerById($token->getPaymentMethodId(), $context->getContext());
 
-        if (!$paymentHandler) {
-            throw new UnknownPaymentMethodException($token->getPaymentMethodId());
-        }
-
         try {
             $paymentHandler->finalize($transaction, $request, $context);
         } catch (CustomerCanceledAsyncPaymentException $e) {
@@ -180,20 +172,15 @@ class PaymentService
     /**
      * @throws UnknownPaymentMethodException
      */
-    private function getPaymentHandlerById(string $paymentMethodId, Context $context): ?AsynchronousPaymentHandlerInterface
+    private function getPaymentHandlerById(string $paymentMethodId, Context $context): AsynchronousPaymentHandlerInterface
     {
-        $criteria = new Criteria([$paymentMethodId]);
-        $criteria->setTitle('payment-service::load-payment-handler');
-        $criteria->addAssociation('appPaymentMethod.app');
-        $paymentMethods = $this->paymentMethodRepository->search($criteria, $context);
+        $handler = $this->paymentHandlerRegistry->getAsyncPaymentHandler($paymentMethodId);
 
-        /** @var PaymentMethodEntity|null $paymentMethod */
-        $paymentMethod = $paymentMethods->get($paymentMethodId);
-        if (!$paymentMethod) {
+        if (!$handler) {
             throw new UnknownPaymentMethodException($paymentMethodId);
         }
 
-        return $this->paymentHandlerRegistry->getAsyncHandlerForPaymentMethod($paymentMethod);
+        return $handler;
     }
 
     /**

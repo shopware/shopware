@@ -122,7 +122,7 @@ class PreparedPaymentService
             throw new UnknownPaymentMethodException($transaction->getPaymentMethodId());
         }
 
-        $paymentHandler = $this->paymentHandlerRegistry->getHandlerForPaymentMethod($paymentMethod);
+        $paymentHandler = $this->paymentHandlerRegistry->getPaymentMethodHandler($paymentMethod->getId());
         if (!$paymentHandler) {
             throw new UnknownPaymentMethodException($paymentMethod->getId());
         }
@@ -135,7 +135,7 @@ class PreparedPaymentService
         $paymentMethod = $salesChannelContext->getPaymentMethod();
 
         if (($appPaymentMethod = $paymentMethod->getAppPaymentMethod()) && $appPaymentMethod->getApp()) {
-            return $this->paymentHandlerRegistry->getHandlerForPaymentMethod($paymentMethod);
+            return $this->paymentHandlerRegistry->getPaymentMethodHandler($paymentMethod->getId());
         }
 
         $criteria = new Criteria();
@@ -146,6 +146,6 @@ class PreparedPaymentService
         $appPaymentMethod = $this->appPaymentMethodRepository->search($criteria, $salesChannelContext->getContext())->first();
         $paymentMethod->setAppPaymentMethod($appPaymentMethod);
 
-        return $this->paymentHandlerRegistry->getHandlerForPaymentMethod($paymentMethod);
+        return $this->paymentHandlerRegistry->getPaymentMethodHandler($paymentMethod->getId());
     }
 }

@@ -78,6 +78,7 @@ class PaymentTransactionChainProcessorTest extends TestCase
     {
         $paymentMethodEntity = new PaymentMethodEntity();
         $paymentMethodEntity->setHandlerIdentifier($this->ids->get('handler-identifier'));
+        $paymentMethodEntity->setId($this->ids->get('payment'));
 
         $transaction = new OrderTransactionEntity();
         $transaction->setId(Uuid::randomHex());
@@ -104,7 +105,8 @@ class PaymentTransactionChainProcessorTest extends TestCase
 
         $paymentHandlerRegistry = $this->createMock(PaymentHandlerRegistry::class);
         $paymentHandlerRegistry
-            ->method('getHandlerForPaymentMethod')
+            ->method('getPaymentMethodHandler')
+            ->with($this->ids->get('payment'))
             ->willReturn(null);
 
         $initialStateIdLoader = $this->createMock(InitialStateIdLoader::class);

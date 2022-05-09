@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\App\Payment\Handler\AppAsyncPaymentHandler;
 use Shopware\Core\Framework\App\Payment\Handler\AppSyncPaymentHandler;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\Service\ServiceProviderInterface;
 
@@ -52,12 +53,17 @@ class PaymentHandlerRegistry
     }
 
     /**
-     * @deprecated tag:v6.5.0 Will be removed. Use getPaymentMethodHandler instead.
+     * @deprecated tag:v6.5.0 - Will be removed. Use getPaymentMethodHandler instead.
      *
      * @return PaymentHandlerInterface|null
      */
     public function getHandler(string $handlerId)
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'getPaymentMethodHandler()')
+        );
+
         if (!\array_key_exists($handlerId, $this->handlers)) {
             return null;
         }
@@ -72,6 +78,11 @@ class PaymentHandlerRegistry
      */
     public function getHandlerForPaymentMethod(PaymentMethodEntity $paymentMethod)
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'getPaymentMethodHandler()')
+        );
+
         return $this->getPaymentMethodHandler($paymentMethod->getId());
     }
 
@@ -172,11 +183,16 @@ class PaymentHandlerRegistry
     }
 
     /**
-     * @deprecated tag:v6.5.0 Will be removed. Use getSyncHandlerForPaymentMethod instead.
+     * @deprecated tag:v6.5.0 Will be removed. Use getSyncPaymentHandler instead.
      */
     public function getSyncHandler(string $handlerId): ?SynchronousPaymentHandlerInterface
     {
-        $handler = $this->getHandler($handlerId);
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'getSyncPaymentHandler()')
+        );
+
+        $handler = $this->getPaymentMethodHandler($handlerId);
         if (!$handler || !$handler instanceof SynchronousPaymentHandlerInterface) {
             return null;
         }
@@ -189,7 +205,12 @@ class PaymentHandlerRegistry
      */
     public function getAsyncHandler(string $handlerId): ?AsynchronousPaymentHandlerInterface
     {
-        $handler = $this->getHandler($handlerId);
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'getAsyncPaymentHandler()')
+        );
+
+        $handler = $this->getPaymentMethodHandler($handlerId);
         if (!$handler || !$handler instanceof AsynchronousPaymentHandlerInterface) {
             return null;
         }
@@ -202,6 +223,11 @@ class PaymentHandlerRegistry
      */
     public function getSyncHandlerForPaymentMethod(PaymentMethodEntity $paymentMethod): ?SynchronousPaymentHandlerInterface
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'getSyncPaymentHandler()')
+        );
+
         return $this->getSyncPaymentHandler($paymentMethod->getId());
     }
 
@@ -210,6 +236,11 @@ class PaymentHandlerRegistry
      */
     public function getAsyncHandlerForPaymentMethod(PaymentMethodEntity $paymentMethod): ?AsynchronousPaymentHandlerInterface
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'getAsyncPaymentHandler()')
+        );
+
         return $this->getAsyncPaymentHandler($paymentMethod->getId());
     }
 
@@ -218,6 +249,11 @@ class PaymentHandlerRegistry
      */
     public function getPreparedHandlerForPaymentMethod(PaymentMethodEntity $paymentMethod): ?PreparedPaymentHandlerInterface
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'getPreparedPaymentHandler()')
+        );
+
         return $this->getPreparedPaymentHandler($paymentMethod->getId());
     }
 
@@ -226,6 +262,11 @@ class PaymentHandlerRegistry
      */
     public function getRefundHandlerForPaymentMethod(PaymentMethodEntity $paymentMethod): ?RefundPaymentHandlerInterface
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'getRefundPaymentHandler()')
+        );
+
         return $this->getRefundPaymentHandler($paymentMethod->getId());
     }
 

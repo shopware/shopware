@@ -73,8 +73,9 @@ class CalculatedTaxCollectionTest extends TestCase
             new CalculatedTax(5.50, 19, 1),
         ]);
 
-        $collection = $collection->merge(
-            new CalculatedTaxCollection([new CalculatedTax(5.50, 18, 1)])
+        $collection->merge(
+            new CalculatedTaxCollection([new CalculatedTax(5.50, 18, 1)]),
+            true
         );
 
         static::assertEquals(
@@ -91,9 +92,9 @@ class CalculatedTaxCollectionTest extends TestCase
         $collection = new CalculatedTaxCollection([
             new CalculatedTax(5.50, 19, 1),
         ]);
-        $collection = $collection->merge(new CalculatedTaxCollection([
+        $collection->merge(new CalculatedTaxCollection([
             new CalculatedTax(5.50, 19, 1),
-        ]));
+        ]), true);
 
         static::assertEquals(
             new CalculatedTaxCollection([
@@ -111,11 +112,11 @@ class CalculatedTaxCollectionTest extends TestCase
             new CalculatedTax(5.50, 17, 1),
         ]);
 
-        $collection = $collection->merge(new CalculatedTaxCollection([
+        $collection->merge(new CalculatedTaxCollection([
             new CalculatedTax(5.50, 19, 1),
             new CalculatedTax(5.50, 18, 1),
             new CalculatedTax(5.50, 17, 1),
-        ]));
+        ]), true);
 
         static::assertEquals(
             new CalculatedTaxCollection([
@@ -134,7 +135,7 @@ class CalculatedTaxCollectionTest extends TestCase
             new CalculatedTax(5.50, 18, 1),
             new CalculatedTax(5.50, 17, 1),
         ]);
-        $collection = $collection->merge(new CalculatedTaxCollection());
+        $collection->merge(new CalculatedTaxCollection(), true);
 
         static::assertEquals(
             new CalculatedTaxCollection([

@@ -28,6 +28,9 @@ describe('Media: Visual tests', () => {
         cy.wait('@saveDataFileUpload').its('response.statusCode').should('equal', 204);
         cy.get('.sw-media-base-item__name[title="sw-login-background.png"]')
             .should('be.visible');
+        cy.get('.sw-media-preview-v2__item').should('have.attr', 'src');
+        cy.get('.icon--multicolor-file-thumbnail-broken').should('not.exist');
+        cy.get('.icon--multicolor-file-thumbnail-normal').should('not.exist');
 
         // Take snapshot for visual testing
         cy.prepareAdminForScreenshot();

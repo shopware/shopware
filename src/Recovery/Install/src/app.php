@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Service\DatabaseInitializer;
 use Shopware\Recovery\Common\HttpClient\Client;
+use Shopware\Recovery\Common\HttpClient\ClientException;
 use Shopware\Recovery\Common\Service\JwtCertificateService;
 use Shopware\Recovery\Common\Steps\ErrorResult;
 use Shopware\Recovery\Common\Steps\FinishResult;
@@ -531,12 +532,17 @@ function getApplication(KernelInterface $kernel): App
 
         /** @var \Shopware\Recovery\Common\HttpClient\Client $client */
         $client = $container->offsetGet('http-client');
-        $loginResponse = $client->post($url, $data, ['Content-Type: application/json']);
 
-        $data = json_decode($loginResponse->getBody(), true);
-        $loginTokenData = [
-            'access' => $data['access_token'], 'refresh' => $data['refresh_token'], 'expiry' => $data['expires_in'],
-        ];
+        try {
+            $loginResponse = $client->post($url, $data, ['Content-Type: application/json']);
+
+            $data = json_decode($loginResponse->getBody(), true);
+            $loginTokenData = [
+                'access' => $data['access_token'], 'refresh' => $data['refresh_token'], 'expiry' => $data['expires_in'],
+            ];
+        } catch (ClientException $e) {
+            $loginTokenData = null;
+        }
 
         return $this->renderer->render(
             $response,

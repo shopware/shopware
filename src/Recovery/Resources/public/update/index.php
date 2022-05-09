@@ -27,10 +27,10 @@ if (file_exists($rootDir . '/vendor/shopware/recovery/Update/index.php')) {
         define('UPDATE_META_FILE', SW_PATH . '/files/update/update.json');
     }
 
-    if (\PHP_SAPI === 'cli') {
-        error_reporting(-1);
-        ini_set('display_errors', '1');
+    error_reporting(\E_ALL & ~\E_DEPRECATED);
+    ini_set('display_errors', '1');
 
+    if (\PHP_SAPI === 'cli') {
         $input = new ArgvInput();
         $env = $input->getParameterOption(['--env', '-e'], 'production');
 

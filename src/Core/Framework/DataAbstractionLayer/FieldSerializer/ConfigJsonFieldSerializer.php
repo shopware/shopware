@@ -29,9 +29,9 @@ class ConfigJsonFieldSerializer extends JsonFieldSerializer
     /**
      * @return array|null
      *
-     * @deprecated tag:v6.5.0 The parameter $value and return type will be native typed
+     * @deprecated tag:v6.5.0 - reason:return-type-change - The return type will be native typed
      */
-    public function decode(Field $field, /*?string */$value)/*: ?array*/
+    public function decode(Field $field, $value)/*: ?array*/
     {
         if (!$field instanceof ConfigJsonField) {
             throw new InvalidSerializerFieldException(ConfigJsonField::class, $field);

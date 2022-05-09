@@ -65,6 +65,11 @@ class RequestCriteriaBuilder
      */
     public function getMaxLimit(): int
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', '%shopware.api.max_limit%')
+        );
+
         return $this->maxLimit ?? 0;
     }
 

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\Event\GenericEvent;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Feature;
 
 class EntityLoadedEvent extends NestedEvent implements GenericEvent
 {
@@ -108,6 +109,11 @@ class EntityLoadedEvent extends NestedEvent implements GenericEvent
      */
     protected function extractAssociations(EntityDefinition $definition, iterable $entities): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'EntityLoadedEventFactory')
+        );
+
         $events = $this->extractAssociationsInCurrentLevel($definition, $entities);
         $recursive = $this->loadRecursivelyNestedAssociations($events);
         $events = $this->mergeIntoEvents($recursive, $events);
@@ -120,6 +126,11 @@ class EntityLoadedEvent extends NestedEvent implements GenericEvent
      */
     protected function createNested(EntityDefinition $definition, array $entities): EntityLoadedEvent
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'EntityLoadedEventFactory')
+        );
+
         return new EntityLoadedEvent($definition, $entities, $this->context, false);
     }
 

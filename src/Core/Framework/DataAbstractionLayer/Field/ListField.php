@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ListFieldSerializer;
+use Shopware\Core\Framework\Feature;
 
 /**
  * Stores a JSON formatted value list. This can be typed using the third constructor parameter.
@@ -51,22 +52,32 @@ class ListField extends JsonField
     /**
      * Strict `ListField` does not support keys and will strip them on decode. Use `JsonField` instead.
      *
-     * @deprecated tag:v6.5.0 Return always true, since the property gets removed
-     * @deprecated tag:v6.6.0 Remove the method completely
+     * @deprecated tag:v6.5.0 - will be removed
      */
     public function isStrict(): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'JsonField')
+        );
+
         return $this->strict;
     }
 
     /**
      * Enable strict mode which forces the decode to return non-associative array. (json_encode will encode it as an array instead of an object)
      *
-     * @deprecated tag:v6.5.0 Will be changed to a noop. All `ListField`s will be strict and this will just return $this
-     * @deprecated tag:v6.6.0 Remove the method completely
+     * @deprecated tag:v6.5.0 - will be removed
      */
     public function setStrict(bool $strict): ListField
     {
+        if (!$strict) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'JsonField')
+            );
+        }
+
         $this->strict = $strict;
 
         return $this;

@@ -111,10 +111,9 @@ class OneToManyAssociationFieldSerializer implements FieldSerializerInterface
     }
 
     /**
-     * @deprecated tag:v6.5.0 The parameter $value will be native typed
      * @never
      */
-    public function decode(Field $field, /*?string */$value): void
+    public function decode(Field $field, $value): void
     {
         throw new DecodeByHydratorException($field);
     }

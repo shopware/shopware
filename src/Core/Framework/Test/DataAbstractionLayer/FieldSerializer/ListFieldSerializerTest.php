@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ListFieldSerializer;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -36,6 +37,8 @@ class ListFieldSerializerTest extends TestCase
      */
     public function testDecode(ListField $field, $input, $expected): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $serializer = new ListFieldSerializer(
             $this->createMock(ValidatorInterface::class),
             $this->createMock(DefinitionInstanceRegistry::class)

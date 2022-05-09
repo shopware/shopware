@@ -58,11 +58,12 @@ class TranslatedFieldSerializer implements FieldSerializerInterface
         yield from [];
     }
 
-    /**
-     * @deprecated tag:v6.5.0 The parameter $value will be native typed
-     */
-    public function decode(Field $field, /*?string */$value): ?string
+    public function decode(Field $field, $value): ?string
     {
-        return $value;
+        if ($value === null) {
+            return $value;
+        }
+
+        return (string) $value;
     }
 }

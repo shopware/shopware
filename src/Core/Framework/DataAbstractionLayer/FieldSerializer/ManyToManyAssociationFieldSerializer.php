@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -139,10 +140,7 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
         yield from [];
     }
 
-    /**
-     * @deprecated tag:v6.5.0 The parameter $value will be native typed
-     */
-    public function decode(Field $field, /*?string */$value): void
+    public function decode(Field $field, $value): void
     {
         throw new DecodeByHydratorException($field);
     }
@@ -171,6 +169,13 @@ class ManyToManyAssociationFieldSerializer implements FieldSerializerInterface
      */
     protected function map(EntityDefinition $referencedDefinition, ManyToManyAssociationField $field, ManyToOneAssociationField $association, /*array */$data): array
     {
+        if (!\is_array($data)) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'Fourth parameter `$data` of method "map()" in "ManyToManyAssociationFieldSerializer" will be natively typed to `array` in v6.5.0.0.'
+            );
+        }
+
         // not only foreign key provided? data is provided as insert or update command
         if (\count($data) > 1) {
             $data['id'] = $data['id'] ?? Uuid::randomHex();

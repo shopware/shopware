@@ -107,12 +107,29 @@ class PaymentMethodRouteTest extends TestCase
         static::assertArrayNotHasKey('id', $response['elements'][0]);
     }
 
-    public function testFilteredOut(): void
+    public function testFilteredOutGet(): void
+    {
+        $this->browser
+            ->request(
+                'GET',
+                '/store-api/payment-method?onlyAvailable=1',
+            );
+
+        static::assertIsString($this->browser->getResponse()->getContent());
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertSame(2, $response['total']);
+        static::assertCount(2, $response['elements']);
+        static::assertNotContains($this->ids->get('payment3'), array_column($response['elements'], 'id'));
+    }
+
+    public function testFilteredOutPost(): void
     {
         $this->browser
             ->request(
                 'POST',
-                '/store-api/payment-method?onlyAvailable=1',
+                '/store-api/payment-method',
+                ['onlyAvailable' => 1],
             );
 
         static::assertIsString($this->browser->getResponse()->getContent());

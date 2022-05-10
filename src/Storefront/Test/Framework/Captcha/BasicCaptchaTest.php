@@ -45,9 +45,9 @@ class BasicCaptchaTest extends TestCase
     public function testIsValid(Request $request, bool $shouldBeValid): void
     {
         if ($shouldBeValid) {
-            static::assertTrue($this->captcha->isValid($request));
+            static::assertTrue($this->captcha->isValid($request, []));
         } else {
-            static::assertFalse($this->captcha->isValid($request));
+            static::assertFalse($this->captcha->isValid($request, []));
         }
     }
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Event;
 
+use Shopware\Core\Framework\Feature;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
@@ -27,16 +28,31 @@ class ProductExportContentTypeEvent extends Event
 
     public function getFileFormat(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'Shopware\Core\Content\ProductExport\Event\ProductExportContentTypeEvent')
+        );
+
         return $this->fileFormat;
     }
 
     public function getContentType(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'Shopware\Core\Content\ProductExport\Event\ProductExportContentTypeEvent')
+        );
+
         return $this->contentType;
     }
 
     public function setContentType(string $contentType): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'Shopware\Core\Content\ProductExport\Event\ProductExportContentTypeEvent')
+        );
+
         $this->contentType = $contentType;
     }
 }

@@ -7,6 +7,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationCollection;
 
@@ -247,6 +248,11 @@ class ThemeEntity extends Entity
      */
     public function getChildThemes(): ?ThemeCollection
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         return $this->childThemes;
     }
 
@@ -255,6 +261,11 @@ class ThemeEntity extends Entity
      */
     public function setChildThemes(ThemeCollection $childThemes): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         $this->childThemes = $childThemes;
     }
 

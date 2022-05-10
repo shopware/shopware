@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Page\Newsletter\Register;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -53,6 +54,11 @@ class NewsletterRegisterPageLoader
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext): NewsletterRegisterPage
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0')
+        );
+
         $page = $this->genericLoader->load($request, $salesChannelContext);
 
         /** @var NewsletterRegisterPage $page */

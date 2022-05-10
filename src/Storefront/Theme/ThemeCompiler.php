@@ -189,6 +189,11 @@ class ThemeCompiler implements ThemeCompilerInterface
      */
     public static function getThemePrefix(string $salesChannelId, string $themeId): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'AbstractThemePathBuilder')
+        );
+
         return md5($themeId . $salesChannelId);
     }
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme\Exception;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Symfony\Component\HttpFoundation\Response;
@@ -53,6 +54,11 @@ class ThemeAssignmentException extends ShopwareHttpException
      */
     public function getStillAssignedSalesChannels(): SalesChannelCollection
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'getAssignedSalesChannels()')
+        );
+
         return new SalesChannelCollection();
     }
 

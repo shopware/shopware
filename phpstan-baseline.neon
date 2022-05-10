@@ -4667,6 +4667,11 @@ parameters:
 			path: src/Storefront/Controller/AddressController.php
 
 		-
+			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Captcha\\\\AbstractCaptcha\\:\\:isValid\\(\\) invoked with 2 parameters, 1 required\\.$#"
+			count: 1
+			path: src/Storefront/Controller/CaptchaController.php
+
+		-
 			message: "#^Cannot access offset 'host' on array\\{scheme\\?\\: string, host\\?\\: string, port\\?\\: int, user\\?\\: string, pass\\?\\: string, path\\?\\: string, query\\?\\: string, fragment\\?\\: string\\}\\|false\\.$#"
 			count: 1
 			path: src/Storefront/Controller/ContextController.php
@@ -4712,21 +4717,6 @@ parameters:
 			path: src/Storefront/Controller/NewsletterController.php
 
 		-
-			message: "#^Class \"Shopware\\\\Storefront\\\\Event\\\\ProductExportContentTypeEvent\" is marked as deprecated, but method \"getContentType\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Event/ProductExportContentTypeEvent.php
-
-		-
-			message: "#^Class \"Shopware\\\\Storefront\\\\Event\\\\ProductExportContentTypeEvent\" is marked as deprecated, but method \"getFileFormat\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Event/ProductExportContentTypeEvent.php
-
-		-
-			message: "#^Class \"Shopware\\\\Storefront\\\\Event\\\\ProductExportContentTypeEvent\" is marked as deprecated, but method \"setContentType\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Event/ProductExportContentTypeEvent.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Event\\\\StorefrontRenderEvent\\:\\:setParameter\\(\\) has parameter \\$value with no type specified\\.$#"
 			count: 1
 			path: src/Storefront/Event/StorefrontRenderEvent.php
@@ -4745,66 +4735,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\CacheWarmer\\\\CacheWarmer\\:\\:handle\\(\\) has parameter \\$message with no type specified\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Cache/CacheWarmer/CacheWarmer.php
-
-		-
-			message: "#^Method \"banAll\" of class \"Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\AbstractReverseProxyGateway\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/ReverseProxy/AbstractReverseProxyGateway.php
-
-		-
-			message: "#^Method \"tag\" of class \"Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\FastlyReverseProxyGateway\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/ReverseProxy/FastlyReverseProxyGateway.php
-
-		-
-			message: "#^Method \"tag\" of class \"Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\RedisReverseProxyGateway\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Cache/ReverseProxy/RedisReverseProxyGateway.php
-
-		-
-			message: "#^Method \"supports\" of class \"Shopware\\\\Storefront\\\\Framework\\\\Captcha\\\\AbstractCaptcha\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Captcha/AbstractCaptcha.php
-
-		-
-			message: "#^Class \"Shopware\\\\Storefront\\\\Framework\\\\Captcha\\\\Annotation\\\\Captcha\" is marked as deprecated, but method \"allowArray\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Captcha/Annotation/Captcha.php
-
-		-
-			message: "#^Class \"Shopware\\\\Storefront\\\\Framework\\\\Captcha\\\\Annotation\\\\Captcha\" is marked as deprecated, but method \"getAliasName\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Captcha/Annotation/Captcha.php
-
-		-
-			message: "#^Method \"isValid\" of class \"Shopware\\\\Storefront\\\\Framework\\\\Captcha\\\\BasicCaptcha\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Captcha/BasicCaptcha.php
-
-		-
-			message: "#^Method \"supports\" of class \"Shopware\\\\Storefront\\\\Framework\\\\Captcha\\\\BasicCaptcha\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Captcha/BasicCaptcha.php
-
-		-
-			message: "#^Method \"isValid\" of class \"Shopware\\\\Storefront\\\\Framework\\\\Captcha\\\\GoogleReCaptchaV2\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Captcha/GoogleReCaptchaV2.php
-
-		-
-			message: "#^Method \"isValid\" of class \"Shopware\\\\Storefront\\\\Framework\\\\Captcha\\\\GoogleReCaptchaV3\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Captcha/GoogleReCaptchaV3.php
-
-		-
-			message: "#^Method \"isValid\" of class \"Shopware\\\\Storefront\\\\Framework\\\\Captcha\\\\HoneypotCaptcha\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Captcha/HoneypotCaptcha.php
-
-		-
-			message: "#^Method \"getSnippetSetId\" of class \"Shopware\\\\Storefront\\\\Framework\\\\Command\\\\SalesChannelCreateStorefrontCommand\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Command/SalesChannelCreateStorefrontCommand.php
 
 		-
 			message: "#^Parameter \\#2 \\$mimeType of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|null given\\.$#"
@@ -4892,61 +4822,6 @@ parameters:
 			path: src/Storefront/Framework/Twig/Extension/UrlEncodingTwigFilter.php
 
 		-
-			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Address\\\\Listing\\\\AddressListingCriteriaEvent\" is marked as deprecated, but method \"getContext\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Page/Address/Listing/AddressListingCriteriaEvent.php
-
-		-
-			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Address\\\\Listing\\\\AddressListingCriteriaEvent\" is marked as deprecated, but method \"getCriteria\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Page/Address/Listing/AddressListingCriteriaEvent.php
-
-		-
-			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Address\\\\Listing\\\\AddressListingCriteriaEvent\" is marked as deprecated, but method \"getSalesChannelContext\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Page/Address/Listing/AddressListingCriteriaEvent.php
-
-		-
-			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Contact\\\\ContactPage\" is marked as deprecated, but method \"getSalutations\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Page/Contact/ContactPage.php
-
-		-
-			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Contact\\\\ContactPage\" is marked as deprecated, but method \"setSalutations\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Page/Contact/ContactPage.php
-
-		-
-			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Contact\\\\ContactPageLoadedEvent\" is marked as deprecated, but method \"getPage\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Page/Contact/ContactPageLoadedEvent.php
-
-		-
-			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Contact\\\\ContactPageLoader\" is marked as deprecated, but method \"load\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Page/Contact/ContactPageLoader.php
-
-		-
-			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Newsletter\\\\Register\\\\NewsletterRegisterPage\" is marked as deprecated, but method \"getSalutations\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Page/Newsletter/Register/NewsletterRegisterPage.php
-
-		-
-			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Newsletter\\\\Register\\\\NewsletterRegisterPage\" is marked as deprecated, but method \"setSalutations\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Page/Newsletter/Register/NewsletterRegisterPage.php
-
-		-
-			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Newsletter\\\\Register\\\\NewsletterRegisterPageLoadedEvent\" is marked as deprecated, but method \"getPage\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Page/Newsletter/Register/NewsletterRegisterPageLoadedEvent.php
-
-		-
-			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Newsletter\\\\Register\\\\NewsletterRegisterPageLoader\" is marked as deprecated, but method \"load\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Page/Newsletter/Register/NewsletterRegisterPageLoader.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Page\\\\Product\\\\Configurator\\\\ProductCombinationFinder\\:\\:searchForOptions\\(\\) should return string\\|null but returns array\\|string\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Page/Product/Configurator/ProductCombinationFinder.php
@@ -4962,78 +4837,9 @@ parameters:
 			path: src/Storefront/Page/Product/ProductPageLoader.php
 
 		-
-			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\MatrixElement\" is marked as deprecated, but method \"getCount\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Page/Product/Review/MatrixElement.php
-
-		-
-			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\MatrixElement\" is marked as deprecated, but method \"getPercent\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Page/Product/Review/MatrixElement.php
-
-		-
-			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\MatrixElement\" is marked as deprecated, but method \"getPoints\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Page/Product/Review/MatrixElement.php
-
-		-
-			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\MatrixElement\" is marked as deprecated, but method \"setCount\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Page/Product/Review/MatrixElement.php
-
-		-
-			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\MatrixElement\" is marked as deprecated, but method \"setPercent\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Page/Product/Review/MatrixElement.php
-
-		-
-			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\MatrixElement\" is marked as deprecated, but method \"setPoints\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Page/Product/Review/MatrixElement.php
-
-		-
-			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\RatingMatrix\" is marked as deprecated, but method \"getAverageRating\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Page/Product/Review/RatingMatrix.php
-
-		-
-			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\RatingMatrix\" is marked as deprecated, but method \"getMatrix\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Page/Product/Review/RatingMatrix.php
-
-		-
-			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\RatingMatrix\" is marked as deprecated, but method \"getMaxPoints\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Page/Product/Review/RatingMatrix.php
-
-		-
-			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\RatingMatrix\" is marked as deprecated, but method \"getPointSum\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Page/Product/Review/RatingMatrix.php
-
-		-
-			message: "#^Class \"Shopware\\\\Storefront\\\\Page\\\\Product\\\\Review\\\\RatingMatrix\" is marked as deprecated, but method \"getTotalReviewCount\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Page/Product/Review/RatingMatrix.php
-
-		-
 			message: "#^Parameter \\#4 \\$activeLanguage of class Shopware\\\\Storefront\\\\Pagelet\\\\Header\\\\HeaderPagelet constructor expects Shopware\\\\Core\\\\System\\\\Language\\\\LanguageEntity, Shopware\\\\Core\\\\System\\\\Language\\\\LanguageEntity\\|null given\\.$#"
 			count: 1
 			path: src/Storefront/Pagelet/Header/HeaderPageletLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Storefront\\:\\:buildConfig\\(\\) has parameter \\$environment with no type specified\\.$#"
-			count: 1
-			path: src/Storefront/Storefront.php
-		-
-			message: "#^Method \"iterate\" of class \"Shopware\\\\Storefront\\\\Theme\\\\DataAbstractionLayer\\\\ThemeIndexer\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Theme/DataAbstractionLayer/ThemeIndexer.php
-
-		-
-			message: "#^Method \"getStillAssignedSalesChannels\" of class \"Shopware\\\\Storefront\\\\Theme\\\\Exception\\\\ThemeAssignmentException\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Exception/ThemeAssignmentException.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\FileCollection\\:\\:createFromArray\\(\\) has no return type specified\\.$#"
@@ -5059,11 +4865,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$pluginPath of method Shopware\\\\Storefront\\\\Theme\\\\Subscriber\\\\PluginLifecycleSubscriber\\:\\:createConfigFromClassName\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Storefront/Theme/Subscriber/PluginLifecycleSubscriber.php
-
-		-
-			message: "#^Method \"getThemePrefix\" of class \"Shopware\\\\Storefront\\\\Theme\\\\ThemeCompiler\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeCompiler.php
 
 		-
 			message: "#^Parameter \\#1 \\$config of method Shopware\\\\Storefront\\\\Theme\\\\ThemeCompiler\\:\\:dumpVariables\\(\\) expects array, array\\|null given\\.$#"
@@ -5094,16 +4895,6 @@ parameters:
 			message: "#^Property Shopware\\\\Storefront\\\\Theme\\\\ThemeConfigField\\:\\:\\$value has no type specified\\.$#"
 			count: 1
 			path: src/Storefront/Theme/ThemeConfigField.php
-
-		-
-			message: "#^Method \"getChildThemes\" of class \"Shopware\\\\Storefront\\\\Theme\\\\ThemeEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeEntity.php
-
-		-
-			message: "#^Method \"setChildThemes\" of class \"Shopware\\\\Storefront\\\\Theme\\\\ThemeEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeEntity.php
 
 		-
 			message: "#^Cannot call method getFilepath\\(\\) on Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\File\\|null\\.$#"

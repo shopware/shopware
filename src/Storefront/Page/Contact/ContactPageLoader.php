@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Page\Contact;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
@@ -45,6 +46,11 @@ class ContactPageLoader
 
     public function load(Request $request, SalesChannelContext $context): ContactPage
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', 'ContactRoute')
+        );
+
         $page = $this->genericLoader->load($request, $context);
 
         $page = ContactPage::createFrom($page);

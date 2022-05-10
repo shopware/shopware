@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Connection;
-use Ramsey\Uuid\Guid\Fields;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
@@ -66,12 +65,17 @@ class EntityDefinitionQueryHelper
         $source = $definition;
 
         foreach ($parts as $part) {
-            $fields = $source->getFields();
-
             if ($part === 'extensions') {
                 continue;
             }
+
+            $fields = $source->getFields();
             $field = $fields->get($part);
+
+            // continue if the current part is not a real field to allow access on collections
+            if (!$field) {
+                continue;
+            }
 
             if ($field instanceof TranslatedField && $resolveTranslated) {
                 $source = $source->getTranslationDefinition();
@@ -236,7 +240,7 @@ class EntityDefinitionQueryHelper
 
     public static function getAssociationPath(string $accessor, EntityDefinition $definition): ?string
     {
-        $fields = self::getFieldsOfAccessor($definition, $accessor, true);
+        $fields = self::getFieldsOfAccessor($definition, $accessor);
 
         $path = [];
         foreach ($fields as $field) {

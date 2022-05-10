@@ -292,6 +292,7 @@ class RegisterRoute extends AbstractRegisterRoute
                 'customerId' => $customerEntity->getId(),
                 'billingAddressId' => null,
                 'shippingAddressId' => null,
+                'domainId' => $context->getDomainId(),
             ],
             $context->getSalesChannel()->getId(),
             $customerEntity->getId()

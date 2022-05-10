@@ -58,6 +58,10 @@ class CartRestorer
             $customerContext = $this->replaceContextToken($customerId, $customerContext);
         }
 
+        if (!$customerContext->getDomainId()) {
+            $customerContext->setDomainId($currentContext->getDomainId());
+        }
+
         $guestCart = $this->cartService->getCart($currentContext->getToken(), $currentContext);
         $customerCart = $this->cartService->getCart($customerContext->getToken(), $customerContext);
 

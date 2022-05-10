@@ -61,6 +61,9 @@ describe('Customer:  Visual test', () => {
         cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Customer create`, '.sw-customer-create');
 
         const salutation = Cypress.env('locale') === 'en-GB' ? 'Mr' : 'Herr';
+
+        cy.get('.sw-customer-base-form__account-type-select')
+            .typeSingleSelectAndCheck('Commercial', '.sw-customer-base-form__account-type-select');
         cy.get('.sw-customer-base-form__salutation-select')
             .typeSingleSelectAndCheck(salutation, '.sw-customer-base-form__salutation-select');
 

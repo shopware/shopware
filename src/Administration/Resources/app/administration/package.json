@@ -69,6 +69,7 @@
     "flatpickr": "4.6.13",
     "fork-ts-checker-webpack-plugin": "6.5.2",
     "fs-extra": "^10.1.0",
+    "inter-ui": "^3.19.3",
     "lighthouse": "9.6.3",
     "lodash": "4.17.21",
     "md5-es": "1.8.2",

@@ -27,7 +27,7 @@
     .sw-data-grid__cell {
         padding: 0;
         margin: 0;
-        font-size: 14px;
+        font-size: $font-size-xs;
         color: $color-darkgray-200;
         border-right: 1px solid $color-gray-300;
         overflow: hidden;
@@ -54,7 +54,7 @@
         padding: 20px;
         line-height: 22px;
         height: 64px;
-        font-size: 14px;
+        font-size: $font-size-xs;
         display: flex;
         align-items: center;
 
@@ -258,7 +258,7 @@
         overflow: hidden;
         color: $color-darkgray-200;
         background: $color-white;
-        font-size: 14px;
+        font-size: $font-size-xs;
         left: 0;
         right: 0;
         height: 64px;
@@ -357,7 +357,7 @@
         display: inline-block;
         position: relative;
         margin: 0;
-        line-height: 18px;
+        line-height: $line-height-xs;
         padding: 4px 12px;
         text-decoration: none;
         color: $color-darkgray-200;

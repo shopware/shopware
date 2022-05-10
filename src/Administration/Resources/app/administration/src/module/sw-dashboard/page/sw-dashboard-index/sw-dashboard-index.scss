@@ -20,7 +20,7 @@ $content-max-width: 960px;
 
     &__welcome-message {
         color: $color-darkgray-200;
-        font-size: 14px;
+        font-size: $font-size-xs;
         line-height: 25px;
         letter-spacing: 0.32px;
 
@@ -38,7 +38,7 @@ $content-max-width: 960px;
         min-width: 400px;
 
         h1 {
-            font-size: ($font-size-default * 2);
+            font-size: ($font-size-s * 2);
             margin-bottom: 20px;
         }
     }
@@ -95,13 +95,13 @@ $content-max-width: 960px;
     }
 
     &__card-title {
-        font-size: $font-size-default;
+        font-size: $font-size-s;
         color: $color-darkgray-200;
         margin-bottom: 12px;
     }
 
     &__card-text {
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         line-height: 22px;
         color: $color-darkgray-200;
         letter-spacing: 0.1px;
@@ -110,7 +110,7 @@ $content-max-width: 960px;
 
     &__card-button {
         padding: 9px 24px;
-        font-weight: 600;
+        font-weight: $font-weight-semi-bold;
         border-radius: $border-radius-default;
         border: 1px solid $color-gray-300;
         background-color: $color-gray-50;
@@ -124,7 +124,7 @@ $content-max-width: 960px;
         &:focus {
             color: $color-darkgray-300 !important;
             text-decoration: none;
-            font-size: $font-size-small;
+            font-size: $font-size-xs;
         }
 
         .sw-icon {
@@ -135,7 +135,7 @@ $content-max-width: 960px;
     &__card-list {
         list-style: none;
         margin-bottom: 32px;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
     }
 
     &__card-list-item {
@@ -173,7 +173,7 @@ $content-max-width: 960px;
 
         h1 {
             color: $color-darkgray-200;
-            font-size: $font-size-large;
+            font-size: $font-size-m;
             line-height: 25px;
             font-weight: normal;
             margin-bottom: 0;
@@ -200,7 +200,7 @@ $content-max-width: 960px;
 
         /** @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use classes starting with `.sw-dashboard-statistics__*` instead  */
         .sw-dashboard-index__intro-stats-today-single-stat-number-type {
-            font-size: $font-size-large;
+            font-size: $font-size-m;
             color: $color-gray-800;
             margin-top: 10px;
             margin-right: 10px;
@@ -208,7 +208,7 @@ $content-max-width: 960px;
 
         /** @deprecated tag:v6.5.0 - Will be moved to `sw-dashboard/component/sw-dashboard-statistics` - Use classes starting with `.sw-dashboard-statistics__*` instead  */
         .sw-dashboard-index__intro-stats-today-single-stat-number-value {
-            font-size: ($font-size-large * 2.5);
+            font-size: ($font-size-m * 2.5);
         }
     }
 

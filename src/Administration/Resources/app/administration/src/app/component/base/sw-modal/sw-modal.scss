@@ -5,7 +5,7 @@
 $sw-modal-color-backdrop: rgba(0, 0, 0, 40%);
 $sw-modal-gap: 64px;
 $sw-modal-loader-z-index: $z-index-modal + 1;
-$sw-modal-title-font-size: 18px;
+$sw-modal-title-font-size: $font-size-m;
 $sw-modal-transition-duration: 0.4s;
 $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
 
@@ -100,7 +100,7 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
     .sw-modal__title {
         margin: 0;
         color: $color-darkgray-300;
-        font-size: $font-size-large;
+        font-size: $font-size-m;
         font-weight: $font-weight-semi-bold;
         white-space: nowrap;
         text-overflow: ellipsis;
@@ -110,9 +110,9 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
     .sw-modal__subtitle {
         margin: 0;
         color: $color-darkgray-50;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         font-weight: $font-weight-regular;
-        line-height: 18px;
+        line-height: $line-height-xs;
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;

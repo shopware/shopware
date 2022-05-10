@@ -13,7 +13,7 @@
 
     &__description-tab,
     &__reviews-tab {
-        font-size: 14px;
+        font-size: $font-size-xs;
         color: $color-gray-500;
         margin: auto 10px auto 0;
         border-bottom: 1px solid $color-gray-500;
@@ -83,11 +83,11 @@
 
     &__detail-item-label,
     &__detail-item-value {
-        font-size: 14px;
+        font-size: $font-size-xs;
         width: 50%;
     }
 
     &__detail-item-label {
-        font-weight: 600;
+        font-weight: $font-weight-semi-bold;
     }
 }

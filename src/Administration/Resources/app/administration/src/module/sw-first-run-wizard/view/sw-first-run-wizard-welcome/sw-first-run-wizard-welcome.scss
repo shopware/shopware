@@ -18,7 +18,7 @@
 
     .text-welcome {
         width: 675px;
-        font-size: 14px;
+        font-size: $font-size-xs;
         font-weight: normal;
         text-align: center;
         letter-spacing: 0.1px;
@@ -27,8 +27,8 @@
 
     .text-change-language {
         height: 25px;
-        font-size: 18px;
-        font-weight: 600;
+        font-size: $font-size-m;
+        font-weight: $font-weight-semi-bold;
         letter-spacing: 0.1px;
         line-height: 25px;
     }

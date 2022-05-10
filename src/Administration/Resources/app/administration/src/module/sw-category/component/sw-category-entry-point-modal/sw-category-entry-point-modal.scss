@@ -3,7 +3,7 @@
 .sw-category-entry-point-modal {
     .sw-category-entry-point-modal__layout-headline,
     .sw-category-entry-point-modal__seo-headline {
-        font-size: $font-size-large;
+        font-size: $font-size-m;
         font-weight: $font-weight-regular;
     }
 
@@ -25,11 +25,11 @@
 
         .sw-category-entry-point-modal__desc-headline {
             font-weight: $font-weight-semi-bold;
-            font-size: $font-size-small;
+            font-size: $font-size-xs;
         }
 
         .sw-category-entry-point-modal__desc-subheadline {
-            font-size: $font-size-small;
+            font-size: $font-size-xs;
         }
 
         .sw-category-entry-point-modal__desc-headline.is--empty,
@@ -54,7 +54,7 @@
             justify-content: flex-end;
             color: $color-shopware-brand-500;
             text-decoration: none;
-            font-size: $font-size-small;
+            font-size: $font-size-xs;
             margin-top: 8px;
 
             .sw-icon {

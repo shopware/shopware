@@ -67,7 +67,7 @@ $sw-pagination-border-radius: $border-radius-default;
 
     .sw-pagination__per-page {
         display: inline-block;
-        font-size: 14px;
+        font-size: $font-size-xs;
         line-height: 16px;
         position: absolute;
         right: 0;

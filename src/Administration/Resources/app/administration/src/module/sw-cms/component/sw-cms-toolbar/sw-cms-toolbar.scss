@@ -26,8 +26,8 @@
 
     .sw-cms-toolbar__title h2 {
         color: $color-darkgray-200;
-        font-size: 18px;
-        font-weight: 600;
+        font-size: $font-size-m;
+        font-weight: $font-weight-semi-bold;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;

@@ -15,15 +15,15 @@
     .external-link {
         text-decoration: none;
         color: $color-shopware-brand-500;
-        font-size: 14px;
+        font-size: $font-size-xs;
         font-weight: normal;
         letter-spacing: 0.1px;
         line-height: 22px;
     }
 
     .headline {
-        font-size: 18px;
-        font-weight: 600;
+        font-size: $font-size-m;
+        font-weight: $font-weight-semi-bold;
         letter-spacing: 0.1px;
         line-height: 25px;
     }

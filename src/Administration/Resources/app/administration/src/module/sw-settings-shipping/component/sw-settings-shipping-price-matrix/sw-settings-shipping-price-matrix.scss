@@ -44,7 +44,7 @@ $sw-shipping-list-color-error: $color-crimson-500;
 
     .sw-settings-shipping-price-matrix__empty-text {
         max-width: 500px;
-        font-size: 14px;
+        font-size: $font-size-xs;
         text-align: center;
         margin-bottom: 17px;
     }

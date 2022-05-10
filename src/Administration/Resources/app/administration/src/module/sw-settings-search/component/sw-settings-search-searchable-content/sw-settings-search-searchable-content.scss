@@ -8,7 +8,7 @@
     &__searchable-content-show-example-link,
     &__searchable-content-rebuild-link {
         color: $color-shopware-brand-500;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         cursor: pointer;
         text-decoration: underline;
 
@@ -24,14 +24,14 @@
 
     &__searchable-content-title {
         display: block;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         line-height: 22px;
         letter-spacing: 0.1px;
     }
 
     &__searchable-content-tab-title {
         display: block;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
     }
 
     &__searchable-content.sw-card {

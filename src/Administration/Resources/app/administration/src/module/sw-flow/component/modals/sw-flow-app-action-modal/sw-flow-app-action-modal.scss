@@ -12,7 +12,7 @@
         background: $color-gray-100;
         border-radius: 4px;
         margin-left: 8px;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
     }
 
     .sw-field--checkbox__content .sw-field .sw-field__label label {
@@ -26,7 +26,7 @@
 
     &__headline {
         font-family: $font-family-default;
-        font-size: $font-size-default;
+        font-size: $font-size-s;
         font-style: normal;
         font-weight: 600;
         line-height: 24px;
@@ -44,7 +44,7 @@
         font-family: $font-family-default;
         font-style: normal;
         font-weight: 400;
-        font-size: $font-size-default;
+        font-size: $font-size-s;
         line-height: 24px;
         display: flex;
         align-items: center;

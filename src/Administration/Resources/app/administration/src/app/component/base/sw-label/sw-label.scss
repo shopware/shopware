@@ -14,7 +14,7 @@ $sw-label-pill-border-radius: 50px;
     margin: 0 6px 6px 0;
     padding: 8px 12px;
     line-height: 14px;
-    font-size: $font-size-extra-small;
+    font-size: $font-size-xxs;
     height: 32px;
     border: 1px solid $color-gray-300;
     background: $color-gray-50;
@@ -79,7 +79,7 @@ $sw-label-pill-border-radius: 50px;
     &.sw-label--appearance-badged {
         background: transparent;
         border: 0;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         padding: 4px 0;
         line-height: 22px;
 
@@ -111,9 +111,9 @@ $sw-label-pill-border-radius: 50px;
     &.sw-label--warning,
     &.sw-label--neutral {
         &.sw-label--small {
-            font-weight: 600;
+            font-weight: $font-weight-semi-bold;
             line-height: 14px;
-            font-size: 12px;
+            font-size: $font-size-xxs;
             padding: 0 5px;
             padding-left: 15px;
             height: 16px;

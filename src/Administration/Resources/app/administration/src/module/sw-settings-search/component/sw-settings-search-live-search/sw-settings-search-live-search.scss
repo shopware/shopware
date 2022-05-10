@@ -2,7 +2,7 @@
 
 .sw-settings-search-live-search {
     &__description {
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
     }
 
     &__show-example-link {
@@ -12,7 +12,7 @@
         align-items: center;
         margin: 18px 0 12px;
         color: $color-shopware-brand-500;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         text-decoration: underline;
         cursor: pointer;
     }
@@ -29,7 +29,7 @@
     &__no-result {
         display: block;
         margin: 18px 0;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
     }
 
     &__grid-result {

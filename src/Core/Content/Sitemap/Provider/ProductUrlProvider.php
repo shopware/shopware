@@ -14,12 +14,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 class ProductUrlProvider extends AbstractUrlProvider
 {
     public const CHANGE_FREQ = 'hourly';
+
+    private const CONFIG_HIDE_AFTER_CLOSEOUT = 'core.listing.hideCloseoutProductsWhenOutOfStock';
 
     private IteratorFactory $iteratorFactory;
 
@@ -31,6 +34,8 @@ class ProductUrlProvider extends AbstractUrlProvider
 
     private RouterInterface $router;
 
+    private SystemConfigService $systemConfigService;
+
     /**
      * @internal
      */
@@ -39,13 +44,15 @@ class ProductUrlProvider extends AbstractUrlProvider
         Connection $connection,
         ProductDefinition $definition,
         IteratorFactory $iteratorFactory,
-        RouterInterface $router
+        RouterInterface $router,
+        SystemConfigService $systemConfigService
     ) {
         $this->configHandler = $configHandler;
         $this->connection = $connection;
         $this->definition = $definition;
         $this->iteratorFactory = $iteratorFactory;
         $this->router = $router;
+        $this->systemConfigService = $systemConfigService;
     }
 
     public function getDecorated(): AbstractUrlProvider
@@ -119,6 +126,8 @@ class ProductUrlProvider extends AbstractUrlProvider
         $query = $iterator->getQuery();
         $query->setMaxResults($limit);
 
+        $showAfterCloseout = !$this->systemConfigService->get(self::CONFIG_HIDE_AFTER_CLOSEOUT, $context->getSalesChannelId());
+
         $query->addSelect([
             '`product`.created_at as created_at',
             '`product`.updated_at as updated_at',
@@ -128,7 +137,13 @@ class ProductUrlProvider extends AbstractUrlProvider
         $query->innerJoin('`product`', 'product_visibility', 'visibilities', 'product.visibilities = visibilities.product_id');
 
         $query->andWhere('`product`.version_id = :versionId');
-        $query->andWhere('`product`.available = 1');
+
+        if ($showAfterCloseout) {
+            $query->andWhere('(`product`.available = 1 OR `product`.is_closeout)');
+        } else {
+            $query->andWhere('`product`.available = 1');
+        }
+
         $query->andWhere('IFNULL(`product`.active, parent.active) = 1');
         $query->andWhere('(`product`.child_count = 0 OR `product`.parent_id IS NOT NULL)');
         $query->andWhere('(`product`.parent_id IS NULL OR parent.canonical_product_id IS NULL OR parent.canonical_product_id = `product`.id)');

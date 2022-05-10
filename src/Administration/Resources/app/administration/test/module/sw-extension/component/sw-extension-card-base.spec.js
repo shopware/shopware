@@ -12,7 +12,9 @@ function createWrapper(propsData = {}, provide = {}) {
             'sw-switch-field': true,
             'sw-context-button': true,
             'sw-context-menu': true,
-            'sw-context-menu-item': true
+            'sw-context-menu-item': true,
+            'sw-loader': true,
+            'sw-extension-permissions-modal': true,
         },
         provide: {
             shopwareExtensionService: {
@@ -159,7 +161,6 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     });
 
     it('should show config menu item: active and activated once', async () => {
-        wrapper.destroy();
         wrapper = await createWrapper({
             extension: {
                 installedAt: null,
@@ -185,7 +186,6 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     });
 
     it('should not show config menu item: not active and activated once', async () => {
-        wrapper.destroy();
         wrapper = await createWrapper({
             extension: {
                 installedAt: null,
@@ -202,5 +202,43 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
 
         const state = wrapper.findAll('sw-context-menu-item-stub');
         expect(state.length).toBe(0);
+    });
+
+    it('should show a consent affirmation modal if an app requires new permissions on update', async () => {
+        wrapper = await createWrapper({
+            extension: {
+                installedAt: '845618651',
+                permissions: []
+            }
+        },
+        {
+            shopwareExtensionService: {
+                updateExtension: async () => {
+                    const error = new Error();
+                    error.response = {
+                        data: {
+                            errors: [{
+                                code: 'FRAMEWORK__EXTENSION_UPDATE_REQUIRES_CONSENT_AFFIRMATION',
+                                meta: {
+                                    parameters: {
+                                        deltas: ['permissions']
+                                    }
+                                }
+                            }]
+                        }
+                    };
+
+                    throw error;
+                }
+            }
+        });
+
+        await wrapper.vm.$nextTick();
+
+        await wrapper.vm.updateExtension(false);
+
+        await new Promise(process.nextTick);
+
+        wrapper.get('sw-extension-permissions-modal-stub');
     });
 });

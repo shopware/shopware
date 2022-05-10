@@ -34,6 +34,8 @@ Component.register('sw-extension-card-base', {
             openLink: null,
             // @deprecated tag:v6.5.0 - will be removed use openLinkExists instead
             extensionCanBeOpened: false,
+            showConsentAffirmationModal: false,
+            consentAffirmationDeltas: null,
         };
     },
 
@@ -178,6 +180,30 @@ Component.register('sw-extension-card-base', {
 
             return null;
         },
+
+        consentAffirmationModalActionLabel() {
+            return this.$tc('sw-extension-store.component.sw-extension-permissions-modal.acceptAndUpdate');
+        },
+
+        consentAffirmationModalCloseLabel() {
+            return this.$tc('global.default.cancel');
+        },
+
+        consentAffirmationModalTitle() {
+            return this.$tc(
+                'sw-extension-store.component.sw-extension-permissions-modal.titleNewPermissions',
+                1,
+                { extensionLabel: this.extension.label },
+            );
+        },
+
+        consentAffirmationModalDescription() {
+            return this.$tc(
+                'sw-extension-store.component.sw-extension-permissions-modal.descriptionNewPermissions',
+                1,
+                { extensionLabel: this.extension.label },
+            );
+        },
     },
 
     created() {
@@ -235,7 +261,7 @@ Component.register('sw-extension-card-base', {
             }
         },
 
-        async updateExtension() {
+        async updateExtension(allowNewPermissions = false) {
             this.isLoading = true;
 
             try {
@@ -247,10 +273,19 @@ Component.register('sw-extension-card-base', {
                     await this.shopwareExtensionService.updateExtension(
                         this.extension.name,
                         this.extension.type,
+                        allowNewPermissions,
                     );
                 }
                 this.clearCacheAndReloadPage();
             } catch (e) {
+                if (e.response?.data?.errors[0]?.code === 'FRAMEWORK__EXTENSION_UPDATE_REQUIRES_CONSENT_AFFIRMATION') {
+                    this.consentAffirmationDeltas = e.response.data.errors[0].meta.parameters.deltas;
+
+                    this.openConsentAffirmationModal();
+
+                    return;
+                }
+
                 this.showExtensionErrors(e);
             } finally {
                 this.isLoading = false;
@@ -351,6 +386,19 @@ Component.register('sw-extension-card-base', {
                 .then(() => {
                     window.location.reload();
                 });
+        },
+
+        openConsentAffirmationModal() {
+            this.showConsentAffirmationModal = true;
+        },
+
+        closeConsentAffirmationModal() {
+            this.showConsentAffirmationModal = false;
+        },
+
+        async closeConsentAffirmationModalAndUpdateExtension() {
+            this.closeConsentAffirmationModal();
+            await this.updateExtension(true);
         },
     },
 });

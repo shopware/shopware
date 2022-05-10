@@ -135,14 +135,14 @@ class ExtensionLifecycleServiceTest extends TestCase
     public function testUpdateExtensionNotExisting(): void
     {
         static::expectException(ExtensionInstallException::class);
-        $this->lifecycleService->update('app', 'foo', $this->context);
+        $this->lifecycleService->update('app', 'foo', false, $this->context);
     }
 
     public function testUpdateExtensionNotInstalled(): void
     {
         $this->installApp(__DIR__ . '/../_fixtures/TestApp', false);
         static::expectException(ExtensionNotFoundException::class);
-        $this->lifecycleService->update('app', 'TestApp', $this->context);
+        $this->lifecycleService->update('app', 'TestApp', false, $this->context);
     }
 
     public function testUpdateExtension(): void
@@ -157,7 +157,7 @@ class ExtensionLifecycleServiceTest extends TestCase
         $appManifestPath = $this->getContainer()->getParameter('kernel.app_dir') . '/TestApp/manifest.xml';
         file_put_contents($appManifestPath, str_replace('1.0.0', '1.0.1', file_get_contents($appManifestPath)));
 
-        $this->lifecycleService->update('app', 'TestApp', $this->context);
+        $this->lifecycleService->update('app', 'TestApp', false, $this->context);
 
         /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();

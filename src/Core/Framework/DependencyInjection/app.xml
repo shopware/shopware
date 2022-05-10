@@ -447,6 +447,10 @@
             <tag name="shopware.app_delta"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Delta\DomainsDeltaProvider">
+            <tag name="shopware.app_delta"/>
+        </service>
+
         <!-- ENTITY DEFINITIONS -->
         <service id="Shopware\Core\Framework\App\AppDefinition">
             <tag name="shopware.entity.definition"/>

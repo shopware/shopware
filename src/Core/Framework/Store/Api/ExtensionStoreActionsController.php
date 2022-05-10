@@ -161,9 +161,11 @@ class ExtensionStoreActionsController extends AbstractController
      * @Since("6.4.0.0")
      * @Route("/api/_action/extension/update/{type}/{technicalName}", name="api.extension.update", methods={"POST"})
      */
-    public function updateExtension(string $type, string $technicalName, Context $context): Response
+    public function updateExtension(Request $request, string $type, string $technicalName, Context $context): Response
     {
-        $this->extensionLifecycleService->update($type, $technicalName, $context);
+        $allowNewPermissions = $request->request->getBoolean('allowNewPermissions');
+
+        $this->extensionLifecycleService->update($type, $technicalName, $allowNewPermissions, $context);
 
         return new Response('', Response::HTTP_NO_CONTENT);
     }

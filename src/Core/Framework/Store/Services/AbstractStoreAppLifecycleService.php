@@ -21,7 +21,7 @@ abstract class AbstractStoreAppLifecycleService
 
     abstract public function deactivateExtension(string $technicalName, Context $context): void;
 
-    abstract public function updateExtension(string $technicalName, bool $allowNewPrivileges, Context $context): void;
+    abstract public function updateExtension(string $technicalName, bool $allowNewPermissions, Context $context): void;
 
     abstract protected function getDecorated(): AbstractStoreAppLifecycleService;
 }

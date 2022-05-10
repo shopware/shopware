@@ -25,6 +25,21 @@ Component.register('sw-extension-permissions-modal', {
             required: false,
             default: null,
         },
+        closeLabel: {
+            type: String,
+            required: false,
+            default: null,
+        },
+        title: {
+            type: String,
+            required: false,
+            default: null,
+        },
+        description: {
+            type: String,
+            required: false,
+            default: null,
+        },
     },
 
     data() {
@@ -37,6 +52,10 @@ Component.register('sw-extension-permissions-modal', {
 
     computed: {
         modalTitle() {
+            if (this.title) {
+                return this.title;
+            }
+
             return this.$tc(
                 'sw-extension-store.component.sw-extension-permissions-modal.title',
                 1,
@@ -70,6 +89,26 @@ Component.register('sw-extension-permissions-modal', {
             }
 
             return [];
+        },
+
+        closeBtnLabel() {
+            if (this.closeLabel) {
+                return this.closeLabel;
+            }
+
+            return this.$tc('global.sw-modal.labelClose');
+        },
+
+        descriptionText() {
+            if (this.description) {
+                return this.description;
+            }
+
+            return this.$tc(
+                'sw-extension-store.component.sw-extension-permissions-modal.description',
+                1,
+                { extensionLabel: this.extensionLabel },
+            );
         },
     },
 

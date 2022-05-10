@@ -65,13 +65,13 @@ class PermissionCollection extends StoreCollection
             $operations = AclRoleDefinition::PRIVILEGE_DEPENDENCE[$permission['operation']];
 
             foreach ($operations as $operation) {
-                $dependendPermission = [
+                $dependentPermission = [
                     'entity' => $permission['entity'],
                     'operation' => $operation,
                 ];
 
-                if (!\in_array($dependendPermission, $permissions, true)) {
-                    $permissions[] = $dependendPermission;
+                if (!\in_array($dependentPermission, $permissions, true)) {
+                    $permissions[] = $dependentPermission;
                 }
             }
         }

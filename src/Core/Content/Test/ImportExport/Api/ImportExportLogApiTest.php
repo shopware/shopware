@@ -230,7 +230,7 @@ class ImportExportLogApiTest extends TestCase
         static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode());
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
-        static::assertEquals($num, \count($records));
+        static::assertCount($num, $records);
 
         $this->getBrowser()->request('DELETE', $this->prepareRoute() . $deleteId, [], [], [
             'HTTP_ACCEPT' => 'application/json',
@@ -239,7 +239,7 @@ class ImportExportLogApiTest extends TestCase
         static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode());
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
-        static::assertEquals($num, \count($records));
+        static::assertCount($num, $records);
     }
 
     protected function prepareRoute(bool $search = false): string

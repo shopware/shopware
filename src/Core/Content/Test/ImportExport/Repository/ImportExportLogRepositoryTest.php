@@ -229,7 +229,7 @@ class ImportExportLogRepositoryTest extends TestCase
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
 
-        static::assertSame($num, \count($records));
+        static::assertCount($num, $records);
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];

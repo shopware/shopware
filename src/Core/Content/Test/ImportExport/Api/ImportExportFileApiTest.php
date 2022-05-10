@@ -282,7 +282,7 @@ class ImportExportFileApiTest extends TestCase
         static::assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_file');
-        static::assertEquals($num, \count($records));
+        static::assertCount($num, $records);
 
         $this->getBrowser()->request('DELETE', $this->prepareRoute() . $deleteId, [], [], [
             'HTTP_ACCEPT' => 'application/json',

@@ -108,7 +108,7 @@ class ImportExportProfileRepositoryTest extends TestCase
         );
         $translationRecords = $this->getTranslationRecords();
 
-        static::assertEquals($num, \count($records));
+        static::assertCount($num, $records);
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
@@ -213,7 +213,7 @@ class ImportExportProfileRepositoryTest extends TestCase
         );
         $translationRecords = $this->getTranslationRecords();
 
-        static::assertEquals($num, \count($records));
+        static::assertCount($num, $records);
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
@@ -259,7 +259,7 @@ class ImportExportProfileRepositoryTest extends TestCase
         $records = $this->connection->fetchAll('SELECT * FROM import_export_profile');
         $translationRecords = $this->getTranslationRecords();
 
-        static::assertEquals($num, \count($records));
+        static::assertCount($num, $records);
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
@@ -315,7 +315,7 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_profile');
 
-        static::assertEquals($num, \count($records));
+        static::assertCount($num, $records);
     }
 
     public function testImportExportProfileDeleteUnknown(): void
@@ -333,7 +333,7 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_profile');
 
-        static::assertEquals($num, \count($records));
+        static::assertCount($num, $records);
     }
 
     /**

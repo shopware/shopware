@@ -97,7 +97,7 @@ class MailHeaderFooterRepositoryTest extends TestCase
                         JOIN mail_header_footer_translation mhft ON mhf.id=mhft.mail_header_footer_id'
         );
 
-        static::assertEquals($num, \count($records));
+        static::assertCount($num, $records);
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];

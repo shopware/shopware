@@ -56,8 +56,8 @@ class SupportedFeaturesService
     {
         $twoGiB = 2 * 1024 * 1024 * 1024;
         $values = [
-            self::toBytes(ini_get('upload_max_filesize')),
-            self::toBytes(ini_get('post_max_size')),
+            self::toBytes(\ini_get('upload_max_filesize')),
+            self::toBytes(\ini_get('post_max_size')),
             $twoGiB, // 2 GiB as fallback, because file size is stored in MySQL INT column
         ];
 

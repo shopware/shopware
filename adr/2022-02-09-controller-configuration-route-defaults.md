@@ -13,7 +13,7 @@ The configuration can contain following as example:
     - Defines the scope of the route
 - and many more
 
-As Annotations are bound to the implementing class, all decorators have to copy and be update to date with the target table
+As Annotations are bound to the implementing class, all decorators have to copy and be update to date with the target class
 
 ## Decision
 

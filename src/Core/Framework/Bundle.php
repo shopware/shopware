@@ -115,6 +115,11 @@ abstract class Bundle extends SymfonyBundle
      */
     protected function addCoreMigrationPath(ContainerBuilder $container, string $path, string $namespace): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         $container->addCompilerPass(new AddCoreMigrationPathCompilerPass($path, $namespace));
     }
 

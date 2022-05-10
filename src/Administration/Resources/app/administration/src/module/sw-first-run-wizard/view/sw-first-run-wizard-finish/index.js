@@ -76,11 +76,8 @@ Component.register('sw-first-run-wizard-finish', {
     methods: {
         createdComponent() {
             this.updateButtons();
-            const language = Shopware.State.get('session').currentLocale;
 
-            this.firstRunWizardService.getLicenseDomains({
-                language,
-            }).then((response) => {
+            this.firstRunWizardService.getLicenseDomains().then((response) => {
                 const { items } = response;
 
                 if (!items || items.length < 1) {

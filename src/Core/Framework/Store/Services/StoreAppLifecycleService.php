@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\Terms
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Store\Exception\ExtensionInstallException;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
@@ -21,7 +22,7 @@ use Shopware\Core\Framework\Store\Exception\ExtensionThemeStillInUseException;
 use Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirmationException;
 
 /**
- * @deprecated tag:v6.5.0 - This class will be marked as "internal - only for use by the app-system"
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - This class will be marked as "internal - only for use by the app-system"
  */
 class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
 {
@@ -152,6 +153,11 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
      */
     public function getAppIdByName(string $technicalName, Context $context): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0')
+        );
+
         $criteria = (new Criteria())->addFilter(new EqualsFilter('name', $technicalName));
         $app = $this->appRepository->searchIds($criteria, $context)->firstId();
 

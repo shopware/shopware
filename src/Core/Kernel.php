@@ -13,8 +13,6 @@ use Shopware\Core\Maintenance\Maintenance;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Loader\LoaderInterface;
-use Symfony\Component\DependencyInjection\Compiler\DecoratorServicePass;
-use Symfony\Component\DependencyInjection\Compiler\ServiceLocatorTagPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
@@ -100,7 +98,7 @@ class Kernel extends HttpKernel
     /**
      * @return \Generator<BundleInterface>
      *
-     * @deprecated tag:v6.5.0 The return type will be native
+     * @deprecated tag:v6.5.0 - reason:return-type-change -  The return type will be native
      */
     public function registerBundles()/*: \Generator*/
     {
@@ -129,7 +127,7 @@ class Kernel extends HttpKernel
     /**
      * @return string
      *
-     * @deprecated tag:v6.5.0 The return type will be native
+     * @deprecated tag:v6.5.0 - reason:return-type-change - The return type will be native
      */
     public function getProjectDir()/*: string*/
     {
@@ -394,34 +392,6 @@ class Kernel extends HttpKernel
             $connection->executeQuery(implode(';', $connectionVariables));
         } catch (\Throwable $_) {
         }
-    }
-
-    /**
-     * @deprecated tag:v6.5.0 Remove when Symfony 5.3.7 is released and we bumped up the minimum version
-     * @see https://github.com/symfony/symfony/pull/42347
-     */
-    protected function getContainerBuilder()
-    {
-        $c = parent::getContainerBuilder();
-
-        $passes = $c->getCompilerPassConfig()->getOptimizationPasses();
-        $newPasses = [];
-
-        foreach ($passes as $pass) {
-            if ($pass instanceof DecoratorServicePass) {
-                continue;
-            }
-
-            $newPasses[] = $pass;
-
-            if ($pass instanceof ServiceLocatorTagPass) {
-                $newPasses[] = new DecoratorServicePass();
-            }
-        }
-
-        $c->getCompilerPassConfig()->setOptimizationPasses($newPasses);
-
-        return $c;
     }
 
     /**

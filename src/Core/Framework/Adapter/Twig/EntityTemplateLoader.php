@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Twig;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Service\ResetInterface;
 use Twig\Error\LoaderError;
@@ -38,6 +39,11 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
      */
     public function clearInternalCache(): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'reset()')
+        );
+
         $this->reset();
     }
 

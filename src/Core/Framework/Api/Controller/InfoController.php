@@ -233,6 +233,11 @@ class InfoController extends AbstractController
     public function config(?Context $context = null): JsonResponse
     {
         if (!$context) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'First parameter `$context` will be required in method `config()` in `InfoController` in v6.5.0.0'
+            );
+
             $context = Context::createDefaultContext();
         }
 

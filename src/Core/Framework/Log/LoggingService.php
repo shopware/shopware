@@ -11,10 +11,19 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class LoggingService implements EventSubscriberInterface
 {
+    /**
+     * @deprecated tag:v6.5.0 - property will be private
+     */
     protected Logger $logger;
 
+    /**
+     * @deprecated tag:v6.5.0 - property will be removed
+     */
     protected array $subscribedEvents;
 
+    /**
+     * @deprecated tag:v6.5.0 - property will be private
+     */
     protected string $environment;
 
     /**
@@ -33,6 +42,11 @@ class LoggingService implements EventSubscriberInterface
      */
     public function logBusinessEvent(BusinessEvent $event): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.5.0.0', 'logFlowEvent()')
+        );
+
         $innerEvent = $event->getEvent();
 
         $additionalData = [];

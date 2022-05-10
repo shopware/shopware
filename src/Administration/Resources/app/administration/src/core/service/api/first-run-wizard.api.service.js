@@ -11,6 +11,13 @@ class FirstRunWizardApiService extends ApiService {
         this.name = 'firstRunWizardService';
     }
 
+    getBasicHeaders(additionalHeaders = {}) {
+        return {
+            ...super.getBasicHeaders(additionalHeaders),
+            'sw-language-id': Shopware.Context.api.languageId,
+        };
+    }
+
     /**
      * Check shopwareId
      *

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Test\Api\Acl\fixtures\AclTestController;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -46,6 +47,8 @@ class AclAnnotationValidatorTest extends TestCase
      */
     public function testValidateRequest(array $privileges, array $acl, bool $pass): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $source = new AdminApiSource(null, null);
         $source->setPermissions($privileges);
 
@@ -118,6 +121,8 @@ class AclAnnotationValidatorTest extends TestCase
      */
     public function testValidateAppRequestDeprecated(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $actionId = Uuid::randomHex();
         $appName = 'AppSuccess';
         $this->registerActionButton($appName, $actionId);
@@ -187,6 +192,8 @@ class AclAnnotationValidatorTest extends TestCase
      */
     public function testValidateAppRequestFailDeprecated(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $actionId = Uuid::randomHex();
         $appName = 'AppFail';
         $this->registerActionButton($appName, $actionId);

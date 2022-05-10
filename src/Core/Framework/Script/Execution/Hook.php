@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Script\Execution;
 use Shopware\Core\Framework\Context;
 
 /**
- * @deprecated tag:v6.5.0 will be internal
+ * @deprecated tag:v6.5.0 - reason:becomes-internal - will be internal
  */
 abstract class Hook
 {

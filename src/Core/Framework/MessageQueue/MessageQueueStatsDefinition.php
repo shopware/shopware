@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 /**
- * @deprecated tag:v6.5.0 - use `shopware.increment.message_queue.gateway` service instead
+ * @deprecated tag:v6.5.0 - reason:remove-entity - use `shopware.increment.message_queue.gateway` service instead
  */
 class MessageQueueStatsDefinition extends EntityDefinition
 {

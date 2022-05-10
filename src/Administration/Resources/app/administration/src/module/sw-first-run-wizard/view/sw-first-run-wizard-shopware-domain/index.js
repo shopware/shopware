@@ -48,11 +48,7 @@ Component.register('sw-first-run-wizard-shopware-domain', {
             this.updateButtons();
             this.setTitle();
 
-            const language = Shopware.State.get('session').currentLocale;
-
-            this.firstRunWizardService.getLicenseDomains({
-                language,
-            }).then((response) => {
+            this.firstRunWizardService.getLicenseDomains().then((response) => {
                 const { items } = response;
 
                 if (!items || items.length < 1) {

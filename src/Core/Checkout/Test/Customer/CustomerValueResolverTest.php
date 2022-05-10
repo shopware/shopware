@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
-use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -96,7 +95,7 @@ class CustomerValueResolverTest extends TestCase
     /**
      * @dataProvider loginRequiredAnnotationData
      */
-    public function testCustomerResolver(?LoginRequired $annotation, bool $context, bool $pass): void
+    public function testCustomerResolver(bool $loginRequired, bool $context, bool $pass): void
     {
         $resolver = $this->getContainer()->get(CustomerValueResolver::class);
 
@@ -107,12 +106,12 @@ class CustomerValueResolverTest extends TestCase
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, $currencyId);
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, new RouteScope(['scopes' => ['store-api']]));
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['store-api']);
 
         $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $this->loginCustomer(false));
 
-        if ($annotation) {
-            $request->attributes->set(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED, $annotation);
+        if ($loginRequired) {
+            $request->attributes->set(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED, $loginRequired);
         }
 
         if ($context) {
@@ -137,21 +136,19 @@ class CustomerValueResolverTest extends TestCase
 
     public function loginRequiredAnnotationData(): array
     {
-        $loginRequiredNotAllowGuest = new LoginRequired([]);
-
         return [
             'Success Case' => [
-                $loginRequiredNotAllowGuest, // annotation
+                true, // loginRequired
                 true, // context
                 true, // pass
             ],
             'Missing annotation LoginRequired' => [
-                null,
+                false,
                 true,
                 false,
             ],
             'Missing sales-channel context' => [
-                null,
+                false,
                 false,
                 false,
             ],

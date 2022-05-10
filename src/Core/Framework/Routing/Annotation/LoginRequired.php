@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Routing\Annotation;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -28,6 +29,11 @@ class LoginRequired implements ConfigurationInterface
      */
     public function getAliasName()
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', '"@Route(defaults={"_loginRequired"=true)"')
+        );
+
         return 'loginRequired';
     }
 
@@ -36,11 +42,21 @@ class LoginRequired implements ConfigurationInterface
      */
     public function allowArray()
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', '"@Route(defaults={"_loginRequired"=true)"')
+        );
+
         return false;
     }
 
     public function isLoggedIn(SalesChannelContext $context): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', '"@Route(defaults={"_loginRequired"=true)"')
+        );
+
         if ($context->getCustomer() === null) {
             return false;
         }
@@ -54,11 +70,21 @@ class LoginRequired implements ConfigurationInterface
 
     public function isAllowGuest(): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', '"@Route(defaults={"_loginRequired"=true)"')
+        );
+
         return $this->allowGuest;
     }
 
     public function setAllowGuest(bool $allowGuest): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', '"@Route(defaults={"_loginRequired"=true)"')
+        );
+
         $this->allowGuest = $allowGuest;
     }
 }

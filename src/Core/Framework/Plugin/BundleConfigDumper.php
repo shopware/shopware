@@ -2,10 +2,11 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @deprecated tag:v6.5.0 - Remove this class as not needed anymore
+ * @deprecated tag:v6.5.0 - reason:remove-subscriber - Remove this class as not needed anymore
  */
 class BundleConfigDumper implements EventSubscriberInterface
 {
@@ -37,6 +38,11 @@ class BundleConfigDumper implements EventSubscriberInterface
 
     public function dump(): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0')
+        );
+
         $config = $this->bundleConfigGenerator->getConfig();
 
         file_put_contents(

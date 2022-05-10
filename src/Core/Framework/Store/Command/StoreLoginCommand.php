@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
 use Shopware\Core\Framework\Store\Services\StoreClient;
@@ -45,7 +46,7 @@ class StoreLoginCommand extends Command
     }
 
     /**
-     * @deprecated tag:v6.5.0 option language will be removed
+     * @deprecated tag:v6.5.0 - reason:remove-subscriber - option language will be removed
      */
     protected function configure(): void
     {
@@ -54,12 +55,22 @@ class StoreLoginCommand extends Command
             ->addOption('password', 'p', InputOption::VALUE_REQUIRED, 'Password')
             ->addOption('user', 'u', InputOption::VALUE_REQUIRED, 'User')
             ->addOption('host', 'g', InputOption::VALUE_OPTIONAL, 'License host')
-            ->addOption('language', 'l', InputOption::VALUE_OPTIONAL, 'Language')
         ;
+
+        if (!Feature::isActive('v6.5.0.0')) {
+            $this->addOption('language', 'l', InputOption::VALUE_OPTIONAL, 'Language');
+        }
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        if ($input->hasParameterOption('language')) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'Passing parameter "--langugage" to command "store:login" is deprecated and will be removed in v6.5.0.0'
+            );
+        }
+
         $io = new ShopwareStyle($input, $output);
 
         $context = Context::createDefaultContext();

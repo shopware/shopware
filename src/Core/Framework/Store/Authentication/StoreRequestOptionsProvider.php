@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Services\InstanceService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\UserEntity;
@@ -58,6 +59,20 @@ class StoreRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
      */
     public function getDefaultQueryParameters(?Context $context, ?string $language = null): array
     {
+        if ($context === null) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'First parameter `$context` of method "getDefaultQueryParameters()" in "StoreRequestOptionsProvider" will be required in v6.5.0.0.'
+            );
+        }
+
+        if (\func_num_args() > 1) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                'Second parameter `$language` of method "getDefaultQueryParameters()" in "StoreRequestOptionsProvider" is deprecated and will be removed in v6.5.0.0.'
+            );
+        }
+
         return [
             'shopwareVersion' => $this->instanceService->getShopwareVersion(),
             'language' => $this->getLanguage($context, $language),

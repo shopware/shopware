@@ -20,6 +20,7 @@ Shopware.Module.register('sw-event-action', {
     icon: 'default-action-settings',
     favicon: 'icon-module-settings.png',
     entity: 'event_action',
+    display: !Shopware.Feature.isActive('v6.5.0.0'),
 
     routes: {
         index: {

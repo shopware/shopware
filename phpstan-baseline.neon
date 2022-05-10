@@ -1388,16 +1388,6 @@ parameters:
 			path: src/Core/Framework/Adapter/Asset/FallbackUrlPackage.php
 
 		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Asset\\\\LastModifiedVersionStrategy\" is marked as deprecated, but method \"applyVersion\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Asset/LastModifiedVersionStrategy.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Asset\\\\LastModifiedVersionStrategy\" is marked as deprecated, but method \"getVersion\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Asset/LastModifiedVersionStrategy.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheClearer\\:\\:handle\\(\\) has parameter \\$message with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Cache/CacheClearer.php
@@ -1431,26 +1421,6 @@ parameters:
 			message: "#^Class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\AppTemplateIterator implements generic interface IteratorAggregate but does not specify its types\\: TKey, TValue$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Twig/AppTemplateIterator.php
-
-		-
-			message: "#^Method \"clearInternalCache\" of class \"Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\EntityTemplateLoader\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Twig/EntityTemplateLoader.php
-
-		-
-			message: "#^Method \"buildCategoryTypes\" of class \"Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\Extension\\\\BuildBreadcrumbExtension\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Twig/Extension/BuildBreadcrumbExtension.php
-
-		-
-			message: "#^Method \"buildSeoBreadcrumb\" of class \"Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\Extension\\\\BuildBreadcrumbExtension\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Twig/Extension/BuildBreadcrumbExtension.php
-
-		-
-			message: "#^Method \"getCategoryTypes\" of class \"Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\Extension\\\\BuildBreadcrumbExtension\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Twig/Extension/BuildBreadcrumbExtension.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\Extension\\\\InstanceOfExtension\\:\\:isInstanceOf\\(\\) has parameter \\$class with no type specified\\.$#"
@@ -1494,11 +1464,6 @@ parameters:
 
 		-
 			message: "#^Class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\TemplateIterator implements generic interface IteratorAggregate but does not specify its types\\: TKey, TValue$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Twig/TemplateIterator.php
-
-		-
-			message: "#^Method \"getIterator\" of class \"Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\TemplateIterator\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Twig/TemplateIterator.php
 
@@ -1698,31 +1663,6 @@ parameters:
 			path: src/Core/Framework/Api/Controller/ApiController.php
 
 		-
-			message: "#^Method \"config\" of class \"Shopware\\\\Core\\\\Framework\\\\Api\\\\Controller\\\\InfoController\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/InfoController.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Api\\\\Converter\\\\DefaultApiConverter\" is marked as deprecated, but method \"convert\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Converter/DefaultApiConverter.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Api\\\\Converter\\\\DefaultApiConverter\" is marked as deprecated, but method \"getDeprecations\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Converter/DefaultApiConverter.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Api\\\\Converter\\\\DefaultApiConverter\" is marked as deprecated, but method \"ignoreDeprecations\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Converter/DefaultApiConverter.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Api\\\\Converter\\\\DefaultApiConverter\" is marked as deprecated, but method \"isDeprecated\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Converter/DefaultApiConverter.php
-
-		-
 			message: "#^Parameter \\#1 \\$accessKey of method Shopware\\\\Core\\\\Framework\\\\Api\\\\EventListener\\\\Authentication\\\\SalesChannelAuthenticationListener\\:\\:getSalesChannelId\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/EventListener/Authentication/SalesChannelAuthenticationListener.php
@@ -1758,21 +1698,6 @@ parameters:
 			path: src/Core/Framework/Api/OAuth/RefreshTokenRepository.php
 
 		-
-			message: "#^Method \"jsonSerialize\" of class \"Shopware\\\\Core\\\\Framework\\\\Api\\\\OAuth\\\\Scope\\\\AdminScope\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/OAuth/Scope/AdminScope.php
-
-		-
-			message: "#^Method \"jsonSerialize\" of class \"Shopware\\\\Core\\\\Framework\\\\Api\\\\OAuth\\\\Scope\\\\UserVerifiedScope\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/OAuth/Scope/UserVerifiedScope.php
-
-		-
-			message: "#^Method \"jsonSerialize\" of class \"Shopware\\\\Core\\\\Framework\\\\Api\\\\OAuth\\\\Scope\\\\WriteScope\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/OAuth/Scope/WriteScope.php
-
-		-
 			message: "#^Parameter \\#1 \\$str of function mb_strtolower expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Response/Type/JsonFactoryBase.php
@@ -1796,11 +1721,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$str of function mb_strtolower expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Serializer/JsonApiEncoder.php
-
-		-
-			message: "#^Method \"jsonSerialize\" of class \"Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiEncodingResult\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiEncodingResult.php
 
 		-
 			message: "#^Cannot call method jsonSerialize\\(\\) on Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\|null\\.$#"
@@ -1906,311 +1826,6 @@ parameters:
 			message: "#^Argument of an invalid type DOMNamedNodeMap\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Manifest/Xml/Webhook.php
-
-		-
-			message: "#^Method \"addCoreMigrationPath\" of class \"Shopware\\\\Core\\\\Framework\\\\Bundle\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Bundle.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogDefinition\" is marked as deprecated, but method \"getAdministration\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogDefinition\" is marked as deprecated, but method \"getApi\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogDefinition\" is marked as deprecated, but method \"getAuthor\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogDefinition\" is marked as deprecated, but method \"getAuthorEmail\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogDefinition\" is marked as deprecated, but method \"getAuthorGitHub\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogDefinition\" is marked as deprecated, but method \"getCore\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogDefinition\" is marked as deprecated, but method \"getFlag\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogDefinition\" is marked as deprecated, but method \"getIssue\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogDefinition\" is marked as deprecated, but method \"getNextMajorVersionChanges\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogDefinition\" is marked as deprecated, but method \"getStorefront\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogDefinition\" is marked as deprecated, but method \"getTitle\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogDefinition\" is marked as deprecated, but method \"getUpgradeInformation\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogDefinition\" is marked as deprecated, but method \"setAdministration\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogDefinition\" is marked as deprecated, but method \"setApi\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogDefinition\" is marked as deprecated, but method \"setAuthor\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogDefinition\" is marked as deprecated, but method \"setAuthorEmail\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogDefinition\" is marked as deprecated, but method \"setAuthorGitHub\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogDefinition\" is marked as deprecated, but method \"setCore\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogDefinition\" is marked as deprecated, but method \"setFlag\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogDefinition\" is marked as deprecated, but method \"setIssue\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogDefinition\" is marked as deprecated, but method \"setNextMajorVersionChanges\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogDefinition\" is marked as deprecated, but method \"setStorefront\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogDefinition\" is marked as deprecated, but method \"setTitle\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogDefinition\" is marked as deprecated, but method \"setUpgradeInformation\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogDefinition\" is marked as deprecated, but method \"toTemplate\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogDefinition\" is marked as deprecated, but method \"validate\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogFile\" is marked as deprecated, but method \"getDefinition\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogFile.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogFile\" is marked as deprecated, but method \"getName\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogFile.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogFile\" is marked as deprecated, but method \"getPath\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogFile.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogFile\" is marked as deprecated, but method \"setDefinition\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogFile.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogFile\" is marked as deprecated, but method \"setName\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogFile.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogFile\" is marked as deprecated, but method \"setPath\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogFile.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogFileCollection\" is marked as deprecated, but method \"getExpectedClass\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogFileCollection.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\ChangelogParser\" is marked as deprecated, but method \"parse\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/ChangelogParser.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Command\\\\ChangelogChangeCommand\" is marked as deprecated, but method \"configure\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/Command/ChangelogChangeCommand.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Command\\\\ChangelogChangeCommand\" is marked as deprecated, but method \"execute\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/Command/ChangelogChangeCommand.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Command\\\\ChangelogCheckCommand\" is marked as deprecated, but method \"configure\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/Command/ChangelogCheckCommand.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Command\\\\ChangelogCheckCommand\" is marked as deprecated, but method \"execute\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/Command/ChangelogCheckCommand.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Command\\\\ChangelogCreateCommand\" is marked as deprecated, but method \"configure\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/Command/ChangelogCreateCommand.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Command\\\\ChangelogCreateCommand\" is marked as deprecated, but method \"execute\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/Command/ChangelogCreateCommand.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Command\\\\ChangelogReleaseCommand\" is marked as deprecated, but method \"configure\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/Command/ChangelogReleaseCommand.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Command\\\\ChangelogReleaseCommand\" is marked as deprecated, but method \"execute\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/Command/ChangelogReleaseCommand.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Processor\\\\ChangelogGenerator\" is marked as deprecated, but method \"generate\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/Processor/ChangelogGenerator.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Processor\\\\ChangelogProcessor\" is marked as deprecated, but method \"existedRelease\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/Processor/ChangelogProcessor.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Processor\\\\ChangelogProcessor\" is marked as deprecated, but method \"getChangelogDir\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/Processor/ChangelogProcessor.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Processor\\\\ChangelogProcessor\" is marked as deprecated, but method \"getChangelogGlobal\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/Processor/ChangelogProcessor.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Processor\\\\ChangelogProcessor\" is marked as deprecated, but method \"getMajorVersion\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/Processor/ChangelogProcessor.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Processor\\\\ChangelogProcessor\" is marked as deprecated, but method \"getNextMajorVersion\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/Processor/ChangelogProcessor.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Processor\\\\ChangelogProcessor\" is marked as deprecated, but method \"getTargetNextMajorUpgradeFile\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/Processor/ChangelogProcessor.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Processor\\\\ChangelogProcessor\" is marked as deprecated, but method \"getTargetReleaseDir\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/Processor/ChangelogProcessor.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Processor\\\\ChangelogProcessor\" is marked as deprecated, but method \"getTargetUpgradeFile\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/Processor/ChangelogProcessor.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Processor\\\\ChangelogProcessor\" is marked as deprecated, but method \"getUnreleasedDir\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/Processor/ChangelogProcessor.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Processor\\\\ChangelogProcessor\" is marked as deprecated, but method \"getUpgradeDir\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/Processor/ChangelogProcessor.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Processor\\\\ChangelogProcessor\" is marked as deprecated, but method \"prepareChangelogFiles\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/Processor/ChangelogProcessor.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Processor\\\\ChangelogProcessor\" is marked as deprecated, but method \"setActiveFlags\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/Processor/ChangelogProcessor.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Processor\\\\ChangelogProcessor\" is marked as deprecated, but method \"setPlatformRoot\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/Processor/ChangelogProcessor.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Processor\\\\ChangelogReleaseCreator\" is marked as deprecated, but method \"release\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/Processor/ChangelogReleaseCreator.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Processor\\\\ChangelogReleaseExporter\" is marked as deprecated, but method \"export\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/Processor/ChangelogReleaseExporter.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Changelog\\\\Processor\\\\ChangelogValidator\" is marked as deprecated, but method \"check\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Changelog/Processor/ChangelogValidator.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Compatibility\\\\AnnotationReaderCompilerPass\" is marked as deprecated, but method \"process\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Compatibility/AnnotationReaderCompilerPass.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Context\\:\\:disableInheritance\\(\\) has no return type specified\\.$#"
@@ -2913,201 +2528,6 @@ parameters:
 			path: src/Core/Framework/DependencyInjection/CompilerPass/ActionEventCompilerPass.php
 
 		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\DependencyInjection\\\\CompilerPass\\\\AddCoreMigrationPathCompilerPass\" is marked as deprecated, but method \"process\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/DependencyInjection/CompilerPass/AddCoreMigrationPathCompilerPass.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEvent\" is marked as deprecated, but method \"getActionName\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/BusinessEvent.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEvent\" is marked as deprecated, but method \"getAvailableData\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/BusinessEvent.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEvent\" is marked as deprecated, but method \"getConfig\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/BusinessEvent.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEvent\" is marked as deprecated, but method \"getContext\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/BusinessEvent.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEvent\" is marked as deprecated, but method \"getEvent\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/BusinessEvent.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEvent\" is marked as deprecated, but method \"getName\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/BusinessEvent.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\Aggregate\\\\EventActionRule\\\\EventActionRuleDefinition\" is marked as deprecated, but method \"defineFields\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/Aggregate/EventActionRule/EventActionRuleDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\Aggregate\\\\EventActionRule\\\\EventActionRuleDefinition\" is marked as deprecated, but method \"getEntityName\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/Aggregate/EventActionRule/EventActionRuleDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\Aggregate\\\\EventActionRule\\\\EventActionRuleDefinition\" is marked as deprecated, but method \"since\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/Aggregate/EventActionRule/EventActionRuleDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\Aggregate\\\\EventActionSalesChannel\\\\EventActionSalesChannelDefinition\" is marked as deprecated, but method \"defineFields\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/Aggregate/EventActionSalesChannel/EventActionSalesChannelDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\Aggregate\\\\EventActionSalesChannel\\\\EventActionSalesChannelDefinition\" is marked as deprecated, but method \"getEntityName\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/Aggregate/EventActionSalesChannel/EventActionSalesChannelDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\Aggregate\\\\EventActionSalesChannel\\\\EventActionSalesChannelDefinition\" is marked as deprecated, but method \"since\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/Aggregate/EventActionSalesChannel/EventActionSalesChannelDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionCollection\" is marked as deprecated, but method \"getApiAlias\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionCollection.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionCollection\" is marked as deprecated, but method \"getExpectedClass\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionCollection.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionDefinition\" is marked as deprecated, but method \"defineFields\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionDefinition\" is marked as deprecated, but method \"getCollectionClass\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionDefinition\" is marked as deprecated, but method \"getDefaults\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionDefinition\" is marked as deprecated, but method \"getEntityClass\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionDefinition\" is marked as deprecated, but method \"getEntityName\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionDefinition\" is marked as deprecated, but method \"since\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionEntity\" is marked as deprecated, but method \"getActionName\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionEntity.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionEntity\" is marked as deprecated, but method \"getConfig\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionEntity.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionEntity\" is marked as deprecated, but method \"getCustomFields\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionEntity.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionEntity\" is marked as deprecated, but method \"getEventName\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionEntity.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionEntity\" is marked as deprecated, but method \"getId\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionEntity.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionEntity\" is marked as deprecated, but method \"getRules\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionEntity.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionEntity\" is marked as deprecated, but method \"getSalesChannels\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionEntity.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionEntity\" is marked as deprecated, but method \"getTitle\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionEntity.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionEntity\" is marked as deprecated, but method \"isActive\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionEntity.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionEntity\" is marked as deprecated, but method \"setActionName\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionEntity.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionEntity\" is marked as deprecated, but method \"setActive\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionEntity.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionEntity\" is marked as deprecated, but method \"setConfig\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionEntity.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionEntity\" is marked as deprecated, but method \"setCustomFields\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionEntity.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionEntity\" is marked as deprecated, but method \"setEventName\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionEntity.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionEntity\" is marked as deprecated, but method \"setId\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionEntity.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionEntity\" is marked as deprecated, but method \"setRules\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionEntity.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionEntity\" is marked as deprecated, but method \"setSalesChannels\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionEntity.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Event\\\\EventAction\\\\EventActionEntity\" is marked as deprecated, but method \"setTitle\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Event/EventAction/EventActionEntity.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Feature\\:\\:ifActiveCall\\(\\) has parameter \\$arguments with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Feature.php
@@ -3121,21 +2541,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Framework\\:\\:buildConfig\\(\\) has parameter \\$environment with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Framework.php
-
-		-
-			message: "#^Method \"logBusinessEvent\" of class \"Shopware\\\\Core\\\\Framework\\\\Log\\\\LoggingService\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Log/LoggingService.php
-
-		-
-			message: "#^Method \"getSerializedOriginalMessage\" of class \"Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\DeadMessage\\\\DeadMessageEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/DeadMessage/DeadMessageEntity.php
-
-		-
-			message: "#^Method \"setSerializedOriginalMessage\" of class \"Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\DeadMessage\\\\DeadMessageEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/DeadMessage/DeadMessageEntity.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\EncryptedBus\\:\\:__construct\\(\\) has parameter \\$publicKey with no type specified\\.$#"
@@ -3173,81 +2578,6 @@ parameters:
 			path: src/Core/Framework/MessageQueue/Handler/EncryptedMessageHandler.php
 
 		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\MessageQueueStatsCollection\" is marked as deprecated, but method \"getApiAlias\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/MessageQueueStatsCollection.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\MessageQueueStatsCollection\" is marked as deprecated, but method \"getExpectedClass\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/MessageQueueStatsCollection.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\MessageQueueStatsDefinition\" is marked as deprecated, but method \"defineFields\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/MessageQueueStatsDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\MessageQueueStatsDefinition\" is marked as deprecated, but method \"defineProtections\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/MessageQueueStatsDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\MessageQueueStatsDefinition\" is marked as deprecated, but method \"getCollectionClass\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/MessageQueueStatsDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\MessageQueueStatsDefinition\" is marked as deprecated, but method \"getDefaults\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/MessageQueueStatsDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\MessageQueueStatsDefinition\" is marked as deprecated, but method \"getEntityClass\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/MessageQueueStatsDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\MessageQueueStatsDefinition\" is marked as deprecated, but method \"getEntityName\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/MessageQueueStatsDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\MessageQueueStatsDefinition\" is marked as deprecated, but method \"since\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/MessageQueueStatsDefinition.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\MessageQueueStatsEntity\" is marked as deprecated, but method \"getId\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/MessageQueueStatsEntity.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\MessageQueueStatsEntity\" is marked as deprecated, but method \"getName\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/MessageQueueStatsEntity.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\MessageQueueStatsEntity\" is marked as deprecated, but method \"getSize\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/MessageQueueStatsEntity.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\MessageQueueStatsEntity\" is marked as deprecated, but method \"setId\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/MessageQueueStatsEntity.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\MessageQueueStatsEntity\" is marked as deprecated, but method \"setName\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/MessageQueueStatsEntity.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\MessageQueueStatsEntity\" is marked as deprecated, but method \"setSize\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/MessageQueueStatsEntity.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\ScheduledTask\\\\MessageQueue\\\\RegisterScheduledTaskHandler\\:\\:handle\\(\\) has parameter \\$message with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/MessageQueue/ScheduledTask/MessageQueue/RegisterScheduledTaskHandler.php
@@ -3266,16 +2596,6 @@ parameters:
 			message: "#^Method \"addBackwardTrigger\" of class \"Shopware\\\\Core\\\\Framework\\\\Migration\\\\MigrationStep\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
 			count: 1
 			path: src/Core/Framework/Migration/MigrationStep.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Plugin\\\\BundleConfigDumper\" is marked as deprecated, but method \"dump\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/BundleConfigDumper.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Plugin\\\\BundleConfigDumper\" is marked as deprecated, but method \"getSubscribedEvents\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/BundleConfigDumper.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Changelog\\\\ChangelogParser\\:\\:parseItem\\(\\) has parameter \\$line with no type specified\\.$#"
@@ -3301,16 +2621,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\KernelPluginLoader\\:\\:getPluginInstance\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Plugin/KernelPluginLoader/KernelPluginLoader.php
-
-		-
-			message: "#^Method \"getIconRaw\" of class \"Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/PluginEntity.php
-
-		-
-			message: "#^Method \"setIconRaw\" of class \"Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/PluginEntity.php
 
 		-
 			message: "#^Cannot access offset 'name' on array\\|false\\.$#"
@@ -3366,96 +2676,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Util\\\\VersionSanitizer\\:\\:sanitizePluginVersion\\(\\) should return string but returns string\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Plugin/Util/VersionSanitizer.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Routing\\\\Annotation\\\\Acl\" is marked as deprecated, but method \"allowArray\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Annotation/Acl.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Routing\\\\Annotation\\\\Acl\" is marked as deprecated, but method \"getAliasName\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Annotation/Acl.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Routing\\\\Annotation\\\\Acl\" is marked as deprecated, but method \"getValue\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Annotation/Acl.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Routing\\\\Annotation\\\\Acl\" is marked as deprecated, but method \"setValue\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Annotation/Acl.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Routing\\\\Annotation\\\\ContextTokenRequired\" is marked as deprecated, but method \"allowArray\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Annotation/ContextTokenRequired.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Routing\\\\Annotation\\\\ContextTokenRequired\" is marked as deprecated, but method \"getAliasName\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Annotation/ContextTokenRequired.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Routing\\\\Annotation\\\\ContextTokenRequired\" is marked as deprecated, but method \"isRequired\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Annotation/ContextTokenRequired.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Routing\\\\Annotation\\\\ContextTokenRequired\" is marked as deprecated, but method \"setRequired\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Annotation/ContextTokenRequired.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Routing\\\\Annotation\\\\LoginRequired\" is marked as deprecated, but method \"allowArray\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Annotation/LoginRequired.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Routing\\\\Annotation\\\\LoginRequired\" is marked as deprecated, but method \"getAliasName\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Annotation/LoginRequired.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Routing\\\\Annotation\\\\LoginRequired\" is marked as deprecated, but method \"isAllowGuest\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Annotation/LoginRequired.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Routing\\\\Annotation\\\\LoginRequired\" is marked as deprecated, but method \"isLoggedIn\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Annotation/LoginRequired.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Routing\\\\Annotation\\\\LoginRequired\" is marked as deprecated, but method \"setAllowGuest\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Annotation/LoginRequired.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Routing\\\\Annotation\\\\RouteScope\" is marked as deprecated, but method \"allowArray\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Annotation/RouteScope.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Routing\\\\Annotation\\\\RouteScope\" is marked as deprecated, but method \"getAliasName\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Annotation/RouteScope.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Routing\\\\Annotation\\\\RouteScope\" is marked as deprecated, but method \"getScopes\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Annotation/RouteScope.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Routing\\\\Annotation\\\\RouteScope\" is marked as deprecated, but method \"hasScope\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Annotation/RouteScope.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Routing\\\\Annotation\\\\RouteScope\" is marked as deprecated, but method \"setScopes\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Routing/Annotation/RouteScope.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Routing\\\\CoreSubscriber\\:\\:__construct\\(\\) has parameter \\$cspTemplates with no type specified\\.$#"
@@ -3523,124 +2743,14 @@ parameters:
 			path: src/Core/Framework/Rule/SalesChannelRule.php
 
 		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\ScriptTraces\" is marked as deprecated, but method \"addDeprecationNotice\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Debugging/ScriptTraces.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\ScriptTraces\" is marked as deprecated, but method \"collect\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Debugging/ScriptTraces.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\ScriptTraces\" is marked as deprecated, but method \"getData\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Debugging/ScriptTraces.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\ScriptTraces\" is marked as deprecated, but method \"getDeprecationCount\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Debugging/ScriptTraces.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\ScriptTraces\" is marked as deprecated, but method \"getHookCount\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Debugging/ScriptTraces.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\ScriptTraces\" is marked as deprecated, but method \"getHooks\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Debugging/ScriptTraces.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\ScriptTraces\" is marked as deprecated, but method \"getScriptCount\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Debugging/ScriptTraces.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\ScriptTraces\" is marked as deprecated, but method \"getScripts\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Debugging/ScriptTraces.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\ScriptTraces\" is marked as deprecated, but method \"getTemplate\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Debugging/ScriptTraces.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\ScriptTraces\" is marked as deprecated, but method \"getTook\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Debugging/ScriptTraces.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\ScriptTraces\" is marked as deprecated, but method \"getTraces\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Debugging/ScriptTraces.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\ScriptTraces\" is marked as deprecated, but method \"initHook\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Debugging/ScriptTraces.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\ScriptTraces\" is marked as deprecated, but method \"reset\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Debugging/ScriptTraces.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\ScriptTraces\" is marked as deprecated, but method \"trace\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Debugging/ScriptTraces.php
-
-		-
 			message: "#^Method \"init\" of class \"Shopware\\\\Core\\\\Framework\\\\Script\\\\Debugging\\\\ScriptTraces\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
 			count: 1
 			path: src/Core/Framework/Script/Debugging/ScriptTraces.php
 
 		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Script\\\\Execution\\\\Hook\" is marked as deprecated, but method \"getContext\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Execution/Hook.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Script\\\\Execution\\\\Hook\" is marked as deprecated, but method \"getDeprecatedServices\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Execution/Hook.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Script\\\\Executor\\\\ScriptExecutor\" is marked as deprecated, but method \"execute\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Script/Executor/ScriptExecutor.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\ShopwareHttpException\\:\\:parse\\(\\) should return string but returns string\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/ShopwareHttpException.php
-
-		-
-			message: "#^Method \"getDefaultQueryParameters\" of class \"Shopware\\\\Core\\\\Framework\\\\Store\\\\Authentication\\\\FrwRequestOptionsProvider\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Authentication/FrwRequestOptionsProvider.php
-
-		-
-			message: "#^Method \"getDefaultQueryParameters\" of class \"Shopware\\\\Core\\\\Framework\\\\Store\\\\Authentication\\\\StoreRequestOptionsProvider\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Authentication/StoreRequestOptionsProvider.php
-
-		-
-			message: "#^Method \"configure\" of class \"Shopware\\\\Core\\\\Framework\\\\Store\\\\Command\\\\StoreLoginCommand\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Command/StoreLoginCommand.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Store\\\\Exception\\\\ExtensionRequiresNewPrivilegesException\" is marked as deprecated, but method \"fromPrivilegeList\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Exception/ExtensionRequiresNewPrivilegesException.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Store\\\\Exception\\\\ExtensionRequiresNewPrivilegesException\" is marked as deprecated, but method \"getErrorCode\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Exception/ExtensionRequiresNewPrivilegesException.php
 
 		-
 			message: "#^Cannot call method format\\(\\) on DateTimeImmutable\\|null\\.$#"
@@ -3666,51 +2776,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Store\\\\Services\\\\OpenSSLVerifier\\:\\:\\$keyResource \\(resource\\) does not accept resource\\|false\\.$#"
 			count: 1
 			path: src/Core/Framework/Store/Services/OpenSSLVerifier.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Store\\\\Services\\\\StoreAppLifecycleService\" is marked as deprecated, but method \"activateExtension\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Services/StoreAppLifecycleService.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Store\\\\Services\\\\StoreAppLifecycleService\" is marked as deprecated, but method \"deactivateExtension\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Services/StoreAppLifecycleService.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Store\\\\Services\\\\StoreAppLifecycleService\" is marked as deprecated, but method \"deleteExtension\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Services/StoreAppLifecycleService.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Store\\\\Services\\\\StoreAppLifecycleService\" is marked as deprecated, but method \"getDecorated\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Services/StoreAppLifecycleService.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Store\\\\Services\\\\StoreAppLifecycleService\" is marked as deprecated, but method \"installExtension\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Services/StoreAppLifecycleService.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Store\\\\Services\\\\StoreAppLifecycleService\" is marked as deprecated, but method \"removeExtensionAndCancelSubscription\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Services/StoreAppLifecycleService.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Store\\\\Services\\\\StoreAppLifecycleService\" is marked as deprecated, but method \"uninstallExtension\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Services/StoreAppLifecycleService.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Store\\\\Services\\\\StoreAppLifecycleService\" is marked as deprecated, but method \"updateExtension\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Services/StoreAppLifecycleService.php
-
-		-
-			message: "#^Method \"getAppIdByName\" of class \"Shopware\\\\Core\\\\Framework\\\\Store\\\\Services\\\\StoreAppLifecycleService\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Services/StoreAppLifecycleService.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\LicenseDomainCollection\\:\\:add\\(\\) has parameter \\$element with no type specified\\.$#"
@@ -3744,21 +2809,6 @@ parameters:
 
 		-
 			message: "#^Class Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayEntity implements generic interface ArrayAccess but does not specify its types\\: TKey, TValue$#"
-			count: 1
-			path: src/Core/Framework/Struct/ArrayEntity.php
-
-		-
-			message: "#^Method \"jsonSerialize\" of class \"Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/ArrayEntity.php
-
-		-
-			message: "#^Method \"offsetExists\" of class \"Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/ArrayEntity.php
-
-		-
-			message: "#^Method \"offsetGet\" of class \"Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
 			count: 1
 			path: src/Core/Framework/Struct/ArrayEntity.php
 
@@ -3863,11 +2913,6 @@ parameters:
 			path: src/Core/Framework/Struct/Collection.php
 
 		-
-			message: "#^Method \"getIterator\" of class \"Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Collection.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:add\\(\\) has parameter \\$element with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Struct/Collection.php
@@ -3963,41 +3008,6 @@ parameters:
 			path: src/Core/Framework/Struct/Struct.php
 
 		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Update\\\\Api\\\\UpdateController\" is marked as deprecated, but method \"checkRequirements\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Api/UpdateController.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Update\\\\Api\\\\UpdateController\" is marked as deprecated, but method \"deactivatePlugins\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Api/UpdateController.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Update\\\\Api\\\\UpdateController\" is marked as deprecated, but method \"downloadLatestUpdate\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Api/UpdateController.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Update\\\\Api\\\\UpdateController\" is marked as deprecated, but method \"finish\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Api/UpdateController.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Update\\\\Api\\\\UpdateController\" is marked as deprecated, but method \"pluginCompatibility\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Api/UpdateController.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Update\\\\Api\\\\UpdateController\" is marked as deprecated, but method \"unpack\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Api/UpdateController.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Update\\\\Api\\\\UpdateController\" is marked as deprecated, but method \"updateApiCheck\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Api/UpdateController.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Update\\\\Api\\\\UpdateController\\:\\:createRecursiveFileIterator\\(\\) return type with generic class RecursiveIteratorIterator does not specify its types\\: T$#"
 			count: 1
 			path: src/Core/Framework/Update/Api/UpdateController.php
@@ -4053,36 +3063,6 @@ parameters:
 			path: src/Core/Framework/Update/Services/Archive/Zip.php
 
 		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Update\\\\Services\\\\PluginCompatibility\" is marked as deprecated, but method \"getExtensionCompatibilities\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Services/PluginCompatibility.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Update\\\\Services\\\\PluginCompatibility\" is marked as deprecated, but method \"getExtensionsToDeactivate\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Services/PluginCompatibility.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Update\\\\Services\\\\PluginCompatibility\" is marked as deprecated, but method \"getExtensionsToReactivate\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Services/PluginCompatibility.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Update\\\\Services\\\\PluginCompatibility\" is marked as deprecated, but method \"getPluginCompatibilities\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Services/PluginCompatibility.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Update\\\\Services\\\\PluginCompatibility\" is marked as deprecated, but method \"getPluginsToDeactivate\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Services/PluginCompatibility.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Update\\\\Services\\\\PluginCompatibility\" is marked as deprecated, but method \"getPluginsToReactivate\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Services/PluginCompatibility.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Update\\\\Services\\\\RequirementsValidator\\:\\:\\$checkers \\(array\\<Shopware\\\\Core\\\\Framework\\\\Update\\\\Checkers\\\\CheckerInterface\\>\\) does not accept iterable\\.$#"
 			count: 1
 			path: src/Core/Framework/Update/Services/RequirementsValidator.php
@@ -4091,11 +3071,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$haystack of function strpos expects string, string\\|false given\\.$#"
 			count: 2
 			path: src/Core/Framework/Update/Services/UpdateHtaccess.php
-
-		-
-			message: "#^Class \"Shopware\\\\Core\\\\Framework\\\\Update\\\\Steps\\\\DeactivatePluginsStep\" is marked as deprecated, but method \"run\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Update/Steps/DeactivatePluginsStep.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Update\\\\Steps\\\\UnpackStep\\:\\:__construct\\(\\) has parameter \\$destinationDir with no type specified\\.$#"
@@ -4158,16 +3133,6 @@ parameters:
 			path: src/Core/Framework/Webhook/BusinessEventEncoder.php
 
 		-
-			message: "#^Method \"getSerializedWebhookMessage\" of class \"Shopware\\\\Core\\\\Framework\\\\Webhook\\\\EventLog\\\\WebhookEventLogEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Webhook/EventLog/WebhookEventLogEntity.php
-
-		-
-			message: "#^Method \"setSerializedWebhookMessage\" of class \"Shopware\\\\Core\\\\Framework\\\\Webhook\\\\EventLog\\\\WebhookEventLogEntity\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Framework/Webhook/EventLog/WebhookEventLogEntity.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Webhook\\\\Hookable\\\\HookableEventFactory\\:\\:createHookablesFor\\(\\) has parameter \\$event with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Webhook/Hookable/HookableEventFactory.php
@@ -4201,21 +3166,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$path of function dirname expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/HttpKernel.php
-
-		-
-			message: "#^Method \"getContainerBuilder\" of class \"Shopware\\\\Core\\\\Kernel\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Kernel.php
-
-		-
-			message: "#^Method \"getProjectDir\" of class \"Shopware\\\\Core\\\\Kernel\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Kernel.php
-
-		-
-			message: "#^Method \"registerBundles\" of class \"Shopware\\\\Core\\\\Kernel\" is marked as deprecated, but does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All deprecated methods need to trigger a deprecation warning\\.$#"
-			count: 1
-			path: src/Core/Kernel.php
 
 		-
 			message: "#^Class \"Shopware\\\\Core\\\\Migration\\\\Migration1610523548FixCustomerColumns\" is marked as deprecated, but method \"updateDestructive\" does not call \"Feature\\:\\:triggerDeprecationOrThrow\"\\. All public methods of deprecated classes need to trigger a deprecation warning\\.$#"

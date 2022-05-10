@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api\Converter;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -38,6 +39,11 @@ class DefaultApiConverter
 
     public function convert(string $entityName, array $payload): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0')
+        );
+
         $definition = $this->definitionInstanceRegistry->getByEntityName($entityName);
 
         $fields = $definition->getFields()->filterByFlag(Deprecated::class);
@@ -68,6 +74,11 @@ class DefaultApiConverter
 
     public function isDeprecated(string $entityName, ?string $fieldName = null): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0')
+        );
+
         if ($this->ignoreDeprecations()) {
             return false;
         }
@@ -81,6 +92,11 @@ class DefaultApiConverter
 
     protected function getDeprecations(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0')
+        );
+
         if ($this->deprecations !== null) {
             return $this->deprecations;
         }
@@ -100,6 +116,11 @@ class DefaultApiConverter
 
     protected function ignoreDeprecations(): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0')
+        );
+
         // We don't have a request
         if ($this->requestStack->getMainRequest() === null) {
             return false;

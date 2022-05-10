@@ -8,6 +8,7 @@ use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Framework\Adapter\Twig\Extension\BuildBreadcrumbExtension;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -64,6 +65,8 @@ class BuildBreadcrumbExtensionTest extends TestCase
      */
     public function testSwBreadcrumb($salesChannelEntity, $navigationCategoryId): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $category = $this->createMock(CategoryEntity::class);
 
         $context = null;
@@ -83,6 +86,8 @@ class BuildBreadcrumbExtensionTest extends TestCase
 
     public function testSwBreadcrumbTypes(): void
     {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+
         $this->categoryRepository->create([
             [
                 'id' => $this->idCollection->create('c1'),

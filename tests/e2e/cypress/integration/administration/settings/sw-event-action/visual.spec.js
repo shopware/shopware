@@ -1,8 +1,13 @@
 // / <reference types="Cypress" />
 
+/**
+ * @deprecated tag:v6.5.0 - Can be removed as business events / event actions will be removed
+ */
 describe('Event actions: Visual testing', () => {
     // eslint-disable-next-line no-undef
     beforeEach(() => {
+        cy.skipOnFeature('v6.5.0.0');
+
         // Clean previous state and prepare Administration
         cy.loginViaApi()
             .then(() => {

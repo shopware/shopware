@@ -249,7 +249,11 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
     });
 
     // NEXT-19333 - The delete request fails sometimes
+    /**
+     * @deprecated tag:v6.5.0 - Business events will be removed, test can be deleted too
+     */
     it('@rule: assign business events to rule via assignment tab, verify assignment and delete assignment', () => {
+        cy.skipOnFeature('V6_5_0_0');
         const page = new RulePageObject();
 
         // Switch to assignments tab

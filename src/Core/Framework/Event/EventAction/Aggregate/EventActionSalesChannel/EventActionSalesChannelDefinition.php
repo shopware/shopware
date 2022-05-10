@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Event\EventAction\EventActionDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 /**
- * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
+ * @deprecated tag:v6.5.0 - reason:remove-entity - Will be removed in v6.5.0.
  */
 class EventActionSalesChannelDefinition extends MappingEntityDefinition
 {

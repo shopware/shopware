@@ -88,6 +88,8 @@ Component.register('sw-custom-field-set-renderer', {
         return {
             customFields: {},
             loadingFields: [],
+            tabWaitMaxAttempts: 10,
+            tabWaitsAttempts: 0,
             refreshVisibleSets: false,
         };
     },
@@ -124,10 +126,6 @@ Component.register('sw-custom-field-set-renderer', {
         },
 
         visibleCustomFieldSets() {
-            // needed for recalculation only
-            // eslint-disable-next-line no-unused-expressions
-            this.refreshVisibleSets;
-
             if (!this.filterCustomFields) {
                 return this.sortSets(this.sets);
             }
@@ -353,7 +351,9 @@ Component.register('sw-custom-field-set-renderer', {
                 return;
             }
 
-            const set = this.sets.find(s => s.id === setId);
+            // failsave dealing with sets (should be an entityCollection, but in reality might be just an array)
+            const set = this.sets.get ? this.sets.get(setId) : this.sets.find(s => s.id === setId);
+
             if (set.customFields && set.customFields.length > 0) {
                 // already loaded, so do nothing
                 return;
@@ -369,13 +369,12 @@ Component.register('sw-custom-field-set-renderer', {
                     // replace the fully fetched set
                     this.sets.forEach((originalSet, index) => {
                         if (originalSet.id === newSet.id) {
-                            this.sets[index] = newSet;
+                            this.$set(this.sets, index, newSet);
                         }
                     });
 
                     // remove the set from the currently loading onces and refresh the visible sets
                     this.loadingFields = this.loadingFields.filter(s => s.id !== setId);
-                    this.refreshVisibleSets = !this.refreshVisibleSets;
                 }).catch(() => {
                     // in case of error make loading again possible
                     this.loadingFields = this.loadingFields.filter(s => s.id !== setId);
@@ -385,21 +384,28 @@ Component.register('sw-custom-field-set-renderer', {
         resetTabs() {
             if (this.visibleCustomFieldSets.length > 0 && this.$refs.tabComponent) {
                 // Reset state of tab component if custom field selection changes
-                this.$nextTick(() => {
-                    this.$refs.tabComponent.mountedComponent();
-                    this.$refs.tabComponent.setActiveItem({ name: this.visibleCustomFieldSets[0].id });
-                });
+                this.$refs.tabComponent.mountedComponent();
+                this.$refs.tabComponent.setActiveItem({ name: this.visibleCustomFieldSets[0].id });
             }
         },
 
-        onChangeCustomFieldSets(value, updateFn) {
-            if (!this.$refs.tabComponent) {
-                // when rendered initially we wait for the tabcomponent to load so we can activate the first item
-                this.$nextTick(() => {
-                    this.resetTabs();
-                });
+        waitForTabComponent() {
+            if (this.$refs.tabComponent || this.tabWaitsAttempts > this.tabWaitMaxAttempts) {
+                return this.resetTabs();
             }
-            this.resetTabs();
+            return this.$nextTick(() => {
+                this.tabWaitsAttempts += 1;
+                this.waitForTabComponent();
+            });
+        },
+
+        onChangeCustomFieldSets(value, updateFn) {
+            if (!this.$refs.tabComponent && (this.visibleCustomFieldSets.length > 0 || value)) {
+                // when rendered initially we wait for the tabcomponent to load so we can activate the first item
+                this.waitForTabComponent();
+            } else {
+                this.resetTabs();
+            }
 
             if (typeof updateFn === 'function') {
                 updateFn(value);

@@ -76,7 +76,7 @@
             @new-item-active="(tab) => loadCustomFieldSet(tab.name)"
         >
             {% block sw_custom_field_set_renderer_card_tabs %}
-            <template slot-scope="{ active }">
+            <template v-slot="{ active }">
                 <template v-for="set in visibleCustomFieldSets">
                     <sw-tabs-item
                         :key="`sw-tab--${set.id}`"
@@ -85,7 +85,7 @@
                         :class="'sw-tab--name-' + set.name"
                         :active-tab="active"
                     >
-                        {{ getInlineSnippet(set.config.label) || set.name }}
+                        {{ set.config ? getInlineSnippet(set.config.label) : set.name }}
                     </sw-tabs-item>
                 </template>
             </template>

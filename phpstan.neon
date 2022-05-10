@@ -192,6 +192,17 @@ parameters:
             count: 1
             path: src/Storefront/Framework/Cache/ReverseProxy/ReverseProxyCache.php
 
+        # Can be removed with 6.5 release (NEXT-20850)
+        -
+            message: "#^PHPDoc tag @param references unknown parameter\\: \\$context$#"
+            count: 1
+            path: src/Storefront/Theme/ThemeCompiler.php
+
+        -
+            message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeCompilerInterface\\:\\:compileTheme\\(\\) invoked with 6 parameters, 4\\-5 required\\.$#"
+            count: 2
+            path: src/Storefront/Theme/ThemeService.php
+
 services:
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule

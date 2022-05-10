@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Theme\Subscriber;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
@@ -53,6 +54,16 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
+        if (Feature::isActive('v6.5.0.0')) {
+            return [
+                PluginPostActivateEvent::class => 'pluginPostActivate',
+                PluginPreUpdateEvent::class => 'pluginUpdate',
+                PluginPreDeactivateEvent::class => 'pluginDeactivateAndUninstall',
+                PluginPreUninstallEvent::class => 'pluginDeactivateAndUninstall',
+                PluginPostUninstallEvent::class => 'pluginPostUninstall',
+            ];
+        }
+
         return [
             PluginPreActivateEvent::class => 'pluginActivate',
             PluginPostActivateEvent::class => 'pluginPostActivate',
@@ -68,6 +79,10 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
      */
     public function pluginActivate(PluginPreActivateEvent $event): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            sprintf('Method pluginActivate of Class %s is deprecated. Use method pluginPostActivate instead', static::class)
+        );
         // do nothing
     }
 
@@ -80,7 +95,7 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
         // create instance of the plugin to create a configuration
         // (the kernel boot is already finished and the activated plugin is missing)
         $storefrontPluginConfig = $this->createConfigFromClassName(
-            $event->getPlugin()->getPath(),
+            $event->getPlugin()->getPath() ?: '',
             $event->getPlugin()->getBaseClass()
         );
 

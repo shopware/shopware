@@ -23,11 +23,11 @@ class ConfigurationServiceInFlagTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public static $appEnvValue;
+    public static string $appEnvValue;
 
-    public static $customCacheId = 'beef3f0ee9c61829627676afd6294bb029';
+    public static string $customCacheId = 'beef3f0ee9c61829627676afd6294bb029';
 
-    private $fixtureFlags = [
+    private array $fixtureFlags = [
         'FEATURE_NEXT_101',
         'FEATURE_NEXT_102',
     ];
@@ -37,7 +37,7 @@ class ConfigurationServiceInFlagTest extends TestCase
      */
     private $configurationService;
 
-    private static $featureAllValue;
+    private static string $featureAllValue;
 
     public static function setUpBeforeClass(): void
     {

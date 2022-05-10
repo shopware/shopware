@@ -105,7 +105,7 @@ class RulePayloadIndexerTest extends TestCase
 
         $this->repository->create([$data], $this->context);
 
-        $this->connection->update('rule', ['payload' => null, 'invalid' => '1'], ['1' => '1']);
+        $this->connection->update('rule', ['payload' => null, 'invalid' => '1'], ['HEX(1)' => '1']);
         $rule = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNull($rule->get('payload'));
 
@@ -213,7 +213,7 @@ class RulePayloadIndexerTest extends TestCase
 
         $this->repository->create($data, $this->context);
 
-        $this->connection->update('rule', ['payload' => null, 'invalid' => '1'], ['1' => '1']);
+        $this->connection->update('rule', ['payload' => null, 'invalid' => '1'], ['HEX(1)' => '1']);
         $rule = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNull($rule->get('payload'));
 
@@ -343,7 +343,7 @@ class RulePayloadIndexerTest extends TestCase
 
         $this->repository->create([$data], $this->context);
 
-        $this->connection->update('rule', ['payload' => null, 'invalid' => '1'], ['1' => '1']);
+        $this->connection->update('rule', ['payload' => null, 'invalid' => '1'], ['HEX(1)' => '1']);
         $rule = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNull($rule->get('payload'));
         $this->indexer->handle(new EntityIndexingMessage([$id]));
@@ -382,7 +382,7 @@ class RulePayloadIndexerTest extends TestCase
 
         $this->repository->create([$data], $this->context);
 
-        $this->connection->update('rule', ['payload' => null, 'invalid' => '1'], ['1' => '1']);
+        $this->connection->update('rule', ['payload' => null, 'invalid' => '1'], ['HEX(1)' => '1']);
         $rule = $this->repository->search(new Criteria([$id]), $this->context)->get($id);
         static::assertNull($rule->get('payload'));
 

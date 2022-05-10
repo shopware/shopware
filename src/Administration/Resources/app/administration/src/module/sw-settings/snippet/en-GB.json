@@ -12,7 +12,7 @@
     "system-config": {
       "labelSalesChannelSelect": "Sales Channel",
       "inherited": "Inherited",
-      "compileNotice": "This configuration holds fields that can be used in a theme. For these changes to be visible please compile the theme.",
+      "compileNotice": "This configuration holds fields that can be used in a theme. Please compile the theme for these changes to be visible.",
       "scssHelpText": "SCSS variable name: "
     }
   },

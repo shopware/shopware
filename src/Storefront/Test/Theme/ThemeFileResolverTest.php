@@ -28,7 +28,7 @@ class ThemeFileResolverTest extends TestCase
         $themePluginBundle = new ThemeWithStorefrontSkinScss();
         $storefrontBundle = new MockStorefront();
 
-        $factory = new StorefrontPluginConfigurationFactory($this->getContainer()->getParameter('kernel.project_dir'), $this->getKernel());
+        $factory = new StorefrontPluginConfigurationFactory($this->getContainer()->getParameter('kernel.project_dir'));
         $config = $factory->createFromBundle($themePluginBundle);
         $storefront = $factory->createFromBundle($storefrontBundle);
 
@@ -48,7 +48,7 @@ class ThemeFileResolverTest extends TestCase
         $actual = json_encode($resolvedFiles, \JSON_PRETTY_PRINT);
         $expected = '/Resources\/app\/storefront\/src\/scss\/skin\/shopware\/_base.scss';
 
-        static::assertStringContainsString($expected, $actual);
+        static::assertStringContainsString($expected, (string) $actual);
     }
 
     public function testResolvedFilesDoNotIncludeSkinScssPath(): void
@@ -58,7 +58,7 @@ class ThemeFileResolverTest extends TestCase
 
         $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
 
-        $factory = new StorefrontPluginConfigurationFactory($projectDir, $this->getKernel());
+        $factory = new StorefrontPluginConfigurationFactory($projectDir);
         $config = $factory->createFromBundle($themePluginBundle);
         $storefront = $factory->createFromBundle($storefrontBundle);
 
@@ -76,7 +76,7 @@ class ThemeFileResolverTest extends TestCase
         $actual = json_encode($resolvedFiles, \JSON_PRETTY_PRINT);
         $notExpected = '/Resources\/app\/storefront\/src\/scss\/skin\/shopware\/_base.scss';
 
-        static::assertStringNotContainsString($notExpected, $actual);
+        static::assertStringNotContainsString($notExpected, (string) $actual);
     }
 
     public function testResolvedFilesDontContainDuplicates(): void
@@ -87,7 +87,7 @@ class ThemeFileResolverTest extends TestCase
 
         $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
 
-        $factory = new StorefrontPluginConfigurationFactory($projectDir, $this->getKernel());
+        $factory = new StorefrontPluginConfigurationFactory($projectDir);
         $config = $factory->createFromBundle($themePluginBundle);
         $storefront = $factory->createFromBundle($storefrontBundle);
         $plugin = $factory->createFromBundle($pluginBundle);
@@ -119,7 +119,7 @@ class ThemeFileResolverTest extends TestCase
         $storefrontBundle = new MockStorefront();
         $pluginBundle = new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin');
 
-        $factory = new StorefrontPluginConfigurationFactory($projectDir, $this->getKernel());
+        $factory = new StorefrontPluginConfigurationFactory($projectDir);
         $config = $factory->createFromBundle($themePluginBundle);
         $storefront = $factory->createFromBundle($storefrontBundle);
         $plugin = $factory->createFromBundle($pluginBundle);
@@ -181,7 +181,8 @@ class ThemeFileResolverTest extends TestCase
         $configCollection->add($storefront);
 
         $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
-        $currentPath = $config->getStyleFiles()->first()->getFilepath();
+        $firstFile = $config->getStyleFiles()->first();
+        $currentPath = $firstFile ? $firstFile->getFilepath() : '';
 
         (new ThemeFileResolver(new ThemeFileImporter($projectDir)))->resolveFiles(
             $config,
@@ -190,6 +191,23 @@ class ThemeFileResolverTest extends TestCase
         );
 
         // Path is still relative
-        static::assertSame($currentPath, $config->getStyleFiles()->first()->getFilepath());
+        static::assertSame(
+            $currentPath,
+            $config->getStyleFiles()->first() ? $config->getStyleFiles()->first()->getFilepath() : ''
+        );
+
+        $config->setScriptFiles(new FileCollection());
+        $config->setStorefrontEntryFilepath(__FILE__);
+
+        (new ThemeFileResolver(new ThemeFileImporter($projectDir)))->resolveFiles(
+            $config,
+            $configCollection,
+            true
+        );
+
+        static::assertSame(
+            $currentPath,
+            $config->getStyleFiles()->first() ? $config->getStyleFiles()->first()->getFilepath() : ''
+        );
     }
 }

@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Test\Theme\Subscriber;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
@@ -59,6 +60,40 @@ class PluginLifecycleSubscriberTest extends TestCase
         );
 
         $subscriber->pluginPostActivate($event);
+    }
+
+    public function testPluginPreActivateEvent(): void
+    {
+        Feature::skipTestIfActive('v6.5.0.0', $this);
+        $context = Context::createDefaultContext();
+        $context->addState(Plugin\PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
+        $event = new Plugin\Event\PluginPreActivateEvent(
+            $this->getPlugin(),
+            new ActivateContext(
+                $this->createMock(Plugin::class),
+                $context,
+                '6.1.0',
+                '1.0.0',
+                $this->createMock(MigrationCollection::class)
+            )
+        );
+
+        $eventOrg = clone $event;
+
+        $handler = $this->createMock(ThemeLifecycleHandler::class);
+        $handler->expects(static::never())->method('handleThemeInstallOrUpdate');
+
+        $subscriber = new PluginLifecycleSubscriber(
+            $this->createMock(StorefrontPluginRegistry::class),
+            __DIR__,
+            $this->createMock(AbstractStorefrontPluginConfigurationFactory::class),
+            $handler,
+            $this->createMock(ThemeLifecycleService::class)
+        );
+
+        $subscriber->pluginActivate($event);
+
+        static::assertEquals($eventOrg, $event);
     }
 
     public function testThemeLifecycleIsNotCalledWhenDeactivatedUsingContextOnUpdate(): void

@@ -3,16 +3,12 @@ title: Allow plugin configurations as scss variables
 issue: NEXT-19595
 ---
 # Storefront
-* Deprecated `Shopware\Storefront\Theme\ThemeCompilerInterface`. This will be removed in 6.5.0, use `Shopware\Storefront\Theme\AbstractThemeCompiler` instead.
-* Added `Shopware\Storefront\Theme\AbstractThemeCompiler` to replace `Shopware\Storefront\Theme\ThemeCompilerInterface`
-* Added `Context` as parameter for `Shopware\Storefront\Theme\AbstractThemeCompiler::compileTheme`. This will be mandatory in 6.5.0.
+* Added `Context` as parameter for `Shopware\Storefront\Theme\ThemeCompilerInterface::compileTheme`. This will be mandatory in 6.5.0.
 * Added `ConfigurationService` and `ActiveAppsLoader` as parameter to `Shopware\Storefront\Theme\ThemeCompiler`
-* Changed `Shopware\Storefront\Theme\ThemeService::$themeCompiler` to type `AbstractThemeCompiler`.
 * Deprecated `Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent` use `Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent` instead.
 * Added `Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent`
 * Added `Shopware\Storefront\Theme\Subscriber\ThemeCompilerEnrichScssVarSubscriber`
 * Changed `Shopware\Storefront\Theme\StorefrontPluginRegistry` to hold all plugins and apps, not only the themes.
-* Changed `Shopware\Storefront\Theme\ThemeService::$themeCompiler` to `Shopware\Storefront\Theme\AbstractThemeCompiler`
 * Deprecated `Shopware\Storefront\Theme\Subscriber\PluginLifecycleSubscriber::pluginActivate` use `\Shopware\Storefront\Theme\Subscriber\PluginLifecycleSubscriber::pluginPostActivate` instead.
 ___
 # Core
@@ -38,10 +34,6 @@ The new tag is `<css>` and takes the name of the scss variable as its value.
 ```
 ___
 # Next Major Version Changes
-
-## Exchange of the `ThemeCompilerInterface` with the `AbstractThemeCompiler`
-To make future changes to the theme system less breaking, we exchanged the former ThemeCompilerInterface as the Blueprint for the ThemeCompiler with the AbstractThemeCompiler.
-Please remove the dependency on the ThemeCompilerInterface and replace it with the AbstractThemeCompiler.
 
 ## Moved and changed the `ThemeCompilerEnrichScssVariablesEvent`
 We moved the event `ThemeCompilerEnrichScssVariablesEvent` from `\Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent` to `\Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent`.

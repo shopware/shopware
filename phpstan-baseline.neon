@@ -6491,11 +6491,6 @@ parameters:
 			path: src/Core/Content/Test/Property/PropertySortTest.php
 
 		-
-			message: "#^Parameter \\#3 \\$criteria of method Doctrine\\\\DBAL\\\\Connection\\:\\:update\\(\\) expects array\\<string, mixed\\>, array\\<int, string\\> given\\.$#"
-			count: 4
-			path: src/Core/Content/Test/Rule/DataAbstractionLayer/RulePayloadIndexerTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Rule\\\\\\\\Container\\\\\\\\AndRule' and \\*NEVER\\* will always evaluate to false\\.$#"
 			count: 2
 			path: src/Core/Content/Test/Rule/DataAbstractionLayer/RulePayloadSubscriberTest.php
@@ -12865,11 +12860,6 @@ parameters:
 			path: src/Core/System/StateMachine/Util/StateMachineGraphvizDumper.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Service\\\\ConfigurationService\\:\\:\\$bundles \\(array\\) does not accept iterable\\<Symfony\\\\Component\\\\HttpKernel\\\\Bundle\\\\BundleInterface\\>\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/Service/ConfigurationService.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\SystemConfigService\\:\\:getId\\(\\) should return string\\|null but returns array\\|string\\|null\\.$#"
 			count: 1
 			path: src/Core/System/SystemConfig/SystemConfigService.php
@@ -13218,26 +13208,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\Command\\\\ConfigSetCommandTest\\:\\:testConfigSetValue\\(\\) has parameter \\$expectedValue with no type specified\\.$#"
 			count: 1
 			path: src/Core/System/Test/SystemConfig/Command/ConfigSetCommandTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\ConfigurationServiceInFlagTest\\:\\:\\$appEnvValue has no type specified\\.$#"
-			count: 1
-			path: src/Core/System/Test/SystemConfig/ConfigurationServiceInFlagTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\ConfigurationServiceInFlagTest\\:\\:\\$customCacheId has no type specified\\.$#"
-			count: 1
-			path: src/Core/System/Test/SystemConfig/ConfigurationServiceInFlagTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\ConfigurationServiceInFlagTest\\:\\:\\$featureAllValue has no type specified\\.$#"
-			count: 1
-			path: src/Core/System/Test/SystemConfig/ConfigurationServiceInFlagTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\Test\\\\SystemConfig\\\\ConfigurationServiceInFlagTest\\:\\:\\$fixtureFlags has no type specified\\.$#"
-			count: 1
-			path: src/Core/System/Test/SystemConfig/ConfigurationServiceInFlagTest.php
 
 		-
 			message: "#^Unsafe access to private constant Shopware\\\\Core\\\\System\\\\Test\\\\User\\\\Api\\\\UserRecoveryControllerTest\\:\\:VALID_EMAIL through static\\:\\:\\.$#"
@@ -13763,41 +13733,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringContainsString\\(\\) expects string, string\\|null given\\.$#"
 			count: 2
 			path: src/Storefront/Test/Controller/WellKnownControllerTest.php
-
-		-
-			message: "#^Call to an undefined method Symfony\\\\Contracts\\\\EventDispatcher\\\\EventDispatcherInterface\\:\\:addListener\\(\\)\\.$#"
-			count: 2
-			path: src/Storefront/Test/Framework/App/AppStateServiceThemeTest.php
-
-		-
-			message: "#^Call to an undefined method Symfony\\\\Contracts\\\\EventDispatcher\\\\EventDispatcherInterface\\:\\:removeListener\\(\\)\\.$#"
-			count: 2
-			path: src/Storefront/Test/Framework/App/AppStateServiceThemeTest.php
-
-		-
-			message: "#^Cannot call method assignTheme\\(\\) on Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Test/Framework/App/AppStateServiceThemeTest.php
-
-		-
-			message: "#^Cannot call method searchIds\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepository\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Test/Framework/App/AppStateServiceThemeTest.php
-
-		-
-			message: "#^Cannot call method upsert\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepository\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/App/AppStateServiceThemeTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$appId of method Shopware\\\\Core\\\\Framework\\\\App\\\\AppStateService\\:\\:activateApp\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/App/AppStateServiceThemeTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$appId of method Shopware\\\\Core\\\\Framework\\\\App\\\\AppStateService\\:\\:deactivateApp\\(\\) expects string, string\\|null given\\.$#"
-			count: 3
-			path: src/Storefront/Test/Framework/App/AppStateServiceThemeTest.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\App\\\\TemplateStateServiceTest\\:\\:fetchActiveTemplates\\(\\) should return Shopware\\\\Core\\\\Framework\\\\App\\\\Template\\\\TemplateCollection but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityCollection\\.$#"
@@ -14485,46 +14420,6 @@ parameters:
 			path: src/Storefront/Test/Theme/ThemeFileImporterTest.php
 
 		-
-			message: "#^Cannot call method getFilepath\\(\\) on Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\File\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Test/Theme/ThemeFileResolverTest.php
-
-		-
-			message: "#^Class Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfigurationFactory constructor invoked with 2 parameters, 1 required\\.$#"
-			count: 4
-			path: src/Storefront/Test/Theme/ThemeFileResolverTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringContainsString\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeFileResolverTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertStringNotContainsString\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeFileResolverTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\ThemeInheritanceBuilderTest\\:\\:getMockedBundle\\(\\) should return Shopware\\\\Core\\\\Framework\\\\Bundle but returns object\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeInheritanceBuilderTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$argument of class ReflectionClass constructor expects class\\-string\\<T of object\\>\\|T of object, string given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeInheritanceBuilderTest.php
-
-		-
-			message: "#^Cannot call method getTechnicalName\\(\\) on Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfiguration\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeLifecycleHandlerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$input of function array_keys expects array, array\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeLifecycleHandlerTest.php
-
-		-
 			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Content\\\\Media\\\\MediaCollection\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 4
 			path: src/Storefront/Test/Theme/ThemeLifecycleServiceTest.php
@@ -14645,71 +14540,6 @@ parameters:
 			path: src/Storefront/Test/Theme/ThemeLifecycleServiceTest.php
 
 		-
-			message: "#^Method class@anonymous/Storefront/Test/Theme/ThemeTest\\.php\\:452\\:\\:__call\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeTest.php
-
-		-
-			message: "#^Method class@anonymous/Storefront/Test/Theme/ThemeTest\\.php\\:452\\:\\:__call\\(\\) has parameter \\$arguments with no type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeTest.php
-
-		-
-			message: "#^Method class@anonymous/Storefront/Test/Theme/ThemeTest\\.php\\:452\\:\\:__call\\(\\) has parameter \\$name with no type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeTest.php
-
-		-
-			message: "#^Method class@anonymous/Storefront/Test/Theme/ThemeTest\\.php\\:452\\:\\:boot\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeTest.php
-
-		-
-			message: "#^Method class@anonymous/Storefront/Test/Theme/ThemeTest\\.php\\:452\\:\\:getBundle\\(\\) has parameter \\$name with no type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeTest.php
-
-		-
-			message: "#^Method class@anonymous/Storefront/Test/Theme/ThemeTest\\.php\\:452\\:\\:getName\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeTest.php
-
-		-
-			message: "#^Method class@anonymous/Storefront/Test/Theme/ThemeTest\\.php\\:452\\:\\:getRootDir\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeTest.php
-
-		-
-			message: "#^Method class@anonymous/Storefront/Test/Theme/ThemeTest\\.php\\:452\\:\\:locateResource\\(\\) has parameter \\$name with no type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeTest.php
-
-		-
-			message: "#^Method class@anonymous/Storefront/Test/Theme/ThemeTest\\.php\\:452\\:\\:registerContainerConfiguration\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeTest.php
-
-		-
-			message: "#^Method class@anonymous/Storefront/Test/Theme/ThemeTest\\.php\\:452\\:\\:shutdown\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeTest.php
-
-		-
-			message: "#^Offset 'fields' does not exist on array\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$arr1 of function array_merge_recursive expects array, array\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeTest.php
-
-		-
-			message: "#^Unreachable statement \\- code above always terminates\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/ThemeTest.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\FileCollection\\:\\:createFromArray\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Storefront/Theme/StorefrontPluginConfiguration/FileCollection.php
@@ -14718,31 +14548,6 @@ parameters:
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfiguration\\:\\:getBasePath\\(\\) should return string but returns string\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Theme/StorefrontPluginConfiguration/StorefrontPluginConfiguration.php
-
-		-
-			message: "#^Cannot call method add\\(\\) on Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfigurationCollection\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Theme/StorefrontPluginRegistry.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginRegistry\\:\\:getConfigurations\\(\\) should return Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfigurationCollection but returns Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfigurationCollection\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginRegistry.php
-
-		-
-			message: "#^Parameter \\#1 \\$pluginPath of method Shopware\\\\Storefront\\\\Theme\\\\Subscriber\\\\PluginLifecycleSubscriber\\:\\:createConfigFromClassName\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Subscriber/PluginLifecycleSubscriber.php
-
-		-
-			message: "#^Parameter \\#1 \\$config of method Shopware\\\\Storefront\\\\Theme\\\\ThemeCompiler\\:\\:dumpVariables\\(\\) expects array, array\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeCompiler.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Theme\\\\ThemeCompiler\\:\\:\\$packages \\(array\\<Symfony\\\\Component\\\\Asset\\\\Package\\>\\) does not accept iterable\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeCompiler.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeConfigField\\:\\:getValue\\(\\) has no return type specified\\.$#"
@@ -14763,16 +14568,6 @@ parameters:
 			message: "#^Property Shopware\\\\Storefront\\\\Theme\\\\ThemeConfigField\\:\\:\\$value has no type specified\\.$#"
 			count: 1
 			path: src/Storefront/Theme/ThemeConfigField.php
-
-		-
-			message: "#^Cannot call method getFilepath\\(\\) on Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\File\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Theme/ThemeFileResolver.php
-
-		-
-			message: "#^Parameter \\#1 \\$filepath of class Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\File constructor expects string, string\\|null given\\.$#"
-			count: 2
-			path: src/Storefront/Theme/ThemeFileResolver.php
 
 		-
 			message: "#^Cannot call method getCode\\(\\) on Shopware\\\\Core\\\\System\\\\Locale\\\\LocaleEntity\\|null\\.$#"
@@ -14808,46 +14603,6 @@ parameters:
 			message: "#^Parameter \\#4 \\$fileSize of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects int, int\\<0, max\\>\\|false given\\.$#"
 			count: 1
 			path: src/Storefront/Theme/ThemeLifecycleService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:getBlock\\(\\) has parameter \\$fieldConfig with no type specified\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:getBlockLabel\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:getSection\\(\\) has parameter \\$fieldConfig with no type specified\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:getSectionLabel\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:getTab\\(\\) has parameter \\$fieldConfig with no type specified\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:getTabLabel\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:mergeStaticConfig\\(\\) should return array but returns array\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Parameter \\#1 \\$arr1 of function array_replace_recursive expects array, array\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
 
 		-
 			message: "#^Parameter \\#1 \\$theme of method Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeInheritanceBuilder\\:\\:getThemeInheritance\\(\\) expects string, int\\|string\\|null given\\.$#"

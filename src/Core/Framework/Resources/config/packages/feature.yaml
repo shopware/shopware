@@ -168,7 +168,7 @@ shopware:
         # issue: NEXT-16271
       - name: FEATURE_NEXT_15381
         default: false
-        major: false
+        major: true
         description: "Save theme compilation"
         # issue: NEXT-15381
       - name: FEATURE_NEXT_17275

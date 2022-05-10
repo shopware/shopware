@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Event;
 
+use Shopware\Core\Framework\Feature;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
@@ -27,6 +28,11 @@ class ThemeCompilerEnrichScssVariablesEvent extends Event
 
     public function addVariable(string $name, string $value, bool $sanitize = false): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            sprintf('Class %s is deprecated. Use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent instead.', static::class)
+        );
+
         if ($sanitize) {
             $this->variables[$name] = '\'' . addslashes($value) . '\'';
         } else {
@@ -36,11 +42,21 @@ class ThemeCompilerEnrichScssVariablesEvent extends Event
 
     public function getVariables(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            sprintf('Class %s is deprecated. Use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent instead.', static::class)
+        );
+
         return $this->variables;
     }
 
     public function getSalesChannelId(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.5.0.0',
+            sprintf('Class %s is deprecated. Use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent instead.', static::class)
+        );
+
         return $this->salesChannelId;
     }
 }

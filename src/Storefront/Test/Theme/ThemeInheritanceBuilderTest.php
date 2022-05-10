@@ -177,8 +177,12 @@ class ThemeInheritanceBuilderTest extends TestCase
         );
     }
 
+    /**
+     * @param class-string $pluginClass
+     */
     private function getMockedPlugin(string $pluginName, string $pluginClass): Bundle
     {
+        /** @var Bundle $bundle */
         $bundle = new $pluginClass(true, __DIR__ . '/fixtures/SimplePlugin');
 
         $reflection = new \ReflectionClass($pluginClass);

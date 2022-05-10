@@ -19,7 +19,7 @@ use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 class ConfigurationService
 {
     /**
-     * @var array
+     * @var iterable
      */
     private $bundles;
 

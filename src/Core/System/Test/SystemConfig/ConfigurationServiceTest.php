@@ -136,6 +136,25 @@ class ConfigurationServiceTest extends TestCase
         static::assertEquals($expectedConfig, $actualConfig);
     }
 
+    public function testGetResolvedConfigurationFromAppChangedNoConfig(): void
+    {
+        $this->addApp('SwagAppConfigNo', true);
+
+        $mockedConfigService = $this->getMockedConfigurationService();
+
+        $actualConfig = $mockedConfigService->getResolvedConfiguration(
+            'SwagAppConfigNo.config',
+            Context::createDefaultContext()
+        );
+
+        $expectedConfig = [
+            [
+                'elements' => false,
+            ],
+        ];
+        static::assertEquals($expectedConfig, $actualConfig);
+    }
+
     public function testGetResolvedConfigurationFromAppNotChanged(): void
     {
         $this->addApp('SwagAppConfig');
@@ -246,6 +265,17 @@ class ConfigurationServiceTest extends TestCase
         );
     }
 
+    private function getMockedConfigurationService(): ConfigurationService
+    {
+        return new MockedConfigurationsService(
+            $this->getTestPlugins(),
+            new ConfigReader(),
+            $this->getContainer()->get(AppLoader::class),
+            $this->getContainer()->get('app.repository'),
+            $this->getContainer()->get(SystemConfigService::class)
+        );
+    }
+
     /**
      * @return BundleInterface[]
      */
@@ -260,9 +290,13 @@ class ConfigurationServiceTest extends TestCase
         ];
     }
 
-    private function addApp(string $name): void
+    private function addApp(string $name, bool $noFieldsConfig = false): void
     {
-        $path = str_replace($this->getContainer()->getParameter('kernel.project_dir') . '/', '', __DIR__ . '/_fixtures/AppWithConfig');
+        if ($noFieldsConfig) {
+            $path = str_replace($this->getContainer()->getParameter('kernel.project_dir') . '/', '', __DIR__ . '/_fixtures/AppWithConfigNoFields');
+        } else {
+            $path = str_replace($this->getContainer()->getParameter('kernel.project_dir') . '/', '', __DIR__ . '/_fixtures/AppWithConfig');
+        }
 
         $appRepository = $this->getContainer()->get('app.repository');
         $appRepository->create([[
@@ -281,5 +315,17 @@ class ConfigurationServiceTest extends TestCase
                 'name' => 'SwagApp',
             ],
         ]], Context::createDefaultContext());
+    }
+}
+
+class MockedConfigurationsService extends ConfigurationService
+{
+    public function getConfiguration(string $domain, Context $context): array
+    {
+        return [
+            [
+                'elements' => false,
+            ],
+        ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme\Subscriber;
 
+use Doctrine\DBAL\Exception as DBALException;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
@@ -37,24 +38,46 @@ class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
     public function enrichExtensionVars(ThemeCompilerEnrichScssVariablesEvent $event): void
     {
         $allConfigs = [];
-        foreach ($this->storefrontPluginRegistry->getConfigurations() as $configuration) {
-            $allConfigs = array_merge(
-                $allConfigs,
-                $this->configurationService->getResolvedConfiguration(
-                    $configuration->getTechnicalName() . '.config',
-                    $event->getContext(),
-                    $event->getSalesChannelId()
-                )
-            );
+
+        if ($this->storefrontPluginRegistry->getConfigurations()->count() === 0) {
+            return;
+        }
+
+        try {
+            foreach ($this->storefrontPluginRegistry->getConfigurations() as $configuration) {
+                $allConfigs = array_merge(
+                    $allConfigs,
+                    $this->configurationService->getResolvedConfiguration(
+                        $configuration->getTechnicalName() . '.config',
+                        $event->getContext(),
+                        $event->getSalesChannelId()
+                    )
+                );
+            }
+        } catch (DBALException $e) {
+            if (\defined('\STDERR')) {
+                fwrite(
+                    \STDERR,
+                    'Warning: Failed to load plugin css configuration. Ignoring plugin css customizations. Message: '
+                    . $e->getMessage() . \PHP_EOL
+                );
+            }
         }
 
         foreach ($allConfigs as $card) {
-            if (isset($card['elements']) && \is_array($card['elements'])) {
-                foreach ($card['elements'] as $element) {
-                    if (isset($element['config']['css'])) {
-                        $event->addVariable($element['config']['css'], $element['value'] ?? $element['defaultValue'] ?? '#fff');
-                    }
+            if (!isset($card['elements']) || !\is_array($card['elements'])) {
+                continue;
+            }
+
+            foreach ($card['elements'] as $element) {
+                if (
+                    !isset($element['config']['css'])
+                    || !\is_string($element['value'] ?? $element['defaultValue'])
+                ) {
+                    continue;
                 }
+
+                $event->addVariable($element['config']['css'], $element['value'] ?? $element['defaultValue']);
             }
         }
     }

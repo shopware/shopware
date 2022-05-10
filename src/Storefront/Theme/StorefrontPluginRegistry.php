@@ -49,7 +49,7 @@ class StorefrontPluginRegistry implements StorefrontPluginRegistryInterface, Res
         $this->addPluginConfigs();
         $this->addAppConfigs();
 
-        return $this->pluginConfigurations;
+        return $this->pluginConfigurations ?? new StorefrontPluginConfigurationCollection();
     }
 
     public function reset(): void
@@ -66,7 +66,7 @@ class StorefrontPluginRegistry implements StorefrontPluginRegistryInterface, Res
 
             $config = $this->pluginConfigurationFactory->createFromBundle($bundle);
 
-            $this->pluginConfigurations->add($config);
+            $this->pluginConfigurations === null ?: $this->pluginConfigurations->add($config);
         }
     }
 
@@ -75,7 +75,7 @@ class StorefrontPluginRegistry implements StorefrontPluginRegistryInterface, Res
         foreach ($this->activeAppsLoader->getActiveApps() as $app) {
             $config = $this->pluginConfigurationFactory->createFromApp($app['name'], $app['path']);
 
-            $this->pluginConfigurations->add($config);
+            $this->pluginConfigurations === null ?: $this->pluginConfigurations->add($config);
         }
     }
 }

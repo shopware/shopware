@@ -38,8 +38,16 @@ class ThemeFileResolver
                     $fileCollection = new FileCollection();
                     $scriptFiles = $configuration->getScriptFiles();
                     $addSourceFile = $configuration->getStorefrontEntryFilepath() && $onlySourceFiles;
+
                     // add source file at the beginning if no other theme is included first
-                    if ($addSourceFile && ($scriptFiles->count() === 0 || !$this->isInclude($scriptFiles->first()->getFilepath()))) {
+                    if (
+                        $addSourceFile
+                        && (
+                            $scriptFiles->count() === 0
+                            || !$this->isInclude($scriptFiles->first()->getFilepath()) /* @phpstan-ignore-line */
+                        )
+                        && $configuration->getStorefrontEntryFilepath()
+                    ) {
                         $fileCollection->add(new File($configuration->getStorefrontEntryFilepath()));
                     }
                     foreach ($scriptFiles as $scriptFile) {
@@ -48,7 +56,12 @@ class ThemeFileResolver
                         }
                         $fileCollection->add($scriptFile);
                     }
-                    if ($addSourceFile && $scriptFiles->count() > 0 && $this->isInclude($scriptFiles->first()->getFilepath())) {
+                    if (
+                        $addSourceFile
+                        && $scriptFiles->count() > 0
+                        && $this->isInclude($scriptFiles->first()->getFilepath()) /* @phpstan-ignore-line */
+                        && $configuration->getStorefrontEntryFilepath()
+                    ) {
                         $fileCollection->add(new File($configuration->getStorefrontEntryFilepath()));
                     }
 
@@ -104,7 +117,7 @@ class ThemeFileResolver
 
                 throw new ThemeCompileException(
                     $themeConfig->getTechnicalName(),
-                    sprintf('Unable to load file "%s". Did you forget to build the theme? Try running ./psh.phar storefront:build ', $filepath)
+                    sprintf('Unable to load file "%s". Did you forget to build the theme? Try running ./psh.phar storefront:build', $filepath)
                 );
             }
 

@@ -23,7 +23,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Symfony\Component\Asset\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ThemeCompiler extends AbstractThemeCompiler
+class ThemeCompiler implements ThemeCompilerInterface
 {
     private FilesystemInterface $filesystem;
 
@@ -40,7 +40,7 @@ class ThemeCompiler extends AbstractThemeCompiler
     /**
      * @var Package[]
      */
-    private array $packages;
+    private iterable $packages;
 
     private CacheInvalidator $logger;
 
@@ -85,16 +85,26 @@ class ThemeCompiler extends AbstractThemeCompiler
     }
 
     /**
-     * @deprecated tag:v6.5.0 - Context will be mandatory
+     * @param Context $context - @deprecated tag:v6.5.0 parameter $context will be required in v6.5.0.0
      */
     public function compileTheme(
         string $salesChannelId,
         string $themeId,
         StorefrontPluginConfiguration $themeConfig,
         StorefrontPluginConfigurationCollection $configurationCollection,
-        bool $withAssets = true,
-        ?Context $context = null
+        bool $withAssets = true/*,
+        Context $context = null */
     ): void {
+        if (\func_num_args() === 6) {
+            $context = func_get_arg(5);
+        } else {
+            $context = null;
+            Feature::triggerDeprecationOrThrow(
+                'v6.5.0.0',
+                sprintf('The parameter context in method compileTheme of class %s is mandatory.', static::class)
+            );
+        }
+
         /**
          * @feature-deprecated (flag:FEATURE_NEXT_15381) keep if branch remove complete following on feature release
          */
@@ -298,7 +308,7 @@ class ThemeCompiler extends AbstractThemeCompiler
             return null;
         });
 
-        $variables = $this->dumpVariables($configuration->getThemeConfig(), $salesChannelId, $context);
+        $variables = $this->dumpVariables($configuration->getThemeConfig() ?? [], $salesChannelId, $context);
         $features = $this->getFeatureConfigScssMap();
 
         try {
@@ -414,13 +424,16 @@ class ThemeCompiler extends AbstractThemeCompiler
             $variables[sprintf('sw-asset-%s-url', $key)] = sprintf('\'%s\'', $package->getUrl(''));
         }
 
-        /** @deprecated tag:v6.5.0 remove this event in 6.5.0 */
-        $themeVariablesEvent = new ThemeCompilerEnrichScssVariablesEvent($variables, $salesChannelId);
-        $this->eventDispatcher->dispatch($themeVariablesEvent);
+        if (!Feature::isActive('v6.5.0.0')) {
+            /** @deprecated tag:v6.5.0 remove this event in 6.5.0 */
+            $themeVariablesEvent = new ThemeCompilerEnrichScssVariablesEvent($variables, $salesChannelId);
+            $this->eventDispatcher->dispatch($themeVariablesEvent);
+            $variables = $themeVariablesEvent->getVariables();
+        }
 
         /** @deprecated tag:v6.5.0 remove alias */
         $themeVariablesEvent = new ThemeCompilerEnrichScssVariablesEventNew(
-            $themeVariablesEvent->getVariables(),
+            $variables,
             $salesChannelId,
             $context
         );

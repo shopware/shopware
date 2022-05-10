@@ -12,8 +12,11 @@ use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
@@ -22,10 +25,11 @@ use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedScriptsEvent;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
-use Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent;
+use Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent as ThemeCompilerEnrichScssVariablesEventDep;
 use Shopware\Storefront\Test\Theme\fixtures\MockThemeCompilerConcatenatedSubscriber;
 use Shopware\Storefront\Test\Theme\fixtures\MockThemeVariablesSubscriber;
 use Shopware\Storefront\Test\Theme\fixtures\SimplePlugin\SimplePlugin;
+use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\Event\ThemeCopyToLiveEvent;
 use Shopware\Storefront\Theme\Exception\ThemeFileCopyException;
 use Shopware\Storefront\Theme\MD5ThemePathBuilder;
@@ -34,6 +38,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
+use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Shopware\Storefront\Theme\Subscriber\ThemeCompilerEnrichScssVarSubscriber;
 use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeFileImporter;
@@ -51,6 +56,7 @@ class ThemeCompilerTest extends TestCase
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
     use AppSystemTestBehaviour;
+    use EnvTestBehaviour;
 
     /**
      * @var ThemeCompiler
@@ -339,8 +345,14 @@ PHP_EOL;
             'sw-border-color' => '#bcc1c7',
         ];
 
-        $event = new ThemeCompilerEnrichScssVariablesEvent($variables, $this->mockSalesChannelId);
-        $subscriber->onAddVariables($event);
+        if (Feature::isActive('v6.5.0.0')) {
+            $event = new ThemeCompilerEnrichScssVariablesEvent($variables, $this->mockSalesChannelId, Context::createDefaultContext());
+            $subscriber->onAddVariables($event);
+        } else {
+            $event = new ThemeCompilerEnrichScssVariablesEventDep($variables, $this->mockSalesChannelId);
+            $subscriber->onAddVariablesDep($event);
+        }
+
         $actual = $event->getVariables();
 
         $expected = [
@@ -384,6 +396,66 @@ PHP_EOL;
         static::assertEquals($expected, $actual);
     }
 
+    public function testCompileDeprecatedVersionWorks(): void
+    {
+        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
+        $testFolder = $projectDir . '/bla';
+
+        if (!file_exists($testFolder)) {
+            mkdir($testFolder);
+        }
+
+        $resolver = $this->createMock(ThemeFileResolver::class);
+        $resolver->method('resolveFiles')->willReturn([ThemeFileResolver::SCRIPT_FILES => new FileCollection(), ThemeFileResolver::STYLE_FILES => new FileCollection()]);
+
+        $importer = $this->createMock(ThemeFileImporter::class);
+        $importer->method('getCopyBatchInputsForAssets')->with($testFolder);
+
+        $fs = new Filesystem(new MemoryAdapter());
+        $fs->addPlugin(new CopyBatch());
+        $tmpFs = new Filesystem(new MemoryAdapter());
+        $tmpFs->addPlugin(new CopyBatch());
+
+        $compiler = new ThemeCompiler(
+            $fs,
+            $tmpFs,
+            $resolver,
+            true,
+            $this->createMock(EventDispatcher::class),
+            $importer,
+            [],
+            $this->createMock(CacheInvalidator::class),
+            new MD5ThemePathBuilder(),
+            $this->getContainer()->getParameter('kernel.project_dir')
+        );
+
+        $config = new StorefrontPluginConfiguration('test');
+        $config->setAssetPaths(['bla']);
+
+        $pathBuilder = new MD5ThemePathBuilder();
+        static::assertEquals('9a11a759d278b4a55cb5e2c3414733c1', $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test'));
+
+        try {
+            $pathBuilder->getDecorated();
+        } catch (DecorationPatternException $e) {
+            static::assertInstanceOf(DecorationPatternException::class, $e);
+        }
+
+        if (Feature::isActive('v6.5.0.0')) {
+            static::expectExceptionMessage('Tried to access deprecated functionality: The parameter context in method compileTheme of class Shopware\Storefront\Theme\ThemeCompiler is mandatory.');
+        }
+
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'test',
+            $config,
+            new StorefrontPluginConfigurationCollection(),
+            true
+        );
+
+        rmdir($testFolder);
+    }
+
     public function testAssetPathWillBeAbsoluteConverted(): void
     {
         $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
@@ -414,19 +486,28 @@ PHP_EOL;
             [],
             $this->createMock(CacheInvalidator::class),
             new MD5ThemePathBuilder(),
-            $this->getContainer()->getParameter('kernel.project_dir'),
-            $this->getContainer()->get(ConfigurationService::class),
-            $this->getContainer()->get(ActiveAppsLoader::class)
+            $this->getContainer()->getParameter('kernel.project_dir')
         );
 
         $config = new StorefrontPluginConfiguration('test');
         $config->setAssetPaths(['bla']);
 
+        $pathBuilder = new MD5ThemePathBuilder();
+        static::assertEquals('9a11a759d278b4a55cb5e2c3414733c1', $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test'));
+
+        try {
+            $pathBuilder->getDecorated();
+        } catch (DecorationPatternException $e) {
+            static::assertInstanceOf(DecorationPatternException::class, $e);
+        }
+
         $compiler->compileTheme(
             TestDefaults::SALES_CHANNEL,
             'test',
             $config,
-            new StorefrontPluginConfigurationCollection()
+            new StorefrontPluginConfigurationCollection(),
+            true,
+            Context::createDefaultContext()
         );
 
         rmdir($testFolder);
@@ -466,9 +547,7 @@ PHP_EOL;
             [],
             $this->createMock(CacheInvalidator::class),
             new MD5ThemePathBuilder(),
-            $this->getContainer()->getParameter('kernel.project_dir'),
-            $this->getContainer()->get(ConfigurationService::class),
-            $this->getContainer()->get(ActiveAppsLoader::class)
+            $this->getContainer()->getParameter('kernel.project_dir')
         );
 
         $config = new StorefrontPluginConfiguration('test');
@@ -476,6 +555,12 @@ PHP_EOL;
 
         $pathBuilder = new MD5ThemePathBuilder();
         $themePrefix = $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'test');
+
+        try {
+            $pathBuilder->getDecorated();
+        } catch (DecorationPatternException $e) {
+            static::assertInstanceOf(DecorationPatternException::class, $e);
+        }
 
         $toLiveFn = function (ThemeCopyToLiveEvent $event) use ($failedPath, $success, $fs, $themePrefix): void {
             $pathPrefix = 'theme' . \DIRECTORY_SEPARATOR;
@@ -513,9 +598,92 @@ PHP_EOL;
                 TestDefaults::SALES_CHANNEL,
                 'test',
                 $config,
-                new StorefrontPluginConfigurationCollection()
+                new StorefrontPluginConfigurationCollection(),
+                true,
+                Context::createDefaultContext()
             );
         } finally {
+            rmdir($testFolder);
+        }
+    }
+
+    public function testDBException(): void
+    {
+        $configService = $this->getConfigurationServiceDbException(
+            [
+                new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'),
+            ]
+        );
+
+        $storefrontPluginRegistry = $this->getStorefrontPluginRegistry(
+            [
+                new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'),
+            ]
+        );
+
+        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
+        $stderr = fopen('php://stderr', 'wb');
+
+        $subscriber->enrichExtensionVars(new ThemeCompilerEnrichScssVariablesEvent([], TestDefaults::SALES_CHANNEL, Context::createDefaultContext()));
+    }
+
+    /**
+     * Theme compilation should be able to run without a database connection.
+     */
+    public function testCompileWithoutDB(): void
+    {
+        $this->stopTransactionAfter();
+        $this->setEnvVars(['DATABASE_URL' => 'mysql://user:no@mysql:3306/test_db']);
+        KernelLifecycleManager::bootKernel(false, 'noDB');
+        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
+        $testFolder = $projectDir . '/bla';
+
+        if (!file_exists($testFolder)) {
+            mkdir($testFolder);
+        }
+
+        $resolver = $this->createMock(ThemeFileResolver::class);
+        $resolver->method('resolveFiles')->willReturn([ThemeFileResolver::SCRIPT_FILES => new FileCollection(), ThemeFileResolver::STYLE_FILES => new FileCollection()]);
+
+        $importer = $this->createMock(ThemeFileImporter::class);
+        $importer->method('getCopyBatchInputsForAssets')->with($testFolder);
+
+        $fs = new Filesystem(new MemoryAdapter());
+        $fs->addPlugin(new CopyBatch());
+        $tmpFs = new Filesystem(new MemoryAdapter());
+        $tmpFs->addPlugin(new CopyBatch());
+
+        $compiler = new ThemeCompiler(
+            $fs,
+            $tmpFs,
+            $resolver,
+            true,
+            $this->getContainer()->get('event_dispatcher'),
+            $importer,
+            [],
+            $this->createMock(CacheInvalidator::class),
+            new MD5ThemePathBuilder(),
+            $this->getContainer()->getParameter('kernel.project_dir')
+        );
+
+        $config = new StorefrontPluginConfiguration('test');
+        $config->setAssetPaths(['bla']);
+
+        try {
+            $compiler->compileTheme(
+                TestDefaults::SALES_CHANNEL,
+                'test',
+                $config,
+                new StorefrontPluginConfigurationCollection(),
+                true,
+                Context::createDefaultContext()
+            );
+        } catch (\Throwable $throwable) {
+            static::fail('ThemeCompiler->compile() should be executable without a database connection. But following Excpetion was thrown: ' . $throwable->getMessage());
+        } finally {
+            $this->resetEnvVars();
+            KernelLifecycleManager::bootKernel(true);
+            $this->startTransactionBefore();
             rmdir($testFolder);
         }
     }
@@ -677,7 +845,18 @@ PHP_EOL;
         );
     }
 
-    private function getStorefrontPluginRegistry(array $plugins): StorefrontPluginRegistry
+    private function getConfigurationServiceDbException(array $plugins): ConfigurationService
+    {
+        return new ConfigurationServiceExcepetion(
+            $plugins,
+            new ConfigReader(),
+            $this->getContainer()->get(AppLoader::class),
+            $this->getContainer()->get('app.repository'),
+            $this->getContainer()->get(SystemConfigService::class)
+        );
+    }
+
+    private function getStorefrontPluginRegistry(array $plugins): StorefrontPluginRegistryInterface
     {
         $kernel = $this->createMock(Kernel::class);
         $kernel->expects(static::any())
@@ -689,5 +868,16 @@ PHP_EOL;
             $this->getContainer()->get(StorefrontPluginConfigurationFactory::class),
             $this->getContainer()->get(ActiveAppsLoader::class)
         );
+    }
+}
+
+class ConfigurationServiceExcepetion extends ConfigurationService
+{
+    /**
+     * @throws \Doctrine\DBAL\Exception
+     */
+    public function checkConfiguration(string $domain, Context $context): bool
+    {
+        throw \Doctrine\DBAL\Exception::invalidTableName('any');
     }
 }

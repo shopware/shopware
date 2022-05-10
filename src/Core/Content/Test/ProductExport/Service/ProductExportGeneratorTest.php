@@ -64,9 +64,7 @@ class ProductExportGeneratorTest extends TestCase
     {
         $productExportId = $this->createTestEntity();
 
-        $criteria = new Criteria([$productExportId]);
-        $criteria->addAssociation('salesChannelDomain.language');
-        $criteria->addAssociation('salesChannel');
+        $criteria = $this->createProductExportCriteria($productExportId);
 
         $productExport = $this->repository->search($criteria, $this->context)->first();
 
@@ -79,9 +77,7 @@ class ProductExportGeneratorTest extends TestCase
     {
         $productExportId = $this->createTestEntity();
 
-        $criteria = new Criteria([$productExportId]);
-        $criteria->addAssociation('salesChannelDomain.language');
-        $criteria->addAssociation('salesChannel');
+        $criteria = $this->createProductExportCriteria($productExportId);
 
         $productExport = $this->repository->search($criteria, $this->context)->first();
 
@@ -154,9 +150,7 @@ class ProductExportGeneratorTest extends TestCase
     {
         $productExportId = $this->createTestEntity();
 
-        $criteria = new Criteria([$productExportId]);
-        $criteria->addAssociation('salesChannelDomain.language');
-        $criteria->addAssociation('salesChannel');
+        $criteria = $this->createProductExportCriteria($productExportId);
 
         $productExport = $this->repository->search($criteria, $this->context)->first();
 
@@ -218,6 +212,47 @@ class ProductExportGeneratorTest extends TestCase
         $eventDispatcher->removeListener(ProductExportProductCriteriaEvent::class, $productExportProductCriteriaCallback);
     }
 
+    public function testExportWithNestedAssociations(): void
+    {
+        $productExportId = $this->createTestEntity([
+            'bodyTemplate' => '{{ product.name }},{{ product.stock }},{{ product.options.first.group.name }}',
+        ]);
+
+        $criteria = $this->createProductExportCriteria($productExportId);
+
+        $productExport = $this->repository->search($criteria, $this->context)->first();
+
+        $exportResult = $this->service->generate($productExport, new ExportBehavior());
+
+        static::assertStringContainsString('options-group', $exportResult->getContent());
+    }
+
+    public function testExportWithForLoop(): void
+    {
+        $productExportId = $this->createTestEntity([
+            'bodyTemplate' => '{% for foo in product.options %} {{ foo.group.name }} {% endfor %}',
+        ]);
+
+        $criteria = $this->createProductExportCriteria($productExportId);
+
+        $productExport = $this->repository->search($criteria, $this->context)->first();
+
+        $exportResult = $this->service->generate($productExport, new ExportBehavior());
+
+        static::assertStringContainsString('options-group', $exportResult->getContent());
+    }
+
+    private function createProductExportCriteria(string $id): Criteria
+    {
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociations([
+            'salesChannel',
+            'salesChannelDomain.language',
+        ]);
+
+        return $criteria;
+    }
+
     private function getSalesChannelId(): string
     {
         /** @var EntityRepositoryInterface $repository */
@@ -239,13 +274,13 @@ class ProductExportGeneratorTest extends TestCase
         return $this->getSalesChannelDomain()->getId();
     }
 
-    private function createTestEntity(): string
+    private function createTestEntity(array $override = []): string
     {
         $this->createProductStream();
 
         $id = Uuid::randomHex();
         $this->repository->upsert([
-            [
+            array_merge([
                 'id' => $id,
                 'fileName' => 'Testexport.csv',
                 'accessKey' => Uuid::randomHex(),
@@ -260,7 +295,7 @@ class ProductExportGeneratorTest extends TestCase
                 'salesChannelDomainId' => $this->getSalesChannelDomainId(),
                 'generateByCronjob' => false,
                 'currencyId' => Defaults::CURRENCY,
-            ],
+            ], $override),
         ], $this->context);
 
         return $id;
@@ -272,13 +307,13 @@ class ProductExportGeneratorTest extends TestCase
 
         $randomProductIds = implode('|', \array_slice(array_column($this->createProducts(), 'id'), 0, 2));
 
-        $connection->exec("
+        $connection->executeStatement("
             INSERT INTO `product_stream` (`id`, `api_filter`, `invalid`, `created_at`, `updated_at`)
             VALUES
                 (UNHEX('137B079935714281BA80B40F83F8D7EB'), '[{\"type\": \"multi\", \"queries\": [{\"type\": \"multi\", \"queries\": [{\"type\": \"equalsAny\", \"field\": \"product.id\", \"value\": \"{$randomProductIds}\"}], \"operator\": \"AND\"}, {\"type\": \"multi\", \"queries\": [{\"type\": \"range\", \"field\": \"product.width\", \"parameters\": {\"gte\": 221, \"lte\": 932}}], \"operator\": \"AND\"}, {\"type\": \"multi\", \"queries\": [{\"type\": \"range\", \"field\": \"product.width\", \"parameters\": {\"lte\": 245}}], \"operator\": \"AND\"}, {\"type\": \"multi\", \"queries\": [{\"type\": \"equals\", \"field\": \"product.manufacturer.id\", \"value\": \"02f6b9aa385d4f40aaf573661b2cf919\"}, {\"type\": \"range\", \"field\": \"product.height\", \"parameters\": {\"gte\": 182}}], \"operator\": \"AND\"}], \"operator\": \"OR\"}]', 0, '2019-08-16 08:43:57.488', NULL);
         ");
 
-        $connection->exec("
+        $connection->executeStatement("
             INSERT INTO `product_stream_filter` (`id`, `product_stream_id`, `parent_id`, `type`, `field`, `operator`, `value`, `parameters`, `position`, `custom_fields`, `created_at`, `updated_at`)
             VALUES
                 (UNHEX('DA6CD9776BC84463B25D5B6210DDB57B'), UNHEX('137B079935714281BA80B40F83F8D7EB'), NULL, 'multi', NULL, 'OR', NULL, NULL, 0, NULL, '2019-08-16 08:43:57.469', NULL),
@@ -296,6 +331,8 @@ class ProductExportGeneratorTest extends TestCase
         $products = [];
 
         for ($i = 0; $i < 10; ++$i) {
+            $groupId = Uuid::randomHex();
+
             $products[] = [
                 'id' => Uuid::randomHex(),
                 'productNumber' => Uuid::randomHex(),
@@ -306,6 +343,41 @@ class ProductExportGeneratorTest extends TestCase
                 'tax' => ['id' => $taxId, 'taxRate' => 17, 'name' => 'with id'],
                 'visibilities' => [
                     ['salesChannelId' => $salesChannelId, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+                'options' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'position' => 99,
+                        'colorHexCode' => '#189eff',
+                        'group' => [
+                            'id' => $groupId,
+                            'position' => 1,
+                            'translations' => [
+                                Defaults::LANGUAGE_SYSTEM => [
+                                    'name' => 'options-group',
+                                    'description' => 'Default',
+                                    'displayType' => 'Default',
+                                    'sortingType' => 'Default',
+                                ],
+                            ],
+                        ],
+                        'translations' => [
+                            Defaults::LANGUAGE_SYSTEM => [
+                                'name' => 'Default',
+                            ],
+                        ],
+                    ],
+                    [
+                        'id' => Uuid::randomHex(),
+                        'position' => 98,
+                        'colorHexCode' => '#ff0000',
+                        'groupId' => $groupId,
+                        'translations' => [
+                            Defaults::LANGUAGE_SYSTEM => [
+                                'name' => 'options-group',
+                            ],
+                        ],
+                    ],
                 ],
             ];
         }

@@ -8,6 +8,7 @@ use Twig\Node\Expression\AssignNameExpression;
 use Twig\Node\Expression\ConstantExpression;
 use Twig\Node\Expression\GetAttrExpression;
 use Twig\Node\Expression\NameExpression;
+use Twig\Node\ForNode;
 use Twig\Node\Node;
 
 class TwigVariableParser
@@ -35,7 +36,7 @@ class TwigVariableParser
         return array_values($this->getVariables($parsed));
     }
 
-    private function getVariables(iterable $nodes): array
+    private function getVariables(iterable $nodes, array $aliases = []): array
     {
         $variables = [];
         foreach ($nodes as $node) {
@@ -45,6 +46,11 @@ class TwigVariableParser
 
             if ($node instanceof NameExpression) {
                 $name = $node->getAttribute('name');
+
+                if (isset($aliases[$name])) {
+                    $name = $aliases[$name];
+                }
+
                 $variables[$name] = $name;
 
                 continue;
@@ -60,7 +66,7 @@ class TwigVariableParser
             }
 
             if ($node instanceof GetAttrExpression) {
-                $path = implode('.', $this->getVariables($node));
+                $path = implode('.', $this->getVariables($node, $aliases));
                 if (!empty($path)) {
                     $variables[$path] = $path;
                 }
@@ -68,8 +74,15 @@ class TwigVariableParser
                 continue;
             }
 
+            if ($node instanceof ForNode) {
+                $target = implode('.', $this->getVariables($node->getNode('seq'), $aliases));
+                $source = $node->getNode('value_target')->getAttribute('name');
+
+                $aliases[$source] = $target;
+            }
+
             if ($node instanceof Node) {
-                $variables += $this->getVariables($node);
+                $variables += $this->getVariables($node, $aliases);
             }
         }
 

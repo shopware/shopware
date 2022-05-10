@@ -49,4 +49,41 @@ TWIG;
 
         static::assertEquals($expected, $variables);
     }
+
+    public function testParserHandlesAssociationsInLoops(): void
+    {
+        $template = <<<TWIG
+{{ product.name|striptags(product.stock) }}
+
+{% for option in product.options %}
+    {{ option.group.name }}
+{% endfor %}
+
+{% for options in product.options %}
+    {{ options.group.name }}
+{% endfor %}
+
+{% for option in product.options %}
+    {{ foo.group.name }}
+{% endfor %}
+
+TWIG;
+
+        $parser = $this->getContainer()->get(TwigVariableParser::class);
+
+        $variables = $parser->parse($template);
+
+        $expected = [
+            'foo.group.name',
+            'product.name',
+            'product.options',
+            'product.options.group.name',
+            'product.stock',
+        ];
+
+        sort($expected);
+        sort($variables);
+
+        static::assertEquals($expected, $variables);
+    }
 }

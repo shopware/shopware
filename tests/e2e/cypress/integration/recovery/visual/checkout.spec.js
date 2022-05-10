@@ -59,9 +59,10 @@ describe('Checkout: Visual tests', () => {
 
             cy.get('.header-cart').click();
 
-            cy.get('.offcanvas').should('be.visible');
+            cy.get('.offcanvas-cart').should('be.visible');
             cy.wait('@cartInfo').its('response.statusCode').should('within', 200, 204);
             cy.get('.header-cart-total').contains('64');
+            cy.get('.summary-value').contains('64');
 
             // Take snapshot for visual testing on desktop
             cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Checkout - Offcanvas`,

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\QueryLimitExceededExc
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
@@ -80,6 +81,11 @@ class RequestCriteriaBuilder
 
     public function fromArray(array $payload, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
     {
+        return $this->parse($payload, $criteria, $definition, $context, $this->maxLimit);
+    }
+
+    private function parse(array $payload, Criteria $criteria, EntityDefinition $definition, Context $context, ?int $maxLimit): Criteria
+    {
         $searchException = new SearchRequestException();
 
         if (isset($payload['ids'])) {
@@ -97,11 +103,11 @@ class RequestCriteriaBuilder
             }
 
             if (isset($payload['limit'])) {
-                $this->addLimit($payload, $criteria, $searchException);
+                $this->addLimit($payload, $criteria, $searchException, $maxLimit);
             }
 
-            if ($criteria->getLimit() === null && $this->maxLimit !== null) {
-                $criteria->setLimit($this->maxLimit);
+            if ($criteria->getLimit() === null && $maxLimit !== null) {
+                $criteria->setLimit($maxLimit);
             }
 
             if (isset($payload['page'])) {
@@ -165,7 +171,11 @@ class RequestCriteriaBuilder
 
                 $nested = $criteria->getAssociation($propertyName);
 
-                $this->fromArray($association, $nested, $ref, $context);
+                $this->parse($association, $nested, $ref, $context, null);
+
+                if ($field instanceof TranslationsAssociationField) {
+                    $nested->setLimit(null);
+                }
             }
         }
 
@@ -283,7 +293,7 @@ class RequestCriteriaBuilder
         $criteria->setOffset($offset);
     }
 
-    private function addLimit(array $payload, Criteria $criteria, SearchRequestException $searchRequestException): void
+    private function addLimit(array $payload, Criteria $criteria, SearchRequestException $searchRequestException, ?int $maxLimit): void
     {
         if ($payload['limit'] === '') {
             $searchRequestException->add(new InvalidLimitQueryException('(empty)'), '/limit');
@@ -304,7 +314,7 @@ class RequestCriteriaBuilder
             return;
         }
 
-        if ($this->maxLimit > 0 && $limit > $this->maxLimit) {
+        if ($maxLimit > 0 && $limit > $maxLimit) {
             $searchRequestException->add(new QueryLimitExceededException($this->maxLimit, $limit), '/limit');
 
             return;

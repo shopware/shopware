@@ -29,7 +29,7 @@ $sw-context-button-color-disabled: $color-gray-100;
         border-radius: $sw-context-button-border-radius;
         cursor: pointer;
         height: 24px;
-        line-height: 20px;
+        line-height: $line-height-sm;
         padding: 0 8px;
         outline: none;
 

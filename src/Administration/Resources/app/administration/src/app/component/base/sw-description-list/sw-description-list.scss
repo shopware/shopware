@@ -1,8 +1,8 @@
 @import "~scss/variables";
 
 .sw-description-list {
-    line-height: 20px;
-    font-size: 14px;
+    line-height: $line-height-sm;
+    font-size: $font-size-xs;
     display: grid;
     place-content: start;
 
@@ -17,7 +17,7 @@
     }
 
     dt {
-        font-weight: 600;
+        font-weight: $font-weight-semi-bold;
         color: $color-darkgray-200;
     }
 }

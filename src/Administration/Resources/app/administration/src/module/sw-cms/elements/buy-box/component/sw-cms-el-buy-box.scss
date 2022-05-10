@@ -7,7 +7,7 @@
     height: 100%;
     width: 100%;
     pointer-events: none;
-    font-size: $font-size-extra-small;
+    font-size: $font-size-xxs;
     color: $color-darkgray-200;
 
     &__placeholder {
@@ -100,7 +100,7 @@
     &__buy-action {
         display: block;
         line-height: 40px;
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         font-weight: $font-weight-bold;
         text-align: center;
         text-decoration: none;

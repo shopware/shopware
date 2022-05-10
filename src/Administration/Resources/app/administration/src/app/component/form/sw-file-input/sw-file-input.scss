@@ -14,7 +14,7 @@ $sw-file-input-background-color-highlighted: $color-shopware-brand-50;
         justify-content: space-between;
         line-height: 16px;
         min-height: 16px;
-        font-size: 14px;
+        font-size: $font-size-xs;
         margin-bottom: 8px;
         color: $color-darkgray-200;
         font-weight: normal;
@@ -45,7 +45,7 @@ $sw-file-input-background-color-highlighted: $color-shopware-brand-50;
     }
 
     .sw-file-input__upload-caption {
-        font-size: $font-size-large;
+        font-size: $font-size-m;
         margin: 12px auto;
 
         .sw-icon {
@@ -62,7 +62,7 @@ $sw-file-input-background-color-highlighted: $color-shopware-brand-50;
             display: flex;
             flex-grow: 1;
             align-items: center;
-            font-size: 14px;
+            font-size: $font-size-xs;
         }
 
         .sw-file-input__file-headline {

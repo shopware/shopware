@@ -13,7 +13,7 @@
     }
 
     .sw-media-breadcrumbs__entry {
-        font-size: $font-size-large;
+        font-size: $font-size-m;
 
         @include truncate;
     }
@@ -27,6 +27,6 @@
     }
 
     &.is--small .sw-media-breadcrumbs__entry {
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
     }
 }

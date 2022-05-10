@@ -13,7 +13,7 @@
     }
 
     .sw-cms-mapping-field__label {
-        font-size: 14px;
+        font-size: $font-size-xs;
         line-height: 16px;
         color: $color-darkgray-200;
         font-weight: normal;
@@ -28,7 +28,7 @@
         align-items: center;
         justify-content: end;
         justify-items: end;
-        font-size: 14px;
+        font-size: $font-size-xs;
         color: $color-shopware-brand-500;
         cursor: pointer;
 
@@ -48,7 +48,7 @@
         align-items: center;
         justify-content: end;
         justify-items: end;
-        font-size: 14px;
+        font-size: $font-size-xs;
         cursor: pointer;
 
         &:hover {

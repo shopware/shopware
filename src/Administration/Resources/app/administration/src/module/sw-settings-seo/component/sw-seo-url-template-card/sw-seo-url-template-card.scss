@@ -1,7 +1,7 @@
 @import "~scss/variables";
 
 $sw-seo-url-template-card-color-preview: $color-darkgray-200;
-$sw-seo-url-template-card-font-size-preview: $font-size-small;
+$sw-seo-url-template-card-font-size-preview: $font-size-xs;
 
 .sw-seo-url-template-card {
     .sw-loader {
@@ -34,9 +34,9 @@ $sw-seo-url-template-card-font-size-preview: $font-size-small;
     }
 
     .sw-field__addition .sw-icon {
-        width: $font-size-default;
-        height: $font-size-default;
-        line-height: $font-size-default;
+        width: $font-size-s;
+        height: $font-size-s;
+        line-height: $font-size-s;
 
         &.icon--regular {
             &-checkmark {

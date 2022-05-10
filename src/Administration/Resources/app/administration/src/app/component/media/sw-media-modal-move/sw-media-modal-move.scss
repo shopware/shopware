@@ -9,7 +9,7 @@ $sw-media-modal-move-breadcrumbs-parent-color: $color-gray-300;
 
 .sw-media-modal-move {
     .sw-media-modal-move-folder-breadcrumbs {
-        font-size: 14px;
+        font-size: $font-size-xs;
         line-height: 22px;
         margin-bottom: 20px;
     }

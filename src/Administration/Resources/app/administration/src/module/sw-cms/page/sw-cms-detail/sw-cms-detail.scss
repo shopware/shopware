@@ -46,7 +46,7 @@
 
     .sw-cms-detail__page-defaults {
         font-weight: $font-weight-semi-bold;
-        font-size: $font-size-extra-small;
+        font-size: $font-size-xxs;
         line-height: 16px;
         color: $color-white;
         padding: 4px 8px;
@@ -100,7 +100,7 @@
                 padding: 8px 16px;
                 line-height: 22px;
                 height: 40px;
-                font-size: 14px;
+                font-size: $font-size-xs;
             }
         }
     }
@@ -160,7 +160,7 @@
 
             h2.sw-cms-detail__empty-stage-headline {
                 font-size: 32px;
-                font-weight: 400;
+                font-weight: $font-weight-regular;
                 margin-bottom: 5px;
             }
         }

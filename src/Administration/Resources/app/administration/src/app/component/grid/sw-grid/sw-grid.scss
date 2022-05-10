@@ -94,7 +94,7 @@ $sw-grid-table-row-color-background: $color-white;
         border-bottom: 1px solid $sw-grid-header-color-border;
 
         .sw-grid-column {
-            font-size: 16px;
+            font-size: $font-size-s;
             font-weight: bold;
 
             .sw-grid__cell-content {
@@ -140,7 +140,7 @@ $sw-grid-table-row-color-background: $color-white;
         border: none;
         cursor: pointer;
         outline: none;
-        font-size: 20px;
+        font-size: $font-size-l;
         color: $sw-grid-actions-icon-color;
 
         &:hover {

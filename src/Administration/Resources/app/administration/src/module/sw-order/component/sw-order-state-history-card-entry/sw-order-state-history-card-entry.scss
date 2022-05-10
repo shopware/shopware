@@ -13,8 +13,8 @@ $sw-order-state-card-warning: $color-pumpkin-spice-500;
 
         .sw-order-state-card__date {
             float: right;
-            line-height: 24px;
-            font-size: 12px;
+            line-height: $line-height-md;
+            font-size: $font-size-xxs;
         }
 
         .sw-order-state-card__text {

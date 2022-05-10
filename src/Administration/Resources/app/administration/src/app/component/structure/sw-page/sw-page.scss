@@ -6,8 +6,8 @@ $sw-page-divider-background-color: $color-gray-300;
 $sw-page-smart-bar-background-color: $color-white;
 $sw-page-smart-bar-headline-color: $color-darkgray-200;
 $sw-page-side-content-default-width: 440px;
-$sw-page-smart-bar-headline-font-size: 18px;
-$sw-page-smart-bar-headline-font-weight: 600;
+$sw-page-smart-bar-headline-font-size: $font-size-m;
+$sw-page-smart-bar-headline-font-weight: $font-weight-semi-bold;
 $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
 
 .sw-page {
@@ -67,14 +67,14 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
     .smart-bar__back-btn {
         width: 54px;
         height: 24px;
-        line-height: 24px;
+        line-height: $line-height-md;
         display: grid;
         grid-template-columns: 30px 24px;
         align-items: center;
         margin-left: 20px;
 
         .sw-icon.icons--regular-chevron-left-s {
-            line-height: 24px;
+            line-height: $line-height-md;
             margin: auto;
         }
 

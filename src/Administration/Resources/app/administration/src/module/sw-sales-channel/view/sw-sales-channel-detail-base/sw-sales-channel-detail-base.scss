@@ -43,7 +43,7 @@ $sw-sales-channel-detail-color-text-access-key: $color-darkgray-200;
     }
 
     .sw-sales-channel-detail-base__description-text {
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         margin-bottom: 20px;
     }
 
@@ -81,7 +81,7 @@ $sw-sales-channel-detail-color-text-access-key: $color-darkgray-200;
 
 .sw-sales-channel-detail-base__delete-modal {
     .sw-modal__body {
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
     }
 
     p {

@@ -16,7 +16,7 @@ $sw-tooltip-border-color-light: $color-gray-300;
         border-radius: $sw-tooltip-border-radius;
         color: $sw-tooltip-color;
         padding: 12px 16px;
-        font-size: 14px;
+        font-size: $font-size-xs;
         word-wrap: break-word;
 
         &::before {
@@ -55,10 +55,10 @@ $sw-tooltip-border-color-light: $color-gray-300;
 
     &.sw-tooltip--light {
         color: $sw-tooltip-color-light;
-        font-size: 12px;
-        font-weight: lighter;
+        font-size: $font-size-xxs;
+        font-weight: $font-weight-regular;
         letter-spacing: 0;
-        line-height: 19px;
+        line-height: $line-height-xs;
         width: auto !important;
         height: auto !important;
         padding: 5px 10px;

@@ -10,7 +10,7 @@ $sw-avatar-size-default: 40px;
     background: $color-gray-200 no-repeat center center;
     background-size: cover;
     text-align: center;
-    font-weight: 600;
+    font-weight: $font-weight-semi-bold;
     text-transform: uppercase;
     color: $color-white;
     user-select: none;

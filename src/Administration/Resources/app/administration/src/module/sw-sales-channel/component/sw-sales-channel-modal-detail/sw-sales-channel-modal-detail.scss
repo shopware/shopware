@@ -28,14 +28,14 @@
     }
 
     .sw-sales-channel-modal-detail__header-name {
-        font-size: 18px;
+        font-size: $font-size-m;
         color: $color-darkgray-200;
-        font-weight: 600;
+        font-weight: $font-weight-semi-bold;
         margin: 6px 0;
     }
 
     .sw-sales-channel-modal-detail__header-manufacturer {
-        font-size: $font-size-small;
+        font-size: $font-size-xs;
         color: lighten($color-darkgray-200, 25%);
     }
 
@@ -45,7 +45,7 @@
 
     .sw-sales-channel-modal-detail__description-title {
         margin-bottom: 20px;
-        font-weight: 600;
+        font-weight: $font-weight-semi-bold;
         color: $color-darkgray-200;
     }
 

@@ -214,7 +214,7 @@
             :variant="disabledPaymentMethodVariant"
             :title="$tc('global.default.' + disabledPaymentMethodVariant)"
         >
-            <span v-html="buildDisabledAlert('sw-sales-channel.detail.warningDisabledPaymentMethod', disabledPaymentMethods, 'distinguishableName')"></span>
+            <span v-html="buildDisabledPaymentAlert('sw-sales-channel.detail.warningDisabledPaymentMethod', disabledPaymentMethods, 'distinguishableName')"></span>
         </sw-alert>
         {% endblock %}
 
@@ -238,7 +238,7 @@
             :variant="disabledShippingMethodVariant"
             :title="$tc('global.default.' + disabledShippingMethodVariant)"
         >
-            <span v-html="buildDisabledAlert('sw-sales-channel.detail.warningDisabledShippingMethod', disabledShippingMethods)"></span>
+            <span v-html="buildDisabledShippingAlert('sw-sales-channel.detail.warningDisabledShippingMethod', disabledShippingMethods)"></span>
         </sw-alert>
         {% endblock %}
 

@@ -168,7 +168,7 @@ class TestBootstrapper
     {
         if (!$pathToComposerJson) {
             $trace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS);
-            $callerFile = $trace[0]['file'];
+            $callerFile = $trace[0]['file'] ?? '';
 
             $dir = \dirname($callerFile);
             $max = 10;

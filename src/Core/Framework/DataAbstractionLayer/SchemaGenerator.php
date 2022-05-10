@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CartPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -116,8 +115,6 @@ EOL;
 
                 break;
 
-            case $field instanceof UpdatedAtField:
-            case $field instanceof CreatedAtField:
             case $field instanceof DateTimeField:
                 $type = 'DATETIME(3)';
 
@@ -141,12 +138,6 @@ EOL;
 
                 break;
 
-            case $field instanceof ChildCountField:
-            case $field instanceof IntField:
-                $type = 'INT(11)';
-
-                break;
-
             case $field instanceof TreePathField:
             case $field instanceof LongTextField:
                 $type = 'LONGTEXT';
@@ -155,6 +146,12 @@ EOL;
 
             case $field instanceof TreeLevelField:
                 $type = 'INT';
+
+                break;
+
+            case $field instanceof ChildCountField:
+            case $field instanceof IntField:
+                $type = 'INT(11)';
 
                 break;
 

@@ -44,7 +44,7 @@ class GoogleReCaptchaV3 extends AbstractCaptcha
 
         $secretKey = !empty($captchaConfig['config']['secretKey']) ? $captchaConfig['config']['secretKey'] : null;
 
-        if (!\is_string($secretKey) || $secretKey === '') {
+        if (!\is_string($secretKey)) {
             return false;
         }
 

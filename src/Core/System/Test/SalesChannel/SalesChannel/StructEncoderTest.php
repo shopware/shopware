@@ -89,7 +89,9 @@ class StructEncoderTest extends TestCase
     public function testSupportsNullExtensions(): void
     {
         $foo = new MyTestStruct('foo', 'bar');
-        $foo->addExtension('myExtension', null);
+        $foo->assign([
+            'extensions' => ['myExtension' => null],
+        ]);
 
         $fields = new ResponseFields([
             'test-struct' => ['foo', 'myExtension'],

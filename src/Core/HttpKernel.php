@@ -203,7 +203,9 @@ class HttpKernel
 
             $r = new \ReflectionObject($this);
 
-            if (!file_exists($dir = $r->getFileName())) {
+            /** @var string $dir */
+            $dir = $r->getFileName();
+            if (!file_exists($dir)) {
                 throw new \LogicException(sprintf('Cannot auto-detect project dir for kernel of class "%s".', $r->name));
             }
 

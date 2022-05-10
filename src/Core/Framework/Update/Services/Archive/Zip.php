@@ -19,7 +19,7 @@ class Zip extends Adapter
             $this->stream = ZipUtils::openZip($fileName);
 
             $this->position = 0;
-            $this->count = $this->stream->numFiles;
+            $this->count = max($this->stream->numFiles, 1);
         }
     }
 

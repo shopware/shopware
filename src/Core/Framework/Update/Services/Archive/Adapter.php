@@ -10,7 +10,7 @@ abstract class Adapter implements \SeekableIterator, \Countable
     protected $position;
 
     /**
-     * @var int
+     * @var int<0, max>
      */
     protected $count;
 

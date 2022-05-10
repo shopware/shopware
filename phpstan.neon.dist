@@ -16,9 +16,9 @@ parameters:
         - src/Core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php
     # run `php src/Core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php` to create the container
     symfony:
-        constant_hassers: false
-        container_xml_path: 'var/cache/phpstan_dev/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml'
-        console_application_loader: src/Core/DevOps/StaticAnalyze/PHPStan/console-application.php
+        constantHassers: false
+        containerXmlPath: 'var/cache/phpstan_dev/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml'
+        consoleApplicationLoader: src/Core/DevOps/StaticAnalyze/PHPStan/console-application.php
 
     excludePaths:
         - src/Recovery/*
@@ -67,6 +67,8 @@ parameters:
         - src/Core/Framework/Adapter/Twig/TwigEnvironment.php
 
     ignoreErrors:
+        # We won't type all arrays/iterables for now
+        - '#no value type specified in iterable type#'
         -
             message: '#Service ".*" is private#'
             path: src/**/*Test.php
@@ -107,10 +109,6 @@ parameters:
         -
             message: '#Strict comparison using#'
             path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiLoader.php
-        # For handling type errors
-        -
-            message: '#Dead catch - Error\|Exception is never thrown in the try block\.#'
-            path: src/Core/Framework/Struct/AssignArrayTrait.php
         # The redis proxy and cluster has a magic __call method which is not considered by phpstan
         -
             message: '#Call to an undefined method .*RedisProxy.*::.*\(\).*#'
@@ -130,52 +128,11 @@ parameters:
             message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity::\_\_.*\(\) has.*#'
             path: src/Core/Framework/DataAbstractionLayer/Entity.php
         # Class behind feature flag - can be removed with feature flag
+        - '#Shopware\\Core\\Framework\\Api\\Sync\\SyncBehavior#'
         -
-            message: '#Parameter \#1 \$failOnError of class Shopware\\Core\\Framework\\Api\\Sync\\SyncBehavior constructor expects bool, string\|null given\.#'
-            path: src/Core/Framework/Api/Controller/SyncController.php
-        -
-            message: '#Parameter \#2 \$singleOperation of class Shopware\\Core\\Framework\\Api\\Sync\\SyncBehavior constructor expects bool, array<int, string> given.#'
-            path: src/Core/Framework/Api/Controller/SyncController.php
-        -
-            message: '#Class Shopware\\Core\\Framework\\Api\\Sync\\SyncBehavior constructor invoked with 0 parameters, 1-4 required\.#'
-            path: src/Core/Content/ImportExport/Event/Subscriber/ProductVariantsSubscriber.php
-        -
-            message: '#Class Shopware\\Core\\Framework\\Api\\Sync\\SyncBehavior constructor invoked with 0 parameters, 1-4 required\.#'
-            path: src/Core/Content/ImportExport/Event/Subscriber/ProductCategoryPathsSubscriber.php
-        -
-            message: '#Parameter \#2 \$success of class Shopware\\Core\\Framework\\Api\\Sync\\SyncResult constructor expects bool, array given\.#'
+            message: '#^Parameter \#2 \$success of class Shopware\\Core\\Framework\\Api\\Sync\\SyncResult constructor expects bool, array given\.$#'
             path: src/Core/Framework/Api/Sync/SyncService.php
-        -
-            message: '#Class Shopware\\Core\\Framework\\Api\\Sync\\SyncBehavior constructor invoked with 0 parameters, 1-4 required\.#'
-            path: src/Core/Framework/DataAbstractionLayer/Facade/RepositoryWriterFacade.php
-        # Closures with no specific return type
-        # EventDispatcherInterface::dispatch() should be return object
-        -
-            message: "#^Method Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\FlowDispatcher\\:\\:dispatch\\(\\) should return TEvent of object but returns \\(Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEvent&TEvent of object\\)\\|\\(Shopware\\\\Core\\\\Framework\\\\Event\\\\FlowEvent&Shopware\\\\Core\\\\Framework\\\\Event\\\\FlowEventAware&TEvent of object\\)\\.$#"
-            count: 1
-            path: src/Core/Content/Flow/Dispatching/FlowDispatcher.php
-        -
-            message: "#^Method Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\FlowDispatcher\\:\\:dispatch\\(\\) should return TEvent of object but returns \\(Psr\\\\EventDispatcher\\\\StoppableEventInterface&Shopware\\\\Core\\\\Framework\\\\Event\\\\FlowEventAware&TEvent of object\\)\\|\\(Shopware\\\\Core\\\\Framework\\\\Event\\\\FlowEventAware&TEvent of object\\)\\.$#"
-            count: 2
-            path: src/Core/Content/Flow/Dispatching/FlowDispatcher.php
-        -
-            message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEventDispatcher\\:\\:dispatch\\(\\) should return TEvent of object but returns \\(Psr\\\\EventDispatcher\\\\StoppableEventInterface&Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEventInterface&TEvent of object\\)\\|\\(Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEventInterface&TEvent of object\\)\\.$#"
-            count: 1
-            path: src/Core/Framework/Event/BusinessEventDispatcher.php
-        -
-            message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEventDispatcher\\:\\:dispatch\\(\\) should return TEvent of object but returns \\(Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEventInterface&TEvent of object\\)\\|TEvent of object\\.$#"
-            count: 1
-            path: src/Core/Framework/Event/BusinessEventDispatcher.php
-        -
-            message: "#^Method Shopware\\\\Core\\\\Framework\\\\Event\\\\NestedEventDispatcher\\:\\:dispatch\\(\\) should return TEvent of object but returns \\(Shopware\\\\Core\\\\Framework\\\\Event\\\\NestedEvent&TEvent of object\\)\\|TEvent of object\\.$#"
-            count: 1
-            path: src/Core/Framework/Event/NestedEventDispatcher.php
-        -
-            message: "#^Method Shopware\\\\Core\\\\Framework\\\\Webhook\\\\WebhookDispatcher\\:\\:dispatch\\(\\) should return TEvent of object but returns \\(Shopware\\\\Core\\\\Framework\\\\App\\\\Event\\\\AppChangedEvent&Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEventInterface&TEvent of object\\)\\|\\(Shopware\\\\Core\\\\Framework\\\\App\\\\Event\\\\AppChangedEvent&Shopware\\\\Core\\\\Framework\\\\Event\\\\FlowEventAware&TEvent of object\\)\\|\\(Shopware\\\\Core\\\\Framework\\\\App\\\\Event\\\\AppChangedEvent&TEvent of object\\)\\|\\(Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenContainerEvent&Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEventInterface&TEvent of object\\)\\|\\(Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenContainerEvent&Shopware\\\\Core\\\\Framework\\\\Event\\\\FlowEventAware&TEvent of object\\)\\|\\(Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenContainerEvent&TEvent of object\\)\\|\\(Shopware\\\\Core\\\\Framework\\\\Event\\\\BusinessEventInterface&TEvent of object\\)\\|\\(Shopware\\\\Core\\\\Framework\\\\Event\\\\FlowEventAware&TEvent of object\\)\\|TEvent of object\\.$#"
-            count: 1
-            path: src/Core/Framework/Webhook/WebhookDispatcher.php
         # can be removed with feature flag FEATURE_NEXT_12455
-
         -
             message: '#Method Shopware\\Core\\Content\\Seo\\SeoUrlRoute\\SeoUrlRouteInterface::prepareCriteria\(\) invoked with 2 parameters, 1 required.#'
             path: src/Core/Content/Seo/SeoUrlGenerator.php
@@ -249,12 +206,6 @@ parameters:
             count: 1
             path: src/Core/Content/ProductExport/Error/Error.php
 
-        # PhpStan cannot understand the multiple traits implemented in this class
-        -
-            message: "#^Call to private method get\\(\\) of class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Facade\\\\CartFacade\\.$#"
-            count: 1
-            path: src/Core/Checkout/Test/Cart/Facade/CartFacadeTest.php
-
         # Method will get third parameter in 6.5
         -
             message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\AbstractReverseProxyGateway\\:\\:tag\\(\\) invoked with 3 parameters, 2 required\\.$#"
@@ -282,7 +233,6 @@ services:
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Decoratable\DecoratableNotInstantiatedRule
         tags:
             - phpstan.rules.rule
-
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule
         tags:

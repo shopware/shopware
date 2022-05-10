@@ -146,17 +146,17 @@ class FieldSerializer extends AbstractFieldSerializer
         }
 
         if ($field instanceof DateField || $field instanceof DateTimeField) {
-            return new \DateTimeImmutable($value);
+            return new \DateTimeImmutable((string) $value);
         }
 
         if ($field instanceof BoolField) {
-            $value = mb_strtolower($value);
+            $value = mb_strtolower((string) $value);
 
             return !($value === '0' || $value === 'false' || $value === 'n' || $value === 'no');
         }
 
         if ($field instanceof JsonField) {
-            return json_decode($value, true);
+            return json_decode((string) $value, true);
         }
 
         if ($field instanceof IntField) {
@@ -164,7 +164,7 @@ class FieldSerializer extends AbstractFieldSerializer
         }
 
         if ($field instanceof IdField || $field instanceof FkField) {
-            return $this->normalizeId($value);
+            return $this->normalizeId((string) $value);
         }
 
         return $value;

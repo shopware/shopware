@@ -24,7 +24,7 @@ class LineItemsInCartCountRule extends Rule
             return false;
         }
 
-        return RuleComparison::numeric($scope->getCart()->getLineItems()->count(), $this->count, $this->operator);
+        return RuleComparison::numeric((float) $scope->getCart()->getLineItems()->count(), (float) $this->count, $this->operator);
     }
 
     public function getConstraints(): array

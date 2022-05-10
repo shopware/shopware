@@ -56,7 +56,7 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
         if (\func_num_args() < 3 || !func_get_arg(2) instanceof Response) {
             Feature::triggerDeprecationOrThrow(
                 'v6.5.0.0',
-                'Method `tag()` in "RedisReverseProxyGateway" expects third parameter of type `Response` in v6.5.0.0.'
+                'Method `tag()` in "FastlyReverseProxyGateway" expects third parameter of type `Response` in v6.5.0.0.'
             );
         }
 

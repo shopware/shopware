@@ -14,6 +14,23 @@ $sw-field--radio-color-border: $color-gray-300;
         grid-column-gap: 8px;
         margin-bottom: 12px;
 
+        &:hover, &:hover >* {
+            cursor: pointer;
+        }
+
+        &.is--disabled {
+            background-color: $color-gray-50;
+
+            &:hover {
+                cursor: not-allowed;
+                border-color: $color-gray-300;
+
+                > * {
+                    cursor: not-allowed;
+                }
+            }
+        }
+
         label {
             font-weight: normal;
             font-size: $font-size-small;
@@ -115,9 +132,14 @@ $sw-field--radio-color-border: $color-gray-300;
         }
 
         .sw-field__radio-option {
+            transition: border-color ease-in 100ms;
             border: 1px solid $color-gray-200;
             border-radius: $border-radius-default;
             padding: 12px 19px;
+
+            &:hover  {
+                border-color: $color-shopware-brand-500;
+            }
         }
 
         .sw-field__radio-option label {

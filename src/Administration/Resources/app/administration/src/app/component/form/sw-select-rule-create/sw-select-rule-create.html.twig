@@ -3,6 +3,7 @@
     <sw-entity-multi-select
         v-if="rules !== null"
         v-model="collection"
+        :criteria="ruleFilter"
         v-bind="$attrs"
     >
 
@@ -26,9 +27,9 @@
             >
                 <li
                     is="sw-select-result"
-                    v-tooltip="getTooltipConfig(item.id)"
+                    v-tooltip="tooltipConfig(item)"
                     :selected="isSelected(item)"
-                    :disabled="restrictedRules.includes(item.id)"
+                    :disabled="isRuleRestricted(item)"
                     v-bind="{ item, index }"
                     @item-select="addItem"
                 >
@@ -83,9 +84,9 @@
             >
                 <li
                     is="sw-select-result"
-                    v-tooltip="getTooltipConfig(item.id)"
+                    v-tooltip="tooltipConfig(item)"
                     :selected="isSelected(item)"
-                    :disabled="restrictedRules.includes(item.id)"
+                    :disabled="isRuleRestricted(item)"
                     v-bind="{ item, index }"
                     @item-select="setValue"
                 >

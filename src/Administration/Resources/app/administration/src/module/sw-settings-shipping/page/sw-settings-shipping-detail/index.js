@@ -127,6 +127,10 @@ Component.register('sw-settings-shipping-detail', {
                 ],
             ));
 
+            if (this.feature.isActive('FEATURE_NEXT_18215')) {
+                criteria.addAssociation('conditions');
+            }
+
             return criteria;
         },
 

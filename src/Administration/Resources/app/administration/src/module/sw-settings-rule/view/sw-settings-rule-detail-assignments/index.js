@@ -58,7 +58,6 @@ Component.register('sw-settings-rule-detail-assignments', {
             deleteItem: null,
             addModal: false,
             addEntityContext: null,
-            restrictedAssociations: null,
         };
     },
 
@@ -86,19 +85,6 @@ Component.register('sw-settings-rule-detail-assignments', {
         associationEntitiesConfig() {
             return Object.values(this.getRuleAssignmentConfiguration);
         },
-
-        /* @internal (flag:FEATURE_NEXT_18215) */
-        associationRestrictions() {
-            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
-                return {};
-            }
-
-            if (!this.conditions || typeof this.ruleConditionDataProviderService.getRestrictedAssociations !== 'function') {
-                return {};
-            }
-
-            return this.ruleConditionDataProviderService.getRestrictedAssociations(this.conditions);
-        },
     },
 
     created() {
@@ -114,7 +100,7 @@ Component.register('sw-settings-rule-detail-assignments', {
         disableAdd(entity) {
             if (this.feature.isActive('FEATURE_NEXT_18215')) {
                 const association = entity.associationName ?? null;
-                if (this.associationRestrictions[association]?.isRestricted) {
+                if (this.ruleConditionDataProviderService.isRuleRestricted(this.conditions, association)) {
                     return true;
                 }
             }
@@ -124,48 +110,8 @@ Component.register('sw-settings-rule-detail-assignments', {
         /* @internal (flag:FEATURE_NEXT_18215) */
         getTooltipConfig(entity) {
             const association = entity.associationName ?? null;
-            const restriction = this.associationRestrictions[association];
-
-            let config = {};
-
-            if (!restriction?.isRestricted) {
-                config = { message: '', disabled: true };
-            } else if (restriction.notEqualsViolations?.length > 0) {
-                config = {
-                    showOnDisabledElements: true,
-                    disabled: false,
-                    message: this.$tc(
-                        'sw-restricted-rules.restrictedAssignment.notEqualsViolationTooltip',
-                        {},
-                        {
-                            conditions: this.ruleConditionDataProviderService.getTranslatedConditionViolationList(
-                                restriction.notEqualsViolations,
-                                'sw-restricted-rules.and',
-                            ),
-                            entityLabel: this.$tc(restriction.assignmentSnippet, 2),
-                        },
-                    ),
-                };
-            } else {
-                config = {
-                    showOnDisabledElements: true,
-                    disabled: false,
-                    width: 400,
-                    message: this.$tc(
-                        'sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip',
-                        0,
-                        {
-                            conditions: this.ruleConditionDataProviderService.getTranslatedConditionViolationList(
-                                restriction.notEqualsViolations,
-                                'sw-restricted-rules.or',
-                            ),
-                            entityLabel: this.$tc(restriction.assignmentSnippet, 2),
-                        },
-                    ),
-                };
-            }
-
-            return config;
+            // const restriction = this.associationRestrictions[association];
+            return this.ruleConditionDataProviderService.getRestrictedRuleTooltipConfig(this.conditions, association);
         },
 
         allowDeletion(entity) {

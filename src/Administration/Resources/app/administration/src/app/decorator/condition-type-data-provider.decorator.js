@@ -1,6 +1,27 @@
 const { Application, Feature } = Shopware;
 
 Application.addServiceProviderDecorator('ruleConditionDataProviderService', (ruleConditionService) => {
+    // Todo Remove itz again.... just for testing:
+    ruleConditionService.addAwarenessConfiguration(
+        'productPrices',
+        {
+            notEquals: [
+                'timeRange',
+            ],
+            snippet: 'Test: Product pireces',
+        },
+    );
+
+    ruleConditionService.addAwarenessConfiguration(
+        'paymentMethods',
+        {
+            notEquals: [
+                'timeRange',
+            ],
+            snippet: 'Test: PaymentMethod Kack',
+        },
+    );
+
     ruleConditionService.addAwarenessConfiguration(
         'personaPromotions',
         {

@@ -55,6 +55,10 @@ Component.register('sw-promotion-v2-cart-condition-form', {
                 );
             }
 
+            if (this.feature.isActive('FEATURE_NEXT_18215')) {
+                criteria.addAssociation('conditions');
+            }
+
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;

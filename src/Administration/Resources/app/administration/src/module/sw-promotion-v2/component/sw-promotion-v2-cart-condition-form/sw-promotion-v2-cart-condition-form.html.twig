@@ -156,8 +156,7 @@
                     :criteria="ruleFilter"
                     :rule-scope="['checkout', 'global', 'lineItem']"
                     :disabled="isEditingDisabled"
-                    :restricted-rules="setGroupRestrictedRules"
-                    :restriction-snippet="$tc(ruleConditionDataProviderService.getAwarenessConfigurationByAssignmentName('promotionSetGroups').snippet, 2)"
+                    rule-aware-group-key="promotionSetGroups"
                 />
 
                 {# @deprecated tag:v6.5.0 - use sw-promotion-v2-rule-select instead #}

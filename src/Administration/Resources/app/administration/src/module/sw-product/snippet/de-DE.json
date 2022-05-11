@@ -293,7 +293,8 @@
       "advancedListPricePriceLabel": "Preis",
       "advancedListPriceLabel": "Streichpreis",
       "advancedPriceDisabledTooltip": "Der Start-Wert der ersten Preisstaffel muss den Wert 1 haben.",
-      "labelRegulationPrice": "Günstigster Preis (letzte 30 Tage)"
+      "labelRegulationPrice": "Günstigster Preis (letzte 30 Tage)",
+      "ruleAlreadyUsed": "Diese Regel wird bereits für eine Preisregel genutzt"
     },
     "properties": {
       "cardTitleProperties": "Eigenschaften",

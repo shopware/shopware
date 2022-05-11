@@ -97,6 +97,10 @@ Component.register('sw-settings-payment-detail', {
                 ],
             ));
 
+            if (this.feature.isActive('FEATURE_NEXT_18215')) {
+                criteria.addAssociation('conditions');
+            }
+
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;

@@ -44,16 +44,19 @@ Component.register('sw-select-rule-create', {
             default() {
                 const criteria = new Criteria();
                 criteria.addSorting(Criteria.sort('name', 'ASC', false));
+                if (this.feature.isActive('FEATURE_NEXT_18215')) {
+                    criteria.addAssociation('conditions');
+                }
 
                 return criteria;
             },
         },
 
         /* @internal (flag:FEATURE_NEXT_18215) */
-        restriction: {
+        ruleAwareGroupKey: {
             type: String,
             required: false,
-            default: '',
+            default: null,
         },
     },
 
@@ -89,20 +92,7 @@ Component.register('sw-select-rule-create', {
         },
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        /* @internal (flag:FEATURE_NEXT_18215) */
-        createdComponent() {
-            if (!this.feature.isActive('FEATURE_NEXT_18215') || !this.restriction) {
-                return;
-            }
-
-            this.getRestrictions();
-        },
-
         onSaveRule(ruleId, rule) {
             if (this.rules) {
                 this.rules.add(rule);
@@ -132,26 +122,20 @@ Component.register('sw-select-rule-create', {
         },
 
         /* @internal (flag:FEATURE_NEXT_18215) */
-        getRestrictions() {
-            this.ruleConditionDataProviderService
-                .getRestrictedRules(this.restriction).then(result => {
-                    this.restrictedRules = result;
-                });
+        isRuleRestricted(rule) {
+            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
+                return false;
+            }
+
+            return this.ruleConditionDataProviderService.isRuleRestricted(rule.conditions, this.ruleAwareGroupKey);
         },
 
         /* @internal (flag:FEATURE_NEXT_18215) */
-        getTooltipConfig(itemId) {
-            let translation = this.$tc('sw-restricted-rules.restrictedAssignment.productPrices');
-            const restrictionTranslationKey = `sw-restricted-rules.restrictedAssignment.${this.restriction}`;
-
-            if (this.$te(restrictionTranslationKey)) {
-                translation = this.$tc(restrictionTranslationKey);
-            }
-
-            return {
-                message: this.$t('sw-restricted-rules.restrictedAssignment.general', { relation: translation }),
-                disabled: !this.restrictedRules.includes(itemId),
-            };
+        tooltipConfig(rule) {
+            return this.ruleConditionDataProviderService.getRestrictedRuleTooltipConfig(
+                rule.conditions,
+                this.ruleAwareGroupKey,
+            );
         },
     },
 });

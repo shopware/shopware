@@ -75,68 +75,20 @@ Component.register('sw-promotion-v2-rule-select', {
         },
 
         /* @internal (flag:FEATURE_NEXT_18215) */
-        tooltipConfig(item) {
-            if (!this.ruleAwareGroupKey) {
-                return { message: '', disabled: true };
-            }
-
-            const restrictionConfig = this.ruleConditionDataProviderService.getRestrictionsByAssociation(
-                item.conditions,
+        tooltipConfig(rule) {
+            return this.ruleConditionDataProviderService.getRestrictedRuleTooltipConfig(
+                rule.conditions,
                 this.ruleAwareGroupKey,
             );
-
-
-            if (!restrictionConfig.isRestricted) {
-                return { message: '', disabled: true };
-            }
-            if (restrictionConfig.notEqualsViolations?.length > 0) {
-                return {
-                    showOnDisabledElements: true,
-                    disabled: false,
-                    message: this.$tc(
-                        'sw-restricted-rules.restrictedAssignment.notEqualsViolationTooltip',
-                        {},
-                        {
-                            conditions: this.ruleConditionDataProviderService.getTranslatedConditionViolationList(
-                                restrictionConfig.notEqualsViolations,
-                                'sw-restricted-rules.and',
-                            ),
-                            entityLabel: this.$tc(restrictionConfig.assignmentSnippet, 2),
-                        },
-                    ),
-                };
-            }
-
-            return {
-                showOnDisabledElements: true,
-                disabled: false,
-                width: 400,
-                message: this.$tc(
-                    'sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip',
-                    0,
-                    {
-                        conditions: this.ruleConditionDataProviderService.getTranslatedConditionViolationList(
-                            restrictionConfig.equalsAnyNotMatched,
-                            'sw-restricted-rules.or',
-                        ),
-                        entityLabel: this.$tc(restrictionConfig.assignmentSnippet, 2),
-                    },
-                ),
-            };
         },
 
         /* @internal (flag:FEATURE_NEXT_18215) */
         isRuleRestricted(rule) {
-            if (!this.ruleAwareGroupKey || !this.feature.isActive('FEATURE_NEXT_18215')) {
+            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
                 return false;
             }
 
-            const restrictionConfig = this.ruleConditionDataProviderService.getRestrictionsByAssociation(
-                rule.conditions,
-                this.ruleAwareGroupKey,
-            );
-
-            return restrictionConfig.isRestricted;
+            return this.ruleConditionDataProviderService.isRuleRestricted(rule.conditions, this.ruleAwareGroupKey);
         },
     },
 });

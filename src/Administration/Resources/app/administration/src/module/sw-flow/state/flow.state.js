@@ -20,8 +20,6 @@ export default {
         customFieldSets: [],
         customFields: [],
         customerGroups: [],
-        /* @internal (flag:FEATURE_NEXT_18215) */
-        restrictedRules: [],
     },
 
     mutations: {

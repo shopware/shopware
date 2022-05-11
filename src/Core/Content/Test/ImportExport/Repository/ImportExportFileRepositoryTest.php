@@ -90,7 +90,7 @@ class ImportExportFileRepositoryTest extends TestCase
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_file');
 
-        static::assertEquals($num, \count($records));
+        static::assertCount($num, $records);
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
@@ -187,7 +187,7 @@ class ImportExportFileRepositoryTest extends TestCase
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_file');
 
-        static::assertEquals($num, \count($records));
+        static::assertCount($num, $records);
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
@@ -229,7 +229,7 @@ class ImportExportFileRepositoryTest extends TestCase
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_file');
 
-        static::assertEquals($num, \count($records));
+        static::assertCount($num, $records);
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
@@ -275,7 +275,7 @@ class ImportExportFileRepositoryTest extends TestCase
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_file');
 
-        static::assertEquals($num, \count($records));
+        static::assertCount($num, $records);
     }
 
     /**

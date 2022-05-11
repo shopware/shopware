@@ -216,15 +216,6 @@ namespace DocsTest {
             $this->salesChannelToken = Uuid::randomHex();
         }
 
-        public function testLineItemIsInCorrectVersion(): void
-        {
-            static::assertSame(
-                'e8fe4f69f5f8fd18a1756f8cf6c17a19f2a3570e',
-                sha1_file(TEST_PROJECT_DIR . '/platform/src/Core/Checkout/Cart/LineItem/LineItem.php'),
-                'The line item class changed apparently, ensure the docs are up to date'
-            );
-        }
-
         public function testExampleCreateNew(): void
         {
             $controller = new NewCartController();

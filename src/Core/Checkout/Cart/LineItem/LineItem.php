@@ -274,7 +274,7 @@ class LineItem extends Struct
      */
     public function setPayloadValue(string $key, $value): self
     {
-        if ($value !== null && !is_scalar($value) && !\is_array($value)) {
+        if ($value !== null && !\is_scalar($value) && !\is_array($value)) {
             throw new InvalidPayloadException($key, $this->getId());
         }
 

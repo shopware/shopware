@@ -168,7 +168,7 @@ class LineItemCustomFieldRule extends Rule
     private function getExpectedValue($renderedFieldValue, array $renderedField)
     {
         if (\in_array($renderedField['type'], [CustomFieldTypes::BOOL, CustomFieldTypes::SWITCH], true)) {
-            return $renderedFieldValue ?? false; // those fields are initialized with null in the rule builder
+            return (bool) ($renderedFieldValue ?? false); // those fields are initialized with null in the rule builder
         }
 
         return $renderedFieldValue;

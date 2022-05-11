@@ -97,7 +97,13 @@
       "labelCustomFieldOption": "Zusatzfeld-Option: {customFieldOption}",
       "placeholderSelectAction": "Aktion auswählen ...",
       "labelAffiliateCode": "Affiliate-Code: {affiliateCode}",
-      "labelCampaignCode": "Kampagnen-Code: {campaignCode}"
+      "labelCampaignCode": "Kampagnen-Code: {campaignCode}",
+      "group": {
+        "tag": "Tag",
+        "customer": "Kunden",
+        "general": "Allgemein",
+        "order": "Bestellung"
+      }
     },
     "rule": {
       "addRule": "Regel hinzufügen",

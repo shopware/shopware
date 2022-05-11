@@ -1,6 +1,7 @@
 import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
 import 'src/module/sw-flow/component/sw-flow-sequence-action';
 import 'src/app/component/form/select/base/sw-single-select';
+import 'src/app/component/form/select/base/sw-grouped-single-select';
 import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
@@ -71,6 +72,7 @@ function createWrapper(propsData = {}, appFlowResponseData = [], flag = null) {
                 `
             },
             'sw-single-select': Shopware.Component.build('sw-single-select'),
+            'sw-grouped-single-select': Shopware.Component.build('sw-grouped-single-select'),
             'sw-select-base': Shopware.Component.build('sw-select-base'),
             'sw-block-field': Shopware.Component.build('sw-block-field'),
             'sw-base-field': Shopware.Component.build('sw-base-field'),
@@ -569,7 +571,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
 
         const actionItems = wrapper.findAll('.sw-select-result');
         expect(actionItems.length).toEqual(5);
-        expect(actionItems.at(0).get('.sw-highlight-text').text()).toBe('Telegram send message');
+        expect(actionItems.at(2).get('.sw-highlight-text').text()).toBe('Telegram send message');
     });
 
     it('should disable the actions when inactive the app flow actions', async () => {
@@ -616,5 +618,18 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
 
         const modalElement = wrapper.find('.sw-flow-sequence-modal');
         expect(modalElement.exists()).toBeTruthy();
+    });
+
+    it('should group flow builder actions', async () => {
+        const wrapper = createWrapper();
+
+        const actionSelect = wrapper.find('.sw-single-select__selection');
+        await actionSelect.trigger('click');
+
+        const actionItems = wrapper.findAll('.sw-grouped-single-select__group-separator');
+
+        expect(actionItems.length).toEqual(2);
+        expect(actionItems.at(0).text()).toEqual('sw-flow.actions.group.tag');
+        expect(actionItems.at(1).text()).toEqual('sw-flow.actions.group.general');
     });
 });

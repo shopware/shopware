@@ -48,7 +48,10 @@ Component.register('sw-flow-sequence-condition', {
         },
 
         ruleCriteria() {
-            return new Criteria(1, 25);
+            const criteria = new Criteria(1, 25);
+            criteria.addSorting(Criteria.sort('name', 'ASC'));
+
+            return criteria;
         },
 
         showHelpElement() {

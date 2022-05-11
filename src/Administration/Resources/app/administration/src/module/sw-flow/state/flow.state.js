@@ -1,4 +1,4 @@
-import { ACTION } from '../constant/flow.constant';
+import { ACTION, GROUPS } from '../constant/flow.constant';
 
 const { Service } = Shopware;
 const { EntityCollection } = Shopware.Data;
@@ -199,6 +199,10 @@ export default {
                     || item.actionName === ACTION.SET_ORDER_CUSTOM_FIELD
                     || item.actionName === ACTION.SET_CUSTOMER_GROUP_CUSTOM_FIELD)
                 .map(item => item.config?.customFieldId);
+        },
+
+        actionGroups() {
+            return GROUPS;
         },
     },
 

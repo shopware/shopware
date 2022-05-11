@@ -193,13 +193,14 @@
                         name="small-default-x-circle"
                         @click="toggleAddButton"
                     />
-
-                    <sw-single-select
+                    {% block sw_flow_sequence_action_list %}
+                    <sw-grouped-single-select
                         class="sw-flow-sequence-action__selection-action"
                         size="small"
                         value=""
                         :placeholder="$tc('sw-flow.actions.placeholderSelectAction')"
                         :options="actionOptions"
+                        :groups="groups"
                         :popover-classes="['sw-flow-sequence-action__popover']"
                         :error="fieldError"
                         @change="openDynamicModal"
@@ -238,7 +239,8 @@
                                 {% endblock %}
                             </li>
                         </template>
-                    </sw-single-select>
+                    </sw-grouped-single-select>
+                    {% endblock %}
                 </div>
                 {% endblock %}
             </div>

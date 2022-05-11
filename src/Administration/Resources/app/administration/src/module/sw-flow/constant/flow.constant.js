@@ -26,6 +26,34 @@ export const ACTION_TYPE = Object.freeze({
     ADD_AFFILIATE_AND_CAMPAIGN_CODE: 'action.add.entity.affiliate.and.campaign.code',
 });
 
+export const GENERAL_GROUP = 'general';
+const TAG_GROUP = 'tag';
+const CUSTOMER_GROUP = 'customer';
+const ORDER_GROUP = 'order';
+
+export const ACTION_GROUP = Object.freeze({
+    'action.add.order.tag': TAG_GROUP,
+    'action.add.customer.tag': TAG_GROUP,
+    'action.remove.order.tag': TAG_GROUP,
+    'action.remove.customer.tag': TAG_GROUP,
+    'action.change.customer.group': CUSTOMER_GROUP,
+    'action.change.customer.status': CUSTOMER_GROUP,
+    'action.set.customer.custom.field': CUSTOMER_GROUP,
+    'action.set.customer.group.custom.field': CUSTOMER_GROUP,
+    'action.add.customer.affiliate.and.campaign.code': CUSTOMER_GROUP,
+    'action.add.order.affiliate.and.campaign.code': CUSTOMER_GROUP,
+    'action.set.order.custom.field': ORDER_GROUP,
+    'action.generate.document': GENERAL_GROUP,
+    'action.mail.send': GENERAL_GROUP,
+    'action.stop.flow': GENERAL_GROUP,
+});
+export const GROUPS = [
+    TAG_GROUP,
+    CUSTOMER_GROUP,
+    ORDER_GROUP,
+    GENERAL_GROUP,
+];
+
 export default {
-    ACTION, ACTION_TYPE,
+    ACTION, ACTION_TYPE, ACTION_GROUP, GROUPS, GENERAL_GROUP,
 };

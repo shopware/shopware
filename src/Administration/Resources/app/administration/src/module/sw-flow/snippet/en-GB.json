@@ -97,7 +97,13 @@
       "labelCustomFieldOption": "Custom field option: {customFieldOption}",
       "placeholderSelectAction": "Select action...",
       "labelAffiliateCode": "Affiliate code: {affiliateCode}",
-      "labelCampaignCode": "Campaign code: {campaignCode}"
+      "labelCampaignCode": "Campaign code: {campaignCode}",
+      "group": {
+        "tag": "Tag",
+        "customer": "Customer",
+        "general": "General",
+        "order": "Order"
+      }
     },
     "rule": {
       "addRule": "Add rule",

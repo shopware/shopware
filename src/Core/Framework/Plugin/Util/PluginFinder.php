@@ -52,14 +52,14 @@ class PluginFinder
 
         try {
             $filesystemPlugins = (new Finder())
-                ->directories()
-                ->depth(0)
+                ->depth('<=2')
                 ->in($pluginDir)
                 ->sortByName()
+                ->path('composer.json')
                 ->getIterator();
 
             foreach ($filesystemPlugins as $filesystemPlugin) {
-                $pluginPath = $filesystemPlugin->getRealPath();
+                $pluginPath = $filesystemPlugin->getPath();
 
                 try {
                     $package = $this->packageProvider->getPluginComposerPackage($pluginPath, $composerIO);
@@ -79,7 +79,7 @@ class PluginFinder
 
                 $plugins[$pluginName] = (new PluginFromFileSystemStruct())->assign([
                     'baseClass' => $pluginName,
-                    'path' => $filesystemPlugin->getPathname(),
+                    'path' => $pluginPath,
                     'managedByComposer' => false,
                     'composerPackage' => $package,
                 ]);

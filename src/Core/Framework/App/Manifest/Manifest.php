@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\Payments;
 use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
 use Shopware\Core\Framework\App\Manifest\Xml\RuleConditions;
 use Shopware\Core\Framework\App\Manifest\Xml\Setup;
+use Shopware\Core\Framework\App\Manifest\Xml\Storefront;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhooks;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Config\Util\XmlUtils;
@@ -44,6 +45,8 @@ class Manifest
 
     private ?RuleConditions $ruleConditions;
 
+    private ?Storefront $storefront;
+
     private function __construct(
         string $path,
         Metadata $metadata,
@@ -55,7 +58,8 @@ class Manifest
         ?Webhooks $webhooks,
         ?Cookies $cookies,
         ?Payments $payments,
-        ?RuleConditions $ruleConditions
+        ?RuleConditions $ruleConditions,
+        ?Storefront $storefront
     ) {
         $this->path = $path;
         $this->metadata = $metadata;
@@ -68,6 +72,7 @@ class Manifest
         $this->cookies = $cookies;
         $this->payments = $payments;
         $this->ruleConditions = $ruleConditions;
+        $this->storefront = $storefront;
     }
 
     public static function createFromXmlFile(string $xmlFile): self
@@ -96,11 +101,13 @@ class Manifest
             $payments = $payments === null ? null : Payments::fromXml($payments);
             $ruleConditions = $doc->getElementsByTagName('rule-conditions')->item(0);
             $ruleConditions = $ruleConditions === null ? null : RuleConditions::fromXml($ruleConditions);
+            $storefront = $doc->getElementsByTagName('storefront')->item(0);
+            $storefront = $storefront === null ? null : Storefront::fromXml($storefront);
         } catch (\Exception $e) {
             throw new XmlParsingException($xmlFile, $e->getMessage());
         }
 
-        return new self(\dirname($xmlFile), $metadata, $setup, $admin, $permissions, $allowedHosts, $customFields, $webhooks, $cookies, $payments, $ruleConditions);
+        return new self(\dirname($xmlFile), $metadata, $setup, $admin, $permissions, $allowedHosts, $customFields, $webhooks, $cookies, $payments, $ruleConditions, $storefront);
     }
 
     public function getPath(): string
@@ -170,6 +177,11 @@ class Manifest
     public function getRuleConditions(): ?RuleConditions
     {
         return $this->ruleConditions;
+    }
+
+    public function getStorefront(): ?Storefront
+    {
+        return $this->storefront;
     }
 
     /**

@@ -2,11 +2,14 @@
 
 namespace Shopware\Core\Framework\Test\Adapter\Twig\NamespaceHierarchy;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
+use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
@@ -156,6 +159,88 @@ class BundleHierarchyBuilderTest extends TestCase
         $bundleHierarchyBuilder = $this->getContainer()->get(BundleHierarchyBuilder::class);
 
         static::assertEquals($this->getCoreNamespaceHierarchy(), array_keys($bundleHierarchyBuilder->buildNamespaceHierarchy([])));
+    }
+
+    /**
+     * @dataProvider sortingProvider
+     */
+    public function testSortingOfTemplates(array $plugins, array $apps, array $expectedSorting): void
+    {
+        $kernel = $this->createMock(KernelInterface::class);
+        $bundles = [];
+
+        $bundleNameSetter = \Closure::bind(static function (Bundle $bundle, string $name): void {
+            $bundle->name = $name;
+        }, null, Bundle::class);
+
+        foreach ($plugins as $plugin => $prio) {
+            $bundle = $this->createMock(Bundle::class);
+            $bundleNameSetter($bundle, $plugin);
+            $bundle->method('getTemplatePriority')->willReturn($prio);
+            $bundle->method('getPath')->willReturn(__DIR__ . '/../fixtures/Plugins/TestPlugin1/');
+            $bundles[] = $bundle;
+        }
+
+        $kernel->method('getBundles')->willReturn($bundles);
+
+        $connection = $this->createMock(Connection::class);
+
+        $dbApps = [];
+
+        foreach ($apps as $app => $prio) {
+            $dbApps[$app] = [
+                'version' => '1.0.0',
+                'template_load_priority' => $prio,
+            ];
+        }
+
+        $connection->method('fetchAllAssociativeIndexed')->willReturn($dbApps);
+
+        $builder = new BundleHierarchyBuilder(
+            $kernel,
+            $connection
+        );
+
+        static::assertSame($expectedSorting, array_keys($builder->buildNamespaceHierarchy([])));
+    }
+
+    public function sortingProvider(): iterable
+    {
+        yield 'all with default prio' => [
+            ['TestPluginB' => 0, 'TestPluginA' => 0],
+            ['TestPluginAppB' => 0, 'TestPluginAppA' => 0],
+            ['TestPluginAppB', 'TestPluginAppA', 'TestPluginA', 'TestPluginB'],
+        ];
+
+        yield 'one plugin with high prio' => [
+            ['TestPluginB' => -500, 'TestPluginA' => 0],
+            ['TestPluginAppB' => 0, 'TestPluginAppA' => 0],
+            ['TestPluginB', 'TestPluginAppB', 'TestPluginAppA', 'TestPluginA'],
+        ];
+
+        yield 'both plugin with high prio to get higher than apps' => [
+            ['TestPluginB' => -500, 'TestPluginA' => -400],
+            ['TestPluginAppB' => 0, 'TestPluginAppA' => 0],
+            ['TestPluginB', 'TestPluginA', 'TestPluginAppB', 'TestPluginAppA'],
+        ];
+
+        yield 'mixed prio by apps and extensions' => [
+            ['TestPluginB' => -500, 'TestPluginA' => -400],
+            ['TestPluginAppB' => -600, 'TestPluginAppA' => 0],
+            ['TestPluginAppB', 'TestPluginB', 'TestPluginA', 'TestPluginAppA'],
+        ];
+
+        yield 'anyone has priority' => [
+            ['TestPluginB' => -500, 'TestPluginA' => -400],
+            ['TestPluginAppB' => -600, 'TestPluginAppA' => -700],
+            ['TestPluginAppA', 'TestPluginAppB', 'TestPluginB', 'TestPluginA'],
+        ];
+
+        yield 'same priority the database order matters' => [
+            ['TestPluginB' => -500, 'TestPluginA' => -400],
+            ['TestPluginAppB' => -600, 'TestPluginAppA' => -600],
+            ['TestPluginAppB', 'TestPluginAppA', 'TestPluginB', 'TestPluginA'],
+        ];
     }
 
     /**

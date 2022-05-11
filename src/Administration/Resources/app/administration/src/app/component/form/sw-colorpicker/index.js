@@ -193,12 +193,12 @@ Component.register('sw-colorpicker', {
         },
 
         hslValue() {
-            const hue = Math.abs(Math.floor(this.hueValue));
-            const saturation = Math.abs(Math.floor(this.saturationValue));
-            const luminance = Math.abs(Math.floor(this.luminanceValue));
+            const hue = Math.abs(this.roundingFloat(this.hueValue));
+            const saturation = Math.abs(this.roundingFloat(this.saturationValue));
+            const luminance = Math.abs(this.roundingFloat(this.luminanceValue));
 
             if (this.alphaValue !== 1) {
-                const alpha = Math.abs(Number(this.alphaValue.toFixed(2)));
+                const alpha = Math.abs(this.roundingFloat(this.alphaValue));
                 return `hsla(${hue}, ${saturation}%, ${luminance}%, ${alpha})`;
             }
 
@@ -416,8 +416,8 @@ Component.register('sw-colorpicker', {
                 correctedYValue = yValue;
             }
 
-            this.saturationValue = Math.floor(correctedXValue);
-            this.luminanceValue = Math.floor(correctedYValue);
+            this.saturationValue = this.roundingFloat(correctedXValue);
+            this.luminanceValue = this.roundingFloat(correctedYValue);
         },
 
         setDragging(event) {
@@ -659,7 +659,7 @@ Component.register('sw-colorpicker', {
                 hue = (red - green) / delta + 4;
             }
 
-            hue = Math.round(hue * 60);
+            hue = this.roundingFloat(hue * 60);
 
             // Make negative hues positive behind 360°
             if (hue < 0) {
@@ -672,8 +672,8 @@ Component.register('sw-colorpicker', {
             // Calculate saturation
             saturation = delta === 0 ? 0 : delta / (1 - Math.abs(2 * luminance - 1));
 
-            saturation = +(saturation * 100).toFixed(1);
-            luminance = +(luminance * 100).toFixed(1);
+            saturation = this.roundingFloat(+(saturation * 100), 1);
+            luminance = this.roundingFloat(+(luminance * 100), 1);
 
             return {
                 string: `hsl(${hue},${saturation}%,${luminance}%)`,
@@ -741,7 +741,7 @@ Component.register('sw-colorpicker', {
                 hue = (red - green) / delta + 4;
             }
 
-            hue = Math.round(hue * 60);
+            hue = this.roundingFloat(hue * 60);
 
             if (hue < 0) {
                 hue += 360;
@@ -749,8 +749,8 @@ Component.register('sw-colorpicker', {
 
             luminance = (cmax + cmin) / 2;
             saturation = delta === 0 ? 0 : delta / (1 - Math.abs(2 * luminance - 1));
-            saturation = +(saturation * 100).toFixed(1);
-            luminance = +(luminance * 100).toFixed(1);
+            saturation = this.roundingFloat(+(saturation * 100), 1);
+            luminance = this.roundingFloat(+(luminance * 100), 1);
 
             const hslValue = {
                 string: `hsl(${hue}, ${saturation}%, ${luminance}%)`,
@@ -762,7 +762,7 @@ Component.register('sw-colorpicker', {
             if (alpha !== 1) {
                 hslValue.string = `hsla(${hue}, ${saturation}%, ${luminance}, ${alpha}%)`;
 
-                alpha = Number((alpha / 255).toFixed(2));
+                alpha = this.roundingFloat(alpha / 255);
                 hslValue.alpha = alpha;
             }
 
@@ -775,6 +775,10 @@ Component.register('sw-colorpicker', {
             }
 
             this.toggleColorPicker();
+        },
+
+        roundingFloat(num, digits = 2) {
+            return Number(Number(num).toFixed(digits));
         },
     },
 });

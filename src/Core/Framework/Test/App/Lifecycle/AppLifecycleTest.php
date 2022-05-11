@@ -50,6 +50,7 @@ use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetColl
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use function preg_replace;
 
 /**
  * @internal
@@ -138,6 +139,7 @@ class AppLifecycleTest extends TestCase
         static::assertFalse($apps->first()->isConfigurable());
         static::assertTrue($apps->first()->getAllowDisable());
         static::assertFalse($apps->first()->getIntegration()->getAdmin());
+        static::assertSame(100, $apps->first()->getTemplateLoadPriority());
         if (Feature::isActive('FEATURE_NEXT_17950')) {
             static::assertEquals('https://base-url.com', $apps->first()->getBaseAppUrl());
         }
@@ -1558,13 +1560,18 @@ class AppLifecycleTest extends TestCase
             json_encode($secondCmsBlock->getBlock())
         );
         static::assertEquals(
-            file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/Resources/cms/blocks/my-second-block/previewExpected.html'),
-            $secondCmsBlock->getTemplate()
+            $this->stripWhitespace(file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/Resources/cms/blocks/my-second-block/previewExpected.html')),
+            $this->stripWhitespace($secondCmsBlock->getTemplate())
         );
         static::assertEquals(
-            file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/Resources/cms/blocks/my-second-block/styles.css'),
-            $secondCmsBlock->getStyles()
+            $this->stripWhitespace(file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/Resources/cms/blocks/my-second-block/styles.css')),
+            $this->stripWhitespace($secondCmsBlock->getStyles())
         );
+    }
+
+    private function stripWhitespace(string $text): string
+    {
+        return preg_replace('/\s/m', '', $text);
     }
 
     private function setNewSystemLanguage(string $iso): void

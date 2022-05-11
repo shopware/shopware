@@ -13,11 +13,12 @@ describe('Checkout: Visual tests', () => {
             return;
         }
 
+        const page = new CheckoutPageObject();
+
         cy.window().then((win) => {
             /** @deprecated tag:v6.5.0 - Use `CheckoutPageObject.elements.lineItem` instead */
             const lineItemSelector = win.features['v6.5.0.0'] ? '.line-item' : '.cart-item';
 
-            const page = new CheckoutPageObject();
             const accountPage = new AccountPageObject();
 
             cy.intercept({

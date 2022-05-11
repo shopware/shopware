@@ -60,6 +60,10 @@ describe('Customer:  Visual test', () => {
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot(`${Cypress.env('testDataUsage') ? '[Update]' : '[Install]'} Customer create`, '.sw-customer-create');
 
+        const accountType = Cypress.env('locale') === 'en-GB' ? 'Commercial' : 'Gewerblich';
+        cy.get('.sw-customer-base-form__account-type-select')
+            .typeSingleSelectAndCheck(accountType, '.sw-customer-base-form__account-type-select');
+
         const salutation = Cypress.env('locale') === 'en-GB' ? 'Mr' : 'Herr';
         cy.get('.sw-customer-base-form__salutation-select')
             .typeSingleSelectAndCheck(salutation, '.sw-customer-base-form__salutation-select');

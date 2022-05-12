@@ -140,11 +140,11 @@ class DemodataCommand extends Command
     {
         return [
             'relations' => [
-                'product' => (int) ($input->getOption('product-attributes') ?? $input->getOption('product-attributes') * 0.1),
-                'product_manufacturer' => (int) ($input->getOption('manufacturer-attributes') ?? $input->getOption('manufacturer-attributes') * 0.1),
-                'order' => (int) ($input->getOption('order-attributes') ?? $input->getOption('order-attributes') * 0.1),
-                'customer' => (int) ($input->getOption('customer-attributes') ?? $input->getOption('customer-attributes') * 0.1),
-                'media' => (int) ($input->getOption('media-attributes') ?? $input->getOption('media-attributes') * 0.1),
+                'product' => ($input->getOption('product-attributes') ?? (int) $input->getOption('product-attributes') * 0.1),
+                'product_manufacturer' => ($input->getOption('manufacturer-attributes') ?? (int) $input->getOption('manufacturer-attributes') * 0.1),
+                'order' => ($input->getOption('order-attributes') ?? (int) $input->getOption('order-attributes') * 0.1),
+                'customer' => ($input->getOption('customer-attributes') ?? (int) $input->getOption('customer-attributes') * 0.1),
+                'media' => ($input->getOption('media-attributes') ?? (int) $input->getOption('media-attributes') * 0.1),
             ],
         ];
     }

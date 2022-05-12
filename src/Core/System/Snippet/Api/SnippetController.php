@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Snippet\Api;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidLimitQueryException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
@@ -45,10 +46,16 @@ class SnippetController extends AbstractController
      */
     public function getList(Request $request, Context $context): Response
     {
+        $limit = $request->request->getInt('limit', 25);
+
+        if ($limit < 1) {
+            throw new InvalidLimitQueryException($limit);
+        }
+
         return new JsonResponse(
             $this->snippetService->getList(
                 $request->request->getInt('page', 1),
-                $request->request->getInt('limit', 25),
+                $limit,
                 $context,
                 $request->request->all('filters'),
                 $request->request->all('sort')

@@ -165,7 +165,7 @@ class EntityHydrator
                     continue;
                 }
 
-                if ($field->is(Extension::class)) {
+                if ($field->is(Extension::class) && $association !== null) {
                     $entity->addExtension($property, $association);
                 } else {
                     $entity->assign([$property => $association]);

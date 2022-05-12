@@ -64,7 +64,7 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
             return [];
         }
 
-        $methodContent = $this->getMethodContent($node, $class);
+        $methodContent = $this->getMethodContent($node, $scope, $class);
 
         $method = $class->getMethod($node->name->name, $scope);
 
@@ -98,10 +98,18 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         return [];
     }
 
-    private function getMethodContent(Node $node, ClassReflection $class): string
+    private function getMethodContent(Node $node, Scope $scope, ClassReflection $class): string
     {
         /** @var string $filename */
         $filename = $class->getFileName();
+
+        $trait = $scope->getTraitReflection();
+
+        if ($trait) {
+            /** @var string $filename */
+            $filename = $trait->getFileName();
+        }
+
         $file = new \SplFileObject($filename);
         $file->seek($node->getStartLine() - 1);
 

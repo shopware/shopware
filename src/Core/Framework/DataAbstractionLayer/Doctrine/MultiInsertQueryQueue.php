@@ -19,7 +19,7 @@ class MultiInsertQueryQueue
     private $connection;
 
     /**
-     * @var int
+     * @var int<1, max>
      */
     private $chunkSize;
 
@@ -39,6 +39,11 @@ class MultiInsertQueryQueue
         bool $ignoreErrors = false,
         bool $useReplace = false
     ) {
+        if ($chunkSize < 1) {
+            throw new \InvalidArgumentException(
+                sprintf('Parameter $chunkSize needs to be a positive integer starting with 1, "%d" given', $chunkSize)
+            );
+        }
         $this->connection = $connection;
         $this->chunkSize = $chunkSize;
         $this->ignoreErrors = $ignoreErrors;

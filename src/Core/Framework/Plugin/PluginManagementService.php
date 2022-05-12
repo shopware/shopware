@@ -81,8 +81,11 @@ class PluginManagementService
 
     public function uploadPlugin(UploadedFile $file, Context $context): void
     {
+        /** @var string $tempFileName */
         $tempFileName = tempnam(sys_get_temp_dir(), $file->getClientOriginalName());
-        $tempDirectory = \dirname(realpath($tempFileName));
+        /** @var string $tempRealPath */
+        $tempRealPath = realpath($tempFileName);
+        $tempDirectory = \dirname($tempRealPath);
 
         $tempFile = $file->move($tempDirectory, $tempFileName);
 
@@ -96,6 +99,7 @@ class PluginManagementService
 
     public function downloadStorePlugin(PluginDownloadDataStruct $location, Context $context): void
     {
+        /** @var string $tempFileName */
         $tempFileName = tempnam(sys_get_temp_dir(), 'store-plugin');
 
         try {

@@ -29,7 +29,6 @@ use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Profiling\Profiler;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -226,9 +225,6 @@ class WebhookDispatcher implements EventDispatcherInterface
         $criteria->addFilter(new EqualsFilter('active', true));
         $criteria->addAssociation('app');
 
-        if (!$this->container->has('webhook.repository')) {
-            throw new ServiceNotFoundException('webhook.repository');
-        }
         /** @var WebhookCollection $webhooks */
         $webhooks = $this->container->get('webhook.repository')->search($criteria, Context::createDefaultContext())->getEntities();
 
@@ -402,10 +398,6 @@ class WebhookDispatcher implements EventDispatcherInterface
 
     private function logWebhookWithEvent(WebhookEntity $webhook, WebhookEventMessage $webhookEventMessage): void
     {
-        if (!$this->container->has('webhook_event_log.repository')) {
-            throw new ServiceNotFoundException('webhook_event_log.repository');
-        }
-
         /** @var EntityRepositoryInterface $webhookEventLogRepository */
         $webhookEventLogRepository = $this->container->get('webhook_event_log.repository');
 
@@ -443,19 +435,11 @@ class WebhookDispatcher implements EventDispatcherInterface
 
     private function getShopIdProvider(): ShopIdProvider
     {
-        if (!$this->container->has(ShopIdProvider::class)) {
-            throw new ServiceNotFoundException(ShopIdProvider::class);
-        }
-
         return $this->container->get(ShopIdProvider::class);
     }
 
     private function getAppLocaleProvider(): AppLocaleProvider
     {
-        if (!$this->container->has(AppLocaleProvider::class)) {
-            throw new ServiceNotFoundException(AppLocaleProvider::class);
-        }
-
         return $this->container->get(AppLocaleProvider::class);
     }
 }

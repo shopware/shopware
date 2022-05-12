@@ -84,6 +84,8 @@ class SnippetService
      *      'column' => NULL || the string -> 'translationKey' || setId
      *      'direction' => 'ASC' || 'DESC'
      * ]
+     *
+     * @param int<1, max> $limit
      */
     public function getList(int $page, int $limit, Context $context, array $requestFilters, array $sort): array
     {

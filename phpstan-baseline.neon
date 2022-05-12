@@ -321,11 +321,6 @@ parameters:
 			path: src/Core/Checkout/Document/DocumentService.php
 
 		-
-			message: "#^Array \\(array\\<Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\>\\) does not accept Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/Event/DocumentTemplateRendererParameterEvent.php
-
-		-
 			message: "#^Parameter \\#1 \\$object of function get_class expects object, Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\|null given\\.$#"
 			count: 1
 			path: src/Core/Checkout/Document/Event/DocumentTemplateRendererParameterEvent.php
@@ -359,11 +354,6 @@ parameters:
 			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Content\\\\Rule\\\\RuleCollection\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 1
 			path: src/Core/Checkout/Order/SalesChannel/OrderRoute.php
-
-		-
-			message: "#^Array \\(array\\<Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\>\\) does not accept Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/Cart/SyncPaymentTransactionStruct.php
 
 		-
 			message: "#^Parameter \\#1 \\$object of function get_class expects object, Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\|null given\\.$#"
@@ -2363,11 +2353,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Search/Parser/ParseResult.php
 
 		-
-			message: "#^Parameter \\#2 \\$fieldName of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\RequestCriteriaBuilder\\:\\:buildFieldName\\(\\) expects string, int\\|string given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/RequestCriteriaBuilder.php
-
-		-
 			message: "#^Parameter \\#1 \\$str of function trim expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Search/Term/Tokenizer.php
@@ -2476,11 +2461,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\WriteContext\\:\\:get\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Write/WriteContext.php
-
-		-
-			message: "#^Array \\(array\\<array\\<string\\>\\>\\) does not accept array\\<array\\|string\\>\\.$#"
-			count: 1
-			path: src/Core/Framework/Demodata/DemodataContext.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Demodata\\\\Generator\\\\CategoryGenerator\\:\\:getRootCategoryId\\(\\) should return string but returns array\\|string\\|null\\.$#"
@@ -2628,26 +2608,6 @@ parameters:
 			path: src/Core/Framework/Plugin/PluginExtractor.php
 
 		-
-			message: "#^Parameter \\#1 \\$file of method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginManagementService\\:\\:extractPluginZip\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/PluginManagementService.php
-
-		-
-			message: "#^Parameter \\#1 \\$path of function dirname expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/PluginManagementService.php
-
-		-
-			message: "#^Parameter \\#1 \\$path of function realpath expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/PluginManagementService.php
-
-		-
-			message: "#^Parameter \\#2 \\$name of method Symfony\\\\Component\\\\HttpFoundation\\\\File\\\\UploadedFile\\:\\:move\\(\\) expects string\\|null, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/PluginManagementService.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginService\\:\\:getPluginIconRaw\\(\\) should return string\\|null but returns string\\|false\\.$#"
 			count: 1
 			path: src/Core/Framework/Plugin/PluginService.php
@@ -2656,16 +2616,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$resource of method League\\\\Flysystem\\\\FilesystemInterface\\:\\:putStream\\(\\) expects resource, resource\\|false given\\.$#"
 			count: 1
 			path: src/Core/Framework/Plugin/Util/AssetService.php
-
-		-
-			message: "#^Parameter \\#1 \\$pluginPath of method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Composer\\\\PackageProvider\\:\\:getPluginComposerPackage\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/Util/PluginFinder.php
-
-		-
-			message: "#^Parameter \\#1 \\$pluginPath of method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Util\\\\PluginFinder\\:\\:addError\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/Util/PluginFinder.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Util\\\\PluginIdProvider\\:\\:getPluginIdByBaseClass\\(\\) should return string but returns array\\|string\\|null\\.$#"
@@ -2818,36 +2768,6 @@ parameters:
 			path: src/Core/Framework/Struct/ArrayEntity.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayEntity\\:\\:offsetExists\\(\\) has parameter \\$offset with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/ArrayEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayEntity\\:\\:offsetGet\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/ArrayEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayEntity\\:\\:offsetGet\\(\\) has parameter \\$offset with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/ArrayEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayEntity\\:\\:offsetSet\\(\\) has parameter \\$offset with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/ArrayEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayEntity\\:\\:offsetSet\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/ArrayEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayEntity\\:\\:offsetUnset\\(\\) has parameter \\$offset with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/ArrayEntity.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayEntity\\:\\:set\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Struct/ArrayEntity.php
@@ -2874,36 +2794,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayStruct\\:\\:get\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/ArrayStruct.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayStruct\\:\\:offsetExists\\(\\) has parameter \\$offset with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/ArrayStruct.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayStruct\\:\\:offsetGet\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/ArrayStruct.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayStruct\\:\\:offsetGet\\(\\) has parameter \\$offset with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/ArrayStruct.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayStruct\\:\\:offsetSet\\(\\) has parameter \\$offset with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/ArrayStruct.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayStruct\\:\\:offsetSet\\(\\) has parameter \\$value with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/ArrayStruct.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayStruct\\:\\:offsetUnset\\(\\) has parameter \\$offset with no type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Struct/ArrayStruct.php
 
@@ -2986,11 +2876,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Struct\\\\Serializer\\\\StructNormalizer\\:\\:\\$classes with generic class ReflectionClass does not specify its types\\: T$#"
 			count: 1
 			path: src/Core/Framework/Struct/Serializer/StructNormalizer.php
-
-		-
-			message: "#^Array \\(array\\<Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\>\\) does not accept Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Struct.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\:\\:createFrom\\(\\) has no return type specified\\.$#"
@@ -3154,16 +3039,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\HttpKernel\\:\\:handle\\(\\) has parameter \\$type with no type specified\\.$#"
-			count: 1
-			path: src/Core/HttpKernel.php
-
-		-
-			message: "#^Parameter \\#1 \\$filename of function file_exists expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/HttpKernel.php
-
-		-
-			message: "#^Parameter \\#1 \\$path of function dirname expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/HttpKernel.php
 
@@ -3532,11 +3407,6 @@ parameters:
 			path: src/Docs/Convert/DocsParsedownExtra.php
 
 		-
-			message: "#^Parameter \\#1 \\$path of function dirname expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Docs/Convert/DocsParsedownExtra.php
-
-		-
 			message: "#^Parameter \\#2 \\$offset of function array_slice expects int, float\\|int given\\.$#"
 			count: 1
 			path: src/Docs/Convert/DocsParsedownExtra.php
@@ -3547,18 +3417,8 @@ parameters:
 			path: src/Docs/Convert/Document.php
 
 		-
-			message: "#^Parameter \\#1 \\$path of function dirname expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Docs/Convert/Document.php
-
-		-
 			message: "#^Method Shopware\\\\Docs\\\\Convert\\\\DocumentHtml\\:\\:stripMetatags\\(\\) should return string but returns string\\|null\\.$#"
 			count: 1
-			path: src/Docs/Convert/DocumentHtml.php
-
-		-
-			message: "#^Parameter \\#1 \\$path of function dirname expects string, string\\|false given\\.$#"
-			count: 2
 			path: src/Docs/Convert/DocumentHtml.php
 
 		-
@@ -3589,16 +3449,6 @@ parameters:
 		-
 			message: "#^Parameter \\#1 \\$argument of class ReflectionClass constructor expects class\\-string\\<T of object\\>\\|T of object, string given\\.$#"
 			count: 2
-			path: src/Docs/Inspection/ModuleInspector.php
-
-		-
-			message: "#^Parameter \\#1 \\$dirs of method Symfony\\\\Component\\\\Finder\\\\Finder\\:\\:in\\(\\) expects array\\<string\\>\\|string, string\\|false given\\.$#"
-			count: 3
-			path: src/Docs/Inspection/ModuleInspector.php
-
-		-
-			message: "#^Parameter \\#2 \\$str of function explode expects string, string\\|false given\\.$#"
-			count: 1
 			path: src/Docs/Inspection/ModuleInspector.php
 
 		-

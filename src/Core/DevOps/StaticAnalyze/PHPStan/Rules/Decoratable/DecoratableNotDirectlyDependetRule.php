@@ -51,13 +51,23 @@ class DecoratableNotDirectlyDependetRule implements Rule
 
         foreach ($node->getProperties() as $property) {
             foreach ($property->props as $prop) {
-                $propReflections = $class->getProperty($prop->name->name, $scope);
+                try {
+                    $propReflections = $class->getProperty($prop->name->name, $scope);
+                } catch (\Exception $e) {
+                    continue;
+                }
+
                 $this->containsDecoratableTypeDependence($propReflections->getReadableType(), $errors, $class->getName(), $property->getStartLine());
             }
         }
 
         foreach ($node->getMethods() as $method) {
-            $methodReflection = $class->getMethod($method->name->name, $scope);
+            try {
+                $methodReflection = $class->getMethod($method->name->name, $scope);
+            } catch (\Exception $e) {
+                continue;
+            }
+
             foreach ($methodReflection->getVariants() as $variant) {
                 $this->containsDecoratableTypeDependence($variant->getReturnType(), $errors, $class->getName(), $method->getStartLine());
 

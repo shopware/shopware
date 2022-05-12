@@ -48,7 +48,7 @@ class GoodsCountRule extends FilterRule
             });
         }
 
-        return RuleComparison::numeric($goods->count(), $this->count, $this->operator);
+        return RuleComparison::numeric((float) $goods->count(), (float) $this->count, $this->operator);
     }
 
     public function getConstraints(): array

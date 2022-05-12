@@ -471,7 +471,6 @@ class VersionManager
                 foreach ($value as $item) {
                     $nested[] = ['id' => $item['id']];
                 }
-                $nested = array_filter($nested);
 
                 if (empty($nested)) {
                     continue;

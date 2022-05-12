@@ -78,6 +78,7 @@ class DemodataContext
         }
         $criteria->setLimit(500);
 
+        /** @var string[] $ids */
         $ids = $repository->searchIds($criteria, Context::createDefaultContext())
             ->getIds();
 

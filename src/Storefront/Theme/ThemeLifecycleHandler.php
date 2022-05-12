@@ -112,9 +112,7 @@ class ThemeLifecycleHandler
             }
         }
 
-        if (\count($data)) {
-            $this->themeRepository->upsert($data, $context);
-        }
+        $this->themeRepository->upsert($data, $context);
     }
 
     private function recompileThemesIfNecessary(
@@ -139,7 +137,7 @@ class ThemeLifecycleHandler
 
         // Recompile all themes as the extension generally extends the storefront
         $mappings = $this->connection->fetchAllAssociative(
-            'SELECT LOWER(HEX(sales_channel_id)) as sales_channel_id, LOWER(HEX(theme_id)) as theme_id 
+            'SELECT LOWER(HEX(sales_channel_id)) as sales_channel_id, LOWER(HEX(theme_id)) as theme_id
              FROM theme_sales_channel'
         );
 
@@ -156,8 +154,8 @@ class ThemeLifecycleHandler
     private function getThemeDataByTechnicalName(string $technicalName): array
     {
         $themeData = $this->connection->fetchAllAssociative(
-            'SELECT LOWER(HEX(theme.id)) as id, LOWER(HEX(childTheme.id)) as dependentId FROM theme 
-                LEFT JOIN theme as childTheme ON childTheme.parent_theme_id = theme.id 
+            'SELECT LOWER(HEX(theme.id)) as id, LOWER(HEX(childTheme.id)) as dependentId FROM theme
+                LEFT JOIN theme as childTheme ON childTheme.parent_theme_id = theme.id
                 WHERE theme.technical_name = :technicalName',
             ['technicalName' => $technicalName]
         );
@@ -188,12 +186,12 @@ class ThemeLifecycleHandler
 
         try {
             $themeData = $this->connection->fetchAllAssociative(
-                'SELECT theme.name as themeName, childTheme.name as dthemeName, LOWER(HEX(theme.id)) as id, 
+                'SELECT theme.name as themeName, childTheme.name as dthemeName, LOWER(HEX(theme.id)) as id,
                 LOWER(HEX(childTheme.id)) as dependentId, LOWER(HEX(tsc.sales_channel_id)) as saleschannelId,
                 sc.name as saleschannelName, dsc.name as dsaleschannelName,
-                LOWER(HEX(dtsc.sales_channel_id)) as dsaleschannelId 
-                FROM theme 
-                LEFT JOIN theme as childTheme ON childTheme.parent_theme_id = theme.id 
+                LOWER(HEX(dtsc.sales_channel_id)) as dsaleschannelId
+                FROM theme
+                LEFT JOIN theme as childTheme ON childTheme.parent_theme_id = theme.id
                 LEFT JOIN theme_sales_channel as tsc ON theme.id = tsc.theme_id
                 LEFT JOIN sales_channel_translation as sc ON tsc.sales_channel_id = sc.sales_channel_id AND sc.language_id = :langId
                 LEFT JOIN theme_sales_channel as dtsc ON childTheme.id = dtsc.theme_id

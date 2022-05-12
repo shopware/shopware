@@ -33,7 +33,7 @@ class DebugStack extends DoctrineDebugStack
             if (!\is_array($caller)) {
                 return null;
             }
-            if (!isset($caller['class']) || !isset($caller['function']) || !isset($caller['line'])) {
+            if (!isset($caller['class']) || !isset($caller['line'])) {
                 return null;
             }
 

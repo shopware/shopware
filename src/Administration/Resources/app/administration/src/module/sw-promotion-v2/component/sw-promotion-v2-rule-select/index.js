@@ -76,6 +76,10 @@ Component.register('sw-promotion-v2-rule-select', {
 
         /* @internal (flag:FEATURE_NEXT_18215) */
         tooltipConfig(rule) {
+            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
+                return { message: '', disabled: true };
+            }
+
             return this.ruleConditionDataProviderService.getRestrictedRuleTooltipConfig(
                 rule.conditions,
                 this.ruleAwareGroupKey,

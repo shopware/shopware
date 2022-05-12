@@ -1287,8 +1287,8 @@
       "cartPromotions": "shopping cart rule|shopping cart rules",
       "promotionDiscounts": "product rule|product rules",
       "promotionSetGroups": "product rule|product rules",
-      "notEqualsViolationTooltip": "This rule uses conditions that prevent adding assignments to {entityLabel}. These conditions are: {conditions}.",
-      "equalsAnyViolationTooltip": "This rule must use at least one of the following conditions to be able to add an assignment for {entityLabel}: {conditions}."
+      "notEqualsViolationTooltip": "This rule uses conditions that prevent assignment to {entityLabel}. These conditions are: {conditions}.",
+      "equalsAnyViolationTooltip": "This rule must use at least one of the following conditions to be able to assign it to {entityLabel}: {conditions}."
     },
     "restrictedConditions": {
       "restrictedPromotionConditionTooltip": "The current rule is assigned to a promotion as {assignments}. The use of this condition is therefore not allowed in this context."

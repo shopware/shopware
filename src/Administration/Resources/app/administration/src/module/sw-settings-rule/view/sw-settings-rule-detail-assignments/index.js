@@ -109,8 +109,11 @@ Component.register('sw-settings-rule-detail-assignments', {
 
         /* @internal (flag:FEATURE_NEXT_18215) */
         getTooltipConfig(entity) {
+            if (!this.feature.isActive('FEATURE_NEXT_18215')) {
+                return { message: '', disabled: true };
+            }
             const association = entity.associationName ?? null;
-            // const restriction = this.associationRestrictions[association];
+
             return this.ruleConditionDataProviderService.getRestrictedRuleTooltipConfig(this.conditions, association);
         },
 

@@ -18,6 +18,7 @@ Shopware.Service('privileges')
                     'custom_field_set:read',
                     'custom_field:read',
                     'custom_field_set_relation:read',
+                    'rule_condition:read',
                 ],
                 dependencies: [],
             },

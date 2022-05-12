@@ -167,4 +167,16 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
         expect(afterOrderField.attributes().disabled).toBeFalsy();
         expect(ruleField.attributes().disabled).toBeFalsy();
     });
+
+    it('should add conditions association', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_18215'];
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            paymentMethod: mockPaymentMethod,
+            isLoading: false
+        });
+        const criteria = wrapper.vm.ruleFilter;
+
+        expect(criteria.associations[0].association).toEqual('conditions');
+    });
 });

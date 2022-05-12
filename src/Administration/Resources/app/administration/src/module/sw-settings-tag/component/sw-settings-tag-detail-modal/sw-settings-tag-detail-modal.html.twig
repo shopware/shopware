@@ -12,7 +12,7 @@
         position-identifier="sw-settings-tag-detail-modal"
         :small="false"
         :default-item="initialTab"
-        @new-item-active="active => this.initialTab = active.name"
+        @new-item-active="active => initialTab = active.name"
     >
         <template #default="{ active }">
             {% block sw_settings_tag_detail_modal_tabs_general %}

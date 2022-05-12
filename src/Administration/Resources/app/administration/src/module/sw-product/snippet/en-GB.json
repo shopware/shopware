@@ -294,7 +294,7 @@
       "advancedListPriceLabel": "List price",
       "advancedPriceDisabledTooltip": "The start value of the first listing price has to be 1.",
       "labelRegulationPrice": "Cheapest price (last 30 days)",
-      "ruleAlreadyUsed": "This rule is already used for a price rule"
+      "ruleAlreadyUsed": "This rule is already used for a price rule."
     },
     "properties": {
       "cardTitleProperties": "Available properties",

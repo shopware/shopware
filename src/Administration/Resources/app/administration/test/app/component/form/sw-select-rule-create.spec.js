@@ -24,7 +24,8 @@ describe('components/sw-select-rule-create', () => {
                     id: 'first-id',
                     attributes: {
                         id: 'first-id',
-                        name: 'Always valid'
+                        name: 'Always valid',
+                        conditions: [false]
                     },
                     relationships: []
                 },
@@ -32,7 +33,8 @@ describe('components/sw-select-rule-create', () => {
                     id: 'second-id',
                     attributes: {
                         id: 'second-id',
-                        name: 'Restricted rule'
+                        name: 'Restricted rule',
+                        conditions: [true]
                     },
                     relationships: []
                 }
@@ -46,7 +48,9 @@ describe('components/sw-select-rule-create', () => {
                 ruleConditionDataProviderService: {
                     getRestrictedRules() {
                         return Promise.resolve(['second-id']);
-                    }
+                    },
+                    getRestrictedRuleTooltipConfig: () => { return { disabled: false, message: '' }; },
+                    isRuleRestricted: (conditions) => { return conditions[0]; },
                 }
             },
             stubs: {

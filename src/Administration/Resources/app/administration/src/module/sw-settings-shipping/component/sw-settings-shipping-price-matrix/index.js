@@ -466,7 +466,7 @@ Component.register('sw-settings-shipping-price-matrix', {
         tooltipConfig(item, isSelected, usedRules, usedSnippet, ruleAwareGroupKey) {
             const showDelay = 300;
 
-            if (this.isRuleRestricted(item, ruleAwareGroupKey)) {
+            if (this.feature.isActive('FEATURE_NEXT_18215') && this.isRuleRestricted(item, ruleAwareGroupKey)) {
                 return this.ruleConditionDataProviderService.getRestrictedRuleTooltipConfig(
                     item.conditions,
                     ruleAwareGroupKey,

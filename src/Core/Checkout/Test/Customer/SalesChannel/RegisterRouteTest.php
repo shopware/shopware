@@ -86,6 +86,20 @@ class RegisterRouteTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
+        /**
+         * @var Connection $connection
+         */
+        $connection = $this->getContainer()->get(Connection::class);
+        $result = $connection->fetchOne(
+            'SELECT `payload` FROM `sales_channel_api_context` WHERE `customer_id` = :customerId ',
+            [
+                'customerId' => Uuid::fromHexToBytes($response['id']),
+            ]
+        );
+        $result = json_decode($result, true);
+
+        static::assertArrayHasKey('domainId', $result);
+
         static::assertSame('customer', $response['apiAlias']);
         static::assertSame($registrationData['title'], $response['defaultBillingAddress']['title']);
         static::assertSame($registrationData['shippingAddress']['title'], $response['defaultShippingAddress']['title']);

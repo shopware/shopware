@@ -335,6 +335,11 @@ class SalesChannelContext extends Struct
         return $this->domainId;
     }
 
+    public function setDomainId(?string $domainId): void
+    {
+        $this->domainId = $domainId;
+    }
+
     public function getLanguageIdChain(): array
     {
         return $this->context->getLanguageIdChain();

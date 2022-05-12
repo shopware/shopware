@@ -268,8 +268,9 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
         expect(valueOption.attributes().disabled).toBeFalsy();
 
         expect(wrapper.vm.fieldOptions).toHaveLength(3);
+
         wrapper.vm.fieldOptions.forEach((option) => {
-            expect(['upsert', 'create', 'clear']).toContain(option.id);
+            expect(['upsert', 'create', 'clear']).toContain(option.value);
         });
 
         expect(wrapper.find('.sw-flow-set-entity-custom-field-modal__custom-field-value')
@@ -300,7 +301,7 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
         expect(wrapper.vm.fieldOptions).toHaveLength(5);
 
         wrapper.vm.fieldOptions.forEach((option) => {
-            expect(['upsert', 'create', 'clear', 'add', 'remove']).toContain(option.id);
+            expect(['upsert', 'create', 'clear', 'add', 'remove']).toContain(option.value);
         });
 
         expect(wrapper.find('.sw-flow-set-entity-custom-field-modal__custom-field-value')
@@ -333,10 +334,10 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
 
         expect(wrapper.emitted()['process-finish'][0]).toEqual([{
             config: {
-                customFieldId: 'field1',
-                customFieldSetId: 'set1',
-                customFieldValue: null,
                 entity: 'order',
+                customFieldSetId: 'set1',
+                customFieldId: 'field1',
+                customFieldValue: null,
                 option: 'upsert',
                 optionLabel: '[\"sw-flow.modals.setEntityCustomField.options.overwrite\"]'
             }

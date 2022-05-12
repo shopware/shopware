@@ -85,16 +85,16 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
         defaultFieldOptions() {
             return [
                 {
-                    id: 'upsert',
-                    name: `${this.$tc('sw-flow.modals.setEntityCustomField.options.overwrite')}`,
+                    value: 'upsert',
+                    label: `${this.$tc('sw-flow.modals.setEntityCustomField.options.overwrite')}`,
                 },
                 {
-                    id: 'create',
-                    name: `${this.$tc('sw-flow.modals.setEntityCustomField.options.notOverwrite')}`,
+                    value: 'create',
+                    label: `${this.$tc('sw-flow.modals.setEntityCustomField.options.notOverwrite')}`,
                 },
                 {
-                    id: 'clear',
-                    name: `${this.$tc('sw-flow.modals.setEntityCustomField.options.clear')}`,
+                    value: 'clear',
+                    label: `${this.$tc('sw-flow.modals.setEntityCustomField.options.clear')}`,
                 },
             ];
         },
@@ -103,12 +103,12 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
             return [
                 ...this.defaultFieldOptions,
                 {
-                    id: 'add',
-                    name: `${this.$tc('sw-flow.modals.setEntityCustomField.options.add')}`,
+                    value: 'add',
+                    label: `${this.$tc('sw-flow.modals.setEntityCustomField.options.add')}`,
                 },
                 {
-                    id: 'remove',
-                    name: `${this.$tc('sw-flow.modals.setEntityCustomField.options.remove')}`,
+                    value: 'remove',
+                    label: `${this.$tc('sw-flow.modals.setEntityCustomField.options.remove')}`,
                 },
             ];
         },
@@ -247,8 +247,8 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
                     customFieldValue: this.customFieldValue,
                     option: this.fieldOptionSelected,
                     optionLabel: this.fieldOptions.find((option) => {
-                        return option.id === this.fieldOptionSelected;
-                    })?.name,
+                        return option.value === this.fieldOptionSelected;
+                    })?.label,
                 },
             };
 

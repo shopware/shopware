@@ -1,5 +1,6 @@
 ---
 title: Fix apps breaking extension listing in administration
+issue: NEXT-21573
 author: Silvio Kennecke
 author_github: @silviokennecke
 ---

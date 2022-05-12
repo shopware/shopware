@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StringFieldSerializer;
@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -29,73 +30,75 @@ class StringFieldSerializerTest extends TestCase
     use CacheTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
 
-    private StringFieldSerializer $serializer;
-
-    private StringField $field;
-
-    private EntityExistence $existence;
-
-    private WriteParameterBag $parameters;
-
-    protected function setUp(): void
+    public function serializerProvider(): \Generator
     {
-        $this->serializer = $this->getContainer()->get(StringFieldSerializer::class);
-        $this->field = new StringField('name', 'name');
-        $this->field->addFlags(new ApiAware(), new Required());
+        $update = new EntityExistence('product', [], true, false, false, []);
+        $create = new EntityExistence('product', [], false, false, false, []);
 
-        $definition = $this->registerDefinition(ProductDefinition::class);
-        $this->existence = new EntityExistence($definition->getEntityName(), [], false, false, false, []);
+        $required = (new StringField('name', 'name'))->addFlags(new Required());
+        $maxLength = new StringField('name', 'name', 5);
+        $optional = new StringField('name', 'name');
+        $allowEmpty = (new StringField('name', 'name'))->addFlags(new AllowEmptyString());
 
-        $this->parameters = new WriteParameterBag(
-            $definition,
-            WriteContext::createFromContext(Context::createDefaultContext()),
-            '',
-            new WriteCommandQueue()
-        );
-    }
+        yield 'Create with null and required' => [$required, null, null, true, $create];
+        yield 'Create with null and optional' => [$optional, null, null, false, $create];
+        yield 'Update with null and required' => [$required, null, null, true, $update];
+        yield 'Update with null and optional' => [$optional, null, null, false, $update];
 
-    public function serializerProvider(): array
-    {
-        return [
-            [new KeyValuePair('name', '', true)],
-            [new KeyValuePair('name', null, true)],
-            [new KeyValuePair('name', ' ', true)],
-        ];
+        yield 'Create with empty and required' => [$required, '', null, true, $create];
+        yield 'Create with empty and optional' => [$optional, '', null, false, $create];
+        yield 'Update with empty and required' => [$required, '', null, true, $update];
+        yield 'Update with empty and optional' => [$optional, '', null, false, $update];
+
+        if (Feature::isActive('v6.5.0.0')) {
+            yield 'Create with space and required' => [$required, ' ', null, true, $create];
+            yield 'Create with space and optional' => [$optional, ' ', null, false, $create];
+            yield 'Create with space and allow empty' => [$allowEmpty, ' ', ' ', false, $create];
+            yield 'Update with space and required' => [$required, ' ', null, true, $update];
+            yield 'Update with space and optional' => [$optional, ' ', null, false, $update];
+            yield 'Update with space and allow empty' => [$allowEmpty, ' ', ' ', false, $update];
+        } else {
+            yield 'Create with space and required' => [$required, ' ', ' ', false, $create];
+            yield 'Create with space and optional' => [$optional, ' ', ' ', false, $create];
+            yield 'Create with space and allow empty' => [$allowEmpty, ' ', ' ', false, $create];
+            yield 'Update with space and required' => [$required, ' ', ' ', false, $update];
+            yield 'Update with space and optional' => [$optional, ' ', ' ', false, $update];
+            yield 'Update with space and allow empty' => [$allowEmpty, ' ', ' ', false, $update];
+        }
+
+        yield 'Test max length' => [$maxLength, '123456789', '12345', true, $update];
     }
 
     /**
      * @dataProvider serializerProvider
      */
-    public function testSerializerNotBlank(KeyValuePair $kvPair): void
+    public function testSerialize(StringField $field, ?string $value, ?string $expected, bool $expectError, EntityExistence $existence): void
     {
-        $this->field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+        $field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
 
-        /** @var WriteConstraintViolationException|null $exception */
+        $actual = null;
         $exception = null;
 
         try {
-            $this->serializer->encode($this->field, $this->existence, $kvPair, $this->parameters)->current();
+            $kv = new KeyValuePair($field->getPropertyName(), $value, true);
+
+            $params = new WriteParameterBag($this->getContainer()->get(ProductDefinition::class), WriteContext::createFromContext(Context::createDefaultContext()), '', new WriteCommandQueue());
+
+            $actual = $this->getContainer()->get(StringFieldSerializer::class)
+                ->encode($field, $existence, $kv, $params)->current();
         } catch (\Throwable $e) {
             $exception = $e;
         }
 
-        static::assertInstanceOf(WriteConstraintViolationException::class, $exception, 'This value should not be blank.');
-        static::assertEquals('/name', $exception->getViolations()->get(0)->getPropertyPath());
-    }
+        // error cases
+        if ($expectError) {
+            static::assertInstanceOf(WriteConstraintViolationException::class, $exception, 'This value should not be blank.');
+            static::assertEquals('/' . $field->getPropertyName(), $exception->getViolations()->get(0)->getPropertyPath());
 
-    public function testSerializerValidatesRequiredField(): void
-    {
-        $this->field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
-        $kvPair = new KeyValuePair('name', null, true);
+            return;
+        }
 
-        $this->field->removeFlag(Required::class);
-
-        $encode = $this->serializer->encode($this->field, $this->existence, $kvPair, $this->parameters)->current();
-        static::assertNull($encode);
-
-        $this->field->addFlags(new Required());
-
-        static::expectException(WriteConstraintViolationException::class);
-        $this->serializer->encode($this->field, $this->existence, $kvPair, $this->parameters)->current();
+        static::assertNull($exception);
+        static::assertEquals($expected, $actual);
     }
 }

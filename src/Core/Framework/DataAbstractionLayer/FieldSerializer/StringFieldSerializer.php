@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Length;
@@ -45,7 +46,13 @@ class StringFieldSerializer extends AbstractFieldSerializer
             throw new InvalidSerializerFieldException(StringField::class, $field);
         }
 
-        if (\is_string($data->getValue()) && trim($data->getValue()) === '' && !$field->is(AllowEmptyString::class)) {
+        $tmp = $data->getValue();
+        // @deprecated tag:v6.5.0 - remove Feature::isActive check
+        if (\is_string($tmp) && Feature::isActive('v6.5.0.0')) {
+            $tmp = trim($tmp);
+        }
+
+        if ($tmp === '' && !$field->is(AllowEmptyString::class)) {
             $data->setValue(null);
         }
 

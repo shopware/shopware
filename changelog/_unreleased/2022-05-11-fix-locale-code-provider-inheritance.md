@@ -4,4 +4,4 @@ author: Silvio Kennecke
 author_github: @silviokennecke
 ---
 # Core
-*  check parent locale code in `\Shopware\Core\System\Locale\LanguageLocaleCodeProvider::getLocaleForLanguageId`
+*  Change `\Shopware\Core\System\Locale\LanguageLocaleCodeProvider::getLocaleForLanguageId` to also check the parent language

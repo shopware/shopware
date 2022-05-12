@@ -29,7 +29,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @internal
- * @group skip-paratest
  */
 class ElasticsearchIndexerTest extends TestCase
 {

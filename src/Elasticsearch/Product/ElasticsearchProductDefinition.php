@@ -189,7 +189,17 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     {
         $data = $this->fetchProducts($ids, $context);
 
-        $groups = $this->fetchPropertyGroups(array_unique(array_merge(...array_map(fn ($item) => array_merge(json_decode($item['propertyIds'] ?? '[]', true), json_decode($item['optionIds'] ?? '[]', true)), array_values($data)))));
+        $groupIds = [];
+        foreach ($data as $row) {
+            foreach (json_decode($row['propertyIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR) as $id) {
+                $groupIds[$id] = true;
+            }
+            foreach (json_decode($row['optionIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR) as $id) {
+                $groupIds[$id] = true;
+            }
+        }
+
+        $groups = $this->fetchPropertyGroups(\array_keys($groupIds));
 
         $currencies = $context->getExtension('currencies');
 

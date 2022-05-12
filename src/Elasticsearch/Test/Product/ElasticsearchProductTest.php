@@ -87,7 +87,6 @@ use function array_combine;
 
 /**
  * @internal
- * @group skip-paratest
  */
 class ElasticsearchProductTest extends TestCase
 {
@@ -2286,15 +2285,19 @@ class ElasticsearchProductTest extends TestCase
             $eventDispatcher,
         );
 
+        $context = Context::createDefaultContext();
+
         $called = false;
-        $this->addEventListener($eventDispatcher, ElasticsearchProductCustomFieldsMappingEvent::class, static function (ElasticsearchProductCustomFieldsMappingEvent $event) use (&$called): void {
+        $this->addEventListener($eventDispatcher, ElasticsearchProductCustomFieldsMappingEvent::class, static function (ElasticsearchProductCustomFieldsMappingEvent $event) use (&$called, $context): void {
             $called = true;
 
             static::assertSame('datetime', $event->getMapping('test_custom_date_field'));
             $event->setMapping('test', CustomFieldTypes::BOOL);
+            static::assertSame(CustomFieldTypes::BOOL, $event->getMapping('test'));
+            static::assertSame($context, $event->getContext());
         });
 
-        $mapping = $definition->getMapping(Context::createDefaultContext());
+        $mapping = $definition->getMapping($context);
 
         static::assertTrue($called, 'Event is not fired');
         static::assertArrayHasKey('properties', $mapping);

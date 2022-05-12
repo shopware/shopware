@@ -43,7 +43,7 @@ use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 /**
  * @internal
  */
-abstract class ImportExportTestCase extends TestCase
+abstract class AbstractImportExportTest extends TestCase
 {
     use KernelTestBehaviour;
     use FilesystemBehaviour;

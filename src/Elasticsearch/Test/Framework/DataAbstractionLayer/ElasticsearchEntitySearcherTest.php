@@ -59,4 +59,8 @@ class ElasticsearchEntitySearcherTest extends TestCase
     {
         return $this->getContainer();
     }
+
+    protected function runWorker(): void
+    {
+    }
 }

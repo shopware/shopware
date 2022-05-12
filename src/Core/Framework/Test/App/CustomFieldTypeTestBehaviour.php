@@ -3,11 +3,15 @@
 namespace Shopware\Core\Framework\Test\App;
 
 use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
+use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetEntity;
+use Shopware\Core\System\CustomField\CustomFieldCollection;
 use Shopware\Core\System\CustomField\CustomFieldEntity;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -32,14 +36,24 @@ trait CustomFieldTypeTestBehaviour
         $apps = $appRepository->search($criteria, $context)->getEntities();
 
         static::assertCount(1, $apps);
-        static::assertEquals('SwagApp', $apps->first()->getName());
+        /** @var AppEntity $app */
+        $app = $apps->first();
+        static::assertEquals('SwagApp', $app->getName());
 
-        static::assertCount(1, $apps->first()->getCustomFieldSets());
-        $customFieldSet = $apps->first()->getCustomFieldSets()->first();
+        /** @var CustomFieldSetCollection $fieldSets */
+        $fieldSets = $app->getCustomFieldSets();
+        static::assertCount(1, $fieldSets);
+        /** @var CustomFieldSetEntity $customFieldSet */
+        $customFieldSet = $fieldSets->first();
         static::assertEquals('custom_field_test', $customFieldSet->getName());
 
         static::assertCount(1, $customFieldSet->getCustomFields());
 
-        return $customFieldSet->getCustomFields()->first();
+        /** @var CustomFieldCollection $customFields */
+        $customFields = $customFieldSet->getCustomFields();
+        /** @var CustomFieldEntity $customField */
+        $customField = $customFields->first();
+
+        return $customField;
     }
 }

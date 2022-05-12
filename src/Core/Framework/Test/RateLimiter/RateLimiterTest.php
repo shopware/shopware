@@ -21,7 +21,6 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\User\Api\UserRecoveryController;
 use Shopware\Core\System\User\Recovery\UserRecoveryService;
 use Shopware\Core\System\User\UserEntity;
@@ -33,7 +32,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\RateLimiter\Policy\NoLimiter;
 use Symfony\Component\RateLimiter\Storage\CacheStorage;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @internal
@@ -52,10 +50,6 @@ class RateLimiterTest extends TestCase
     private KernelBrowser $browser;
 
     private ?AbstractSalesChannelContextFactory $salesChannelContextFactory;
-
-    private SalesChannelContext $salesChannelContext;
-
-    private ?TranslatorInterface $translator;
 
     public static function setUpBeforeClass(): void
     {
@@ -80,11 +74,8 @@ class RateLimiterTest extends TestCase
         $this->assignSalesChannelContext($this->browser);
 
         $this->salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class)->getDecorated();
-        $this->salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $this->ids->get('sales-channel'));
 
         $this->clearCache();
-
-        $this->translator = $this->getContainer()->get('translator');
     }
 
     public function tearDown(): void

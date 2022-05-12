@@ -92,4 +92,6 @@ trait ElasticsearchTestTestBehaviour
     }
 
     abstract protected function getDiContainer(): ContainerInterface;
+
+    abstract protected function runWorker(): void;
 }

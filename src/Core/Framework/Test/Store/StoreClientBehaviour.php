@@ -18,7 +18,10 @@ trait StoreClientBehaviour
 {
     public function getRequestHandler(): MockHandler
     {
-        return $this->getContainer()->get('shopware.store.mock_handler');
+        /** @var MockHandler $handler */
+        $handler = $this->getContainer()->get('shopware.store.mock_handler');
+
+        return $handler;
     }
 
     /**
@@ -74,14 +77,19 @@ trait StoreClientBehaviour
         /** @var UserConfigEntity|null $config */
         $config = $this->getContainer()->get('user_config.repository')->search($criteria, $context)->first();
 
-        return $config ? $config->getValue()[FirstRunWizardClient::USER_CONFIG_VALUE_FRW_USER_TOKEN] : null;
+        return $config ? $config->getValue()[FirstRunWizardClient::USER_CONFIG_VALUE_FRW_USER_TOKEN] ?? null : null;
     }
 
     protected function setFrwUserToken(Context $context, string $frwUserToken): void
     {
+        $source = $context->getSource();
+        if (!$source instanceof AdminApiSource) {
+            throw new \RuntimeException('Context with AdminApiSource expected.');
+        }
+
         $this->getContainer()->get('user_config.repository')->create([
             [
-                'userId' => $context->getSource()->getUserId(),
+                'userId' => $source->getUserId(),
                 'key' => FirstRunWizardClient::USER_CONFIG_KEY_FRW_USER_TOKEN,
                 'value' => [
                     FirstRunWizardClient::USER_CONFIG_VALUE_FRW_USER_TOKEN => $frwUserToken,

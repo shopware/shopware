@@ -124,7 +124,7 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
     }
 
     /**
-     * @return \array[][]
+     * @return array[][]
      *                    SlovakiaAvailable -> changes if the Migration can find the country
      *                    languageEnAvailable -> English language Available
      *                    languageDeAvailable -> German language Available

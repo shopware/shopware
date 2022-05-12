@@ -5,7 +5,6 @@ namespace Shopware\Core\System\Test\SalesChannel\Context;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -28,10 +27,7 @@ class SalesChannelContextTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var TaxRuleTypeCollection
-     */
-    private $taxRuleTypes;
+    private TaxRuleTypeCollection $taxRuleTypes;
 
     public function setUp(): void
     {
@@ -717,9 +713,12 @@ class SalesChannelContextTest extends TestCase
         return $salesChannelContextFactory->create($token, TestDefaults::SALES_CHANNEL, $options);
     }
 
-    private function loadTaxRuleTypes(): EntityCollection
+    private function loadTaxRuleTypes(): TaxRuleTypeCollection
     {
-        return $this->getContainer()->get('tax_rule_type.repository')->search(new Criteria(), Context::createDefaultContext())->getEntities();
+        /** @var TaxRuleTypeCollection $collection */
+        $collection = $this->getContainer()->get('tax_rule_type.repository')->search(new Criteria(), Context::createDefaultContext())->getEntities();
+
+        return $collection;
     }
 
     private function createCustomer(

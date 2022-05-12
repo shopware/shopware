@@ -26,8 +26,6 @@ class ThemeChangeCommandTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
 
-    private ThemeService $themeService;
-
     private EntityRepositoryInterface $salesChannelRepository;
 
     private MockObject $pluginRegistry;
@@ -205,7 +203,10 @@ class ThemeChangeCommandTest extends TestCase
         ]);
     }
 
-    private function getPluginRegistryMock(): MockObject
+    /**
+     * @return MockObject|StorefrontPluginRegistry
+     */
+    private function getPluginRegistryMock()
     {
         $storePluginConfiguration1 = new StorefrontPluginConfiguration('parentTheme');
         $storePluginConfiguration1->setThemeConfig([

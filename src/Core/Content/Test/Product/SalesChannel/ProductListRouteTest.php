@@ -190,7 +190,7 @@ class ProductListRouteTest extends TestCase
 
     public function testListingProductsIncludesOwnInactiveReviews(): void
     {
-        $customerId = $this->login();
+        $customerId = $this->login($this->browser);
 
         $product = (new ProductBuilder($this->ids, 'p1'))
             ->visibility($this->ids->get('sales-channel'))

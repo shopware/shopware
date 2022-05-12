@@ -18,15 +18,18 @@ trait DataAbstractionLayerFieldTestBehaviour
 {
     abstract protected function getContainer(): ContainerInterface;
 
+    /**
+     * @param class-string<EntityDefinition> ...$definitionClasses
+     */
     protected function registerDefinition(string ...$definitionClasses): EntityDefinition
     {
         $ret = null;
 
         foreach ($definitionClasses as $definitionClass) {
             if ($this->getContainer()->has($definitionClass)) {
+                /** @var EntityDefinition $definition */
                 $definition = $this->getContainer()->get($definitionClass);
             } else {
-                /** @var EntityDefinition $definition */
                 $definition = new $definitionClass();
                 $this->getContainer()->get(DefinitionInstanceRegistry::class)->register($definition);
 
@@ -50,15 +53,25 @@ trait DataAbstractionLayerFieldTestBehaviour
             }
         }
 
+        if (!$ret) {
+            throw new \InvalidArgumentException('Need at least one definition class to register.');
+        }
+
         return $ret;
     }
 
+    /**
+     * @param class-string<EntityDefinition> $definitionClass
+     */
     protected function registerSalesChannelDefinition(string $definitionClass): EntityDefinition
     {
         $serviceId = 'sales_channel_definition.' . $definitionClass;
 
         if ($this->getContainer()->has($serviceId)) {
-            return $this->getContainer()->get($serviceId);
+            /** @var EntityDefinition $definition */
+            $definition = $this->getContainer()->get($serviceId);
+
+            return $definition;
         }
 
         $salesChannelDefinition = new $definitionClass();
@@ -67,11 +80,16 @@ trait DataAbstractionLayerFieldTestBehaviour
         return $salesChannelDefinition;
     }
 
+    /**
+     * @param class-string<EntityDefinition> $definitionClass
+     * @param class-string<EntityExtension> ...$extensionsClasses
+     */
     protected function registerDefinitionWithExtensions(string $definitionClass, string ...$extensionsClasses): EntityDefinition
     {
         $definition = $this->registerDefinition($definitionClass);
         foreach ($extensionsClasses as $extensionsClass) {
             if ($this->getContainer()->has($extensionsClass)) {
+                /** @var EntityExtension $extension */
                 $extension = $this->getContainer()->get($extensionsClass);
             } else {
                 $extension = new $extensionsClass();
@@ -84,11 +102,16 @@ trait DataAbstractionLayerFieldTestBehaviour
         return $definition;
     }
 
+    /**
+     * @param class-string<EntityDefinition> $definitionClass
+     * @param class-string<EntityExtension> ...$extensionsClasses
+     */
     protected function registerSalesChannelDefinitionWithExtensions(string $definitionClass, string ...$extensionsClasses): EntityDefinition
     {
         $definition = $this->getContainer()->get(SalesChannelDefinitionInstanceRegistry::class)->get($definitionClass);
         foreach ($extensionsClasses as $extensionsClass) {
             if ($this->getContainer()->has($extensionsClass)) {
+                /** @var EntityExtension $extension */
                 $extension = $this->getContainer()->get($extensionsClass);
             } else {
                 $extension = new $extensionsClass();

@@ -2,12 +2,9 @@
 
 namespace Shopware\Storefront\Test\Theme\Command;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Storefront\Theme\Command\ThemePrepareIconsCommand;
-use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -19,16 +16,6 @@ class ThemePrepareIconsCommandTest extends TestCase
     use KernelTestBehaviour;
 
     public string $testDir;
-
-    private ThemeService $themeService;
-
-    private EntityRepositoryInterface $salesChannelRepository;
-
-    private MockObject $pluginRegistry;
-
-    private EntityRepositoryInterface $themeRepository;
-
-    private string $projectDir;
 
     public function setUp(): void
     {

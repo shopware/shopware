@@ -69,7 +69,6 @@ class DeliveryPromotionCalculationTest extends TestCase
     {
         $this->restorePrices($this->connection);
         $this->deletePromotions();
-        $this->clearSession();
         parent::tearDown();
     }
 

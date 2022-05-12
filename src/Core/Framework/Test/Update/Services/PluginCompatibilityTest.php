@@ -8,12 +8,10 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Update\Services\ApiClient;
 use Shopware\Core\Framework\Update\Services\PluginCompatibility;
 use Shopware\Core\Framework\Update\Struct\Version;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -32,22 +30,11 @@ class PluginCompatibilityTest extends TestCase
 
     private PluginCompatibility $pluginCompatibility;
 
-    private EntityRepositoryInterface $appRepository;
-
-    private EntityRepositoryInterface $pluginRepository;
-
-    private EntityRepositoryInterface $themeRepository;
-
-    private EntityRepositoryInterface $salesChannelRepository;
-
-    private ApiClient $apiClient;
-
     private Context $context;
 
     public function setUp(): void
     {
         $this->pluginCompatibility = $this->getContainer()->get(PluginCompatibility::class);
-        $this->apiClient = $this->getContainer()->get(ApiClient::class);
 
         $requestStack = $this->getContainer()->get('request_stack');
         $requestStack->push(new Request());

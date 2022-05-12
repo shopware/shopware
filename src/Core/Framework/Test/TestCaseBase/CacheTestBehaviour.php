@@ -13,10 +13,9 @@ trait CacheTestBehaviour
      */
     public function clearCacheData(): void
     {
-        $this->getContainer()
-            ->get('test.service_container')
-            ->get(TestCacheClearer::class)
-            ->clear();
+        /** @var TestCacheClearer $cacheClearer */
+        $cacheClearer = $this->getContainer()->get(TestCacheClearer::class);
+        $cacheClearer->clear();
 
         $this->getContainer()
             ->get('services_resetter')

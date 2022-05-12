@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -23,7 +24,7 @@ class ProductReviewSaveRouteTest extends TestCase
     use SalesChannelApiTestBehaviour;
 
     /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
+     * @var KernelBrowser
      */
     private $browser;
 
@@ -60,7 +61,7 @@ class ProductReviewSaveRouteTest extends TestCase
 
     public function testCreate(): void
     {
-        $this->login();
+        $this->login($this->browser);
 
         $this->assertReviewCount(0);
 
@@ -79,7 +80,7 @@ class ProductReviewSaveRouteTest extends TestCase
 
     public function testUpdate(): void
     {
-        $this->login();
+        $this->login($this->browser);
 
         $this->assertReviewCount(0);
 
@@ -107,7 +108,7 @@ class ProductReviewSaveRouteTest extends TestCase
 
     public function testValidation(): void
     {
-        $this->login();
+        $this->login($this->browser);
 
         $this->browser->request('POST', $this->getUrl());
 
@@ -123,7 +124,7 @@ class ProductReviewSaveRouteTest extends TestCase
 
     public function testCustomerValidation(): void
     {
-        $this->login();
+        $this->login($this->browser);
 
         $this->assertReviewCount(0);
 
@@ -137,7 +138,7 @@ class ProductReviewSaveRouteTest extends TestCase
         ]);
 
         // Re-login as another user
-        $this->login();
+        $this->login($this->browser);
 
         // Try to use the id from previous review which is not attached to this customer
         $this->browser->request('POST', $this->getUrl(), [

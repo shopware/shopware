@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Test\Theme;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -27,7 +28,7 @@ class ThemeInheritanceBuilderTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var StorefrontPluginRegistryInterface
+     * @var StorefrontPluginRegistryInterface|MockObject
      */
     private $themeRegistryMock;
 

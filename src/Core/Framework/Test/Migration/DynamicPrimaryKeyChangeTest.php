@@ -135,7 +135,7 @@ class DynamicPrimaryKeyChangeTest extends TestCase
     }
 
     /**
-     * @return \int[][]
+     * @return int[][]
      */
     private function getExpectationsAfter(): array
     {
@@ -204,7 +204,7 @@ class DynamicPrimaryKeyChangeTest extends TestCase
     }
 
     /**
-     * @return \int[][]
+     * @return int[][]
      */
     private function getExpectationsBefore(): array
     {

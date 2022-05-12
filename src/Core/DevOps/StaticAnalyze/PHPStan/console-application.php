@@ -11,5 +11,6 @@ $classLoader = require __DIR__ . '/phpstan-bootstrap.php';
 $pluginLoader = new StaticKernelPluginLoader($classLoader);
 
 $kernel = new StaticAnalyzeKernel('phpstan_dev', true, $pluginLoader, 'phpstan-test-cache-id');
+$kernel->boot();
 
 return new Application($kernel);

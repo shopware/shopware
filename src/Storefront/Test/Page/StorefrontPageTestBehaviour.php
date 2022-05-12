@@ -32,6 +32,9 @@ trait StorefrontPageTestBehaviour
 {
     use TaxAddToSalesChannelTestBehaviour;
 
+    /**
+     * @param class-string<object> $expectedClass
+     */
     public static function assertPageEvent(
         string $expectedClass,
         PageLoadedEvent $event,
@@ -46,6 +49,9 @@ trait StorefrontPageTestBehaviour
         TestCase::assertSame($page, $event->getPage());
     }
 
+    /**
+     * @param class-string<object> $expectedClass
+     */
     public static function assertPageletEvent(
         string $expectedClass,
         PageletLoadedEvent $event,
@@ -95,7 +101,7 @@ trait StorefrontPageTestBehaviour
         return $cartService->order($cart, $context, new RequestDataBag());
     }
 
-    protected function getRandomProduct(SalesChannelContext $context, ?int $stock = 1, ?bool $isCloseout = false, ?array $config = []): ProductEntity
+    protected function getRandomProduct(SalesChannelContext $context, ?int $stock = 1, ?bool $isCloseout = false, array $config = []): ProductEntity
     {
         $id = Uuid::randomHex();
         $productNumber = Uuid::randomHex();
@@ -241,7 +247,7 @@ trait StorefrontPageTestBehaviour
         return $this->createContext($data, []);
     }
 
-    protected function catchEvent(string $eventName, &$eventResult): void
+    protected function catchEvent(string $eventName, ?object &$eventResult): void
     {
         $this->addEventListener($this->getContainer()->get('event_dispatcher'), $eventName, static function ($event) use (&$eventResult): void {
             $eventResult = $event;

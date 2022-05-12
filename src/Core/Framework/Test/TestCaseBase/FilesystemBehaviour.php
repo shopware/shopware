@@ -14,7 +14,10 @@ trait FilesystemBehaviour
 {
     public function getFilesystem(string $serviceId): Filesystem
     {
-        return $this->getContainer()->get($serviceId);
+        /** @var Filesystem $filesystem */
+        $filesystem = $this->getContainer()->get($serviceId);
+
+        return $filesystem;
     }
 
     public function getPublicFilesystem(): Filesystem

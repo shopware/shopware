@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -23,22 +22,16 @@ trait AdminApiTestBehaviour
     /**
      * @var string[]
      */
-    protected $apiUsernames = [];
+    protected array $apiUsernames = [];
 
     /**
      * @var string[]
      */
-    protected $apiIntegrations = [];
+    protected array $apiIntegrations = [];
 
-    /**
-     * @var TestBrowser|null
-     */
-    private $kernelBrowser;
+    private ?TestBrowser $kernelBrowser = null;
 
-    /**
-     * @var KernelBrowser|null
-     */
-    private $integrationBrowser;
+    private ?TestBrowser $integrationBrowser = null;
 
     /**
      * @after
@@ -78,7 +71,7 @@ trait AdminApiTestBehaviour
         bool $authorized = true,
         array $scopes = [],
         ?array $permissions = null
-    ): KernelBrowser {
+    ): TestBrowser {
         if (!$kernel) {
             $kernel = $this->getKernel();
         }
@@ -98,7 +91,7 @@ trait AdminApiTestBehaviour
         return $this->kernelBrowser = $apiBrowser;
     }
 
-    public function assertEntityExists(KernelBrowser $browser, ...$params): void
+    public function assertEntityExists(TestBrowser $browser, string ...$params): void
     {
         $url = '/api/' . implode('/', $params);
 
@@ -111,7 +104,7 @@ trait AdminApiTestBehaviour
         );
     }
 
-    public function assertEntityNotExists(KernelBrowser $browser, ...$params): void
+    public function assertEntityNotExists(TestBrowser $browser, string ...$params): void
     {
         $url = '/api/' . implode('/', $params);
 
@@ -129,7 +122,7 @@ trait AdminApiTestBehaviour
      * @throws \RuntimeException
      * @throws DBALException
      */
-    public function authorizeBrowser(KernelBrowser $browser, array $scopes = [], ?array $aclPermissions = null): void
+    public function authorizeBrowser(TestBrowser $browser, array $scopes = [], ?array $aclPermissions = null): void
     {
         $username = Uuid::randomHex();
         $password = Uuid::randomHex();
@@ -151,7 +144,7 @@ trait AdminApiTestBehaviour
         if ($aclPermissions !== null) {
             $aclRoleId = Uuid::randomBytes();
             $user['admin'] = 0;
-            $user['email'] = md5(json_encode($aclPermissions)) . '@example.com';
+            $user['email'] = md5(json_encode($aclPermissions, \JSON_THROW_ON_ERROR)) . '@example.com';
             $aclRole = [
                 'id' => $aclRoleId,
                 'name' => 'testPermissions',
@@ -187,7 +180,9 @@ trait AdminApiTestBehaviour
 
         $browser->request('POST', '/api/oauth/token', $authPayload);
 
-        $data = json_decode($browser->getResponse()->getContent(), true);
+        /** @var string $content */
+        $content = $browser->getResponse()->getContent();
+        $data = json_decode($content, true);
 
         if (!\array_key_exists('access_token', $data)) {
             throw new \RuntimeException(
@@ -210,7 +205,7 @@ trait AdminApiTestBehaviour
      * @throws \RuntimeException
      * @throws DBALException
      */
-    public function authorizeBrowserWithIntegration(KernelBrowser $browser, ?string $id = null): void
+    public function authorizeBrowserWithIntegration(TestBrowser $browser, ?string $id = null): void
     {
         $accessKey = AccessKeyHelper::generateAccessKey('integration');
         $secretAccessKey = AccessKeyHelper::generateSecretAccessKey();
@@ -252,7 +247,9 @@ trait AdminApiTestBehaviour
 
         $browser->request('POST', '/api/oauth/token', $authPayload);
 
-        $data = json_decode($browser->getResponse()->getContent(), true);
+        /** @var string $content */
+        $content = $browser->getResponse()->getContent();
+        $data = json_decode($content, true);
 
         if (!\array_key_exists('access_token', $data)) {
             throw new \RuntimeException(
@@ -266,7 +263,7 @@ trait AdminApiTestBehaviour
 
     abstract protected function getKernel(): KernelInterface;
 
-    protected function getBrowser(bool $authorized = true, array $scopes = [], ?array $permissions = null): KernelBrowser
+    protected function getBrowser(bool $authorized = true, array $scopes = [], ?array $permissions = null): TestBrowser
     {
         if ($this->kernelBrowser) {
             return $this->kernelBrowser;
@@ -286,7 +283,7 @@ trait AdminApiTestBehaviour
         $this->kernelBrowser = null;
     }
 
-    protected function getBrowserAuthenticatedWithIntegration(?string $id = null): KernelBrowser
+    protected function getBrowserAuthenticatedWithIntegration(?string $id = null): TestBrowser
     {
         if ($this->integrationBrowser) {
             return $this->integrationBrowser;

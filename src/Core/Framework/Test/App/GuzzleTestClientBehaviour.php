@@ -18,36 +18,56 @@ trait GuzzleTestClientBehaviour
      */
     public function resetHistory(): void
     {
-        $this->getContainer()->get(GuzzleHistoryCollector::class)->resetHistory();
-        $this->getContainer()->get(MockHandler::class)->reset();
-        $this->getContainer()->get(TestAppServer::class)->reset();
+        /** @var GuzzleHistoryCollector $historyCollector */
+        $historyCollector = $this->getContainer()->get(GuzzleHistoryCollector::class);
+        $historyCollector->resetHistory();
+        /** @var MockHandler $mockHandler */
+        $mockHandler = $this->getContainer()->get(MockHandler::class);
+        $mockHandler->reset();
+        /** @var TestAppServer $testServer */
+        $testServer = $this->getContainer()->get(TestAppServer::class);
+        $testServer->reset();
     }
 
-    public function getLastRequest(): RequestInterface
+    public function getLastRequest(): ?RequestInterface
     {
-        return $this->getContainer()->get(MockHandler::class)->getLastRequest();
+        /** @var MockHandler $mockHandler */
+        $mockHandler = $this->getContainer()->get(MockHandler::class);
+
+        return $mockHandler->getLastRequest();
     }
 
     public function getPastRequest(int $index): RequestInterface
     {
-        return $this->getContainer()->get(GuzzleHistoryCollector::class)->getHistory()[$index]['request'];
+        /** @var GuzzleHistoryCollector $historyCollector */
+        $historyCollector = $this->getContainer()->get(GuzzleHistoryCollector::class);
+
+        return $historyCollector->getHistory()[$index]['request'];
     }
 
     public function getRequestCount(): int
     {
-        return \count($this->getContainer()->get(GuzzleHistoryCollector::class)->getHistory());
+        /** @var GuzzleHistoryCollector $historyCollector */
+        $historyCollector = $this->getContainer()->get(GuzzleHistoryCollector::class);
+
+        return \count($historyCollector->getHistory());
     }
 
     /**
-     * @param $response ResponseInterface|\Exception|PromiseInterface
+     * @param ResponseInterface|\Exception|PromiseInterface $response
      */
     public function appendNewResponse($response): void
     {
-        $this->getContainer()->get(MockHandler::class)->append($response);
+        /** @var MockHandler $mockHandler */
+        $mockHandler = $this->getContainer()->get(MockHandler::class);
+        $mockHandler->append($response);
     }
 
     public function didRegisterApp(): bool
     {
-        return $this->getContainer()->get(TestAppServer::class)->didRegister();
+        /** @var TestAppServer $testServer */
+        $testServer = $this->getContainer()->get(TestAppServer::class);
+
+        return $testServer->didRegister();
     }
 }

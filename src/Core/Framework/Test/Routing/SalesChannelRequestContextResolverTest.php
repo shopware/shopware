@@ -24,9 +24,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use function array_unshift;
@@ -45,10 +43,6 @@ class SalesChannelRequestContextResolverTest extends TestCase
     private EntityRepositoryInterface $currencyRepository;
 
     private SalesChannelContextServiceInterface $contextService;
-
-    private KernelBrowser $browser;
-
-    private SalesChannelContext $salesChannelContext;
 
     public function setUp(): void
     {

@@ -27,7 +27,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $email = Uuid::randomHex() . '@example.com';
-        $customerId = $this->createCustomer($context, $email);
+        $customerId = $this->createCustomer(null, $email);
         $alternativeSalesChannel = $this->createSalesChannel([
             'domains' => [[
                 'languageId' => Defaults::LANGUAGE_SYSTEM,
@@ -84,7 +84,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         $context = Context::createDefaultContext();
         $email = Uuid::randomHex() . '@example.com';
         $this->createNewsletterRecipient($context, $email, TestDefaults::SALES_CHANNEL);
-        $customerId = $this->createCustomer($context, $email);
+        $customerId = $this->createCustomer(null, $email);
 
         /** @var CustomerEntity $customer */
         $customer = $this->getContainer()->get('customer.repository')->search(new Criteria([$customerId]), $context)->first();
@@ -98,7 +98,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $email = Uuid::randomHex() . '@example.com';
-        $customerId = $this->createCustomer($context, $email);
+        $customerId = $this->createCustomer(null, $email);
         $alternativeSalesChannel = $this->createSalesChannel([
             'domains' => [[
                 'languageId' => Defaults::LANGUAGE_SYSTEM,
@@ -134,46 +134,6 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         $customer = $this->getContainer()->get('customer.repository')->search(new Criteria([$customerId]), $context)->first();
 
         static::assertNull($customer->getNewsletterSalesChannelIds());
-    }
-
-    private function createCustomer(Context $context, string $email): string
-    {
-        $customerId = Uuid::randomHex();
-        $addressId = Uuid::randomHex();
-
-        $customer = [
-            'id' => $customerId,
-            'salutationId' => $this->getValidSalutationId(),
-            'firstName' => 'Max',
-            'lastName' => 'Mustermann',
-            'customerNumber' => '2000',
-            'email' => $email,
-            'password' => 'shopware',
-            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-            'salesChannelId' => TestDefaults::SALES_CHANNEL,
-            'defaultBillingAddressId' => $addressId,
-            'defaultShippingAddressId' => $addressId,
-            'addresses' => [
-                [
-                    'id' => $addressId,
-                    'customerId' => $customerId,
-                    'countryId' => $this->getValidCountryId(),
-                    'salutationId' => $this->getValidSalutationId(),
-                    'firstName' => 'Max',
-                    'lastName' => 'Mustermann',
-                    'street' => 'Ebbinghoff 10',
-                    'zipcode' => '48624',
-                    'city' => 'Schöppingen',
-                ],
-            ],
-        ];
-
-        $this->getContainer()
-            ->get('customer.repository')
-            ->upsert([$customer], $context);
-
-        return $customerId;
     }
 
     private function createNewsletterRecipient(

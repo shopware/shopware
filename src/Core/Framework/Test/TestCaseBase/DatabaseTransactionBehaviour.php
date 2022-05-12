@@ -10,9 +10,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 trait DatabaseTransactionBehaviour
 {
-    public static $lastTestCase;
+    public static ?string $lastTestCase = null;
 
-    private static $nextNestTransactionsWithSavepoints = true;
+    private static bool $nextNestTransactionsWithSavepoints = true;
 
     public function disableNestTransactionsWithSavepointsForNextTest(): void
     {

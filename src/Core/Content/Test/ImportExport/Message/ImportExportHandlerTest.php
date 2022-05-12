@@ -8,14 +8,14 @@ use Shopware\Core\Content\ImportExport\Message\ImportExportHandler;
 use Shopware\Core\Content\ImportExport\Message\ImportExportMessage;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
-use Shopware\Core\Content\Test\ImportExport\ImportExportTestCase;
+use Shopware\Core\Content\Test\ImportExport\AbstractImportExportTest;
 use Shopware\Core\Framework\Context;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * @internal
  */
-class ImportExportHandlerTest extends ImportExportTestCase
+class ImportExportHandlerTest extends AbstractImportExportTest
 {
     public function testImportExportHandlerDispatchesMessage(): void
     {

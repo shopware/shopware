@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 use Enqueue\Dbal\DbalContext;
 use Shopware\Core\Framework\Test\TestCaseHelper\StopWorkerWhenIdleListener;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Transport\Receiver\ReceiverInterface;
@@ -25,12 +26,20 @@ trait QueueTestBehaviour
 
     public function getBus(): MessageBusInterface
     {
-        return $this->getContainer()->get('messenger.bus.test_shopware');
+        /** @var MessageBusInterface $bus */
+        $bus = $this->getContainer()->get('messenger.bus.test_shopware');
+
+        return $bus;
     }
 
     public function getReceiver(): ReceiverInterface
     {
-        return $this->getContainer()->get('messenger.test_receiver_locator')->get('default');
+        /** @var ServiceLocator $locator */
+        $locator = $this->getContainer()->get('messenger.test_receiver_locator');
+        /** @var ReceiverInterface $receiver */
+        $receiver = $locator->get('default');
+
+        return $receiver;
     }
 
     public function runWorker(): void

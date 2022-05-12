@@ -170,7 +170,7 @@
     </xs:complexType>
     <xs:complexType name="storefront">
         <xs:choice maxOccurs="unbounded">
-            <xs:element name="load-priority" maxOccurs="unbounded" minOccurs="0" type="xs:int"/>
+            <xs:element name="template-load-priority" maxOccurs="1" minOccurs="0" type="xs:int"/>
         </xs:choice>
     </xs:complexType>
     <xs:complexType name="permissions">

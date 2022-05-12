@@ -633,6 +633,9 @@ class AppEntity extends Entity
         return $this->templateLoadPriority;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function setTemplateLoadPriority(int $templateLoadPriority): void
     {
         $this->templateLoadPriority = $templateLoadPriority;

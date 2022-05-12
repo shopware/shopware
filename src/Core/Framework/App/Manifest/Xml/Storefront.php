@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\App\Manifest\Xml;
 
 class Storefront extends XmlElement
 {
-    protected int $loadPriority = 0;
+    protected int $templateLoadPriority = 0;
 
     private function __construct(array $data)
     {
@@ -27,16 +27,16 @@ class Storefront extends XmlElement
                 continue;
             }
 
-            if ($node->tagName === 'load-priority') {
-                $values['loadPriority'] = (int) $node->textContent;
+            if ($node->tagName === 'template-load-priority') {
+                $values['templateLoadPriority'] = (int) $node->textContent;
             }
         }
 
         return $values;
     }
 
-    public function getLoadPriority(): int
+    public function getTemplateLoadPriority(): int
     {
-        return $this->loadPriority;
+        return $this->templateLoadPriority;
     }
 }

@@ -5,11 +5,6 @@ namespace Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Bundle;
 use Symfony\Component\HttpKernel\KernelInterface;
-use function array_column;
-use function array_combine;
-use function array_keys;
-use function array_merge;
-use function asort;
 
 class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterface
 {

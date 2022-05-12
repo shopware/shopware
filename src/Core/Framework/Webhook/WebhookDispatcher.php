@@ -59,7 +59,6 @@ class WebhookDispatcher implements EventDispatcherInterface
 
     /**
      * @internal
-     * @psalm-suppress ContainerDependency
      */
     public function __construct(
         EventDispatcherInterface $dispatcher,

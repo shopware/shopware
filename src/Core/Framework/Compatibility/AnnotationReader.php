@@ -96,18 +96,18 @@ class AnnotationReader implements Reader
     /**
      * In-memory cache mechanism to store imported annotations per class.
      *
-     * @psalm-var array<'class'|'function', array<string, array<string, class-string>>>
+     * @var array<'class'|'function', array<string, array<string, class-string>>>
      */
     private $imports = [];
 
     /**
      * In-memory cache mechanism to store ignored annotations per class.
      *
-     * @psalm-var array<'class'|'function', array<string, array<string, true>>>
+     * @var array<'class'|'function', array<string, array<string, true>>>
      */
     private $ignoredAnnotationNames = [];
 
-    /** 
+    /**
      * @internal
      * Initializes a new AnnotationReader.
      *

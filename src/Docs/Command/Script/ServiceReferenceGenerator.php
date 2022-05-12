@@ -49,9 +49,6 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
 
     private array $injectedServices = [];
 
-    /**
-     * @psalm-suppress ContainerDependency
-     */
     public function __construct(ContainerInterface $container, string $projectDir)
     {
         $this->container = $container;

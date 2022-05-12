@@ -32,9 +32,9 @@ class AppLifecycleIterator
     }
 
     /**
-     * @psalm-return  list<array{manifest: Manifest, exception: \Exception}>
-     *
      * @param string[] $installAppNames Apps that should be installed
+     *
+     * @return list<array{manifest: Manifest, exception: \Exception}>
      */
     public function iterateOverApps(AbstractAppLifecycle $appLifecycle, bool $activate, Context $context, array $installAppNames = []): array
     {

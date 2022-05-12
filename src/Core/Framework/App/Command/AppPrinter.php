@@ -59,7 +59,7 @@ class AppPrinter
     }
 
     /**
-     * @psalm-param list<array{manifest: Manifest, exception: \Exception}> $fails
+     * @param list<array{manifest: Manifest, exception: \Exception}> $fails
      */
     public function printIncompleteInstallations(ShopwareStyle $io, array $fails): void
     {

@@ -22,7 +22,6 @@ composer.json                                                   @product/enginee
 /vendor-bin/*/composer.json                                     @product/engineering/platform-group/core
 ecs.php                                                         @product/engineering/platform-group/core
 phpstan.neon                                                    @product/engineering/platform-group/core
-psalm.xml                                                       @product/engineering/platform-group/core
 phpunit.xml.dist                                                @product/engineering/platform-group/core
 .bc-exclude.php                                                 @product/engineering/platform-group/core
 /src/Core/Framework/Resources/config/packages/shopware.yaml     @product/engineering/platform-group/core

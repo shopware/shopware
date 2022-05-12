@@ -34,17 +34,20 @@ class CartMigrateCommand extends Command
 
     private bool $compress;
 
+    private RedisConnectionFactory $factory;
+
     /**
      * @internal
      *
      * @param \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy|null $redis
      */
-    public function __construct($redis, Connection $connection, bool $compress)
+    public function __construct($redis, Connection $connection, bool $compress, RedisConnectionFactory $factory)
     {
         parent::__construct();
         $this->redis = $redis;
         $this->connection = $connection;
         $this->compress = $compress;
+        $this->factory = $factory;
     }
 
     /**
@@ -64,7 +67,7 @@ class CartMigrateCommand extends Command
         $url = $input->getArgument('url');
 
         if ($url !== null) {
-            $this->redis = RedisConnectionFactory::createConnection($url);
+            $this->redis = $this->factory->create($url);
         }
 
         if ($this->redis === null) {
@@ -117,6 +120,8 @@ class CartMigrateCommand extends Command
         $payloadExists = EntityDefinitionQueryHelper::columnExists($this->connection, 'cart', 'payload');
 
         foreach ($keys as $index => $key) {
+            $key = \substr($key, \strlen($this->redis->_prefix('')));
+
             $value = $this->redis->get($key);
             if (!\is_string($value)) {
                 continue;

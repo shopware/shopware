@@ -2,6 +2,7 @@ parameters:
     default_cdn_strategy: "id"
     env(APP_URL): ''
     APP_URL: "%env(string:APP_URL)%"
+    env(REDIS_PREFIX): ''
 
 shopware:
     profiler:
@@ -207,6 +208,7 @@ shopware:
             - League\OAuth2\Server\Exception\OAuthServerException
 
     cache:
+        redis_prefix: '%env(REDIS_PREFIX)%'
         invalidation:
             delay: 0
             count: 150

@@ -29,6 +29,45 @@ class CartMigrateCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    public function testWithRedisPrefix(): void
+    {
+        $url = EnvironmentHelper::getVariable('REDIS_URL');
+
+        if (!$url) {
+            static::markTestSkipped('No redis server configured');
+        }
+
+        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM cart');
+
+        $redisCart = new Cart('shopware', Uuid::randomHex());
+        $redisCart->add(
+            (new LineItem('A', 'test'))
+                ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
+        );
+
+        $context = $this->getSalesChannelContext($redisCart->getToken());
+
+        $factory = new RedisConnectionFactory('test-prefix-');
+        $redis = $factory->create((string) $url);
+        $redis->flushAll();
+
+        $persister = new RedisCartPersister($redis, $this->getContainer()->get('event_dispatcher'), false);
+        $persister->save($redisCart, $context);
+
+        $command = new CartMigrateCommand($redis, $this->getContainer()->get(Connection::class), false, $factory);
+        $command->run(new ArrayInput(['from' => 'redis']), new NullOutput());
+
+        $persister = new CartPersister(
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get('event_dispatcher'),
+            false
+        );
+
+        $sqlCart = $persister->load($redisCart->getToken(), $context);
+
+        static::assertInstanceOf(Cart::class, $sqlCart);
+    }
+
     /**
      * @dataProvider dataProvider
      */
@@ -50,13 +89,14 @@ class CartMigrateCommandTest extends TestCase
 
         $context = $this->getSalesChannelContext($redisCart->getToken());
 
-        $redis = RedisConnectionFactory::createConnection((string) $url);
+        $factory = $this->getContainer()->get(RedisConnectionFactory::class);
+        $redis = $factory->create((string) $url);
         $redis->flushAll();
 
         $persister = new RedisCartPersister($redis, $this->getContainer()->get('event_dispatcher'), $redisCompressed);
         $persister->save($redisCart, $context);
 
-        $command = new CartMigrateCommand($redis, $this->getContainer()->get(Connection::class), $sqlCompressed);
+        $command = new CartMigrateCommand($redis, $this->getContainer()->get(Connection::class), $sqlCompressed, $factory);
         $command->run(new ArrayInput(['from' => 'redis']), new NullOutput());
 
         $persister = new CartPersister(
@@ -102,10 +142,11 @@ class CartMigrateCommandTest extends TestCase
         $token = $this->getContainer()->get(Connection::class)->fetchOne('SELECT token FROM cart WHERE token = :token', ['token' => $sqlCart->getToken()]);
         static::assertNotEmpty($token);
 
-        $redis = RedisConnectionFactory::createConnection((string) $url);
+        $factory = $this->getContainer()->get(RedisConnectionFactory::class);
+        $redis = $factory->create((string) $url);
         $redis->flushAll();
 
-        $command = new CartMigrateCommand($redis, $this->getContainer()->get(Connection::class), $sqlCompressed);
+        $command = new CartMigrateCommand($redis, $this->getContainer()->get(Connection::class), $sqlCompressed, $factory);
         $command->run(new ArrayInput(['from' => 'sql']), new NullOutput());
 
         $persister = new RedisCartPersister($redis, $this->getContainer()->get('event_dispatcher'), $redisCompressed);

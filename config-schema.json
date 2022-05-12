@@ -242,6 +242,9 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+                "redis_prefix": {
+                    "type": "string"
+                },
                 "invalidation": {
                     "$ref": "#/definitions/cache_invalidation"
                 }

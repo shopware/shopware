@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 
 /**
@@ -14,16 +15,30 @@ class IteratorFactory
 {
     private Connection $connection;
 
+    private DefinitionInstanceRegistry $registry;
+
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(Connection $connection, DefinitionInstanceRegistry $registry)
     {
         $this->connection = $connection;
+        $this->registry = $registry;
     }
 
-    public function createIterator(EntityDefinition $definition, ?array $lastId = null, int $limit = 50): IterableQuery
+    /**
+     * @param string|EntityDefinition $definition
+     */
+    public function createIterator($definition, ?array $lastId = null, int $limit = 50): IterableQuery
     {
+        if (\is_string($definition)) {
+            $definition = $this->registry->getByEntityName($definition);
+        }
+
+        if (!$definition instanceof EntityDefinition) {
+            throw new \InvalidArgumentException('Definition must be an instance of EntityDefinition');
+        }
+
         $entity = $definition->getEntityName();
 
         $escaped = EntityDefinitionQueryHelper::escape($entity);

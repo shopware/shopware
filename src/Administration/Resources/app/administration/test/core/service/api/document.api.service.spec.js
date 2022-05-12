@@ -26,13 +26,13 @@ describe('documentService', () => {
         expect(documentApiService).toBeInstanceOf(DocumentApiService);
     });
 
-    it('is send create document request correctly', () => {
+    it('is send create document request correctly', async () => {
         const { documentApiService, clientMock } = getDocumentApiService();
 
         documentApiService.setListener(expectCreateDocumentFinished);
 
         const orderId = '4a4a687257644d52bf481b4c20e59213';
-        clientMock.onPost('/_action/order/4a4a687257644d52bf481b4c20e59213/document/invoice')
+        clientMock.onPost(`/_action/order/${orderId}/document/invoice`)
             .reply(
                 200,
                 {
@@ -50,7 +50,7 @@ describe('documentService', () => {
             documentDate: '2021-02-22T04:34:56.441Z'
         };
 
-        documentApiService.createDocument(
+        const response = await documentApiService.createDocument(
             orderId,
             'invoice',
             params,
@@ -58,6 +58,11 @@ describe('documentService', () => {
             null,
             {}
         );
+
+        expect(response.data).toEqual({
+            documentId: '4d03324edcd0490b9180df8161c9167f',
+            documentDeepLink: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN'
+        });
     });
 
     it('is send create document request return error', async () => {
@@ -74,7 +79,7 @@ describe('documentService', () => {
         documentApiService.setListener(mockCreateDocumentEvent);
 
         const orderId = '4a4a687257644d52bf481b4c20e59213';
-        clientMock.onPost('/_action/order/4a4a687257644d52bf481b4c20e59213/document/invoice')
+        clientMock.onPost(`/_action/order/${orderId}/document/invoice`)
             .reply(400, {
                 errors: [{
                     status: '400',
@@ -98,13 +103,27 @@ describe('documentService', () => {
             documentDate: '2021-02-22T04:34:56.441Z'
         };
 
-        await documentApiService.createDocument(
-            orderId,
-            'invoice',
-            params,
-            null,
-            null,
-            {}
-        );
+        try {
+            await documentApiService.createDocument(
+                orderId,
+                'invoice',
+                params,
+                null,
+                null,
+                {}
+            );
+        } catch (e) {
+            expect(e.response).toBe({
+                status: '400',
+                code: 'DOCUMENT__NUMBER_ALREADY_EXISTS',
+                title: 'Bad Request',
+                detail: 'Document number 1000 has already been allocated.',
+                meta: {
+                    parameters: {
+                        number: '1000'
+                    }
+                }
+            });
+        }
     });
 });

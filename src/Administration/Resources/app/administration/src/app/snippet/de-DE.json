@@ -443,6 +443,15 @@
         "illegalFilename": {
           "title": "Ungültiger Dateiname",
           "message": "Der Dateiname \"{fileName}\" enthält ungültige Sonderzeichen."
+        },
+        "invalidFileType": {
+          "message": "Die gewählte Datei \"{name}\" hat ein nicht unterstütztes Format. Bitte benutze eins der folgenden Formate: {supportedTypes}."
+        },
+        "invalidFileSize": {
+          "message": "Die gewählte Datei \"{name}\" ist zu groß für den Upload. Die maximale Dateigröße ist {limit}."
+        },
+        "invalidUrl": {
+          "message": "Die eingegebene URL ist ungültig."
         }
       },
       "caption": "Dateien zum Hochladen hierhin ziehen"

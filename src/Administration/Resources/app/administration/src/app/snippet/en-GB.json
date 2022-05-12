@@ -443,6 +443,15 @@
         "illegalFilename": {
           "title": "Invalid Filename",
           "message": "The filename \"{fileName}\" contains invalid characters."
+        },
+        "invalidFileType": {
+          "message": "The selected file \"{name}\" has an unsupported format. Please use one of the following types: {supportedTypes}."
+        },
+        "invalidFileSize": {
+          "message": "The selected file \"{name}\" is too big to upload. File size must not exceed {limit}."
+        },
+        "invalidUrl": {
+          "message": "The provided URL is invalid."
         }
       },
       "caption": "Drag files here to upload"

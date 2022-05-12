@@ -1,14 +1,14 @@
 <!-- eslint-disable vuejs-accessibility/click-events-have-key-events -->
 {% block sw_order_document_settings_modal %}
 <sw-modal
-    :title="$tc('sw-order.documentModal.modalTitle')"
-    class="sw-order-document-settings-modal__settings-modal"
+    :title="modalTitle"
+    class="sw-order-document-settings-modal"
     @modal-close="onCancel"
 >
     {% block sw_order_document_settings_modal_form_first_row %}
     <sw-container
         columns="1fr 1fr"
-        gap="0px 10px"
+        gap="0px 14px"
     >
         {% block sw_order_document_settings_modal_form_document_number %}
         <sw-text-field
@@ -28,16 +28,63 @@
     {% endblock %}
 
     {% block sw_order_document_settings_modal_form_file_upload %}
+    {% block sw_order_document_settings_modal_form_file_upload_toggle %}
     <sw-checkbox-field
+        v-if="!feature.isActive('FEATURE_NEXT_7530')"
         v-model="uploadDocument"
+        class="sw-order-document-settings-modal__file-toggle"
         :label="$tc('sw-order.documentModal.fileInputLabel')"
     />
+
+    <sw-switch-field
+        v-if="feature.isActive('FEATURE_NEXT_7530')"
+        v-model="uploadDocument"
+        class="sw-order-document-settings-modal__file-toggle"
+        :label="$tc('sw-order.documentModal.fileInputLabel')"
+    />
+    {% endblock %}
+
+    {% block sw_order_document_settings_modal_form_file_upload_input %}
     <sw-file-input
-        v-if="uploadDocument"
+        v-if="uploadDocument && !feature.isActive('FEATURE_NEXT_7530')"
         v-model="selectedDocumentFile"
         class="sw-order-document-settings-modal__file-input"
         :allowed-mime-types="features.fileTypes"
         :max-file-size="features.uploadFileSizeLimit"
+    />
+
+    <sw-upload-listener
+        v-if="uploadDocument && feature.isActive('FEATURE_NEXT_7530')"
+        auto-upload
+        :upload-tag="order.id"
+        @media-upload-finish="successfulUploadFromUrl"
+    />
+    <sw-media-upload-v2
+        v-if="uploadDocument && feature.isActive('FEATURE_NEXT_7530')"
+        ref="fileInput"
+        variant="small"
+        class="sw-order-document-settings-modal__file-input"
+        use-file-data
+        :source="selectedDocumentFile"
+        :allow-multi-select="false"
+        :file-accept="features.fileAcceptTypes"
+        :max-file-size="features.uploadFileSizeLimit"
+        default-folder="document"
+        :upload-tag="order.id"
+        @media-upload-add-file="onAddDocument"
+        @media-upload-sidebar-open="openMediaModal"
+        @media-upload-remove-image="removeCustomDocument"
+    />
+    {% endblock %}
+    {% endblock %}
+
+    {% block sw_order_document_settings_modal_media_modal %}
+    <sw-media-modal-v2
+        v-if="showMediaModal"
+        :allow-multi-select="false"
+        :file-accept="features.fileTypes"
+        @media-modal-selection-change="onAddMediaFromLibrary"
+        @modal-close="closeMediaModal"
     />
     {% endblock %}
 
@@ -45,7 +92,16 @@
 
     {% block sw_order_document_settings_modal_form_document_comment %}
     <sw-text-field
+        v-if="!feature.isActive('FEATURE_NEXT_7530')"
         v-model="documentConfig.documentComment"
+        class="sw-order-document-settings-modal__comment"
+        :label="$tc('sw-order.documentModal.labelDocumentComment')"
+    />
+
+    <sw-textarea-field
+        v-if="feature.isActive('FEATURE_NEXT_7530')"
+        v-model="documentConfig.documentComment"
+        class="sw-order-document-settings-modal__comment"
         :label="$tc('sw-order.documentModal.labelDocumentComment')"
     />
     {% endblock %}
@@ -54,7 +110,7 @@
     <template #modal-footer>
         {% block sw_order_document_settings_modal_form_document_footer_preview %}
         <sw-button
-            id="sw-order-document-settings-modal__preview-button"
+            class="sw-order-document-settings-modal__preview-button"
             size="small"
             :disabled="isLoadingDocument"
             :is-loading="isLoadingPreview"
@@ -64,72 +120,70 @@
         </sw-button>
         {% endblock %}
 
-        {% block sw_order_document_settings_modal_form_document_footer_cancel %}
-        <sw-button
-            size="small"
-            @click="onCancel"
-        >
-            {{ $tc('sw-order.documentModal.labelCancel') }}
-        </sw-button>
-        {% endblock %}
-
-        {% block sw_order_document_settings_modal_form_document_footer_split_button %}
-        <sw-button-group split-button>
-            {% block sw_order_document_settings_modal_form_document_footer_split_button_create %}
+        <div>
+            {% block sw_order_document_settings_modal_form_document_footer_cancel %}
             <sw-button
-                variant="primary"
                 size="small"
-                :disabled="!documentPreconditionsFulfilled || isLoadingPreview"
-                :is-loading="isLoadingDocument"
-                @click="onCreateDocument"
+                @click="onCancel"
             >
-                {{ $tc('sw-order.documentModal.labelCreate') }}
+                {{ $tc('sw-order.documentModal.labelCancel') }}
             </sw-button>
             {% endblock %}
-            <!-- not full implemented yet
-            {% block sw_order_document_settings_modal_form_document_footer_split_button_context %}
-            <sw-context-button :disabled="!documentPreconditionsFulfilled">
-                {% block sw_order_document_settings_modal_form_document_footer_split_button_context_arrow %}
+
+            {% block sw_order_document_settings_modal_form_document_footer_split_button %}
+            <sw-button-group split-button>
+                {% block sw_order_document_settings_modal_form_document_footer_split_button_create %}
                 <sw-button
-                    slot="button"
-                    square
+                    class="sw-order-document-settings-modal__create"
                     variant="primary"
                     size="small"
-                    :disabled="!documentPreconditionsFulfilled"
+                    :disabled="!documentPreconditionsFulfilled || isLoadingPreview"
+                    :is-loading="isLoadingDocument"
+                    @click="onCreateDocument"
                 >
-                    <sw-icon
-                        name="regular-chevron-down-xs"
-                        size="16"
-                    />
+                    {{ $tc('sw-order.documentModal.labelCreate') }}
                 </sw-button>
                 {% endblock %}
 
-                {% block sw_order_document_settings_modal_form_document_footer_split_button_context_create_send %}
-                <sw-context-menu-item>
-                    <a
-                        class="sw-order-document-settings-modal__download-button"
+                {% block sw_order_document_settings_modal_form_document_footer_split_button_context %}
+                <sw-context-button :disabled="!documentPreconditionsFulfilled">
+                    {% block sw_order_document_settings_modal_form_document_footer_split_button_context_arrow %}
+                    <sw-button
+                        slot="button"
+                        square
+                        variant="primary"
+                        size="small"
+                        :disabled="!documentPreconditionsFulfilled"
+                    >
+                        <sw-icon
+                            name="regular-chevron-down-xs"
+                            size="16"
+                        />
+                    </sw-button>
+                    {% endblock %}
+
+                    {% block sw_order_document_settings_modal_form_document_footer_split_button_context_create_send %}
+                    <sw-context-menu-item
+                        class="sw-order-document-settings-modal__send-button"
                         @click="onCreateDocument('send')"
                     >
                         {{ $tc('sw-order.documentModal.labelCreateSend') }}
-                    </a>
-                </sw-context-menu-item>
-                {% endblock %}
+                    </sw-context-menu-item>
+                    {% endblock %}
 
-                {% block sw_order_document_settings_modal_form_document_footer_split_button_context_create_download %}
-                <sw-context-menu-item>
-                    <a
+                    {% block sw_order_document_settings_modal_form_document_footer_split_button_context_create_download %}
+                    <sw-context-menu-item
                         class="sw-order-document-settings-modal__download-button"
                         @click="onCreateDocument('download')"
                     >
                         {{ $tc('sw-order.documentModal.labelCreateDownloadPdf') }}
-                    </a>
-                </sw-context-menu-item>
+                    </sw-context-menu-item>
+                    {% endblock %}
+                </sw-context-button>
                 {% endblock %}
-            </sw-context-button>
+            </sw-button-group>
             {% endblock %}
-            -->
-        </sw-button-group>
-        {% endblock %}
+        </div>
     </template>
     {% endblock %}
 </sw-modal>

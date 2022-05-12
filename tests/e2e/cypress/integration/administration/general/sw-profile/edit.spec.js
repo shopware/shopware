@@ -89,7 +89,7 @@ describe('Profile module', () => {
 
     it('@base @general: profile change avatar', () => {
         cy.get('.sw-media-upload-v2 .sw-media-upload-v2__button')
-            .first()
+            .eq(1)
             .click()
 
         // Add avatar to profile

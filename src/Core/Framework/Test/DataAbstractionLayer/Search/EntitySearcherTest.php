@@ -44,6 +44,81 @@ class EntitySearcherTest extends TestCase
         $this->productRepository = $this->getContainer()->get('product.repository');
     }
 
+    public function testScoringWithToManyAssociation(): void
+    {
+        $ids = new IdsCollection();
+
+        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
+
+        $products = [
+            (new ProductBuilder($ids, 'john'))
+                ->tag('tag1')
+                ->tag('tag2')
+                ->tag('tag3')
+                ->name('John')
+                ->price(100)
+                ->build(),
+            (new ProductBuilder($ids, 'john.doe'))->name('John Doe')->price(100)->build(),
+            (new ProductBuilder($ids, 'doe'))->name('Doe')
+                ->category('cat1')
+                ->category('cat2')
+                ->category('cat3')
+                ->tag('tag1')
+                ->tag('tag2')
+                ->tag('tag3')
+                ->price(100)->build(),
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create($products, Context::createDefaultContext());
+
+        $criteria = new Criteria();
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'John'), 100));
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Doe'), 100));
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('tags.name', 'Doe'), 100));
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('categories.name', 'Doe'), 100));
+
+        $result = $this->getContainer()->get('product.repository')->searchIds($criteria, Context::createDefaultContext());
+
+        static::assertEquals(100, $result->getScore($ids->get('john')));
+        static::assertEquals(200, $result->getScore($ids->get('john.doe')));
+        static::assertEquals(100, $result->getScore($ids->get('doe')));
+    }
+
+    public function testIdSearchResultHelpers(): void
+    {
+        $ids = new IdsCollection();
+
+        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
+
+        $products = [
+            (new ProductBuilder($ids, 'john'))->price(100)->build(),
+            (new ProductBuilder($ids, 'john.doe'))->name('John Doe')->price(100)->build(),
+            (new ProductBuilder($ids, 'doe'))->name('Doe')->price(100)->build(),
+        ];
+
+        $context = Context::createDefaultContext();
+        $this->getContainer()->get('product.repository')
+            ->create($products, $context);
+
+        $criteria = new Criteria($ids->getList(['john', 'john.doe', 'doe']));
+
+        $result = $this->getContainer()->get('product.repository')
+            ->searchIds($criteria, $context);
+
+        $exception = null;
+
+        try {
+            $result->getScore($ids->get('john'));
+        } catch (\Exception $exception) {
+        }
+        static::assertInstanceOf(\RuntimeException::class, $exception);
+
+        static::assertEquals([], $result->getDataOfId('not-exists'));
+        static::assertSame($context, $result->getContext());
+        static::assertEquals($criteria, $result->getCriteria());
+    }
+
     public function testDataProperty(): void
     {
         $ids = new IdsCollection();

@@ -4,4 +4,4 @@ author: Silvio Kennecke
 author_github: @silviokennecke
 ---
 # Core
-*  Change `\Shopware\Core\System\Locale\LanguageLocaleCodeProvider::getLocaleForLanguageId` to also check the parent language
+*  Add locale code resolver to  `\Shopware\Core\System\Language\LanguageLoader`. This ensures the locale code is also set if a child language inherits the locale code from it's parent.

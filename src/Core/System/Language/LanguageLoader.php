@@ -26,6 +26,28 @@ class LanguageLoader implements LanguageLoaderInterface
             ->execute()
             ->fetchAll();
 
-        return FetchModeHelper::groupUnique($data);
+        $languages = FetchModeHelper::groupUnique($data);
+
+        return $this->resolveLocaleCodes($languages);
+    }
+
+    private function resolveLocaleCodes(array $languages): array
+    {
+        foreach ($languages as $languageId => $language) {
+            if ($language['code'] !== null) {
+                continue;
+            }
+
+            $currentLanguageId = $languageId;
+            while ($language['code'] === null) {
+                $currentLanguageId = $languages[$currentLanguageId]['parentId'];
+
+                $language['code'] = $languages[$currentLanguageId]['code'];
+            }
+
+            $languages[$languageId]['code'] = $language['code'];
+        }
+
+        return $languages;
     }
 }

@@ -28,7 +28,15 @@ class LanguageLocaleCodeProvider implements ResetInterface
             throw new LanguageNotFoundException($languageId);
         }
 
-        return $languages[$languageId]['code'];
+        $language = $languages[$languageId];
+        $code = $language['code'];
+        $parentId = $language['parentId'];
+
+        if ($code === null && $parentId !== null) {
+            $code = $this->getLocaleForLanguageId($parentId);
+        }
+
+        return $code;
     }
 
     public function getLocalesForLanguageIds(array $languageIds): array

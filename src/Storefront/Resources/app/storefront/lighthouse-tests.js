@@ -2,11 +2,10 @@
 const fse = require('fs-extra');
 const path = require('path');
 const puppeteer = require('puppeteer');
-const lighthouse = require('lighthouse');
 const axios = require('axios');
 const _get = require('lodash/get');
 
-
+// just testing
 const APP_URL = process.env.APP_URL;
 const PROJECT_ROOT = process.env.PROJECT_ROOT;
 const DD_API_KEY = process.env.DD_API_KEY;
@@ -25,92 +24,6 @@ if (!DD_API_KEY) {
     console.warn('' +
         'WARNING: The environment variable "DD_API_KEY" have to defined. ' +
         'Otherwise it can\'t send metrics to datadog.');
-}
-
-async function getDetail(browser) {
-    console.log('GET DETAIL URL');
-    const page = await browser.newPage();
-
-    await page.setViewport({ width: 1920, height: 1080 });
-
-    await page.goto(`${APP_URL}`);
-    const detailButton = await page.$('.product-action a.btn');
-    await detailButton.click();
-
-    await page.waitForNavigation();
-    await page.waitForSelector('meta[itemprop="productID"]');
-    const buyButton = await page.$('.buy-widget-container .btn-buy');
-
-    let productUrl = await page.$eval('meta[property="product:product_link"]', el => el.content);
-
-    await page.close();
-
-    return productUrl;
-}
-
-
-async function getNavUrl(browser) {
-    console.log('GET NAV URL');
-    const page = await browser.newPage();
-
-    await page.setViewport({ width: 1920, height: 1080 });
-
-    await page.goto(`${APP_URL}`);
-    await page.waitForSelector('a.main-navigation-link');
-
-    let secondNavLinkUrl = await page.$eval('a.main-navigation-link:nth-of-type(2n)', el => el.href);
-
-    await page.close();
-
-    return secondNavLinkUrl;
-}
-
-/**
- *
- * @param browser Browser
- * @returns {Promise<void>}
- */
-async function loginAndFixtures(browser) {
-    console.log('LOGIN');
-    const page = await browser.newPage();
-
-    await page.setViewport({ width: 1920, height: 1080 });
-    await page.goto(`${APP_URL}/account/login`);
-
-    const usernameInput = await page.$('#loginMail');
-    const passwordInput = await page.$('#loginPassword');
-    const loginButton = await page.$('.login-submit .btn-primary');
-
-    await usernameInput.type('test@example.com');
-    await passwordInput.type('shopware');
-    await loginButton.click();
-
-    await page.waitForNavigation();
-    await page.waitForSelector('.account-welcome');
-
-    console.log('FILL CART');
-    await page.goto(`${APP_URL}`);
-    const detailButton = await page.$('.product-action a.btn');
-    await detailButton.click();
-
-    await page.waitForNavigation();
-    await page.waitForSelector('meta[itemprop="productID"]');
-    const buyButton = await page.$('.buy-widget-container .btn-buy');
-
-    await buyButton.click();
-
-    await page.close();
-}
-
-async function iterateAsync(arr, handler) {
-    await arr.reduce(async (promise, value) => {
-        // This line will wait for the last async function to finish.
-        // The first iteration uses an already resolved Promise
-        // so, it will immediately continue.
-        await promise;
-
-        await handler(value);
-    }, Promise.resolve());
 }
 
 function getTimeStamp() {
@@ -143,7 +56,7 @@ async function sendMetrics(metrics) {
         time_to_interactive: 'audits["interactive"].numericValue',
         total_blocking_time: 'audits["total-blocking-time"].numericValue',
         cumulative_layout_shift: 'audits["cumulative-layout-shift"].numericValue',
-        server_response_time: 'audits["server-response-time"].numericValue'
+        server_response_time: 'audits["server-response-time"].numericValue',
     };
     const timeStamp = getTimeStamp();
 
@@ -153,18 +66,19 @@ async function sendMetrics(metrics) {
                 host: 'lighthouse',
                 type: 'gauge',
                 metric: `lighthouse.storefront.${metricName}.${metric.testName}`,
-                points: [[timeStamp, _get(metric.result.lhr, scorePath)]],
+                points: [[timeStamp, _get(metric.result, scorePath)]],
             };
         }));
         acc.push({
             host: 'lighthouse',
             type: 'gauge',
             metric: `lighthouse.total_bundle_size.${metric.testName}`,
-            points: [[timeStamp, getScriptsSize(metric.result.lhr)]],
+            points: [[timeStamp, getScriptsSize(metric.result)]],
         });
 
         return acc;
     }, []);
+
 
     if (!DD_API_KEY) return undefined;
 
@@ -182,141 +96,34 @@ async function sendMetrics(metrics) {
 }
 
 async function main() {
-    // create folder for artifacts
-    fse.mkdirpSync(path.join(PROJECT_ROOT, '/build/artifacts/lighthouse-storefront-results/'));
 
-    const PORT = LH_PORT;
-
-    const browser = await puppeteer.launch({
-        args: [
-            `--remote-debugging-port=${PORT}`,
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-        ],
-        // For debugging uncomment next line:
-        // headless: false,
-        slowMo: 50,
-    });
-
-    const detailUrl = getDetail(browser);
-    const navUrl = getNavUrl(browser);
-
-    // Test cases for lighthouse
-    const testCases = {
-        frontPage: async () => `${APP_URL}`,
-        loginPage: async () => `${APP_URL}/account/login`,
-        listingPage: async () => `${APP_URL}/?order=name-asc&p=2`,
-        productDetailPage: async () => detailUrl,
-        categoryPage: async () => navUrl,
-        emptyCartPage: async () => `${APP_URL}/checkout/cart`,
-    };
-
-    // Execute lighthouse tests
     const lighthouseTests = [];
 
-    await iterateAsync(Object.entries(testCases), async ([testName, getTestUrl]) => {
-        console.log('MEASURE ', testName);
-        const url = await getTestUrl();
-        console.log('MEASURE URL', url);
-        const result = await lighthouse(url, {
-            port: PORT,
-            disableStorageReset: true,
-            output: 'html',
-            formFactor: 'desktop',
-            screenEmulation: {
-                mobile: false,
-                width: 1920,
-                height: 1080,
-            },
-        });
+    const jsonFile = await fse.readFile(path.join(PROJECT_ROOT, '/build/artifacts/lighthouse-storefront-config/urlmap.json'), 'utf-8');
+    const URL_MAP = JSON.parse(jsonFile);
 
-        lighthouseTests.push({
-            testName: testName,
-            result: result,
-        });
-    });
+    const files = await fse.readdir('./.lighthouseci');
 
-    //mobile
-    await iterateAsync(Object.entries(testCases), async ([testName, getTestUrl]) => {
-        testName += '-mobile';
-        console.log('MEASURE ', testName);
-        const url = await getTestUrl();
-        console.log('MEASURE URL', url);
-        const result = await lighthouse(url, {
-            port: PORT,
-            disableStorageReset: true,
-            output: 'html',
-            formFactor: 'mobile',
-            screenEmulation: {
-                mobile: true,
-                width: 360,
-                height: 800,
-            },
-        });
-
-        lighthouseTests.push({
-            testName: testName,
-            result: result,
-        });
-    });
-
-
-    // with login
-    // Test cases for lighthouse
-    const testCasesLoggedIn = {
-        loggedInFrontPage: async () => `${APP_URL}`,
-        loggedInAccountPage: async () => `${APP_URL}/account`,
-        loggedInListingPage: async () => `${APP_URL}/?order=name-asc&p=2`,
-        loggedInProductDetailPage: async () => detailUrl,
-        loggedInCategoryPage: async () => navUrl,
-        loggedInFilledCartPage: async () => `${APP_URL}/checkout/cart`,
-        loggedInCheckoutStart: async () => `${APP_URL}/checkout/confirm`,
-    };
-
-    await loginAndFixtures(browser);
-
-    await iterateAsync(Object.entries(testCasesLoggedIn), async ([testName, getTestUrl]) => {
-        console.log('MEASURE ', testName);
-        const url = await getTestUrl();
-        console.log('MEASURE URL', url);
-        const result = await lighthouse(url, {
-            port: PORT,
-            disableStorageReset: true,
-            output: 'html',
-            formFactor: 'desktop',
-            screenEmulation: {
-                mobile: false,
-                width: 1920,
-                height: 1080,
-            },
-        });
-
-        lighthouseTests.push({
-            testName: testName,
-            result: result,
-        });
-    });
-
-
-
-    // Save the result in files
-    lighthouseTests.forEach(({ testName, result }) => {
-        fse.outputFileSync(
-            path.join(PROJECT_ROOT, `/build/artifacts/lighthouse-storefront-results/${testName}.html`),
-            result.report,
-        );
-
-        // Output the result
-        console.log('-----');
-        console.log(`Report is written for "${testName}"`);
-        console.log('Performance score was', result.lhr.categories.performance.score * 100);
-    });
-
+    for (const file of files) {
+        if (path.extname(file) === ".json" && file.startsWith('lhr-')) {
+            console.log(file);
+            const jsonFile = await fse.readFile(path.join('./.lighthouseci', file), 'utf-8');
+            const json = JSON.parse(jsonFile);
+            const urlLabel = Object.keys(URL_MAP).find(key => URL_MAP[key] === json.requestedUrl)?.replace('_', '-');
+            console.log('urlLabel:', urlLabel);
+            const testNamePresent = Object.keys(lighthouseTests).find(key => lighthouseTests[key].testName === urlLabel);
+            if (testNamePresent) {
+                console.log(testNamePresent);
+                continue;
+            }
+            lighthouseTests.push({
+                testName: urlLabel,
+                result: json,
+            });
+        }
+    }
     // Send results to dataDog
     await sendMetrics(lighthouseTests);
-
-    // Close browser when all tests are finished
-    await browser.close();
 }
 
 main();

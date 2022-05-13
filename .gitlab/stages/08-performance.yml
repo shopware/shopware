@@ -43,7 +43,7 @@ Lighthouse (Storefront):
     rules:
         - !reference [ .rules, skip ]
         - !reference [ .rules, run ]
-        # always execute in merge train. PHP could in theory affect the admin jest tests
+        # always execute in merge train. PHP could in theory affect the admin jest tests.
         - !reference [ .rules, long-running ]
         - changes:
               - 'src/Storefront/**/*'
@@ -51,9 +51,16 @@ Lighthouse (Storefront):
     script:
         - APP_ENV=prod bin/console framework:demodata
         - APP_ENV=prod bin/console dal:refresh:index
-        - npm --prefix $STOREFRONT_PATH run lighthouse
+        - cd $STOREFRONT_PATH
+        - node createlighthouserc.js
+        - node node_modules/@lhci/cli/src/cli.js collect --config=$PROJECT_ROOT/build/artifacts/lighthouse-storefront-config/lighthousercNotLoggedIn.json
+        - node node_modules/@lhci/cli/src/cli.js collect --additive=true --config=$PROJECT_ROOT/build/artifacts/lighthouse-storefront-config/lighthousercNotLoggedInMobile.json
+        - node node_modules/@lhci/cli/src/cli.js collect --additive=true --config=$PROJECT_ROOT/build/artifacts/lighthouse-storefront-config/lighthousercLoggedIn.json
+        - node node_modules/@lhci/cli/src/cli.js collect --additive=true --config=$PROJECT_ROOT/build/artifacts/lighthouse-storefront-config/lighthousercLoggedInMobile.json
+        - node lighthouse-tests.js
+        - node node_modules/@lhci/cli/src/cli.js upload --config=$PROJECT_ROOT/build/artifacts/lighthouse-storefront-config/lighthousercNotLoggedIn.json
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
     artifacts:
         when: always
         paths:
-            - build/artifacts/lighthouse-storefront-results
+            - build/artifacts

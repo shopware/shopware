@@ -7,6 +7,7 @@
       "INVALID_MEDIA_URL": "Please enter a valid URL to upload a file.",
       "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "You must choose a type for this rule.",
       "CONTENT__INVALID_CATEGORY_TYPE_AS_ENTRY_POINT": "The type can not be assigned while category is an entry point.",
+      "CONTENT__INVALID_RULE_NESTED_CYCLE": "Choosing this rule would lead to an infinite loop and can not be selected.",
       "SHOPWARE_INVALID_IP": "Please enter a valid IP address.",
       "INVALID_URL": "Please enter a valid url.",
       "INVALID_MAIL": "Please enter a valid email address.",
@@ -736,7 +737,8 @@
           }
         },
         "customerCustomFieldRule": "Customer with custom field",
-        "zipCodeWildcardPlaceholder": "Use \"*\" as a wildcard character ..."
+        "zipCodeWildcardPlaceholder": "Use \"*\" as a wildcard character ...",
+        "nestedRuleRule": "Active rule"
       }
     },
     "sw-product-image": {

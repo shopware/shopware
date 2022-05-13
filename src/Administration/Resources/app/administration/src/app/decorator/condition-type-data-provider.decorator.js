@@ -570,5 +570,12 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         group: 'promotion',
     });
 
+    ruleConditionService.addCondition('nestedRule', {
+        component: 'sw-condition-nested-rule',
+        label: 'global.sw-condition.condition.nestedRuleRule',
+        scopes: ['global'],
+        group: 'general',
+    });
+
     return ruleConditionService;
 });

@@ -7,6 +7,7 @@
       "INVALID_MEDIA_URL": "Bitte gib eine gültige URL ein, um eine Datei hochzuladen.",
       "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "Du musst einen Typ für diese Regel auswählen.",
       "CONTENT__INVALID_CATEGORY_TYPE_AS_ENTRY_POINT": "Dieser Typ kann nicht gewählt werden, während die Kategorie als Einstiegspunkt festgelegt ist.",
+      "CONTENT__INVALID_RULE_NESTED_CYCLE": "Die Regel würde zu einer Endlosschleife führen und kann nicht verknüpft werden.",
       "SHOPWARE_INVALID_IP": "Bitte gib eine gültige IP-Adresse ein.",
       "INVALID_URL": "Bitte gib eine gültige URL ein.",
       "INVALID_MAIL": "Bitte gib eine gültige E-Mail-Adresse ein.",
@@ -736,7 +737,8 @@
           }
         },
         "customerCustomFieldRule": "Kunde mit Zusatzfeld",
-        "zipCodeWildcardPlaceholder": "\"*\" als Platzhalterzeichen verwenden ..."
+        "zipCodeWildcardPlaceholder": "\"*\" als Platzhalterzeichen verwenden ...",
+        "nestedRuleRule": "Aktive Regel"
       }
     },
     "sw-product-image": {

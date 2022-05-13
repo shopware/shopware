@@ -110,6 +110,7 @@
         "visible": "Visibility",
         "weight": "Weight",
         "width": "Width",
+        "deliveryTime": "Delivery time",
         "configuratorSettings": "Configurator settings",
         "options": "Variant values",
         "properties": "Property values",

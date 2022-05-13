@@ -62,6 +62,7 @@ export default function conditionService() {
             'properties',
             'options',
             'isCloseout',
+            'deliveryTime',
             'purchasePrices',
             'createdAt',
             'coverId',

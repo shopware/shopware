@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Locale;
+namespace Shopware\Core\System\Test\Locale;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -51,7 +51,14 @@ class LanguageLocaleCodeProviderTest extends TestCase
         static::assertEquals([
             Defaults::LANGUAGE_SYSTEM => 'en-GB',
             $deDeLanguage => 'de-DE',
-        ], $this->languageLocaleProvider->getLocalesForLanguageIds([Defaults::LANGUAGE_SYSTEM, $deDeLanguage]));
+            $this->ids->get('language-parent') => 'language-locale',
+            $this->ids->get('language-child') => 'language-locale',
+        ], $this->languageLocaleProvider->getLocalesForLanguageIds([
+            Defaults::LANGUAGE_SYSTEM,
+            $deDeLanguage,
+            $this->ids->get('language-parent'),
+            $this->ids->get('language-child'),
+        ]));
     }
 
     private function createData(): void

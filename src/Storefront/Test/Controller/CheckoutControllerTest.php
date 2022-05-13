@@ -53,6 +53,7 @@ use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
  * @internal
@@ -199,6 +200,12 @@ class CheckoutControllerTest extends TestCase
     {
         $browser = $this->getBrowserWithLoggedInCustomer();
         $browser->followRedirects(true);
+
+        // Clear flashback from login and/or register
+        /** @var Session $session */
+        $session = $this->getContainer()->get('session');
+        $session->getFlashBag()->clear();
+
         $browserSalesChannelId = $browser->getServerParameter('test-sales-channel-id');
 
         $productId = Uuid::randomHex();

@@ -11,13 +11,12 @@ trait SessionTestBehaviour
 {
     /**
      * @after
-     * @before
      */
     public function clearSession(): void
     {
         /** @var Session $session */
         $session = $this->getContainer()->get('session');
         $session->clear();
-        $session->getFlashBag();
+        $session->getFlashBag()->clear();
     }
 }

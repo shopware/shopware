@@ -27,7 +27,7 @@ class RouteScope extends ConfigurationAnnotation
     {
         Feature::triggerDeprecationOrThrow(
             'v6.5.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', '"@Route(defaults={"_route_scope"={"storefront"})"')
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', '"@Route(defaults={"_routeScope"={"storefront"}})"')
         );
 
         return 'routeScope';
@@ -40,7 +40,7 @@ class RouteScope extends ConfigurationAnnotation
     {
         Feature::triggerDeprecationOrThrow(
             'v6.5.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', '"@Route(defaults={"_route_scope"={"storefront"})"')
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', '"@Route(defaults={"_routeScope"={"storefront"}})"')
         );
 
         return false;
@@ -50,7 +50,7 @@ class RouteScope extends ConfigurationAnnotation
     {
         Feature::triggerDeprecationOrThrow(
             'v6.5.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', '"@Route(defaults={"_route_scope"={"storefront"})"')
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', '"@Route(defaults={"_routeScope"={"storefront"}})"')
         );
 
         return $this->scopes;
@@ -60,7 +60,7 @@ class RouteScope extends ConfigurationAnnotation
     {
         Feature::triggerDeprecationOrThrow(
             'v6.5.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', '"@Route(defaults={"_route_scope"={"storefront"})"')
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', '"@Route(defaults={"_routeScope"={"storefront"}})"')
         );
 
         $this->scopes = $scopes;
@@ -70,7 +70,7 @@ class RouteScope extends ConfigurationAnnotation
     {
         Feature::triggerDeprecationOrThrow(
             'v6.5.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', '"@Route(defaults={"_route_scope"={"storefront"})"')
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.5.0.0', '"@Route(defaults={"_routeScope"={"storefront"}})"')
         );
 
         return \in_array($scopeName, $this->scopes, true);

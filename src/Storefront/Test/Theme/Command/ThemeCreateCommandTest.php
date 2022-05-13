@@ -63,7 +63,7 @@ class ThemeCreateCommandTest extends TestCase
         static::assertStringContainsString($expectedMessage, preg_replace('/\s+/', ' ', trim($commandTester->getDisplay(true))));
     }
 
-    public function commandFailsWithWrongNameDataProvider()
+    public function commandFailsWithWrongNameDataProvider(): array
     {
         return [
             ['name' => 'abc', 'expectedMessage' => 'The name must start with an uppercase character'],
@@ -72,7 +72,7 @@ class ThemeCreateCommandTest extends TestCase
         ];
     }
 
-    private function removeTheme($pluginName): bool
+    private function removeTheme(string $pluginName): bool
     {
         $directory = $this->projectDir . '/custom/plugins/' . $pluginName;
 
@@ -85,7 +85,7 @@ class ThemeCreateCommandTest extends TestCase
         return true;
     }
 
-    private function deleteDirectory($path): void
+    private function deleteDirectory(string $path): void
     {
         $files = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator($path, \RecursiveDirectoryIterator::SKIP_DOTS),

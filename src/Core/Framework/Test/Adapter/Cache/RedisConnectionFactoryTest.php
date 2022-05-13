@@ -13,6 +13,7 @@ class RedisConnectionFactoryTest extends TestCase
      */
     public function testPrefix(?string $aPrefix, ?string $bPrefix, bool $equals): void
     {
+        /** @var string $url */
         $url = EnvironmentHelper::getVariable('REDIS_URL');
 
         if (!$url) {

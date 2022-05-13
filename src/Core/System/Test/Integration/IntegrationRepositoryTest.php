@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\Test\Integration;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
@@ -19,11 +18,6 @@ class IntegrationRepositoryTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @var EntityRepositoryInterface
      */
     private $repository;
@@ -31,7 +25,6 @@ class IntegrationRepositoryTest extends TestCase
     protected function setUp(): void
     {
         $this->repository = $this->getContainer()->get('integration.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
     }
 
     public function testCreationWithAccessKeys(): void

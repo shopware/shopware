@@ -93,7 +93,7 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
     public function testPayOrder(): void
     {
         $paymentMethodId = $this->createPaymentMethodV630($this->ids->getContext());
-        $customerId = $this->createCustomer($this->ids->getContext());
+        $customerId = $this->createCustomer();
         $orderId = $this->createOrder($customerId, $paymentMethodId, $this->ids->getContext());
         $this->createTransaction($orderId, $paymentMethodId, $this->ids->getContext());
 
@@ -181,44 +181,6 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
         $this->orderRepository->upsert([$order], $context);
 
         return $orderId;
-    }
-
-    private function createCustomer(Context $context): string
-    {
-        $customerId = Uuid::randomHex();
-        $addressId = Uuid::randomHex();
-
-        $customer = [
-            'id' => $customerId,
-            'customerNumber' => '1337',
-            'salutationId' => $this->getValidSalutationId(),
-            'firstName' => 'Max',
-            'lastName' => 'Mustermann',
-            'email' => Uuid::randomHex() . '@example.com',
-            'password' => 'shopware',
-            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-            'salesChannelId' => TestDefaults::SALES_CHANNEL,
-            'defaultBillingAddressId' => $addressId,
-            'defaultShippingAddressId' => $addressId,
-            'addresses' => [
-                [
-                    'id' => $addressId,
-                    'customerId' => $customerId,
-                    'countryId' => $this->getValidCountryId(),
-                    'salutationId' => $this->getValidSalutationId(),
-                    'firstName' => 'Max',
-                    'lastName' => 'Mustermann',
-                    'street' => 'Ebbinghoff 10',
-                    'zipcode' => '48624',
-                    'city' => 'Schöppingen',
-                ],
-            ],
-        ];
-
-        $this->customerRepository->upsert([$customer], $context);
-
-        return $customerId;
     }
 
     private function createPaymentMethodV630(

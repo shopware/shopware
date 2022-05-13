@@ -91,12 +91,16 @@ trait SalesChannelApiTestBehaviour
         return $this->createContext($salesChannel, $options);
     }
 
-    public function login(): string
+    public function login(?KernelBrowser $browser = null): string
     {
         $email = Uuid::randomHex() . '@example.com';
         $customerId = $this->createCustomer('shopware', $email);
 
-        $this->browser
+        if (!$browser) {
+            $browser = $this->getSalesChannelBrowser();
+        }
+
+        $browser
             ->request(
                 'POST',
                 '/store-api/account/login',
@@ -106,9 +110,11 @@ trait SalesChannelApiTestBehaviour
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        /** @var string $content */
+        $content = $browser->getResponse()->getContent();
+        $response = json_decode($content, true);
 
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
+        $browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
 
         return $customerId;
     }
@@ -284,16 +290,18 @@ trait SalesChannelApiTestBehaviour
         $browser = $customBrowser ?: $this->getSalesChannelBrowser();
         $browser->request('GET', '/store-api/context');
         $response = $browser->getResponse();
-        $content = json_decode($response->getContent(), true);
+        /** @var string $content */
+        $content = $response->getContent();
+        $content = json_decode($content, true);
         if (isset($content['errors'])) {
             throw new \RuntimeException($content['errors'][0]['detail']);
         }
         $browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content['token']);
     }
 
-    private function getRandomId(string $table)
+    private function getRandomId(string $table): string
     {
-        return $this->getContainer()->get(Connection::class)
-            ->fetchColumn('SELECT LOWER(HEX(id)) FROM ' . $table);
+        return (string) $this->getContainer()->get(Connection::class)
+            ->fetchOne('SELECT LOWER(HEX(id)) FROM ' . $table);
     }
 }

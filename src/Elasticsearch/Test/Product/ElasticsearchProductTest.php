@@ -13,6 +13,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
@@ -96,17 +97,17 @@ class ElasticsearchProductTest extends TestCase
 
     private Client $client;
 
-    private ?object $productDefinition;
+    private ProductDefinition $productDefinition;
 
-    private ?object $languageRepository;
+    private EntityRepositoryInterface $languageRepository;
 
-    private ?object $helper;
+    private ElasticsearchHelper $helper;
 
-    private ?IdsCollection $ids;
+    private IdsCollection $ids;
 
-    private ?object $connection;
+    private Connection $connection;
 
-    private ?object $productRepository;
+    private EntityRepositoryInterface $productRepository;
 
     private string $navigationId;
 
@@ -191,7 +192,7 @@ class ElasticsearchProductTest extends TestCase
         $connection->executeUpdate('DROP TABLE `extended_product`');
     }
 
-    public function testIndexing()
+    public function testIndexing(): IdsCollection
     {
         try {
             $this->connection->executeUpdate('DELETE FROM product');

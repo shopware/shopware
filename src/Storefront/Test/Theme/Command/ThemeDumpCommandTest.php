@@ -23,7 +23,7 @@ class ThemeDumpCommandTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
 
-    private $themeId;
+    private string $themeId;
 
     public function testExecuteShouldResolveThemeInheritanceChainAndConsiderThemeIdArgument(): void
     {
@@ -47,7 +47,10 @@ class ThemeDumpCommandTest extends TestCase
         static::assertSame('expectedConfig', $themeFileResolverMock->themeConfig->getThemeConfig()[0]);
     }
 
-    private function getPluginRegistryMock(): MockObject
+    /**
+     * @return MockObject|StorefrontPluginRegistry
+     */
+    private function getPluginRegistryMock()
     {
         $storePluginConfiguration1 = new StorefrontPluginConfiguration('parentTheme');
         $storePluginConfiguration1->setThemeConfig([
@@ -132,7 +135,7 @@ class ThemeDumpCommandTest extends TestCase
  */
 class ThemeFileResolverMock extends ThemeFileResolver
 {
-    public $themeConfig;
+    public StorefrontPluginConfiguration $themeConfig;
 
     public function __construct()
     {

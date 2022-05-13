@@ -18,6 +18,8 @@ class ComposerPluginLoaderTest extends TestCase
 
     /**
      * Backing up current InstalledVersions state to left it out as it was
+     *
+     * @var array{root: array{name: string, version: string, reference: string, pretty_version: string, aliases: string[], dev: bool, install_path: string, type: string}, versions: array<string, array{dev_requirement: bool, pretty_version?: string, version?: string, aliases?: string[], reference?: string, replaced?: string[], provided?: string[], install_path?: string, type?: string}>}|null
      */
     private ?array $packages = null;
 
@@ -65,13 +67,13 @@ class ComposerPluginLoaderTest extends TestCase
         $modified = $before;
         $modified[0]['versions'] = [
             // Points to path that does not exists
-            [
-                'name' => 'swag/broken1',
+            'swag/broken1' => [
+                'dev_requirement' => false,
                 'type' => PluginFinder::COMPOSER_TYPE,
                 'install_path' => '/tmp/some-random-folder',
             ],
-            [
-                'name' => 'swag/broken1',
+            'swag/broken2' => [
+                'dev_requirement' => false,
                 'type' => PluginFinder::COMPOSER_TYPE,
                 'install_path' => __DIR__ . '/../_fixture/plugins/SwagTestInvalidComposerJson',
             ],
@@ -94,8 +96,8 @@ class ComposerPluginLoaderTest extends TestCase
 
         $modified = $before;
         $modified[0]['versions'] = [
-            [
-                'name' => 'swag/composer-loaded',
+            'swag/composer-loaded' => [
+                'dev_requirement' => false,
                 'type' => PluginFinder::COMPOSER_TYPE,
                 'install_path' => __DIR__ . '/../_fixture/plugins/SwagTestComposerLoaded',
             ],

@@ -93,7 +93,7 @@ ORDER BY trans.action_name, from_state.technical_name, to_state.technical_name
     }
 
     /**
-     * @return \string[][]
+     * @return string[][]
      */
     private function getExpectedTransitions(): array
     {

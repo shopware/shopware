@@ -4,14 +4,19 @@ namespace Shopware\Core\Migration\Traits;
 
 trait MigrationUntouchedDbTestTrait
 {
-    private $databaseName = 'shopware';
+    private string $databaseName = 'shopware';
 
     /**
      * @before
      */
     public function setMigrationDb(): void
     {
-        $originalDatabase = parse_url($_SERVER['DATABASE_URL'])['path'];
+        $parsedUrl = parse_url($_SERVER['DATABASE_URL']);
+        if (!$parsedUrl) {
+            throw new \RuntimeException('%DATABASE_URL% can not be parsed, given "' . $_SERVER['DATABASE_URL'] . '".');
+        }
+
+        $originalDatabase = $parsedUrl['path'] ?? '';
 
         $databaseName = $originalDatabase . '_no_migrations';
         $newDbUrl = str_replace($originalDatabase, $databaseName, $_SERVER['DATABASE_URL']);

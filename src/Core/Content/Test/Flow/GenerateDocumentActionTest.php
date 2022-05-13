@@ -79,7 +79,7 @@ class GenerateDocumentActionTest extends TestCase
     public function testGenerateDocument(string $documentType, string $documentRangerType, bool $autoGenInvoiceDoc = false, bool $multipleDoc = false): void
     {
         $context = Context::createDefaultContext();
-        $customerId = $this->createCustomer($context);
+        $customerId = $this->createCustomer();
         $order = $this->createOrder($customerId, $context);
 
         $event = new OrderStateMachineStateChangeEvent('state_enter.order.state.in_progress', $order, $context);
@@ -140,7 +140,7 @@ class GenerateDocumentActionTest extends TestCase
     public function testGenerateDocumentError(string $documentType, string $documentRangerType): void
     {
         $context = Context::createDefaultContext();
-        $customerId = $this->createCustomer($context);
+        $customerId = $this->createCustomer();
         $order = $this->createOrder($customerId, $context);
 
         $event = new OrderStateMachineStateChangeEvent('state_enter.order.state.in_progress', $order, $context);
@@ -168,7 +168,7 @@ class GenerateDocumentActionTest extends TestCase
     public function testGenerateCustomDocument(): void
     {
         $context = Context::createDefaultContext();
-        $customerId = $this->createCustomer($context);
+        $customerId = $this->createCustomer();
         $order = $this->createOrder($customerId, $context);
 
         $event = new OrderStateMachineStateChangeEvent('state_enter.order.state.in_progress', $order, $context);
@@ -320,47 +320,6 @@ class GenerateDocumentActionTest extends TestCase
         static::assertTrue(Uuid::isValid($versionId));
 
         return $versionId;
-    }
-
-    private function createCustomer(Context $context): string
-    {
-        $customerId = Uuid::randomHex();
-        $addressId = Uuid::randomHex();
-
-        $customer = [
-            'id' => $customerId,
-            'number' => '1337',
-            'salutationId' => $this->getValidSalutationId(),
-            'firstName' => 'Max',
-            'lastName' => 'Mustermann',
-            'customerNumber' => '1337',
-            'email' => Uuid::randomHex() . '@example.com',
-            'password' => 'shopware',
-            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
-            'defaultBillingAddressId' => $addressId,
-            'defaultShippingAddressId' => $addressId,
-            'addresses' => [
-                [
-                    'id' => $addressId,
-                    'customerId' => $customerId,
-                    'countryId' => $this->getValidCountryId(),
-                    'salutationId' => $this->getValidSalutationId(),
-                    'firstName' => 'Max',
-                    'lastName' => 'Mustermann',
-                    'street' => 'Ebbinghoff 10',
-                    'zipcode' => '48624',
-                    'city' => 'Schöppingen',
-                ],
-            ],
-        ];
-
-        $this->getContainer()
-            ->get('customer.repository')
-            ->upsert([$customer], $context);
-
-        return $customerId;
     }
 
     private function createOrder(string $customerId, Context $context): OrderEntity

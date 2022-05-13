@@ -29,33 +29,9 @@ parameters:
         - src/Core/Framework/Compatibility/AnnotationReader.php
         - src/Core/Framework/Compatibility/DocParser.php
 
-        # Tests
-        - src/Core/DevOps/Test/StaticAnalyze/PHPStan/Rules/Decoratable/_fixtures/*
-        - src/Core/Checkout/Test/Cart/CalculatorTest.php
-        - src/Core/Checkout/Test/Cart/CartPersisterTest.php
-        - src/Core/Checkout/Test/Cart/CartServiceTest.php
-        - src/Core/Checkout/Test/Cart/ProcessorTest.php
-        - src/Core/Checkout/Test/Cart/Delivery/*.php
-        - src/Core/Checkout/Test/Cart/LineItem/*.php
-        - src/Core/Checkout/Test/Cart/Order/*.php
-        - src/Core/Checkout/Test/Cart/Price/*.php
-        - src/Core/Checkout/Test/Cart/Promotion/*.php
-        - src/Core/Checkout/Test/Cart/Tax/*.php
-        - src/Core/Checkout/Test/Cart/SalesChannel/*.php
-        - src/Core/Checkout/Test/Customer/*.php
-        - src/Core/Checkout/Test/Document/*.php
-        - src/Core/Checkout/Test/Order/*.php
-        - src/Core/Checkout/Test/Promotion/*.php
-        - src/Core/Checkout/Test/Shipping/*.php
-        - src/Core/Checkout/Test/Validation/*.php
-        - src/Core/Content/Test/*.php
-        - src/Core/Framework/Test/*.php
-        - src/Core/Migration/Test/*.php
-        - src/Core/System/Test/*.php
-        - src/Elasticsearch/*Test.php
-        - src/Storefront/*Test.php
-        - src/Administration/Test/Controller/*.php
+        # Symfony interface typehints `Predis\ClientInterface` which is by default not available
         - src/Core/Framework/Adapter/Cache/ShopwareRedisAdapter.php
+
         # node_modules
         - src/**/node_modules/*
 
@@ -64,11 +40,16 @@ parameters:
         - src/Core/Framework/Demodata/Generator/MediaGenerator.php
 
         # twig override
-        - src/Core/Framework/Adapter/Twig/TwigEnvironment.php
+        - src/Core/Framework/Adapter/Twig/functions.php
 
     ignoreErrors:
         # We won't type all arrays/iterables for now
         - '#no value type specified in iterable type#'
+        # The symfony extension checks against the "normal" container, not the test container
+        # Therefore some services in the tests are not found and the extension can not infer that all private services are public during test execution
+        -
+            message: '#Service ".*" is not registered in the container\.#'
+            path: src/**/*Test.php
         -
             message: '#Service ".*" is private#'
             path: src/**/*Test.php

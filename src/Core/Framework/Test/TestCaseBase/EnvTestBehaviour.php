@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 trait EnvTestBehaviour
 {
-    private $originalEnvVars = [];
+    private array $originalEnvVars = [];
 
     public function setEnvVars(array $envVars): void
     {

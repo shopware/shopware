@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Plugin;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Changelog\ChangelogParser;
 use Shopware\Core\Framework\Plugin\Changelog\ChangelogService;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
@@ -59,11 +60,13 @@ trait PluginTestsHelper
     private function addTestPluginToKernel(string $pluginName, bool $active = false): void
     {
         $testPluginBaseDir = __DIR__ . '/_fixture/plugins/' . $pluginName;
+        /** @var class-string<Plugin> $class */
         $class = '\\' . $pluginName . '\\' . $pluginName;
 
         require_once $testPluginBaseDir . '/src/' . $pluginName . '.php';
 
-        $this->getContainer()->get(KernelPluginCollection::class)
-            ->add(new $class($active, $testPluginBaseDir));
+        /** @var KernelPluginCollection $pluginCollection */
+        $pluginCollection = $this->getContainer()->get(KernelPluginCollection::class);
+        $pluginCollection->add(new $class($active, $testPluginBaseDir));
     }
 }

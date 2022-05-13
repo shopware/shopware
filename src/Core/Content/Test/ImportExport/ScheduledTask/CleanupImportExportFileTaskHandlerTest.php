@@ -7,7 +7,7 @@ use Shopware\Core\Content\ImportExport\Message\DeleteFileHandler;
 use Shopware\Core\Content\ImportExport\Message\DeleteFileMessage;
 use Shopware\Core\Content\ImportExport\ScheduledTask\CleanupImportExportFileTaskHandler;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Test\ImportExport\ImportExportTestCase;
+use Shopware\Core\Content\Test\ImportExport\AbstractImportExportTest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -16,7 +16,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-class CleanupImportExportFileTaskHandlerTest extends ImportExportTestCase
+class CleanupImportExportFileTaskHandlerTest extends AbstractImportExportTest
 {
     private EntityRepositoryInterface $logRepository;
 

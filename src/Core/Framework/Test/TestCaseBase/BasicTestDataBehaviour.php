@@ -43,7 +43,10 @@ trait BasicTestDataBehaviour
             ->setLimit(1)
             ->addFilter(new EqualsFilter('active', true));
 
-        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+        /** @var string $id */
+        $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+
+        return $id;
     }
 
     protected function getInactivePaymentMethodId(): string
@@ -55,7 +58,10 @@ trait BasicTestDataBehaviour
             ->setLimit(1)
             ->addFilter(new EqualsFilter('active', false));
 
-        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+        /** @var string $id */
+        $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+
+        return $id;
     }
 
     protected function getAvailablePaymentMethod(): PaymentMethodEntity
@@ -86,7 +92,10 @@ trait BasicTestDataBehaviour
             ->setLimit(1)
             ->addFilter(new EqualsFilter('active', true));
 
-        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+        /** @var string $id */
+        $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+
+        return $id;
     }
 
     protected function getAvailableShippingMethod(): ShippingMethodEntity
@@ -119,7 +128,10 @@ trait BasicTestDataBehaviour
 
         $criteria = (new Criteria())->setLimit(1);
 
-        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+        /** @var string $id */
+        $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+
+        return $id;
     }
 
     protected function getLocaleIdOfSystemLanguage(): string
@@ -142,7 +154,7 @@ trait BasicTestDataBehaviour
             ->addFilter(new EqualsFilter('iso', $locale))
             ->setLimit(1);
 
-        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0] ?? null;
+        return $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
     }
 
     /**
@@ -162,7 +174,10 @@ trait BasicTestDataBehaviour
             $criteria->addFilter(new EqualsFilter('salesChannels.id', $salesChannelId));
         }
 
-        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+        /** @var string $id */
+        $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+
+        return $id;
     }
 
     protected function getValidCategoryId(): string
@@ -172,7 +187,10 @@ trait BasicTestDataBehaviour
 
         $criteria = (new Criteria())->setLimit(1);
 
-        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+        /** @var string $id */
+        $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+
+        return $id;
     }
 
     protected function getValidTaxId(): string
@@ -182,7 +200,10 @@ trait BasicTestDataBehaviour
 
         $criteria = (new Criteria())->setLimit(1);
 
-        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+        /** @var string $id */
+        $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+
+        return $id;
     }
 
     protected function getValidDocumentTypeId(): string
@@ -192,7 +213,10 @@ trait BasicTestDataBehaviour
 
         $criteria = (new Criteria())->setLimit(1);
 
-        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+        /** @var string $id */
+        $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+
+        return $id;
     }
 
     protected function getStateMachineState(string $stateMachine = OrderStates::STATE_MACHINE, string $state = OrderStates::STATE_OPEN): string
@@ -206,7 +230,10 @@ trait BasicTestDataBehaviour
             ->addFilter(new EqualsFilter('technicalName', $state))
             ->addFilter(new EqualsFilter('stateMachine.technicalName', $stateMachine));
 
-        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+        /** @var string $id */
+        $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+
+        return $id;
     }
 
     protected function getCurrencyIdByIso(string $iso = 'EUR'): string

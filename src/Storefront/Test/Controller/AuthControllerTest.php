@@ -143,8 +143,11 @@ class AuthControllerTest extends TestCase
         static::assertSame(200, $response->getStatusCode(), $response->getContent());
         $session = $browser->getRequest()->getSession();
 
-        // Close the old session
-        $session->save();
+        if ($session->isStarted()) {
+            // Close the old session
+            $session->save();
+        }
+
         // Set previous session id
         $session->setId($sessionCookie->getValue());
         // Set previous session cookie

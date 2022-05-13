@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait EntityFixturesBase
 {
@@ -39,6 +40,7 @@ trait EntityFixturesBase
         $container = KernelLifecycleManager::getKernel()->getContainer();
 
         if ($container->has('test.service_container')) {
+            /** @var ContainerInterface $container */
             $container = $container->get('test.service_container');
         }
 

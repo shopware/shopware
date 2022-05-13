@@ -33,18 +33,6 @@ trait PromotionIntegrationTestBehaviour
     }
 
     /**
-     * This function makes sure all our required session data
-     * is gone after clearing it.
-     */
-    public function clearSession(): void
-    {
-        /** @var Session $session */
-        $session = $this->getContainer()->get('session');
-
-        $session->set(StorefrontCartSubscriber::SESSION_KEY_PROMOTION_CODES, []);
-    }
-
-    /**
      * Adds the provided product to the cart.
      *
      * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException

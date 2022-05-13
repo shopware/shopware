@@ -41,18 +41,6 @@ class PromotionCartEventTest extends TestCase
 
         $this->cartService = $this->getContainer()->get(CartService::class);
         $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-
-        // clear our session before each test
-        $this->clearSession();
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        // clear after each test again
-        // to avoid interferences
-        $this->clearSession();
     }
 
     /**

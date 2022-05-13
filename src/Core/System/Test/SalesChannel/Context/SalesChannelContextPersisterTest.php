@@ -351,52 +351,6 @@ class SalesChannelContextPersisterTest extends TestCase
         static::assertSame($result['expired'], $expectedExpired, print_r([$tokenAgeInDays, $lifeTimeInterval, $expectedExpired], true));
     }
 
-    private function createCustomer(): string
-    {
-        $customerRepository = $this->getContainer()->get('customer.repository');
-        $salutationId = $this->getValidSalutationId();
-
-        $customerId = Uuid::randomHex();
-        $billingAddress = [
-            'firstName' => 'Max',
-            'lastName' => 'Mustermann',
-            'street' => 'Musterstraße 1',
-            'city' => 'Schöppingen',
-            'zipcode' => '12345',
-            'salutationId' => $salutationId,
-            'countryId' => $this->getValidCountryId(),
-        ];
-
-        $shippingAddress = [
-            'firstName' => 'Max',
-            'lastName' => 'Mustermann',
-            'street' => 'Musterstraße 1',
-            'city' => 'Schöppingen',
-            'zipcode' => '12345',
-            'salutationId' => $salutationId,
-            'countryId' => $this->getValidCountryId(),
-        ];
-
-        $customer = [
-            'id' => $customerId,
-            'salesChannelId' => TestDefaults::SALES_CHANNEL,
-            'defaultShippingAddress' => $shippingAddress,
-            'defaultBillingAddress' => $billingAddress,
-            'defaultPaymentMethodId' => $this->getAvailablePaymentMethod()->getId(),
-            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-            'email' => Uuid::randomHex() . '@example.com',
-            'password' => '$password',
-            'firstName' => 'Max',
-            'lastName' => 'Mustermann',
-            'salutationId' => $salutationId,
-            'customerNumber' => '12345',
-        ];
-
-        $customerRepository->create([$customer], Context::createDefaultContext());
-
-        return $customerId;
-    }
-
     private function cartExists(string $token): bool
     {
         $result = (int) $this->connection->executeQuery(

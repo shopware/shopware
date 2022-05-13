@@ -8,8 +8,6 @@ use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoff;
 use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\RateLimiter\Exception\ReserveNotSupportedException;
@@ -28,15 +26,9 @@ class TimeBackoffLimiterTest extends TestCase
 
     private array $config;
 
-    private int $attempts;
-
     private LimiterInterface $limiter;
 
     private string $id;
-
-    private TestDataCollection $ids;
-
-    private KernelBrowser $browser;
 
     public function setUp(): void
     {

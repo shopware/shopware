@@ -21,6 +21,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -33,6 +34,8 @@ class ProductUrlProviderTest extends TestCase
     use AdminApiTestBehaviour;
     use StorefrontSalesChannelTestHelper;
 
+    private const CONFIG_HIDE_AFTER_CLOSEOUT = 'core.listing.hideCloseoutProductsWhenOutOfStock';
+
     private SalesChannelRepositoryInterface $productSalesChannelRepository;
 
     private SalesChannelContext $salesChannelContext;
@@ -42,6 +45,8 @@ class ProductUrlProviderTest extends TestCase
     private EntityRepositoryInterface $productRepository;
 
     private SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler;
+
+    private SystemConfigService $systemConfigService;
 
     protected function setUp(): void
     {
@@ -54,6 +59,7 @@ class ProductUrlProviderTest extends TestCase
         $this->seoUrlSalesChannelRepository = $this->getContainer()->get('sales_channel.seo_url.repository');
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->seoUrlPlaceholderHandler = $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class);
+        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
 
         $this->salesChannelContext = $this->createStorefrontSalesChannelContext(Uuid::randomHex(), 'test-product-sitemap');
     }
@@ -193,6 +199,26 @@ class ProductUrlProviderTest extends TestCase
         static::assertEquals($urlGenerate, $host . '/' . $urls[0]->getLoc());
     }
 
+    public function testContainsOutOfStockCloseoutProducts(): void
+    {
+        $this->systemConfigService->set(self::CONFIG_HIDE_AFTER_CLOSEOUT, false, $this->salesChannelContext->getSalesChannelId());
+        $this->createCloseoutProducts();
+
+        $urlResult = $this->getProductUrlProvider()->getUrls($this->salesChannelContext, 2);
+
+        static::assertCount(2, $urlResult->getUrls());
+    }
+
+    public function testContainsNoOutOfStockCloseoutProducts(): void
+    {
+        $this->systemConfigService->set(self::CONFIG_HIDE_AFTER_CLOSEOUT, true, $this->salesChannelContext->getSalesChannelId());
+        $this->createCloseoutProducts();
+
+        $urlResult = $this->getProductUrlProvider()->getUrls($this->salesChannelContext, 2);
+
+        static::assertCount(1, $urlResult->getUrls());
+    }
+
     private function getProductUrlProvider(): ProductUrlProvider
     {
         return new ProductUrlProvider(
@@ -201,6 +227,7 @@ class ProductUrlProviderTest extends TestCase
             $this->getContainer()->get(ProductDefinition::class),
             $this->getContainer()->get(IteratorFactory::class),
             $this->getContainer()->get(RouterInterface::class),
+            $this->getContainer()->get(SystemConfigService::class)
         );
     }
 
@@ -282,5 +309,25 @@ class ProductUrlProviderTest extends TestCase
                 ['salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
+    }
+
+    private function createCloseoutProducts(): void
+    {
+        $products = [
+            array_merge($this->getBasicProductData(), [
+                'id' => Uuid::randomHex(),
+                'productNumber' => Uuid::randomHex(),
+                'name' => 'test 1',
+                'isCloseout' => true,
+            ]),
+            array_merge($this->getBasicProductData(), [
+                'id' => Uuid::randomHex(),
+                'productNumber' => Uuid::randomHex(),
+                'name' => 'test 2',
+                'isCloseout' => true,
+                'stock' => 0,
+            ]),
+        ];
+        $this->productRepository->create($products, $this->salesChannelContext->getContext());
     }
 }

@@ -16,6 +16,6 @@ class DisableExtensionsCompilerPass implements CompilerPassInterface
             return;
         }
 
-        $container->set(ActiveAppsLoader::class, new EmptyActiveAppsLoader());
+        $container->getDefinition(ActiveAppsLoader::class)->setClass(EmptyActiveAppsLoader::class);
     }
 }

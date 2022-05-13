@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-customer-detail-order', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     props: {
         customer: {
@@ -94,6 +94,15 @@ Component.register('sw-customer-detail-order', {
             this.orderRepository.search(criteria).then((orders) => {
                 this.orders = orders;
                 this.isLoading = false;
+            });
+        },
+
+        navigateToCreateOrder() {
+            this.$router.push({
+                name: 'sw.order.create',
+                params: {
+                    customer: this.customer,
+                },
             });
         },
     },

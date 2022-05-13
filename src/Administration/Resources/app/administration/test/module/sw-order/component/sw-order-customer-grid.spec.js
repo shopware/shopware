@@ -6,6 +6,8 @@ import 'src/app/component/entity/sw-entity-listing';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/grid/sw-pagination';
 
+import orderState from 'src/module/sw-order/state/order.store';
+
 let customerData = [];
 
 function setCustomerData(customers) {
@@ -105,6 +107,17 @@ function createWrapper() {
 enableAutoDestroy(afterEach);
 
 describe('src/module/sw-order/view/sw-order-customer-grid', () => {
+    beforeAll(() => {
+        Shopware.State.registerModule('swOrder', {
+            ...orderState,
+            state: {
+                flow: {
+                    id: '1234'
+                }
+            }
+        });
+    });
+
     it('should show empty state view when there is no customer', async () => {
         setCustomerData([]);
 

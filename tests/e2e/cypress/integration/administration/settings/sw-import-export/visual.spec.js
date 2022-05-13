@@ -5,6 +5,7 @@ describe('Import/Export:  Visual tests', () => {
 
     // eslint-disable-next-line no-undef
     beforeEach(() => {
+
         cy.createDefaultFixture('import-export-profile').then(() => {
             return cy.createProductFixture();
         });
@@ -109,19 +110,20 @@ describe('Import/Export:  Visual tests', () => {
         cy.wait('@importExportLog')
             .its('response.statusCode').should('equal', 200);
 
-        // Change color of the element to ensure consistent snapshots
-        cy.changeElementStyling('.sw-data-grid__cell--createdAt a', 'color : #fff');
-        cy.get('.sw-skeleton__listing').should('not.exist');
+       cy.get('.sw-skeleton__listing').should('not.exist');
 
         // Take snapshot for visual testing
         cy.awaitAndCheckNotification('Export started');
         cy.awaitAndCheckNotification('Export "Default product" completed.');
 
+        // Change text of the element to ensure consistent snapshots
+        cy.changeElementText('.sw-data-grid__cell--createdAt a', '01 Jan 2018, 00:00');
+
         cy.get('.sw-admin-menu__sales-channel-item').should('be.visible');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Import export] Detail, Overview after export', '.sw-import-export-activity', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
-        // check reworked log info modal
+        // check reworked log info modal (added hide-in-percy css class)
         cy.clickContextMenuItem(
             '.sw-import-export-activity__log-info-action',
             '.sw-context-button__button',
@@ -191,18 +193,17 @@ describe('Import/Export:  Visual tests', () => {
             .should('contain', 'Default product');
         cy.get('.sw-skeleton__listing').should('not.exist');
 
-        // Change color of the element to ensure consistent snapshots
-        cy.changeElementStyling('.sw-data-grid__cell--createdAt', 'color : #fff');
-
-        // Take snapshot for visual testing
         cy.awaitAndCheckNotification('Import started');
         cy.awaitAndCheckNotification('Import "Default product" completed');
+
+        // Change text of the element to ensure consistent snapshots
+        cy.changeElementText('.sw-data-grid__cell--createdAt a', '01 Jan 2018, 00:00');
 
         cy.get('.sw-admin-menu__sales-channel-item').should('be.visible');
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Import export] Detail, Overview after import', '.sw-import-export-activity', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
-        // check added summary modal
+        // check reworked log info modal (added hide-in-percy css class)
         cy.clickContextMenuItem(
             '.sw-import-export-activity__results-action',
             '.sw-context-button__button',

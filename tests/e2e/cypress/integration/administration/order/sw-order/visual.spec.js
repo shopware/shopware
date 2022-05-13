@@ -70,43 +70,25 @@ describe('Order: Visual tests', () => {
         cy.get('.sw-order-list__order-view-action').click();
 
         cy.skipOnFeature('FEATURE_NEXT_7530', () => {
-            // Change color of the element to ensure consistent snapshots
-            cy.changeElementStyling('.sw-order-user-card__metadata-item', 'color: #fff');
-            cy.get('.sw-order-user-card__metadata-item')
-                .should('have.css', 'color', 'rgb(255, 255, 255)');
 
-            // Change color of the element to ensure consistent snapshots
-            cy.changeElementStyling(
-                '.sw-order-state-history-card__payment-state .sw-order-state-card__date',
-                'color: #fff'
-            );
-            cy.get('.sw-order-state-history-card__payment-state .sw-order-state-card__date')
-                .should('have.css', 'color', 'rgb(255, 255, 255)');
+            // Change text of the element to ensure consistent snapshots
+            cy.changeElementText('.sw-order-user-card__metadata-item', '01 Jan 2018, 00:00');
 
-            // Change color of the element to ensure consistent snapshots
-            cy.changeElementStyling(
-                '.sw-order-state-history-card__delivery-state .sw-order-state-card__date',
-                'color: #fff'
-            );
-            cy.get('.sw-order-state-history-card__delivery-state .sw-order-state-card__date')
-                .should('have.css', 'color', 'rgb(255, 255, 255)');
+            // Change text of the element to ensure consistent snapshots
+            cy.changeElementText('.sw-order-state-history-card__payment-state .sw-order-state-card__date', '01 Jan 2018, 00:00');
 
-            // Change color of the element to ensure consistent snapshots
-            cy.changeElementStyling(
-                '.sw-order-state-history-card__order-state .sw-order-state-card__date',
-                'color: #fff'
-            );
-            cy.get('.sw-order-state-history-card__order-state .sw-order-state-card__date')
-                .should('have.css', 'color', 'rgb(255, 255, 255)');
+            // Change text of the element to ensure consistent snapshots
+            cy.changeElementText('.sw-order-state-history-card__delivery-state .sw-order-state-card__date', '01 Jan 2018, 00:00');
 
-            // Change color of the element to ensure consistent snapshots
-            cy.changeElementStyling(
-                '.sw-card-section--secondary > .sw-container > :nth-child(2) > :nth-child(4)',
-                'color: rgb(240, 242, 245);'
-            );
+            // Change text of the element to ensure consistent snapshots
+            cy.changeElementText('.sw-order-state-history-card__order-state .sw-order-state-card__date', '01 Jan 2018, 00:00');
 
-            cy.get('.sw-card-section--secondary > .sw-container > :nth-child(2) > :nth-child(4)')
-                .should('have.css', 'color', 'rgb(240, 242, 245)');
+            // Change text of the element to ensure consistent snapshots
+            cy.changeElementText('div.sw-card.sw-card--grid.has--header.has--title.sw-order-user-card > div.sw-card__content > div > div.sw-card-section.sw-card-section--secondary.sw-card-section--slim > div > dl:nth-child(2) > dd:nth-child(4)', '01 Jan 2018, 00:00');
+
+            // Change text of the element to ensure consistent snapshots
+            cy.changeElementText('div.sw-card.has--header.has--title.sw-order-delivery-metadata > div.sw-card__content > div > dl:nth-child(1) > dd:nth-child(4)', '01 Jan 2018, 00:00');
+
         });
         // Take snapshot for visual testing
         cy.prepareAdminForScreenshot();

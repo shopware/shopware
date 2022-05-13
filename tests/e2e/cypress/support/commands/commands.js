@@ -645,3 +645,17 @@ Cypress.Commands.add('createMultipleReviewsFixture', (additionalReviews = [], ov
         return { product, reviews };
     });
 });
+
+/**
+ * Changes text of an element. Useful for visual testing. Be aware you'll influence the test using this.
+ * @memberOf Cypress.Chainable#
+ * @name changeElementText
+ * @function
+ * @param {String} selector - API endpoint for the request
+ * @param {String} text - API endpoint for the request
+ */
+Cypress.Commands.add('changeElementText', (selector, text) => {
+    cy.get(selector)
+        .invoke('text', text)
+        .should('contain', text);
+});

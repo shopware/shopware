@@ -27,9 +27,6 @@ class SystemUpdateFinishCommand extends Command
 
     private ContainerInterface $container;
 
-    /**
-     * @psalm-suppress ContainerDependency
-     */
     public function __construct(ContainerInterface $container)
     {
         parent::__construct();

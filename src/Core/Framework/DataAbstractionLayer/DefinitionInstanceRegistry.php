@@ -33,7 +33,6 @@ class DefinitionInstanceRegistry
 
     /**
      * @internal
-     * @psalm-suppress ContainerDependency
      *
      * @param array $definitionMap array of $entityName => $definitionServiceId,
      *                             eg. 'product' => '\Shopware\Core\Content\Product\ProductDefinition'

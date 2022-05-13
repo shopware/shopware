@@ -110,7 +110,6 @@ PHP analysis:
               - phpstan.neon.dist
               - composer.json
               - phpstan-baseline.neon
-              - psalm.xml
               - .bc-exclude.php
               - 'changelog/**/*.md'
               - 'src/**/snippet/**/*.json'
@@ -120,7 +119,6 @@ PHP analysis:
     script:
         - composer run ecs -- src --no-progress-bar
         - composer run phpstan -- --error-format=gitlab --no-progress | tee phpstan-report.json
-        - composer run psalm -- --threads=$(nproc) --show-info=false --no-progress
         - composer run lint:changelog
         - composer run lint:snippets
         - composer run bc-check

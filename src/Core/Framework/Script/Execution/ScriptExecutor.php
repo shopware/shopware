@@ -37,7 +37,6 @@ class ScriptExecutor
 
     /**
      * @internal
-     * @psalm-suppress ContainerDependency
      */
     public function __construct(
         ScriptLoader $loader,

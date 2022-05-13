@@ -76,9 +76,6 @@ class PluginLifecycleService
 
     private SystemConfigService $systemConfigService;
 
-    /**
-     * @psalm-suppress ContainerDependency
-     */
     public function __construct(
         EntityRepositoryInterface $pluginRepo,
         EventDispatcherInterface $eventDispatcher,

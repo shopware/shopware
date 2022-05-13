@@ -65,7 +65,7 @@ You can run the entire test suite with the following command from the developmen
 `./psh.phar unit`
 
 Please also use the commands `./psh.phar fix-cs`, to fix the code style according to our rules
-and `./psh.phar static-analyze` to run a static code analysis, which will check your code quality with help of [PHPStan](https://github.com/phpstan/phpstan) and [Psalm](https://github.com/vimeo/psalm).
+and `./psh.phar static-analyze` to run a static code analysis, which will check your code quality with help of [PHPStan](https://github.com/phpstan/phpstan).
 
 ## Submit your pull request
 

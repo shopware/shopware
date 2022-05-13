@@ -47,9 +47,6 @@ class EntityHydrator
 
     private ContainerInterface $container;
 
-    /**
-     * @psalm-suppress ContainerDependency
-     */
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;

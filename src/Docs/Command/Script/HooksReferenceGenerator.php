@@ -45,9 +45,6 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
 
     private ServiceReferenceGenerator $serviceReferenceGenerator;
 
-    /**
-     * @psalm-suppress ContainerDependency
-     */
     public function __construct(ContainerInterface $container, ServiceReferenceGenerator $serviceReferenceGenerator)
     {
         $this->container = $container;
